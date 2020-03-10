@@ -1,9 +1,10 @@
-﻿using Pixel.Automation.Core.Arguments;
+﻿extern alias uiaComWrapper;
+using System.Collections.Generic;
+using uiaComWrapper::System.Windows.Automation;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.Components;
 using System;
-using System.Collections.Generic;
-using System.Windows.Automation;
 using Pixel.Automation.Core.Enums;
 
 namespace Pixel.Automation.UIA.Components

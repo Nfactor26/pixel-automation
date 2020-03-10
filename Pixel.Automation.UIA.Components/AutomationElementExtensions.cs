@@ -1,69 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Windows.Automation;
+﻿extern alias uiaComWrapper;
+using System.Collections.Generic;
+using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {
     public static class AutomationElementExtensions
-    {
-        //static InputSimulator simulator = new InputSimulator();
-
-        ////public static void MoveMouseAway(this AutomationElement automationElement)
-        ////{
-        ////    if (automationElement != null)
-        ////    {
-        ////        var rect = automationElement.Current.BoundingRectangle;
-        ////        simulator.Mouse.MoveMouseTo(rect.);
-
-
-        ////    }
-        ////}
-
-        //public static void ClickWithMouse(this AutomationElement automationElement)
-        //{
-        //    if (automationElement != null)
-        //    {
-        //        System.Windows.Point point = (System.Windows.Point)(automationElement.GetCurrentPropertyValue(AutomationElement.ClickablePointProperty));
-        //        simulator.Mouse.MoveMouseTo(point.X, point.Y);
-        //        simulator.Mouse.LeftButtonClick();
-
-        //    }
-        //}
-
-        //public static void DoubleClickWithMouse(this AutomationElement automationElement)
-        //{
-        //    if (automationElement != null)
-        //    {
-        //        System.Windows.Point point = (System.Windows.Point)(automationElement.GetCurrentPropertyValue(AutomationElement.ClickablePointProperty));
-        //        simulator.Mouse.MoveMouseTo(point.X, point.Y);
-        //        simulator.Mouse.LeftButtonDoubleClick();
-
-        //    }
-        //}
-
-        //public static void RightClickWithMouse(this AutomationElement automationElement)
-        //{
-        //    if (automationElement != null)
-        //    {
-        //        System.Windows.Point point = (System.Windows.Point)(automationElement.GetCurrentPropertyValue(AutomationElement.ClickablePointProperty));
-        //        simulator.Mouse.MoveMouseTo(point.X, point.Y);
-        //        simulator.Mouse.RightButtonClick();
-
-        //    }
-        //}
-
-        //public static void DragTo(this AutomationElement automationElement,System.Windows.Point releasePoint)
-        //{
-        //    if (automationElement != null)
-        //    {
-        //        System.Windows.Point point = (System.Windows.Point)(automationElement.GetCurrentPropertyValue(AutomationElement.ClickablePointProperty));
-        //        simulator.Mouse.MoveMouseTo(point.X, point.Y);
-        //        simulator.Mouse.LeftButtonDown();
-        //        simulator.Mouse.MoveMouseTo(releasePoint.X, releasePoint.Y);
-        //        simulator.Mouse.LeftButtonUp();
-
-        //    }
-        //}
-
+    {       
         public static void Invoke(this AutomationElement automationElement)
         {
             if (automationElement != null)
@@ -101,15 +43,7 @@ namespace Pixel.Automation.UIA.Components
             }
         }
 
-        ///// <summary>
-        ///// SendKeys simulates keyboard
-        ///// </summary>
-        ///// <param name="automationElement"></param>
-        //public static void SendText(this AutomationElement automationElement,string text)
-        //{
-        //    simulator.Keyboard.TextEntry(text);
-        //}
-
+       
         public static void SetValue(this AutomationElement automationElement, string value)
         {
             if (automationElement != null)

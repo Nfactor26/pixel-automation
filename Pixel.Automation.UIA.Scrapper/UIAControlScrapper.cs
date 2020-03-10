@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿extern alias uiaComWrapper;
+using Caliburn.Micro;
 using Gma.System.MouseKeyHook;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
@@ -16,8 +17,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Automation;
 using System.Windows.Forms;
+using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Scrapper
 {

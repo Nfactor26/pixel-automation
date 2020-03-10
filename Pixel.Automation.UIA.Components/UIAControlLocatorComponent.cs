@@ -1,4 +1,7 @@
-﻿using Dawn;
+﻿extern alias uiaComWrapper;
+using System.Collections.Generic;
+using uiaComWrapper::System.Windows.Automation;
+using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
@@ -10,13 +13,12 @@ using Polly;
 using Polly.Retry;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Windows.Automation;
+
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -434,7 +436,7 @@ namespace Pixel.Automation.UIA.Components
 
         private Condition BuildSearchCondition(WinControlIdentity controlIdentity)
         {
-            Condition searchCondition = ConditionFactory.FromControlType(System.Windows.Automation.ControlType.LookupById(controlIdentity.ControlTypeId));
+            Condition searchCondition = ConditionFactory.FromControlType(uiaComWrapper.System.Windows.Automation.ControlType.LookupById(controlIdentity.ControlTypeId));
             if (MatchProcessId)
             {
                 searchCondition = searchCondition.AndProcessId(TargetApplication.ProcessId);

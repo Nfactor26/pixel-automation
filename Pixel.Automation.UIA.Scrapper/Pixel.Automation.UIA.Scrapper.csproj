@@ -17,5 +17,18 @@
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
     <ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Interop.UIAutomationClient">
+      <HintPath>..\Libs\Interop.UIAutomationClient.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Aliases>uiaAutomationClient</Aliases>
+    </Reference>
+    <Reference Include="UIAComWrapper">
+      <HintPath>..\Libs\UIAComWrapper.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Aliases>uiaComWrapper</Aliases>
+    </Reference>
+  </ItemGroup>
 
 </Project>

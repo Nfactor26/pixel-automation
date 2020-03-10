@@ -1,8 +1,10 @@
-﻿using Pixel.Automation.Core.Arguments;
+﻿extern alias uiaComWrapper;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using System;
 using System.Runtime.Serialization;
-using System.Windows.Automation;
+using uiaComWrapper::System.Windows.Automation;
+
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
