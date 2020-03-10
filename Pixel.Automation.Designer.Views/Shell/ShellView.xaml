@@ -1,0 +1,187 @@
+﻿<Controls:MetroWindow x:Class="Pixel.Automation.Designer.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:localVM="clr-namespace:Pixel.Automation.Designer.ViewModels;assembly=Pixel.Automation.Designer.ViewModels"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:cal="http://www.caliburnproject.org" 
+        xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
+        mc:Ignorable="d" ShowActivated="True" WindowState="Maximized"
+        Title="Shell" ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}"
+                       
+         >
+    <Controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <!--<ResourceDictionary.MergedDictionaries>             
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.ContextMenu.xaml" />              
+            </ResourceDictionary.MergedDictionaries>-->
+
+
+            <avalonDock:BoolToVisibilityConverter x:Key="boolToVisConverter"/>
+
+
+
+            <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
+
+            <Style x:Key="ScrapperMenuItemStyle" BasedOn="{StaticResource MahApps.Styles.MenuItem}"
+                   TargetType="{x:Type MenuItem}">
+                <Setter Property="Header"
+                        Value="{Binding DisplayName, Mode=OneWay}" />
+                <Setter Property="IsCheckable" Value="True"/>
+                <Setter Property="IsEnabled"
+                        Value="{Binding CanToggleScrapper}" />
+                <Setter Property="IsChecked" Value="{Binding IsCapturing,Mode=TwoWay}"/>
+            </Style>
+            <!--<Style TargetType="avalonDock:AnchorablePaneTitle">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Highlight}"></Setter>                
+            </Style>-->
+
+            <Style x:Key="CustomFlyoutStyle" BasedOn="{StaticResource {x:Type Controls:Flyout}}" TargetType="{x:Type Controls:Flyout}">
+                <Setter Property="Header" Value="{Binding Header}" />
+                <Setter Property="IsOpen" Value="{Binding IsOpen}" />
+                <Setter Property="Position" Value="{Binding Position}" />
+                <Setter Property="Theme" Value="{Binding Theme}" />
+            </Style>
+
+            <Style TargetType="{x:Type Controls:MetroContentControl}">
+                <Setter Property="BorderBrush" Value="{x:Null}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+
+        </ResourceDictionary>
+
+    </Controls:MetroWindow.Resources>
+
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl x:Name="FlyoutViewModels" ItemsSource="{Binding FlyoutViewModels}" 
+                                 ItemContainerStyle="{StaticResource CustomFlyoutStyle}"
+                                 >
+            <Controls:FlyoutsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl cal:View.Model="{Binding}"  Background="{DynamicResource MahApps.Brushes.Window.Background}"/>
+                </DataTemplate>
+            </Controls:FlyoutsControl.ItemTemplate>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button x:Name="Settings" cal:Message.Attach="[Event Click] = [Action ToggleFlyout(0)]"
+                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>
+            <!--<Button x:Name="ChangeTheme" Click="ChangeTheme_Click">Settings</Button>-->
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+
+    <DockPanel>
+        <Menu  VerticalAlignment="Stretch" HorizontalAlignment="Left" DockPanel.Dock="Top">
+            <MenuItem x:Name="File" Header="File" Style="{StaticResource MahApps.Styles.MenuItem}">
+                <MenuItem x:Name="DoNew" Header="New" ToolTip="Create a new Automation Project"/>
+                <MenuItem x:Name="DoOpen"  Header="Open" ToolTip="Open Automation Project from disk"/>
+                <!--<MenuItem x:Name="ReloadAutomationProject"  Header="Reload" ToolTip="Save changes , Recompile associated sln file and Reload current Automation Project"/>-->
+                <Separator></Separator>
+                <MenuItem x:Name="Save"  Header="Save" ToolTip="Save"/>
+                <MenuItem x:Name="SaveAll"  Header="Save All" ToolTip="Save All"/>
+            </MenuItem>
+            <MenuItem x:Name="View" Header="View"  Style="{StaticResource MahApps.Styles.MenuItem}">
+                <MenuItem x:Name="ApplicationsToolBox" Header="Applications Window" ToolTip="Show Applications toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Applications')]"/>
+                <MenuItem x:Name="ComponentsToolBox" Header="Components Window" ToolTip="Show Components toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Components')]"/>
+                <MenuItem x:Name="PropertiesToolBox" Header="Properties Window" ToolTip="Show Properties toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Properties')]"/>
+                <MenuItem x:Name="PrefabsToolBox" Header="Prefabs Window" ToolTip="Show Prefabs toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Prefabs')]"/>
+                <Separator></Separator>
+                <MenuItem x:Name="ShowStartPage"  Header="Start Page" ToolTip="Show Start Page"/>
+            </MenuItem>
+            <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
+                <MenuItem x:Name="AddSnapshot" Header="Add SnapShot" ToolTip="Create a copy of workspace version"/>
+                <!--<MenuItem x:Name="OpenProject" Header="Open" ToolTip="Open Project in Visual Studio"/>-->
+                <MenuItem x:Name="EditDataModel" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>
+                <!--<Separator></Separator>
+                <MenuItem x:Name="Recompile"  Header="Recompile" ToolTip="Recompile the project to reflect changes in Process"/>-->
+            </MenuItem>
+
+            <!--<MenuItem x:Name="StartServer" Header="Start Server"/>-->
+            <MenuItem x:Name="ScreenScrappers"  Header="Screen Scrappers"
+                          ItemsSource="{Binding ScreenScrappers, Mode=OneWay}"
+                          ItemContainerStyle="{StaticResource ScrapperMenuItemStyle}">
+            </MenuItem>
+        </Menu>
+
+        <!--<Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>-->
+        <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Tools}"
+							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated"
+                               >
+
+            <avalonDock:DockingManager.LayoutItemTemplateSelector>
+                <localVM:PanesTemplateSelector>
+                    <localVM:PanesTemplateSelector.ScreenTemplate>
+                        <DataTemplate>
+                            <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
+                                <ContentControl cal:View.Model="{Binding}"
+                                                IsTabStop="False" />
+                            </Grid>
+                        </DataTemplate>
+                    </localVM:PanesTemplateSelector.ScreenTemplate>
+                    <localVM:PanesTemplateSelector.ToolTemplate>
+                        <DataTemplate>
+                            <ContentControl cal:View.Model="{Binding}" Background="{DynamicResource MahApps.Brushes.Window.Background}"
+                                                IsTabStop="False" />
+                        </DataTemplate>
+                    </localVM:PanesTemplateSelector.ToolTemplate>
+                </localVM:PanesTemplateSelector>
+            </avalonDock:DockingManager.LayoutItemTemplateSelector>
+
+            <avalonDock:DockingManager.LayoutItemContainerStyleSelector>
+                <localVM:PanesStyleSelector>
+                    <localVM:PanesStyleSelector.ScreenStyle>
+                        <Style TargetType="{x:Type avalonDock:LayoutItem}">
+                            <!--<Setter Property="ContentId" Value="{Binding Model.ContentId}" />-->
+                            <Setter Property="Title" Value="{Binding Model.DisplayName, Mode=OneWay}" />
+                            <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                            <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
+                            <Setter Property="Visibility" Value="{Binding Model.IsVisible, ConverterParameter={x:Static Visibility.Hidden}, Converter={StaticResource boolToVisConverter},Mode=TwoWay}" /> 
+                        </Style>
+                    </localVM:PanesStyleSelector.ScreenStyle>
+                    <localVM:PanesStyleSelector.ToolStyle>
+                        <Style TargetType="{x:Type avalonDock:LayoutAnchorableItem}">
+                            <!--<Setter Property="ContentId" Value="{Binding Model.ContentId}" />-->
+                            <Setter Property="Title" Value="{Binding Model.DisplayName, Mode=OneWay}" />
+                            <Setter Property="HideCommand" Value="{Binding Model.CloseCommand}" />
+                            <Setter Property="IsActive" Value="{Binding Model.IsActiveItem, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
+                            <Setter Property="Visibility" Value="{Binding Model.IsVisible, ConverterParameter={x:Static Visibility.Hidden}, Converter={StaticResource boolToVisConverter},Mode=TwoWay}" />
+                        </Style>
+                    </localVM:PanesStyleSelector.ToolStyle>
+                </localVM:PanesStyleSelector>
+            </avalonDock:DockingManager.LayoutItemContainerStyleSelector>
+
+            <avalonDock:DockingManager.LayoutUpdateStrategy>
+                <localVM:LayoutInitializer />
+            </avalonDock:DockingManager.LayoutUpdateStrategy>
+
+            <avalonDock:DockingManager.Theme>
+                <!--<avalonDock:MetroTheme/>-->
+                <avalonTheme:MahAppsTheme/>
+            </avalonDock:DockingManager.Theme>
+
+            <avalonDock:LayoutRoot>
+                <avalonDock:LayoutPanel x:Name="VerticalPanel" Orientation="Vertical">
+                    <avalonDock:LayoutPanel x:Name="HorizontalPanel" Orientation="Horizontal">
+                        <avalonDock:LayoutDocumentPane />
+                    </avalonDock:LayoutPanel>
+                </avalonDock:LayoutPanel>
+            </avalonDock:LayoutRoot>
+
+        </avalonDock:DockingManager>
+
+
+
+
+        <!--<StatusBar>
+            <StatusBarItem Content="{Binding Status}"></StatusBarItem>
+        </StatusBar>-->
+    </DockPanel>
+</Controls:MetroWindow>

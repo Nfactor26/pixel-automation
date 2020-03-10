@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dawn.Guard" Version="1.11.0" />
+    <PackageReference Include="InputSimulatorStandard" Version="1.0.0">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Vanara.Core" Version="3.2.0">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.Gdi32" Version="3.2.0">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.2.0">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.Shared" Version="3.2.0">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.User32" Version="3.2.0">
+      <Private>false</Private>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+  </ItemGroup>
+
+</Project>

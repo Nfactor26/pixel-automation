@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Caliburn.Micro" Version="4.0.105-alpha">
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.SignalR.Core" Version="2.4.1" >     
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.SignalR.SelfHost" Version="2.4.1" >       
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Cors" Version="4.1.0" >
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Hosting" Version="4.1.0" >     
+    </PackageReference>
+    <PackageReference Include="Serilog" Version="2.9.0" >
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

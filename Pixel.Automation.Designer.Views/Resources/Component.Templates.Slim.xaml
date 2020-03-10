@@ -1,0 +1,401 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"                   
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+                    xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+                    xmlns:converters="clr-namespace:Pixel.Automation.Designer.Views.Converters"                   
+                    xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                    xmlns:cal="http://www.caliburnproject.org"                   
+                    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                    xmlns:prefabs="clr-namespace:Pixel.Automation.Prefabs.Editor;assembly=Pixel.Automation.Prefabs.Editor">
+
+    <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                      IsHitTestVisible="True">            
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Drill In"
+                                            cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
+                                            Style="{DynamicResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ArrangeBringForward}"/>
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"  Content="{iconPacks:Material CloseCircleOutline}"/>
+                </StackPanel>
+
+            </DockPanel>
+        </Border>
+        <HierarchicalDataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </HierarchicalDataTemplate.Triggers>
+    </HierarchicalDataTemplate>
+
+    <HierarchicalDataTemplate x:Key="EntityProcessor" ItemsSource="{Binding ComponentCollection}">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">           
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                       IsHitTestVisible="True">
+                <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Run" 
+                            Content="{iconPacks:FontAwesome PlayCircleSolid}"/>                        
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <StackPanel  x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                             HorizontalAlignment="Right" Orientation="Horizontal">
+                    
+                    <Button x:Name="ResetHierarchy" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action ResetProcessorComponents($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Reset" 
+                            Content="{iconPacks:FontAwesome UndoSolid}"/>
+
+
+                    <Button x:Name="DeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"  Content="{iconPacks:Material CloseCircleOutline}"/>
+
+
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <HierarchicalDataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </HierarchicalDataTemplate.Triggers>
+    </HierarchicalDataTemplate>
+
+    <DataTemplate x:Key="ActorComponent">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                      IsHitTestVisible="True">
+
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                            Height="20" Width="20" ToolTip="Run"
+                            cal:Message.Attach="[Action RunComponent($dataContext)]"                   
+                            Style="{DynamicResource EditControlButtonStyle}"
+                            Content="{iconPacks:MaterialLight Play}"/>
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
+                            Content="{iconPacks:Material CloseCircleOutline}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsExecuting}" Value="true">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ServiceComponent" >
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                       IsHitTestVisible="True">
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
+                            Content="{iconPacks:Material CloseCircleOutline}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PrefabTemplate">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                       Background="White" IsHitTestVisible="True">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
+                                            ToolTip="Control">
+                    <iconPacks:PackIconSimpleIcons Kind="Buffer" Foreground="{DynamicResource MahApps.Brushes.Accent}" Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+                </StackPanel>
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <prefabs:InputMappingButton PropertyMapCollection="{Binding InputMapping, Mode=TwoWay}"
+                                                AssignFrom="{Binding DataModelType, Mode=OneWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
+                                                AssignTo="{Binding PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
+                    <prefabs:OutputMappingButton PropertyMapCollection="{Binding OutputMapping, Mode=TwoWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
+                                                 AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
+                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
+                            Content="{iconPacks:Material CloseCircleOutline}"/>                   
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!--<HierarchicalDataTemplate x:Key="GroupedTemplate" ItemsSource="{Binding ComponentCollection}">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="4" MinWidth="200" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                      IsHitTestVisible="True">
+
+                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                            Height="20" Width="20" ToolTip="Run"
+                            cal:Message.Attach="[Action RunComponent($dataContext)]"                   
+                            Style="{DynamicResource EditControlButtonStyle}"
+                            Content="{iconPacks:MaterialLight Play}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <HierarchicalDataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>        
+            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>         
+        </HierarchicalDataTemplate.Triggers>
+    </HierarchicalDataTemplate>-->
+    
+    <Style TargetType="TreeViewItem" x:Key="GroupedStyle">
+        <Setter Property="IsExpanded" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TreeViewItem">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Horizontal line to the left -->
+                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,30,0,0"
+                            Stroke="{DynamicResource MahApps.Brushes.Accent}" SnapsToDevicePixels="False" Visibility="Collapsed">
+                            <Rectangle.Height>
+                                <Binding  Mode="OneWay" Converter="{StaticResource horzLineConv}"   ConverterParameter="left" 
+                                    RelativeSource="{RelativeSource AncestorLevel=1, AncestorType={x:Type TreeViewItem}}"/>
+                            </Rectangle.Height>
+                        </Rectangle>
+
+                        <!-- Vertical line below node -->
+                        <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                            SnapsToDevicePixels="False" Margin="0,30,0,-30">
+                            <Rectangle.Width>
+                                <Binding Mode="OneWay" 
+                                    Converter="{StaticResource vertLineConv}" 
+                                    ConverterParameter="bottom" 
+                                    RelativeSource="{RelativeSource  AncestorLevel=1,AncestorType={x:Type TreeViewItem}}"/>
+                            </Rectangle.Width>
+                        </Rectangle>
+
+                        <!--This can be dragged -->
+                        <Border x:Name="ComponentControl" Tag="Component" dd:DragDrop.IsDragSource="True" Grid.Column="1" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
+                                CornerRadius="2" Margin="0,4,0,8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                
+                                MinWidth="200" Height="Auto" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                            <Grid IsHitTestVisible="True" HorizontalAlignment="Stretch" Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition Height="2"></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <DockPanel Grid.Row="0" LastChildFill="True" Margin="4,4,4,0" MinWidth="165" HorizontalAlignment="Stretch"
+                                        IsHitTestVisible="True">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
+                                            ToolTip="Control">                                      
+                                        <iconPacks:PackIconSimpleIcons Kind="UIkit" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                    </StackPanel>
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                                    <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                                                HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" Height="20" Width="20" ToolTip="Run" DataContext="{Binding GroupActor}"
+                                            cal:Message.Attach="[Action RunComponent($dataContext)]" Style="{DynamicResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight Play}"/>
+                                        <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Edit Script"
+                                            cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
+                                            Style="{DynamicResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ArrangeBringForward}"/>
+                                        <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                                          cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                                          ToolTip="Delete"
+                                          Style="{DynamicResource EditControlButtonStyle}"
+                                          Content="{iconPacks:Material CloseCircleOutline}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Border x:Name="ContentSeperator" BorderThickness="1" Height="1" Grid.Row="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}"
+                                    HorizontalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Control.Background}" Visibility="Collapsed"/>
+                                <Grid x:Name="ContentHost" HorizontalAlignment="Stretch" Margin="0" Visibility="Collapsed" Grid.Row="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <ItemsPresenter x:Name="ItemsHost" Grid.Row="0"  MinWidth="200"
+                                                 Margin="2" dd:DragDrop.IsDropTarget="False"
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                                    <ContentPresenter x:Name="ItemContent" Grid.Row="1" ContentSource="Header" 
+                                                MinWidth="200"
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="pnlActions" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsExpanded"  Value="True">
+                            <Setter TargetName="ContentSeperator"   Property="Visibility"  Value="Visible"/>
+                            <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
+                            <Setter TargetName="ComponentControl"   Property="MinWidth"  Value="460"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding GroupActor.IsValid}" Value="false">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding GroupActor.IsExecuting}" Value="true">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Green"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding GroupActor.IsFaulted}" Value="true">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
+                        </DataTrigger>
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter TargetName="ComponentControl" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"></Setter>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding ElementName=LeftConnector, Path=Height}" Value="1">
+                            <Setter TargetName="LeftConnector"  Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent"
+                                 IsItemsHost="True"  Orientation="Vertical" Tag="Contained"/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+</ResourceDictionary>

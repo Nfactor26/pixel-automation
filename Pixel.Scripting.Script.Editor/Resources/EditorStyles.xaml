@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor">
+    <SolidColorBrush x:Key="CodeActionBorderColor" Color="Black"/>
+    <SolidColorBrush x:Key="CodeActionListBackground" Color="LightGray"/>
+    <SolidColorBrush x:Key="CodeActionItemBackground" Color="LightBlue"/>
+    <SolidColorBrush x:Key="CodeActionItemMouseOverBackground" Color="LightBlue"/>
+</ResourceDictionary>

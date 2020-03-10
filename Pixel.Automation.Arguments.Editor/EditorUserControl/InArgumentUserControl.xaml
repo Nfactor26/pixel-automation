@@ -1,0 +1,54 @@
+﻿<local:ArgumentUserControl x:Class="Pixel.Automation.Arguments.Editor.InArgumentUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.Arguments.Editor"
+             xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d" x:Name="InArgumentControl"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <local:InArgumentTemplateSelector x:Key="InArgumentTemplateSelector"/>
+            <local:ArgumentModeToVisibilityConverter x:Key="ArgsModeToVisConverter"/>
+            <local:ArgumentModeToBooleanConverter x:Key="ArgsModeToBoolConverter"/>
+        </Grid.Resources>
+
+        <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True">
+
+            <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=InArgumentControl,Converter={StaticResource BoolToVis}}"
+                    Click="ChangeArgumentType" Style="{DynamicResource ChangeArgumentTypeButtonStyle}" 
+                    Content="..." ToolTip="Change Type" DockPanel.Dock="Right"/>
+
+            <ToggleButton x:Name="ArgumentModeToggle" IsThreeState="True" Style="{DynamicResource InArgumentToggleStateStyle}" Width="28" 
+                      Click="ChangeArgumentMode" Visibility="{Binding Argument.CanChangeMode,ElementName=InArgumentControl,Converter={StaticResource BoolToVis}}"
+                      IsChecked="{Binding Argument.Mode,Mode=OneWay, ElementName=InArgumentControl,Converter={StaticResource ArgsModeToBoolConverter}}"
+                      DockPanel.Dock="Right" ToolTip="Toggle between Default/DataBound/Scripted mode"></ToggleButton>
+
+            <Grid  MinWidth="100" HorizontalAlignment="Stretch" DockPanel.Dock="Right">
+
+                <ContentControl x:Name="DefaultValueEditor" Content="{Binding Argument.DefaultValue,ElementName=InArgumentControl,Mode=TwoWay}"
+                                DataContext="{Binding Argument,ElementName=InArgumentControl,Mode=TwoWay}"
+                                ContentTemplateSelector="{StaticResource InArgumentTemplateSelector}"
+                                Visibility="{Binding Argument.Mode,ElementName=InArgumentControl,Converter={StaticResource ArgsModeToVisConverter},
+                                ConverterParameter=VisibleOnDefault}"></ContentControl>
+
+                <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=InArgumentControl}" 
+                          IsEditable="True"
+                          Metro:TextBoxHelper.UseFloatingWatermark="True"
+                          Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=InArgumentControl}"
+                          SelectedValue="{Binding Argument.PropertyPath,ElementName=InArgumentControl}"
+                  Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                  Visibility="{Binding Argument.Mode,ElementName=InArgumentControl, Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
+
+                <Button x:Name="ScriptEditorButton" Content="C# Script Editor..."  Click="ShowScriptEditor" Style="{DynamicResource MahApps.Styles.Button.Square}"
+                        ToolTip="Open Script editor" Padding="5"  BorderThickness="1"  BorderBrush="#FFCCCCCC"
+                        Visibility="{Binding Argument.Mode,ElementName=InArgumentControl,Converter={StaticResource ArgsModeToVisConverter},
+                        ConverterParameter=VisibleOnScripted}"></Button>
+
+            </Grid>
+        </DockPanel>
+    </Grid>
+    
+</local:ArgumentUserControl>

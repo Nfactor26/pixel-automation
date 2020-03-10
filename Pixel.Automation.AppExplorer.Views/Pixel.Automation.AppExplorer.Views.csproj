@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Arguments.Editor\Pixel.Automation.Arguments.Editor.csproj">    
+    </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">     
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

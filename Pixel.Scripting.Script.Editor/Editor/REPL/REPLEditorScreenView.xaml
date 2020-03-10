@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="Pixel.Scripting.Script.Editor.REPL.REPLEditorScreenView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor.REPL"
+        mc:Ignorable="d"
+        Height="450" Width="800">
+    <Grid>
+        <DockPanel LastChildFill="True">
+            <StackPanel Margin="0,0,0,10" DockPanel.Dock="Top" Orientation="Horizontal">
+                <Button x:Name="ExecuteScript">Run</Button>
+                <Button x:Name="Reset">Reset</Button>
+            </StackPanel>
+            <DockPanel LastChildFill="True" DockPanel.Dock="Bottom">
+                <Label x:Name="Result" DockPanel.Dock="Right" VerticalAlignment="Stretch" MinWidth="200"></Label>
+                <ContentControl x:Name="REPLEditor" Grid.Row="1" Content="{Binding Editor}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5"/>
+            </DockPanel>
+        </DockPanel>
+    </Grid>
+</UserControl>

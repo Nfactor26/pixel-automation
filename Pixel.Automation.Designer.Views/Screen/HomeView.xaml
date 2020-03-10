@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="Pixel.Automation.Designer.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+             xmlns:cal="http://www.caliburnproject.org" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="LinkButton"
+           TargetType="Button">
+                <Setter Property="Cursor"
+                Value="Hand" />
+                <Setter Property="Foreground"  Value="{DynamicResource LinkButtonForeground}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <TextBlock><ContentPresenter /></TextBlock>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver"
+                     Value="true">
+                        <Setter Property="Foreground" Value="{DynamicResource LinkButtonForegroundHighlighted}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="0px"></ColumnDefinition>
+            <ColumnDefinition Width="8*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Margin="10,0,0,0">
+            <TextBlock Margin="0,10,0,10"
+                           FontSize="18"                          
+                           Text="Projects" />
+            <Separator Background="#11FFFFFF" />
+            <Button FontSize="14" x:Name="CreateNewProject"
+                        Margin="0,10,0,3"
+                        Content="New Project..."                       
+                        Style="{DynamicResource LinkButton}" />
+            <Button FontSize="14" x:Name="OpenProject"
+                        Margin="0,3,0,10"
+                        Content="Open Project..."                      
+                        Style="{DynamicResource LinkButton}" />
+            <Separator Background="#11FFFFFF" />
+            <TextBlock Margin="0,10,0,5"
+                           FontSize="18"                          
+                           Text="Recent" />
+            <ListBox x:Name="RecentProjects">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="5,5,5,5">
+                            <StackPanel>
+                                <Button FontSize="14" x:Name="btnOpenProject" cal:Message.Attach="[Event Click] = [Action OpenProject($dataContext)]"
+                                    Content="{Binding Name}"                                 
+                                    Style="{DynamicResource LinkButton}" />
+                                <!--<TextBlock Text="{Binding GeneratedSlnPath}"></TextBlock>-->
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+        <GridSplitter Grid.Column="1"></GridSplitter>
+        <StackPanel Grid.Column="2">
+
+        </StackPanel>
+    </Grid>
+</UserControl>

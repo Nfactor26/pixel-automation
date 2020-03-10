@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3">     
+      <PrivateAssets>false</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Polly" Version="7.2.0">     
+      <PrivateAssets>false</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog" Version="2.9.0">     
+      <PrivateAssets>false</PrivateAssets>
+    </PackageReference>  
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+      <IncludeAssets>All</IncludeAssets>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>

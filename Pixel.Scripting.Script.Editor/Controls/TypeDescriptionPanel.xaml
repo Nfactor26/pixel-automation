@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="Pixel.Scripting.Script.Editor.Controls.TypeDescriptionPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor"    
+             x:Name="TypeDescriptorPanel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:GlyphTemplateSelector x:Key="GlyphTemplateSelector"/>      
+        <Style x:Key="TypeDisplayStyle" TargetType="{x:Type ContentControl}">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Setter Property="Margin" Value="5,2,0,2"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HasDisplayParts}" Value="false">
+                    <DataTrigger.Setters>
+                        <Setter Property="Visibility" Value="Collapsed"/>                        
+                    </DataTrigger.Setters>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="TypeLabelStyle" TargetType="{x:Type Label}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="Margin" Value="5,2,0,2"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HasDisplayParts}" Value="false">
+                    <DataTrigger.Setters>
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel DataContext="{Binding}">
+        <StackPanel Orientation="Horizontal">
+            <ContentPresenter ContentTemplateSelector="{StaticResource GlyphTemplateSelector}" Tag="{Binding ElementName=TypeDescriptorPanel, Path=DataContext.TypeDetails.Glyph}"/>
+             <ContentControl x:Name="TypeDisplay" Content="{Binding TypeDisplay}" Style="{StaticResource TypeDisplayStyle}"/>
+            <Label x:Name="TypeLabel" Content="{Binding TypeDetails.Type}" Style="{StaticResource TypeLabelStyle}"/>        
+        </StackPanel>      
+        <WrapPanel Orientation="Horizontal">
+            <Label x:Name="TypeDescription" Content="{Binding TypeDetails.Documentation}"/>
+        </WrapPanel>
+        <StackPanel Orientation="Vertical">
+            <ItemsControl x:Name="Exceptions" ItemsSource="{Binding TypeDetails.StructuredDocumentation.Exception}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel Orientation="Horizontal">
+                            <Label Content="{Binding Name}" FontWeight="Bold"/>
+                            <Label Content=" : "/>
+                            <Label Content="{Binding Documentation}"/>
+                        </WrapPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

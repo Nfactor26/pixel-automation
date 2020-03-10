@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Caliburn.Micro" Version="4.0.105-alpha" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
+    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0660" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">    
+    </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
+    <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj">      
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

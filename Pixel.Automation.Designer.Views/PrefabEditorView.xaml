@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="Pixel.Automation.Designer.Views.PrefabEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+             xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" x:Name="PrefabEditor"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Styles.xaml"/>
+                <ResourceDictionary Source="../Resources/Component.Templates.Common.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <DockPanel LastChildFill="True">
+
+            <ItemsControl x:Name="BreadCrumbItems" Grid.Row="0" ItemsSource="{Binding Path=BreadCrumbItems}"   DockPanel.Dock="Top" 
+                          Style="{StaticResource BreadCrumbStyle}" Height="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+
+            <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1">
+
+                <Grid  Background="White" IsHitTestVisible="True" Mouse.PreviewMouseWheel="OnScroll" Mouse.MouseDown="OnMouseDown" Mouse.MouseUp="OnMouseUp"
+                       Mouse.MouseMove="OnMouseMove" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0">
+
+                    <Canvas x:Name="DesignerRoot">
+
+                        <Canvas.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding ElementName=PrefabEditor, Path=ScaleX}"  ScaleY="{Binding ElementName=PrefabEditor, Path=ScaleY}" />
+                        </Canvas.LayoutTransform>
+
+                        <TreeView Margin="20" x:Name="WorkFlowRoot" ScrollViewer.CanContentScroll="False"
+                                  Canvas.Left="{Binding ElementName=AutomationBuilder, Path=TransformX}"
+                                  Canvas.Top="{Binding ElementName=AutomationBuilder, Path=TransformY}"
+                                  ItemTemplateSelector="{DynamicResource ComponentTemplateSelector}" ItemContainerStyleSelector="{DynamicResource ComponentStyleSelector}" 
+                                  ScrollViewer.PanningMode="Both" ScrollViewer.PanningDeceleration="5" 
+                                  dd:DragDrop.IsDropTarget="True"  dd:DragDrop.DropHandler="{Binding ComponentDropHandler}" Grid.Row="2" 
+			                      cal:Message.Attach="[Event SelectedItemChanged] = [Action SetSelectedItem($this.SelectedItem)]" SnapsToDevicePixels="True"/>
+
+                    </Canvas>
+
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10" Background="Gray">
+                        <ToggleButton x:Name="Pan" Width="36" Height="36" Margin="4" Click="TogglePanMode"
+                            Content="{iconPacks:FontAwesome Kind=ArrowsAltSolid, Width=22 ,Height=22}"/>
+                        <Button x:Name="ZoomIn" Width="36" Height="36" Margin="4" Click="ZoomIn_Click"
+                            Content="{iconPacks:FontAwesome Kind=SearchPlusSolid,Width=22 ,Height=22}" Style="{DynamicResource MahApps.Styles.Button.Square}" BorderThickness="0"/>
+                        <Button x:Name="ZoomOut" Width="36" Height="36" Margin="4" Click="ZoomOut_Click"
+                            Content="{iconPacks:FontAwesome Kind=SearchMinusSolid,Width=22 ,Height=22}" Style="{DynamicResource MahApps.Styles.Button.Square}" BorderThickness="0"/>
+                        <Button x:Name="Reset" Width="36" Height="36" Margin="4" Click="Reset_Click"
+                            Content="{iconPacks:Material Kind=Autorenew,Width=22,Height=22}" Style="{DynamicResource MahApps.Styles.Button.Square}" BorderThickness="0"/>
+                    </StackPanel>
+
+                </Grid>
+
+            </Grid>
+
+        </DockPanel>
+    </Grid>
+</UserControl>

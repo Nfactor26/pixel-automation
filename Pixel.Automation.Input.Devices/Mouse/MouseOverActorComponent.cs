@@ -1,0 +1,116 @@
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Devices;
+using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
+using System;
+using System.ComponentModel;
+using System.Runtime.Serialization;
+
+namespace Pixel.Automation.Input.Devices
+{
+    [DataContract]
+    [Serializable]
+    [ToolBoxItem("Mouse Over", "Input Device", "Mouse", iconSource: null, description: "Move mouse to desired coordinates", tags: new string[] { "Click" })]
+
+    public class MouseOverActorComponent : InputSimulatorBase
+    {
+        [DataMember]
+        [DisplayName("Target Control")]
+        [Category("Control Details")]         
+        [Browsable(true)]
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+
+        [DataMember]      
+        [Description("Represents the coordinates to which cursor is moved.This is auto calculated if Control and CoordinateProvider are configured.")]
+        [Category("Mouse over Configuration")]         
+        [Browsable(true)]
+        public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>()
+        {
+            DefaultValue = new ScreenCoordinate(),
+            CanChangeType = false
+        };
+
+
+        Target target = Target.Control;
+        [DataMember]
+        [DisplayName("Target Control")]
+        [Description("Configure if mouse target is a control  or specified coordinates")]
+        [Category("Click Configuration")]      
+        public Target Target
+        {
+            get => target;
+            set
+            {
+                switch (value)
+                {
+                    case Target.Control:
+                        this.SetBrowsableAttribute(nameof(MoveTo), false);
+                        break;
+                    case Target.Empty:
+                        this.SetBrowsableAttribute(nameof(MoveTo), true);
+                        break;
+                }
+                MoveTo.Mode = ArgumentMode.Default;
+                target = value;
+            }
+        }
+
+        [DataMember]
+        [DisplayName("Smooth Mode")]
+        [Description("Controls how the mouse moves between two points")]
+        [Category("Click Configuration")]     
+        public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
+
+
+        public MouseOverActorComponent() : base("Mouse Over", "MouseOver")
+        {
+
+        }
+
+        public override void Act()
+        {
+            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
+
+            ScreenCoordinate screenCoordinate = default;
+            switch (this.Target)
+            {
+                case Target.Control:
+                    UIControl targetControl = default;
+                    if (this.TargetControl.IsConfigured())
+                    {
+                        targetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
+                    }
+                    else
+                    {
+                        ThrowIfMissingControlEntity();
+                        targetControl = this.ControlEntity.GetControl();
+                    }
+                    if (targetControl != null)
+                    {                      
+                        targetControl.GetClickablePoint(out double x, out double y);
+                        screenCoordinate = new ScreenCoordinate(x, y);
+                    }
+                    break;
+                case Target.Empty:
+                    screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.MoveTo);
+                    break;
+            }
+            var syntheticMouse = GetMouse();        
+            syntheticMouse.MoveMouseTo(screenCoordinate, this.SmootMode);
+             
+
+
+        }
+
+        public override bool ValidateComponent()
+        {
+            if (!this.TargetControl.IsConfigured() && this.ControlEntity == null)
+            {
+                IsValid = false;
+            }
+            return IsValid && base.ValidateComponent();
+        }
+    }
+}

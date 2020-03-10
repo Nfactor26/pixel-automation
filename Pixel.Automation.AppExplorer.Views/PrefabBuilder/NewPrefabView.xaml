@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="Pixel.Automation.AppExplorer.Views.PrefabBuilder.NewPrefabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.AppExplorer.Views.PrefabBuilder"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" Height="Auto"
+             d:DesignHeight="450" d:DesignWidth="400">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>         
+        </ResourceDictionary>
+    </UserControl.Resources>
+   
+    <StackPanel Orientation="Vertical" Margin="10" VerticalAlignment="Top">
+       
+        <DockPanel LastChildFill="True" MinWidth="320">
+            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
+            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
+                         Text="{Binding PrefabName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                         controls:TextBoxHelper.Watermark="Prefab Name"
+                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
+                         ToolTip="Display name of prefab" />
+        </DockPanel>
+        
+        <DockPanel LastChildFill="True" MinWidth="320" >
+            <Label Content="Group" DockPanel.Dock="Left" MinWidth="80"></Label>
+            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
+                         Text="{Binding GroupName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                         controls:TextBoxHelper.Watermark="Group Name"
+                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                  
+                         ToolTip="Group of Prefab e.g. Screen One" />
+        </DockPanel>
+      
+        <DockPanel LastChildFill="True" MinWidth="320" >
+            <Label Content="Description" DockPanel.Dock="Left" MinWidth="80"></Label>
+            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
+                         Text="{Binding Description, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                         controls:TextBoxHelper.Watermark="Description"
+                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
+                         ToolTip="Description of Prefab" />
+        </DockPanel>
+        
+    </StackPanel>
+    
+</UserControl>

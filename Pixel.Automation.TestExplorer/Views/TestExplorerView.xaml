@@ -1,0 +1,274 @@
+﻿<UserControl x:Class="Pixel.Automation.TestExplorer.TestExplorerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:tsCore="clr-namespace:Pixel.Automation.Core.TestData;assembly=Pixel.Automation.Core"  
+             xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"  
+             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer"            
+             xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+
+        <converters:NullToBooleanConverter x:Key="nullToBoolConverter"/>
+        <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
+
+        <HierarchicalDataTemplate DataType="{x:Type tsCore:TestCategory}" ItemsSource="{Binding Tests}">
+
+        </HierarchicalDataTemplate>
+
+        <!--<iconPacks:PackIconFontAwesome x:Key="SuccessIcon" Kind="ThumbsUpSolid" Foreground="Green" x:Shared="False" />
+        <iconPacks:PackIconFontAwesome  x:Key="FailureIcon" Kind="ThumbsDownSolid" Foreground="Red" x:Shared="False" />
+        <iconPacks:PackIconOcticons x:Key="AbortedIcon" Kind="Stop"  Foreground="Yellow" x:Shared="False"/>-->
+        <iconPacks:PackIconEntypo x:Key="SuccessIcon" Kind="EmojiHappy" Foreground="Green" x:Shared="False"/>
+        <iconPacks:PackIconEntypo x:Key="FailureIcon" Kind="EmojiSad" Foreground="Red" x:Shared="False"/>
+        <iconPacks:PackIconEntypo x:Key="AbortedIcon" Kind="EmojiNeutral" Foreground="Yellow" x:Shared="False"/>
+
+        <Style x:Key="ResultButtonStyle" TargetType="Button" BasedOn="{StaticResource EditControlButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Result, FallbackValue=None}" Value="Success">
+                    <Setter Property="Content" Value="{StaticResource SuccessIcon}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Result, FallbackValue=None}" Value="Failed">
+                    <Setter Property="Content" Value="{StaticResource FailureIcon}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Result, FallbackValue=None}" Value="Aborted">
+                    <Setter Property="Content" Value="{StaticResource AbortedIcon}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ResultStyle" TargetType="{x:Type ItemsControl}">
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="ExecutionTime" Width="100"
+                                               Padding="0"  Margin="24,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="10"
+                                               Text="{Binding ExecutionTime,StringFormat='{}{0:hh\\:mm\\:ss}'}"/>
+                            <Button x:Name="TestStatus"                                  
+                                        Style="{StaticResource ResultButtonStyle}"  Margin="0,0,10,0"
+                                        Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
+        <Style x:Key="TestCaseStyle" TargetType="TreeViewItem" >
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeViewItem">
+                        <Border x:Name="TestCase" ToolTip="{Binding Description}" ToolTipService.Placement="Right">
+                            <StackPanel Orientation="Vertical" dd:DragDrop.IsDropTarget="True"  
+                                        dd:DragDrop.DropHandler="{Binding DataContext.TestDataSourceDropHandler, ElementName=TestExplorerTreeView}">
+                                <StackPanel Orientation="Horizontal" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        Background="{DynamicResource MahApps.Brushes.Control.Background}"
+                                        Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}">
+
+                                    <iconPacks:PackIconMaterial x:Name="OpenIndicator" VerticalAlignment="Center"
+                                         Foreground="{DynamicResource MahApps.Brushes.Validation1}" 
+                                         DockPanel.Dock="Left"  Visibility="Hidden" Kind="LockOpenOutline" />
+                                    <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName}" HorizontalAlignment="Left"
+                                         DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0" Foreground="Black"
+                                         cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                                         cal:Message.Attach="[Event DoubleClick] = [Action OpenForEdit($dataContext)]">
+                                        <TextBlock.ToolTip>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <Label Content="Test data :"></Label>
+                                                <Label Content="{Binding TestDataId}"></Label>
+                                            </StackPanel>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                    <Button x:Name="RunIndicator" Foreground="Green" Visibility="Collapsed" Style="{StaticResource EditControlButtonStyle}"
+                                        RenderTransformOrigin="0.5,0.5" DockPanel.Dock="Right" Margin="10,0,10,0"
+                                        Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                        Content="{iconPacks:FontAwesome SpinnerSolid}" >
+                                        <Button.RenderTransform>
+                                            <RotateTransform x:Name="ButtonRotateTransform" Angle="0" />
+                                        </Button.RenderTransform>
+                                    </Button>
+
+                                    <StackPanel.ContextMenu>
+                                        <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem x:Name="Open" Header="Open" IsEnabled="{Binding IsOpenForEdit, Converter={StaticResource inverseBoolConverter}}"                                         
+                                                cal:Message.Attach="[Event Click] = [Action OpenForEdit($dataContext)]"/>
+                                            <MenuItem x:Name="Close" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
+                                                cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'false')]"/>
+                                            <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
+                                                cal:Message.Attach="[Event Click] = [Action SaveTestCase($dataContext, 'true')]"/>
+                                            <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
+                                                cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'true')]"/>
+                                            <MenuItem x:Name="Edit" Header="Edit Details"                                       
+                                                cal:Message.Attach="[Event Click] = [Action EditTestCase($dataContext)]"/>
+                                            <MenuItem x:Name="EditScript" Header="Edit Script"                                       
+                                                cal:Message.Attach="[Event Click] = [Action EditScript($dataContext)]"/>
+                                            <MenuItem x:Name="ShowDataSource" Header="Show Data Source" IsEnabled="{Binding TestDataId, Converter={StaticResource nullToBoolConverter}}" 
+                                                cal:Message.Attach="[Event Click] = [Action ShowDataSource($dataContext)]"/>
+                                            <MenuItem x:Name="Delete" Header="Delete"
+                                                cal:Message.Attach="[Event Click] = [Action DeleteTestCase($dataContext)]"/>
+                                        </ContextMenu>
+                                    </StackPanel.ContextMenu>
+                                </StackPanel>
+                                <ItemsControl x:Name="TestResults" ItemsSource="{Binding TestResults}"
+                                              Style="{StaticResource  ResultStyle}" Margin="20,2,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="false">
+                                <Setter TargetName="TestCaseLabel" Property="FontSize" Value="13"></Setter>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="TestCaseLabel" Property="FontSize" Value="14"></Setter>
+                                <Setter TargetName="TestCaseLabel" Property="FontWeight" Value="Bold"></Setter>
+                                <Setter TargetName="TestCaseLabel" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsMuted}" Value="True">
+                                <Setter TargetName="TestCaseLabel" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Button.Flat.Background}"/>
+                                <Setter TargetName="TestCaseLabel" Property="TextBlock.TextDecorations" Value="StrikeThrough"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsOpenForEdit}" Value="True">
+                                <Setter TargetName="OpenIndicator" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter TargetName="RunIndicator" Property="Visibility" Value="Visible"/>
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation RepeatBehavior="Forever" Storyboard.TargetName="ButtonRotateTransform"
+                                                Storyboard.TargetProperty="(RotateTransform.Angle)"
+                                                From="0.0" To="360" Duration="0:0:1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding TestDataId}" Value="{x:Null}">
+                                <Setter TargetName="TestCaseLabel" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Button.Flat.Background}"/>
+                                <Setter TargetName="TestCaseLabel" Property="ToolTip" Value="No data souce is assigned"></Setter>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TestCategoryStyle" TargetType="TreeViewItem" >
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeViewItem">
+                        <StackPanel Orientation="Vertical">
+                            <Expander x:Name="TestCategory" Header="{Binding DisplayName}" Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                                     Background="{StaticResource MahApps.Brushes.Control.Background}" BorderThickness="0" Margin="5,0,0,0" FontSize="11">
+                                <ItemsPresenter x:Name="ItemsHost"/>
+                                <Expander.ContextMenu>
+                                    <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem x:Name="AddTestCase" Header="Add"                                       
+                                            cal:Message.Attach="[Event Click] = [Action AddTestCase($dataContext)]"/>
+                                        <MenuItem x:Name="Edit" Header="Edit"                                       
+                                            cal:Message.Attach="[Event Click] = [Action EditTestCategory($dataContext)]"/>
+                                        <MenuItem x:Name="Delete" Header="Delete"
+                                            cal:Message.Attach="[Event Click] = [Action DeleteTestCategory($dataContext)]"/>
+                                    </ContextMenu>
+                                </Expander.ContextMenu>
+                            </Expander>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="TestCategory" Property="Foreground" Value="{StaticResource MahApps.Colors.AccentBase}"></Setter>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsMuted}" Value="True">
+                                <Setter Property="Foreground" Value="Gray"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <local:TreeViewItemStyleSelector x:Key="TreeViewItemStyleSelector" TestCaseStyle="{StaticResource TestCaseStyle}"
+                                         TestCategoryStyle ="{StaticResource TestCategoryStyle}"/>
+
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"></RowDefinition>
+            <RowDefinition Height="45"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel x:Name="ToolBar" Orientation="Horizontal" Margin="5,5,5,0" Grid.Row="0" 
+                   IsEnabled="{Binding IsTestProcessOpen}">
+            <StackPanel DataContext="{Binding Path=ActiveInstance}" Orientation="Horizontal">
+                <Button x:Name="AddTestCategory" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Add new category"                                              
+                                            cal:Message.Attach="[Event Click] = [Action AddTestCategory()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material PlaylistPlus}"/>
+                <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            DataContext="{Binding Path=TestRunner}"
+                                            Height="20" Width="20" ToolTip="Setup"     
+                                            IsEnabled="{Binding CanSetUp}"
+                                            cal:Message.Attach="[Event Click] = [Action SetUp()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material Flash}"/>
+
+                <Button x:Name="TearDown" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            DataContext="{Binding Path=TestRunner}"
+                                            Height="20" Width="20" ToolTip="Teardown"  
+                                            IsEnabled="{Binding CanTearDown}"
+                                            cal:Message.Attach="[Event Click] = [Action TearDown()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material FlashOff}"/>
+
+                <Button x:Name="RunSelected" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Run Selected"     
+                                            IsEnabled="{Binding TestRunner.CanRunTests , FallbackValue=False}"
+                                            cal:Message.Attach="[Event Click] = [Action RunSelected()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material Run}"/>
+
+                <Button x:Name="RunAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Run All"   
+                                            IsEnabled="{Binding TestRunner.CanRunTests , FallbackValue=False}"
+                                            cal:Message.Attach="[Event Click] = [Action RunAll()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material RunFast}"/>
+                <Button x:Name="Abort" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Abort Running Tests"   
+                                            IsEnabled="{Binding CanAbort}"
+                                            cal:Message.Attach="[Event Click] = [Action AbortRun()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:FontAwesome StopCircleRegular}"/>
+                <Button x:Name="SaveAll" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Save changes to all open tests"    
+                                            IsEnabled="{Binding CanSaveAll}" VerticalAlignment="Center"
+                                            cal:Message.Attach="[Event Click] = [Action SaveAllOpenTests()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ContentSaveAll}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <TextBox x:Name="Filter" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+                 controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
+                 controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch"
+                 VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
+
+        <TreeView x:Name="TestExplorerTreeView" Grid.Row="2"
+                                  ItemContainerStyleSelector="{StaticResource TreeViewItemStyleSelector}"
+                                  ItemsSource="{Binding ActiveInstance.TestCategories}" BorderThickness="0">
+        </TreeView>
+
+    </Grid>
+
+</UserControl>

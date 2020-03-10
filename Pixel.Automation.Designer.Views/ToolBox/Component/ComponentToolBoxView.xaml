@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="Pixel.Automation.Designer.Views.ComponentToolBoxView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+             xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+
+        <Style TargetType="{x:Type GroupItem}" x:Key="NoGroupHeaderStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                        <ItemsPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type GroupItem}" x:Key="DefaultGroupStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Expander Header="{Binding Name}" IsExpanded="False"
+                                  Background="{DynamicResource MahApps.Brushes.Window.Background}"   
+                                  controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
+                                  BorderThickness="0" FontSize="11">
+                            <ItemsPresenter />
+                        </Expander>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type GroupItem}" x:Key="ChildGroupStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Expander Header="{Binding Name}" IsExpanded="False" 
+                                  Background="{DynamicResource MahApps.Brushes.Window.Background}"     
+                                  controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
+                                  BorderThickness="0" Margin="5,0,0,0" FontSize="11">
+                            <ItemsPresenter />
+                        </Expander>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <local:GroupStyleSelector x:Key="GroupStyleSelector" 
+                          NoGroupHeaderStyle="{StaticResource NoGroupHeaderStyle}" 
+                          DefaultGroupStyle="{StaticResource DefaultGroupStyle}"
+                          ChildGroupStyle="{StaticResource ChildGroupStyle}" />
+
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="Filter" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
+                         controls:TextBoxHelper.UseFloatingWatermark="True"                     
+                 controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="5,5,5,0"
+                                        ></TextBox>
+        <ListBox x:Name="Components" ScrollViewer.CanContentScroll="False"
+                 BorderThickness="0" dd:DragDrop.IsDragSource="True" Grid.Row="1">
+            <ListBox.GroupStyle>
+                <GroupStyle ContainerStyleSelector="{StaticResource GroupStyleSelector}">
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock  Text="{Binding Path=Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="5 0 0 0">
+                        <iconPacks:PackIconMaterial Kind="Circle" Width="8" Height="8" Margin="0,2,2,0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                        <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" Padding="2" FontSize="11" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+
+
+</UserControl>

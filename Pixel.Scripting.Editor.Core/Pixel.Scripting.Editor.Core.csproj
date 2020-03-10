@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+      <ExcludeAssets>All</ExcludeAssets>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

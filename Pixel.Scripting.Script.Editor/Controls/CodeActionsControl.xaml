@@ -1,0 +1,132 @@
+﻿<Popup x:Class="Pixel.Scripting.Script.Editor.Controls.CodeActionsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor.Controls"
+             mc:Ignorable="d"  x:Name="CodeActionPopup" AllowsTransparency="True"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Popup.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="CodeActionPopupButtonStyle">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>                       
+                            <Rectangle Width="16" Height="16">
+                                <Rectangle.Fill>
+                                    <DrawingBrush>
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                                                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M13.5391,4.249C13.0961,2.076,10.7531,8.88178419700125E-16,9.2711,8.88178419700125E-16L6.7031,8.88178419700125E-16C6.3291,8.88178419700125E-16 6.1351,0.152 6.1351,0.152 4.0371,0.793000000000001 2.4981,2.725 2.4761,4.878 2.4301,5.341 2.3731,7.16 4.1761,8.658 4.6891,9.125 5.3941,10.629 5.4761,11.026L5.4951,11.1 5.5391,11.214 5.5391,13.035 5.5391,14.436 7.0531,16 9.0331,16 10.5391,14.433 10.5391,13.035 10.5391,12.035 10.5391,11.208 10.5771,11.093 10.5901,11.026C10.6701,10.644 11.3901,9.133 11.8601,8.703 12.9581,7.791 13.3831,6.789 13.5391,6.039z" />
+                                                    <GeometryDrawing Brush="#FFFFCC00" Geometry="F1M9.5781,6.0029L9.1011,8.9999 8.5391,8.9999 8.5391,6.0559 8.5561,5.9999C9.6381,5.9999,9.4831,4.9999,9.4831,4.9999L6.5391,4.9999 6.5391,5.0719C6.5431,5.2949,6.6271,5.9999,7.5391,5.9999L7.5391,8.9999 6.9761,8.9999 6.8281,8.2889 6.4651,6.0029C5.8141,6.0029,5.6061,5.5719,5.5391,5.2739L5.5391,4.8749C5.5391,4.0769,6.4301,3.9999,6.4301,3.9999L9.5391,3.9999C9.5391,3.9999 10.5391,4.1249 10.5391,4.9999 10.5391,4.9999 10.5671,6.0029 9.5781,6.0029 M12.6131,5.0499L12.6111,5.0359 12.6191,4.9589C12.6191,2.7809 10.7641,0.9809 8.4801,0.942900000000001 8.4281,0.8529 7.1371,0.9649 7.1371,0.9649L7.1371,0.976900000000001C5.0641,1.2319 3.4671,2.9639 3.4761,4.9469 3.4671,5.0139 3.2461,6.5889 4.8481,7.9219 5.5681,8.5749 6.3491,10.3099 6.4571,10.8259L6.5331,10.9999 9.5351,10.9999 9.6091,10.8239C9.7171,10.3089 10.5151,8.5759 11.2231,7.9359 12.8031,6.6199 12.6231,5.1129 12.6131,5.0499" />
+                                                    <GeometryDrawing Brush="#FF838383" Geometry="F1M6.549,13L9.549,13 9.549,12.035 6.549,12.035z" />
+                                                    <GeometryDrawing Brush="#FF838383" Geometry="F1M7.4785,15.0205L8.6035,15.0205 9.5355,14.0355 6.5335,14.0355z" />
+                                                    <GeometryDrawing Brush="#FF838383" Geometry="F1M6.549,13L9.549,13 9.549,12.035 6.549,12.035z" />
+                                                    <GeometryDrawing Brush="#FF838383" Geometry="F1M7.4785,15.0205L8.6035,15.0205 9.5355,14.0355 6.5335,14.0355z" />
+                                                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M9.5781,6.0029L9.1011,8.9999 8.5081,8.9999 8.5081,6.0559 8.5401,5.9999C9.6221,5.9999,9.4831,4.9999,9.4831,4.9999L6.5081,4.9999 6.5081,5.0719C6.5081,5.2949,6.5081,5.9999,7.5081,5.9999L7.5081,8.9999 6.9761,8.9999 6.8201,8.2889 6.4491,6.0029C5.7991,6.0029,5.5081,5.5719,5.5081,5.2739L5.5081,4.8749C5.5081,4.0769,6.4301,3.9999,6.4301,3.9999L9.5391,3.9999C9.5391,3.9999 10.5391,4.1249 10.5391,4.9999 10.5391,4.9999 10.5671,6.0029 9.5781,6.0029" />
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>                                 
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="CodeActionItemButtonStyle">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="20,5,5,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ItemsControl}" x:Key="CodeActionsListStyle">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <StackPanel x:Name="CodeActionItem" Orientation="Horizontal" HorizontalAlignment="Stretch" IsHitTestVisible="True">
+                            <Button Margin="20,8,10,8" Style="{StaticResource CodeActionItemButtonStyle}"
+                                    Click="ApplyCodeAction" />
+                        </StackPanel>
+                        <DataTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CodeActionItem" Property="Background" Value="LightBlue"/>
+                            </Trigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>           
+        </Style>
+        <Style TargetType="{x:Type Border}" x:Key="ContentBorderStyle">
+            <Setter Property="BorderThickness" Value="0"></Setter>
+            <Setter Property="BorderBrush" Value="Gray"></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="LightGray"></Setter>
+                    <Setter Property="BorderThickness" Value="1"></Setter>                 
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="GlyphDownIconStyle">
+            <Setter Property="Visibility" Value="Collapsed"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Width="16" Height="16">
+                            <Rectangle.Fill>
+                                <DrawingBrush>
+                                    <DrawingBrush.Drawing>
+                                        <DrawingGroup>
+                                            <DrawingGroup.Children>
+                                                <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                                                <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M1.5859,5L14.4139,5 7.9999,11.414z" />
+                                                <GeometryDrawing Brush="#FF424242" Geometry="F1M8,10L4,6 12,6z" />
+                                            </DrawingGroup.Children>
+                                        </DrawingGroup>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=BorderThickness, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Border}}"
+                         Value="1">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Popup.Resources>
+    <StackPanel Orientation="Vertical">
+        <Border x:Name="ContentBorder" Style="{StaticResource ContentBorderStyle}" Padding="2" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Button.Click="ToggleCodeActionsVisibility">
+                <Button x:Name="CodeActionButton" ToolTip="Show Fixes (Ctrl + .)"  HorizontalAlignment="Left"
+                    Style="{StaticResource CodeActionPopupButtonStyle}" VerticalAlignment="Center"></Button>
+                <Button x:Name="GlyphDownIcon" Style="{StaticResource GlyphDownIconStyle}"></Button>
+            </StackPanel>           
+        </Border>      
+        <ItemsControl x:Name="CodeActionsList" ItemsSource="{Binding ElementName=CodeActionPopup, Path=AvailableCodeActions}"
+                          Style="{StaticResource CodeActionsListStyle}"/>
+    </StackPanel>
+</Popup>
