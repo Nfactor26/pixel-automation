@@ -1,9 +1,9 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
-using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -15,10 +15,8 @@ namespace Pixel.Automation.Input.Devices
     public class MouseMoveByActorComponent : InputSimulatorBase
     {
         [DataMember]      
-        [DisplayName("Move By")]
-        [Description("Represents the amount by which cursor should be moved")]
-        [Category("Mouse Move Configuration")]       
-        [Browsable(true)]
+        [Display(Name = "Move By", GroupName = "Mouse Move Configuration")]
+        [Description("Represents the amount by which cursor should be moved")]       
         public Argument MoveBy { get; set; } = new InArgument<ScreenCoordinate>()
         {
             DefaultValue = new ScreenCoordinate(),
@@ -26,9 +24,8 @@ namespace Pixel.Automation.Input.Devices
         };
 
         [DataMember]
-        [DisplayName("Smooth Mode")]
-        [Description("Controls how the mouse moves between two points")]
-        [Category("Click Configuration")]     
+        [Display(Name = "Smooth Mode", GroupName = "Mouse Move Configuration")]
+        [Description("Controls how the mouse moves between two points")]      
         public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
 
         public MouseMoveByActorComponent() : base("Move By", "Move By")

@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Devices;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -14,8 +15,7 @@ namespace Pixel.Automation.Input.Devices
     {
         PressMode pressMode;
         [DataMember]
-        [DisplayName("Mode")]
-        [Category("Key Configuration")]    
+        [Display(Name = "Mode", GroupName = "Key Configuration")]
         public PressMode KeyPressMode
         {
             get
@@ -32,8 +32,7 @@ namespace Pixel.Automation.Input.Devices
 
         string keySequence = string.Empty;
         [DataMember]
-        [DisplayName("Keys")]       
-        [Category("Key Configuration")]     
+        [Display(Name = "Keys", GroupName = "Key Configuration")]
         public string KeySequence
         {
             get => keySequence;

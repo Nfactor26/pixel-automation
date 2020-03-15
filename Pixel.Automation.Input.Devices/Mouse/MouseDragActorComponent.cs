@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Input.Devices;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
 
@@ -19,17 +20,13 @@ namespace Nish26.Automation.Input.Devices
     public class MouseDragActorComponent : InputSimulatorBase
     {
         [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]             
-        [Browsable(true)]
+        [Display(Name = "Target Control", GroupName = "Control Details")]  
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
 
-        [DataMember]      
-        [DisplayName("Drag Point")]
-        [Description("Represents the coordinates at which drag starts/ends. This is auto calculated if Control and CoordinateProvider are configured.")]
-        [Category("Drag Congfiguration")]          
-        [Browsable(true)]
+        [DataMember]
+        [Display(Name = "Drag Point", GroupName = "Drag Configuration", AutoGenerateField = false)]
+        [Description("Represents the coordinates at which drag starts/ends. This is auto calculated if Control and CoordinateProvider are configured.")]       
         public Argument DragPoint { get; set; } = new InArgument<ScreenCoordinate>()
         {
             DefaultValue = new ScreenCoordinate(),
@@ -39,8 +36,7 @@ namespace Nish26.Automation.Input.Devices
 
         DragMode dragMode;
         [DataMember]
-        [DisplayName("Drag Mode")]
-        [Category("Drag Congfiguration")]       
+        [Display(Name = "Drag Mode", GroupName = "Drag Configuration")]     
         public DragMode DragMode
         {
             get => this.dragMode;
@@ -66,7 +62,7 @@ namespace Nish26.Automation.Input.Devices
                             this.Name += " [End]";
                         break;
                 }
-                OnPropertyChanged("Name");
+                OnPropertyChanged(nameof(Name));
 
             }
 
@@ -74,9 +70,9 @@ namespace Nish26.Automation.Input.Devices
 
         Target target = Target.Control;
         [DataMember]
-        [DisplayName("Target Control")]
+        [Display(Name = "Target", GroupName = "Drag Configuration")]
         [Description("Configure if mouse target is a control  or specified coordinates")]
-        [Category("Click Configuration")]   
+        [RefreshProperties(RefreshProperties.Repaint)]
         public Target Target
         {
             get => target;
@@ -85,10 +81,10 @@ namespace Nish26.Automation.Input.Devices
                 switch (value)
                 {
                     case Target.Control:
-                        this.SetBrowsableAttribute(nameof(DragPoint), false);
+                        this.SetDispalyAttribute(nameof(DragPoint), false);
                         break;
                     case Target.Empty:
-                        this.SetBrowsableAttribute(nameof(DragPoint), true);
+                        this.SetDispalyAttribute(nameof(DragPoint), true);
                         break;
                 }
                 DragPoint.Mode = ArgumentMode.Default;
@@ -97,9 +93,8 @@ namespace Nish26.Automation.Input.Devices
         }
 
         [DataMember]
-        [DisplayName("Smooth Mode")]
-        [Description("Controls how the mouse moves between two points")]
-        [Category("Click Configuration")]       
+        [Display(Name = "Smooth Mode", GroupName = "Drag Configuration")]
+        [Description("Controls how the mouse moves between two points")]           
         public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
 
         public MouseDragActorComponent() : base("Drag", "MouseDrag")

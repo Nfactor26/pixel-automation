@@ -1,9 +1,9 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
-using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -19,13 +19,12 @@ namespace Pixel.Automation.Input.Devices
         /// </summary>
         [DataMember]
         [Description("Number of scroll unit to perform")]
-        [Category("Scroll Configuration")]           
+        [Display(Name = "Amount", GroupName = "Scroll Configuration")]           
         public Argument ScrollAmount { get; set; } = new InArgument<int>() { DefaultValue = 1, CanChangeType = false };
 
         ScrollMode scrollMode;
         [DataMember]
-        [DisplayName("Mode")]
-        [Category("Scroll Configuration")]     
+        [Display(Name = "Mode", GroupName = "Scroll Configuration")]
         public ScrollMode ScrollMode
         {
             get => this.scrollMode;
@@ -48,8 +47,7 @@ namespace Pixel.Automation.Input.Devices
 
         ScrollDirection scrollDirection;
         [DataMember]
-        [DisplayName("Direction")]
-        [Category("Scroll Configuration")]   
+        [Display(Name = "Direction", GroupName = "Scroll Configuration")]
         public ScrollDirection ScrollDirection
         {
             get => this.scrollDirection;

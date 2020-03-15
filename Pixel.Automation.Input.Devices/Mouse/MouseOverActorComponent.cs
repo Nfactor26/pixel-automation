@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -17,15 +18,12 @@ namespace Pixel.Automation.Input.Devices
     public class MouseOverActorComponent : InputSimulatorBase
     {
         [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]         
-        [Browsable(true)]
+        [Display(Name = "Target Control", GroupName = "Control Details")]     
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
-        [DataMember]      
-        [Description("Represents the coordinates to which cursor is moved.This is auto calculated if Control and CoordinateProvider are configured.")]
-        [Category("Mouse over Configuration")]         
-        [Browsable(true)]
+        [DataMember]
+        [Display(Name = "Move To", GroupName = "Mouse Over configuration", AutoGenerateField = false)]
+        [Description("Represents the coordinates to which cursor is moved.This is auto calculated if Control and CoordinateProvider are configured.")]            
         public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>()
         {
             DefaultValue = new ScreenCoordinate(),
@@ -35,9 +33,9 @@ namespace Pixel.Automation.Input.Devices
 
         Target target = Target.Control;
         [DataMember]
-        [DisplayName("Target Control")]
+        [Display(Name = "Target", GroupName = "Mouse Over Configuration")]
         [Description("Configure if mouse target is a control  or specified coordinates")]
-        [Category("Click Configuration")]      
+        [RefreshProperties(RefreshProperties.Repaint)]
         public Target Target
         {
             get => target;
@@ -46,10 +44,10 @@ namespace Pixel.Automation.Input.Devices
                 switch (value)
                 {
                     case Target.Control:
-                        this.SetBrowsableAttribute(nameof(MoveTo), false);
+                        this.SetDispalyAttribute(nameof(MoveTo), false);
                         break;
                     case Target.Empty:
-                        this.SetBrowsableAttribute(nameof(MoveTo), true);
+                        this.SetDispalyAttribute(nameof(MoveTo), true);
                         break;
                 }
                 MoveTo.Mode = ArgumentMode.Default;
@@ -58,9 +56,8 @@ namespace Pixel.Automation.Input.Devices
         }
 
         [DataMember]
-        [DisplayName("Smooth Mode")]
-        [Description("Controls how the mouse moves between two points")]
-        [Category("Click Configuration")]     
+        [Display(Name = "Smooth Mode", GroupName = "Mouse Over Configuration")]
+        [Description("Controls how the mouse moves between two points")]      
         public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
 
 

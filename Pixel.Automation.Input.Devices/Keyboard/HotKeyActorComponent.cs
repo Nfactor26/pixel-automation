@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -14,8 +15,7 @@ namespace Pixel.Automation.Input.Devices
     {
         string keySequence = string.Empty;
         [DataMember]
-        [DisplayName("Hot Key")]      
-        [Category("Key Configuration")]      
+        [Display(Name = "Hot Key", GroupName = "Key Configuration")]          
         public string KeySequence
         {
             get => keySequence;

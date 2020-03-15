@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 using MouseButton = Pixel.Automation.Core.Devices.MouseButton;
@@ -19,16 +20,13 @@ namespace Pixel.Automation.Input.Devices
     public class MouseClickActorComponent : InputSimulatorBase
     {
         [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]           
+        [Display(Name = "Target Control", GroupName = "Control Details")]               
         [Browsable(true)]
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
         [DataMember]       
         [Description("Represents the coordinates at which click is performed.This is auto calculated if Control and CoordinateProvider are configured.")]
-        [DisplayName("Click At")]
-        [Category("Click Configuration")]          
-        [Browsable(true)]
+        [Display(Name = "Click At", GroupName = "Click Configuration", AutoGenerateField = false)]       
         public Argument ClickAt { get; set; } = new InArgument<ScreenCoordinate>()
         {
              DefaultValue = new ScreenCoordinate(),
@@ -36,22 +34,20 @@ namespace Pixel.Automation.Input.Devices
         };
 
         [DataMember]
-        [DisplayName("Mouse Button")]
-        [Description("Represents the mouse button to click i.e Left/Right/Middle button of the mouse")]
-        [Category("Click Configuration")]     
+        [Display(Name = "Mouse Button", GroupName = "Click Configuration")]
+        [Description("Represents the mouse button to click i.e Left/Right/Middle button of the mouse")]   
         public MouseButton Button { get; set; }
 
         [DataMember]
-        [DisplayName("Click Mode")]
-        [Description("Represents whether Single click or double click will be performed")]
-        [Category("Click Configuration")]        
+        [Display(Name= "Click Mode", GroupName = "Click Configuration")]
+        [Description("Represents whether Single click or double click will be performed")]           
         public ClickMode ClickMode { get; set; } = ClickMode.SingleClick;
 
         Target target = Target.Control;
         [DataMember]
-        [DisplayName("Target Control")]
+        [Display(Name = "Target Control", GroupName = "Click Configuration")]
         [Description("Configure if mouse target is a control  or specified coordinates")]
-        [Category("Click Configuration")]       
+        [RefreshProperties(RefreshProperties.Repaint)]
         public Target Target
         {
             get => target;
@@ -60,10 +56,10 @@ namespace Pixel.Automation.Input.Devices
                 switch(value)
                 {
                     case Target.Control:
-                        this.SetBrowsableAttribute(nameof(ClickAt), false);                      
+                        this.SetDispalyAttribute(nameof(ClickAt), false);                      
                         break;
                     case Target.Empty:
-                        this.SetBrowsableAttribute(nameof(ClickAt), true);
+                        this.SetDispalyAttribute(nameof(ClickAt), true);
                         break;
                 }
                 ClickAt.Mode = ArgumentMode.Default;
@@ -72,9 +68,8 @@ namespace Pixel.Automation.Input.Devices
         }
 
         [DataMember]
-        [DisplayName("Smooth Mode")]
-        [Description("Controls how the mouse moves between two points")]
-        [Category("Click Configuration")]        
+        [Display(Name = "Smooth Mode", GroupName = "Click Configuration")]
+        [Description("Controls how the mouse moves between two points")]    
         public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
 
         public MouseClickActorComponent() : base("Mouse Click", "MouseClick")
