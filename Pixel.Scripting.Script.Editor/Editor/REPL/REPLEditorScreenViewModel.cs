@@ -58,6 +58,7 @@ namespace Pixel.Scripting.Script.Editor.REPL
         public void SetGlobals(object globals)
         {
             this.globals = globals;
+            this.scriptEngine.SetGlobals(globals);
         }
 
         public async void ExecuteScript()
@@ -71,7 +72,7 @@ namespace Pixel.Scripting.Script.Editor.REPL
                 //{
                     //Console.SetOut(stringWriter);
 
-                    ScriptResult scriptResult = await this.scriptEngine.ExecuteScriptAsync(scriptText, this.globals, previousState);
+                    ScriptResult scriptResult = await this.scriptEngine.ExecuteScriptAsync(scriptText);
                     previousState = scriptResult.CurrentState;
 
                     //this.Editor.Text = string.Empty;

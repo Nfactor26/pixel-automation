@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Enums;
+﻿using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System;
@@ -32,13 +33,16 @@ namespace Pixel.Automation.Core
             }
             set
             {
-                if(!areDefaultServicesInitialized)
+                if (!areDefaultServicesInitialized)
                 {
-                    this.serviceProvider.ConfigureDefaultServices(this.fileSystem, value);
+                    this.serviceProvider.ConfigureDefaultServices(this.fileSystem, value.ToScriptArguments(this));
                     areDefaultServicesInitialized = true;
                 }
-                IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
-                this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments, value);
+                else
+                {
+                    IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
+                    this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments?.ToScriptArguments(this), value?.ToScriptArguments(this));
+                }          
                 this.arguments = value;
                 UpdateArgumentPropertiesInfo();          
             }
@@ -75,7 +79,10 @@ namespace Pixel.Automation.Core
             this.WorkingDirectory = entityManager.WorkingDirectory;
             this.Environment = entityManager.Environment;
             this.RootEntity = entityManager.RootEntity;
-            this.Arguments = dataModel;
+            if(dataModel != null)
+            {
+                this.Arguments = dataModel;
+            }
             this.isPrimaryManager = false;
         }
 

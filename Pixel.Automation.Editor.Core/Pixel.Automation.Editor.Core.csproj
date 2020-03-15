@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">    
     </ProjectReference>
     <ProjectReference Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />

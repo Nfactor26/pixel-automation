@@ -41,6 +41,8 @@ namespace Pixel.Scripting.Engine.CSharp
        
         private ScriptExecutor scriptExecutor = default;
 
+        private object scriptGlobals = default;
+
         #endregion data members
 
         #region constructor
@@ -89,6 +91,16 @@ namespace Pixel.Scripting.Engine.CSharp
             }    
         
         }
+
+        public void SetGlobals(object globalsObject)
+        {
+            if(this.scriptGlobals != globalsObject)
+            {
+                this.ClearState();
+                this.scriptGlobals = globalsObject;
+            }
+        }
+
 
         public IScriptEngine WithSearchPaths(string baseDirectory, params string[] searchPaths)
         {
@@ -279,26 +291,40 @@ namespace Pixel.Scripting.Engine.CSharp
 
         private ScriptResult lastExecutionResult = default;
 
-        public async Task<ScriptResult> ExecuteFileAsync(string scriptFile, object globals, object previousState)
+        public async Task<ScriptResult> ExecuteFileAsync(string scriptFile)
         {         
-            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(Path.Combine(this.scriptsDirectory,scriptFile),this.scriptOptions, globals, previousState ?? lastExecutionResult?.CurrentState);
+            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(Path.Combine(this.scriptsDirectory,scriptFile),this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
             return lastExecutionResult;
         }
 
-        public async Task<ScriptResult> ExecuteScriptAsync(string scriptCode, object globals, object previousState)
+        public async Task<ScriptResult> ExecuteScriptAsync(string scriptCode)
         {           
-            lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.scriptOptions, globals, previousState ?? lastExecutionResult?.CurrentState);
+            lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
             return lastExecutionResult;
         }
 
-        public ScriptResult CreateDelegate<T>(string script, object globals)
+        public async Task<T> CreateDelegateAsync<T>(string scriptFile)
         {
             //var state = CSharpScript.Run("int Times(int x) { return x * x; }");
             //var fn = state.CreateDelegate<Func<int, int>>("Times");
             //var result = fn(5);
             //Assert.Equal(25, result);
 
-            throw new NotImplementedException("Roslyn has an open issue : https://github.com/dotnet/roslyn/issues/3720");
+            //throw new NotImplementedException("Roslyn has an open issue : https://github.com/dotnet/roslyn/issues/3720");
+
+            var scriptLocation = Path.Combine(this.scriptsDirectory, scriptFile);
+            if(File.Exists(scriptLocation))
+            {
+                var scriptCode = File.ReadAllText(scriptLocation);
+                lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+                if (lastExecutionResult.ReturnValue is T del)
+                {
+                    return del;
+                }
+                throw new InvalidOperationException($"Script didn't return delegate of {typeof(T)}");
+            }
+
+            throw new FileNotFoundException($"Script file : {scriptFile}  doesn't exist");
         }
 
         public void ClearState()

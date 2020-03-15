@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -11,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Component = Pixel.Automation.Core.Component;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core.Components
@@ -111,16 +109,14 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-        [DataMember]
-        [Browsable(false)]
+        [DataMember]    
         [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
         public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
 
         [DataMember]
         [Browsable(false)]
-        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
-        [Category("Search Mode")]
+        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]      
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
         public virtual Argument Filter { get; set; }
 
@@ -187,7 +183,7 @@ namespace Pixel.Automation.Core.Components
         {
             foreach (var foundControl in foundControls)
             {
-                bool found = (bool)ApplyPredicate(this.Filter.ScriptFile, foundControl).Result.ReturnValue;
+                bool found = (bool)ApplyPredicate(this.Filter.ScriptFile, foundControl).Result;
                 if (found)
                 {
                     //HighlightElement(foundControl);
@@ -198,15 +194,13 @@ namespace Pixel.Automation.Core.Components
             throw new Exception($"Found {foundControls.Count()} controls. All controls failed filter criteria");
         }
 
-        protected async Task<ScriptResult> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
-        {
-            Type scriptDataType = typeof(PredicateScriptArgument<,>).MakeGenericType(this.EntityManager.Arguments.GetType(), typeof(T));
-            var scriptData = Activator.CreateInstance(scriptDataType, new[] { this.EntityManager.Arguments, targetElement });
+        protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
+        {         
 
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            ScriptResult result = await scriptExecutor.ExecuteFileAsync(predicateScriptFile, scriptData, null);
-            result = await scriptExecutor.ExecuteScriptAsync("IsMatch(DataModel,Control)", scriptData, result.CurrentState);
-            return result;
+            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, bool>>(predicateScriptFile);
+            bool isMatch = fn(this, targetElement);
+            return isMatch;
         }
 
     }

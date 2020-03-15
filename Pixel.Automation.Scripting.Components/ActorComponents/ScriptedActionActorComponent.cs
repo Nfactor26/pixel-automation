@@ -1,7 +1,7 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -19,30 +19,24 @@ namespace Pixel.Automation.Scripting.Components
 
         }
 
-        public override void Act()
+        public override async void Act()
         {
-            var result  = ExecuteScript();
-            result.GetAwaiter().GetResult();
+           await ExecuteScript();         
         }
 
 
-        async Task<ScriptResult> ExecuteScript()
+        async Task ExecuteScript()
         {
             Entity controlEntity = default;
             if (this.Parent is ControlEntity)
             {
                 controlEntity = this.Parent;
             }
-
-            Type scriptDataType = typeof(ActorScriptArguments<>).MakeGenericType(this.EntityManager.Arguments.GetType());
-            var scriptData = Activator.CreateInstance(scriptDataType, new[] { this.EntityManager, this.EntityManager.GetApplicationDetails(this), controlEntity, this.EntityManager.Arguments });
-           
-         
+          
             IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
+            action(this.EntityManager.GetApplicationDetails(this), this);           
 
-            ScriptResult scriptResult = await scriptEngine.ExecuteFileAsync(this.scriptFile, scriptData, null);           
-            scriptResult = await scriptEngine.ExecuteScriptAsync("TryExecute(EntityManager,Application,ControlEntity,DataModel)", scriptData, scriptResult.CurrentState);          
-            return scriptResult;
         }
 
     }

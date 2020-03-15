@@ -21,7 +21,7 @@
     <HierarchicalDataTemplate x:Key="ForEachTemplate" ItemsSource="{Binding ComponentCollection}">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="0" Margin="6,6,6,2">
             <Label Content="Foreach" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
-            <ae:InArgumentUserControl x:Name="CurrentObjectArgument" Argument="{Binding CurrentObject}"                                                                   
+            <ae:InArgumentUserControl x:Name="CurrentObjectArgument" Argument="{Binding Current}"                                                                   
                                       OwnerComponent="{Binding}"  MinWidth="180" Height="37.26" 
                                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                       DockPanel.Dock="Left"/>
@@ -321,7 +321,7 @@
                         </Trigger>-->
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Visibility" Value="Visible" TargetName="ContentHost"/>
-                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Colors.AccentBase}" TargetName="Name"/>
+                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.AccentBase}" TargetName="Name"/>
                         </Trigger>
                         <Trigger Property="HasItems"  Value="True">
                             <Setter TargetName="EmptyMessage"   Property="Visibility"  Value="Collapsed"/>

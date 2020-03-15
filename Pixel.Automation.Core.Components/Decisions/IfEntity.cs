@@ -57,7 +57,7 @@ namespace Pixel.Automation.Coree.Components.Decisions
         private async Task<ScriptResult> ExecuteScript()
         {
             IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile, this.EntityManager.Arguments, null);        
+            ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);        
             return result;          
         }
 

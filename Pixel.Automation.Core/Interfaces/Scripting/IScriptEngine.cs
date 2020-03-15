@@ -19,7 +19,11 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         string GetWorkingDirectory();
 
-
+        /// <summary>
+        /// Set the globals object for the ScriptEngine.      
+        /// </summary>      
+        /// <param name="dataModel"></param>
+        void SetGlobals(object globals);
 
         /// <summary>
         /// Add directories relative to base directory where dll's will be looked up for reference resolving
@@ -83,11 +87,12 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         IEnumerable<PropertyDescription> GetScriptVariables();
 
-        Task<ScriptResult> ExecuteFileAsync(string scriptFile, object globals, object previousState);
+        Task<ScriptResult> ExecuteFileAsync(string scriptFile);
 
-        Task<ScriptResult> ExecuteScriptAsync(string scriptCode, object globals, object previousState);
+        Task<ScriptResult> ExecuteScriptAsync(string scriptCode);
 
-        ScriptResult CreateDelegate<T>(string script, object globals);
+        Task<T> CreateDelegateAsync<T>(string scriptFile);
+
 
         void ClearState();
 

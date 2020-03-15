@@ -108,8 +108,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 Name = "Find First Control",
                 Tag = "FindFirstControlsGroup",
                 GroupActor = new FindFirstControlActorComponent()
-            };
-            groupEntity.GroupPlaceHolder.MaxComponentsCount = 50;
+            };          
             groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(ControlEntity);
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;

@@ -41,12 +41,17 @@ namespace Pixel.Automation.Arguments.Editor
             return this;
         }
 
+        /// <summary>
+        /// Populate types defined in data model assembly. Clears any prevoius cached types for older data model assembly.
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
         public IArgumentTypeProvider WithDataModelAssembly(Assembly assembly)
         {
             this.definedTypes = new List<TypeDefinition>();
-            foreach(var type in PopulateAvailableTypesInAssembly(assembly).Skip(1))
+            foreach(var type in PopulateAvailableTypesInAssembly(assembly))
             {
-              this.definedTypes.Add(new TypeDefinition("Application.Process.Data","DataModel",type));
+              this.definedTypes.Add(new TypeDefinition("DataModel","Models",type));
             }
             return this;
         }

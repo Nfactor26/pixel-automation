@@ -1,8 +1,10 @@
 ﻿using Ninject;
 using Ninject.Extensions.ChildKernel;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.Modules;
+using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Collections.Generic;
@@ -65,11 +67,12 @@ namespace Pixel.Automation.Designer.ViewModels
             kernel.Bind<T>().ToConstant(instance);
         }
 
-        public void ConfigureDefaultServices(IFileSystem fileSystem, object globalsInstance)
+        public void ConfigureDefaultServices(IFileSystem fileSystem, ScriptArguments scriptArguments)
         {
-            ConfigureScriptEngine(fileSystem, globalsInstance?.GetType().Assembly);
-            ConfigureArgumentProcessor(globalsInstance);
-            ConfigureScriptEditor(fileSystem, globalsInstance?.GetType());          
+            ConfigureScriptEngine(fileSystem, scriptArguments);
+            ConfigureArgumentProcessor(scriptArguments);
+            ConfigureScriptEditor(fileSystem, scriptArguments);
+            ConfigureArgumentTypeProvider(scriptArguments);
         }
 
 
@@ -79,17 +82,15 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="fileSystem"></param>
         /// <param name="previousModel"></param>
         /// <param name="newModel"></param>
-        private void ConfigureScriptEngine(IFileSystem fileSystem, Assembly globalsAssembly)
+        private void ConfigureScriptEngine(IFileSystem fileSystem, ScriptArguments scriptArguments)
         {
             IScriptEngineFactory scriptEngineFactory = Get<IScriptEngineFactory>(); //Transient
             IScriptEngine scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
             scriptEngine.SetWorkingDirectory(fileSystem.ScriptsDirectory);
-            scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, Path.Combine(System.Environment.CurrentDirectory, ""), Path.Combine(System.Environment.CurrentDirectory, "Components"), Path.Combine(System.Environment.CurrentDirectory, "Core"));
+            scriptEngine.SetGlobals(scriptArguments);
+            scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, Path.Combine(System.Environment.CurrentDirectory, ""));
             scriptEngine.WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences());
-            if(globalsAssembly != null)
-            {
-                scriptEngine.WithAdditionalAssemblyReferences(globalsAssembly);
-            }
+            scriptEngine.WithAdditionalAssemblyReferences(scriptArguments.GetModelType().Assembly);          
             this.RegisterDefault<IScriptEngine>(scriptEngine);            
         }
 
@@ -98,14 +99,24 @@ namespace Pixel.Automation.Designer.ViewModels
         /// processor is configured.
         /// </summary>
         /// <param name="registerAsDefault"></param>
-        private void ConfigureArgumentProcessor(object globals)
+        private void ConfigureArgumentProcessor(ScriptArguments scriptArguments)
         {
             IArgumentProcessor argumentProcessor = Get<IArgumentProcessor>();
-            if(globals != null)
+            if(scriptArguments != null)
             {
-                argumentProcessor.SetGlobals(globals);
+                argumentProcessor.SetGlobals(scriptArguments.GetModelData());
             }
             //this.RegisterDefault<IArgumentProcessor>(argumentProcessor);
+        }
+
+        /// <summary>
+        /// Add data model assembly to arguments type provider so that it can show types defined in data model assembly 
+        /// </summary>
+        /// <param name="scriptArguments"></param>
+        private void ConfigureArgumentTypeProvider(ScriptArguments scriptArguments)
+        {
+            IArgumentTypeProvider argumentTypeProvider = Get<IArgumentTypeProvider>();
+            argumentTypeProvider.WithDataModelAssembly(scriptArguments.GetModelType().Assembly);
         }
 
         /// <summary>
@@ -126,7 +137,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// </summary>
         /// <param name="fileSystem"></param>
         /// <param name="globalsType"></param>
-        private void ConfigureScriptEditor(IFileSystem fileSystem, Type globalsType)
+        private void ConfigureScriptEditor(IFileSystem fileSystem, ScriptArguments scriptArguments)
         {
             Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
             if (!dispatcher.CheckAccess())
@@ -135,48 +146,45 @@ namespace Pixel.Automation.Designer.ViewModels
             }
 
             IScriptEditorFactory scriptEditorFactory = Get<IScriptEditorFactory>(); //Singleton
-            scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, globalsType, fileSystem.GetAssemblyReferences());
+            var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
+            assemblyReferences.Add(scriptArguments.GetModelType().Assembly.Location);
+            scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, scriptArguments.GetType(), assemblyReferences.ToArray());
         }
 
-        public void OnDataModelUpdated(IFileSystem fileSystem, object previousModelInstance, object newDataModelInstance)
+        public void OnDataModelUpdated(IFileSystem fileSystem, ScriptArguments previousArgs, ScriptArguments newArgs)
         {            
-            IScriptEngine scriptEngine = Get<IScriptEngine>();
-            IArgumentProcessor argumentProcessor = Get<IArgumentProcessor>();
+            IScriptEngine scriptEngine = Get<IScriptEngine>();         
             IScriptEditorFactory scriptEditorFactory = Get<IScriptEditorFactory>();
         
-            if(previousModelInstance == null && newDataModelInstance == null)
+            if(previousArgs == null && newArgs == null)
             {
-                //Is this a valid scenarior ?
+                //Is this a valid scenario ?
                 return;
             }
+      
+            ConfigureArgumentProcessor(newArgs);
 
-            if(previousModelInstance == null && newDataModelInstance != null)
+            if (previousArgs == null && newArgs != null)
             {
-                argumentProcessor.SetGlobals(newDataModelInstance);                
-                var dataModelAssembly = newDataModelInstance.GetType().Assembly;
+              
+                var dataModelAssembly = newArgs.GetModelType().Assembly;
                 scriptEngine.WithAdditionalAssemblyReferences(dataModelAssembly);
+                scriptEngine.SetGlobals(newArgs);
 
-                Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-                if (dispatcher.CheckAccess())
-                {
-                    scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, newDataModelInstance.GetType(), fileSystem.GetAssemblyReferences());
-
-                }
+                          
             }
 
-            if (previousModelInstance != null && newDataModelInstance != null)
-            {
-                argumentProcessor.SetGlobals(newDataModelInstance);              
-                var previousDataModelAssembly = previousModelInstance.GetType().Assembly;
-                var newDataModleAssembly = newDataModelInstance.GetType().Assembly;               
+            if (previousArgs != null && newArgs != null)
+            {              
+                var previousDataModelAssembly = previousArgs.GetModelType().Assembly;
+                var newDataModleAssembly = newArgs.GetModelType().Assembly;               
                 scriptEngine.RemoveReferences(previousDataModelAssembly);
                 scriptEngine.WithAdditionalAssemblyReferences(newDataModleAssembly);
-                Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-                if (dispatcher.CheckAccess())
-                {
-                    scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, newDataModelInstance.GetType(), fileSystem.GetAssemblyReferences());
-                }
+                scriptEngine.SetGlobals(newArgs);
+              
             }
+            ConfigureScriptEditor(fileSystem, newArgs);
+            ConfigureArgumentTypeProvider(newArgs);
         }
 
         public void Dispose()

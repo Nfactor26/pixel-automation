@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Runtime.Serialization;
 
@@ -8,10 +7,10 @@ namespace Pixel.Automation.Core.Components
     [DataContract]
     [Serializable]   
     public class PlaceHolderEntity : Entity 
-    {   
+    {
         [DataMember]
         [System.ComponentModel.Browsable(false)]
-        public int? MaxComponentsCount { get; set; }
+        public int? MaxComponentsCount { get; set; } = 50;
 
         [DataMember]
         [System.ComponentModel.Browsable(false)]

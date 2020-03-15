@@ -57,8 +57,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 Name = "Find All Control",
                 Tag = "FindAllControlsGroup",
                 GroupActor = new FindAllControlsActorComponent()
-            };
-            groupEntity.GroupPlaceHolder.MaxComponentsCount = 50;
+            };         
             groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(ControlEntity);
             groupEntity.GroupPlaceHolder.Name = "Controls";
             return groupEntity;

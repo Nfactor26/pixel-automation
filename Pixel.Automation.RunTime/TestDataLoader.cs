@@ -58,8 +58,8 @@ namespace Pixel.Automation.RunTime
 
         private async Task<IEnumerable<object>> GetCodedTestData(TestDataSource testDataSource)
         {
-            ScriptResult result = await scriptEngine.ExecuteFileAsync($"{testDataSource.Id}.csx", null, null);
-            result = await scriptEngine.ExecuteScriptAsync("GetDataRows()", null, result.CurrentState);
+            ScriptResult result = await scriptEngine.ExecuteFileAsync($"{testDataSource.Id}.csx");          
+            result = await scriptEngine.ExecuteScriptAsync("GetDataRows()");
             return (result.ReturnValue as IEnumerable<object>) ?? throw new InvalidCastException("Data source should return IEnumerable data");
         }
 
@@ -74,8 +74,9 @@ namespace Pixel.Automation.RunTime
             //csvDataReader.Initialize(testDataSource.MetaData);
 
             object globals = new DataReaderScriptGlobal() { DataReaderArgument = csvDataReader, DataSourceArgument = testDataSource };
-            ScriptResult result = await scriptEngine.ExecuteFileAsync($"{testDataSource.Id}.csx", globals, null);
-            result = await scriptEngine.ExecuteScriptAsync("GetDataRows(DataSourceArgument, DataReaderArgument)", globals, result.CurrentState);
+            this.scriptEngine.SetGlobals(globals);
+            ScriptResult result = await scriptEngine.ExecuteFileAsync($"{testDataSource.Id}.csx");
+            result = await scriptEngine.ExecuteScriptAsync("GetDataRows(DataSourceArgument, DataReaderArgument)");
             return (result.ReturnValue as IEnumerable<object>) ?? throw new InvalidCastException("Data source should return IEnumerable data");
         }
 

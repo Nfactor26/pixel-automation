@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using Pixel.Automation.Core.Components;
 
 namespace Pixel.Automation.Editor.Core.Editors
 {
@@ -50,11 +51,13 @@ namespace Pixel.Automation.Editor.Core.Editors
         }
 
         private string GetDefaultScript(ActorComponent actorComponent)
-        {
-            if(actorComponent.Tag.Equals("ScriptedAction"))
+        {          
+            if (actorComponent.Tag.Equals("ScriptedAction"))
             {
-                return $"#r \"Pixel.Automation.Core.dll\"{Environment.NewLine}#r \"Pixel.Automation.CoreComponent.dll\"{Environment.NewLine}using {typeof(EntityManager).Namespace};{Environment.NewLine}using {typeof(IApplication).Namespace};{Environment.NewLine}" +
-                    $"using {actorComponent.EntityManager.Arguments?.GetType().Namespace};{Environment.NewLine}{Environment.NewLine}bool TryExecute(EntityManager entityManager, IApplication application, Entity control, {actorComponent.EntityManager.Arguments?.GetType().GetDisplayName()} dataModel){Environment.NewLine}{{{Environment.NewLine}    return true;{Environment.NewLine}}}";
+                return $"#r \"{typeof(IComponent).Assembly.GetName().Name}.dll\"{Environment.NewLine}#r \"{typeof(ApplicationEntity).Assembly.GetName().Name}.dll\"{Environment.NewLine}using {typeof(EntityManager).Namespace};{Environment.NewLine}using {typeof(IApplication).Namespace};{Environment.NewLine}" +
+                    $"using {actorComponent.EntityManager.Arguments?.GetType().Namespace};{Environment.NewLine}{Environment.NewLine}" +
+                    $"void Execute(IApplication application, IComponent current){Environment.NewLine}{{{Environment.NewLine}    //Do something{Environment.NewLine}}}" +
+                    $"{Environment.NewLine}return ((Action<IApplication,IComponent>)Execute);";
             }
             return string.Empty;
         }

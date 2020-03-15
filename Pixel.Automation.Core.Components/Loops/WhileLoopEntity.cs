@@ -85,7 +85,7 @@ namespace Pixel.Automation.Core.Components.Loops
         {        
 
             IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile, this.EntityManager.Arguments, null);           
+            ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
             return result;
 
         }

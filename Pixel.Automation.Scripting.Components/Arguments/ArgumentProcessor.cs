@@ -1,9 +1,10 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Pixel.Automation.Scripting.Components.Arguments
@@ -50,46 +51,39 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                         return default;
                     }
 
-                    //Look in variables declared in script engine first
-                    if(scriptEngine.HasScriptVariable(argument.PropertyPath))
-                    {
-                        return scriptEngine.GetVariableValue<T>(argument.PropertyPath);
-                    }
-
-                    //Look in globals object
                     string[] nestedProperties = argument.PropertyPath.Split(new char[] { '.' });
-                    object currentRoot = globalsObject;
-                    PropertyInfo targetProperty = null;
-                    foreach (var property in nestedProperties)
+                    object result = default;
+                    //Look in variables declared in script engine first
+                    if (scriptEngine.HasScriptVariable(nestedProperties[0]))
                     {
-                        targetProperty = currentRoot.GetType().GetProperty(property);
-                        if(targetProperty == null)
+                        if(nestedProperties.Length == 1)
                         {
-                            throw new ArgumentException($"{targetProperty} doesn't exist in DataModel. Property path is {argument.PropertyPath}");
-                        }
-                        var propertyValue = targetProperty.GetValue(currentRoot);
-                        if(propertyValue == null)
+                            return scriptEngine.GetVariableValue<T>(nestedProperties[0]);
+                        }                    
+                        else
                         {
-                            return default(T);
+                            var retrievedValue = scriptEngine.GetVariableValue<object>(nestedProperties[0]);
+                            result = GetNestedPropertyValue(retrievedValue, nestedProperties.Skip(1));
                         }
-                        currentRoot = propertyValue;
-                    }                
+
+                    }
+                    else  //Look in globals object        
+                    {                                 
+                        result = GetNestedPropertyValue(globalsObject, nestedProperties);
+                    }                     
                                                       
-                    if (typeof(T).IsAssignableFrom(targetProperty.PropertyType))
+                    if (typeof(T).IsAssignableFrom(result.GetType()))
                     {
-                       return (T)currentRoot;                       
+                       return (T)result;                       
                     }
                    
                     throw new ArgumentException($"Failed to {nameof(GetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
                         $"Only simple types and IEnumerable<T> are supported. Consider using scripted mode for complex types");
                 
                 case ArgumentMode.Scripted:
-                    Type scriptDataType = typeof(ScriptArguments<>).MakeGenericType(globalsObject.GetType());
-                    var scriptData = Activator.CreateInstance(scriptDataType, new[] { globalsObject });
-                    
-                    ScriptResult scriptResult = scriptEngine.ExecuteFileAsync(argument.ScriptFile, scriptData, null).Result;               
-                    scriptResult = scriptEngine.ExecuteScriptAsync("GetValue(DataModel)", scriptData, scriptResult.CurrentState).Result;                    
-                    return (T)scriptResult.ReturnValue;
+                    var fn = scriptEngine.CreateDelegateAsync<Func<T>>(argument.ScriptFile).Result;
+                    return fn();                        
+               
                 default:
                     throw new InvalidOperationException($"Argument mode : {argument.Mode} is not supported");
             }
@@ -109,51 +103,88 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                     {
                         Log.Warning("{PropertyPath} is not configure for {@Argument}", nameof(argument.PropertyPath), argument);
                         Log.Warning("Skipping operation SetValue on Argument as it might be optional argument.");
-                        return;
+                        break;
                     }
-
-                    //Look in variables declared in script engine first
-                    if (scriptEngine.HasScriptVariable(argument.PropertyPath))
-                    {
-                        scriptEngine.SetVariableValue<T>(argument.PropertyPath, value);
-                        return;
-                    }
-
-
+                  
                     string[] nestedProperties = argument.PropertyPath.Split(new char[] { '.' });
-                    object currentRoot = globalsObject;
-                    PropertyInfo targetProperty = null;
-                    foreach (var property in nestedProperties)
+                  
+                    //Look in variables declared in script engine first
+                    if (scriptEngine.HasScriptVariable(nestedProperties[0]))
                     {
-                        targetProperty = currentRoot.GetType().GetProperty(property);
-                        if (targetProperty == null)
+                        if (nestedProperties.Length == 1)
                         {
-                            throw new ArgumentException($"{targetProperty} doesn't exist in DataModel. Property path is {argument.PropertyPath}");
+                            scriptEngine.SetVariableValue<T>(nestedProperties[0], value);                           
                         }
-                        currentRoot = targetProperty.GetValue(currentRoot);                     
-                    }
-
-                    //PropertyInfo targetProperty = globalsObject.GetType().GetProperty(argument.PropertyPath);                 
-                    if (targetProperty.PropertyType.IsAssignableFrom(typeof(T))) 
+                        else
+                        {
+                            var retrievedValue = scriptEngine.GetVariableValue<object>(nestedProperties[0]);
+                            if (!TrySetNestedPropertyValue<T>(retrievedValue, value, nestedProperties.Skip(1)))
+                            {
+                                throw new ArgumentException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
+                                $"Only simple types and IEnumerable<T> targets are supported. Consider using scripted mode for complex types");
+                            }                            
+                        }                       
+                    }                              
+                    else 
                     {
-                        targetProperty.SetValue(globalsObject, value);
-                        return;
+                        if (!TrySetNestedPropertyValue<T>(globalsObject, value, nestedProperties))
+                        {
+                            throw new ArgumentException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
+                                $"Only simple types and IEnumerable<T> targets are supported. Consider using scripted mode for complex types");
+                        }                      
                     }
-                    throw new ArgumentException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
-                        $"Only simple types and IEnumerable<T> targets are supported. Consider using scripted mode for complex types");
-
+                    break;
                 case ArgumentMode.Scripted:
-
-                    Type scriptDataType = typeof(SetValueScriptArguments<,>).MakeGenericType(globalsObject.GetType(), typeof(T));
-                    var scriptData = Activator.CreateInstance(scriptDataType, new[] { globalsObject, value });
-
-                    ScriptResult scriptResult = scriptEngine.ExecuteFileAsync(argument.ScriptFile, scriptData, null).Result;                   
-                    scriptResult = scriptEngine.ExecuteScriptAsync("SetValue(DataModel,ExtractedValue)", scriptData, scriptResult.CurrentState).Result;                   
-                    return;
+                    var fn = scriptEngine.CreateDelegateAsync<Action<T>>(argument.ScriptFile).Result;
+                    fn(value);
+                    break;
 
                 default:
                     throw new InvalidOperationException($"Argument mode : {argument.Mode} is not supported");
             }
+        }
+
+        private object GetNestedPropertyValue(object root, IEnumerable<string> nestedProperties)
+        {           
+            PropertyInfo targetProperty = null;
+            foreach (var property in nestedProperties)
+            {
+                targetProperty = root.GetType().GetProperty(property);
+                if (targetProperty == null)
+                {
+                    throw new ArgumentException($"Could not find property {targetProperty} in type {root.GetType()}");
+                }
+                var propertyValue = targetProperty.GetValue(root);
+                if (propertyValue == null)
+                {
+                    return null;
+                }
+                root = propertyValue;
+            }
+            return root;
+        }
+
+        private bool TrySetNestedPropertyValue<T>(object root, T value, IEnumerable<string> nestedProperties)
+        {       
+            PropertyInfo targetProperty = null;
+            foreach (var property in nestedProperties)
+            {
+                root = targetProperty?.GetValue(root) ?? root;
+                targetProperty = root.GetType().GetProperty(property);
+                if (targetProperty == null)
+                {
+                    throw new ArgumentException($"Could not find property {targetProperty} in type {root.GetType()}");
+                }
+               
+            }
+           
+            if (targetProperty.PropertyType.IsAssignableFrom(typeof(T)))
+            {
+                targetProperty.SetValue(root, value);
+                return true;
+            }
+
+            return false;
         }
 
     }

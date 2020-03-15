@@ -55,8 +55,8 @@ namespace Pixel.Automation.Core.Components.Loops
         public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
         {
             IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
-            IProjectFileSystem projFileSystem = this.EntityManager.GetServiceOfType<IProjectFileSystem>();
-            string[] statements = File.ReadAllText(Path.Combine(projFileSystem.ScriptsDirectory,this.scriptFile))?.Trim()
+            IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
+            string[] statements = File.ReadAllText(Path.Combine(fileSystem.ScriptsDirectory,this.scriptFile))?.Trim()
                 .Split(new char[] {';'});
 
             //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
@@ -109,7 +109,7 @@ namespace Pixel.Automation.Core.Components.Loops
         private async Task<ScriptResult> ExecuteScript(string scriptToExecute)
         {
             IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute, this.EntityManager.Arguments, null);         
+            ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute);         
             return result;
         }
 

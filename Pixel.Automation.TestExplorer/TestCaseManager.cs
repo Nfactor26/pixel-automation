@@ -261,8 +261,9 @@ namespace Pixel.Automation.TestExplorer
             workspaceManager.AddDocument(testCase.ScriptFile, scriptFileContent);
 
             //Execute script file to set up initial state of script engine
-            IScriptEngine scriptEngine = entityManager.GetServiceOfType<IScriptEngine>();
-            await scriptEngine.ExecuteScriptAsync(scriptFileContent, testCase.TestCaseEntity.EntityManager.Arguments, null);
+            IScriptEngine scriptEngine = entityManager.GetServiceOfType<IScriptEngine>();          
+            //scriptEngine.SetGlobals(testCase.TestCaseEntity.EntityManager.Arguments);
+            await scriptEngine.ExecuteScriptAsync(scriptFileContent);
 
 
             this.OpenTestCases.Add(testCase);
@@ -427,45 +428,47 @@ namespace Pixel.Automation.TestExplorer
                 {
                     OpenForEdit(testCase);
                 }
-
-                TestCaseEntity testCaseEntity = testCase.TestCaseEntity as TestCaseEntity;              
-                var dataSource = testDataManager.GetTestCaseData(testCase);
-
-
-                if(dataSource is IEnumerable dataSourceCollection)
+                else
                 {
-                    Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-                    System.Action clearTestResults = () => testCase.TestResults.Clear();
-                    if (!dispatcher.CheckAccess())
+                    TestCaseEntity testCaseEntity = testCase.TestCaseEntity as TestCaseEntity;
+                    var dataSource = testDataManager.GetTestCaseData(testCase);
+
+
+                    if (dataSource is IEnumerable dataSourceCollection)
                     {
-                        dispatcher.Invoke(clearTestResults);                       
-                    }
-                    else
-                    {
-                        clearTestResults();
-                    }
-                                     
-                    foreach (var item in dataSourceCollection)
-                    {
-                        testCaseEntity.EntityManager.Arguments = item;                                          
-                        IScriptEngine scriptEngine = testCaseEntity.EntityManager.GetServiceOfType<IScriptEngine>();
-                        scriptEngine.ClearState();
-                        var state =  await scriptEngine.ExecuteFileAsync(testCase.ScriptFile, item, null);
-                        testCase.IsRunning = true;
-                        TestResult result = await this.TestRunner.RunTestAsync(testCase.TestCaseEntity);                  
-                        
-                        System.Action addTestResult = () => testCase.TestResults.Add(result);
+                        Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+                        System.Action clearTestResults = () => testCase.TestResults.Clear();
                         if (!dispatcher.CheckAccess())
                         {
-                            dispatcher.Invoke(addTestResult);
+                            dispatcher.Invoke(clearTestResults);
                         }
                         else
                         {
-                            addTestResult();
+                            clearTestResults();
                         }
+
+                        foreach (var item in dataSourceCollection)
+                        {
+                            testCaseEntity.EntityManager.Arguments = item;
+                            IScriptEngine scriptEngine = testCaseEntity.EntityManager.GetServiceOfType<IScriptEngine>();
+                            //scriptEngine.SetGlobals(item.ToScriptArguments(testCaseEntity.EntityManager));
+                            var state = await scriptEngine.ExecuteFileAsync(testCase.ScriptFile);
+                            testCase.IsRunning = true;
+                            TestResult result = await this.TestRunner.RunTestAsync(testCase.TestCaseEntity);
+
+                            System.Action addTestResult = () => testCase.TestResults.Add(result);
+                            if (!dispatcher.CheckAccess())
+                            {
+                                dispatcher.Invoke(addTestResult);
+                            }
+                            else
+                            {
+                                addTestResult();
+                            }
+                        }
+                        return await Task.FromResult(true);
                     }
-                    return await Task.FromResult(true);
-                }
+                }             
 
                 throw new ConfigurationException($"Failed to run TestCase : {testCase.DisplayName}");
             }

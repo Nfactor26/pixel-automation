@@ -104,8 +104,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
                 Assembly assembly = Assembly.LoadFrom(Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName));
-                IArgumentTypeProvider argumentTypeProvider = this.entityManager.GetServiceOfType<IArgumentTypeProvider>();
-                argumentTypeProvider.WithDataModelAssembly(assembly);
 
                 Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals("DataModel"));
                 if (typeofDataModel != null)

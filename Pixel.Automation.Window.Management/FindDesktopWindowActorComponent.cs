@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace Pixel.Automation.Window.Management
 
         private LookupMode lookupMode = LookupMode.FindSingle;
         [DataMember]
-        [Category("Search Mode")]
+        [Display(Name = "Look Up Mode", GroupName = "Search Strategy", Order = 20)]
         [Description("Find single control or Find All control and apply index based or custom filter")]
         [RefreshProperties(RefreshProperties.Repaint)]
         public LookupMode LookupMode
@@ -39,12 +40,12 @@ namespace Pixel.Automation.Window.Management
                 switch (lookupMode)
                 {
                     case LookupMode.FindSingle:
-                        this.SetBrowsableAttribute(nameof(FilterMode), false);
-                        this.SetBrowsableAttribute(nameof(Index), false);
-                        this.SetBrowsableAttribute(nameof(Filter), false);
+                        this.SetDispalyAttribute(nameof(FilterMode), false);
+                        this.SetDispalyAttribute(nameof(Index), false);
+                        this.SetDispalyAttribute(nameof(Filter), false);
                         break;
                     case LookupMode.FindAll:
-                        this.SetBrowsableAttribute(nameof(FilterMode), true);
+                        this.SetDispalyAttribute(nameof(FilterMode), true);
                         break;
                 }
                 return lookupMode;
@@ -57,10 +58,9 @@ namespace Pixel.Automation.Window.Management
             }
         }
 
-        private FilterMode filterMode = FilterMode.Index;
-        [Browsable(false)]
+        private FilterMode filterMode = FilterMode.Index;      
         [DataMember]
-        [Category("Search Mode")]
+        [Display(Name = "Filter By", GroupName = "Search Strategy", Order = 30, AutoGenerateField = false)]
         [RefreshProperties(RefreshProperties.Repaint)]
         public FilterMode FilterMode
         {
@@ -69,13 +69,13 @@ namespace Pixel.Automation.Window.Management
                 switch (filterMode)
                 {
                     case FilterMode.Index:
-                        this.SetBrowsableAttribute(nameof(Filter), false);
-                        this.SetBrowsableAttribute(nameof(Index), true);
+                        this.SetDispalyAttribute(nameof(Filter), false);
+                        this.SetDispalyAttribute(nameof(Index), true);
                         break;
                     case FilterMode.Custom:
                         this.Filter = new PredicateArgument<ApplicationWindow>() { CanChangeMode = false, CanChangeType = false };
-                        this.SetBrowsableAttribute(nameof(Filter), true);
-                        this.SetBrowsableAttribute(nameof(Index), false);
+                        this.SetDispalyAttribute(nameof(Filter), true);
+                        this.SetDispalyAttribute(nameof(Index), false);
                         break;
                 }
                 return filterMode;
@@ -88,14 +88,12 @@ namespace Pixel.Automation.Window.Management
         }
 
         [DataMember]
-        [Browsable(false)]
-        [Category("Search Mode")]
+        [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
         public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
 
         [DataMember]
-        [Browsable(false)]
-        [Category("Search Mode")]
+        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
         public virtual Argument Filter { get; set; }
 
@@ -139,8 +137,7 @@ namespace Pixel.Automation.Window.Management
                         bool found = false;
                         foreach (var window in foundWindows)
                         {
-                            found = (bool)ApplyPredicate(this.Filter.ScriptFile, window)
-                                .Result.ReturnValue;
+                            found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
                             if (found)
                             {
                                 argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, window);
@@ -154,15 +151,13 @@ namespace Pixel.Automation.Window.Management
         }
 
 
-        protected async Task<ScriptResult> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
+        protected async Task<bool> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
         {
-            Type scriptDataType = typeof(PredicateScriptArgument<,>).MakeGenericType(this.EntityManager.Arguments.GetType(), typeof(ApplicationWindow));
-            var scriptData = Activator.CreateInstance(scriptDataType, new[] { this.EntityManager.Arguments, applicationWindow });
+            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, bool>>(predicateScriptFile);
 
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            ScriptResult result = await scriptExecutor.ExecuteFileAsync(predicateScriptFile, scriptData, null);
-            result = await scriptExecutor.ExecuteScriptAsync("IsMatch(DataModel,Control)", scriptData, result.CurrentState);
-            return result;
+            bool isMatch = fn(this, applicationWindow);
+            return isMatch;            
         }
     }
 }

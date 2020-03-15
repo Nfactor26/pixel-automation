@@ -20,9 +20,9 @@
                 <ResourceDictionary Source="/Resources/Loops.Components.xaml" />
                 <ResourceDictionary Source="/Resources/Decisions.Components.xaml" />               
                 <ResourceDictionary Source="/Resources/Argument.Editors.xaml"/>
-                <!--<ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/GlyphCollection.xaml" />
+                <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/GlyphCollection.xaml" />
                 <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/CompletionList.xaml" />
-                <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/EditorIcons.xaml" />-->
+                <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/EditorIcons.xaml" />
                 <ResourceDictionary>
                     <VM:AppBootstrapper x:Key="bootstrapper" />
                 </ResourceDictionary>

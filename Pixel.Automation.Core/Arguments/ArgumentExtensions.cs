@@ -12,9 +12,12 @@ namespace Pixel.Automation.Core
     {
         private static readonly string referenceTemplate = "#r \"{0}\"";
         private static readonly string usingTemplate = "using {0};";
-        private static readonly string SetValueTemplate = "void SetValue(DataModel model, {0} argumentValue){1}{{{1}}}";
-        private static readonly string GetValueTemplate = "{0} GetValue(DataModel model){1}{{{1}    return null;{1}}}";
-        private static readonly string PredicateScriptTemplate = "bool IsMatch(DataModel model, {0} control){1}{{{1}    return false;{1}}}";
+        private static readonly string setValueTemplate = "void SetValue({0} argumentValue){1}{{{1}}}{}";
+        private static readonly string setValueAction = "return ((Action<{0}>)SetValue);";
+        private static readonly string getValueTemplate = "{0} GetValue(){1}{{{1}    return default;{1}}}";
+        private static readonly string getValueDelegate = "return ((Func<{0}>)GetValue);";
+        private static readonly string predicateScriptTemplate = "bool IsMatch(IComponent current, {0} argument){1}{{{1}    return false;{1}}}";
+        private static readonly string predicateDelegate = "return ((Func<IComponent,{0},bool>)IsMatch);";
 
         public static object GetValue(this Argument argument, IArgumentProcessor argumentProcessor)
         {
@@ -100,6 +103,8 @@ namespace Pixel.Automation.Core
         private static IEnumerable<string> GetUsingDirectives(Argument argument)
         {
             List<string> distinceDirectives = new List<string>();
+            distinceDirectives.Add(typeof(Component).Namespace);
+            distinceDirectives.Add(typeof(IComponent).Namespace);
             distinceDirectives.Add(argument.GetArgumentType().Namespace);
          
             if (argument.GetArgumentType().IsGenericType)
@@ -118,16 +123,22 @@ namespace Pixel.Automation.Core
 
         private static string GenerateSetValueScript(Argument argument)
         {
-            return string.Format(SetValueTemplate, argument.ArgumentType, Environment.NewLine);
+            var setValueParseScript = string.Format(setValueTemplate, argument.ArgumentType, Environment.NewLine);
+            var setValueParsedAction = string.Format(setValueAction, argument.ArgumentType);
+            return $"{setValueParseScript}{Environment.NewLine}{setValueParsedAction}";
         }
 
         private static string GenerateGetValueScript(Argument argument)
         {
-            return string.Format(GetValueTemplate, argument.ArgumentType, Environment.NewLine);
+            string getValueParsedScript = string.Format(getValueTemplate, argument.ArgumentType, Environment.NewLine);
+            string getValueParsedDelegate = string.Format(getValueDelegate, argument.ArgumentType);
+            return $"{getValueParsedScript}{Environment.NewLine}{getValueParsedDelegate}";
         }
         private static string GeneratePredicateScript(Argument argument)
         {
-            return string.Format(PredicateScriptTemplate, argument.ArgumentType, Environment.NewLine);
+            string predicateParsedScript = string.Format(predicateScriptTemplate, argument.ArgumentType, Environment.NewLine);
+            string predicateParsedDelegate = string.Format(predicateDelegate, argument.ArgumentType);
+            return $"{predicateParsedScript}{Environment.NewLine}{predicateParsedDelegate}";
         }
     }
 }
