@@ -5,13 +5,19 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Arguments
 {
+    /// <summary>
+    /// ArgumentMode specifies how does a argument get or set value from a globals object / script variable
+    /// </summary>
     public enum ArgumentMode
     {
-        Default,
-        DataBound,
-        Scripted        
+        Default, //Argument has a default value and doesn't use a globals object / script variable. 
+        DataBound, // Argument is bound to one of the properties on globals object / script variable or directly to a script variable
+        Scripted  // A custom script is provided which will be executed to get or set value       
     }
 
+    /// <summary>
+    /// Argument can be used to get value from a globals object or script variable or to modify their state.
+    /// </summary>
     [DataContract]
     [Serializable]
     public abstract class Argument : NotifyPropertyChanged , ICloneable
@@ -28,7 +34,7 @@ namespace Pixel.Automation.Core.Arguments
             set
             {
                 mode = value;
-                OnPropertyChanged("Mode");
+                OnPropertyChanged();
             }
         }
 
@@ -45,7 +51,7 @@ namespace Pixel.Automation.Core.Arguments
             set
             {
                 propertyPath = value;
-                OnPropertyChanged("PropertyPath");
+                OnPropertyChanged();
             }
         }
 
@@ -61,7 +67,7 @@ namespace Pixel.Automation.Core.Arguments
             set
             {
                 scriptFile = value;
-                OnPropertyChanged("ScriptFile");
+                OnPropertyChanged();
             }
         }
 

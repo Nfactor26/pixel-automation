@@ -3,6 +3,10 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Arguments
 {
+    /// <summary>
+    /// Use OutArgument<T> when you need to modify some value on a globals object or script variable
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [DataContract]
     [Serializable]
     public class OutArgument<T> : Argument

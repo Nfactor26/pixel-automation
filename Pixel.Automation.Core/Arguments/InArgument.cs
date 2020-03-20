@@ -3,9 +3,19 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Arguments
 {
+
+    public interface IDefaultValueProvider<out T>
+    {
+        T GetDefaultValue();
+    }
+
+    /// <summary>
+    /// Use InArgument<T> when you need to retrieve a value from globals object or script variable
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [DataContract]
     [Serializable]
-    public class InArgument<T> : Argument
+    public class InArgument<T> : Argument, IDefaultValueProvider<T>
     {
 
         T defaultValue;
@@ -46,6 +56,11 @@ namespace Pixel.Automation.Core.Arguments
         public InArgument()
         {
             this.Mode = ArgumentMode.Default;
+        }
+
+        public T GetDefaultValue()
+        {
+            return DefaultValue;
         }
 
         public override Type GetArgumentType()
@@ -100,6 +115,7 @@ namespace Pixel.Automation.Core.Arguments
             return clone;
         }
 
+      
     }
  
 }

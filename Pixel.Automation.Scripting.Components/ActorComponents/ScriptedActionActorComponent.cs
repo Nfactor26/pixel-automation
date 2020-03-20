@@ -26,17 +26,10 @@ namespace Pixel.Automation.Scripting.Components
 
 
         async Task ExecuteScript()
-        {
-            Entity controlEntity = default;
-            if (this.Parent is ControlEntity)
-            {
-                controlEntity = this.Parent;
-            }
-          
+        {           
             IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
             var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
-            action(this.EntityManager.GetApplicationDetails(this), this);           
-
+            action(this.EntityManager.GetApplicationDetails(this), this);
         }
 
     }

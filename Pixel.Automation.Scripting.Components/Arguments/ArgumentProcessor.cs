@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
@@ -9,13 +10,15 @@ using System.Reflection;
 
 namespace Pixel.Automation.Scripting.Components.Arguments
 {
+    ///<inheritdoc/>
     public class ArgumentProcessor : IArgumentProcessor
     {
-        IScriptEngine scriptEngine;
-        object globalsObject;
+        private readonly IScriptEngine scriptEngine;
+        private object globalsObject;
 
         public ArgumentProcessor(IScriptEngine scriptEngine)
         {
+            Guard.Argument<IScriptEngine>(scriptEngine).NotNull();
             this.scriptEngine = scriptEngine;
         }
 
@@ -23,7 +26,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
         {
             this.globalsObject = globalsObject;
         }
-
+     
         public T GetValue<T>(Argument argument)
         {
 
@@ -35,10 +38,9 @@ namespace Pixel.Automation.Scripting.Components.Arguments
             switch (argument.Mode)
             {
                 case ArgumentMode.Default:
-                    if (argument is InArgument<T>)
-                    {
-                        InArgument<T> inArgument = argument as InArgument<T>;
-                        return inArgument.DefaultValue;
+                    if (argument is IDefaultValueProvider<T> inArgument)
+                    {                      
+                        return inArgument.GetDefaultValue();
                     }
                     throw new ArgumentException($"{nameof(Argument)} must be of type InArgument<{typeof(T)}>");
               
@@ -120,8 +122,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                             var retrievedValue = scriptEngine.GetVariableValue<object>(nestedProperties[0]);
                             if (!TrySetNestedPropertyValue<T>(retrievedValue, value, nestedProperties.Skip(1)))
                             {
-                                throw new ArgumentException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
-                                $"Only simple types and IEnumerable<T> targets are supported. Consider using scripted mode for complex types");
+                                throw new InvalidOperationException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
                             }                            
                         }                       
                     }                              
@@ -129,8 +130,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                     {
                         if (!TrySetNestedPropertyValue<T>(globalsObject, value, nestedProperties))
                         {
-                            throw new ArgumentException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
-                                $"Only simple types and IEnumerable<T> targets are supported. Consider using scripted mode for complex types");
+                            throw new InvalidOperationException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
                         }                      
                     }
                     break;

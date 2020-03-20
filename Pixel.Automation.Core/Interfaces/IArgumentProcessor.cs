@@ -2,6 +2,9 @@
 
 namespace Pixel.Automation.Core.Interfaces
 {
+    /// <summary>
+    /// Contract for getting and setting value from and to arguments respectively.
+    /// </summary>
     public interface IArgumentProcessor
     {
         /// <summary>
