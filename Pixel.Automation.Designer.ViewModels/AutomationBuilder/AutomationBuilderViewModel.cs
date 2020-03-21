@@ -28,7 +28,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;
      
         Entity processRoot = default;
-        TestCaseManager testCaseManager = default;
+        TestRepositoryManager testCaseManager = default;
         TestDataRepository testDataRepository = default;
 
         #endregion data members
@@ -120,7 +120,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 ITestDataLoader testdataManager = this.EntityManager.GetServiceOfType<ITestDataLoader>();              
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
 
-                this.testCaseManager = new TestCaseManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, this.serializer, testRunner, testdataManager, windowManager);
+                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, this.serializer, testRunner, testdataManager, windowManager);
             }
             this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);
 

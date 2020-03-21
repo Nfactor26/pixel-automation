@@ -2,6 +2,7 @@
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.TestExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Windows;
@@ -35,9 +36,9 @@ namespace Pixel.Automation.TestExplorer
             {
                 if (dropInfo.Data is TestDataSource testDataSource)
                 {
-                    var testCase = (dropInfo.VisualTarget as FrameworkElement).DataContext as TestCase;
+                    var testCase = (dropInfo.VisualTarget as FrameworkElement).DataContext as TestCaseViewModel;
                     testCase.TestDataId = testDataSource.Id;
-                    this.eventAggregator.PublishOnUIThreadAsync(new TestCaseUpdatedEventArgs(testCase));
+                    this.eventAggregator.PublishOnUIThreadAsync(new TestCaseUpdatedEventArgs(testCase.TestCase));
                 }
             }
             catch (Exception ex)

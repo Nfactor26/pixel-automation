@@ -4,7 +4,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.TestData.Repository.ViewModels;
-using Pixel.Automation.TestExplorer;
+using Pixel.Automation.TestExplorer.ViewModels;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {

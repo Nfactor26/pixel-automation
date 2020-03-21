@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="Pixel.Automation.TestExplorer.TestExplorerView"
+﻿<UserControl x:Class="Pixel.Automation.TestExplorer.Views.TestExplorerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:tsCore="clr-namespace:Pixel.Automation.Core.TestData;assembly=Pixel.Automation.Core"  
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"     
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"  
-             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer"            
+             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer"          
+             xmlns:localVM="clr-namespace:Pixel.Automation.TestExplorer.ViewModels"           
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:cal="http://www.caliburnproject.org"
@@ -18,7 +18,7 @@
         <converters:NullToBooleanConverter x:Key="nullToBoolConverter"/>
         <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
 
-        <HierarchicalDataTemplate DataType="{x:Type tsCore:TestCategory}" ItemsSource="{Binding Tests}">
+        <HierarchicalDataTemplate DataType="{x:Type localVM:TestCategoryViewModel}" ItemsSource="{Binding Tests}">
 
         </HierarchicalDataTemplate>
 
@@ -59,8 +59,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-
 
         <Style x:Key="TestCaseStyle" TargetType="TreeViewItem" >
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>

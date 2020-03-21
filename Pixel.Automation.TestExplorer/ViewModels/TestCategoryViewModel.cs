@@ -1,89 +1,62 @@
-﻿using Pixel.Automation.Core.TestData;
-using Pixel.Automation.Editor.Core;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.TestData;
+using System.Collections.ObjectModel;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.ViewModels
 {
-    public class TestCategoryViewModel : SmartScreen
-    {
-        private readonly TestCategory testCategory;
-        private readonly IEnumerable<TestCategory> existingCategories;
+    public class TestCategoryViewModel : NotifyPropertyChanged
+    {       
+        public TestCategory TestCategory { get; }
 
-        public TestCategory CopyOfTestCategory { get; }
+        public ObservableCollection<TestCaseViewModel> Tests { get; set; } = new ObservableCollection<TestCaseViewModel>();
 
-        public string TestCategoryDisplayName
+
+        public string Id
         {
-            get => CopyOfTestCategory.DisplayName;
+            get => TestCategory.Id;
+        }
+
+        public string DisplayName
+        {
+            get => TestCategory.DisplayName;
+            set => TestCategory.DisplayName = value;
+        }
+
+        public string Description
+        {
+            get => TestCategory.Description;
+            set => TestCategory.Description = value;
+        }
+
+
+        public bool IsOrdered
+        {
+            get => TestCategory.IsOrdered;
+            set => TestCategory.IsOrdered = value;
+        }
+
+        public bool IsMuted
+        {
+            get => TestCategory.IsMuted;
+            set => TestCategory.IsMuted = value;
+        }
+
+        bool isSelected;
+        public bool IsSelected
+        {
+            get => isSelected;
             set
             {
-                CopyOfTestCategory.DisplayName = value;
-                ValidateProperty(nameof(TestCategoryDisplayName));
-                NotifyOfPropertyChange(() => TestCategoryDisplayName);
+                isSelected = value;
+                OnPropertyChanged();
+
             }
         }
 
-        public string TestCategoryDescription
+        public TestCategoryViewModel(TestCategory testCategory)
         {
-            get => CopyOfTestCategory.Description;
-            set
-            {
-                CopyOfTestCategory.Description = value;
-                ValidateProperty(nameof(TestCategoryDescription));
-                NotifyOfPropertyChange(() => TestCategoryDescription);
-            }
+            this.TestCategory = testCategory;
         }
-
-        public TestCategoryViewModel(TestCategory testCategory, IEnumerable<TestCategory> existingCategories)
-        {
-            this.testCategory = testCategory;
-            this.existingCategories = existingCategories;
-            this.CopyOfTestCategory = testCategory.Clone() as TestCategory;
-        }
-
-        public bool CanSave
-        {
-            get => !HasErrors;
-        }
-
-        public async void Save()
-        {
-            if(Validate())
-            {
-                this.testCategory.DisplayName = CopyOfTestCategory.DisplayName;
-                this.testCategory.Description = CopyOfTestCategory.Description;
-                this.testCategory.IsMuted = CopyOfTestCategory.IsMuted;
-                this.testCategory.IsOrdered = CopyOfTestCategory.IsOrdered;
-                await this.TryCloseAsync(true);
-            }           
-        }
-
-        public async void Cancel()
-        {
-            await this.TryCloseAsync(false);
-        }
-
-        public bool Validate()
-        {
-            ValidateProperty(nameof(TestCategoryDisplayName));
-            return !HasErrors;
-        }
-
-        private void ValidateProperty(string propertyName)
-        {          
-            ClearErrors(propertyName);
-            switch (propertyName)
-            {
-                case nameof(TestCategoryDisplayName):
-                    ValidateRequiredProperty(nameof(TestCategoryDisplayName), TestCategoryDisplayName);
-                    if (this.existingCategories.Any(a => a.DisplayName.Equals(TestCategoryDisplayName)))
-                    {
-                        AddOrAppendErrors(nameof(TestCategoryDisplayName), "Name must be unique.");
-                    }
-                    break;
-            }        
-            NotifyOfPropertyChange(() => CanSave);
-        }
-
+    
     }
 }

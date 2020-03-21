@@ -1,12 +1,12 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Editor.Core;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class TestExplorerViewModel : ToolBox, ITestExplorer 
     {      
        
-        public TestCaseManager ActiveInstance { get; set; }
+        public TestRepositoryManager ActiveInstance { get; set; }
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
 
@@ -20,9 +20,9 @@ namespace Pixel.Automation.TestExplorer
 
         public void SetActiveInstance(object instance)
         {
-            if (instance is TestCaseManager)
+            if (instance is TestRepositoryManager)
             {
-                this.ActiveInstance = instance as TestCaseManager;
+                this.ActiveInstance = instance as TestRepositoryManager;
                 NotifyOfPropertyChange(nameof(ActiveInstance));
                 NotifyOfPropertyChange(nameof(IsTestProcessOpen));
             }

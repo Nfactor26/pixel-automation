@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core.TestData;
+﻿using Pixel.Automation.TestExplorer.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -16,11 +16,11 @@ namespace Pixel.Automation.TestExplorer
 
             if (element != null && item != null)
             {
-                if (item is TestCase)
+                if (item is TestCaseViewModel)
                 {
                     return TestCaseStyle;
                 }
-                if (item is TestCategory)
+                if (item is TestCategoryViewModel)
                 {
                     return TestCategoryStyle;
                 }              

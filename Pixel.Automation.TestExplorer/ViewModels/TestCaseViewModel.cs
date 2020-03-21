@@ -1,90 +1,140 @@
-﻿using Pixel.Automation.Core.TestData;
-using Pixel.Automation.Editor.Core;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.TestData;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.ViewModels
 {
-    public class TestCaseViewModel : SmartScreen
+    public class TestCaseViewModel : NotifyPropertyChanged
     {
         private readonly TestCase testCase;
-        private readonly IEnumerable<TestCase> existingTestCases;
 
-        public TestCase CopyOfTestCase { get; }
-
-        public string TestCaseDisplayName
+        public TestCase TestCase
         {
-            get => CopyOfTestCase.DisplayName;
-            set
-            {
-                CopyOfTestCase.DisplayName = value;
-                ValidateProperty(nameof(TestCaseDisplayName));
-                NotifyOfPropertyChange(() => TestCaseDisplayName);
-            }
+            get => testCase;
         }
 
-        public string TestCaseDescrpition
-        {
-            get => CopyOfTestCase.Description;
-            set
-            {
-                CopyOfTestCase.Description = value;              
-                NotifyOfPropertyChange(() => TestCaseDescrpition);
-            }
-        }
-
-        public TestCaseViewModel(TestCase testCase, IEnumerable<TestCase> existingTestCases)
+        public TestCaseViewModel(TestCase testCase)
         {
             this.testCase = testCase;
-            this.existingTestCases = existingTestCases;
-            this.CopyOfTestCase = testCase.Clone() as TestCase;
         }
 
-
-        public bool CanSave
+        public string Id
         {
-            get => !HasErrors;
+            get => testCase.Id;
+            set => testCase.Id = value;
         }
 
-
-        public async void Save()
+        public string CategoryId
         {
-            if(Validate())
+            get => testCase.CategoryId;
+            set => testCase.CategoryId = value;
+        }
+
+        public string DisplayName
+        {
+            get => testCase.DisplayName;
+            set
             {
-                this.testCase.DisplayName = CopyOfTestCase.DisplayName;
-                this.testCase.Description = CopyOfTestCase.Description;
-                this.testCase.IsMuted = CopyOfTestCase.IsMuted;
-                await this.TryCloseAsync(true);
-            }            
-        }
+                testCase.DisplayName = value;
+                OnPropertyChanged();
 
-        public async void Cancel()
+            }
+        }
+        public string Description
         {
-            await this.TryCloseAsync(false);
+            get => testCase.Description;
+            set => testCase.Description = value;
         }
 
-        public bool Validate()
+        public IEnumerable<string> Tags
         {
-            ValidateProperty(nameof(TestCaseDisplayName));         
-            return !HasErrors;
+            get => testCase.Tags;
+            set => testCase.Tags = value;
         }
 
-        private void ValidateProperty(string propertyName)
-        {          
-            ClearErrors(propertyName);
-            switch (propertyName)
+        public bool IsMuted
+        {
+            get => testCase.IsMuted;
+            set
             {
-                case nameof(TestCaseDisplayName):
-                    ValidateRequiredProperty(nameof(TestCaseDisplayName), TestCaseDisplayName);                     
-                    if(this.existingTestCases.Any(a => a.DisplayName.Equals(TestCaseDisplayName)))
-                    {
-                       AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
-                    }
-                    break;                   
-            }        
-            NotifyOfPropertyChange(() => CanSave);
+                testCase.IsMuted = value;
+                OnPropertyChanged();
+            }
+        }
+        public int Order
+
+        {
+            get => testCase.Order;
+            set => testCase.Order = value;
+
         }
 
-        
+        public Entity TestCaseEntity
+
+        {
+            get => testCase.TestCaseEntity;
+            set => testCase.TestCaseEntity = value;
+        }
+
+        public string ScriptFile
+        {
+            get => testCase.ScriptFile;
+            set => testCase.ScriptFile = value;
+        }
+
+
+        public string TestDataId
+        {
+            get => testCase.TestDataId;
+            set
+            {
+                testCase.TestDataId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool isSelected;
+        public bool IsSelected
+        {
+            get => isSelected;
+            set
+            {
+                isSelected = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool isOpenForEdit;
+        public bool IsOpenForEdit
+        {
+            get => isOpenForEdit;
+            set
+            {
+                isOpenForEdit = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool isRunning;
+        public bool IsRunning
+        {
+            get => isRunning;
+            set
+            {
+                isRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [NonSerialized]
+        ObservableCollection<TestResult> testResults = new ObservableCollection<TestResult>();
+        public ObservableCollection<TestResult> TestResults
+        {
+            get => testResults;
+            set => testResults = value;
+        }
+
     }
 }

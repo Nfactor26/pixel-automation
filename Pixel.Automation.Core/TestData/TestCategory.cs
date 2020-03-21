@@ -6,7 +6,7 @@ namespace Pixel.Automation.Core.TestData
 {
     [DataContract]
     [Serializable]
-    public class TestCategory : NotifyPropertyChanged, ICloneable
+    public class TestCategory : ICloneable
     {
         [DataMember]
         public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -21,20 +21,7 @@ namespace Pixel.Automation.Core.TestData
         public bool IsOrdered { get; set; }
 
         [DataMember]
-        public bool IsMuted { get; set; }
-
-        bool isSelected;
-        public bool IsSelected
-        {
-            get => isSelected;
-            set
-            {
-                isSelected = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<TestCase> Tests { get; set; } = new ObservableCollection<TestCase>();
+        public bool IsMuted { get; set; }  
 
         public object Clone()
         {
@@ -44,9 +31,7 @@ namespace Pixel.Automation.Core.TestData
                 DisplayName = this.DisplayName,
                 Description = this.Description,
                 IsOrdered = this.IsOrdered,
-                IsMuted = this.IsMuted,
-                IsSelected = this.IsSelected,
-                Tests = this.Tests
+                IsMuted = this.IsMuted              
             };
             return copy;
         }

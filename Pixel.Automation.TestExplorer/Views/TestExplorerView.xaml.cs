@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.Views
 {
     /// <summary>
     /// Interaction logic for TestExplorerView.xaml
