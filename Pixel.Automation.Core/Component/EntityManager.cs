@@ -65,6 +65,7 @@ namespace Pixel.Automation.Core
         {
             this.serviceProvider = serviceProvider;
             this.isPrimaryManager = true;
+            this.serviceProvider.RegisterDefault<EntityManager>(this);
         }
 
         /// <summary>

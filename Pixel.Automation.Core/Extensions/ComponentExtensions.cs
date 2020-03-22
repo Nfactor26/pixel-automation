@@ -44,6 +44,13 @@ namespace Pixel.Automation.Core
             }
         }
 
+        /// <summary>
+        /// Get scoped entity for a component. A component which is child of a scoped entity e.g. foreach loop 
+        /// will have additional local variables visible in bound mode (from current iteration item)
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="scopedEntity"></param>
+        /// <returns></returns>
         public static bool TryGetScopedParent(this IComponent component, out IScopedEntity scopedEntity)
         {
             IComponent parent = component.Parent;

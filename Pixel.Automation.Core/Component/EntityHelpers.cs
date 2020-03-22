@@ -67,7 +67,7 @@ namespace Pixel.Automation.Core
         /// <param name="rootEntity">Entity within which component needs to be looked for</param>
         /// <exception cref="MissingComponentException">thrown if no component of specified type exists in rootEntity</exception>
         /// <returns>First occurence of component of type T inside children of rootEntity</returns>
-        public static T GetFirstComponentOfType<T>(this Entity rootEntity, SearchScope searchScope = SearchScope.Children)
+        public static T GetFirstComponentOfType<T>(this Entity rootEntity, SearchScope searchScope = SearchScope.Children, bool throwIfMissing = true)
         {
             switch (searchScope)
             {
@@ -75,23 +75,37 @@ namespace Pixel.Automation.Core
                     foreach (var p in rootEntity.Components)
                     {
                         if (p is T)
+                        {
                             return (T)p;
+                        }
                     }
                     break;
                 case SearchScope.Descendants:
                     foreach (var component in rootEntity.Components)
                     {
                         if (component is T)
+                        {
                             return (T)component;
+                        }
                         if (component is Entity)
                         {
-                            return (component as Entity).GetFirstComponentOfType<T>(searchScope);                          
+                            var foundComponent = (component as Entity).GetFirstComponentOfType<T>(searchScope, false);  
+                            if(foundComponent != null)
+                            {
+                                return foundComponent;
+                            }
                         }
                     }
                     break;
             }       
 
-            throw new MissingComponentException($"No component of required type {typeof(T).ToString()} exists inside component : {rootEntity.ToString()}");         
+            if(throwIfMissing)
+            {
+                throw new MissingComponentException($"No component of required type {typeof(T).ToString()} exists inside component : {rootEntity.ToString()}");
+            }
+
+            return default;
+               
         }
 
         /// <summary>

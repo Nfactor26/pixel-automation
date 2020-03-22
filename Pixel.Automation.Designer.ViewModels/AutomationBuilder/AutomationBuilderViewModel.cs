@@ -115,12 +115,11 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             if(this.testCaseManager == null)
             {
-                ITestRunner testRunner = this.EntityManager.RootEntity.GetFirstComponentOfType<ITestRunner>();
-                IEventAggregator eventAggregator = this.EntityManager.GetServiceOfType<IEventAggregator>();
-                ITestDataLoader testdataManager = this.EntityManager.GetServiceOfType<ITestDataLoader>();              
+                ITestRunner testRunner = this.EntityManager.GetServiceOfType<ITestRunner>();
+                IEventAggregator eventAggregator = this.EntityManager.GetServiceOfType<IEventAggregator>();                          
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
 
-                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, this.serializer, testRunner, testdataManager, windowManager);
+                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, this.serializer, testRunner, windowManager);
             }
             this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);
 

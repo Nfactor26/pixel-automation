@@ -107,14 +107,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                         var appPoolEntity = new ApplicationPoolEntity();
                         rootEntity.AddComponent(appPoolEntity);
 
-                        TestCaseProcessorEntity testCaseProcessor = new TestCaseProcessorEntity();
-                        rootEntity.AddComponent(testCaseProcessor);
+                        TestFixtureEntity testFixtureEntity = new TestFixtureEntity();
+                        rootEntity.AddComponent(testFixtureEntity);
 
                         OneTimeSetUpEntity oneTimeSetupEntity = new OneTimeSetUpEntity();
-                        testCaseProcessor.AddComponent(oneTimeSetupEntity);
+                        testFixtureEntity.AddComponent(oneTimeSetupEntity);
 
                         OneTimeTearDownEntity oneTimeTearDownEntity = new OneTimeTearDownEntity();
-                        testCaseProcessor.AddComponent(oneTimeTearDownEntity);
+                        testFixtureEntity.AddComponent(oneTimeTearDownEntity);
                     }
                     break;
 
