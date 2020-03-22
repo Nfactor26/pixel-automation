@@ -119,7 +119,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 IEventAggregator eventAggregator = this.EntityManager.GetServiceOfType<IEventAggregator>();                          
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
 
-                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, this.serializer, testRunner, windowManager);
+                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, testRunner, windowManager);
             }
             this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);
 

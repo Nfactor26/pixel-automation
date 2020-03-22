@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using Pixel.Automation.Core.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.TestData
 {
     [DataContract]
-    [Serializable]
+    [Serializable] 
+    [FileDescription("tcat")]
     public class TestCategory : ICloneable
     {
         [DataMember]
@@ -34,6 +35,11 @@ namespace Pixel.Automation.Core.TestData
                 IsMuted = this.IsMuted              
             };
             return copy;
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}";
         }
 
     }

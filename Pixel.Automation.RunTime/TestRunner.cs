@@ -123,11 +123,11 @@ namespace Pixel.Automation.RunTime
                 foreach (var item in dataSourceCollection)
                 {
                     testCaseEntity.EntityManager.Arguments = item;
+                    
                     IScriptEngine scriptEngine = testCaseEntity.EntityManager.GetServiceOfType<IScriptEngine>();
+                    scriptEngine.ClearState();
                     var state = await scriptEngine.ExecuteFileAsync(testCase.ScriptFile);
-
-
-
+                                       
                     stopWatch.Reset();
                     stopWatch.Start();
                     TestResult result = default;

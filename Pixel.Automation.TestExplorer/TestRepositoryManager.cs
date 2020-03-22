@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
-using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
@@ -28,8 +27,9 @@ namespace Pixel.Automation.TestExplorer
     {
         #region Data members
     
-        private readonly IProjectFileSystem fileSystem;
-        private readonly ISerializer serializer;     
+        private readonly ILogger logger = Log.ForContext<TestRepositoryManager>();
+
+        private readonly IProjectFileSystem fileSystem;      
         private readonly IProjectManager projectManager;       
         private readonly IEventAggregator eventAggregator;      
         private readonly IWindowManager windowManager;
@@ -43,11 +43,11 @@ namespace Pixel.Automation.TestExplorer
         #endregion Data members
 
         #region Constructor
-        public TestRepositoryManager(IEventAggregator eventAggregator, IProjectManager projectManager, IProjectFileSystem fileSystem, ISerializer serializer, ITestRunner testRunner, IWindowManager windowManager)
+  
+        public TestRepositoryManager(IEventAggregator eventAggregator, IProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, IWindowManager windowManager)
         {
             this.projectManager = projectManager;
-            this.fileSystem = fileSystem;
-            this.serializer = serializer;        
+            this.fileSystem = fileSystem;      
             this.TestRunner = testRunner;          
             this.eventAggregator = eventAggregator;            
             this.windowManager = windowManager;
@@ -59,19 +59,16 @@ namespace Pixel.Automation.TestExplorer
 
         private void LoadExistingTests()
         {
-            foreach (var catFile in Directory.GetFiles(this.fileSystem.TestCaseDirectory))
+            foreach(var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseDirectory))
             {
-                //TODO : Validate file has proper type
-                TestCategory testCategory = this.serializer.Deserialize<TestCategory>(catFile);
                 TestCategoryViewModel testCategoryVM = new TestCategoryViewModel(testCategory);
                 this.TestCategories.Add(testCategoryVM);
-                foreach(var testFile in Directory.GetFiles(Path.Combine(this.fileSystem.TestCaseDirectory, testCategory.Id),"*.test"))
-                {
-                    TestCase testCase = this.serializer.Deserialize<TestCase>(testFile);
+                foreach (var testCase in this.fileSystem.LoadFiles<TestCase>((Path.Combine(this.fileSystem.TestCaseDirectory, testCategory.Id))))
+                {                  
                     TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
                     testCategoryVM.Tests.Add(testCaseVM);
                 }
-            }
+            }         
         }
 
         #endregion Constructor
@@ -110,18 +107,13 @@ namespace Pixel.Automation.TestExplorer
         }
 
         private void SaveTestCategory(TestCategoryViewModel testCategoryVM)
-        {         
-            if(!Directory.Exists(Path.Combine(this.fileSystem.TestCaseDirectory, testCategoryVM.Id)))
-            {
-                Directory.CreateDirectory(Path.Combine(this.fileSystem.TestCaseDirectory, testCategoryVM.Id));
-            }
-            this.serializer.Serialize<TestCategory>(Path.Combine(this.fileSystem.TestCaseDirectory, $"{testCategoryVM.Id}.tcat"),
-                testCategoryVM.TestCategory);          
+        {
+            this.fileSystem.SaveToFile<TestCategory>(testCategoryVM.TestCategory, this.fileSystem.TestCaseDirectory);
         }
 
         public void DeleteTestCategory(TestCategoryViewModel testCategoryVM)
         {
-            MessageBoxResult result =MessageBox.Show("Are you sure you want to delete this test category along with all tests?", "Confirm Delete", MessageBoxButton.OKCancel);
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test category along with all tests?", "Confirm Delete", MessageBoxButton.OKCancel);
             if(result == MessageBoxResult.OK)
             {
                 this.TestCategories.Remove(testCategoryVM);
@@ -182,19 +174,11 @@ namespace Pixel.Automation.TestExplorer
             TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));
             if(ownerCategory != null)
             {
-                string testCaseFile = Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id, $"{testCaseVM.Id}.test");           
-                this.serializer.Serialize<TestCase>(testCaseFile, testCaseVM.TestCase);
-
-                string scriptFile = Path.Combine(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile);
-                if(!File.Exists(scriptFile))
-                {
-                    File.Create(scriptFile);
-                }
-
+                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));
+                this.fileSystem.CreateOrReplaceFile(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile, string.Empty);
                 if(saveTestEntity)
                 {
-                    string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id, $"{testCaseVM.Id}.atm");
-                    this.serializer.Serialize<Entity>(testCaseProcessFile, testCaseVM.TestCaseEntity);
+                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));               
                 }               
             }
         }
@@ -220,10 +204,15 @@ namespace Pixel.Automation.TestExplorer
                    
                 }              
             }
-        }
+        }      
 
         public async void OpenForEdit(TestCaseViewModel testCaseVM)
         {
+            if (!testCaseVM.CanOpenForEdit)
+            {
+                return;
+            }
+
             //This is required because OpenForEdit might be called from RunAll for tests which are not open for edit.
             //Opening a test initializes dependencies like script engine , script editor , etc for test case.
             //script editor can only be created on dispatcher thread although it won't be used while running.
@@ -252,6 +241,20 @@ namespace Pixel.Automation.TestExplorer
 
         }
 
+        public void OpenForEdit(string testCaseId)
+        {
+            foreach (var testCategory in this.TestCategories)
+            {
+                var targetTestCase = testCategory.Tests.FirstOrDefault(t => t.Id.Equals(testCaseId));
+                if (targetTestCase != null)
+                {
+                    OpenForEdit(targetTestCase);
+                    logger.Information($"Test Case : {targetTestCase} is open for edit now.");
+                    break;
+                }
+            }
+        }
+
         public void DoneEditing(TestCaseViewModel testCaseVM, bool autoSave)
         {
             if (this.OpenTestCases.Contains(testCaseVM))
@@ -271,6 +274,21 @@ namespace Pixel.Automation.TestExplorer
             NotifyOfPropertyChange(nameof(CanSaveAll));
         }
 
+        public void DoneEditing(string testCaseId)
+        {
+            var targetTestCase = OpenTestCases.FirstOrDefault(a => a.Id.Equals(testCaseId));
+            if (targetTestCase != null)
+            {
+                SaveTestCase(targetTestCase);
+                targetTestCase.TestCaseEntity = null;
+                targetTestCase.TestResults.Clear();
+                this.OpenTestCases.Remove(targetTestCase);
+                targetTestCase.IsOpenForEdit = false;
+                NotifyOfPropertyChange(nameof(CanSaveAll));
+                return;
+            }
+        }
+
         public bool CanSaveAll
         {
             get => this.OpenTestCases.Count > 0;
@@ -286,45 +304,28 @@ namespace Pixel.Automation.TestExplorer
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex.Message);
-                    //TODO : Log error
+                    logger.Error(ex,ex.Message);
                 }
             }
-        }      
-
-        public void DoneEditing(string testCaseId)
-        {
-            var targetTestCase = OpenTestCases.FirstOrDefault(a => a.Id.Equals(testCaseId));
-            if(targetTestCase != null)
-            {
-                SaveTestCase(targetTestCase);
-                targetTestCase.TestCaseEntity = null;
-                targetTestCase.TestResults.Clear();
-                this.OpenTestCases.Remove(targetTestCase);
-                targetTestCase.IsOpenForEdit = false;
-                NotifyOfPropertyChange(nameof(CanSaveAll));
-            }
-        }
-
-        public void OpenForEdit(string testCaseId)
-        {
-            foreach(var testCategory in this.TestCategories)
-            {
-                var targetTestCase = testCategory.Tests.FirstOrDefault(t => t.Id.Equals(testCaseId));
-                if(targetTestCase != null)
-                {
-                    OpenForEdit(targetTestCase);
-                    break;
-                }
-            }
-        }
-
+        }         
+       
         public async void EditScript(TestCaseViewModel testCaseVM)
         {
-            var scriptEditorFactory = testCaseVM.TestCaseEntity.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-            IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
-            scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, string.Empty);
-            var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);          
+            if(testCaseVM.IsOpenForEdit)
+            {
+                var entityManager = testCaseVM.TestCaseEntity.EntityManager;
+                var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
+                scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, string.Empty);
+                var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                if (result.HasValue && result.Value)
+                {
+                    var scriptEngine = entityManager.GetServiceOfType<IScriptEngine>();
+                    scriptEngine.ClearState();
+                    await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
+                }
+            }
+         
         }
 
         public async void ShowDataSource(TestCaseViewModel testCaseVM)
@@ -408,37 +409,33 @@ namespace Pixel.Automation.TestExplorer
                 {
                     OpenForEdit(testCaseVM);
                 }
+            
+                Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+                System.Action clearTestResults = () => testCaseVM.TestResults.Clear();
+                if (!dispatcher.CheckAccess())
+                {
+                    dispatcher.Invoke(clearTestResults);
+                }
                 else
                 {
+                    clearTestResults();
+                }
 
-                    Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-                    System.Action clearTestResults = () => testCaseVM.TestResults.Clear();
+                await foreach (var result in this.TestRunner.RunTestAsync(testCaseVM.TestCase))
+                {
+                    System.Action addTestResult = () => testCaseVM.TestResults.Add(result);
                     if (!dispatcher.CheckAccess())
                     {
-                        dispatcher.Invoke(clearTestResults);
+                        dispatcher.Invoke(addTestResult);
                     }
                     else
                     {
-                        clearTestResults();
+                        addTestResult();
                     }
-
-                    await foreach (var result in this.TestRunner.RunTestAsync(testCaseVM.TestCase))
-                    {
-                        System.Action addTestResult = () => testCaseVM.TestResults.Add(result);
-                        if (!dispatcher.CheckAccess())
-                        {
-                            dispatcher.Invoke(addTestResult);
-                        }
-                        else
-                        {
-                            addTestResult();
-                        }
-                    }
-
-                    return await Task.FromResult(true);
                 }
 
-                throw new ConfigurationException($"Failed to run TestCase : {testCaseVM.DisplayName}");
+                return await Task.FromResult(true);
+
             }
             catch (Exception ex)
             {
@@ -457,6 +454,7 @@ namespace Pixel.Automation.TestExplorer
 
         #endregion Execute       
 
+        #region Notifications
 
         /// <summary>
         /// This will be called whenever a new test data source is dragged on a test case.
@@ -472,6 +470,8 @@ namespace Pixel.Automation.TestExplorer
             }
             await Task.CompletedTask;
         }
+
+        #endregion Notifications
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -7,6 +8,7 @@ namespace Pixel.Automation.Core.TestData
 
     [DataContract]
     [Serializable]
+    [FileDescription("test")]
     public class TestCase : ICloneable
     {
         [DataMember]
@@ -52,6 +54,11 @@ namespace Pixel.Automation.Core.TestData
                 TestCaseEntity = this.TestCaseEntity                
             };
             return copy;
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}";
         }
     }
 

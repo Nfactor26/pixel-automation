@@ -33,8 +33,13 @@ namespace Pixel.Automation.Core.Interfaces
 
         string[] GetAssemblyReferences();
 
-        void SwitchToVersion(Version version);    
-       
+        void SwitchToVersion(Version version);
+
+        IEnumerable<T> LoadFiles<T>(string directory) where T : new();
+
+        void SaveToFile<T>(T model, string directory) where T : new();
+
+        void CreateOrReplaceFile(string directory, string fileName, string content);
     }
 
     public interface IProjectFileSystem : IFileSystem

@@ -17,7 +17,8 @@
 
         <converters:NullToBooleanConverter x:Key="nullToBoolConverter"/>
         <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
-
+        <converters:TrimmedTextConverter x:Key="trimmedTextConverter"/>
+        
         <HierarchicalDataTemplate DataType="{x:Type localVM:TestCategoryViewModel}" ItemsSource="{Binding Tests}">
 
         </HierarchicalDataTemplate>
@@ -75,7 +76,7 @@
                                     <iconPacks:PackIconMaterial x:Name="OpenIndicator" VerticalAlignment="Center"
                                          Foreground="{DynamicResource MahApps.Brushes.Validation1}" 
                                          DockPanel.Dock="Left"  Visibility="Hidden" Kind="LockOpenOutline" />
-                                    <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName}" HorizontalAlignment="Left"
+                                    <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" HorizontalAlignment="Left"
                                          DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0" Foreground="Black"
                                          cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
                                          cal:Message.Attach="[Event DoubleClick] = [Action OpenForEdit($dataContext)]">
@@ -97,7 +98,7 @@
 
                                     <StackPanel.ContextMenu>
                                         <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem x:Name="Open" Header="Open" IsEnabled="{Binding IsOpenForEdit, Converter={StaticResource inverseBoolConverter}}"                                         
+                                            <MenuItem x:Name="Open" Header="Open" IsEnabled="{Binding CanOpenForEdit}"                                         
                                                 cal:Message.Attach="[Event Click] = [Action OpenForEdit($dataContext)]"/>
                                             <MenuItem x:Name="Close" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
                                                 cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'false')]"/>
@@ -107,11 +108,11 @@
                                                 cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'true')]"/>
                                             <MenuItem x:Name="Edit" Header="Edit Details"                                       
                                                 cal:Message.Attach="[Event Click] = [Action EditTestCase($dataContext)]"/>
-                                            <MenuItem x:Name="EditScript" Header="Edit Script"                                       
+                                            <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                    
                                                 cal:Message.Attach="[Event Click] = [Action EditScript($dataContext)]"/>
                                             <MenuItem x:Name="ShowDataSource" Header="Show Data Source" IsEnabled="{Binding TestDataId, Converter={StaticResource nullToBoolConverter}}" 
                                                 cal:Message.Attach="[Event Click] = [Action ShowDataSource($dataContext)]"/>
-                                            <MenuItem x:Name="Delete" Header="Delete"
+                                            <MenuItem x:Name="Delete" Header="Delete" IsEnabled="{Binding IsOpenForEdit, Converter={StaticResource inverseBoolConverter}}" 
                                                 cal:Message.Attach="[Event Click] = [Action DeleteTestCase($dataContext)]"/>
                                         </ContextMenu>
                                     </StackPanel.ContextMenu>
@@ -164,7 +165,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TreeViewItem">
                         <StackPanel Orientation="Vertical">
-                            <Expander x:Name="TestCategory" Header="{Binding DisplayName}" Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                            <Expander x:Name="TestCategory" Header="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
                                      Background="{StaticResource MahApps.Brushes.Control.Background}" BorderThickness="0" Margin="5,0,0,0" FontSize="11">
                                 <ItemsPresenter x:Name="ItemsHost"/>
                                 <Expander.ContextMenu>

@@ -92,6 +92,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 testCase.TestDataId = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(CanOpenForEdit));
             }
         }
 
@@ -114,7 +115,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 isOpenForEdit = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(CanOpenForEdit));
             }
+        }
+
+        public bool CanOpenForEdit
+        {
+            get => !isOpenForEdit && !string.IsNullOrEmpty(TestDataId);
         }
 
         bool isRunning;

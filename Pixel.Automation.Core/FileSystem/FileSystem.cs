@@ -1,7 +1,9 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace Pixel.Automation.Core
@@ -103,5 +105,46 @@ namespace Pixel.Automation.Core
             };
         }
 
+
+        public IEnumerable<T> LoadFiles<T>(string directory) where T : new()
+        {
+            var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;
+            if (fileDescription != null)
+            {
+               var locatedFiles = Directory.GetFiles(directory, $"*.{fileDescription.Extension}");
+               foreach(var file in locatedFiles)
+                {
+                    yield return this.serializer.Deserialize<T>(file);
+                }
+            }
+            yield break;
+        }
+
+        public void SaveToFile<T>(T model,string directory) where T : new()
+        {
+            var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;
+            if (fileDescription != null)
+            {
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                this.serializer.Serialize<T>(Path.Combine(directory, $"{model}.{fileDescription.Extension}"),
+                    model);
+            }
+        }
+
+        public void CreateOrReplaceFile(string directory, string fileName, string content)
+        {
+            var targetFile = Path.Combine(directory, fileName);
+            if(File.Exists(targetFile))
+            {
+                File.Delete(targetFile);
+            }
+            using(var fs = File.CreateText(targetFile))
+            {
+                fs.Write(content ?? string.Empty);
+            }
+        }
     }
 }
