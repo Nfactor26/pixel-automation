@@ -1,18 +1,17 @@
-﻿namespace Pixel.Automation.Core.Devices
+﻿using System;
+using System.ComponentModel;
+
+namespace Pixel.Automation.Core.Devices
 {
+    [Serializable]
+    [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum MouseButton
     {
-        //
-        // Summary:
-        //     Left mouse button
+        [Description("Left Button")]
         LeftButton = 0,
-        //
-        // Summary:
-        //     Middle mouse button
+        [Description("Middle Button")]
         MiddleButton = 1,
-        //
-        // Summary:
-        //     Right moust button
+        [Description("Right Button")]
         RightButton = 2
     }
 }

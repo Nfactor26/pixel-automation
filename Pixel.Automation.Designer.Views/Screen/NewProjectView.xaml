@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+             xmlns:editorCore="clr-namespace:Pixel.Automation.Editor.Core;assembly=Pixel.Automation.Editor.Core"              
              xmlns:cal="http://www.caliburnproject.org"
-             xmlns:models="clr-namespace:Pixel.Automation.Core.Models;assembly=Pixel.Automation.Core"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:models="clr-namespace:Pixel.Automation.Core.Models;assembly=Pixel.Automation.Core"          
              mc:Ignorable="d"  WindowStartupLocation="CenterOwner"
              MaxHeight="175" Width="350"
              IsMinButtonEnabled="False" Title="New Project" GlowBrush="{DynamicResource AccentColorBrush}">
@@ -33,17 +33,9 @@
                          Controls:TextBoxHelper.IsWaitingForData="True"                                   
                          ToolTip="Project Name" />
         </DockPanel>
-        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">
-            <DockPanel.Resources>
-                <ObjectDataProvider x:Key="projectType" MethodName="GetValues"
-                            ObjectType="{x:Type System:Enum}">
-                    <ObjectDataProvider.MethodParameters>
-                        <x:Type TypeName="models:ProjectType"/>
-                    </ObjectDataProvider.MethodParameters>
-                </ObjectDataProvider>
-            </DockPanel.Resources>
+        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">           
             <Label Content="Type" DockPanel.Dock="Left" MinWidth="80"></Label>
-            <ComboBox ItemsSource="{Binding Source={StaticResource projectType}}" DockPanel.Dock="Right"
+            <ComboBox ItemsSource="{Binding Source={editorCore:EnumBindingSource {x:Type models:ProjectType}}}" DockPanel.Dock="Right"
                   SelectedItem="{Binding Path=AutomationProjectType}" ToolTip="Project Type"/>
         </DockPanel>
         <DockPanel LastChildFill="False" Margin="0,5,0,0"  Grid.Row="4">

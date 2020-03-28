@@ -2,6 +2,7 @@
 
 namespace Pixel.Automation.Core.Models
 {
+    [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum ProjectType
     {   
         [Description("Process Automation")]

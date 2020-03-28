@@ -42,7 +42,7 @@ namespace Pixel.Automation.Designer.Views
                     targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.Name.Equals("KeySequence"))
+                if (targetPropertyItem.Name.Equals("Keys"))
                 {
                     targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
                     return;

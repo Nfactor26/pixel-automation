@@ -14,14 +14,17 @@ namespace Pixel.Automation.Editor.Core.Editors
     public partial class KeyEditor : UserControl , ITypeEditor , INotifyPropertyChanged
     {
 
-        public static readonly DependencyProperty ActorComponentProperty = DependencyProperty.Register("ActorComponent", typeof(ActorComponent), typeof(KeyEditor),
-                                                                                                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+        public static readonly DependencyProperty ActorComponentProperty = DependencyProperty.Register("ActorComponent", typeof(ActorComponent),
+            typeof(KeyEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+    
         public ActorComponent ActorComponent
         {
             get { return (ActorComponent)GetValue(ActorComponentProperty); }
             set { SetValue(ActorComponentProperty, value); }
         }
+     
         public bool IsModifierKeysRequired { get; private set; } = true;
+     
         public bool AppendToExistingKey { get; private set; } = false;
 
         public KeyEditor()
