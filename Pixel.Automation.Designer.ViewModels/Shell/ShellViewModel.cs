@@ -296,17 +296,22 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken)
         {
             ITestExplorer testExplorer = this.Tools.OfType<ITestExplorer>().FirstOrDefault();
+            MessageBoxResult result = default;
             if (testExplorer.HasTestCaseOpenForEdit())
             {
-                MessageBoxResult result = MessageBox.Show("Test explorer has unsaved changed. Are you sure you want to exit?",
-                    "Confirm Quit", MessageBoxButton.OKCancel);
-                if (result == MessageBoxResult.Cancel)
-                {
-                    return await Task.FromResult(false);
-                }
-                return await Task.FromResult(true);
+                result = MessageBox.Show("Test explorer has unsaved changed. Are you sure you want to exit?",
+                    "Confirm Quit", MessageBoxButton.OKCancel);             
             }
-            return await Task.FromResult(false);
+            else
+            {
+                result = MessageBox.Show("Are you sure you want to exit?",
+                 "Confirm Quit", MessageBoxButton.OKCancel);            
+            }
+            if (result == MessageBoxResult.Cancel)
+            {
+                return await Task.FromResult(false);
+            }
+            return await Task.FromResult(true);
         }
 
         
