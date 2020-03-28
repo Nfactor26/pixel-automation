@@ -128,7 +128,9 @@ namespace Pixel.Automation.TestExplorer
         public void AddTestCase()
         {
             if(this.TestCategories.Any(c => c.IsSelected == true))
+            {
                 AddTestCase(this.TestCategories.FirstOrDefault(c => c.IsSelected == true));
+            }
         }
 
         public async void AddTestCase(TestCategoryViewModel testCategoryVM)
@@ -149,6 +151,7 @@ namespace Pixel.Automation.TestExplorer
             if (result.HasValue && result.Value)
             {
                 testCategoryVM.Tests.Add(testCaseVM);
+                this.fileSystem.CreateOrReplaceFile(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile, string.Empty);
                 SaveTestCase(testCaseVM);
             }
         }
@@ -174,8 +177,7 @@ namespace Pixel.Automation.TestExplorer
             TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));
             if(ownerCategory != null)
             {
-                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));
-                this.fileSystem.CreateOrReplaceFile(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile, string.Empty);
+                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));               
                 if(saveTestEntity)
                 {
                     this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id), $"{testCaseVM.Id}.atm");               
