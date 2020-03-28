@@ -39,6 +39,8 @@ namespace Pixel.Automation.Core.Interfaces
 
         void SaveToFile<T>(T model, string directory) where T : new();
 
+        void SaveToFile<T>(T model, string directory, string fileName) where T : new();
+
         void CreateOrReplaceFile(string directory, string fileName, string content);
     }
 

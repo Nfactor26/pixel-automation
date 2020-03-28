@@ -134,6 +134,20 @@ namespace Pixel.Automation.Core
             }
         }
 
+        public void SaveToFile<T>(T model, string directory, string fileName) where T : new()
+        {
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            string targetFile = Path.Combine(directory, fileName);
+            if (File.Exists(targetFile))
+            {
+                File.Delete(targetFile);
+            }
+            this.serializer.Serialize<T>(targetFile, model);           
+        }
+
         public void CreateOrReplaceFile(string directory, string fileName, string content)
         {
             var targetFile = Path.Combine(directory, fileName);

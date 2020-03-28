@@ -178,7 +178,7 @@ namespace Pixel.Automation.TestExplorer
                 this.fileSystem.CreateOrReplaceFile(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile, string.Empty);
                 if(saveTestEntity)
                 {
-                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));               
+                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id), $"{testCaseVM.Id}.atm");               
                 }               
             }
         }
