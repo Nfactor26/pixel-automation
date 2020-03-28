@@ -207,7 +207,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 this.testDataRepositoryViewModel?.CloseActiveInstance();
                 var shell = IoC.Get<IShell>();
                 await this.TryCloseAsync(true);
-                (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+                await (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
             }
         }
 

@@ -23,8 +23,7 @@ using System.Threading;
 namespace Pixel.Automation.UIA.Components
 {
     [DataContract]
-    [Serializable]
-    [ToolBoxItem("UIA Control Locator", "Control Locators", iconSource: null, description: "Control Locator component for UIA", tags: new string[] { "Control Locator", "UIA" })]
+    [Serializable]  
     public class UIAControlLocatorComponent : ServiceComponent, IControlLocator<AutomationElement, AutomationElement>, ICoordinateProvider
     {
         #region Data Members

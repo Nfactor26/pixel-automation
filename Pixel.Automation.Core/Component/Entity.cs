@@ -161,7 +161,9 @@ namespace Pixel.Automation.Core
                 }            
 
                 if (dispose && component is IDisposable disposable)
+                {
                     disposable.Dispose();
+                }
                 OnPropertyChanged("ComponentCollection");
                
             }

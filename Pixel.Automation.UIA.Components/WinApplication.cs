@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ namespace Pixel.Automation.UIA.Components
     [Serializable]
     [DisplayName("Windows App")]
     [Description("WPF or Win32 based applications using UIA")]
+    [ControlLocator(typeof(UIAControlLocatorComponent))]
     public class WinApplication : Entity, IApplication, IDisposable
     {
 

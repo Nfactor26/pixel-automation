@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
@@ -12,6 +13,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     [Serializable]  
     [DisplayName("Browser App")]
     [Description("Browser based web applications using Selenium")]
+    [ControlLocator(typeof(WebControlLocatorComponent))]
     public class WebApplication : Entity,  IApplication, IDisposable
     {
         #region IApplication

@@ -4,11 +4,11 @@ namespace Pixel.Automation.Core.Attributes
 {
     public class ControlLocatorAttribute : Attribute
     {
-        public Type RequiredControlLocatorType { get; }
+        public Type LocatorType { get; }
 
-        public ControlLocatorAttribute(Type requiredControlLocatorType)
+        public ControlLocatorAttribute(Type locatorType)
         {
-            this.RequiredControlLocatorType = requiredControlLocatorType;
+            this.LocatorType = locatorType;
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("WebDriver Control Locator", "Control Locators", iconSource: null, description: "Provides methods to lookup control and their coordinates using selenium API", tags: new string[] { "Utility", "Web" })]
     public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement,ISearchContext>, ICoordinateProvider
     {
 
