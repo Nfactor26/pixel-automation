@@ -22,9 +22,10 @@ namespace Pixel.Automation.TestExplorer
         {
             if (dropInfo.Data != null)
             {
-                if ((dropInfo.Data is TestDataSource) && (dropInfo.TargetItem is TestCaseViewModel testCase))
+                if (dropInfo.Data is TestDataSource)
                 {
-                    if(testCase.IsOpenForEdit)
+                    var testCase = (dropInfo.VisualTarget as FrameworkElement).DataContext as TestCaseViewModel;
+                    if (testCase.IsOpenForEdit)
                     {
                         return;
                     }
