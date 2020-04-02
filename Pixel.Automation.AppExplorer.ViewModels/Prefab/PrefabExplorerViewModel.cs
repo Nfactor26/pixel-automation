@@ -20,6 +20,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
     public class PrefabExplorerViewModel : Screen
     {
+        private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;
@@ -60,8 +61,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 foreach(var prefabId in application.AvailablePrefabs)
                 {
                     string prefabFile = Path.Combine("ApplicationsRepository", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
-                    PrefabDescription prefabDescription = serializer.Deserialize<PrefabDescription>(prefabFile);
-                    application.PrefabsCollection.Add(prefabDescription);
+                    if(File.Exists(prefabFile))
+                    {
+                        PrefabDescription prefabDescription = serializer.Deserialize<PrefabDescription>(prefabFile);
+                        application.PrefabsCollection.Add(prefabDescription);
+                        continue;
+                    }
+                    logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
                 }
             }       
         }

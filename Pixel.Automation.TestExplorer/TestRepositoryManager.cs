@@ -63,7 +63,15 @@ namespace Pixel.Automation.TestExplorer
             {
                 TestCategoryViewModel testCategoryVM = new TestCategoryViewModel(testCategory);
                 this.TestCategories.Add(testCategoryVM);
-                foreach (var testCase in this.fileSystem.LoadFiles<TestCase>((Path.Combine(this.fileSystem.TestCaseDirectory, testCategory.Id))))
+             
+                var testDirectory = Path.Combine(this.fileSystem.TestCaseDirectory, testCategory.Id);
+                if(!Directory.Exists(testDirectory))
+                {
+                    //No test case has been added to test category yet.
+                    continue;
+                }
+
+                foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testDirectory))
                 {                  
                     TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
                     testCategoryVM.Tests.Add(testCaseVM);

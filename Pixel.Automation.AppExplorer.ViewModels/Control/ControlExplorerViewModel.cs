@@ -24,6 +24,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         private readonly string applicationsRepository = "ApplicationsRepository";
         private readonly string controlsDirectory = "Controls";
 
+
+        private readonly ILogger logger = Log.ForContext<ControlExplorerViewModel>();
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;       
         private readonly IControlEditor controlEditor;
@@ -52,7 +54,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             this.serializer = serializer;
             this.typeProvider = typeProvider;
             this.eventAggregator = eventAggregator;
-            this.eventAggregator.Subscribe(this);
+            this.eventAggregator.SubscribeOnPublishedThread(this);
             this.controlEditor = controlEditor;
 
             CreateCollectionView();
@@ -161,8 +163,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 foreach (var controlId in application.AvailableControls)
                 {
                     string controlFile = Path.Combine("ApplicationsRepository", application.ApplicationId, "Controls", controlId, $"{controlId}.dat");
-                    ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
-                    application.ControlsCollection.Add(controlDescription);
+                 
+                    if(File.Exists(controlFile))
+                    {
+                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
+                        application.ControlsCollection.Add(controlDescription);
+                    }
+                    logger.Warning("Prefab file : {0} doesn't exist", controlFile);
                 }
             }          
         }
