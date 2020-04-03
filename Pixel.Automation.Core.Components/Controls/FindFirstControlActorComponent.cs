@@ -56,7 +56,7 @@ namespace Pixel.Automation.Core.Components.Controls
             var retrySequence = new List<TimeSpan>();
             foreach (var i in Enumerable.Range(1, retryAttempts))
             {
-                retrySequence.Add(TimeSpan.FromSeconds(1));
+                retrySequence.Add(TimeSpan.FromSeconds(2));
             }
 
             var retryPolicy =  Policy.Handle<Exception>()         
@@ -66,6 +66,13 @@ namespace Pixel.Automation.Core.Components.Controls
             });
 
             var controlEntities = this.Parent.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+        
+            // we don't want to wait too long when looking up multiple controls in round robin and expecting only one to be found.
+            foreach (var controlEntity in controlEntities)
+            {
+                controlEntity.ControlDetails.RetryAttempts = 1;
+                controlEntity.ControlDetails.RetryInterval = 1;
+            }
 
             var foundCountol = retryPolicy.Execute(() =>
             {
@@ -76,6 +83,7 @@ namespace Pixel.Automation.Core.Components.Controls
                         var foundControl = controlEntity.GetControl();
                         argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
                         argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
+                        logger.Information("Located control {0}", controlEntity.ControlDetails);
                         return foundControl;
                     }
                     catch
