@@ -243,11 +243,12 @@ namespace Pixel.Automation.TestExplorer
             testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
             testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
 
-            await this.TestRunner.OpenTestCase(testCaseVM.TestCase);
-           
-            this.OpenTestCases.Add(testCaseVM);
-            testCaseVM.IsOpenForEdit = true;
-            NotifyOfPropertyChange(nameof(CanSaveAll));
+            if (await this.TestRunner.TryOpenTestCase(testCaseVM.TestCase))
+            {
+                this.OpenTestCases.Add(testCaseVM);
+                testCaseVM.IsOpenForEdit = true;
+                NotifyOfPropertyChange(nameof(CanSaveAll));
+            }       
 
         }
 

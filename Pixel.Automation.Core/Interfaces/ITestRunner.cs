@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Initialize Test Case with and add it to TestFixture
         /// </summary>
         /// <param name="testCase"></param>     
-        Task OpenTestCase(TestCase testCase);
+        Task<bool> TryOpenTestCase(TestCase testCase);
 
         /// <summary>
         /// Remove test entity from TestFixture

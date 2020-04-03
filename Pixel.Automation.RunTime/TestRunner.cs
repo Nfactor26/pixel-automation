@@ -195,38 +195,49 @@ namespace Pixel.Automation.RunTime
           
         }
 
-        public async Task OpenTestCase(TestCase testCase)
+        public async Task<bool> TryOpenTestCase(TestCase testCase)
         {
-            Guard.Argument(testCase).NotNull();
-
-            var testCaseEntity = testCase.TestCaseEntity;
-            if (!string.IsNullOrEmpty(testCase.TestDataId))
+            try
             {
-                //we create a new EntityManager for TestCaseEntity that can use ArgumentProcessor with different globals object               
-                EntityManager testEntityManager = new EntityManager(this.entityManager, null);
+                Guard.Argument(testCase).NotNull();
 
-                var dataSource = testDataLoader.GetTestCaseData(testCase);
-                if (dataSource is IEnumerable dataSourceCollection)
+                var testCaseEntity = testCase.TestCaseEntity;
+                if (!string.IsNullOrEmpty(testCase.TestDataId))
                 {
-                    testEntityManager.Arguments = dataSource.FirstOrDefault();
+                    //we create a new EntityManager for TestCaseEntity that can use ArgumentProcessor with different globals object               
+                    EntityManager testEntityManager = new EntityManager(this.entityManager, null);
+
+                    var dataSource = testDataLoader.GetTestCaseData(testCase);
+                    if (dataSource is IEnumerable dataSourceCollection)
+                    {
+                        testEntityManager.Arguments = dataSource.FirstOrDefault();
+                    }
+
+                    IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                    var workspaceManager = scriptEditor.GetWorkspaceManager();
+                    string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().ScriptsDirectory, testCase.ScriptFile));
+                    workspaceManager.AddDocument(testCase.ScriptFile, scriptFileContent);
+
+                    //Execute script file to set up initial state of script engine
+                    IScriptEngine scriptEngine = testEntityManager.GetServiceOfType<IScriptEngine>();
+                    //scriptEngine.SetGlobals(testCase.TestCaseEntity.EntityManager.Arguments);
+                    await scriptEngine.ExecuteScriptAsync(scriptFileContent);
+
+                    testCaseEntity.EntityManager = testEntityManager;
+                    var testFixtureEntity = this.entityManager.RootEntity.GetFirstComponentOfType<TestFixtureEntity>();
+                    testFixtureEntity.AddComponent(testCaseEntity);
+
+                    logger.Information("Added test case : {testCase} to Fixture.", testCase);
+
+                    return true;
                 }
-
-                IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                var workspaceManager = scriptEditor.GetWorkspaceManager();
-                string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().ScriptsDirectory, testCase.ScriptFile));
-                workspaceManager.AddDocument(testCase.ScriptFile, scriptFileContent);
-
-                //Execute script file to set up initial state of script engine
-                IScriptEngine scriptEngine = testEntityManager.GetServiceOfType<IScriptEngine>();
-                //scriptEngine.SetGlobals(testCase.TestCaseEntity.EntityManager.Arguments);
-                await scriptEngine.ExecuteScriptAsync(scriptFileContent);
-
-                testCaseEntity.EntityManager = testEntityManager;
-                var testFixtureEntity = this.entityManager.RootEntity.GetFirstComponentOfType<TestFixtureEntity>();
-                testFixtureEntity.AddComponent(testCaseEntity);
-
-                logger.Information("Added test case : {testCase} to Fixture.", testCase);                
-            }            
+                return false;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to open test case {0}", testCase);
+                return false;
+            }
         }
 
         public async Task CloseTestCase(TestCase testCase)
