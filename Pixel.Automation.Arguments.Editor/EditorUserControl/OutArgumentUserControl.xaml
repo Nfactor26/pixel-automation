@@ -27,7 +27,7 @@
                       IsChecked="{Binding Argument.Mode,Mode=OneWay,ElementName=OutArgumentControl, Converter={StaticResource ArgsModeToBoolConverter}}"
                       DockPanel.Dock="Right" ToolTip="Toggle between DataBound/Scripted mode"></ToggleButton>
 
-            <Grid  MinWidth="220" HorizontalAlignment="Stretch" DockPanel.Dock="Right">
+            <Grid  MinWidth="100" HorizontalAlignment="Stretch" DockPanel.Dock="Right">
 
                 <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=OutArgumentControl}" 
                           IsEditable="True"

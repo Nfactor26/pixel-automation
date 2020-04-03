@@ -118,9 +118,24 @@ namespace Pixel.Automation.Arguments.Editor
             if (result.HasValue && result.Value)
             {
                 DeleteScriptFile();
-                Argument typedArgumentInstance = typeBrowserWindow.CreateOutArgumentForSelectedType();
-                typedArgumentInstance.Mode = this.Argument.Mode;
-                this.Argument = typedArgumentInstance;
+               
+                if (this.Argument.GetType().Name.StartsWith("OutArgument"))
+                {
+                    Argument typedArgumentInstance = typeBrowserWindow.CreateOutArgumentForSelectedType();
+                    typedArgumentInstance.Mode = this.Argument.Mode;
+                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
+                    typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
+                    this.Argument = typedArgumentInstance;
+                }
+
+                if (this.Argument.GetType().Name.StartsWith("InArgument"))
+                {
+                    Argument typedArgumentInstance = typeBrowserWindow.CreateInArgumentForSelectedType();
+                    typedArgumentInstance.Mode = this.Argument.Mode;
+                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
+                    typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
+                    this.Argument = typedArgumentInstance;
+                }               
             }
 
         }

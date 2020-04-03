@@ -98,8 +98,7 @@ namespace Pixel.Automation.Core.Arguments
                         return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(x => GetDisplayName(x)).ToArray()) + ">";
                 case false:
                     return type.Name;
-            }
-            return type.Name;
+            }           
         }
 
         public abstract Type GetArgumentType();

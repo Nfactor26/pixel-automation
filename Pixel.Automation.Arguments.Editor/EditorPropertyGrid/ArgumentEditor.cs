@@ -122,6 +122,8 @@ namespace Pixel.Automation.Arguments.Editor
                 {
                     Argument typedArgumentInstance = typeBrowserWindow.CreateOutArgumentForSelectedType();
                     typedArgumentInstance.Mode = this.Argument.Mode;
+                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
+                    typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
                     this.Argument = typedArgumentInstance;
                 }
 
@@ -129,6 +131,8 @@ namespace Pixel.Automation.Arguments.Editor
                 {
                     Argument typedArgumentInstance = typeBrowserWindow.CreateInArgumentForSelectedType();
                     typedArgumentInstance.Mode = this.Argument.Mode;
+                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
+                    typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
                     this.Argument = typedArgumentInstance;
                 }
 

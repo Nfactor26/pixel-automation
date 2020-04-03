@@ -21,11 +21,11 @@
     <HierarchicalDataTemplate x:Key="ForEachTemplate" ItemsSource="{Binding ComponentCollection}">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="0" Margin="6,6,6,2">
             <Label Content="Foreach" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
-            <ae:InArgumentUserControl x:Name="CurrentObjectArgument" Argument="{Binding Current}"                                                                   
+            <ae:OutArgumentUserControl x:Name="CurrentObjectArgument" Argument="{Binding Current}"                                                                   
                                       OwnerComponent="{Binding}"  MinWidth="180" Height="37.26" 
-                                      HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                      HorizontalAlignment="Left" VerticalAlignment="Center"
                                       DockPanel.Dock="Left"/>
-            <Label Content="in" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
+            <Label Content="in" Margin="2,0,2,0" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
             <ae:InArgumentUserControl  x:Name="TargetCollectionArgument" Argument="{Binding TargetCollection}" 
                                        MinWidth="180" Height="37.26" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                        OwnerComponent="{Binding}" DockPanel.Dock="Left"/>
