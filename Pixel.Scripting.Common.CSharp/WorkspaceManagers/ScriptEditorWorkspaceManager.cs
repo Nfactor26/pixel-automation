@@ -28,10 +28,12 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         protected override ProjectId CreateNewProject()
         {
             if(compilationOptions == null)
-                compilationOptions =  CreateCompilationOptions();
+            {
+                compilationOptions = CreateCompilationOptions();
+            }
             ProjectId id = ProjectId.CreateNewId();
 
-            var defaultMetaDataReferences = ProjectReferences.DesktopDefault.GetReferences(DocumentationProviderFactory);
+            var defaultMetaDataReferences = ProjectReferences.DesktopRefsDefault.GetReferences(DocumentationProviderFactory);
             var additionalProjectReferences = ProjectReferences.Empty.With(assemblyReferences: this.additionalReferences);
             var additionalMetaDataReferences = additionalProjectReferences.GetReferences(DocumentationProviderFactory);
             var argumentsProjectReferences = new List<ProjectReference>();

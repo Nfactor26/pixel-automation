@@ -53,7 +53,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         protected virtual CSharpCompilationOptions CreateCompilationOptions()
         {
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopDefault.Imports);
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopRefsDefault.Imports);
             return compilationOptions;
         }
       

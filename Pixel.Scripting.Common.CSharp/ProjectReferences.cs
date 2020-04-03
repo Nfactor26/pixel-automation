@@ -65,15 +65,33 @@ namespace Pixel.Scripting.Common.CSharp
             return result;
         });
 
+        private static readonly Lazy<ProjectReferences> _desktopRefsDefault = new Lazy<ProjectReferences>(() =>
+        {
+            List<MetadataReference> metaDataReferences = new List<MetadataReference>();
+            foreach (var file in Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "refs"), "*.dll"))
+            {
+                metaDataReferences.Add(MetadataReference.CreateFromFile(file));
+            }
+
+            var result = Empty.With(metaDataReferences);
+            return result;
+        });
+
         public static ProjectReferences Empty { get; } = new ProjectReferences(
             ImmutableArray<MetadataReference>.Empty,
             ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.OrdinalIgnoreCase),
             ImmutableArray<string>.Empty);
 
         /// <summary>
-        /// Returns desired defaults for .NET Framework (desktop).
+        /// Returns desired defaults for .Net Core Runtime (Use Runtime for scripting)
         /// </summary>
         public static ProjectReferences DesktopDefault => _desktopDefault.Value;
+
+
+        /// <summary>
+        /// Returns desired defaults for .Net Core Refs (Refs are used for compilation i.e. use it with CodeWorkSpace and ScriptWorkSpace)
+        /// </summary>
+        public static ProjectReferences DesktopRefsDefault => _desktopRefsDefault.Value;
 
         /// <summary>
         /// Returns namespace-only (no assemblies) defaults that fit all frameworks.
