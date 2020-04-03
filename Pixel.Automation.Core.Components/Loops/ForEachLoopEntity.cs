@@ -39,7 +39,7 @@ namespace Pixel.Automation.Core.Components.Loops
         [DataMember]       
         [Description("Target collection which needs to be looped over all its items")]
         [Display(Name = "Collection", GroupName = "Input", Order = 20)]
-        public Argument TargetCollection { get; set; } = new InArgument<IEnumerable<object>>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = false };
+        public Argument TargetCollection { get; set; } = new InArgument<IEnumerable<object>>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = true };
 
         [DataMember]            
         [Description("Current object being iterated")]

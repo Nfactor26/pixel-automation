@@ -3,6 +3,7 @@ using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
@@ -49,28 +50,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         private void ExtractArguments(Entity entity)
         {
-            foreach (var argument in GetArguments(entity))
+            var allComponents = entity.GetAllComponents();
+            foreach(var component in allComponents)
             {
-                if (argument != null)
+                if(component is GroupEntity groupEntity && (groupEntity.GroupActor != null))
                 {
-                    arguments.Add(argument);
+                    AddArgumentsForComponent(groupEntity.GroupActor);
+                    continue;
                 }
-            }
-
-            foreach (var component in entity.Components)
+                AddArgumentsForComponent(component);
+            }      
+            
+            void AddArgumentsForComponent(IComponent component)
             {
-                if (component is Entity current)
+                foreach (var argument in GetArguments(component))
                 {
-                    ExtractArguments(current);
-                }
-                else
-                {
-                    foreach (var argument in GetArguments(component))
+                    if (argument != null)
                     {
-                        if (argument != null)
-                        {
-                            arguments.Add(argument);
-                        }
+                        arguments.Add(argument);
                     }
                 }
             }
@@ -85,8 +82,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                         yield return property.GetValue(component) as Argument;
                     }
                 }
-
-
             }
         }
 

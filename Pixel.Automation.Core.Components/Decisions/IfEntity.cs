@@ -1,6 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -9,11 +7,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Coree.Components.Decisions
+namespace Pixel.Automation.Core.Components.Decisions
 {
     [DataContract]
     [Serializable]
     [ToolBoxItem("If", "Decisions", iconSource: null, description: "Wraps a group of automation entity that are processed only if the if criteria is satisfied ", tags: new string[] { "Deicsion", "DecisionGroup", "Entity" })]
+    [Scriptable("ScriptFile")]
     public class IfEntity : Entity
     {
         protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";

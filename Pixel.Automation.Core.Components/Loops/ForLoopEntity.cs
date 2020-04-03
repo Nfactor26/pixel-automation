@@ -15,7 +15,7 @@ namespace Pixel.Automation.Core.Components.Loops
     [DataContract]
     [Serializable]
     [ToolBoxItem("For Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for loop", tags: new string[] { "for loop" })]
-
+    [Scriptable("ScriptFile")]
     public class ForLoopEntity : Entity, ILoop
     {
         protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";

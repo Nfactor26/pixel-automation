@@ -138,9 +138,7 @@ namespace Pixel.Automation.Core
                     return componentsWithTag;
                 default:
                     throw new InvalidOperationException();
-            }
-
-           
+            }           
         }
 
         /// <summary>
@@ -215,6 +213,26 @@ namespace Pixel.Automation.Core
                     throw new InvalidOperationException();
             }
            
+        }
+
+        public static IEnumerable<IComponent> GetComponentsWithAttribute<T>(this Entity rootEntity, SearchScope searchScope = SearchScope.Children)
+        {
+            IEnumerable<IComponent> components = default;
+            switch (searchScope)
+            {
+                case SearchScope.Children:
+
+                    components = rootEntity.Components.Where(c => c.GetType().GetCustomAttributes(true).Any(a => a is T));                 
+                    return components ?? new List<IComponent>(); 
+
+                case SearchScope.Descendants:
+                    components = GetAllComponents(rootEntity);
+                    components = components?.Where(c => c.GetType().GetCustomAttributes(true).Any(a => a is T));
+                    return components ?? new List<IComponent>();
+               
+                default:
+                    throw new InvalidOperationException();
+            }
         }
 
         /// <summary>

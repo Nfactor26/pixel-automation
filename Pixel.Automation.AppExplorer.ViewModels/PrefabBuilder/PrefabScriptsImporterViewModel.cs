@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -107,14 +108,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     }
                 }
             }
-
-            var scriptedActors = this.rootEntity.GetComponentsOfType<ScriptedComponentBase>(Core.Enums.SearchScope.Descendants);
+          
+            var scriptedActors = this.rootEntity.GetComponentsWithAttribute<ScriptableAttribute>(Core.Enums.SearchScope.Descendants);
             foreach (var scriptedActor in scriptedActors)
             {
-                if (!string.IsNullOrEmpty(scriptedActor.ScriptFile))
+                ScriptableAttribute scriptableAttribute = scriptedActor.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
+                foreach(var scriptFileProperty in scriptableAttribute.ScriptFiles)
                 {
-                    RequiredScripts.Add(new ScriptStatus() { ScriptName = scriptedActor.ScriptFile });
+                    var property = scriptedActor.GetType().GetProperty(scriptFileProperty);
+                    string scriptFile = property.GetValue(scriptedActor)?.ToString();
+                    if (!string.IsNullOrEmpty(scriptFile))
+                    {
+                        RequiredScripts.Add(new ScriptStatus() { ScriptName = scriptFile });
+                    }
                 }
+
+               
             }
         }
 
