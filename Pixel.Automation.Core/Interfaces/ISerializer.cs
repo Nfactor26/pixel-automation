@@ -22,5 +22,14 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="knownTypes">Collection of known types during desirialization process</param>
         /// <returns>Desirialized data as instance of <see cref="Type"/> T </returns>
         T Deserialize<T>(string path, List<Type> knownTypes = null) where T : new();
+
+        /// <summary>
+        /// Deserialize provided string content.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="knownTypes"></param>
+        /// <returns></returns>
+        T DeserializeContent<T>(string content, List<Type> knownTypes = null) where T : new();
     }
 }

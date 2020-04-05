@@ -28,6 +28,11 @@ namespace Pixel.Automation.Core.Utilities
             return default(T);
         }
 
+        public T DeserializeContent<T>(string content, List<Type> knownTypes = null) where T : new()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Serialize<T>(string path, T model, List<Type> knownTypes = null)
         {
             try
