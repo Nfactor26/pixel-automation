@@ -34,28 +34,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public void Initialize(ApplicationDescription applicationItem, Entity rootEntity)
         {
             this.stagedScreens.Clear();
-            Version prefabVersion = new Version(1, 0, 0, 0);
+            PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
             prefabToolBoxItem = new PrefabDescription()
             {
                 ApplicationId = applicationItem.ApplicationId,
-                PrefabId = Guid.NewGuid().ToString(),
-                ActiveVersion = prefabVersion,
-                AvailableVersions = new List<Version>() { prefabVersion },
+                PrefabId = Guid.NewGuid().ToString(),            
+                AvailableVersions = new List<PrefabVersion>() { prefabVersion },
                 PrefabRoot = rootEntity
             };
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
-            prefabFileSystem.Initialize(applicationItem.ApplicationId, prefabToolBoxItem.PrefabId, prefabToolBoxItem.ActiveVersion);
+            prefabFileSystem.Initialize(applicationItem.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
 
             var prefabToolBoxViewModel = new NewPrefabViewModel(applicationItem, prefabToolBoxItem);
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
-            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(rootEntity, codeGenerator);
+            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator, this.prefabFileSystem);
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
-
-            var entityDataModelAssembly = rootEntity.EntityManager.Arguments.GetType().Assembly;
+       
             var references = new AssemblyReferences().GetReferencesOrDefault();            
-            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references.Append(entityDataModelAssembly.Location).ToArray());  
+            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references.ToArray());  
             var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabToolBoxItem, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
 

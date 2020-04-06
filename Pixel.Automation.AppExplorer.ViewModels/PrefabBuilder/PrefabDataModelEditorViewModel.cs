@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading;
+using Pixel.Automation.Core;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -36,7 +37,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 var workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
                 using (var compilationResult = workspaceManager.CompileProject($"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
                 {
-                    compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);
+                    compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
                     dataModelAssembly = Assembly.LoadFrom(Path.Combine(this.prefabFileSystem.TempDirectory, compilationResult.OutputAssemblyName));
                     this.CodeEditor.CloseDocument(true);
                     errorDescription = string.Empty;
@@ -65,14 +66,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 generatedCode = GetDataModelFileContent();
             }
-            this.CodeEditor.OpenDocument("DataModel.cs", string.Empty); //File is saved to disk as well
-            this.CodeEditor.SetContent("DataModel.cs", generatedCode.ToString());
+
+            IWorkspaceManager workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
+            foreach (var file in Directory.GetFiles(prefabFileSystem.DataModelDirectory, "*.cs"))
+            {            
+               workspaceManager.AddDocument(file, File.ReadAllText(file));
+            }
+
+            this.CodeEditor.OpenDocument($"{Constants.PrefabDataModelName}.cs", string.Empty); //File is saved to disk as well
+            this.CodeEditor.SetContent($"{Constants.PrefabDataModelName}.cs", generatedCode.ToString());
             this.CodeEditor.Activate();
             await base.OnActivateAsync(cancellationToken);
 
             string GetDataModelFileContent()
             {
-                return $"using System;{Environment.NewLine}public partial class DataModel{Environment.NewLine}{{{Environment.NewLine}}}";
+                return $"using System;{Environment.NewLine}public partial class {Constants.PrefabDataModelName}{Environment.NewLine}{{{Environment.NewLine}}}";
             }
         }
 

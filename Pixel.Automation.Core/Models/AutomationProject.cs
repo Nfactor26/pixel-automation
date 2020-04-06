@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Models
@@ -37,13 +38,17 @@ namespace Pixel.Automation.Core.Models
         public DateTime LastOpened { get; set; }
 
         [DataMember(IsRequired = true)]
-        public List<Version> AvailableVersions { get; set; }
+        public List<ProjectVersion> AvailableVersions { get; set; } = new List<ProjectVersion>();
 
-        [DataMember(IsRequired =  true)]
-        public Version ActiveVersion { get; set; }
-        
-        [DataMember(IsRequired = true)]
-        public Version DeployedVersion { get; set; }         
+        /// <summary>
+        /// Get all the versions that are deployed. Deployed Prefabs can be used in an automation.
+        /// </summary>
+        public IEnumerable<ProjectVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
+
+        /// <summary>
+        /// Get all the versions that are not deployed. Non Deployed versions can't be used in automation.
+        /// </summary>
+        public IEnumerable<ProjectVersion> NonDeployedVersions { get => AvailableVersions.Where(a => !a.IsDeployed).ToList(); }
 
         public AutomationProject()
         {

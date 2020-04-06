@@ -17,17 +17,17 @@ namespace Pixel.Automation.Core
         public string TestCaseDirectory { get; protected set; }
 
         public string TestDataRepoDirectory { get; protected set; }
-
+     
         public ProjectFileSystem(ISerializer serializer) : base(serializer)
         {
 
         }
 
-        public void Initialize(string projectId, Version version)
+        public void Initialize(string projectId, VersionInfo versionInfo)
         {
-            this.ActiveVersion = version;
+            this.ActiveVersion = versionInfo;
             this.projectId = projectId;
-            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, version.ToString());
+            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, versionInfo.ToString());
             this.TestCaseDirectory = Path.Combine(this.WorkingDirectory, "TestCases");
             this.TestDataRepoDirectory = Path.Combine(this.WorkingDirectory, "TestDataRepository");
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
@@ -47,16 +47,17 @@ namespace Pixel.Automation.Core
 
         public void Initialize(string projectId)
         {
-            this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
-            AutomationProject automationProject = this.serializer.Deserialize<AutomationProject>(this.ProjectFile);
-            if (automationProject.DeployedVersion == null)
-            {
-                throw new InvalidOperationException($"There is no deployed version for project : {automationProject.Name}");
-            }
-            Initialize(projectId, automationProject.DeployedVersion);
+            //this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
+            //AutomationProject automationProject = this.serializer.Deserialize<AutomationProject>(this.ProjectFile);
+            //if (automationProject.DeployedVersion == null)
+            //{
+            //    throw new InvalidOperationException($"There is no deployed version for project : {automationProject.Name}");
+            //}
+            //Initialize(projectId, automationProject.DeployedVersion);
+            throw new NotImplementedException();
         }
 
-        public override void SwitchToVersion(Version version)
+        public override void SwitchToVersion(VersionInfo version)
         {
             Initialize(this.projectId, version);            
         }

@@ -8,6 +8,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -31,21 +32,19 @@ namespace Pixel.Automation.Designer.ViewModels
 
         PrefabProjectManager projectManager;
 
-        public PrefabDescription PrefabDescription { get; private set; }
+        public PrefabDescription PrefabDescription { get; private set; }       
 
-       
-
-        public virtual void DoLoad(PrefabDescription prefabDescription)
+        public virtual void DoLoad(PrefabDescription prefabDescription, VersionInfo versionToLoad = null)
         {
             Debug.Assert(prefabDescription != null);
 
-
             this.projectManager = this.EntityManager.GetServiceOfType<PrefabProjectManager>().WithEntityManager(this.EntityManager) as PrefabProjectManager;
-
 
             this.PrefabDescription = prefabDescription;
             this.DisplayName = prefabDescription.PrefabName;
-            this.processRoot = this.projectManager.Load(prefabDescription);
+
+            var targetVersion = versionToLoad ?? prefabDescription.NonDeployedVersions.OrderBy(a => a.Version).Last();
+            this.processRoot = this.projectManager.Load(prefabDescription, targetVersion);
 
             this.EntityManager.RootEntity = this.processRoot;
             this.EntityManager.WorkingDirectory = this.projectManager.GetProjectFileSystem().WorkingDirectory;
@@ -58,7 +57,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async void EditDataModel()
         {
             ICodeEditorScreen codeEditorScreen = this.EntityManager.GetServiceOfType<ICodeEditorScreen>();
-            codeEditorScreen.OpenDocument("DataModel.cs", string.Empty);
+            codeEditorScreen.OpenDocument($"{Constants.PrefabDataModelName}.cs", string.Empty);
             IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
             var result = await windowManager.ShowDialogAsync(codeEditorScreen);
             if (result.HasValue && result.Value)

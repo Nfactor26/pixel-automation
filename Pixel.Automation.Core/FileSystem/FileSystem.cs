@@ -10,10 +10,11 @@ namespace Pixel.Automation.Core
 {
     public abstract class FileSystem : IFileSystem
     {
-
         protected readonly ISerializer serializer;
 
-        protected string ReferencesFile => Path.Combine(this.DataModelDirectory, "AssemblyReferences.dat");
+        public VersionInfo ActiveVersion { get; protected set; }
+
+        public string ReferencesFile => Path.Combine(this.DataModelDirectory, "AssemblyReferences.dat");
 
         public string WorkingDirectory { get; protected set; }
 
@@ -23,7 +24,7 @@ namespace Pixel.Automation.Core
 
         public string DataModelDirectory { get; protected set; }
 
-        public Version ActiveVersion { get; protected set; }
+        public string ReferencesDirectory { get; protected set; }      
 
         public FileSystem(ISerializer serializer)
         {
@@ -39,7 +40,8 @@ namespace Pixel.Automation.Core
 
             this.ScriptsDirectory = Path.Combine(this.WorkingDirectory, "Scripts");
             this.TempDirectory = Path.Combine(this.WorkingDirectory, "Temp");
-            this.DataModelDirectory = Path.Combine(this.WorkingDirectory, "DataModel");           
+            this.DataModelDirectory = Path.Combine(this.WorkingDirectory, "DataModel");
+            this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, "References");
 
             if (!Directory.Exists(WorkingDirectory))
             {
@@ -61,11 +63,13 @@ namespace Pixel.Automation.Core
                 Directory.CreateDirectory(DataModelDirectory);
             }
 
+            if (!Directory.Exists(ReferencesDirectory))
+            {
+                Directory.CreateDirectory(ReferencesDirectory);
+            }
         }
-
-        public abstract void SwitchToVersion(Version version);
-      
-
+        public abstract void SwitchToVersion(VersionInfo versionInfo);
+       
         private AssemblyReferences editorReferences;
 
         public string[] GetAssemblyReferences()
@@ -77,6 +81,7 @@ namespace Pixel.Automation.Core
             else
             {
                 this.editorReferences = new AssemblyReferences();
+                this.editorReferences.GetReferencesOrDefault();
                 serializer.Serialize<AssemblyReferences>(ReferencesFile, this.editorReferences);
 
             }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -7,8 +8,7 @@ namespace Pixel.Automation.Core.Interfaces
 
     public interface IFileSystem
     {
-        Version ActiveVersion { get; }
-
+        VersionInfo ActiveVersion { get; }
         /// <summary>
         /// Working directory for a given project or prefab
         /// </summary>
@@ -29,12 +29,17 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string DataModelDirectory { get; }
 
+        /// <summary>
+        /// All assemblies in this folder will be added as references to editors and script engine
+        /// </summary>
+        string ReferencesDirectory { get;  }
+
         string[] GetKnownDirectories();
 
         string[] GetAssemblyReferences();
 
-        void SwitchToVersion(Version version);
-
+        void SwitchToVersion(VersionInfo version);
+       
         IEnumerable<T> LoadFiles<T>(string directory) where T : new();
 
         void SaveToFile<T>(T model, string directory) where T : new();
@@ -45,7 +50,7 @@ namespace Pixel.Automation.Core.Interfaces
     }
 
     public interface IProjectFileSystem : IFileSystem
-    {              
+    {
         string ProjectFile { get; }
 
         string ProcessFile { get; }
@@ -59,7 +64,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="workingDirectory"></param>
         /// <param name="projectId"></param>
-        void Initialize(string projectId, Version version);
+        void Initialize(string projectId, VersionInfo versionInfo);
 
         /// <summary>
         /// Initialize the file system for specified projectId.
@@ -87,7 +92,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string TemplateFile { get; }     
 
-        void Initialize(string applicationId, string prefabId, Version prefabVersion);
+        void Initialize(string applicationId, string prefabId, VersionInfo prefabVersion);
 
         /// <summary>
         /// Initialize prefab file system for deployed version
@@ -101,7 +106,15 @@ namespace Pixel.Automation.Core.Interfaces
         bool HasDataModelAssemblyChanged();
 
         Entity GetPrefabEntity();
-  
+
+        /// <summary>
+        /// Load Prefab Entity and update all data model reference to use this new data model assembly.
+        /// This is required because every time prefab data model is compiled a new assembly is generated.
+        /// </summary>
+        /// <param name="withDataModelAssembly"></param>
+        /// <returns></returns>
+        Entity GetPrefabEntity(Assembly withDataModelAssembly);
+
         void CreateOrReplaceTemplate(Entity templateRoot);
 
         Entity GetTemplate();

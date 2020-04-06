@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -48,42 +49,37 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         private void ExtractArguments(Entity entity)
         {
-            foreach (var argument in GetArguments(entity))
+            var allComponents = entity.GetAllComponents();
+            foreach (var component in allComponents)
             {
-                if (argument != null)
+                if (component is GroupEntity groupEntity && (groupEntity.GroupActor != null))
                 {
-                    arguments.Add(argument);
+                    AddArgumentsForComponent(groupEntity.GroupActor);
+                    continue;
                 }
+                AddArgumentsForComponent(component);
             }
 
-            foreach (var component in entity.Components)
+            void AddArgumentsForComponent(IComponent component)
             {
-
-                if (component is Entity current)
+                foreach (var argument in GetArguments(component))
                 {
-                    ExtractArguments(current);
-                }
-                else
-                {
-                    foreach (var argument in GetArguments(component))
+                    if (argument != null)
                     {
-                        if (argument != null)
-                        {
-                            arguments.Add(argument);
-                        }
+                        arguments.Add(argument);
                     }
                 }
             }
-        }
 
-        private IEnumerable<Argument> GetArguments(IComponent component)
-        {
-            var componentProperties = component.GetType().GetProperties();
-            foreach (var property in componentProperties)
+            IEnumerable<Argument> GetArguments(IComponent component)
             {
-                if (property.PropertyType.Equals(typeof(Argument)) || property.PropertyType.IsSubclassOf(typeof(Argument)))
+                var componentProperties = component.GetType().GetProperties();
+                foreach (var property in componentProperties)
                 {
-                    yield return property.GetValue(component) as Argument;
+                    if (property.PropertyType.Equals(typeof(Argument)) || property.PropertyType.IsSubclassOf(typeof(Argument)))
+                    {
+                        yield return property.GetValue(component) as Argument;
+                    }
                 }
             }
         }
@@ -92,7 +88,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             foreach (var scriptFile in RequiredScripts)
             {
-                File.Copy(Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().ScriptsDirectory, scriptFile.ScriptName), Path.Combine(prefabFileSystem.ScriptsDirectory, scriptFile.ScriptName),true);
+                string filePath = Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().ScriptsDirectory, scriptFile.ScriptName);
+                string fileContent = File.ReadAllText(filePath);
+                fileContent = fileContent.Replace("using Pixel.Automation.Project.DataModels;", $"using {prefabToolBoxItem.NameSpace};");
+                File.WriteAllText(Path.Combine(prefabFileSystem.ScriptsDirectory, scriptFile.ScriptName), fileContent);
             }
         }
 
@@ -130,20 +129,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private void ValidateScripts()
         {
             ClearErrors("");
+            CopyScriptsToPrefabsDirectory();
 
             var dataModelAssembly = (this.PreviousScreen as IStagedScreen).GetProcessedResult() as Assembly;
-            prefabToolBoxItem.AssemblyName = $"{dataModelAssembly.GetName().Name}.dll";
-            var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault();
+            var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             object dataModelInstance = Activator.CreateInstance(dataModelType);
 
-            scriptEngine.WithSearchPaths(Environment.CurrentDirectory, Path.Combine(Environment.CurrentDirectory, ""), Path.Combine(Environment.CurrentDirectory, "Components"),
-            Path.Combine(Environment.CurrentDirectory, "Scripting"));
-            scriptEngine.WithAdditionalAssemblyReferences(dataModelAssembly);
+            scriptEngine.WithSearchPaths(Environment.CurrentDirectory, Path.Combine(Environment.CurrentDirectory, ""));         
             scriptEngine.WithAdditionalAssemblyReferences(prefabFileSystem.GetAssemblyReferences());
+            scriptEngine.WithAdditionalAssemblyReferences(dataModelAssembly);
 
             foreach (var requiredScript in RequiredScripts)
             {
-                string fileContent = File.ReadAllText(Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().ScriptsDirectory, requiredScript.ScriptName));
+                string fileContent = File.ReadAllText(Path.Combine(prefabFileSystem.ScriptsDirectory, requiredScript.ScriptName));
                 var validationResult = scriptEngine.IsScriptValid(fileContent, dataModelInstance);
                 requiredScript.UpdateStatus(validationResult.Item1, validationResult.Item2);
             }
@@ -158,8 +156,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             try
             {
-                ClearErrors("");
-                CopyScriptsToPrefabsDirectory();            
+                ClearErrors("");             
                 errorDescription = string.Empty;
                 return true;
             }

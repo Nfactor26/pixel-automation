@@ -91,10 +91,13 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 }
 
                 //Handle dragging of prefab
-                if (dropInfo.Data is PrefabDescription && dropInfo.TargetItem is Entity)
+                if (dropInfo.Data is PrefabDescription prefabDescription && dropInfo.TargetItem is Entity)
                 {
-                    dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-                    dropInfo.Effects = DragDropEffects.Copy;
+                    if (prefabDescription.DeployedVersions.Any())
+                    {
+                        dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+                        dropInfo.Effects = DragDropEffects.Copy;
+                    }                   
                     return;
                 }
 
@@ -311,13 +314,13 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         void HandlerPrefabDrop(IDropInfo dropInfo)
         {
-            var sourceItem = dropInfo.Data as PrefabDescription;
+            var sourceItem = dropInfo.Data as PrefabDescription;           
             var targetItem = dropInfo.TargetItem as Entity;         
             targetItem.AddComponent(new PrefabEntity()
             {
                 PrefabId = sourceItem.PrefabId,
                 ApplicationId = sourceItem.ApplicationId,
-                PrefabVersion = sourceItem.ActiveVersion
+                PrefabVersion = sourceItem.DeployedVersions.OrderBy(a => a.Version).Last()
             });          
         }
 

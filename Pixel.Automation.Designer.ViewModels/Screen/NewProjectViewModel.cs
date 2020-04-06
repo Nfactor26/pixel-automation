@@ -42,10 +42,9 @@ namespace Pixel.Automation.Designer.ViewModels
             this.NewProject = new AutomationProject()
             {
                 ProjectId = Guid.NewGuid().ToString(), 
-                LastOpened = DateTime.Now, 
-                ActiveVersion = defaultVersion, 
-                AvailableVersions = new List<Version>() { defaultVersion }
+                LastOpened = DateTime.Now
             };
+            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion));
             this.NewProject.PropertyChanged += NewProject_PropertyChanged;
         }
 

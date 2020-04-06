@@ -15,10 +15,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             get => prefabDescription.PrefabName;
             set
             {
-                prefabDescription.PrefabName = value;
-                NotifyOfPropertyChange();
+                prefabDescription.PrefabName = value.Trim();
+                prefabDescription.NameSpace = "Pixel.Automation.Prefabs." + value.Trim();
+                NotifyOfPropertyChange(PrefabName);
+                NotifyOfPropertyChange(NameSpace);
                 ValidateProperty(nameof(PrefabName));
             }
+        }
+
+        public string NameSpace
+        {
+            get => prefabDescription.NameSpace;           
         }
 
         public string GroupName
@@ -83,7 +90,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     {
                         AddOrAppendErrors(nameof(PrefabName), $"Prefab with name {PrefabName} already exists for application {this.applicationDescription.ApplicationName}");                  
                     }
-                    break;
+                    break;            
                 case nameof(GroupName):
                     ValidateRequiredProperty(nameof(GroupName), GroupName);
                     break;

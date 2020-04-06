@@ -25,7 +25,16 @@
                          controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
                          ToolTip="Display name of prefab" />
         </DockPanel>
-        
+
+        <DockPanel LastChildFill="True" MinWidth="320">
+            <Label Content="Namespace" MinWidth="80" DockPanel.Dock="Left" ></Label>
+            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center" IsReadOnly="True"
+                         Text="{Binding NameSpace, Mode=OneWay}"
+                         controls:TextBoxHelper.Watermark="NameSpace"
+                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
+                         ToolTip="NameSpace for generated data models for Prefab" />
+        </DockPanel>
+
         <DockPanel LastChildFill="True" MinWidth="320" >
             <Label Content="Group" DockPanel.Dock="Left" MinWidth="80"></Label>
             <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"

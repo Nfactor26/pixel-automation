@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Core
 {
@@ -12,7 +13,7 @@ namespace Pixel.Automation.Core
         private readonly string applicationsDirectory = "ApplicationsRepository";
         private readonly string prefabsDirectory = "Prefabs";
         private string applicationId;
-        private string prefabId;
+        private string prefabId;     
      
         public string PrefabDescriptionFile { get; private set; }
 
@@ -27,7 +28,7 @@ namespace Pixel.Automation.Core
         }
 
 
-        public void Initialize(string applicationId, string prefabId, Version version)
+        public void Initialize(string applicationId, string prefabId, VersionInfo version)
         {
             this.ActiveVersion = version;
             this.applicationId = applicationId;
@@ -45,14 +46,16 @@ namespace Pixel.Automation.Core
         {
             this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationsDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
             PrefabDescription prefabDescription = this.serializer.Deserialize<PrefabDescription>(this.PrefabDescriptionFile);
-            if(prefabDescription.DeployedVersion == null)
+            var deployedVersions = prefabDescription.DeployedVersions.OrderBy(a => a.Version);
+            var latestVersion = deployedVersions.LastOrDefault();
+            if (latestVersion == null)
             {
                 throw new InvalidOperationException($"There is no deployed version for prefab : {prefabDescription.PrefabName}");
             }
-            Initialize(applicationId, prefabId, prefabDescription.DeployedVersion);
+            Initialize(applicationId, prefabId, latestVersion);
         }
 
-        public override void SwitchToVersion(Version version)
+        public override void SwitchToVersion(VersionInfo version)
         {
             Initialize(applicationId, prefabId, version);
         }
@@ -66,6 +69,24 @@ namespace Pixel.Automation.Core
             Entity prefabRoot = this.serializer.Deserialize<Entity>(PrefabFile);
             return prefabRoot;
         }    
+
+        public Entity GetPrefabEntity(Assembly withDataModelAssembly)
+        {
+            if (!File.Exists(this.PrefabFile))
+            {
+                throw new FileNotFoundException($"{this.PrefabFile} not found");
+            }
+            string fileContents = File.ReadAllText(this.PrefabFile);
+            Regex regex = new Regex(@"(Pixel\.Automation\.Project\.DataModels)(\.\w*)(,\s)([\w|\d]*)");           
+            fileContents = regex.Replace(fileContents, (m) =>
+            {
+                string result = m.Value.Replace($"{m.Groups[4].Value}", withDataModelAssembly.GetName().Name);         //replace assembly name
+                result = result.Replace($"{m.Groups[1].Value}", withDataModelAssembly.GetTypes().First().Namespace);  //replace namesapce
+                return result;
+            });          
+            Entity prefabRoot = this.serializer.DeserializeContent<Entity>(fileContents);
+            return prefabRoot;
+        }
 
         public Assembly GetDataModelAssembly()
         {

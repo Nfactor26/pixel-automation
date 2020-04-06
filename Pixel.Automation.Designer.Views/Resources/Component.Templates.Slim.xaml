@@ -6,6 +6,7 @@
                     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                     xmlns:cal="http://www.caliburnproject.org"                   
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                    xmlns:editors="clr-namespace:Pixel.Automation.Editor.Core.Editors;assembly=Pixel.Automation.Editor.Core"
                     xmlns:prefabs="clr-namespace:Pixel.Automation.Prefabs.Editor;assembly=Pixel.Automation.Prefabs.Editor">
 
     <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
@@ -198,12 +199,12 @@
                 <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
-                    <prefabs:InputMappingButton PropertyMapCollection="{Binding InputMapping, Mode=TwoWay}"
+                    <prefabs:InputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding InputMappingScript, Mode=OneWay}"
                                                 AssignFrom="{Binding DataModelType, Mode=OneWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
                                                 AssignTo="{Binding PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
-                    <prefabs:OutputMappingButton PropertyMapCollection="{Binding OutputMapping, Mode=TwoWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
-                                                 AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
-                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>
+                    <prefabs:OutputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding OutputMappingScript, Mode=OneWay}" 
+                                                AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
+                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>                 
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"

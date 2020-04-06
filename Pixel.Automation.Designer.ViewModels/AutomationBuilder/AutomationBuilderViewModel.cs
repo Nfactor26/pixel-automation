@@ -62,17 +62,19 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public AutomationProject CurrentProject { get; private set; }
 
-        public virtual void DoLoad(AutomationProject project)
+        public virtual void DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
             Debug.Assert(project != null);
 
-
             this.projectManager = this.EntityManager.GetServiceOfType<AutomationProjectManager>().WithEntityManager(this.EntityManager) as AutomationProjectManager;
 
-
             this.CurrentProject = project;
-            this.DisplayName = project.Name;         
-            this.processRoot = this.projectManager.Load(project);          
+            this.DisplayName = project.Name;
+
+            //Always open the most recent non-deployed version if no version is specified
+            var targetVersion = versionToLoad ?? project.NonDeployedVersions.OrderBy(a => a.Version).Last();
+            this.processRoot = this.projectManager.Load(project, targetVersion);           
+            
             this.EntityManager.RootEntity = this.processRoot;
             this.EntityManager.WorkingDirectory = this.projectManager.GetProjectFileSystem().WorkingDirectory;
             this.WorkFlowRoot = new BindableCollection<Entity>();

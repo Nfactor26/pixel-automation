@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -125,7 +127,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+        public async Task DeployPrefab(PrefabDescription targetPrefab)
+        {
+            try
+            {
+                DeployPrefabViewModel deployPrefabViewModel = new DeployPrefabViewModel(targetPrefab);
+                var result = await windowManager.ShowDialogAsync(deployPrefabViewModel);
+                if (result.GetValueOrDefault())
+                {
+                    SavePrefabDescription(targetPrefab);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
             }
         }
 

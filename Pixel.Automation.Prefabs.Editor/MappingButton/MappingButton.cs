@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,13 +8,24 @@ namespace Pixel.Automation.Prefabs.Editor
 {
     public abstract class MappingButton : UserControl
     {
-        public static readonly DependencyProperty PropertyMapCollectionProperty = DependencyProperty.Register("PropertyMapCollection", typeof(List<PropertyMap>), typeof(MappingButton),
-                                                                                        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
-        public List<PropertyMap> PropertyMapCollection
+
+        public static readonly DependencyProperty PrefabVersionProperty = DependencyProperty.Register("PrefabVersion", typeof(PrefabVersion), typeof(MappingButton),
+                                                                                    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+        public PrefabVersion PrefabVersion
         {
-            get { return (List<PropertyMap>)GetValue(PropertyMapCollectionProperty); }
-            set { SetValue(PropertyMapCollectionProperty, value); }
+            get { return (PrefabVersion)GetValue(PrefabVersionProperty); }
+            set { SetValue(ScriptFileProperty, value); }
         }
+
+
+        public static readonly DependencyProperty ScriptFileProperty = DependencyProperty.Register("ScriptFile", typeof(string), typeof(MappingButton),
+                                                                                    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+        public string ScriptFile
+        {
+            get { return (string)GetValue(ScriptFileProperty); }
+            set { SetValue(ScriptFileProperty, value); }
+        }
+
 
         public static readonly DependencyProperty AssignFromProperty = DependencyProperty.Register("AssignFrom", typeof(Type), typeof(MappingButton),
                                                                                         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));

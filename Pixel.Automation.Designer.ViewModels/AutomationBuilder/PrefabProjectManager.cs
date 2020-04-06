@@ -26,10 +26,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.prefabFileSystem = prefabFileSystem;
         }
    
-        public Entity Load(PrefabDescription prefabDescription)
+        public Entity Load(PrefabDescription prefabDescription, VersionInfo versionInfo)
         {
             this.prefabDescription = prefabDescription;
-            this.prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, prefabDescription.ActiveVersion);
+            this.prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, versionInfo);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
             Assembly mostRecentAssembly = this.prefabFileSystem.GetDataModelAssembly();
@@ -135,36 +135,36 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public override void CreateSnapShot()
         {
             //save current state to previous version
-            Save();
+            //Save();
 
-            //Increment active version for project
-            Version activeVersion = prefabDescription.ActiveVersion;
-            Version newVersion = new Version(activeVersion.Major + 1, 0, 0, 0);
-            prefabDescription.SetActiveVersion(newVersion);
+            ////Increment active version for project
+            //VersionInfo activeVersion = prefabDescription.ActiveVersion;
+            //VersionInfo newVersion = new VersionInfo(new Version(activeVersion.Version.Major + 1, 0, 0, 0));
+            //prefabDescription.SetActiveVersion(newVersion);
 
-            //change file system to new version of project
-            string previousVersionWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
-            this.prefabFileSystem.SwitchToVersion(newVersion);
-            string currentWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
+            ////change file system to new version of project
+            //string previousVersionWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
+            //this.prefabFileSystem.SwitchToVersion(newVersion);
+            //string currentWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
 
-            //copy contents from previous version directory to new version directory
-            CopyAll(new DirectoryInfo(previousVersionWorkingDirectory), new DirectoryInfo(currentWorkingDirectory));         
+            ////copy contents from previous version directory to new version directory
+            //CopyAll(new DirectoryInfo(previousVersionWorkingDirectory), new DirectoryInfo(currentWorkingDirectory));         
 
-            void CopyAll(DirectoryInfo source, DirectoryInfo target)
-            {
-                // Copy each file into the new directory.
-                foreach (FileInfo fi in source.GetFiles())
-                {
-                    fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-                }
+            //void CopyAll(DirectoryInfo source, DirectoryInfo target)
+            //{
+            //    // Copy each file into the new directory.
+            //    foreach (FileInfo fi in source.GetFiles())
+            //    {
+            //        fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            //    }
 
-                // Copy each subdirectory using recursion.
-                foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-                {
-                    DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-                    CopyAll(diSourceSubDir, nextTargetSubDir);
-                }
-            }
+            //    // Copy each subdirectory using recursion.
+            //    foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            //    {
+            //        DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
+            //        CopyAll(diSourceSubDir, nextTargetSubDir);
+            //    }
+            //}
         }
 
         protected override string GetNewDataModelAssemblyName()

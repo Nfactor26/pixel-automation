@@ -9,6 +9,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
        event EventHandler<EditorClosingEventArgs> EditorClosing;
 
-       void DoLoad(PrefabDescription prefabDescription);
+       void DoLoad(PrefabDescription prefabDescription, VersionInfo versionInfo = null);
     }
 }

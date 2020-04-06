@@ -87,7 +87,7 @@ namespace Pixel.Automation.Designer.ViewModels
             IScriptEngineFactory scriptEngineFactory = Get<IScriptEngineFactory>(); //Transient
             IScriptEngine scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
             scriptEngine.SetWorkingDirectory(fileSystem.ScriptsDirectory);
-            scriptEngine.SetGlobals(scriptArguments);
+            scriptEngine.SetGlobals(scriptArguments.GetModelData());
             scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, Path.Combine(System.Environment.CurrentDirectory, ""));
             scriptEngine.WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences());
             scriptEngine.WithAdditionalAssemblyReferences(scriptArguments.GetModelType().Assembly);          
@@ -148,7 +148,7 @@ namespace Pixel.Automation.Designer.ViewModels
             IScriptEditorFactory scriptEditorFactory = Get<IScriptEditorFactory>(); //Singleton
             var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
             assemblyReferences.Add(scriptArguments.GetModelType().Assembly.Location);
-            scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, scriptArguments.GetType(), assemblyReferences.ToArray());
+            scriptEditorFactory.Initialize(fileSystem.ScriptsDirectory, scriptArguments.GetModelType(), assemblyReferences.ToArray());
         }
 
         public void OnDataModelUpdated(IFileSystem fileSystem, ScriptArguments previousArgs, ScriptArguments newArgs)
@@ -169,9 +169,7 @@ namespace Pixel.Automation.Designer.ViewModels
               
                 var dataModelAssembly = newArgs.GetModelType().Assembly;
                 scriptEngine.WithAdditionalAssemblyReferences(dataModelAssembly);
-                scriptEngine.SetGlobals(newArgs);
-
-                          
+                scriptEngine.SetGlobals(newArgs.GetModelData());                          
             }
 
             if (previousArgs != null && newArgs != null)
@@ -180,7 +178,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 var newDataModleAssembly = newArgs.GetModelType().Assembly;               
                 scriptEngine.RemoveReferences(previousDataModelAssembly);
                 scriptEngine.WithAdditionalAssemblyReferences(newDataModleAssembly);
-                scriptEngine.SetGlobals(newArgs);
+                scriptEngine.SetGlobals(newArgs.GetModelData());
               
             }
             ConfigureScriptEditor(fileSystem, newArgs);

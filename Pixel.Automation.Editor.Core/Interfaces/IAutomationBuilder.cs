@@ -14,7 +14,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Load project from the current workspace
         /// </summary>
         /// <param name="project"></param>
-        void DoLoad(AutomationProject project);
+        void DoLoad(AutomationProject project, VersionInfo versionInfo = null);
      
     }
 }

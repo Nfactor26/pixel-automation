@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Pixel.Automation.Core.Models;
+using Dawn;
 
 namespace Pixel.Automation.RunTime
 {
@@ -21,57 +23,48 @@ namespace Pixel.Automation.RunTime
         }
 
 
-        public Entity LoadPrefab(string applicationId, string prefabId, Version prefabVersion, EntityManager primaryEntityManager)
+        public Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, EntityManager entityManager)
         {
-
-            IServiceResolver serviceResolver = primaryEntityManager.GetServiceOfType<IServiceResolver>();
-            this.prefabManager = new EntityManager(primaryEntityManager, null);       
+            Guard.Argument(applicationId).NotEmpty().NotNull();
+            Guard.Argument(prefabId).NotEmpty().NotNull();
+            Guard.Argument(entityManager).NotNull();
+            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.PrefabAssembly), p => { return "Assembly Name is not set on Prefab Version"; });   
+         
+         
+            this.prefabManager = new EntityManager(entityManager, null);   
 
             this.prefabFileSystem = this.prefabManager.GetServiceOfType<IPrefabFileSystem>();
-            if (prefabVersion != null)
-            {
-                this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
-            }
-            else
-            {
-                this.prefabFileSystem.Initialize(applicationId, prefabId);
-            }
+            this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
+            
             this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
             this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);
-            this.prefabManager.Environment = primaryEntityManager.Environment;
+            this.prefabManager.Environment = entityManager.Environment;
             this.prefabManager.WorkingDirectory = this.prefabFileSystem.WorkingDirectory;
 
-
-            IWorkspaceManagerFactory workspaceManagerFactory = this.prefabManager.GetServiceOfType<IWorkspaceManagerFactory>();
-            IWorkspaceManager workspaceManager = workspaceManagerFactory.CreateCodeWorkspaceManager(this.prefabFileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.prefabFileSystem.GetAssemblyReferences());
-            workspaceManager.WithAssemblyReferences(new[] { primaryEntityManager.Arguments.GetType().Assembly });
-            foreach(var file in Directory.GetFiles(this.prefabFileSystem.DataModelDirectory,"*.cs"))
+            string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.PrefabAssembly);
+            if(!File.Exists(prefabAssembly))
             {
-                workspaceManager.AddDocument(Path.GetFileName(file), File.ReadAllText(file));
+                throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");
             }
-
-            string assemblyName = Guid.NewGuid().ToString();
-            var compilationResult = (workspaceManager as ICodeWorkspaceManager).CompileProject(assemblyName);
-            compilationResult.SaveAssemblyToDisk(Path.Combine(this.prefabFileSystem.DataModelDirectory, "Temp"));
-            Assembly prefabDataModelAssembly = Assembly.LoadFrom(Path.Combine(this.prefabFileSystem.DataModelDirectory, "Temp", $"{assemblyName}.dll"));
-
-            this.dataModelType = prefabDataModelAssembly.GetTypes().FirstOrDefault();
+            Assembly prefabDataModelAssembly = Assembly.LoadFrom(prefabAssembly);
+                      
+            this.dataModelType = prefabDataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             if (this.dataModelType == null)
             {
-                throw new NullReferenceException($"Failed to find any types defined in prefab data model assembly with applicationId : {applicationId}" +
+                throw new NullReferenceException($"Failed to find type {Constants.PrefabDataModelName} in prefab data model assembly for prefab with applicationId : {applicationId}" +
                     $"and preafbId : {prefabId}");
             }
             this.dataModelInstance = Activator.CreateInstance(this.dataModelType);
     
-            this.prefabManager.RootEntity = primaryEntityManager.RootEntity;         
+            this.prefabManager.RootEntity = entityManager.RootEntity;
 
-            this.prefabRoot = this.prefabFileSystem.GetPrefabEntity();
+            this.prefabRoot = this.prefabFileSystem.GetPrefabEntity(prefabDataModelAssembly);
             this.prefabRoot.EntityManager = this.prefabManager;
             this.prefabManager.RestoreParentChildRelation(this.prefabRoot, false);
           
-            this.prefabManager.Arguments = this.dataModelInstance;
-        
+            //Setting argument will initialize all the required services such as script engine, argument processor , etc.
+            this.prefabManager.Arguments = this.dataModelInstance;           
+
             return this.prefabRoot;
         }
     }

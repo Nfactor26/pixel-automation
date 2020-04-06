@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -81,7 +82,9 @@ namespace Pixel.Automation.Core
             List<string> distinctReferences = new List<string>();
 
             string containedInDll = argument.GetArgumentType().Assembly.Location;
-            if (containedInDll.StartsWith(Environment.CurrentDirectory))
+
+            //include those in application directory but not in Automations folder i.e. dynamically compiled dll's by project
+            if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.StartsWith(Path.Combine(Environment.CurrentDirectory, "Automations")))
             {
                 distinctReferences.Add(Path.GetFileName(containedInDll));
             }
@@ -90,7 +93,7 @@ namespace Pixel.Automation.Core
                 foreach (var type in argument.GetArgumentType().GenericTypeArguments)
                 {
                     containedInDll = type.Assembly.Location;
-                    if (containedInDll.StartsWith(Environment.CurrentDirectory) && !distinctReferences.Contains(Path.GetFileName(containedInDll))) //ignore any other dll outside current directory
+                    if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.StartsWith(Path.Combine(Environment.CurrentDirectory, "Automations")) && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
                     {
                         distinctReferences.Add(Path.GetFileName(containedInDll));
                     }

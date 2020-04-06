@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
+using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Editor.Core;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Reflection;
+using Pixel.Automation.Core.Models;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
     public class PrefabDataModelBuilderViewModel : StagedSmartScreen
     {
-
+        private readonly PrefabDescription prefabDescription;
         private readonly ICodeGenerator codeGenerator;
+        private readonly IPrefabFileSystem fileSystem;
+        private readonly object currentDataModel;
         private List<Argument> arguments = new List<Argument>();
         private string generatedCode;
 
@@ -33,18 +38,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
 
 
-        public PrefabDataModelBuilderViewModel(Entity rootEntity, ICodeGenerator codeGenerator)
+        public PrefabDataModelBuilderViewModel(PrefabDescription prefabDescription, ICodeGenerator codeGenerator, IPrefabFileSystem fileSystem)
         {
-            Guard.Argument(rootEntity).NotNull();
+            Guard.Argument(prefabDescription).NotNull();
             Guard.Argument(codeGenerator).NotNull();
-
+            Guard.Argument(fileSystem).NotNull();
+          
+            this.prefabDescription = prefabDescription;
             this.codeGenerator = codeGenerator;
-            var entityDataModel = rootEntity.EntityManager.Arguments;
+            this.fileSystem = fileSystem;
+
+            var rootEntity = prefabDescription.PrefabRoot as Entity;
+            currentDataModel = rootEntity.EntityManager.Arguments;
 
             IScriptEngine scriptEngine = rootEntity.EntityManager.GetServiceOfType<IScriptEngine>();
 
             ExtractArguments(rootEntity);            
-            BuildPropertyDescription(scriptEngine, entityDataModel);
+            BuildPropertyDescription(scriptEngine, currentDataModel);
             MarkRequiredProperties();
         }
 
@@ -141,11 +151,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 return true;
             }
 
-            var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace).Distinct();
+            IEnumerable<Type> requiredTypes = new List<Type>();
+            foreach(var property in RequiredProperties.Where(r => r.IsRequired))
+            {
+                var typeDependencies = GetTypeDependencies(property.PropertyType, currentDataModel.GetType().Assembly);
+                requiredTypes = requiredTypes.Union(typeDependencies);               
+            }
+            foreach(var type in requiredTypes)
+            {
+                MirrorTargetType(type);
+            }
+
+            var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace).Distinct().Except(new[] { "Pixel.Automation.Project.DataModels" });
             imports = imports.Append(typeof(ParameterUsage).Namespace); 
             imports = imports.Append(typeof(ParameterUsageAttribute).Namespace);
 
-            var classBuilder = codeGenerator.CreateClassGenerator("DataModel", "Prefab", imports);
+            var classBuilder = codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, prefabDescription.NameSpace, imports);
             foreach (var property in RequiredProperties.Where(r => r.IsRequired))
             {
                 classBuilder.AddProperty(property.PropertyName, property.PropertyType);
@@ -158,6 +179,41 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
             AddOrAppendErrors("", errorDescription);
             return false;
+        }
+
+        private void MirrorTargetType(Type targetType)
+        {
+            var imports = targetType.GetProperties().Select(s => s.PropertyType.Namespace).Distinct();
+            string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabDescription.NameSpace, imports);
+            fileSystem.CreateOrReplaceFile(fileSystem.DataModelDirectory, $"{targetType.GetDisplayName()}.cs", generatedCode);
+        }
+
+        private IEnumerable<Type> GetTypeDependencies(Type targetType , Assembly currentDataModelAssembly)
+        {
+            if (targetType.Assembly.Equals(currentDataModelAssembly))
+            {
+                foreach (var property in targetType.GetProperties())
+                {
+                    foreach (var nestedDependency in GetTypeDependencies(property.PropertyType, currentDataModelAssembly))
+                    {
+                        yield return nestedDependency;
+                    }
+                }
+                yield return targetType;
+                yield break;
+            }
+
+            //if (targetType.IsGenericType)
+            //{
+            //    foreach (var argument in targetType.GetGenericArguments())
+            //    {
+            //        foreach (var nestedDependency in GetTypeDependencies(argument, currentDataModelAssembly))
+            //        {
+            //            yield return nestedDependency;
+            //        }
+            //    }
+            //}
+            yield break;
         }
 
         public override object GetProcessedResult()

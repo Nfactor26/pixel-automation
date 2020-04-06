@@ -23,11 +23,11 @@ namespace Pixel.Automation.Editor.Core.Editors
             set { SetValue(ScriptFileProperty, value); }
         }
 
-        public static readonly DependencyProperty ActorComponentProperty = DependencyProperty.Register("ActorComponent", typeof(ActorComponent), typeof(ScriptEditorButton),
+        public static readonly DependencyProperty ActorComponentProperty = DependencyProperty.Register("ActorComponent", typeof(Component), typeof(ScriptEditorButton),
                                                                                                  new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
-        public ActorComponent ActorComponent
+        public Component ActorComponent
         {
-            get { return (ActorComponent)GetValue(ActorComponentProperty); }
+            get { return (Component)GetValue(ActorComponentProperty); }
             set { SetValue(ActorComponentProperty, value); }
         }
 
@@ -50,7 +50,7 @@ namespace Pixel.Automation.Editor.Core.Editors
           
         }
 
-        private string GetDefaultScript(ActorComponent actorComponent)
+        private string GetDefaultScript(Component actorComponent)
         {          
             if (actorComponent.Tag.Equals("ScriptedAction"))
             {
