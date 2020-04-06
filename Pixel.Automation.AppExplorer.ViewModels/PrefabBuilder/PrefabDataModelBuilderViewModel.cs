@@ -3,20 +3,19 @@ using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
-using Pixel.Automation.Core.Extensions;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Reflection;
-using Pixel.Automation.Core.Models;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -25,75 +24,41 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly PrefabDescription prefabDescription;
         private readonly ICodeGenerator codeGenerator;
         private readonly IPrefabFileSystem fileSystem;
+        private readonly ICompositeTypeExtractor compositeTypeExtractor;
         private readonly object currentDataModel;
         private List<Argument> arguments = new List<Argument>();
         private string generatedCode;
-
 
         public BindableCollection<ParameterDescription> RequiredProperties { get; set; } = new BindableCollection<ParameterDescription>();
 
         public bool HasProperties { get => RequiredProperties.Count() > 0; }
 
         public BindableCollection<ParameterUsage> ArgumentUsage { get; } = new BindableCollection<ParameterUsage>() { ParameterUsage.Input, ParameterUsage.Output, ParameterUsage.InOut };
-
-
-
-        public PrefabDataModelBuilderViewModel(PrefabDescription prefabDescription, ICodeGenerator codeGenerator, IPrefabFileSystem fileSystem)
+               
+        public PrefabDataModelBuilderViewModel(PrefabDescription prefabDescription, ICodeGenerator codeGenerator,
+            IPrefabFileSystem fileSystem, IScriptEngine scriptEngine,
+            ICompositeTypeExtractor compositeTypeExtractor, IArgumentExtractor argumentExtractor)
         {
             Guard.Argument(prefabDescription).NotNull();
             Guard.Argument(codeGenerator).NotNull();
             Guard.Argument(fileSystem).NotNull();
-          
+            Guard.Argument(compositeTypeExtractor).NotNull();
+            Guard.Argument(argumentExtractor).NotNull();
+            Guard.Argument(scriptEngine).NotNull();
+
             this.prefabDescription = prefabDescription;
             this.codeGenerator = codeGenerator;
             this.fileSystem = fileSystem;
+            this.compositeTypeExtractor = compositeTypeExtractor;
 
             var rootEntity = prefabDescription.PrefabRoot as Entity;
             currentDataModel = rootEntity.EntityManager.Arguments;
-
-            IScriptEngine scriptEngine = rootEntity.EntityManager.GetServiceOfType<IScriptEngine>();
-
-            ExtractArguments(rootEntity);            
+        
+            arguments.AddRange(argumentExtractor.ExtractArguments(rootEntity));   
+        
             BuildPropertyDescription(scriptEngine, currentDataModel);
             MarkRequiredProperties();
-        }
-
-        private void ExtractArguments(Entity entity)
-        {
-            var allComponents = entity.GetAllComponents();
-            foreach(var component in allComponents)
-            {
-                if(component is GroupEntity groupEntity && (groupEntity.GroupActor != null))
-                {
-                    AddArgumentsForComponent(groupEntity.GroupActor);
-                    continue;
-                }
-                AddArgumentsForComponent(component);
-            }      
-            
-            void AddArgumentsForComponent(IComponent component)
-            {
-                foreach (var argument in GetArguments(component))
-                {
-                    if (argument != null)
-                    {
-                        arguments.Add(argument);
-                    }
-                }
-            }
-
-            IEnumerable<Argument> GetArguments(IComponent component)
-            {
-                var componentProperties = component.GetType().GetProperties();
-                foreach (var property in componentProperties)
-                {
-                    if (property.PropertyType.Equals(typeof(Argument)) || property.PropertyType.IsSubclassOf(typeof(Argument)))
-                    {
-                        yield return property.GetValue(component) as Argument;
-                    }
-                }
-            }
-        }
+        }      
 
         private void BuildPropertyDescription(IScriptEngine scriptEngine, object dataModel)
         {
@@ -151,10 +116,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 return true;
             }
 
-            IEnumerable<Type> requiredTypes = new List<Type>();
+            IEnumerable<Type> requiredTypes = new List<Type>();          
             foreach(var property in RequiredProperties.Where(r => r.IsRequired))
             {
-                var typeDependencies = GetTypeDependencies(property.PropertyType, currentDataModel.GetType().Assembly);
+                var typeDependencies = compositeTypeExtractor.GetCompositeTypes(property.PropertyType);
                 requiredTypes = requiredTypes.Union(typeDependencies);               
             }
             foreach(var type in requiredTypes)
@@ -186,35 +151,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var imports = targetType.GetProperties().Select(s => s.PropertyType.Namespace).Distinct();
             string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabDescription.NameSpace, imports);
             fileSystem.CreateOrReplaceFile(fileSystem.DataModelDirectory, $"{targetType.GetDisplayName()}.cs", generatedCode);
-        }
-
-        private IEnumerable<Type> GetTypeDependencies(Type targetType , Assembly currentDataModelAssembly)
-        {
-            if (targetType.Assembly.Equals(currentDataModelAssembly))
-            {
-                foreach (var property in targetType.GetProperties())
-                {
-                    foreach (var nestedDependency in GetTypeDependencies(property.PropertyType, currentDataModelAssembly))
-                    {
-                        yield return nestedDependency;
-                    }
-                }
-                yield return targetType;
-                yield break;
-            }
-
-            //if (targetType.IsGenericType)
-            //{
-            //    foreach (var argument in targetType.GetGenericArguments())
-            //    {
-            //        foreach (var nestedDependency in GetTypeDependencies(argument, currentDataModelAssembly))
-            //        {
-            //            yield return nestedDependency;
-            //        }
-            //    }
-            //}
-            yield break;
-        }
+        }      
 
         public override object GetProcessedResult()
         {

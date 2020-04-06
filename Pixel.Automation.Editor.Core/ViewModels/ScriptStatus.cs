@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
+﻿namespace Pixel.Automation.Editor.Core.ViewModels
 {
     public class ScriptStatus
     {

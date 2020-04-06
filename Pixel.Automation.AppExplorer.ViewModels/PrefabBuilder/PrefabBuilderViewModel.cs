@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Pixel.Automation.Editor.Core.Helpers;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -49,7 +50,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var prefabToolBoxViewModel = new NewPrefabViewModel(applicationItem, prefabToolBoxItem);
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
-            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator, this.prefabFileSystem);
+            IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetServiceOfType<IScriptEngine>();
+            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator,
+                this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
        
             var references = new AssemblyReferences().GetReferencesOrDefault();            
@@ -59,7 +62,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
             var scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
             scriptEngine.SetWorkingDirectory(prefabFileSystem.ScriptsDirectory);
-            var prefabScriptImporterViewModel = new PrefabScriptsImporterViewModel(prefabToolBoxItem, rootEntity, prefabFileSystem, scriptEngine);
+            var prefabScriptImporterViewModel = new PrefabScriptsImporterViewModel(prefabToolBoxItem, rootEntity, 
+                new ScriptExtractor(new ArgumentExtractor()), prefabFileSystem, scriptEngine);
             this.stagedScreens.Add(prefabScriptImporterViewModel);
 
             prefabToolBoxViewModel.NextScreen = prefabDataModelBuilderViewModel;
