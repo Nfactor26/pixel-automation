@@ -3,6 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.Extensions;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace Pixel.Automation.Prefabs.Editor
 
         private  async void OpenMappingWindow(object sender, RoutedEventArgs e)
         {
-            var propertyMappings = GenerateMapping(this.AssignFrom, this.AssignTo);
+            var propertyMappings = GenerateMapping(this.AssignFrom, this.AssignTo).ToList();
             string generatedCode = GeneratedMappingCode(propertyMappings);
            
             IWindowManager windowManager = IoC.Get<IWindowManager>();
@@ -58,10 +59,28 @@ namespace Pixel.Automation.Prefabs.Editor
 
             foreach (var property in assignToProperties)
             {
-                var propertyMap = new PropertyMap() { AssignTo = property.Name, PropertyType = property.PropertyType, AssignFrom = string.Empty };
-                var possibleMappings = assignFromProperties.Where(t => t.PropertyType.Equals(property.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
-                propertyMap.AssignFrom = possibleMappings.FirstOrDefault(p => p.Equals(property.Name)) ?? string.Empty;
+                var propertyMap = new PropertyMap() { AssignTo = property.Name, AssignToType = property.PropertyType, AssignFrom = string.Empty };
+
+                //pick if the name type matches or name matches
+                var possibleMappings = assignFromProperties.Where(t => t.PropertyType.Equals(property.PropertyType) || t.PropertyType.GetDisplayName().Equals(property.PropertyType.GetDisplayName()));
+                var matchingMapping = possibleMappings.FirstOrDefault(p => p.PropertyType.Equals(property.PropertyType) && p.Equals(property.Name))
+                                           ?? possibleMappings.FirstOrDefault(p => p.PropertyType.GetDisplayName().Equals(property.PropertyType.GetDisplayName()) && p.Name.Equals(property.Name));
+                if (matchingMapping != null)
+                {
+                    propertyMap.AssignFrom = matchingMapping.Name;
+                    propertyMap.AssignFromType = matchingMapping.PropertyType;
+                }
+
+                var possibleScriptVariableMappings = scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType) || s.PropertyType.GetDisplayName().Equals(property.PropertyType.GetDisplayName()));
+                var matchingScriptMapping = possibleScriptVariableMappings.FirstOrDefault(p => p.PropertyType.Equals(property.PropertyType) && p.PropertyName.Equals(property.Name))
+                                         ?? possibleScriptVariableMappings.FirstOrDefault(p => p.PropertyType.GetDisplayName().Equals(property.PropertyType.GetDisplayName()) 
+                                         && p.PropertyName.Equals(property.Name));
+                if (matchingScriptMapping != null)
+                {
+                    propertyMap.AssignFrom = matchingScriptMapping.PropertyName;
+                    propertyMap.AssignFromType = matchingScriptMapping.PropertyType;
+                }
+
                 yield return propertyMap;
             }
 
@@ -73,14 +92,41 @@ namespace Pixel.Automation.Prefabs.Editor
         private string GeneratedMappingCode(IEnumerable<PropertyMap> mappings)
         {
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.PrefabAssembly}\" {Environment.NewLine}");
+            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.PrefabAssembly}\"");
+            mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
+            mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = Pixel.Automation.Project.DataModels;");
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignTo.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapInput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");
-            mappingBuilder.AppendLine($"   //Set values on Prefab data model from test data model and script variables");
+            if(mappings.Any(m => !m.AssignFromType.Equals(m.AssignToType)))
+            {
+                mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => ");
+                mappingBuilder.AppendLine("     {");
+                foreach(var mapping in mappings.Where(m => !m.AssignToType.Equals(m.AssignFromType)))
+                {
+                    mappingBuilder.AppendLine($"        cfg.CreateMap<TestModel.{mapping.AssignFrom}, PrefabModel.{mapping.AssignTo}>();");
+                }
+                mappingBuilder.AppendLine("     });");
+                mappingBuilder.AppendLine("     var mapper = configuration.CreateMapper();");
+                foreach (var mapping in mappings.Where(m => !m.AssignToType.Equals(m.AssignFromType)))
+                {
+                    if(mapping.AssignToType.IsGenericType || mapping.AssignToType.IsArray)
+                    {
+                        mappingBuilder.AppendLine($"    //prefabModel.{mapping.AssignTo} = mapper.Map<FromType?,ToType?>({mapping.AssignFrom})");
+                    }
+                    else
+                    {
+                        mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<PrefabModel.{mapping.AssignTo}>({mapping.AssignFrom})");
+                    }
+                }
+            }          
             foreach (var mapping in mappings)
             {
+                if(!mapping.AssignToType.Equals(mapping.AssignFromType))
+                {
+                    continue;
+                }
                 if (!string.IsNullOrEmpty(mapping.AssignFrom))
                 {
                     mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = {mapping.AssignFrom};");
@@ -91,6 +137,7 @@ namespace Pixel.Automation.Prefabs.Editor
                 }
             }
             mappingBuilder.AppendLine("}");
+            mappingBuilder.AppendLine($"{Environment.NewLine}");
             mappingBuilder.AppendLine($"return (new Action<object>(o => MapInput(o as PrefabModel.{Constants.PrefabDataModelName})));");  
             
             return  mappingBuilder.ToString();

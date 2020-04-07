@@ -46,8 +46,8 @@ namespace Pixel.Automation.Prefabs.Editor
             foreach (var propertyMap in existingMapping)
             {
                 //Possible mappings can be for properties available in data model and variables available in script engine
-                var possibleMappings = assignFromProperties.Where(t => t.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
+                var possibleMappings = assignFromProperties.Where(t => t.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.Name);
+                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.PropertyName));
                
                 var propertyMapViewModel = new PropertyMapViewModel() { PropertyMap = propertyMap, PossibleMaps = new BindableCollection<string>(possibleMappings) };                
                 Mappings.Add(propertyMapViewModel);
@@ -82,10 +82,10 @@ namespace Pixel.Automation.Prefabs.Editor
 
             foreach (var property in assignToProperties)
             {            
-                var propertyMap = new PropertyMap() { AssignTo = property.Name, PropertyType = property.PropertyType, AssignFrom = string.Empty };
+                var propertyMap = new PropertyMap() { AssignTo = property.Name, AssignToType = property.PropertyType, AssignFrom = string.Empty };
              
                 var possibleMappings = assignFromProperties.Where(t => t.PropertyType.Equals(property.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
+                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.PropertyName));
 
                 propertyMap.AssignFrom = possibleMappings.FirstOrDefault(p => p.Equals(property.Name)) ?? string.Empty;
                 var propertyMapViewModel = new PropertyMapViewModel() { PropertyMap = propertyMap, PossibleMaps = new BindableCollection<string>(possibleMappings) };

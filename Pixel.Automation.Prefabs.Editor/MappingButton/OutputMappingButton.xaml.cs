@@ -58,11 +58,11 @@ namespace Pixel.Automation.Prefabs.Editor
 
             foreach (var property in assignFromProperties)
             {
-                var propertyMap = new PropertyMap() { AssignFrom = property.Name, PropertyType = property.PropertyType };
+                var propertyMap = new PropertyMap() { AssignFrom = property.Name, AssignToType = property.PropertyType };
 
                 //Possible mappings can be for properties available in data model and variables available in script engine
                 var possibleMappings = assignToProperties.Where(t => t.PropertyType.Equals(property.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
+                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.PropertyName));
 
                 //default item that should be picked in drop down
                 propertyMap.AssignTo = possibleMappings.FirstOrDefault(p => p.Equals(property.Name)) ?? string.Empty;
@@ -78,23 +78,50 @@ namespace Pixel.Automation.Prefabs.Editor
         {
 
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.PrefabAssembly}\" {Environment.NewLine}");
+            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.PrefabAssembly}\"");
+            mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
+            mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = Pixel.Automation.Project.DataModels;");
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignFrom.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapOutput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");
-            mappingBuilder.AppendLine($"    //Set values on Prefab data model from test data model and script variables");
+            if (mappings.Any(m => !m.AssignFromType.Equals(m.AssignToType)))
+            {
+                mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => ");
+                mappingBuilder.AppendLine("     {");
+                foreach (var mapping in mappings.Where(m => !m.AssignToType.Equals(m.AssignFromType)))
+                {
+                    mappingBuilder.AppendLine($"        cfg.CreateMap<TestModel.{mapping.AssignFrom}, PrefabModel.{mapping.AssignTo}>();");
+                }
+                mappingBuilder.AppendLine("     });");
+                mappingBuilder.AppendLine("     var mapper = configuration.CreateMapper();");
+                foreach (var mapping in mappings.Where(m => !m.AssignToType.Equals(m.AssignFromType)))
+                {
+                    if (mapping.AssignToType.IsGenericType || mapping.AssignToType.IsArray)
+                    {
+                        mappingBuilder.AppendLine($"    //prefabModel.{mapping.AssignTo} = mapper.Map<FromType?,ToType?>({mapping.AssignFrom})");
+                    }
+                    else
+                    {
+                        mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<PrefabModel.{mapping.AssignTo}>({mapping.AssignFrom})");
+                    }
+                }
+            }
             foreach (var mapping in mappings)
             {
-                if (!string.IsNullOrEmpty(mapping.AssignTo))
+                if (!mapping.AssignToType.Equals(mapping.AssignFromType))
+                {
+                    continue;
+                }
+                 if (!string.IsNullOrEmpty(mapping.AssignTo))
                 {
                     mappingBuilder.AppendLine($"    {mapping.AssignTo} = prefabModel.{mapping.AssignFrom}");
                 }
                 else
                 {
-                    mappingBuilder.AppendLine($"    //{mapping.AssignTo} = prefabModel.{mapping.AssignFrom}");
+                    mappingBuilder.AppendLine($"    //? = prefabModel.{mapping.AssignFrom}");
                 }
-            }
+            }           
             mappingBuilder.AppendLine("}");
             mappingBuilder.AppendLine($"return (new Action<object>(o => MapOutput(o as PrefabModel.{Constants.PrefabDataModelName})));");
 

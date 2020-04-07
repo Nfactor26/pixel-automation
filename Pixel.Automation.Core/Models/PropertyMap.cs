@@ -4,7 +4,9 @@ namespace Pixel.Automation.Core.Models
 {
     public class PropertyMap : NotifyPropertyChanged
     {
-        public Type PropertyType { get; set; }
+        public Type AssignToType { get; set; }
+
+        public Type AssignFromType { get; set; }
 
         private string assignFrom;
         public string AssignFrom

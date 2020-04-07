@@ -46,8 +46,8 @@ namespace Pixel.Automation.Prefabs.Editor
             foreach (var propertyMap in existingMapping)
             {
                 //Possible mappings can be for properties available in data model and variables available in script engine
-                var possibleMappings = assignToProperties.Where(t => t.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
+                var possibleMappings = assignToProperties.Where(t => t.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.Name);
+                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.PropertyName));
 
                 //Add these possible mappings to dropdown 
                 var propertyMapViewModel = new PropertyMapViewModel() { PropertyMap = propertyMap, PossibleMaps = new BindableCollection<string>(possibleMappings) };
@@ -82,11 +82,11 @@ namespace Pixel.Automation.Prefabs.Editor
 
             foreach (var property in assignFromProperties)
             {
-                var propertyMap = new PropertyMap() { AssignFrom = property.Name, PropertyType = property.PropertyType };
+                var propertyMap = new PropertyMap() { AssignFrom = property.Name, AssignToType = property.PropertyType };
 
                 //Possible mappings can be for properties available in data model and variables available in script engine
                 var possibleMappings = assignToProperties.Where(t => t.PropertyType.Equals(property.PropertyType)).Select(p => p.Name);
-                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.PropertyType)).Select(p => p.PropertyName));
+                possibleMappings = possibleMappings.Union(scriptVariables.Where(s => s.PropertyType.Equals(propertyMap.AssignToType)).Select(p => p.PropertyName));
 
                 //default item that should be picked in drop down
                 propertyMap.AssignTo = possibleMappings.FirstOrDefault(p => p.Equals(property.Name)) ?? string.Empty;
