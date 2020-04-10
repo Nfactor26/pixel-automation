@@ -8,7 +8,7 @@ namespace Pixel.Automation.Core.Components.Loops
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Stop Loop", "Loops", iconSource: null, description: "Set the ExitCriteriaSatisfied property of the first ancestor ILoopComponent to true in order to stop any further iteration by loop", tags: new string[] { "Loop", "Core" })]
+    [ToolBoxItem("Break", "Loops", iconSource: null, description: "Break the execution of loop", tags: new string[] { "Break", "Loop" })]
     [Description("Set the ExitCriteriaSatisfied property of the first ancestor ILoopComponent to true in order to stop any further iteration by loop")]
     public class BreakLoopActorComponent : ActorComponent
     {   

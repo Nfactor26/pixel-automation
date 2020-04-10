@@ -7,7 +7,7 @@ namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
-    public abstract class ScriptedComponentBase : ActorComponent
+    public abstract class ScriptedComponentBase : AsyncActorComponent
     {
         protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";
         [DataMember]

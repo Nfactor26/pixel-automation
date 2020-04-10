@@ -1,14 +1,13 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Core.Processors;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
 using System.IO;
 using System.Linq;
 
@@ -81,16 +80,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                         var appPoolEntity = new ApplicationPoolEntity();
                         rootEntity.AddComponent(appPoolEntity);
 
-                        SequentialProcessorEntity launchProcessor = new SequentialProcessorEntity() { Name = "#Launch Applications" };
+                        SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "#Launch Applications" };
                         rootEntity.AddComponent(launchProcessor);
 
-                        SequentialProcessorEntity searchProcessor = new SequentialProcessorEntity() { Name = "#Run Automation" };
+                        SequentialEntityProcessor searchProcessor = new SequentialEntityProcessor() { Name = "#Run Automation" };
                         rootEntity.AddComponent(searchProcessor);
 
-                        SequentialProcessorEntity resetProcessor = new SequentialProcessorEntity() { Name = "#Reset Applications" };
+                        SequentialEntityProcessor resetProcessor = new SequentialEntityProcessor() { Name = "#Reset Applications" };
                         rootEntity.AddComponent(resetProcessor);
 
-                        SequentialProcessorEntity shutDownProcessor = new SequentialProcessorEntity() { Name = "#Shutdown Applications" };
+                        SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "#Shutdown Applications" };
                         rootEntity.AddComponent(shutDownProcessor);
                     }
                     break;

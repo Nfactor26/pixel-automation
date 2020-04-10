@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Serilog;
@@ -10,12 +9,12 @@ using System.Runtime.Serialization;
 using System.Threading;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
-namespace Pixel.Automation.Core.Components
+namespace Pixel.Automation.Core.Components.Sequences
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Automation Sequence", "Core Entities", iconSource: null, description: "Represents an sequential automation sequence within an application", tags: new string[] { "Automation Sequence" })]
-    public class AutomationSequenceEntity : Entity , IApplicationContext , IDisposable
+    [ToolBoxItem("Sequence", "Sequences", iconSource: null, description: "Represents a sequence of  steps within an application", tags: new string[] { "Automation Sequence" })]
+    public class SequenceEntity : Entity , IApplicationContext , IDisposable
     {
         string targetAppId = string.Empty;
         [DataMember]
@@ -63,7 +62,7 @@ namespace Pixel.Automation.Core.Components
         private readonly string mutexName = "Local\\Pixel.AppFocus";
         private bool wasMutexAcquired = false;
 
-        public AutomationSequenceEntity() : base("Automation Sequence","AutomationSequence")
+        public SequenceEntity() : base("Sequence","Sequence")
         {
 
         }
@@ -124,9 +123,12 @@ namespace Pixel.Automation.Core.Components
         {
             if (mutex != null)
             {
-               //Log.Information($"Mutex will be released by thread with id : {Thread.CurrentThread.ManagedThreadId}");
-               if(wasMutexAcquired)
+                //Log.Information($"Mutex will be released by thread with id : {Thread.CurrentThread.ManagedThreadId}");
+                if (wasMutexAcquired)
+                {
                     mutex.ReleaseMutex();
+
+                }
                 //mutex.Dispose();
                 //mutex = null;
                 Log.Information($"Focus mutex released by {this}");

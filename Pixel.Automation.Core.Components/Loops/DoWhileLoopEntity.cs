@@ -49,8 +49,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-        {
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+        {           
             int iteration = 0;
 
             do
@@ -99,7 +98,9 @@ namespace Pixel.Automation.Core.Components.Loops
         public override void ResolveDependencies()
         {
             if (this.Components.Count() > 0)
+            {
                 return;
+            }
 
             PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
             base.AddComponent(statementsPlaceHolder);

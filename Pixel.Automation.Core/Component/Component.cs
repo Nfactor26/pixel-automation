@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core
@@ -353,6 +354,107 @@ namespace Pixel.Automation.Core
         /// Processor calls Act on its child actor components  
         /// </summary>
         public abstract void Act();
+
+        public override void ResetComponent()
+        {
+            this.isExecuting = false;
+            this.IsFaulted = false;
+            this.ErrorMessages.Clear();
+        }
+
+        [OnDeserialized]
+        public new void Initialize(StreamingContext context)
+        {
+            this.errorMessages = new List<string>();
+        }
+    }
+
+
+    [DataContract]
+    [Serializable]
+    public abstract class AsyncActorComponent : Component
+    {
+        /// <summary>
+        /// Indicates whether the processor should continue with the next child if this actor was not processed successfully
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Continue on Error", Order = 40, GroupName = "Error Handling", Description = "Indicates whether the processor should ignore any error in this component and " +
+            "continue processing next component")]
+        public bool ContinueOnError { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether the component is currently being executed by the processor
+        /// </summary>
+        [NonSerialized]
+        private bool isExecuting;
+
+        [Browsable(false)]
+        public bool IsExecuting
+        {
+            get
+            {
+                return isExecuting;
+            }
+            set
+            {
+                isExecuting = value;
+                if (isExecuting)
+                {
+                    IsFaulted = false;
+                }
+                OnPropertyChanged();
+            }
+
+        }
+
+        /// <summary>
+        /// Indicates whether the component is in a faulted state after processing
+        /// </summary>
+        [NonSerialized]
+        private bool isFaulted;
+
+        [Browsable(false)]
+        [IgnoreDataMember]
+        public bool IsFaulted
+        {
+            get
+            {
+                return isFaulted;
+            }
+            set
+            {
+                isFaulted = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [NonSerialized]
+        private List<string> errorMessages = new List<string>();
+        [Browsable(false)]
+        [IgnoreDataMember]
+        public List<string> ErrorMessages
+        {
+            get
+            {
+                return errorMessages;
+            }
+            set
+            {
+                errorMessages = value;
+                OnPropertyChanged("ErrorMessages");
+            }
+        }
+
+
+        protected AsyncActorComponent(string name = "", string tag = "") : base(name, tag)
+        {
+
+        }
+
+        /// <summary>
+        /// Processor calls Act on its child actor components  
+        /// </summary>
+        public abstract Task ActAsync();
 
         public override void ResetComponent()
         {

@@ -34,9 +34,7 @@ namespace Pixel.Automation.Input.Devices
         protected InputSimulatorBase(string name = "", string tag = ""):base(name,tag)
         {
 
-        }
-
-        public override void Act() { }
+        }     
 
         protected void ThrowIfMissingControlEntity()
         {

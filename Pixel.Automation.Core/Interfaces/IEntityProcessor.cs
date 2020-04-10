@@ -17,7 +17,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Call Rest on child components 
         /// </summary>
-        void ResetChildComponents();
+        void ResetComponents();
 
     }
 }

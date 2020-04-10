@@ -146,9 +146,10 @@ namespace Pixel.Automation.Core.Components
 
         public override IEnumerable<IComponent> GetNextComponentToProcess()
         {
-                foreach (var component in base.GetNextComponentToProcess())
-                    yield return component;          
-    
+            foreach (var component in base.GetNextComponentToProcess())
+            {
+                yield return component;
+            }           
         }     
 
         public abstract T GetTargetControl<T>();

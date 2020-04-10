@@ -5,6 +5,24 @@
     <DataTemplateKey>EmptyTemplate</DataTemplateKey>
     <StyleKey>ContainerStyleHorizontal</StyleKey>
   </ComponentTemplate>-->
+  
+  <!--Sequences-->
+  <ComponentTemplate>
+    <Name>SequenceEntity</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyleWithDelete</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>RetrySequence</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyleWithDelete</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>TryCatchSequence</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyleWithDelete</StyleKey>
+  </ComponentTemplate>
+  
   <ComponentTemplate>
     <Name>ApplicationEntity</Name>
     <DataTemplateKey>EmptyTemplate</DataTemplateKey>
@@ -44,12 +62,7 @@
     <Name>DataBlockEntity</Name>
     <DataTemplateKey>EmptyTemplate</DataTemplateKey>
     <StyleKey>ContainerStyleWithDelete</StyleKey>
-  </ComponentTemplate>
-  <ComponentTemplate>
-    <Name>AutomationSequenceEntity</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleWithDelete</StyleKey>
-  </ComponentTemplate>
+  </ComponentTemplate>  
   <ComponentTemplate>
     <Name>GroupEntity</Name>
     <DataTemplateKey>EmptyTemplate</DataTemplateKey>
@@ -128,24 +141,19 @@
   </ComponentTemplate>
   <!--Processor Entities-->
   <ComponentTemplate>
-    <Name>SequentialProcessorEntity</Name>
-    <DataTemplateKey>EntityProcessor</DataTemplateKey>
-    <StyleKey>DefaultStyle</StyleKey>
+    <Name>SequentialEntityProcessor</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ProcessorStyle</StyleKey>
   </ComponentTemplate>
 <ComponentTemplate>
-    <Name>ParallelProcessorEntity</Name>
-    <DataTemplateKey>EntityProcessor</DataTemplateKey>
-    <StyleKey>DefaultStyle</StyleKey>
-  </ComponentTemplate>
+    <Name>ParallelEntityProcessor</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ProcessorStyle</StyleKey>
+  </ComponentTemplate> 
   <ComponentTemplate>
-    <Name>TestCaseProcessorEntity</Name>
-    <DataTemplateKey>EntityProcessor</DataTemplateKey>
-    <StyleKey>DefaultStyle</StyleKey>
-  </ComponentTemplate>
-  <ComponentTemplate>
-    <Name>AsyncProcessorEntity</Name>
-    <DataTemplateKey>EntityProcessor</DataTemplateKey>
-    <StyleKey>DefaultStyle</StyleKey>
+    <Name>AsyncEntityProcessor</Name>
+    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
+    <StyleKey>ProcessorStyle</StyleKey>
   </ComponentTemplate>
   <!--Scripted Components-->
   <ComponentTemplate>

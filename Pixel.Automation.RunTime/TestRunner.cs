@@ -281,7 +281,7 @@ namespace Pixel.Automation.RunTime
                                 {
                                     actorBeingProcessed = actor;
                                     actor.BeforeProcess();
-                                    actor.IsExecuting = true;
+                                    actor.IsExecuting = true;                                  
                                     actor.Act();
                                     actor.OnCompletion();
                                 }
@@ -293,6 +293,33 @@ namespace Pixel.Automation.RunTime
                                     }
                                     else
                                     {
+                                        actor.IsFaulted = true;
+                                        Log.Warning(ex, ex.Message);
+                                    }
+                                }
+
+                                //Thread.Sleep(TimeSpan.FromSeconds(this.ProcessingDelay));
+                                actor.IsExecuting = false;
+                                break;
+
+                            case AsyncActorComponent actor:
+                                try
+                                {
+                                    actorBeingProcessed = actor;
+                                    actor.BeforeProcess();
+                                    actor.IsExecuting = true;
+                                    await actor.ActAsync();
+                                    actor.OnCompletion();
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (!actor.ContinueOnError)
+                                    {
+                                        throw;
+                                    }
+                                    else
+                                    {
+                                        actor.IsFaulted = true;
                                         Log.Warning(ex, ex.Message);
                                     }
                                 }
@@ -306,13 +333,14 @@ namespace Pixel.Automation.RunTime
                                 break;
 
                             case Entity entity:
+                                //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
                                 if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(component as Entity))
-                                {
+                                {                                   
                                     var processedEntity = this.entitiesBeingProcessed.Pop();
                                     processedEntity.OnCompletion();
                                 }
                                 else
-                                {
+                                {                                   
                                     component.BeforeProcess();
                                     this.entitiesBeingProcessed.Push(component as Entity);
                                 }

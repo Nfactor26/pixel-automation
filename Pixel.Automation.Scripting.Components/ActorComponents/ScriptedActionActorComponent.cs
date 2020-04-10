@@ -10,7 +10,7 @@ namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Execute", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]
+    [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]
     [Scriptable("ScriptFile")]
     public class ScriptedActionActorComponent : ScriptedComponentBase
     {
@@ -20,18 +20,12 @@ namespace Pixel.Automation.Scripting.Components
 
         }
 
-        public override async void Act()
+        public override async Task ActAsync()
         {
-           await ExecuteScript();         
-        }
-
-
-        async Task ExecuteScript()
-        {           
             IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
             var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
             action(this.EntityManager.GetApplicationDetails(this), this);
         }
-
+     
     }
 }

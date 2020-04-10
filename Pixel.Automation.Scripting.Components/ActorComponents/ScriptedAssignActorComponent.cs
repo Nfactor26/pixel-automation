@@ -8,7 +8,7 @@ namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Assign", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]
+    [ToolBoxItem("Execute [Inline]", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]
     [Scriptable("ScriptFile")]
     public class ScriptedAssignActorComponent : ScriptedComponentBase
     {       
@@ -16,16 +16,11 @@ namespace Pixel.Automation.Scripting.Components
         {           
         }
 
-        public override async void Act()
+        public override async Task ActAsync()
         {
-            await ExecuteScriptAsync();         
-        }
-
-        async Task ExecuteScriptAsync()
-        {           
             IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
-            _ = await scriptExecutor.ExecuteFileAsync(this.scriptFile);        
-
+            _ = await scriptExecutor.ExecuteFileAsync(this.scriptFile);
         }
+      
     }
 }

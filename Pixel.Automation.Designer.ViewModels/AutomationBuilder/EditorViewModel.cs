@@ -159,7 +159,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                     if (component is IEntityProcessor)
                     {
-                        (component as IEntityProcessor).ResetChildComponents();
+                        (component as IEntityProcessor).ResetComponents();
                     }
                 }
                 catch (Exception ex)

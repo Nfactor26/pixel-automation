@@ -1,9 +1,9 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Core.Processors;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
@@ -83,7 +83,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 templateRoot.EntityManager = this.entityManager;
                 RestoreParentChildRelation(templateRoot);
-                Entity prefabPlaceHolder = templateRoot.GetFirstComponentOfType<SequentialProcessorEntity>();
+                Entity prefabPlaceHolder = templateRoot.GetFirstComponentOfType<SequentialEntityProcessor>();
                 prefabPlaceHolder.AddComponent(this.prefabbedEntity);
                 RestoreParentChildRelation(prefabPlaceHolder);
             }
@@ -95,13 +95,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();
                 templateRoot.AddComponent(appPoolEntity);
 
-                SequentialProcessorEntity launchProcessor = new SequentialProcessorEntity() { Name = "#Launch Applications" };
+                SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "#Launch Applications" };
                 templateRoot.AddComponent(launchProcessor);
 
-                SequentialProcessorEntity prefabProcessor = new SequentialProcessorEntity() { Name = "#Prefab Processor" };
+                SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "#Prefab Processor" };
                 templateRoot.AddComponent(prefabProcessor);
 
-                SequentialProcessorEntity shutDownProcessor = new SequentialProcessorEntity() { Name = "#Shutdown Applications" };
+                SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "#Shutdown Applications" };
                 templateRoot.AddComponent(shutDownProcessor);              
 
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);

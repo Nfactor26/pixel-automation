@@ -23,9 +23,6 @@
     <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Core.Processors\Pixel.Automation.Core.Processors.csproj">
-      <Private>false</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Pixel.Automation.Core.Utilities\Pixel.Automation.Core.Utilities.csproj">
       <Private>false</Private>
     </ProjectReference>

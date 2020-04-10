@@ -3,6 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -403,7 +404,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         {
                             if (app.ApplicationId.ToString().Equals(sourceItem.ApplicationId))
                             {
-                                AutomationSequenceEntity automationSequenceEntity = new AutomationSequenceEntity()
+                                SequenceEntity automationSequenceEntity = new SequenceEntity()
                                 {
                                     Name = $"Sequence : {sourceItem.ApplicationName}",
                                     TargetAppId = app.ApplicationId
