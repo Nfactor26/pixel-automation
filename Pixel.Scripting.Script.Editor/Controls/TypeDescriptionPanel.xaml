@@ -8,6 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
         <local:GlyphTemplateSelector x:Key="GlyphTemplateSelector"/>      
         <Style x:Key="TypeDisplayStyle" TargetType="{x:Type ContentControl}">
             <Setter Property="Visibility" Value="Visible"/>
@@ -38,10 +39,10 @@
              <ContentControl x:Name="TypeDisplay" Content="{Binding TypeDisplay}" Style="{StaticResource TypeDisplayStyle}"/>
             <Label x:Name="TypeLabel" Content="{Binding TypeDetails.Type}" Style="{StaticResource TypeLabelStyle}"/>        
         </StackPanel>      
-        <WrapPanel Orientation="Horizontal">
+        <WrapPanel Orientation="Horizontal" Visibility="{Binding HasDocumentation, Converter={StaticResource boolToVisConverter}}">
             <Label x:Name="TypeDescription" Content="{Binding TypeDetails.Documentation}"/>
         </WrapPanel>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" Visibility="{Binding HasDocumentation, Converter={StaticResource boolToVisConverter}}">
             <ItemsControl x:Name="Exceptions" ItemsSource="{Binding TypeDetails.StructuredDocumentation.Exception}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

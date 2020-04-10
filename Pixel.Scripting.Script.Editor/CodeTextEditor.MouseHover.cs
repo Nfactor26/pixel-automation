@@ -11,7 +11,7 @@ namespace Pixel.Scripting.Script.Editor
 {
     public partial class CodeTextEditor : TextEditor
     {
-        private ToolTip toolTip;
+        private ToolTip toolTip = new ToolTip();
         partial void InitializeMouseHover()
         {
             MouseHover += OnMouseHover;
@@ -45,11 +45,13 @@ namespace Pixel.Scripting.Script.Editor
             catch (ArgumentOutOfRangeException)
             {
                 // TODO: check why this happens
+                toolTip.IsOpen = false;
                 e.Handled = true;
                 return;
             }
             if (!position.HasValue || position.Value.Location.IsEmpty)
             {
+                toolTip.IsOpen = false;
                 return;
             }
 
@@ -59,24 +61,19 @@ namespace Pixel.Scripting.Script.Editor
             {
                 var markerWithToolTip = markers.FirstOrDefault(marker => marker.ToolTip != null);
                 if (markerWithToolTip != null)
-                {
-                    if(toolTip != null)
-                    {
-                        toolTip.IsOpen = false;
-                    }
-                    toolTip = new ToolTip();
-                    toolTip.Content = new Label() { Content = markerWithToolTip.ToolTip };
-                    toolTip.Closed += delegate
-                    {
-                        toolTip = null;
-                    };
+                {                 
+                    //toolTip = new ToolTip();
+                    toolTip.Content = new DiagnosticsTextPanel() { DataContext = markerWithToolTip };
+                    //toolTip.Closed += delegate
+                    //{
+                    //    toolTip = null;
+                    //};
                     toolTip.IsOpen = true;
                     return;
                 }
+                return;
             }
-
-
-            if (toolTip == null)
+            else
             {
                 var typeDescription = await this.editorService.GetTypeDescriptionAsync(new TypeLookupRequest()
                 {
@@ -87,18 +84,20 @@ namespace Pixel.Scripting.Script.Editor
                 });
                 if (string.IsNullOrEmpty(typeDescription.Type))
                 {
+                    toolTip.IsOpen = false;
                     return;
                 }
 
-                toolTip = new ToolTip();
+                //toolTip = new ToolTip();
                 toolTip.Content = new TypeDescriptionPanel() { DataContext = new TypeDescription(typeDescription) };
-                toolTip.Closed += delegate
-                {
-                    toolTip = null;
-                };
+                //toolTip.Closed += delegate
+                //{
+                //    toolTip = null;
+                //};
                 toolTip.IsOpen = true;
+                return;
             }
-
+         
         }
 
     }

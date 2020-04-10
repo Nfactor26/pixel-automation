@@ -12,6 +12,11 @@ namespace Pixel.Scripting.Script.Editor.Model
 
         public TypeLookupResponse TypeDetails { get; }
 
+        public bool HasDocumentation
+        {
+            get => !string.IsNullOrEmpty(TypeDetails.Documentation);
+        }
+
         public TypeDescription(TypeLookupResponse typeLookupResponse)
         {
             if(typeLookupResponse.SymbolDisplayParts !=  null)
