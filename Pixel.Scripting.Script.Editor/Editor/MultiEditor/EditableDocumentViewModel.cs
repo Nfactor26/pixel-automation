@@ -15,7 +15,16 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public string DocumentName { get; private set; }
 
-        public bool IsOpen { get; private set; }
+        private bool isOpen;
+        public bool IsOpen
+        {
+            get => isOpen;
+            set
+            {
+                isOpen = value;
+                NotifyOfPropertyChange(() => IsOpen);
+            }
+        }
 
         public CodeTextEditor Editor { get; private set; }
 

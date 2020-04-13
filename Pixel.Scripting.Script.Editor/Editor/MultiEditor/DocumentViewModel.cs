@@ -77,7 +77,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public void DeleteDocument(EditableDocumentViewModel editableDocument)
         {
-            if (editableDocument != null)
+            if (editableDocument != null && !editableDocument.IsOpen)
             {
                 editor.DeleteDocument(editableDocument.DocumentName);
             }          

@@ -11,7 +11,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-      
+        <converters:InverseBooleanConverter x:Key="invBoolConverter"></converters:InverseBooleanConverter>
         <BooleanToVisibilityConverter x:Key="boolToVisConverter"></BooleanToVisibilityConverter>
         <Style  x:Key="FlatButton"  TargetType="Button">
             <Setter Property="Template">
@@ -26,20 +26,29 @@
         
         <Style x:Key="DocumentCollectionStyle" TargetType="{x:Type ListBox}">
             <Setter Property="FontSize" Value="12"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel x:Name="DocumentItem" Orientation="Horizontal" Margin="5 0 0 0">                          
-                            <iconPacks:PackIconOcticons Kind="FileCode" Width="8" Height="8" Margin="0,2,2,0"
+                        <DockPanel x:Name="DocumentItem" LastChildFill="False" Margin="5 0 0 0" HorizontalAlignment="Stretch">                          
+                            
+                            <iconPacks:PackIconOcticons Kind="FileCode" Width="16" Height="16" Margin="0,2,2,0"
+                                                        DockPanel.Dock="Left"
                                                         HorizontalAlignment="Left" VerticalAlignment="Center" 
                                                         Foreground="{DynamicResource MahApps.Brushes.Accent}" />
-                            <Button Content="{Binding DocumentName}" ToolTip="{Binding DocumentName}" Style="{StaticResource FlatButton}"
+                            <Button Content="{Binding DocumentName}" ToolTip="{Binding DocumentName}"
+                                       Style="{StaticResource FlatButton}"  DockPanel.Dock="Left"
                                        cal:Message.Attach="[Event MouseDoubleClick] = [Action OpenDocument($dataContext)]"  
                                        Padding="2"/>
-                            <iconPacks:PackIconMaterial Kind="Asterisk" Width="8" Height="8"
+                            <iconPacks:PackIconMaterial Kind="Asterisk" Width="8" Height="8"  DockPanel.Dock="Left"
                                        Margin="5,2,2,0" Visibility="{Binding Editor.IsModified, FallbackValue=Collapsed, Converter={StaticResource boolToVisConverter}}"
-                                       Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        </StackPanel>
+                                       Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" />                         
+                            <Button Content="{iconPacks:FontAwesome TrashAltRegular}" ToolTip="{Binding Delete}" 
+                                       Style="{StaticResource EditControlButtonStyle}" Margin="0,0,10,0" IsEnabled="{Binding IsOpen,Converter={StaticResource invBoolConverter}}"
+                                       cal:Message.Attach="[Event Click] = [Action DeleteDocument($dataContext)]"  HorizontalAlignment="Right"
+                                       Padding="2"  DockPanel.Dock="Right"/>
+                        </DockPanel>
                         <DataTemplate.Triggers>                           
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" TargetName="DocumentItem" Value="Transparent"/>
@@ -53,7 +62,7 @@
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </Setter.Value>
-            </Setter>         
+            </Setter>           
         </Style>
     </UserControl.Resources>
     <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
