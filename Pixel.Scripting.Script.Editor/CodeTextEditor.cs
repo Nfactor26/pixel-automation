@@ -36,8 +36,7 @@ namespace Pixel.Scripting.Script.Editor
 
         public void OpenDocument(string documentName)
         {
-            this.Document.FileName = Path.GetFileName(documentName);
-          
+            this.Document.FileName = Path.GetFileName(documentName);        
             this.textManager = new TextManager(this.editorService, this);
             syntaxHighlighter = new SyntaxHighlightingColorizer(this.Document.FileName, this.editorService, new ClassificationHighlightColors());
             TextArea.TextView.LineTransformers.Insert(0, syntaxHighlighter);
@@ -67,6 +66,9 @@ namespace Pixel.Scripting.Script.Editor
             //}));      
 
             InitializeMouseHover();
+
+            //Set it to false once since setting the text while opening sets IsModified to true.
+            this.IsModified = false;
         }
      
         public void CloseDocument()
@@ -87,17 +89,28 @@ namespace Pixel.Scripting.Script.Editor
             return Document;
         }
 
-
-        public void Dispose()
+        protected virtual void Dispose(bool isDisposing)
         {
-            TextArea.TextView.LineTransformers.RemoveAt(0);          
             MouseHover -= OnMouseHover;
             MouseHoverStopped -= OnHoverStopped;
             TextArea.TextView.BackgroundRenderers.Clear();
-            TextArea.TextView.LineTransformers.Clear();          
+            TextArea.TextView.LineTransformers.Clear();
+            foreach (var tracker in TextArea.Document.LineTrackers)
+            {
+                if (tracker is IDisposable dt)
+                {
+                    dt.Dispose();
+                }
+            }
             diagnosticsManager?.Dispose();
+            codeActionsControl?.Dispose();
             textManager?.Dispose();
             this.editorService = null;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }   
 }

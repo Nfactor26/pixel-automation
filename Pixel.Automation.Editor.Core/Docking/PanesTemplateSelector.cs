@@ -1,9 +1,8 @@
 ﻿using Caliburn.Micro;
-using Pixel.Automation.Editor.Core;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Pixel.Automation.Designer.ViewModels
+namespace Pixel.Automation.Editor.Core.Docking
 {
     public class PanesTemplateSelector : DataTemplateSelector
     {
@@ -22,10 +21,14 @@ namespace Pixel.Automation.Designer.ViewModels
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is IToolBox)
+            {
                 return ToolTemplate;
+            }
 
             if (item is IScreen)
+            {
                 return ScreenTemplate;
+            }
 
             return base.SelectTemplate(item, container);
         }

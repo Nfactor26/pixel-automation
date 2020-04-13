@@ -84,19 +84,23 @@ namespace Pixel.Automation.Designer.ViewModels
         } 
 
 
-        public override async void EditDataModel()
-        {
-            ICodeEditorScreen codeEditorScreen = this.EntityManager.GetServiceOfType<ICodeEditorScreen>();
-            codeEditorScreen.OpenDocument("DataModel.cs", string.Empty);
-            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            var result = await windowManager.ShowDialogAsync(codeEditorScreen);
-            if (result.HasValue && result.Value)
+        public override async Task EditDataModel()
+        {         
+            var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+            var editor = editorFactory.CreateMultiCodeEditor();
+            if(!editor.HasDocument("DataModel.cs"))
             {
-                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
-                this.projectManager.Refresh();
-                this.ReOpenTestCases(testCaseEntities);
+               await editor.AddDocumentAsync("DataModel.cs", string.Empty, false);
             }
-        }       
+            await editor.OpenDocumentAsync("DataModel.cs");
+            
+            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+            await windowManager.ShowDialogAsync(editor);
+            
+            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
+            this.projectManager.Refresh();
+            this.ReOpenTestCases(testCaseEntities);            
+        }
 
         private void ReOpenTestCases(IEnumerable<IComponent> testCaseEntities)
         {

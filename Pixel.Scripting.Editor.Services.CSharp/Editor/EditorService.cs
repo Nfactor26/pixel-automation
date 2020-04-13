@@ -152,6 +152,16 @@ namespace Pixel.Script.Editor.Services.CSharp
             workspaceManager.SetCurrentDirectory(directory);
         }       
 
+        public IEnumerable<string> GetAvailableDocuments()
+        {
+            string workingDirectory = workspaceManager.GetWorkingDirectory();
+            foreach(var file in Directory.GetFiles(workingDirectory, "*.cs"))
+            {
+                yield return Path.GetFileName(file);
+            }
+            yield break;
+        }
+
         public bool IsFeatureEnabled(EditorFeature feature)
         {
             switch(feature)
@@ -214,6 +224,18 @@ namespace Pixel.Script.Editor.Services.CSharp
         public void AddDocument(string documentName, string documentContent)
         {
             this.workspaceManager.AddDocument(documentName, documentContent);
+        }
+
+        public void RemoveDocument(string documentName)
+        {
+            if(this.workspaceManager.TryRemoveDocument(documentName))
+            {
+                string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), documentName);
+                File.Delete(documentLocation);
+                return;
+               
+            }
+            throw new Exception($"Failed to remove {documentName} from workspace");
         }
 
         public void SetContent(string documentName, string documentContent)

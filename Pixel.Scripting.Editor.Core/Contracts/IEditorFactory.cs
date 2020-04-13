@@ -29,6 +29,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         ICodeEditorControl CreateCodeEditorControl();
 
         /// <summary>
+        /// Create a code editor that supports opening and editing multiple documents
+        /// </summary>
+        /// <returns></returns>
+        IMultiEditor CreateMultiCodeEditor();
+
+        /// <summary>
         /// Get the underlying workspace manager associated with any of the code editors created by this factory.
         /// This can be used to compile project , add documents, remove documents , etc to the workspace.
         /// </summary>

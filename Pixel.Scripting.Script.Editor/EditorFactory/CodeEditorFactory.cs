@@ -1,5 +1,6 @@
 ﻿using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Script.Editor.Code;
+using Pixel.Scripting.Script.Editor.MultiEditor;
 using System;
 
 namespace Pixel.Scripting.Script.Editor
@@ -36,6 +37,12 @@ namespace Pixel.Scripting.Script.Editor
             return new CodeEditorControlViewModel(this.editorService);
         }
 
+        public IMultiEditor CreateMultiCodeEditor()
+        {
+            EnsureInitialized();
+            return new MultiEditorViewModel(this.editorService);
+        }
+
         private void EnsureInitialized()
         {
             if (!isInitialized)
@@ -51,5 +58,7 @@ namespace Pixel.Scripting.Script.Editor
             }
             throw new Exception($"{nameof(ICodeWorkspaceManager)} is not available");
         }
+
+       
     }
 }

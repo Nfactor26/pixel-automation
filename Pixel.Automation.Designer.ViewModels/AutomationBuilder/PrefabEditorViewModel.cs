@@ -9,6 +9,7 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -54,16 +55,16 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
 
-        public override async void EditDataModel()
+        public override async Task EditDataModel()
         {
-            ICodeEditorScreen codeEditorScreen = this.EntityManager.GetServiceOfType<ICodeEditorScreen>();
-            codeEditorScreen.OpenDocument($"{Constants.PrefabDataModelName}.cs", string.Empty);
+            var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+            var editor = editorFactory.CreateMultiCodeEditor();
+            await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs");
+         
             IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            var result = await windowManager.ShowDialogAsync(codeEditorScreen);
-            if (result.HasValue && result.Value)
-            {               
-                this.projectManager.Refresh();
-            }
+            await windowManager.ShowDialogAsync(editor);        
+                 
+           this.projectManager.Refresh();            
         }
 
         #endregion Automation Project     

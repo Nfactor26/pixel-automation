@@ -1,12 +1,11 @@
-﻿using Pixel.Automation.Editor.Core;
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Xceed.Wpf.AvalonDock.Layout;
 
 
-namespace Pixel.Automation.Designer.ViewModels
+namespace Pixel.Automation.Editor.Core.Docking
 {
     public class LayoutInitializer : ILayoutUpdateStrategy
     {

@@ -23,6 +23,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
                
         void SwitchToDirectory(string directory);
 
+        /// <summary>
+        /// Get a collection of all .cs or .csx file in current working directory
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAvailableDocuments();
+
         bool IsFeatureEnabled(EditorFeature editorFeature);   
 
         void CreateFileIfNotExists(string documentName, string initialContent);
@@ -32,6 +38,8 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         bool HasDocument(string documentName);
 
         void AddDocument(string documentLocation, string documentContent);
+
+        void RemoveDocument(string documentName);
 
         void SetContent(string documentName, string documentContent);
 

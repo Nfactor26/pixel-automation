@@ -179,12 +179,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #endregion Manage Components
 
         #region Automation Project
-         
-      
-        public virtual void EditDataModel()
-        {
-           
-        }
+
+
+        public abstract Task EditDataModel();
+       
 
         public void DoUnload()
         {

@@ -200,10 +200,15 @@ namespace Pixel.Scripting.Script.Editor.Features
           
         }
 
-        public void Dispose()
+        protected virtual void Dispose(bool isDisposing)
         {
             bufferedSubscription.Dispose();
             intervalSubscription.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         #region ILineTracker

@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -44,7 +45,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Open data model associated with project for editing
         /// </summary>
-        void EditDataModel();
+        Task EditDataModel();
     
     }
 }

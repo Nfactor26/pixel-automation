@@ -128,8 +128,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected virtual void ConfigureCodeEditor()
         {
             this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());
-            ICodeEditorScreen codeEditorScreen = codeEditorFactory.CreateCodeEditor();
-            this.entityManager.RegisterDefault<ICodeEditorScreen>(codeEditorScreen);           
+            //ICodeEditorScreen codeEditorScreen = codeEditorFactory.CreateCodeEditor();
+            //this.entityManager.RegisterDefault<ICodeEditorScreen>(codeEditorScreen);           
         }
 
         #endregion Service Configuration
