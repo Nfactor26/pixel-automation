@@ -24,7 +24,7 @@ namespace Pixel.Scripting.Script.Editor.Script
             Activate();
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool isDisposing)
         {
             //Clear any custom directory that was set for script editor.
             this.editorService.SwitchToDirectory(null);

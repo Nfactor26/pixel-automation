@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace Pixel.Scripting.Script.Editor.Script
 {
-    public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged, IDisposable
+    public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged
     {
         private string documentName;      
         private readonly IEditorService editorService;
@@ -108,11 +108,16 @@ namespace Pixel.Scripting.Script.Editor.Script
             CloseDocument(true);
         }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool isDisposing)
         {
             CloseDocument(false);
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
             (this.Editor as IDisposable)?.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);           
         }
 
         #region INotifyPropertyChanged

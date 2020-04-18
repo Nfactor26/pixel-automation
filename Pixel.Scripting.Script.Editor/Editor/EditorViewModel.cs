@@ -46,7 +46,8 @@ namespace Pixel.Scripting.Script.Editor
             {
                this.editorService.SaveDocument(this.documentName);
             }
-            this.editorService.TryCloseDocument(this.documentName);            
+            this.editorService.TryCloseDocument(this.documentName);
+            Dispose(true);
         }
 
         public virtual void Activate()
@@ -76,10 +77,14 @@ namespace Pixel.Scripting.Script.Editor
             await this.TryCloseAsync(false);
         }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool isDisposing)
         {
-            CloseDocument(false);
-            (editor as IDisposable).Dispose();          
+            (editor as IDisposable).Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }
 }

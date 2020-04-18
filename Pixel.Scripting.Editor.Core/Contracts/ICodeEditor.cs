@@ -1,4 +1,6 @@
-﻿namespace Pixel.Scripting.Editor.Core.Contracts
+﻿using System;
+
+namespace Pixel.Scripting.Editor.Core.Contracts
 {
     public interface ICodeEditor
     {
@@ -14,7 +16,7 @@
     }
 
 
-    public interface IInlineScriptEditor : ICodeEditor
+    public interface IInlineScriptEditor : ICodeEditor, IDisposable
     {
 
     }   

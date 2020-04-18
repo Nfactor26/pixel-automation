@@ -15,8 +15,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataRepository : PropertyChangedBase
     {
-        private readonly IProjectFileSystem projectFileSystem;       
-        private readonly ICodeEditorFactory codeEditorFactory;
+        private readonly IProjectFileSystem projectFileSystem;     
         private readonly IScriptEditorFactory scriptEditorFactory;
         private readonly ISerializer serializer;
         private readonly IArgumentTypeProvider argumentTypeProvider;
@@ -27,11 +26,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public TestDataSource SelectedTestDataSource { get; set; }
 
         #region Constructor
-        public TestDataRepository(ISerializer serializer, IProjectFileSystem projectFileSystem, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IWindowManager windowManager, IArgumentTypeProvider argumentTypeProvider)
+        public TestDataRepository(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory, IWindowManager windowManager, IArgumentTypeProvider argumentTypeProvider)
         {
             this.projectFileSystem = projectFileSystem;           
             this.serializer = serializer;
-            this.codeEditorFactory = codeEditorFactory;
+        
             this.scriptEditorFactory = scriptEditorFactory;
             this.windowManager = windowManager;
             this.argumentTypeProvider = argumentTypeProvider;
@@ -103,22 +102,25 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
             TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
-        
-            var scriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor();
-            TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(scriptEditor);
 
-            newTestDataSource.NextScreen = testDataModelEditor;
-            testDataModelEditor.PreviousScreen = newTestDataSource;
-
-            TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
-
-            var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
-            if (result.HasValue && result.Value)
+            using (var scriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor())
             {
-                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
-                this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
-                //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
+                TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(scriptEditor);
+
+                newTestDataSource.NextScreen = testDataModelEditor;
+                testDataModelEditor.PreviousScreen = newTestDataSource;
+
+                TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
+
+                var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
+                if (result.HasValue && result.Value)
+                {
+                    serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
+                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
+                    //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
+                }
             }
+            
         }
 
         #endregion Create Test Data Source
