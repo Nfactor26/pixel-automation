@@ -2,7 +2,7 @@
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
-    public class EditorOptions
+    public class WorkspaceOptions
     {
         public string WorkingDirectory { get; set; }
 
@@ -12,7 +12,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         public bool EnableDiagnostics { get; set; } = true;
 
-        public string[] EditorReferences { get; set; } 
+        public string[] AssemblyReferences { get; set; } 
 
     }
 }

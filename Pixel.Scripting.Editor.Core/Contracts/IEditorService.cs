@@ -18,7 +18,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         IWorkspaceManager GetWorkspaceManager();
 
-        void Initialize(EditorOptions editorOptions, Type globalsType);
+        void Initialize(WorkspaceOptions editorOptions, Type globalsType);
                
         void SwitchToDirectory(string directory);
 

@@ -17,11 +17,11 @@ namespace Pixel.Scripting.Script.Editor
         public void Initialize(string workingDirectory, Type globalsType, string[] editorReferences)
         {
             this.isInitialized = true;
-            this.editorService.Initialize(new EditorOptions()
+            this.editorService.Initialize(new WorkspaceOptions()
             { 
                 WorkingDirectory = workingDirectory,
                 EnableCodeActions = false,
-                EditorReferences = editorReferences                
+                AssemblyReferences = editorReferences                
             }, globalsType);
         }
 

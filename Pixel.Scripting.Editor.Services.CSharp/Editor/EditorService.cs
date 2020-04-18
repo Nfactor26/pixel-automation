@@ -31,7 +31,7 @@ namespace Pixel.Script.Editor.Services.CSharp
 {
     public class EditorService : IEditorService
     {
-        private EditorOptions editorOptions;
+        private WorkspaceOptions editorOptions;
         private AdhocWorkspaceManager workspaceManager;
         private IntellisenseService intelliSenseService;
         private HighlightService highlightService;
@@ -58,7 +58,7 @@ namespace Pixel.Script.Editor.Services.CSharp
             return this.workspaceManager;
         }
 
-        public void Initialize(EditorOptions editorOptions, Type globalsType)
+        public void Initialize(WorkspaceOptions editorOptions, Type globalsType)
         {
             ClearState();
             
@@ -72,7 +72,7 @@ namespace Pixel.Script.Editor.Services.CSharp
                 this.workspaceManager = new ScriptWorkSpaceManager(editorOptions.WorkingDirectory, globalsType);
             }
 
-            this.workspaceManager.WithAssemblyReferences(editorOptions.EditorReferences ?? Array.Empty<string>());
+            this.workspaceManager.WithAssemblyReferences(editorOptions.AssemblyReferences ?? Array.Empty<string>());
 
             var formattingOptions = new FormattingOptions();
             this.intelliSenseService = new IntellisenseService(workspaceManager, formattingOptions);
