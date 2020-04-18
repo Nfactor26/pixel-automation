@@ -14,9 +14,9 @@ namespace Pixel.Automation.Core
         
         public string ProcessFile { get; private set; }
 
-        public string TestCaseDirectory { get; protected set; }
+        public string TestCaseRepository { get; protected set; }
 
-        public string TestDataRepoDirectory { get; protected set; }
+        public string TestDataRepository { get; protected set; }
      
         public ProjectFileSystem(ISerializer serializer) : base(serializer)
         {
@@ -28,34 +28,22 @@ namespace Pixel.Automation.Core
             this.ActiveVersion = versionInfo;
             this.projectId = projectId;
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, versionInfo.ToString());
-            this.TestCaseDirectory = Path.Combine(this.WorkingDirectory, "TestCases");
-            this.TestDataRepoDirectory = Path.Combine(this.WorkingDirectory, "TestDataRepository");
+            this.TestCaseRepository = Path.Combine(this.WorkingDirectory, "TestCases");
+            this.TestDataRepository = Path.Combine(this.WorkingDirectory, "TestDataRepository");
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
             this.ProcessFile = Path.Combine(this.WorkingDirectory, $"{projectId}.proc");
 
-            if (!Directory.Exists(TestCaseDirectory))
+            if (!Directory.Exists(TestCaseRepository))
             {
-                Directory.CreateDirectory(TestCaseDirectory);
+                Directory.CreateDirectory(TestCaseRepository);
             }
-            if (!Directory.Exists(TestDataRepoDirectory))
+            if (!Directory.Exists(TestDataRepository))
             {
-                Directory.CreateDirectory(TestDataRepoDirectory);
+                Directory.CreateDirectory(TestDataRepository);
             }
 
             base.Initialize();
-        }
-
-        public void Initialize(string projectId)
-        {
-            //this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
-            //AutomationProject automationProject = this.serializer.Deserialize<AutomationProject>(this.ProjectFile);
-            //if (automationProject.DeployedVersion == null)
-            //{
-            //    throw new InvalidOperationException($"There is no deployed version for project : {automationProject.Name}");
-            //}
-            //Initialize(projectId, automationProject.DeployedVersion);
-            throw new NotImplementedException();
-        }
+        }       
 
         public override void SwitchToVersion(VersionInfo version)
         {

@@ -54,9 +54,6 @@ namespace Pixel.Automation.Core
         [DataMember]
         public string WorkingDirectory { get; set; }
 
-      
-        public Env Environment { get; set; }
-
         #endregion data members        
 
         #region Constructor      
@@ -75,10 +72,7 @@ namespace Pixel.Automation.Core
         public EntityManager(EntityManager entityManager, object dataModel)
         {
             //cloning service resolver allows us to register new defaults in scope of this EntityManager since we get a new ninject childkernel
-            this.serviceProvider = entityManager.serviceProvider.Clone() as IServiceResolver;
-            this.SetCurrentFileSystem(entityManager.GetCurrentFileSystem());
-            this.WorkingDirectory = entityManager.WorkingDirectory;
-            this.Environment = entityManager.Environment;
+            this.serviceProvider = entityManager.serviceProvider.Clone() as IServiceResolver;          
             this.RootEntity = entityManager.RootEntity;
             if(dataModel != null)
             {

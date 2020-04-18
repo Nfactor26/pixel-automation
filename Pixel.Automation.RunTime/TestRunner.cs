@@ -207,6 +207,10 @@ namespace Pixel.Automation.RunTime
                     //we create a new EntityManager for TestCaseEntity that can use ArgumentProcessor with different globals object               
                     EntityManager testEntityManager = new EntityManager(this.entityManager, null);
 
+                    testEntityManager.RegisterDefault<IFileSystem>(this.entityManager.GetCurrentFileSystem());
+                    testEntityManager.SetCurrentFileSystem(this.entityManager.GetCurrentFileSystem());
+
+
                     var dataSource = testDataLoader.GetTestCaseData(testCase);
                     if (dataSource is IEnumerable dataSourceCollection)
                     {

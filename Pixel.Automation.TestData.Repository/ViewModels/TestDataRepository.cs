@@ -41,7 +41,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         private void LoadDataSources()
         {
-            string repositoryFolder = this.projectFileSystem.TestDataRepoDirectory;
+            string repositoryFolder = this.projectFileSystem.TestDataRepository;
             string[] dataSourceFiles = Directory.GetFiles(repositoryFolder, "*.dat");
             foreach (var dataSourceFile in dataSourceFiles)
             {
@@ -115,7 +115,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
             if (result.HasValue && result.Value)
             {
-                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepoDirectory, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
+                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
                 this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
                 //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
             }
@@ -163,7 +163,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
             if (result.HasValue && result.Value)
             {
-                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepoDirectory, $"{testDataSource.Id}.dat"), testDataSource);                
+                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataSource.Id}.dat"), testDataSource);                
             }
         }
 

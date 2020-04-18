@@ -36,7 +36,7 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(testCase).NotNull();
             Guard.Argument(testCase.TestDataId).NotNull().NotEmpty();
 
-            string repositoryFolder = this.fileSystem.TestDataRepoDirectory;
+            string repositoryFolder = this.fileSystem.TestDataRepository;
             string dataSourceFile = Path.Combine(repositoryFolder, $"{testCase.TestDataId}.dat");
             if (!File.Exists(dataSourceFile))
             {

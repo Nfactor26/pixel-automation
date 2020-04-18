@@ -96,20 +96,7 @@ namespace Pixel.Automation.Core
             }
             this.editorReferences.AddReferences(references);
             serializer.Serialize<AssemblyReferences>(ReferencesFile, this.editorReferences);
-        }
-
-        public string[] GetKnownDirectories()
-        {
-            return new string[]
-            {
-                Environment.CurrentDirectory,
-                Path.Combine(Environment.CurrentDirectory, string.Empty),
-                Path.Combine(Environment.CurrentDirectory, "Core"),
-                Path.Combine(Environment.CurrentDirectory, "Components"),               
-                Path.Combine(Environment.CurrentDirectory, "Roslyn")
-            };
-        }
-
+        }       
 
         public IEnumerable<T> LoadFiles<T>(string directory) where T : new()
         {

@@ -59,12 +59,12 @@ namespace Pixel.Automation.TestExplorer
 
         private void LoadExistingTests()
         {
-            foreach(var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseDirectory))
+            foreach(var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseRepository))
             {
                 TestCategoryViewModel testCategoryVM = new TestCategoryViewModel(testCategory);
                 this.TestCategories.Add(testCategoryVM);
              
-                var testDirectory = Path.Combine(this.fileSystem.TestCaseDirectory, testCategory.Id);
+                var testDirectory = Path.Combine(this.fileSystem.TestCaseRepository, testCategory.Id);
                 if(!Directory.Exists(testDirectory))
                 {
                     //No test case has been added to test category yet.
@@ -116,7 +116,7 @@ namespace Pixel.Automation.TestExplorer
 
         private void SaveTestCategory(TestCategoryViewModel testCategoryVM)
         {
-            this.fileSystem.SaveToFile<TestCategory>(testCategoryVM.TestCategory, this.fileSystem.TestCaseDirectory);
+            this.fileSystem.SaveToFile<TestCategory>(testCategoryVM.TestCategory, this.fileSystem.TestCaseRepository);
         }
 
         public void DeleteTestCategory(TestCategoryViewModel testCategoryVM)
@@ -125,7 +125,7 @@ namespace Pixel.Automation.TestExplorer
             if(result == MessageBoxResult.OK)
             {
                 this.TestCategories.Remove(testCategoryVM);
-                Directory.Delete(Path.Combine(this.fileSystem.TestCaseDirectory, testCategoryVM.Id));
+                Directory.Delete(Path.Combine(this.fileSystem.TestCaseRepository, testCategoryVM.Id));
             }
         }       
 
@@ -185,10 +185,10 @@ namespace Pixel.Automation.TestExplorer
             TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));
             if(ownerCategory != null)
             {
-                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id));               
+                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id));               
                 if(saveTestEntity)
                 {
-                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id), $"{testCaseVM.Id}.atm");               
+                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id), $"{testCaseVM.Id}.atm");               
                 }               
             }
         }
@@ -207,7 +207,7 @@ namespace Pixel.Automation.TestExplorer
                 MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test", "Confirm Delete", MessageBoxButton.OKCancel);
                 if (result == MessageBoxResult.OK)
                 {
-                    string testFile = Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id, testCaseVM.Id);
+                    string testFile = Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id, testCaseVM.Id);
                     testFile = $"{testFile}.test";
                     File.Delete(testFile);
                     ownerCategory.Tests.Remove(testCaseVM);
@@ -239,7 +239,7 @@ namespace Pixel.Automation.TestExplorer
                 return;
 
             TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));        
-            string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseDirectory, ownerCategory.Id, $"{testCaseVM.Id}.atm");
+            string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id, $"{testCaseVM.Id}.atm");
             testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
             testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
 

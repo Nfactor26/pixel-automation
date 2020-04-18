@@ -37,8 +37,7 @@ namespace Pixel.Automation.RunTime
             this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
             
             this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
-            this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);
-            this.prefabManager.Environment = entityManager.Environment;
+            this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
             this.prefabManager.WorkingDirectory = this.prefabFileSystem.WorkingDirectory;
 
             string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.PrefabAssembly);

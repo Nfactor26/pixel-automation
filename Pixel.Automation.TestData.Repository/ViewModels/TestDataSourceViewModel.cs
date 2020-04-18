@@ -142,7 +142,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             if (openFileDialog.ShowDialog() == true)
             {
                 string selectedFile = openFileDialog.FileName;
-                string testDataRepository = this.fileSystem.TestDataRepoDirectory;
+                string testDataRepository = this.fileSystem.TestDataRepository;
                 string destFile = Path.Combine(testDataRepository, Path.GetFileName(selectedFile));
                 //TODO : What is file already exists with same name?
                 File.Copy(selectedFile, destFile, true);

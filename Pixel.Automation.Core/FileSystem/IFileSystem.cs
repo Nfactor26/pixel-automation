@@ -1,5 +1,4 @@
 ﻿using Pixel.Automation.Core.Models;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -7,8 +6,7 @@ namespace Pixel.Automation.Core.Interfaces
 {
 
     public interface IFileSystem
-    {
-        VersionInfo ActiveVersion { get; }
+    {      
         /// <summary>
         /// Working directory for a given project or prefab
         /// </summary>
@@ -34,11 +32,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string ReferencesDirectory { get;  }
 
-        string[] GetKnownDirectories();
-
-        string[] GetAssemblyReferences();
-
-        void SwitchToVersion(VersionInfo version);
+        string[] GetAssemblyReferences();      
        
         IEnumerable<T> LoadFiles<T>(string directory) where T : new();
 
@@ -49,15 +43,23 @@ namespace Pixel.Automation.Core.Interfaces
         void CreateOrReplaceFile(string directory, string fileName, string content);
     }
 
-    public interface IProjectFileSystem : IFileSystem
+    public interface IVersionedFileSystem : IFileSystem
+    {
+        VersionInfo ActiveVersion { get; }
+
+        void SwitchToVersion(VersionInfo version);
+    }
+
+
+    public interface IProjectFileSystem : IVersionedFileSystem
     {
         string ProjectFile { get; }
 
         string ProcessFile { get; }
 
-        string TestCaseDirectory { get; }
+        string TestCaseRepository { get; }
 
-        string TestDataRepoDirectory { get; }
+        string TestDataRepository { get; }
 
         /// <summary>
         /// Initialize the file system by providing workingdirectory and projectname
@@ -65,16 +67,10 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="workingDirectory"></param>
         /// <param name="projectId"></param>
         void Initialize(string projectId, VersionInfo versionInfo);
-
-        /// <summary>
-        /// Initialize the file system for specified projectId.
-        /// Deployed version is used for initialization.
-        /// </summary>
-        /// <param name="projectId"></param>
-        void Initialize(string projectId);
+      
     }
 
-    public interface IPrefabFileSystem : IFileSystem
+    public interface IPrefabFileSystem : IVersionedFileSystem
     {   
         /// <summary>
         /// Prefab description file 
