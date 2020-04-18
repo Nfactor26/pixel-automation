@@ -8,7 +8,6 @@ using Pixel.Scripting.Editor.Core.Models.Signatures;
 using Pixel.Scripting.Editor.Core.Models.TypeLookup;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
@@ -31,23 +30,66 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         bool IsFeatureEnabled(EditorFeature editorFeature);   
 
-        void CreateFileIfNotExists(string documentName, string initialContent);
+        /// <summary>
+        /// Create a file on local disk with initial content
+        /// </summary>
+        /// <param name="targetFile">Relative path of document to working directory</param>
+        /// <param name="initialContent">Initial content of the document</param>
+        void CreateFileIfNotExists(string targetFile, string initialContent);
 
-        string GetFileContentFromDisk(string documentName);
+        /// <summary>
+        /// Get the contents of a file from disk
+        /// </summary>
+        /// <param name="targetFile">Relative path of document to working directory</param>
+        /// <returns></returns>
+        string GetFileContentFromDisk(string targetFile);
 
+        /// <summary>
+        /// Check if the document is already available in underlying workspace
+        /// </summary>
+        /// <param name="documentName">Relative path of document to working directory</param>
+        /// <returns></returns>
         bool HasDocument(string documentName);
 
-        void AddDocument(string documentLocation, string documentContent);
+        /// <summary>
+        /// Add a new document to underlying workspace with some content
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        /// <param name="documentContent">Content of the document</param>
+        void AddDocument(string targetDocument, string documentContent);
 
-        void RemoveDocument(string documentName);
+        /// <summary>
+        /// Remove document from underlying workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        void RemoveDocument(string targetDocument);
 
-        void SetContent(string documentName, string documentContent);
+        /// <summary>
+        /// Set content of document
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        /// <param name="documentContent">New content of the document</param>
+        void SetContent(string targetDocument, string documentContent);
 
-        void SaveDocument(string documentName);
+        /// <summary>
+        /// Save document
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        void SaveDocument(string targetDocument);
 
-        bool TryOpenDocument(string documentName);
+        /// <summary>
+        /// Open a document for edit.
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        /// <returns></returns>
+        bool TryOpenDocument(string targetDocument);
 
-        bool TryCloseDocument(string documentName);
+        /// <summary>
+        /// Close document for edit.
+        /// </summary>
+        /// <param name="targetDocument">Relative path of the document to working directory</param>
+        /// <returns></returns>
+        bool TryCloseDocument(string targetDocument);
       
 
         /// <summary>

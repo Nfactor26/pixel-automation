@@ -35,11 +35,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         public AdhocWorkspaceManager(string workingDirectory)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
-
-            if (!Directory.Exists(Path.Combine(workingDirectory, "Temp")))
-            {
-                Directory.CreateDirectory(Path.Combine(workingDirectory, "Temp"));
-            }
+           
             this.workingDirectory = workingDirectory;
 
             InitializeCompositionHost();
@@ -68,7 +64,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             {
                 foreach (var document in proj.Documents)
                 {
-                    if (document.Name.Equals(documentName))
+                    if (document.Name.Equals(Path.GetFileName(documentName)))
                     {
                         project = proj;
                         return true;
@@ -87,7 +83,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             {
                 foreach (var doc in project.Documents)
                 {
-                    if (doc.Name.Equals(documentName))
+                    if (doc.Name.Equals(Path.GetFileName(documentName)))
                     {
                         document = doc;
                         return true;
@@ -125,18 +121,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             this.currentDirectory = currentDirectory;
         }
 
-        //public override IObservable<T> GetDiagnosticsUpdateObservable<T>()
-        //{
-        //    IDiagnosticService diagnosticService = GetService<IDiagnosticService>();
-        //    var observable = Observable.FromEventPattern<T>(diagnosticService, nameof(diagnosticService.DiagnosticsUpdated));
-        //    return observable;
-        //}
+        /// <inheritdoc/>
+        public abstract void AddDocument(string targetDocument, string initialContent);
 
-        public abstract void AddDocument(string documentName, string initialContent);
-        
-        public bool TryRemoveDocument(string documentName)
+        /// <inheritdoc/>
+        public bool TryRemoveDocument(string targetDocument)
         {
-            if(TryGetDocument(documentName,out Document document))
+            if(TryGetDocument(targetDocument,out Document document))
             {
                 var project = document.Project;
                 project = project.RemoveDocument(document.Id);
@@ -145,18 +136,20 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             return false;
         }
 
-        public bool IsDocumentOpen(string documentName)
+        /// <inheritdoc/>
+        public bool IsDocumentOpen(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 return workspace.IsDocumentOpen(document.Id);               
             }
             return false;
         }
 
-        public bool TryOpenDocument(string documentName)
+        /// <inheritdoc/>
+        public bool TryOpenDocument(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 if(!workspace.IsDocumentOpen(document.Id))
                 {
@@ -168,13 +161,14 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <summary>
-        /// Close document and remove owner project from workspace
+        /// Close document in workspace and remove associated project.
+        /// By default, one document per project is supported.
         /// </summary>
-        /// <param name="documentName"></param>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
         /// <returns></returns>
-        public virtual bool TryCloseDocument(string documentName)
+        public virtual bool TryCloseDocument(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 if (workspace.IsDocumentOpen(document.Id))
                 {
@@ -187,17 +181,19 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             return false;           
         }
 
-        public bool HasDocument(string documentName)
+        /// <inheritdoc/>
+        public bool HasDocument(string targetDocument)
         {
-            return TryGetDocument(documentName, out Document document);
+            return TryGetDocument(targetDocument, out Document document);
         }
-       
-        public void SaveDocument(string documentName)
+
+        /// <inheritdoc/>
+        public void SaveDocument(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 SourceText documentText = document.GetTextSynchronously(CancellationToken.None);
-                using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), documentName)))
+                using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), targetDocument)))
                 {
                     documentText.Write(writer);
                 }
@@ -205,14 +201,15 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
           
         }
 
-        public async Task<string> GetBufferAsync(string documentName)
+        /// <inheritdoc/>
+        public async Task<string> GetBufferAsync(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 var sourceText = await document.GetTextAsync();
                 return sourceText.ToString();
             }
-            throw new ArgumentException($"{documentName} is not open in workspace");
+            throw new ArgumentException($"{targetDocument} is not open in workspace");
         }
 
         public async Task UpdateBufferAsync(UpdateBufferRequest updateBufferRequest)

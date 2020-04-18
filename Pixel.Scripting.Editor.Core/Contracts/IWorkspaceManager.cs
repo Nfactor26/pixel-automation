@@ -19,21 +19,60 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         T GetService<T>();
 
-        void AddDocument(string documentName, string initialContent);
+        /// <summary>
+        /// Add a new document to workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <param name="initialContent"></param>
+        void AddDocument(string targetDocument, string initialContent);
 
-        bool TryRemoveDocument(string documentName);
+        /// <summary>
+        /// Remove document from workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <returns></returns>
+        bool TryRemoveDocument(string targetDocument);
 
-        bool IsDocumentOpen(string documentName);
+        /// <summary>
+        /// Check whether the document is open in workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <returns></returns>
+        bool IsDocumentOpen(string targetDocument);
 
-        bool TryOpenDocument(string documentName);
+        /// <summary>
+        /// Open document in workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <returns></returns>
+        bool TryOpenDocument(string targetDocument);
 
-        bool TryCloseDocument(string documentName);
+        /// <summary>
+        /// Close document in workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <returns></returns>
+        bool TryCloseDocument(string targetDocument);
 
-        bool HasDocument(string documentName);
+        /// <summary>
+        /// Check if a document already exists in workspace
+        /// </summary>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
+        /// <returns></returns>
+        bool HasDocument(string targetDocument);
 
-        void SaveDocument(string documentName);
+        /// <summary>
+        /// Save document
+        /// </summary>
+        /// <param name="targetDocument"></param>
+        void SaveDocument(string targetDocument);
 
-        Task<string> GetBufferAsync(string documentName);
+        /// <summary>
+        /// Get document contents
+        /// </summary>
+        /// <param name="targetDocument">Get the contents of document</param>
+        /// <returns></returns>
+        Task<string> GetBufferAsync(string targetDocument);
 
         Task UpdateBufferAsync(UpdateBufferRequest updateBufferRequest);
 

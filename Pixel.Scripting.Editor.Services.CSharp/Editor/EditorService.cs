@@ -190,15 +190,16 @@ namespace Pixel.Script.Editor.Services.CSharp
             }
         }
 
-        public void CreateFileIfNotExists(string documentName, string initialContent)
+        /// <inheritdoc/>
+        public void CreateFileIfNotExists(string targetFile, string initialContent)
         {
             //TODO : Path should not be relative as well. We are expecting only filename.
-            if (Path.IsPathRooted(documentName))
+            if (Path.IsPathRooted(targetFile))
             {
-                throw new ArgumentException($"{documentName} must be  file name.");
+                throw new ArgumentException($"{targetFile} must be  relative path to working directory .");
             }
 
-            string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), Path.GetFileName(documentName));
+            string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetFile);
             if (!File.Exists(documentLocation))
             {
                 File.WriteAllText(documentLocation, initialContent);
@@ -206,56 +207,64 @@ namespace Pixel.Script.Editor.Services.CSharp
         }
 
 
-        public string GetFileContentFromDisk(string documentName)
+        /// <inheritdoc/>
+        public string GetFileContentFromDisk(string targetFile)
         {
-            string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), Path.GetFileName(documentName));
+            string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetFile);
             if(File.Exists(documentLocation))
             {
                 return File.ReadAllText(documentLocation);
             }
-            throw new FileNotFoundException($"{documentName} doesn't exist at location {workspaceManager.GetWorkingDirectory()}");
+            throw new FileNotFoundException($"{targetFile} doesn't exist at location {workspaceManager.GetWorkingDirectory()}");
         }
 
-        public bool HasDocument(string documentName)
+        /// <inheritdoc/>
+        public bool HasDocument(string targetDocument)
         {
-            return this.workspaceManager.HasDocument(documentName);
+            return this.workspaceManager.HasDocument(targetDocument);
         }
 
-        public void AddDocument(string documentName, string documentContent)
+        /// <inheritdoc/>
+        public void AddDocument(string targetDocument, string documentContent)
         {
-            this.workspaceManager.AddDocument(documentName, documentContent);
+            this.workspaceManager.AddDocument(targetDocument, documentContent);
         }
 
-        public void RemoveDocument(string documentName)
+        /// <inheritdoc/>
+        public void RemoveDocument(string targetDocument)
         {
-            if(this.workspaceManager.TryRemoveDocument(documentName))
+            if(this.workspaceManager.TryRemoveDocument(targetDocument))
             {
-                string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), documentName);
+                string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetDocument);
                 File.Delete(documentLocation);
                 return;
                
             }
-            throw new Exception($"Failed to remove {documentName} from workspace");
+            throw new Exception($"Failed to remove {targetDocument} from workspace");
         }
 
-        public void SetContent(string documentName, string documentContent)
+        /// <inheritdoc/>
+        public void SetContent(string targetDocument, string documentContent)
         {
-            var updateResult =  UpdateBufferAsync(new UpdateBufferRequest() { FileName = documentName, Buffer = documentContent });           
+            _ =  UpdateBufferAsync(new UpdateBufferRequest() { FileName = targetDocument, Buffer = documentContent });           
         }
 
-        public void SaveDocument(string documentName)
+        /// <inheritdoc/>
+        public void SaveDocument(string targetDocument)
         {
-            this.workspaceManager.SaveDocument(documentName);
+            this.workspaceManager.SaveDocument(targetDocument);
         }
 
-        public bool TryOpenDocument(string documentName)
+        /// <inheritdoc/>
+        public bool TryOpenDocument(string targetDocument)
         {
-            return this.workspaceManager.TryOpenDocument(documentName);
+            return this.workspaceManager.TryOpenDocument(targetDocument);
         }
 
-        public bool TryCloseDocument(string documentName)
+        /// <inheritdoc/>
+        public bool TryCloseDocument(string targetDocument)
         {
-            return this.workspaceManager.TryCloseDocument(documentName);
+            return this.workspaceManager.TryCloseDocument(targetDocument);
         }
 
         public async Task UpdateBufferAsync(UpdateBufferRequest request)

@@ -12,7 +12,8 @@ using System.Linq;
 namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 {
     /// <summary>
-    /// CodeWorkspaceManager wraps an AdhocWorkspace and supports cs (non-script) files
+    /// CodeWorkspaceManager wraps an AdhocWorkspace and supports .cs files
+    /// A project can have more then one document.
     /// </summary>
     public class CodeWorkspaceManager : AdhocWorkspaceManager , ICodeWorkspaceManager
     {       
@@ -41,9 +42,9 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             return id;
         }
 
-        public override void AddDocument(string documentName, string initialContent)
+        public override void AddDocument(string targetDocument, string initialContent)
         {
-            Guard.Argument(documentName).NotEmpty().NotNull();
+            Guard.Argument(targetDocument).NotEmpty().NotNull();
             Guard.Argument(initialContent).NotNull();
 
             //There is  only one project created at initialization
@@ -52,9 +53,9 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
            
 
             var scriptDocumentInfo = DocumentInfo.Create(
-            DocumentId.CreateNewId(projectId), documentName,
+            DocumentId.CreateNewId(projectId), Path.GetFileName(targetDocument),
             sourceCodeKind: SourceCodeKind.Regular,
-            filePath: Path.Combine(this.GetWorkingDirectory(), documentName),
+            filePath: Path.Combine(this.GetWorkingDirectory(), targetDocument),
             loader: TextLoader.From(TextAndVersion.Create(SourceText.From(initialContent, encoding: System.Text.Encoding.UTF8), VersionStamp.Create())));
 
             var updatedSolution = workspace.CurrentSolution.AddDocument(scriptDocumentInfo);
@@ -64,13 +65,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <summary>
-        /// Close document without removing document and owner project from workspace
+        /// Close document in workspace.
         /// </summary>
-        /// <param name="documentName"></param>
+        /// <param name="targetDocument">Relative path of document to working directory</param>
         /// <returns></returns>
-        public override bool TryCloseDocument(string documentName)
+        public override bool TryCloseDocument(string targetDocument)
         {
-            if (TryGetDocument(documentName, out Document document))
+            if (TryGetDocument(targetDocument, out Document document))
             {
                 if (workspace.IsDocumentOpen(document.Id))
                 {
