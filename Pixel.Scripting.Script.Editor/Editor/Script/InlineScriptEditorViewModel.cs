@@ -11,7 +11,7 @@ namespace Pixel.Scripting.Script.Editor.Script
 {
     public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged
     {
-        private string documentName;      
+        private string targetDocument;      
         private readonly IEditorService editorService;
 
         public CodeTextEditor Editor { get; private set; }
@@ -54,7 +54,7 @@ namespace Pixel.Scripting.Script.Editor.Script
                 VerticalAlignment = VerticalAlignment.Stretch,
                 WordWrap = true
             };
-            OpenDocument(this.documentName);
+            OpenDocument(this.targetDocument);
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
             OnPropertyChanged(nameof(Editor));          
@@ -71,18 +71,18 @@ namespace Pixel.Scripting.Script.Editor.Script
             Deactivate();
         }
 
-        public virtual void OpenDocument(string documentName, string initialContent = "")
+        public virtual void OpenDocument(string targetDocument, string initialContent = "")
         {          
-            this.documentName = documentName;
-            this.editorService.CreateFileIfNotExists(documentName, initialContent);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
-            this.Editor.OpenDocument(documentName);
+            this.targetDocument = targetDocument;
+            this.editorService.CreateFileIfNotExists(targetDocument, initialContent);
+            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
+            this.Editor.OpenDocument(targetDocument);
             //Activate();
         }
 
-        public void SetContent(string documentName, string documentContent)
+        public void SetContent(string targetDocument, string documentContent)
         {
-            this.editorService.SetContent(documentName, documentContent);
+            this.editorService.SetContent(targetDocument, documentContent);
             this.Editor.Text = documentContent;
         }
 
@@ -90,16 +90,16 @@ namespace Pixel.Scripting.Script.Editor.Script
         {
             if (save)
             {
-                this.editorService.SaveDocument(this.documentName);
+                this.editorService.SaveDocument(this.targetDocument);
             }
-            this.editorService.TryCloseDocument(this.documentName);        
+            this.editorService.TryCloseDocument(this.targetDocument);        
         }
 
         public virtual void Activate()
         {
-            if (!this.editorService.HasDocument(this.documentName))
-                this.editorService.AddDocument(this.documentName, this.Editor.Text);
-            this.editorService.TryOpenDocument(this.documentName);
+            if (!this.editorService.HasDocument(this.targetDocument))
+                this.editorService.AddDocument(this.targetDocument, this.Editor.Text);
+            this.editorService.TryOpenDocument(this.targetDocument);
          
         }
 

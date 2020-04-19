@@ -7,7 +7,7 @@ namespace Pixel.Scripting.Script.Editor
 {
     public abstract class EditorViewModel : Screen, ICodeEditor, IDisposable
     {       
-        protected string documentName;
+        protected string targetDocument;
         protected readonly IEditorService editorService;
 
 
@@ -20,23 +20,23 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService = editorService;          
         }
 
-        public virtual void OpenDocument(string documentName, string intialContent)
+        public virtual void OpenDocument(string targetDocument, string intialContent)
         {
-            this.documentName = Path.GetFileName(documentName);
-            this.editorService.CreateFileIfNotExists(this.documentName, intialContent);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(this.documentName);
+            this.targetDocument = targetDocument;
+            this.editorService.CreateFileIfNotExists(targetDocument, intialContent);
+            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
 
-            if (!this.editorService.HasDocument(this.documentName))
+            if (!this.editorService.HasDocument(targetDocument))
             {
-                this.editorService.AddDocument(documentName, this.editor.Text);
+                this.editorService.AddDocument(targetDocument, this.editor.Text);
             }
 
-            this.editorService.TryOpenDocument(this.documentName);                    
+            this.editorService.TryOpenDocument(targetDocument);                    
         }
 
-        public void SetContent(string documentName, string documentContent)
+        public void SetContent(string targetDocument, string documentContent)
         {
-            this.editorService.SetContent(documentName, documentContent);
+            this.editorService.SetContent(targetDocument, documentContent);
             this.Editor.Text = documentContent;
         }
 
@@ -44,15 +44,15 @@ namespace Pixel.Scripting.Script.Editor
         {
             if (save)
             {
-               this.editorService.SaveDocument(this.documentName);
+               this.editorService.SaveDocument(this.targetDocument);
             }
-            this.editorService.TryCloseDocument(this.documentName);
+            this.editorService.TryCloseDocument(this.targetDocument);
             Dispose(true);
         }
 
         public virtual void Activate()
         {
-            this.editor.OpenDocument(documentName);
+            this.editor.OpenDocument(this.targetDocument);
         }
 
         public virtual void Deactivate()
@@ -62,7 +62,7 @@ namespace Pixel.Scripting.Script.Editor
 
         protected void SaveDocument()
         {
-            this.editorService.SaveDocument(this.documentName);
+            this.editorService.SaveDocument(this.targetDocument);
         }
 
         public async void Save()
