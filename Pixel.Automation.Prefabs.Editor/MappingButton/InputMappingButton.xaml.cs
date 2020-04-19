@@ -99,7 +99,7 @@ namespace Pixel.Automation.Prefabs.Editor
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignTo.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapInput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");
-            if(mappings.Any(m => !m.AssignFromType.Equals(m.AssignToType)))
+            if(mappings.Any(m => (m.AssignFromType != null) && (!m.AssignFromType.Equals(m.AssignToType))))
             {
                 mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => ");
                 mappingBuilder.AppendLine("     {");
@@ -123,7 +123,7 @@ namespace Pixel.Automation.Prefabs.Editor
             }          
             foreach (var mapping in mappings)
             {
-                if(!mapping.AssignToType.Equals(mapping.AssignFromType))
+                if((mapping.AssignFromType != null) && (!mapping.AssignToType.Equals(mapping.AssignFromType)))
                 {
                     continue;
                 }
