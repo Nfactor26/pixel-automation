@@ -36,8 +36,6 @@ namespace Pixel.Scripting.Engine.CSharp
         private List<string> searchPaths  = new List<string>();
 
         private List<string> namespaces = new List<string>();
-
-        private List<MetadataReference> metaDataReferences = new List<MetadataReference>();
        
         private ScriptExecutor scriptExecutor = default;
 
@@ -45,15 +43,9 @@ namespace Pixel.Scripting.Engine.CSharp
 
         #endregion data members
 
-        #region constructor
+        #region constructor       
 
-        private ScriptEngine()
-        {         
-            this.namespaces.AddRange(ProjectReferences.NamespaceDefault.Imports);
-            this.metaDataReferences.AddRange(ProjectReferences.DesktopDefault.GetReferences());           
-        }
-
-        internal ScriptEngine(ScriptExecutor scriptExecutor) : this()
+        internal ScriptEngine(ScriptExecutor scriptExecutor)
         {
             this.scriptExecutor = scriptExecutor;
         }
@@ -111,8 +103,8 @@ namespace Pixel.Scripting.Engine.CSharp
 
             metaDataReferenceResolver = CreateScriptMetaDataResolver();
             scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            scriptOptions = scriptOptions.AddReferences(metaDataReferences);
-            scriptOptions = scriptOptions.WithImports(namespaces);
+            scriptOptions = scriptOptions.AddReferences(ProjectReferences.DesktopDefault.GetReferences());
+            scriptOptions = scriptOptions.WithImports(ProjectReferences.NamespaceDefault.Imports);
             scriptOptions = scriptOptions.WithFileEncoding(System.Text.Encoding.UTF8);
             scriptOptions = scriptOptions.WithEmitDebugInformation(true);
 
@@ -163,58 +155,66 @@ namespace Pixel.Scripting.Engine.CSharp
         }
 
         public IScriptEngine WithAdditionalAssemblyReferences(params Assembly[] references)
-        {
-            List<MetadataReference> additionalMetadataReferences = new List<MetadataReference>();
+        {           
             foreach (var assembly in references)
-            {
-                additionalMetadataReferences.Add(MetadataReference.CreateFromFile(assembly.Location));
-            }
-
-            metaDataReferences = metaDataReferences.Union(additionalMetadataReferences).ToList();
-            scriptOptions = scriptOptions.AddReferences(references);
+            {              
+                if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
+                {
+                    continue;
+                }
+                scriptOptions = scriptOptions.AddReferences(assembly);
+            }     
             return this;
         }
 
         public IScriptEngine WithAdditionalAssemblyReferences(string[] assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
-
-            List<MetadataReference> additionalMetadataReferences = new List<MetadataReference>();
-            List<Assembly> references = new List<Assembly>();
+          
             foreach (var reference in assemblyReferences)
             {
+                Assembly assembly = default;              
                 if (!Path.IsPathRooted(reference))
                 {
                     string assemblyLocation = Path.Combine(Environment.CurrentDirectory, reference);
-                    if(!File.Exists(assemblyLocation))
+                    if (!File.Exists(assemblyLocation))
                     {
                         throw new FileNotFoundException($"{assemblyLocation} was not found");
                     }
-                    additionalMetadataReferences.Add(MetadataReference.CreateFromFile(assemblyLocation));
-                    references.Add(Assembly.LoadFrom(assemblyLocation));
+                    assembly = Assembly.LoadFrom(assemblyLocation);
                 }
                 else
+                {                
+                    assembly = Assembly.LoadFrom(reference);
+                }  
+                
+                if(scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                 {
-                    additionalMetadataReferences.Add(MetadataReference.CreateFromFile(reference));
-                    references.Add(Assembly.LoadFrom(reference));
-                }               
-            }
-            metaDataReferences = metaDataReferences.Union(additionalMetadataReferences).ToList();
-            scriptOptions = scriptOptions.AddReferences(references);
+                    continue;
+                }
+
+                scriptOptions = scriptOptions.AddReferences(assembly);
+
+            }           
+          
             return this;
 
         }
 
         public void RemoveReferences(params Assembly[] references)
         {
-            List<MetadataReference> referencesToRemove = new List<MetadataReference>();
-            foreach (var assembly in references)
+            var currentReferences = this.scriptOptions.MetadataReferences;
+            List<MetadataReference> referencesToKeep = new List<MetadataReference>();
+            foreach(var metaDataReference in currentReferences)
             {
-                referencesToRemove.Add(MetadataReference.CreateFromFile(assembly.Location));
-            }
-
-            this.metaDataReferences = this.metaDataReferences.Except(referencesToRemove).ToList<MetadataReference>();
-            scriptOptions = scriptOptions.WithReferences(this.metaDataReferences);                   
+                if(references.Any(a => a.Location.Equals(metaDataReference.Display)))
+                {
+                    continue;
+                }
+                referencesToKeep.Add(metaDataReference);
+            }          
+            scriptOptions = scriptOptions.WithReferences(new Assembly[] { });
+            scriptOptions = scriptOptions.AddReferences(referencesToKeep);
         }
 
         public bool IsCompleteSubmission(string code)
