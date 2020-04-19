@@ -113,11 +113,11 @@ namespace Pixel.Automation.Prefabs.Editor
                 {
                     if(mapping.AssignToType.IsGenericType || mapping.AssignToType.IsArray)
                     {
-                        mappingBuilder.AppendLine($"    //prefabModel.{mapping.AssignTo} = mapper.Map<FromType?,ToType?>({mapping.AssignFrom})");
+                        mappingBuilder.AppendLine($"    //prefabModel.{mapping.AssignTo} = mapper.Map<FromType?,ToType?>({mapping.AssignFrom});");
                     }
                     else
                     {
-                        mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<PrefabModel.{mapping.AssignTo}>({mapping.AssignFrom})");
+                        mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<PrefabModel.{mapping.AssignTo}>({mapping.AssignFrom});");
                     }
                 }
             }          
