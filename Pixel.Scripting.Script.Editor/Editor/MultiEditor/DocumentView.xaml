@@ -37,7 +37,7 @@
                                                         DockPanel.Dock="Left"
                                                         HorizontalAlignment="Left" VerticalAlignment="Center" 
                                                         Foreground="{DynamicResource MahApps.Brushes.Accent}" />
-                            <Button Content="{Binding DocumentName}" ToolTip="{Binding DocumentName}"
+                            <Button Content="{Binding DisplayName}" ToolTip="{Binding DocumentName}"
                                        Style="{StaticResource FlatButton}"  DockPanel.Dock="Left"
                                        cal:Message.Attach="[Event MouseDoubleClick] = [Action OpenDocument($dataContext)]"  
                                        Padding="2"/>

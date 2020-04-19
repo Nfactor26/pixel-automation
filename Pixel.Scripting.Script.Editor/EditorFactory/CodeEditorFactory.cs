@@ -37,10 +37,16 @@ namespace Pixel.Scripting.Script.Editor
             return new CodeEditorControlViewModel(this.editorService);
         }
 
-        public IMultiEditor CreateMultiCodeEditor()
+        public IMultiEditor CreateMultiCodeEditorScreen()
         {
             EnsureInitialized();
-            return new MultiEditorViewModel(this.editorService);
+            return new MultiEditorScreenViewModel(this.editorService);
+        }
+
+        public IMultiEditor CreateMultiCodeEditorControl()
+        {
+            EnsureInitialized();
+            return new MultiEditorControlViewModel(this.editorService);
         }
 
         private void EnsureInitialized()

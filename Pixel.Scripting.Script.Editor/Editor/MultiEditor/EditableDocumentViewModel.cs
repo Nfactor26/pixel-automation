@@ -2,6 +2,7 @@
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -51,7 +52,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         public EditableDocumentViewModel(string fileName)
         {
             this.DocumentName = fileName;
-            this.DisplayName = fileName;
+            this.DisplayName = Path.GetFileName(fileName);
         }
        
         public void OpenForEdit(IMultiEditor editor, IEditorService editorService)

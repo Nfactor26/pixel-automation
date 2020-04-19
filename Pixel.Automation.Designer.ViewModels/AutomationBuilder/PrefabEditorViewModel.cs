@@ -8,6 +8,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -58,13 +59,19 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async Task EditDataModel()
         {
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-            var editor = editorFactory.CreateMultiCodeEditor();
-            await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs");
-         
-            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            await windowManager.ShowDialogAsync(editor);        
-                 
-           this.projectManager.Refresh();            
+            using (var editor = editorFactory.CreateMultiCodeEditorScreen())
+            {
+                foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                {
+                    await editor.AddDocumentAsync(Path.GetFileName(file), File.ReadAllText(file), false);
+                }
+                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", string.Empty, false);
+                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs");
+                            
+                IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+                await windowManager.ShowDialogAsync(editor);               
+            }
+            this.projectManager.Refresh();
         }
 
         #endregion Automation Project     

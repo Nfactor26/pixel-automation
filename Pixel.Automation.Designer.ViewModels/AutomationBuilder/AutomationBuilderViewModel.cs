@@ -12,6 +12,7 @@ using Pixel.Automation.TestExplorer;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,19 +88,23 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async Task EditDataModel()
         {         
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-            var editor = editorFactory.CreateMultiCodeEditor();
-            if(!editor.HasDocument("DataModel.cs"))
+            using (var editor = editorFactory.CreateMultiCodeEditorScreen())
             {
-               await editor.AddDocumentAsync("DataModel.cs", string.Empty, false);
+                foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                {
+                    await editor.AddDocumentAsync(Path.GetFileName(file), File.ReadAllText(file), false);
+                }
+
+                await editor.AddDocumentAsync("DataModel.cs", string.Empty, false);
+                await editor.OpenDocumentAsync("DataModel.cs");
+
+                IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+                await windowManager.ShowDialogAsync(editor);              
             }
-            await editor.OpenDocumentAsync("DataModel.cs");
-            
-            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            await windowManager.ShowDialogAsync(editor);
-            
+
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
             this.projectManager.Refresh();
-            this.ReOpenTestCases(testCaseEntities);            
+            this.ReOpenTestCases(testCaseEntities);
         }
 
         private void ReOpenTestCases(IEnumerable<IComponent> testCaseEntities)

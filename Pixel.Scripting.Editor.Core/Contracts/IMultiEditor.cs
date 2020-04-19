@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
@@ -6,7 +7,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
     /// Interface for code editor that supports editing multiple documents at once
     /// i.e. documents can be opened in tabs.
     /// </summary>
-    public interface IMultiEditor
+    public interface IMultiEditor : IDisposable
     {
         /// <summary>
         /// Open a document for edit

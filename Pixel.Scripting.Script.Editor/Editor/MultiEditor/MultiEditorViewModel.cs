@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Script.Editor.MultiEditor
 {
-    public class MultiEditorViewModel : Conductor<IScreen>.Collection.OneActive, IMultiEditor
+    public abstract class MultiEditorViewModel : Conductor<IScreen>.Collection.OneActive, IMultiEditor
     {
         private readonly ILogger logger = Log.ForContext<MultiEditorViewModel>();
         protected readonly IEditorService editorService;
@@ -38,10 +38,10 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {
             this.DisplayName = "Editor";
             this.editorService = editorService;       
-            foreach (var document in this.editorService.GetAvailableDocuments())
-            {
-                Documents.Add(new EditableDocumentViewModel(document));
-            }
+            //foreach (var document in this.editorService.GetAvailableDocuments())
+            //{
+            //    Documents.Add(new EditableDocumentViewModel(document));
+            //}
             this.Tools.Add(new DocumentViewModel(this, Documents));
         }
       
@@ -69,8 +69,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         public void CloseDocument(string documentName, bool save = true)
         {
             var targetDocument = Documents.FirstOrDefault(d => d.DocumentName.Equals(documentName))
-                  ?? throw new ArgumentException($"{documentName} is not available in workspace");
-
+                  ?? throw new ArgumentException($"{documentName} is not available in workspace");          
             if (save)
             {
                 SaveDocument(documentName);
@@ -87,26 +86,34 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public async Task AddDocumentAsync(string documentName, string initialContent, bool openAfterAdd)
         {
-            if(string.IsNullOrEmpty(Path.GetExtension(documentName)))
-            {
-                throw new ArgumentException($"{documentName} doesn't have a valid extension. Valid extensions are .cs or .csx");
-            }
-            if (this.editorService.HasDocument(documentName))
-            {
-                throw new InvalidOperationException($"Document with name {documentName} already exists");
-            }
-
-            EditableDocumentViewModel editableDocument = new EditableDocumentViewModel(documentName);
-            this.Documents.Add(editableDocument);
-
-            this.editorService.AddDocument(documentName, initialContent);
-            this.editorService.CreateFileIfNotExists(documentName, initialContent);
-
+            AddDocument(documentName, initialContent);
             if (openAfterAdd)
             {
                 await OpenDocumentAsync(documentName);
             }         
 
+        }
+
+        private void AddDocument(string documentName, string initialContent)
+        {
+            if (string.IsNullOrEmpty(Path.GetExtension(documentName)))
+            {
+                throw new ArgumentException($"{documentName} doesn't have a valid extension. Valid extensions are .cs or .csx");
+            }
+
+            if (!Documents.Any(a => a.DocumentName.Equals(documentName)))
+            {
+                EditableDocumentViewModel editableDocument = new EditableDocumentViewModel(documentName);
+                this.Documents.Add(editableDocument);
+            }
+
+            if (this.editorService.HasDocument(documentName))
+            {
+                return;
+            }         
+
+            this.editorService.AddDocument(documentName, initialContent);
+            this.editorService.CreateFileIfNotExists(documentName, initialContent);
         }
 
         public void DeleteDocument(string documentName)
@@ -191,7 +198,21 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             {
                 CloseDocument(document.DocumentName, false);
             }
-        }     
+        }
 
+
+        protected virtual void Dispose(bool isDisposing)
+        { 
+            Close();
+            foreach(var document in this.Documents)
+            {
+                document.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);  
+        }
     }
 }

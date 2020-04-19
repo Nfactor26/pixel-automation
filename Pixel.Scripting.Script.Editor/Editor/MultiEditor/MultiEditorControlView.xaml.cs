@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Controls;
 
 namespace Pixel.Scripting.Script.Editor.MultiEditor
 {
     /// <summary>
-    /// Interaction logic for MultiEditorView.xaml
+    /// Interaction logic for MultiEditorControlView.xaml
     /// </summary>
-    public partial class MultiEditorView
+    public partial class MultiEditorControlView : UserControl
     {
-        public MultiEditorView()
+        public MultiEditorControlView()
         {
             InitializeComponent();
         }
@@ -27,7 +28,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             var mainWindowIcon = (mainWindow != null) ? mainWindow.Icon : null;
             foreach (var window in Manager.FloatingWindows)
             {
-                window.Icon = mainWindowIcon;              
+                window.Icon = mainWindowIcon;
             }
         }
     }
