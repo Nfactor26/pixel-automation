@@ -119,8 +119,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             IEnumerable<Type> requiredTypes = new List<Type>();          
             foreach(var property in RequiredProperties.Where(r => r.IsRequired))
             {
-                var typeDependencies = compositeTypeExtractor.GetCompositeTypes(property.PropertyType);
-                requiredTypes = requiredTypes.Union(typeDependencies);               
+                //We need to generate only complex types defined in Data model assembly
+                if(property.PropertyType.Assembly.Equals(this.currentDataModel.GetType().Assembly))
+                {
+                    var typeDependencies = compositeTypeExtractor.GetCompositeTypes(property.PropertyType);
+                    requiredTypes = requiredTypes.Union(typeDependencies);
+                }                        
             }
             foreach(var type in requiredTypes)
             {
