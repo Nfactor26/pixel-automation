@@ -14,6 +14,9 @@ namespace Pixel.Automation.Core.TestData
         public string Name { get; set; }
 
         [DataMember]
+        public string ScriptFile { get; set; }
+
+        [DataMember]
         public DataSource DataSource { get; set; } = DataSource.Code;
 
         [DataMember]

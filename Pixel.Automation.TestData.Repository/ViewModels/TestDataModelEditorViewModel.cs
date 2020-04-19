@@ -111,8 +111,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {
-                this.ScriptEditor.OpenDocument($"{testDataSource.Id}.csx", string.Empty); //File is saved to disk as well
-                this.ScriptEditor.SetContent($"{testDataSource.Id}.csx", generatedCode.ToString());
+                this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, string.Empty); //File is saved to disk as well
+                this.ScriptEditor.SetContent(this.testDataSource.ScriptFile, generatedCode.ToString());
                 this.ScriptEditor.Activate();
             }
             if (!string.IsNullOrEmpty(errorDescription))

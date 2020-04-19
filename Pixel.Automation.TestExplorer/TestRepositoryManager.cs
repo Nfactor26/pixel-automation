@@ -10,6 +10,7 @@ using Pixel.Automation.TestExplorer.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -58,25 +59,32 @@ namespace Pixel.Automation.TestExplorer
         }
 
         private void LoadExistingTests()
-        {
-            foreach(var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseRepository))
+        {           
+
+            foreach (var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseRepository))
             {
                 TestCategoryViewModel testCategoryVM = new TestCategoryViewModel(testCategory);
                 this.TestCategories.Add(testCategoryVM);
-             
-                var testDirectory = Path.Combine(this.fileSystem.TestCaseRepository, testCategory.Id);
-                if(!Directory.Exists(testDirectory))
-                {
-                    //No test case has been added to test category yet.
-                    continue;
-                }
+            }
 
+            List<TestCaseViewModel> testCases = new List<TestCaseViewModel>();
+            foreach (var testDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+            {
                 foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testDirectory))
-                {                  
+                {
                     TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
-                    testCategoryVM.Tests.Add(testCaseVM);
+                    testCases.Add(testCaseVM);
                 }
-            }         
+            }
+
+            foreach (var testCaseGroup in testCases.GroupBy(t => t.CategoryId))
+            {
+                var testCategory = this.TestCategories.FirstOrDefault(t => t.Id.Equals(testCaseGroup.Key));
+                foreach (var test in testCaseGroup)
+                {
+                    testCategory.Tests.Add(test);
+                }
+            }
         }
 
         #endregion Constructor
@@ -147,8 +155,7 @@ namespace Pixel.Automation.TestExplorer
             {
                 CategoryId = testCategoryVM.Id,
                 DisplayName = $"Test#{testCategoryVM.Tests.Count() + 1}",
-                TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testCategoryVM.Tests.Count() + 1}" },
-                ScriptFile = $"{Guid.NewGuid().ToString()}.csx"
+                TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testCategoryVM.Tests.Count() + 1}" }
             };
             TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
 
@@ -158,8 +165,7 @@ namespace Pixel.Automation.TestExplorer
             bool? result = await windowManager.ShowDialogAsync(testCaseEditor);
             if (result.HasValue && result.Value)
             {
-                testCategoryVM.Tests.Add(testCaseVM);
-                this.fileSystem.CreateOrReplaceFile(this.fileSystem.ScriptsDirectory, testCaseVM.ScriptFile, string.Empty);
+                testCategoryVM.Tests.Add(testCaseVM);            
                 SaveTestCase(testCaseVM);
             }
         }
@@ -182,14 +188,27 @@ namespace Pixel.Automation.TestExplorer
 
         public void SaveTestCase(TestCaseViewModel testCaseVM, bool saveTestEntity = true)
         {
+            ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testCaseVM.Id);
             TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));
             if(ownerCategory != null)
             {
-                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id));               
+                if (!Directory.Exists(testCaseFileSystem.TestDirectory))
+                {
+                    Directory.CreateDirectory(testCaseFileSystem.TestDirectory);
+                }
+                if (string.IsNullOrEmpty(testCaseVM.ScriptFile))
+                {
+                    testCaseVM.ScriptFile = Path.GetRelativePath(testCaseFileSystem.WorkingDirectory, Path.Combine(testCaseFileSystem.ScriptsDirectory, "Variables.csx"));
+                    testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.ScriptsDirectory, "Variables.csx", string.Empty);
+                }
+
+                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.TestDirectory, Path.GetFileName(testCaseFileSystem.TestCaseFile));               
                 if(saveTestEntity)
                 {
-                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id), $"{testCaseVM.Id}.atm");               
-                }               
+                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, testCaseFileSystem.TestDirectory, Path.GetFileName(testCaseFileSystem.TestProcessFile));               
+                }
+                
+              
             }
         }
 
@@ -237,9 +256,8 @@ namespace Pixel.Automation.TestExplorer
 
             if (this.OpenTestCases.Contains(testCaseVM))
                 return;
-
-            TestCategoryViewModel ownerCategory = this.TestCategories.FirstOrDefault(c => c.Id.Equals(testCaseVM.CategoryId));        
-            string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, ownerCategory.Id, $"{testCaseVM.Id}.atm");
+         
+            string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCaseVM.Id, "TestAutomation.proc");
             testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
             testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
 

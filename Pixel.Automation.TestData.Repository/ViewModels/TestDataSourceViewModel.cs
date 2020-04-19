@@ -32,6 +32,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 ValidateProperty(nameof(Name));
             }
         }
+
+        public string ScriptFile
+        {
+            get => TestDataSource.ScriptFile;
+            set
+            {
+                TestDataSource.ScriptFile = value;
+                NotifyOfPropertyChange(() => ScriptFile);
+                ValidateProperty(nameof(ScriptFile));
+            }
+        }
         
         public DataSource DataSource
         {
@@ -111,6 +122,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.typeBrowserWindow = typeBrowserWindow;
             this.fileSystem = fileSystem;
             this.TestDataSource = new TestDataSource() { Id = Guid.NewGuid().ToString() };
+            this.TestDataSource.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.Id}.csx"));
             this.DataSource = dataSource;
             this.existingDataSources = existingDataSources;
         }

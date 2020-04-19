@@ -10,9 +10,7 @@ namespace Pixel.Automation.Core
 {
     public abstract class FileSystem : IFileSystem
     {
-        protected readonly ISerializer serializer;
-
-        public VersionInfo ActiveVersion { get; protected set; }
+        protected readonly ISerializer serializer;     
 
         public string ReferencesFile => Path.Combine(this.DataModelDirectory, "AssemblyReferences.dat");
 
@@ -67,8 +65,7 @@ namespace Pixel.Automation.Core
             {
                 Directory.CreateDirectory(ReferencesDirectory);
             }
-        }
-        public abstract void SwitchToVersion(VersionInfo versionInfo);
+        }    
        
         private AssemblyReferences editorReferences;
 
@@ -151,6 +148,18 @@ namespace Pixel.Automation.Core
             {
                 fs.Write(content ?? string.Empty);
             }
+        }
+    }
+
+    public abstract class VersionedFileSystem : FileSystem, IVersionedFileSystem
+    {
+        public VersionInfo ActiveVersion { get; protected set; }
+
+        public abstract void SwitchToVersion(VersionInfo versionInfo);
+
+        public VersionedFileSystem(ISerializer serializer) : base(serializer)
+        {
+           
         }
     }
 }

@@ -67,6 +67,8 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="workingDirectory"></param>
         /// <param name="projectId"></param>
         void Initialize(string projectId, VersionInfo versionInfo);
+
+        ITestCaseFileSystem CreateTestCaseFileSystemFor(string testCaseId);
       
     }
 
@@ -115,5 +117,26 @@ namespace Pixel.Automation.Core.Interfaces
 
         Entity GetTemplate();
 
+    }
+
+    public interface ITestCaseFileSystem : IFileSystem
+    {
+        /// <summary>
+        /// Path of test case directory which contains test case file, test process file and test scripts
+        /// </summary>
+        string TestDirectory { get; }
+        
+        /// <summary>
+        /// Path of Test Case file
+        /// </summary>
+        string TestCaseFile { get; }
+
+        /// <summary>
+        /// Path of Test automation process file
+        /// </summary>
+        string TestProcessFile { get; }
+
+
+        void Initialize(string projectWorkingDirectory, string testCaseId);
     }
 }

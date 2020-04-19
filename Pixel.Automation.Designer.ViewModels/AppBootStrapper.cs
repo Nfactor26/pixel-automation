@@ -127,6 +127,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>();
                 kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
+                kernel.Bind<ITestCaseFileSystem>().To<TestCaseFileSystem>();
 
                 kernel.Bind<IApplicationWindowManager>().To<ApplicationWindowManager>().InSingletonScope();                
                 kernel.Bind<IHighlightRectangleFactory>().To<HighlightRectangleFactory>().InSingletonScope();

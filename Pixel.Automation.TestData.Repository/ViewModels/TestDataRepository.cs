@@ -153,7 +153,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
             var scriptEditor = this.scriptEditorFactory.CreateScriptEditor();
-            scriptEditor.OpenDocument($"{testDataSource.Id}.csx", string.Empty); //File contents will be fetched from disk         
+            scriptEditor.OpenDocument(testDataSource.ScriptFile, string.Empty); //File contents will be fetched from disk         
             var result = await windowManager.ShowDialogAsync(scriptEditor);          
         }
 

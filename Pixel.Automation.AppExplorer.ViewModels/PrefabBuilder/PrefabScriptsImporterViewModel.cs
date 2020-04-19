@@ -1,12 +1,14 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using System;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +29,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly IScriptEngine scriptEngine;
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly IScriptExtactor scriptExtractor;
+        private readonly IArgumentExtractor argumentExtractor;
 
 
         public BindableCollection<ScriptStatus> RequiredScripts { get; set; } = new BindableCollection<ScriptStatus>();
@@ -34,6 +37,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public bool HasScripts { get => RequiredScripts.Count() > 0; }
 
         public PrefabScriptsImporterViewModel(PrefabDescription prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
+            IArgumentExtractor argumentExtractor,
             IPrefabFileSystem prefabFileSystem, IScriptEngine scriptEngine)
         {
             Guard.Argument(prefabToolBoxItem).NotNull();
@@ -45,6 +49,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.prefabToolBoxItem = prefabToolBoxItem;
             this.prefabFileSystem = prefabFileSystem;
             this.scriptExtractor = scriptExtractor;
+            this.argumentExtractor = argumentExtractor;
             this.scriptEngine = scriptEngine;           
             this.rootEntity = rootEntity;           
 
@@ -54,7 +59,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             try
             {
-                ClearErrors("");             
+                UpdateScriptFilePath();
+                ClearErrors("");               
                 errorDescription = string.Empty;
                 return true;
             }
@@ -72,7 +78,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         }
 
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
-        {
+        {          
             this.RequiredScripts.AddRange(scriptExtractor.ExtractScripts(rootEntity));
             ValidateScripts();
             await base.OnActivateAsync(cancellationToken);
@@ -82,17 +88,46 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             foreach (var scriptFile in RequiredScripts)
             {
-                string filePath = Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().ScriptsDirectory, scriptFile.ScriptName);
+                string filePath = Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().WorkingDirectory, scriptFile.ScriptName);
                 string fileContent = File.ReadAllText(filePath);
                 fileContent = fileContent.Replace("using Pixel.Automation.Project.DataModels;", $"using {prefabToolBoxItem.NameSpace};");
-                File.WriteAllText(Path.Combine(prefabFileSystem.ScriptsDirectory, scriptFile.ScriptName), fileContent);
+                File.WriteAllText(Path.Combine(prefabFileSystem.WorkingDirectory, $"Scripts\\{Path.GetFileName(scriptFile.ScriptName)}"), fileContent);
+            }
+        }
+
+        private void UpdateScriptFilePath()
+        {
+            var argumentsInUse = this.argumentExtractor.ExtractArguments(this.rootEntity);
+            foreach(var argument in argumentsInUse)
+            {
+                if(argument.Mode == Core.Arguments.ArgumentMode.Scripted)
+                {
+                    //Make all path relative to Scripts. Assumption here is that even if any shared script file was used in actual process, it would have been referred from 
+                    //Scripts folder
+                    argument.ScriptFile = $"Scripts\\{Path.GetFileName(argument.ScriptFile)}";
+                }
+            }
+
+            var scriptedActors = this.rootEntity.GetComponentsWithAttribute<ScriptableAttribute>(Core.Enums.SearchScope.Descendants);
+            foreach (var scriptedActor in scriptedActors)
+            {
+                ScriptableAttribute scriptableAttribute = scriptedActor.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
+                foreach (var scriptFileProperty in scriptableAttribute.ScriptFiles)
+                {
+                    var property = scriptedActor.GetType().GetProperty(scriptFileProperty);
+                    string scriptFile = property.GetValue(scriptedActor)?.ToString();
+                    if (!string.IsNullOrEmpty(scriptFile))
+                    {
+                        property.SetValue(scriptedActor, $"Scripts\\{Path.GetFileName(scriptFile)}");
+                    }
+                }
             }
         }
 
         private void ValidateScripts()
         {
             ClearErrors("");
-            CopyScriptsToPrefabsDirectory();
+            CopyScriptsToPrefabsDirectory();          
 
             var dataModelAssembly = (this.PreviousScreen as IStagedScreen).GetProcessedResult() as Assembly;
             var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));

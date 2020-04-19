@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Pixel.Automation.Core
 {
-    public class ProjectFileSystem : FileSystem, IProjectFileSystem
+    public class ProjectFileSystem : VersionedFileSystem, IProjectFileSystem
     {
         private readonly string automationsDirectory = "Automations";
         private string projectId;
@@ -49,5 +49,13 @@ namespace Pixel.Automation.Core
         {
             Initialize(this.projectId, version);            
         }
+
+        public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testCaseId)
+        {
+            var fileSystem = new TestCaseFileSystem(this.serializer);
+            fileSystem.Initialize(this.WorkingDirectory, testCaseId);
+            return fileSystem;
+        }
+
     }
 }

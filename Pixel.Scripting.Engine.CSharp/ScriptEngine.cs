@@ -74,14 +74,12 @@ namespace Pixel.Scripting.Engine.CSharp
             else
             {
                 this.scriptsDirectory = Path.Combine(Environment.CurrentDirectory, scriptsDirectory);
-            }
-
+            } 
+            
             if(!Directory.Exists(this.scriptsDirectory))
             {
-                Directory.CreateDirectory(this.scriptsDirectory);
-                Directory.CreateDirectory(Path.Combine(this.scriptsDirectory, this.cacheFolder));
-            }    
-        
+                throw new ArgumentException($"Directory : {this.scriptsDirectory} doesn't exist.");
+            }
         }
 
         public void SetGlobals(object globalsObject)
@@ -293,7 +291,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         public async Task<ScriptResult> ExecuteFileAsync(string scriptFile)
         {         
-            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(Path.Combine(this.scriptsDirectory,scriptFile),this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(GetScriptLocation(scriptFile), this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
             return lastExecutionResult;
         }
 
@@ -312,7 +310,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
             //throw new NotImplementedException("Roslyn has an open issue : https://github.com/dotnet/roslyn/issues/3720");
 
-            var scriptLocation = Path.Combine(this.scriptsDirectory, scriptFile);
+            var scriptLocation = GetScriptLocation(scriptFile);
             if(File.Exists(scriptLocation))
             {
                 var scriptCode = File.ReadAllText(scriptLocation);
@@ -332,10 +330,23 @@ namespace Pixel.Scripting.Engine.CSharp
             lastExecutionResult = null;
         }
 
-        //public object GetScriptOptions()
-        //{
-        //    return this.scriptOptions;
-        //}
+        private string GetScriptLocation(string scriptFile)
+        {
+            string targetFile = string.Empty;
+            if (Path.IsPathRooted(scriptFile))
+            {
+                targetFile = scriptFile;
+            }
+            else
+            {
+                targetFile = Path.Combine(this.GetWorkingDirectory(), scriptFile);
+            }
+            if(File.Exists(targetFile))
+            {
+                return targetFile;
+            }
+            throw new FileNotFoundException($"Script File : {scriptFile} could not be located");
+        }
 
     }
 }

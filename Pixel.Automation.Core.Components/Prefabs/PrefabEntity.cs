@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Runtime.Serialization;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -12,6 +14,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
 {
     [DataContract]
     [Serializable]
+    [Scriptable("InputMappingScript", "OutputMappingScript")]
     public class PrefabEntity : Entity
     {
         [DataMember]
@@ -25,14 +28,14 @@ namespace Pixel.Automation.Core.Components.Prefabs
         [DataMember]
         [Display(Name = "Prefab Version", Order = 20, GroupName = "Prefab Details")]
         public PrefabVersion PrefabVersion { get; set; }
-     
-        [DataMember]
-        [Browsable(false)]
-        public string InputMappingScript { get; set; } = $"{Guid.NewGuid()}.csx";
 
         [DataMember]
         [Browsable(false)]
-        public string OutputMappingScript { get; set; } = $"{Guid.NewGuid()}.csx";
+        public string InputMappingScript { get; set; }
+
+        [DataMember]
+        [Browsable(false)]
+        public string OutputMappingScript { get; set; }
 
         [IgnoreDataMember]
         [Browsable(false)]
@@ -105,7 +108,14 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public override Entity AddComponent(IComponent component)
         {           
             return this;
-        }      
+        }
+
+        public override void ResolveDependencies()
+        {
+            var fileSystem = this.EntityManager.GetServiceOfType<IFileSystem>();
+            this.InputMappingScript = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
+            this.OutputMappingScript = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
+        }
 
         #endregion overridden methods
     }

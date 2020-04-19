@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Core
 {
-    public class PrefabFileSystem : FileSystem, IPrefabFileSystem
+    public class PrefabFileSystem : VersionedFileSystem, IPrefabFileSystem
     {
         private readonly string applicationsDirectory = "ApplicationsRepository";
         private readonly string prefabsDirectory = "Prefabs";

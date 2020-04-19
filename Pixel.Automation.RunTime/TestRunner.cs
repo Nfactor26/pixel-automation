@@ -207,9 +207,11 @@ namespace Pixel.Automation.RunTime
                     //we create a new EntityManager for TestCaseEntity that can use ArgumentProcessor with different globals object               
                     EntityManager testEntityManager = new EntityManager(this.entityManager, null);
 
-                    testEntityManager.RegisterDefault<IFileSystem>(this.entityManager.GetCurrentFileSystem());
-                    testEntityManager.SetCurrentFileSystem(this.entityManager.GetCurrentFileSystem());
-
+                    ITestCaseFileSystem testCaseFileSystem = testEntityManager.GetServiceOfType<ITestCaseFileSystem>();
+                    testCaseFileSystem.Initialize(this.entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.Id);
+                    testEntityManager.RegisterDefault<IFileSystem>(testCaseFileSystem);
+                    testEntityManager.SetCurrentFileSystem(testCaseFileSystem);
+                    testEntityManager.WorkingDirectory = testCaseFileSystem.WorkingDirectory;
 
                     var dataSource = testDataLoader.GetTestCaseData(testCase);
                     if (dataSource is IEnumerable dataSourceCollection)
@@ -219,7 +221,7 @@ namespace Pixel.Automation.RunTime
 
                     IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
                     var workspaceManager = scriptEditor.GetWorkspaceManager();
-                    string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().ScriptsDirectory, testCase.ScriptFile));
+                    string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.ScriptFile));
                     workspaceManager.AddDocument(testCase.ScriptFile, scriptFileContent);
 
                     //Execute script file to set up initial state of script engine
