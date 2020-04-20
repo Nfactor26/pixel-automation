@@ -3,6 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using System.Collections.Generic;
@@ -39,10 +40,44 @@ namespace Pixel.Automation.Editor.Core.Helpers
             foreach (var scriptedActor in scriptedActors)
             {
                 ScriptableAttribute scriptableAttribute = scriptedActor.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
+                if(scriptableAttribute != null)
+                {
+                    foreach (var scriptFileProperty in scriptableAttribute.ScriptFiles)
+                    {
+                        var property = scriptedActor.GetType().GetProperty(scriptFileProperty);
+                        string scriptFile = property.GetValue(scriptedActor)?.ToString();
+                        if (!string.IsNullOrEmpty(scriptFile))
+                        {
+                            yield return new ScriptStatus() { ScriptName = scriptFile };
+                        }
+                    }
+                }                
+            }
+
+            yield break;
+        }
+      
+        public IEnumerable<ScriptStatus> ExtractScripts(IComponent component)
+        {
+            var arguments = this.argumentExtractor.ExtractArguments(component);
+            foreach (var argument in arguments)
+            {
+                if (argument.Mode == ArgumentMode.Scripted)
+                {
+                    if (!string.IsNullOrEmpty(argument.ScriptFile))
+                    {
+                        yield return new ScriptStatus() { ScriptName = argument.ScriptFile };
+                    }
+                }
+            }
+
+            ScriptableAttribute scriptableAttribute = component.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
+            if (scriptableAttribute != null)
+            {
                 foreach (var scriptFileProperty in scriptableAttribute.ScriptFiles)
                 {
-                    var property = scriptedActor.GetType().GetProperty(scriptFileProperty);
-                    string scriptFile = property.GetValue(scriptedActor)?.ToString();
+                    var property = component.GetType().GetProperty(scriptFileProperty);
+                    string scriptFile = property.GetValue(component)?.ToString();
                     if (!string.IsNullOrEmpty(scriptFile))
                     {
                         yield return new ScriptStatus() { ScriptName = scriptFile };
@@ -52,6 +87,5 @@ namespace Pixel.Automation.Editor.Core.Helpers
 
             yield break;
         }
-        
     }
 }

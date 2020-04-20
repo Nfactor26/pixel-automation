@@ -8,7 +8,10 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,8 +22,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         #region data members
 
-        protected IEventAggregator globalEventAggregator;
-        protected ISerializer serializer;
+        private readonly ILogger logger = Log.ForContext<EditorViewModel>();
+
+        protected readonly IEventAggregator globalEventAggregator;
+        protected readonly ISerializer serializer;
+        protected readonly IScriptExtactor scriptExtractor;
         readonly IComponentBox componentToolBox;        
 
         public EntityManager EntityManager { get; }
@@ -44,12 +50,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #endregion data members
 
         #region constructor
-        public EditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer, IToolBox[] toolBoxes)
+        public EditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver,
+            ISerializer serializer, IScriptExtactor scriptExtractor,
+            IToolBox[] toolBoxes)
         {
             this.globalEventAggregator = globalEventAggregator;
             this.globalEventAggregator.SubscribeOnUIThread(this);
 
             this.serializer = serializer;
+            this.scriptExtractor = scriptExtractor;
+
             this.Tools.AddRange(toolBoxes);
             foreach (var item in Tools)
             {
@@ -75,15 +85,49 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public void DeleteComponent(IComponent component)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this Component?", "Delete Component", MessageBoxButton.OKCancel);
+            IEnumerable<Editor.Core.ViewModels.ScriptStatus> scripts = default;
+            if (component is Entity entity)
+            {
+                scripts = this.scriptExtractor.ExtractScripts(entity).ToList();
+            }
+            else
+            {
+                scripts = this.scriptExtractor.ExtractScripts(component).ToList();
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Are you sure you want to delete this Component?");
+            if(scripts?.Any() ?? false)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Following scripts will be deleted?");
+                foreach (var script in scripts)
+                {
+                    sb.AppendLine(script.ScriptName);
+                }
+            }            
+
+            MessageBoxResult result = MessageBox.Show(sb.ToString(), "Delete Component", MessageBoxButton.OKCancel);
             if (result != MessageBoxResult.OK)
+            {
                 return;
+            }
 
             if (component.Tag.Equals("Root"))
             {
-                Log.Warning("Root entity can't be deleted");
+                logger.Warning("Root entity can't be deleted");
                 return;
             }
+
+            if (scripts?.Any() ?? false)
+            {
+                foreach (var script in scripts)
+                {
+                    File.Delete(Path.Combine(this.EntityManager.GetCurrentFileSystem().WorkingDirectory, script.ScriptName));
+                    logger.Information($"Deleted script file {script.ScriptName}");
+                }
+            }         
+
 
             if (component.Parent != null)
             {
@@ -92,9 +136,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     disposable.Dispose();
                 }
                 component.Parent.RemoveComponent(component);
-                Log.Information($"Component : {component.Name} has been deleted");
+                logger.Information($"Component : {component.Name} has been deleted");
                 return;
             }
+
+         
+          
         }
 
         private bool isRunInProgress = false;

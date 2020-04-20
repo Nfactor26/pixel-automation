@@ -210,8 +210,7 @@ namespace Pixel.Automation.RunTime
                     ITestCaseFileSystem testCaseFileSystem = testEntityManager.GetServiceOfType<ITestCaseFileSystem>();
                     testCaseFileSystem.Initialize(this.entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.Id);
                     testEntityManager.RegisterDefault<IFileSystem>(testCaseFileSystem);
-                    testEntityManager.SetCurrentFileSystem(testCaseFileSystem);
-                    testEntityManager.WorkingDirectory = testCaseFileSystem.WorkingDirectory;
+                    testEntityManager.SetCurrentFileSystem(testCaseFileSystem);                 
 
                     var dataSource = testDataLoader.GetTestCaseData(testCase);
                     if (dataSource is IEnumerable dataSourceCollection)

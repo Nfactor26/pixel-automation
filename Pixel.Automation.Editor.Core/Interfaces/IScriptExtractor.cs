@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using System.Collections.Generic;
 
@@ -12,5 +13,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <param name="entity"></param>
         /// <returns></returns>
         IEnumerable<ScriptStatus> ExtractScripts(Entity entity);
+
+        /// <summary>
+        /// Find all the script file used by a single component.
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        IEnumerable<ScriptStatus> ExtractScripts(IComponent component);
     }
 }

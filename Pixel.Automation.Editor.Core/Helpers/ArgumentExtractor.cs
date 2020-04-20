@@ -30,6 +30,14 @@ namespace Pixel.Automation.Editor.Core.Helpers
            
         }
 
+        public IEnumerable<Argument> ExtractArguments(IComponent component)
+        {
+            List<Argument> extractedArguments = new List<Argument>();           
+            extractedArguments.AddRange(AddArgumentsForComponent(component));
+            return extractedArguments;
+
+        }
+
         IEnumerable<Argument> AddArgumentsForComponent(IComponent component)
         {
             foreach (var argument in GetArguments(component))

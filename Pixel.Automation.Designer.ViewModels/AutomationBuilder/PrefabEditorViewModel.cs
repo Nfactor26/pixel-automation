@@ -23,8 +23,9 @@ namespace Pixel.Automation.Designer.ViewModels
         #endregion data members
 
         #region constructor
-        public PrefabEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer, IToolBox[] toolBoxes) :
-            base(globalEventAggregator, serviceResolver, serializer, toolBoxes)
+        public PrefabEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
+             IScriptExtactor scriptExtractor, IToolBox[] toolBoxes) :
+            base(globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes)
         {
         }
 
@@ -48,8 +49,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var targetVersion = versionToLoad ?? prefabDescription.NonDeployedVersions.OrderBy(a => a.Version).Last();
             this.processRoot = this.projectManager.Load(prefabDescription, targetVersion);
 
-            this.EntityManager.RootEntity = this.processRoot;
-            this.EntityManager.WorkingDirectory = this.projectManager.GetProjectFileSystem().WorkingDirectory;
+            this.EntityManager.RootEntity = this.processRoot;        
             this.WorkFlowRoot = new BindableCollection<Entity>();
             this.WorkFlowRoot.Add(this.processRoot);
             this.BreadCrumbItems.Add(this.processRoot);

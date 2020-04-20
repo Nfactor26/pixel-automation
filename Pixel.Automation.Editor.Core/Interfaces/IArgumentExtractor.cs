@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Interfaces;
 using System.Collections.Generic;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -11,6 +12,13 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// </summary>
         /// <returns></returns>
         IEnumerable<Argument> ExtractArguments(Entity entity);
+
+        /// <summary>
+        /// Extract Arguments used by a single component
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        IEnumerable<Argument> ExtractArguments(IComponent component);
     }
 
 }

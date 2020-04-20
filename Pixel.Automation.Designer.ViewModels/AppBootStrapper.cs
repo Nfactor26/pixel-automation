@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Utilities;
 using Pixel.Automation.Designer.ViewModels.Modules;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Native.Windows;
 using Pixel.Automation.RunTime;
@@ -134,6 +135,9 @@ namespace Pixel.Automation.Designer.ViewModels
                 kernel.Bind<IScreenCapture>().To<ScreenCapture>().InSingletonScope();
 
                 kernel.Bind<IPrefabLoader>().To<PrefabLoader>();
+
+                kernel.Bind<IArgumentExtractor>().To<ArgumentExtractor>().InSingletonScope();
+                kernel.Bind<IScriptExtactor>().To<ScriptExtractor>().InSingletonScope();
 
             }
             catch (Exception ex)
