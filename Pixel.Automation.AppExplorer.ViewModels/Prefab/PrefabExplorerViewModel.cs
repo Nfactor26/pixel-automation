@@ -7,14 +7,13 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -26,6 +25,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;
+        private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private ApplicationDescription activeApplication;
         private PrefabBuilderViewModel prefabBuilder;
 
@@ -35,13 +35,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
-        public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager, ISerializer serializer, PrefabBuilderViewModel prefabBuilder)
+        public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
+            ISerializer serializer, IWorkspaceManagerFactory workspaceManagerFactory,
+            PrefabBuilderViewModel prefabBuilder)
         {
             this.eventAggregator = eventAggregator;
             this.prefabBuilder = prefabBuilder;
             this.windowManager = windowManager;
-            this.serializer = serializer;       
-
+            this.serializer = serializer;
+            this.workspaceManagerFactory = workspaceManagerFactory;
             CreateCollectionView();
         }
 
@@ -131,11 +133,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public async Task DeployPrefab(PrefabDescription targetPrefab)
+        public async Task ManagePrefab(PrefabDescription targetPrefab)
         {
             try
-            {
-                DeployPrefabViewModel deployPrefabViewModel = new DeployPrefabViewModel(targetPrefab);
+            {               
+                PrefabVersionManagerViewModel deployPrefabViewModel = new PrefabVersionManagerViewModel(targetPrefab, this.workspaceManagerFactory, this.serializer);
                 var result = await windowManager.ShowDialogAsync(deployPrefabViewModel);
                 if (result.GetValueOrDefault())
                 {

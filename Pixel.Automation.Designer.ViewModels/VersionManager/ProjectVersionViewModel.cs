@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -7,43 +8,43 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
+namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
-    public class PrefabVersionViewModel : PropertyChangedBase
+    public class ProjectVersionViewModel : PropertyChangedBase
     {
-        private readonly PrefabDescription prefabDescription;
-        private readonly PrefabVersion prefabVersion;
-        private readonly IPrefabFileSystem fileSystem;
+        private readonly AutomationProject automationProject;
+        private readonly ProjectVersion projectVersion;
+        private readonly IProjectFileSystem fileSystem;
 
         public Version Version
         {
-            get => prefabVersion.Version;
-            set => prefabVersion.Version = value;
+            get => projectVersion.Version;
+            set => projectVersion.Version = value;
         }
 
         public bool IsDeployed
         {
-            get => prefabVersion.IsDeployed;
+            get => projectVersion.IsDeployed;
             set
             {
-                if (!prefabVersion.IsDeployed && value)
+                if (!projectVersion.IsDeployed && value)
                 {
-                    prefabVersion.IsDeployed = value;
+                    projectVersion.IsDeployed = value;
                 }
                 NotifyOfPropertyChange(() => IsDeployed);
             }
         }
 
-        public string PrefabAssembly
+        public string DataModelAssembly
         {
-            get => prefabVersion.PrefabAssembly;
+            get => projectVersion.DataModelAssembly;
             private set
             {
-                if (!prefabVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (!projectVersion.IsDeployed && !string.IsNullOrEmpty(value))
                 {
-                    prefabVersion.PrefabAssembly = value;
+                    projectVersion.DataModelAssembly = value;
                 }
-                NotifyOfPropertyChange(() => PrefabAssembly);
+                NotifyOfPropertyChange(() => DataModelAssembly);
             }
         }
 
@@ -52,41 +53,40 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         public bool IsActive
         {
-            get => prefabVersion.IsActive;
+            get => projectVersion.IsActive;
             set
             {
-                if (!prefabVersion.IsDeployed)
-                {
-                    prefabVersion.IsActive = value;
-                }
+                projectVersion.IsActive = value;
                 NotifyOfPropertyChange(() => IsActive);
             }
         }
+   
 
-        public PrefabVersionViewModel(PrefabDescription prefabDescription, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem)
+        public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem)
         {
-            this.prefabDescription = prefabDescription;
-            this.prefabVersion = prefabVersion;
+            this.automationProject = automationProject;
+            this.projectVersion = projectVersion;
             this.fileSystem = fileSystem;
         }
 
-        public PrefabVersion Clone()
+
+        public ProjectVersion Clone()
         {
             ////Increment active version for project        
-            PrefabVersion newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
+            ProjectVersion newVersionInfo = new ProjectVersion(new Version(this.projectVersion.Version.Major + 1, 0, 0, 0))
             {
                 IsActive = true,
                 IsDeployed = false
             };
 
-            this.fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.automationProject.Name, this.projectVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
             Directory.CreateDirectory(newWorkingDirectory);
 
             ////copy contents from previous version directory to new version directory
             CopyAll(currentWorkingDirectory, new DirectoryInfo(newWorkingDirectory));
-
+         
             void CopyAll(DirectoryInfo source, DirectoryInfo target)
             {
                 // Copy each file into the new directory.
@@ -113,19 +113,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
         {
-            //string prefabDirectory = Path.Combine("ApplicationsRepository", this.prefabDescription.ApplicationId, "Prefabs", this.prefabDescription.PrefabId, this.prefabVersion.Version.ToString());
-            //string tempDirectory = Path.Combine(prefabDirectory, "Temp");
-            //var assemblyFiles = Directory.GetFiles(tempDirectory, "*.dll").Select(f => new FileInfo(f));
-            //var targetFile = assemblyFiles.OrderBy(a => a.CreationTime).Last();
-
-            //string deployedAssemblyName = $"{this.prefabDescription.PrefabName}.dll";
-            //string referencesDirectory = Path.Combine(prefabDirectory, "References");
-            //File.Copy(targetFile.FullName, Path.Combine(referencesDirectory, deployedAssemblyName));
-
-            //prefabVersion.IsDeployed = true;
-            //prefabVersion.PrefabAssembly = Path.Combine(referencesDirectory, deployedAssemblyName);
-           
-            this.fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.automationProject.Name, this.projectVersion);
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
@@ -143,23 +131,31 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
             }
 
-            string assemblyName = this.prefabDescription.PrefabName.Trim().Replace(' ', '_');
+            string assemblyName = this.automationProject.Name.Trim().Replace(' ', '_');
             using (var compilationResult = workspaceManager.CompileProject(assemblyName))
             {
-                compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
+                compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);            
             }
-
+                            
             string deployedAssemblyName = $"{assemblyName}.dll";
-
+         
             this.IsDeployed = true;
             this.IsActive = false;
-            this.PrefabAssembly = Path.Combine(Path.GetRelativePath(this.fileSystem.WorkingDirectory, this.fileSystem.ReferencesDirectory), deployedAssemblyName);
+            this.DataModelAssembly = Path.Combine(Path.GetRelativePath(this.fileSystem.WorkingDirectory, this.fileSystem.ReferencesDirectory), deployedAssemblyName);
 
 
-            //Replace the assemly name in the process and template file
-            UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
-            UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
-
+            //Replace the assemly name in the process file
+            UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName);
+          
+            //Replace the assembly name in all of the test process file
+            foreach(var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+            {
+                var testProcessFile = Directory.GetFiles(directory, "*.proc").FirstOrDefault();
+                if(testProcessFile != null)
+                {
+                    UpdateAssemblyReference(testProcessFile, assemblyName);
+                }
+            }
         }
 
         /// <summary>
@@ -178,7 +174,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             File.WriteAllText(processFile, fileContents);
 
         }
-
 
     }
 }

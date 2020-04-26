@@ -41,10 +41,10 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         public IEnumerable<PrefabVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
 
-        /// <summary>
-        /// Get all the versions that are not deployed. Non Deployed versions can't be used in automation.
-        /// </summary>
-        public IEnumerable<PrefabVersion> NonDeployedVersions { get => AvailableVersions.Where(a => !a.IsDeployed).ToList(); }    
+        public PrefabVersion ActiveVersion 
+        {
+            get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
+        }  
 
         [DataMember]
         public string Description { get; set; }

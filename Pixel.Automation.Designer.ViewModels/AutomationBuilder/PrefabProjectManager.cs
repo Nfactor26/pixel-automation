@@ -31,12 +31,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.prefabDescription = prefabDescription;
             this.prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, versionInfo);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-
-            Assembly mostRecentAssembly = this.prefabFileSystem.GetDataModelAssembly();
-            this.compilationIteration = int.Parse(mostRecentAssembly.GetName().Name.Split(new char[] { '_' }).LastOrDefault() ?? "0");
-
+                
             ConfigureCodeEditor();
-            this.entityManager.Arguments = CompileAndCreateDataModel();
+            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
             Initialize(this.entityManager, this.prefabDescription);
             return this.rootEntity;
         }
@@ -51,7 +48,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public Entity Refresh()
         {
-            this.entityManager.Arguments = CompileAndCreateDataModel();      
+            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");      
             this.Save();
             this.Initialize(this.entityManager, this.prefabDescription);
             return this.rootEntity;
@@ -66,19 +63,18 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }         
             this.rootEntity = AddEntitiesAndPrefab();        
             
-        }
-
-        private Entity DeserializePrefab()
-        {           
-            var entity = this.Load<Entity>(this.prefabFileSystem.PrefabFile);
-            return entity;
-        }
+        }     
 
         private Entity AddEntitiesAndPrefab()
         {
-            this.prefabbedEntity = DeserializePrefab();
+            this.prefabbedEntity = this.Load<Entity>(this.prefabFileSystem.PrefabFile);
+            Entity templateRoot = default;
+            
+            if(File.Exists(this.prefabFileSystem.TemplateFile))
+            {
+                templateRoot = this.Load<Entity>(this.prefabFileSystem.TemplateFile); ;
+            }           
 
-            Entity templateRoot = this.prefabFileSystem.GetTemplate();
             if (templateRoot != null)
             {
                 templateRoot.EntityManager = this.entityManager;
@@ -107,7 +103,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);
 
                 prefabProcessor.AddComponent(prefabbedEntity);               
-                RestoreParentChildRelation(rootEntity);
+                RestoreParentChildRelation(templateRoot);
             }
 
             return templateRoot;
@@ -130,45 +126,21 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public override void SaveAs()
         {
             throw new NotImplementedException();
-        }
-
-        public override void CreateSnapShot()
-        {
-            //save current state to previous version
-            //Save();
-
-            ////Increment active version for project
-            //VersionInfo activeVersion = prefabDescription.ActiveVersion;
-            //VersionInfo newVersion = new VersionInfo(new Version(activeVersion.Version.Major + 1, 0, 0, 0));
-            //prefabDescription.SetActiveVersion(newVersion);
-
-            ////change file system to new version of project
-            //string previousVersionWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
-            //this.prefabFileSystem.SwitchToVersion(newVersion);
-            //string currentWorkingDirectory = this.prefabFileSystem.WorkingDirectory;
-
-            ////copy contents from previous version directory to new version directory
-            //CopyAll(new DirectoryInfo(previousVersionWorkingDirectory), new DirectoryInfo(currentWorkingDirectory));         
-
-            //void CopyAll(DirectoryInfo source, DirectoryInfo target)
-            //{
-            //    // Copy each file into the new directory.
-            //    foreach (FileInfo fi in source.GetFiles())
-            //    {
-            //        fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-            //    }
-
-            //    // Copy each subdirectory using recursion.
-            //    foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-            //    {
-            //        DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-            //        CopyAll(diSourceSubDir, nextTargetSubDir);
-            //    }
-            //}
-        }
+        }        
 
         protected override string GetNewDataModelAssemblyName()
         {
+            var assemblyFiles = Directory.GetFiles(this.fileSystem.TempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(this.fileSystem.TempDirectory, f)));
+            if(assemblyFiles.Any())
+            {
+                var mostRecentAssembly = assemblyFiles.OrderBy(a => a.CreationTime).Last();
+                string assemblyName = Path.GetFileNameWithoutExtension(mostRecentAssembly.Name);
+                if(int.TryParse(assemblyName.Split('_', StringSplitOptions.RemoveEmptyEntries).Last(), out int lastIteration))
+                {
+                    compilationIteration = lastIteration;
+                }
+            }
+
             compilationIteration++;
             string dataModelAssemblyName = $"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{compilationIteration}";
             return dataModelAssemblyName;

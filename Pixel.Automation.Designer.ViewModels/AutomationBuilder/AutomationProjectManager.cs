@@ -32,12 +32,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
+            AddDataModelFile();
             ConfigureCodeEditor();          
-            this.entityManager.Arguments  = CompileAndCreateDataModel();
+            this.entityManager.Arguments  = CompileAndCreateDataModel("DataModel");
 
             Initialize(entityManager, this.activeProject);           
             return this.rootEntity;
         }   
+
+        private void AddDataModelFile()
+        {
+            string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
+            if (!dataModelFiles.Any())
+            {
+                var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", "Pixel.Automation.Project.DataModels", new[] { typeof(object).Namespace });
+                string dataModelInitialContent = classGenerator.GetGeneratedCode();
+                File.WriteAllText(Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs"), dataModelInitialContent);               
+            }             
+        }
       
         protected override string GetNewDataModelAssemblyName()
         {
@@ -120,7 +132,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public Entity Refresh()
         {
-            this.entityManager.Arguments = CompileAndCreateDataModel();
+            this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
            
             Save();
 
@@ -161,49 +173,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             throw new System.NotImplementedException();
         }
-
-        /// <summary>
-        /// Create a new version of the project and switches file system to use this new version.
-        /// Any further changes will be saved to this new version.
-        /// </summary>
-        public override void CreateSnapShot()
-        {
-            //save current state to previous version
-            //Save();
-
-            ////Increment active version for project
-            //Version activeVersion = activeProject.ActiveVersion;
-            //Version newVersion = new Version(activeVersion.Major + 1, 0, 0, 0);
-            //activeProject.AvailableVersions.Add(newVersion);
-            //activeProject.ActiveVersion = newVersion;
-        
-            ////change file system to new version of project
-            //string previousVersionWorkingDirectory = this.projectFileSystem.WorkingDirectory;
-            //this.projectFileSystem.SwitchToVersion(this.activeProject.ActiveVersion);
-            //string currentWorkingDirectory = this.projectFileSystem.WorkingDirectory;
-
-            ////copy contents from previous version directory to new version directory
-            //CopyAll(new DirectoryInfo(previousVersionWorkingDirectory), new DirectoryInfo(currentWorkingDirectory));
-
-            ////save the automation project file as we have added a new version and changed active version to latest.
-            //serializer.Serialize<AutomationProject>(this.projectFileSystem.ProjectFile, this.activeProject, null);
-
-            //void CopyAll(DirectoryInfo source, DirectoryInfo target)
-            //{            
-            //    // Copy each file into the new directory.
-            //    foreach (FileInfo fi in source.GetFiles())
-            //    {
-            //        fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-            //    }
-
-            //    // Copy each subdirectory using recursion.
-            //    foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-            //    {
-            //        DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-            //        CopyAll(diSourceSubDir, nextTargetSubDir);
-            //    }
-            //}
-          
-        }
+       
     }
 }

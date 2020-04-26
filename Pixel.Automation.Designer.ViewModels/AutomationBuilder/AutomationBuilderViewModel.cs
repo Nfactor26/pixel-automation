@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
+using Pixel.Automation.Designer.ViewModels.VersionManager;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.TestData.Repository.ViewModels;
@@ -74,13 +75,19 @@ namespace Pixel.Automation.Designer.ViewModels
             this.DisplayName = project.Name;
 
             //Always open the most recent non-deployed version if no version is specified
-            var targetVersion = versionToLoad ?? project.NonDeployedVersions.OrderBy(a => a.Version).Last();
-            this.processRoot = this.projectManager.Load(project, targetVersion);           
-            
-            this.EntityManager.RootEntity = this.processRoot;        
-            this.WorkFlowRoot = new BindableCollection<Entity>();
-            this.WorkFlowRoot.Add(this.processRoot);
-            this.BreadCrumbItems.Add(this.processRoot);
+            var targetVersion = versionToLoad ?? project.ActiveVersion;
+            if(targetVersion != null)
+            {
+                this.processRoot = this.projectManager.Load(project, targetVersion);
+
+                this.EntityManager.RootEntity = this.processRoot;
+                this.WorkFlowRoot = new BindableCollection<Entity>();
+                this.WorkFlowRoot.Add(this.processRoot);
+                this.BreadCrumbItems.Add(this.processRoot);
+                return;
+            }
+
+            throw new InvalidDataException($"No active version could be located for project : {project.Name}");
           
         } 
 
@@ -185,41 +192,41 @@ namespace Pixel.Automation.Designer.ViewModels
             projectManager.Save();
         }
 
-        public override void CreateSnapShot()
+        public async override Task Manage()
         {
-            projectManager.CreateSnapShot();
-        }
+            DoSave();
 
-        public void DoDeploy()
-        {
-            //Ask for the version to deploy
-            //generate the dll from custom sln
-            //Package everything           
-        }
+            var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
+            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, this.serializer);
+            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+            await windowManager.ShowDialogAsync(versionManager);
 
+            var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
+            fileSystem.SwitchToVersion(this.CurrentProject.ActiveVersion);
+        }      
 
         #endregion Save project
 
         #region Close Screen
-
-        public override bool CanClose()
-        {
-            return true;
-        }
 
         public override async void CloseScreen()
         {
             MessageBoxResult result = MessageBox.Show("Are you sure you want to close? Any unsaved changes will be lost.", "Confirm Close", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                this.Dispose();
-                this.testExplorerToolBox?.CloseActiveInstance();
-                this.testDataRepository.DataSourceChanged -= OnTestDataSourceChanged;
-                this.testDataRepositoryViewModel?.CloseActiveInstance();
-                var shell = IoC.Get<IShell>();
-                await this.TryCloseAsync(true);
-                await (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+                await CloseAsync();
             }
+        }
+
+        public override async  Task CloseAsync()
+        {
+            this.Dispose();
+            this.testExplorerToolBox?.CloseActiveInstance();
+            this.testDataRepository.DataSourceChanged -= OnTestDataSourceChanged;
+            this.testDataRepositoryViewModel?.CloseActiveInstance();
+            var shell = IoC.Get<IShell>();
+            await this.TryCloseAsync(true);
+            await(shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
         }
 
         #endregion Close Screen

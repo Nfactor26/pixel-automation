@@ -13,8 +13,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
         void SaveAs();
 
-        void CreateSnapShot();
-
         object GetDataModel();
 
         T Load<T>(string fileName) where T : new();

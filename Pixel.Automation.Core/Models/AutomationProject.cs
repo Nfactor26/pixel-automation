@@ -45,10 +45,10 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         public IEnumerable<ProjectVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
 
-        /// <summary>
-        /// Get all the versions that are not deployed. Non Deployed versions can't be used in automation.
-        /// </summary>
-        public IEnumerable<ProjectVersion> NonDeployedVersions { get => AvailableVersions.Where(a => !a.IsDeployed).ToList(); }
+        public ProjectVersion ActiveVersion
+        {
+            get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
+        }
 
         public AutomationProject()
         {

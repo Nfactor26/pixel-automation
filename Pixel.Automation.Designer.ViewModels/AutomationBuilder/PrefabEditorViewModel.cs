@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -9,7 +10,7 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -46,13 +47,20 @@ namespace Pixel.Automation.Designer.ViewModels
             this.PrefabDescription = prefabDescription;
             this.DisplayName = prefabDescription.PrefabName;
 
-            var targetVersion = versionToLoad ?? prefabDescription.NonDeployedVersions.OrderBy(a => a.Version).Last();
-            this.processRoot = this.projectManager.Load(prefabDescription, targetVersion);
+            var targetVersion = versionToLoad ?? PrefabDescription.ActiveVersion;
+            if (targetVersion != null)
+            {
+                this.processRoot = this.projectManager.Load(prefabDescription, targetVersion);
 
-            this.EntityManager.RootEntity = this.processRoot;        
-            this.WorkFlowRoot = new BindableCollection<Entity>();
-            this.WorkFlowRoot.Add(this.processRoot);
-            this.BreadCrumbItems.Add(this.processRoot);
+                this.EntityManager.RootEntity = this.processRoot;
+                this.WorkFlowRoot = new BindableCollection<Entity>();
+                this.WorkFlowRoot.Add(this.processRoot);
+                this.BreadCrumbItems.Add(this.processRoot);
+                return;
+            }
+
+            throw new InvalidDataException($"No active version could be located for project : {this.PrefabDescription.PrefabName}");
+         
         }
 
 
@@ -76,16 +84,6 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #endregion Automation Project     
 
-        #region OnLoad
-
-        //protected override void OnActivate()
-        //{
-        //    this.testExplorerToolBox?.CloseActiveInstance();
-        //    base.OnActivate();
-        //}
-             
-        #endregion OnLoad
-
         #region Save project
 
         public override void DoSave()
@@ -93,21 +91,29 @@ namespace Pixel.Automation.Designer.ViewModels
             projectManager.Save();          
         }
 
-        public override void CreateSnapShot()
+        public async override Task Manage()
         {
-            projectManager.CreateSnapShot();
-            OnPrefabUpdated();
-        }
+            DoSave();
 
-        public void DoDeploy()
-        {
-            //Ask for the version to deploy
-            //generate the dll from custom sln
-            //Package everything           
-        }
+            var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
+            PrefabVersionManagerViewModel versionManager = new PrefabVersionManagerViewModel(this.PrefabDescription, workspaceManagerFactory, this.serializer);
+            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+            await windowManager.ShowDialogAsync(versionManager);
 
+            var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
+            fileSystem.SwitchToVersion(this.PrefabDescription.ActiveVersion);
+        }
 
         #endregion Save project
+
+
+        public override async Task CloseAsync()
+        {
+            this.Dispose();           
+            var shell = IoC.Get<IShell>();
+            await this.TryCloseAsync(true);
+            await (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+        }
 
         public event EventHandler<PrefabUpdatedEventArgs> PrefabUpdated = delegate { };
 

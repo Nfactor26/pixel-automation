@@ -197,7 +197,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public bool CanAddSnapShot
+        public bool CanManage
         {
             get
             {
@@ -206,15 +206,12 @@ namespace Pixel.Automation.Designer.ViewModels
 
         }
 
-        /// <summary>
-        /// Save the project , then create a copy of the project with incrmented snapshot version
-        /// </summary>
-        public void AddSnapShot()
+        public void Manage()
         {
             var activeItem = this.ActiveItem as IEditor;
             if (activeItem != null)
             {
-                activeItem.CreateSnapShot();
+                activeItem.Manage();
             }
         }
 
@@ -233,19 +230,13 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanEditDataModel);
                 NotifyOfPropertyChange(() => CanSave);
                 NotifyOfPropertyChange(() => CanSaveAll);
-                NotifyOfPropertyChange(() => CanAddSnapShot);
+                NotifyOfPropertyChange(() => CanManage);
                 NotifyOfPropertyChange(() => CanReloadAutomationProject);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, ex.Message);
-            }
-            //if(item is IAutomationBuilder)
-            //{
-            //    this.tools.Clear();
-            //    this.tools = new BindableCollection<IToolBox>((item as IAutomationBuilder).Tools);
-            //    NotifyOfPropertyChange(() => Tools);
-            //}           
+            } 
 
         }
 

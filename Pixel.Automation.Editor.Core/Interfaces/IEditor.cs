@@ -25,9 +25,9 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         void DoUnload();
 
         /// <summary>
-        /// Save project with a new version
+        /// Manage different versions of project and their deployment
         /// </summary>
-        void CreateSnapShot();
+        Task Manage();
 
         /// <summary>
         /// Addd Component to an Entity

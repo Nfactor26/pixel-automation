@@ -48,8 +48,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return this.fileSystem;
         }
 
-        public abstract void CreateSnapShot();        
-
         public abstract void Save();
 
         public abstract void  SaveAs();
@@ -74,7 +72,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected abstract string GetNewDataModelAssemblyName();
 
-        protected object CompileAndCreateDataModel()
+        protected object CompileAndCreateDataModel(string dataModelName)
         {
             ICodeWorkspaceManager workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
 
@@ -91,35 +89,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                         workspaceManager.AddDocument(documentName, File.ReadAllText(dataModelFile));
                     }                
                 }
-            }
-            else
-            {
-                string dataModelInitialContent = GetDataModelFileContent();
-                File.WriteAllText(Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs"), dataModelInitialContent);
-                workspaceManager.AddDocument("DataModel.cs", dataModelInitialContent);
-            }
 
-
-            using (var compilationResult = workspaceManager.CompileProject(GetNewDataModelAssemblyName()))
-            {
-                compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
-                Assembly assembly = Assembly.LoadFrom(Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName));
-
-                Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals("DataModel"));
-                if (typeofDataModel != null)
+                using (var compilationResult = workspaceManager.CompileProject(GetNewDataModelAssemblyName()))
                 {
-                    return Activator.CreateInstance(typeofDataModel);
+                    compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
+                    Assembly assembly = Assembly.LoadFrom(Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName));
+
+                    Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(dataModelName));
+                    if (typeofDataModel != null)
+                    {
+                        return Activator.CreateInstance(typeofDataModel);
+                    }
                 }
+
+                throw new Exception($"Failed to create data model");
             }
 
-            throw new Exception($"Failed to create data model");
-
-            //TODO : DefaultDataModelFileContent -- Move to common place
-            string GetDataModelFileContent()
-            {
-                var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", "Pixel.Automation.Project.DataModels",new [] { typeof(object).Namespace });
-                return classGenerator.GetGeneratedCode();
-            }
+            throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
+         
         }
 
 

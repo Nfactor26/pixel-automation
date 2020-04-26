@@ -1,0 +1,65 @@
+﻿<controls:MetroWindow x:Class="Pixel.Automation.Designer.Views.VersionManager.ProjectVersionManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views.VersionManager"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
+             xmlns:cal="http://www.caliburnproject.org" cal:Bind.AtDesignTime="True"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" ResizeMode="NoResize"
+             mc:Ignorable="d"  WindowStartupLocation="CenterScreen"  GlowBrush="{DynamicResource AccentColorBrush}"
+             MinHeight="400" MinWidth="600"
+             d:DesignHeight="600" d:DesignWidth="800">
+  
+    <controls:MetroWindow.Resources>
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
+    </controls:MetroWindow.Resources>
+   
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="VersionGrid" Grid.Row="0">
+
+            <DataGrid x:Name="AvailableVersions" ItemsSource="{Binding AvailableVersions}" SelectedItem="{Binding SelectedVersion}"  MaxHeight="600"
+                  CanUserSortColumns="True" CanUserAddRows="False" CanUserResizeRows="False" CanUserResizeColumns="True"                 
+                  Grid.Column="1" GridLinesVisibility="All"
+                  Margin="10" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled"    
+                  AutoGenerateColumns="False"                
+                  RowHeaderWidth="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Version">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock x:Name="Version" Width="250" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Margin="15,0,0,0"                                  
+                                      Text="{Binding Version}" ></TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Deployed">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=TwoWay}" IsEnabled="False" Margin="15,0,0,0"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Grid>
+
+        <DockPanel Grid.Row="1" LastChildFill="False">
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch"
+                    Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Button x:Name="TryCloseAsync" Content="CLOSE" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
+                    Style="{DynamicResource MahApps.Styles.Button.Square}"/>
+            <Button x:Name="Deploy" Content="DEPLOY AND INCREMENT" ToolTip="Deploy selected version and create a incremented version from selected version" Width="Auto" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
+                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+            
+        </DockPanel>
+
+    </Grid>
+</controls:MetroWindow>

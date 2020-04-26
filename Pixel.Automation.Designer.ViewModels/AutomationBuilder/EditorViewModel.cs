@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -260,11 +259,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.WorkFlowRoot[0] = entity;
         }
 
-        public void MarkDirty()
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion Utilities
 
         #region Save project
@@ -272,7 +266,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public abstract void DoSave();
 
 
-        public abstract void CreateSnapShot();
+        public abstract Task Manage();
        
 
         #endregion Save project
@@ -285,16 +279,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         public override async void CloseScreen()
-        {
+        {           
             MessageBoxResult result = MessageBox.Show("Are you sure you want to close? Any unsaved changes will be lost.", "Confirm Close", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                this.Dispose();              
-                var shell = IoC.Get<IShell>();
-                await this.TryCloseAsync(true);
-                await (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+                await CloseAsync();
             }
         }
+
+        public abstract Task CloseAsync();
 
         #endregion Close Screen
 

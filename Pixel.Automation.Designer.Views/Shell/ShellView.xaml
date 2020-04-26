@@ -14,14 +14,8 @@
          >
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
-            <!--<ResourceDictionary.MergedDictionaries>             
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.ContextMenu.xaml" />              
-            </ResourceDictionary.MergedDictionaries>-->
-
-
+           
             <avalonDock:BoolToVisibilityConverter x:Key="boolToVisConverter"/>
-
-
 
             <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
 
@@ -34,6 +28,7 @@
                         Value="{Binding CanToggleScrapper}" />
                 <Setter Property="IsChecked" Value="{Binding IsCapturing,Mode=TwoWay}"/>
             </Style>
+            
             <!--<Style TargetType="avalonDock:AnchorablePaneTitle">
                 <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Highlight}"></Setter>                
             </Style>-->
@@ -69,21 +64,21 @@
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button x:Name="Settings" cal:Message.Attach="[Event Click] = [Action ToggleFlyout(0)]"
-                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>
-            <!--<Button x:Name="ChangeTheme" Click="ChangeTheme_Click">Settings</Button>-->
+                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>         
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
 
     <DockPanel>
         <Menu  VerticalAlignment="Stretch" HorizontalAlignment="Left" DockPanel.Dock="Top">
+            
             <MenuItem x:Name="File" Header="File" Style="{StaticResource MahApps.Styles.MenuItem}">
                 <MenuItem x:Name="DoNew" Header="New" ToolTip="Create a new Automation Project"/>
-                <MenuItem x:Name="DoOpen"  Header="Open" ToolTip="Open Automation Project from disk"/>
-                <!--<MenuItem x:Name="ReloadAutomationProject"  Header="Reload" ToolTip="Save changes , Recompile associated sln file and Reload current Automation Project"/>-->
+                <MenuItem x:Name="DoOpen"  Header="Open" ToolTip="Open Automation Project from disk"/>              
                 <Separator></Separator>
                 <MenuItem x:Name="Save"  Header="Save" ToolTip="Save"/>
                 <MenuItem x:Name="SaveAll"  Header="Save All" ToolTip="Save All"/>
             </MenuItem>
+            
             <MenuItem x:Name="View" Header="View"  Style="{StaticResource MahApps.Styles.MenuItem}">
                 <MenuItem x:Name="ApplicationsToolBox" Header="Applications Window" ToolTip="Show Applications toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Applications')]"/>
                 <MenuItem x:Name="ComponentsToolBox" Header="Components Window" ToolTip="Show Components toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Components')]"/>
@@ -92,25 +87,18 @@
                 <Separator></Separator>
                 <MenuItem x:Name="ShowStartPage"  Header="Start Page" ToolTip="Show Start Page"/>
             </MenuItem>
+            
             <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
-                <MenuItem x:Name="AddSnapshot" Header="Add SnapShot" ToolTip="Create a copy of workspace version"/>
-                <!--<MenuItem x:Name="OpenProject" Header="Open" ToolTip="Open Project in Visual Studio"/>-->
-                <MenuItem x:Name="EditDataModel" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>
-                <!--<Separator></Separator>
-                <MenuItem x:Name="Recompile"  Header="Recompile" ToolTip="Recompile the project to reflect changes in Process"/>-->
+                <MenuItem x:Name="Manage" Header="Manage" ToolTip="Manage versions and their deployment"/>               
+                <MenuItem x:Name="EditDataModel" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>             
             </MenuItem>
-
-            <!--<MenuItem x:Name="StartServer" Header="Start Server"/>-->
+           
             <MenuItem x:Name="ScreenScrappers"  Header="Screen Scrappers"
                           ItemsSource="{Binding ScreenScrappers, Mode=OneWay}"
                           ItemContainerStyle="{StaticResource ScrapperMenuItemStyle}">
             </MenuItem>
         </Menu>
-
-        <!--<Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>-->
+     
         <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Tools}"
 							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated"
                                >

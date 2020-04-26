@@ -3,9 +3,7 @@ using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -44,7 +42,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 ProjectId = Guid.NewGuid().ToString(), 
                 LastOpened = DateTime.Now
             };
-            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion));
+            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
             this.NewProject.PropertyChanged += NewProject_PropertyChanged;
         }
 
@@ -63,23 +61,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 throw new InvalidOperationException($"Project with name : {newProject.Name} already exists");
             }
-            Directory.CreateDirectory(projectFolder);
-            //Directory.CreateDirectory(Path.Combine(projectFolder, "Resources"));
-            //create a directory with name CustomComponents inside the project folder
-            //string customComponentsFolder = Path.Combine(projectFolder, "CustomComponents");
-            //Directory.CreateDirectory(customComponentsFolder);
-
-            //copy the visual studio sln files from template folder to custom components folder           
-            //string sourceFolder = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Template";
-            //string destinationFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.Combine("Automations", this.NewProject.Name, "CustomComponents"));
-            //foreach (string dirPath in Directory.GetDirectories(sourceFolder, "*", SearchOption.AllDirectories))
-            //    Directory.CreateDirectory(dirPath.Replace(sourceFolder, destinationFolder));
-            //foreach (string newPath in Directory.GetFiles(sourceFolder, "*.*", SearchOption.AllDirectories))
-            //    File.Copy(newPath, newPath.Replace(sourceFolder, destinationFolder), true);
-
-            //Add the default assembly references to the visual studio project
-
-            //AddDefaultReferencesToProject(this.newProject.GeneratedSlnPath);
+            Directory.CreateDirectory(projectFolder);            
 
             //create and save the project file
             string projectFile = Path.Combine(projectFolder, this.newProject.Name + ".atm");
@@ -87,19 +69,6 @@ namespace Pixel.Automation.Designer.ViewModels
 
             await this.TryCloseAsync(true);
         }
-
-
-        //private void AddDefaultReferencesToProject(string targetSln)
-        //{
-        //    if (File.Exists("DefaultReferences.dat"))
-        //    {
-        //        string data = File.ReadAllText("DefaultReferences.dat");
-        //        List<string> references = data.Split(new char[] { ',' }).Select(n => n.Trim().Trim(new char[] { '"', '\\' })).ToList<string>();
-        //        compiler.CreateWorkSpace(targetSln, string.Empty);
-        //        compiler.AddReferences(references);
-        //    }
-
-        //}
 
         public bool CanCreateNewProject
         {
