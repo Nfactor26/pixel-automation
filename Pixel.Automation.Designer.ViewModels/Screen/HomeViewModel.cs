@@ -44,7 +44,9 @@ namespace Pixel.Automation.Designer.ViewModels
         private void LoadRecentProjects()
         {
             if (!Directory.Exists("Automations"))
+            {
                 Directory.CreateDirectory("Automations");
+            }
             List<AutomationProject> automationProjects = new List<AutomationProject>();
             foreach (var item in Directory.EnumerateDirectories("Automations"))
             {
@@ -62,7 +64,9 @@ namespace Pixel.Automation.Designer.ViewModels
         public async void CreateNewProject()
         {
             if (!Directory.Exists("Automations"))
+            {
                 Directory.CreateDirectory("Automations");
+            }
 
             IWindowManager windowManager = IoC.Get<IWindowManager>();
             INewProject newProjectVM = IoC.Get<INewProject>();
@@ -107,8 +111,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
-                throw;
+                Log.Error(ex, ex.Message);            
             }
         }
 
@@ -118,7 +121,9 @@ namespace Pixel.Automation.Designer.ViewModels
             openFileDialog.Filter = "Automation Project (*.atm)|*.atm|Process Files(*.proc)|*.proc";
             openFileDialog.InitialDirectory = Path.Combine(Environment.CurrentDirectory, "Automations");
             if (openFileDialog.ShowDialog() == true)
+            {
                 return openFileDialog.FileName;
+            }
             return string.Empty;
         }
 

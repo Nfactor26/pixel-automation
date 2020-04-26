@@ -1,71 +1,75 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core;
+using Serilog;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-    public class NewProjectViewModel : Screen, INewProject
+    public class NewProjectViewModel : SmartScreen, INewProject
     {
+        private readonly ILogger logger = Log.ForContext<NewProjectViewModel>();
 
-        ISerializer serializer;       
+        private readonly string saveDirectory = ".\\Automations\\";  //Todo : Get this from config
+        private readonly ISerializer serializer;
 
-        string saveDirectory = ".\\Automations\\";  //Todo : Get this from config
+        public AutomationProject NewProject { get; }
 
-
-        AutomationProject newProject;
-        public AutomationProject NewProject
+        public string Name
         {
-            get
-            {
-                return newProject;
-            }
-
+            get => this.NewProject.Name;
             set
             {
-                newProject = value;
-                NotifyOfPropertyChange(() => NewProject);
+                this.NewProject.Name = value;
+                ValidateRequiredProperty(nameof(Name), value);
+                NotifyOfPropertyChange(() => Name);
+                NotifyOfPropertyChange(() => CanCreateNewProject);
             }
+        }
+
+        public ProjectType ProjectType
+        {
+            get => this.NewProject.ProjectType;
+            set => this.ProjectType = value;
         }
 
         public NewProjectViewModel(ISerializer serializer)
         {
             Guard.Argument<ISerializer>(serializer).NotNull($"{nameof(serializer)} is reuired parameter");
 
-            this.DisplayName = "New Project";
+            this.DisplayName = "Create New Project";
             this.serializer = serializer;
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject()
             {
                 ProjectId = Guid.NewGuid().ToString(), 
-                LastOpened = DateTime.Now
+                LastOpened = DateTime.Now,
+                ProjectType = ProjectType.TestAutomation
             };
             this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
-            this.NewProject.PropertyChanged += NewProject_PropertyChanged;
-        }
+        
+        }    
 
-        private void NewProject_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        public  async Task CreateNewProject()
         {
-            NotifyOfPropertyChange(() => CanCreateNewProject);
-        }
-
-        public  async void CreateNewProject()
-        {
-            this.newProject.LastOpened = DateTime.Now;
+            this.NewProject.LastOpened = DateTime.Now;
 
             //create a directory inside Automations directory with name equal to newProject name
-            string projectFolder = Path.Combine(saveDirectory, this.newProject.Name);
+            string projectFolder = Path.Combine(saveDirectory, this.NewProject.Name);
             if (Directory.Exists(projectFolder))
             {
-                throw new InvalidOperationException($"Project with name : {newProject.Name} already exists");
+                throw new InvalidOperationException($"Project with name : {NewProject.Name} already exists");
             }
             Directory.CreateDirectory(projectFolder);            
 
             //create and save the project file
-            string projectFile = Path.Combine(projectFolder, this.newProject.Name + ".atm");
-            serializer.Serialize<AutomationProject>(projectFile, this.newProject, null);
+            string projectFile = Path.Combine(projectFolder, this.NewProject.Name + ".atm");
+            serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
+
+            logger.Information($"Created new project : {this.Name} of type : {this.ProjectType}");
 
             await this.TryCloseAsync(true);
         }
@@ -74,7 +78,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             get
             {
-                return !this.newProject.HasErrors && !string.IsNullOrEmpty(NewProject.Name);
+                return !this.HasErrors && !string.IsNullOrEmpty(this.Name);
             }
 
         }

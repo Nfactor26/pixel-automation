@@ -16,7 +16,7 @@
             <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
         </ResourceDictionary>
     </Controls:MetroWindow.Resources>
-    <Grid Margin="10" DataContext="{Binding NewProject}">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="10px"></RowDefinition>
@@ -36,7 +36,7 @@
         <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">           
             <Label Content="Type" DockPanel.Dock="Left" MinWidth="80"></Label>
             <ComboBox ItemsSource="{Binding Source={editorCore:EnumBindingSource {x:Type models:ProjectType}}}" DockPanel.Dock="Right"
-                  SelectedItem="{Binding Path=AutomationProjectType}" ToolTip="Project Type"/>
+                  SelectedItem="{Binding Path=ProjectType}" ToolTip="Project Type"/>
         </DockPanel>
         <DockPanel LastChildFill="False" Margin="0,5,0,0"  Grid.Row="4">
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>

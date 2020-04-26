@@ -84,7 +84,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         private void AddDefaultEntities()
         {
-            switch (this.activeProject.AutomationProjectType)
+            switch (this.activeProject.ProjectType)
             {
                 case ProjectType.ProcessAutomation:
                     if (this.rootEntity.Components.Count() == 0)
