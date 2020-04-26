@@ -143,17 +143,9 @@ namespace Pixel.Automation.Designer.ViewModels
 
             if(this.testDataRepository == null)
             {
-                this.testDataRepository = this.EntityManager.GetServiceOfType<TestDataRepository>();
-                this.testDataRepository.DataSourceChanged += OnTestDataSourceChanged;
+                this.testDataRepository = this.EntityManager.GetServiceOfType<TestDataRepository>();            
             }          
             this.testDataRepositoryViewModel.SetActiveInstance(this.testDataRepository);
-        }
-
-        private void OnTestDataSourceChanged(object sender, string e)
-        {         
-            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-            this.projectManager.Refresh();
-            this.ReOpenTestCases(testCaseEntities);
         }
 
         #endregion Automation Project
@@ -221,8 +213,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async  Task CloseAsync()
         {
             this.Dispose();
-            this.testExplorerToolBox?.CloseActiveInstance();
-            this.testDataRepository.DataSourceChanged -= OnTestDataSourceChanged;
+            this.testExplorerToolBox?.CloseActiveInstance();          
             this.testDataRepositoryViewModel?.CloseActiveInstance();
             var shell = IoC.Get<IShell>();
             await this.TryCloseAsync(true);

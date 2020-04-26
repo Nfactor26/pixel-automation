@@ -10,11 +10,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
+using Serilog;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataRepository : PropertyChangedBase
     {
+        private readonly ILogger logger = Log.ForContext<TestDataRepository>();
+
         private readonly IProjectFileSystem projectFileSystem;     
         private readonly IScriptEditorFactory scriptEditorFactory;
         private readonly ISerializer serializer;
@@ -90,7 +93,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public void CreateCodedTestDataSource()
         {
-            CreateDataSource(DataSource.Code);
+            CreateDataSource(DataSource.Code);            
         }
 
         public void CreateCsvTestDataSource()
@@ -100,27 +103,34 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         private async void CreateDataSource(DataSource dataSourceType)
         {
-            ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
-            TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
-
-            using (var scriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor())
+            try
             {
-                TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(scriptEditor);
+                ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
+                TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
 
-                newTestDataSource.NextScreen = testDataModelEditor;
-                testDataModelEditor.PreviousScreen = newTestDataSource;
-
-                TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
-
-                var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
-                if (result.HasValue && result.Value)
+                using (var scriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor())
                 {
-                    serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
-                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
-                    //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
+                    TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(scriptEditor);
+
+                    newTestDataSource.NextScreen = testDataModelEditor;
+                    testDataModelEditor.PreviousScreen = newTestDataSource;
+
+                    TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
+
+                    var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
+                    if (result.HasValue && result.Value)
+                    {
+                        serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
+                        this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
+                        //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
+                    }
                 }
+
             }
-            
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         #endregion Create Test Data Source
@@ -129,7 +139,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public void DeleteTestDataSource()
         {
-            //We need to check if data source is in use by some test case before we allow deleting it
+            //TODO : We need to check if data source is in use by some test case before we allow deleting it
         }
 
         #endregion Delete Test Data Source
@@ -138,15 +148,22 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public void EditDataSource(TestDataSource testDataSource)
         {
-            switch(testDataSource.DataSource)
+            try
             {
-                case DataSource.Code:
-                    EditCodedDataSource(testDataSource);
-                    break;
-                case DataSource.CsvFile:
-                    EditCsvDataSource(testDataSource);
-                    break;
-            }           
+                switch (testDataSource.DataSource)
+                {
+                    case DataSource.Code:
+                        EditCodedDataSource(testDataSource);
+                        break;
+                    case DataSource.CsvFile:
+                        EditCsvDataSource(testDataSource);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }      
          
         }
 
@@ -171,15 +188,5 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         #endregion Edit Data Source
 
-        #region events
-
-        public event EventHandler<string> DataSourceChanged = delegate {};
-
-        protected virtual void OnDataSouceChanged(string testDataId)
-        {
-            this.DataSourceChanged.Invoke(this, testDataId);
-        }
-
-        #endregion events
     }
 }

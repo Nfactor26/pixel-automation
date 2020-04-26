@@ -88,11 +88,14 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         public virtual void CloseDocument(bool save = true)
         {
-            if (save)
+            if(this.targetDocument != null)
             {
-                this.editorService.SaveDocument(this.targetDocument);
-            }
-            this.editorService.TryCloseDocument(this.targetDocument);        
+                if (save)
+                {
+                    this.editorService.SaveDocument(this.targetDocument);
+                }
+                this.editorService.TryCloseDocument(this.targetDocument);
+            }           
         }
 
         public virtual void Activate()
