@@ -68,7 +68,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public override List<IComponent> Components
         {
             get => base.Components;
-            set => base.Components = value;
+            protected set => base.Components = value;
         }
                
         public override async void BeforeProcess()

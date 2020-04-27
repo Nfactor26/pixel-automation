@@ -70,7 +70,9 @@ namespace Pixel.Automation.Core.Components
         public override void ResolveDependencies()
         {         
             if (this.Components.Count() > 0)
-                return;         
+            {
+                return;
+            }
             base.AddComponent(GroupPlaceHolder);
 
         }

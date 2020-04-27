@@ -34,7 +34,9 @@ namespace Pixel.Automation.Core.Components.Helpers
             var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
             string saveLocation = argumentProcessor.GetValue<string>(this.SaveLocation);       
             if (string.IsNullOrEmpty(saveLocation))
+            {
                 throw new ArgumentException("SaveLocation can't be empty for TaksScreenShot Actor");
+            }
 
             //TODO : Need a better default location where images should be saved.
             IScreenCapture sreenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();

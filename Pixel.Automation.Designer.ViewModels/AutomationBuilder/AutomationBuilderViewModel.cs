@@ -56,8 +56,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }             
         }
       
-        #endregion constructor          
-     
+        #endregion constructor               
 
         #region Automation Project
       
@@ -149,7 +148,6 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
         #endregion Automation Project
-
 
         #region OnLoad
 

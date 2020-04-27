@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
 
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
             Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
-            Kernel.Bind<ITestDataLoader>().To<TestDataLoader>().InSingletonScope();
+            Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
             Kernel.Bind<IArgumentTypeProvider>().To<ArgumentTypeProvider>().InSingletonScope();
             Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 

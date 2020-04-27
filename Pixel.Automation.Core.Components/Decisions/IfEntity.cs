@@ -68,7 +68,9 @@ namespace Pixel.Automation.Core.Components.Decisions
         public override void ResolveDependencies()
         {
             if (this.Components.Count() > 0)
+            {
                 return;
+            }
 
             PlaceHolderEntity thenBlock = new PlaceHolderEntity("Then");
             PlaceHolderEntity elseBlock = new PlaceHolderEntity("Else");  

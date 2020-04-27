@@ -11,14 +11,15 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.RunTime
 {
-    public class TestDataLoader : ITestDataLoader
+    /// <inheritdoc/>
+    public class DataSourceReader : IDataSourceReader
     {
         private readonly IProjectFileSystem fileSystem;
         private readonly ISerializer serializer;
         private readonly IDataReader[] dataReaders;
         private readonly IScriptEngine scriptEngine;
 
-        public TestDataLoader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngine scriptEngine, IDataReader[] dataReaders)
+        public DataSourceReader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngine scriptEngine, IDataReader[] dataReaders)
         {
             Guard.Argument(serializer).NotNull();
             Guard.Argument(fileSystem).NotNull();
@@ -31,13 +32,11 @@ namespace Pixel.Automation.RunTime
             this.dataReaders = dataReaders;
         }
 
-        public IEnumerable<object> GetTestCaseData(TestCase testCase)
-        {
-            Guard.Argument(testCase).NotNull();
-            Guard.Argument(testCase.TestDataId).NotNull().NotEmpty();
-
-            string repositoryFolder = this.fileSystem.TestDataRepository;
-            string dataSourceFile = Path.Combine(repositoryFolder, $"{testCase.TestDataId}.dat");
+        public IEnumerable<object> LoadData(string dataSourceId)
+        {            
+            Guard.Argument(dataSourceId).NotNull().NotEmpty();
+            
+            string dataSourceFile = Path.Combine(this.fileSystem.TestDataRepository, $"{dataSourceId}.dat");
             if (!File.Exists(dataSourceFile))
             {
                 throw new FileNotFoundException($"{dataSourceFile} doesn't exist. Can't load required data for test case");
@@ -70,8 +69,7 @@ namespace Pixel.Automation.RunTime
             if (csvDataReader == null)
             {
                 throw new Exception("No DataReader for csv file is available");
-            }
-            //csvDataReader.Initialize(testDataSource.MetaData);
+            }          
 
             object globals = new DataReaderScriptGlobal() { DataReaderArgument = csvDataReader, DataSourceArgument = testDataSource };
             this.scriptEngine.SetGlobals(globals);

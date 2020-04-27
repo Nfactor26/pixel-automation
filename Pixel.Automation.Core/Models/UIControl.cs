@@ -16,9 +16,9 @@ namespace Pixel.Automation.Core.Models
 
         public T GetApiControl<T>()
         {
-            if (this.TargetControl is T)
+            if (this.TargetControl is T requiredControl)
             {
-                return (T)TargetControl;
+                return requiredControl;
             }
             throw new InvalidCastException($"{typeof(T)} is incompatible with {TargetControl.GetType()}");
         }

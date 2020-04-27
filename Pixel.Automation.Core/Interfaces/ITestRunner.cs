@@ -6,6 +6,10 @@ namespace Pixel.Automation.Core.Interfaces
 {
     public interface ITestRunner
     {
+        /// <summary>
+        /// Indicates if test case can be executed.
+        /// For ex, this should be false if SetUp is not done yet.
+        /// </summary>
         bool CanRunTests { get; }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace Pixel.Automation.Core.Utilities
             {
                 Log.Error(ex, ex.Message);
             }
-            return default(T);
+            return default;
         }
 
         public T DeserializeContent<T>(string content, List<Type> knownTypes = null) where T : new()

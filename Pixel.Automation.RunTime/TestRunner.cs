@@ -15,14 +15,15 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.RunTime
 {
+    /// <inheritdoc/>
     public class TestRunner : NotifyPropertyChanged, ITestRunner
     {
         protected readonly ILogger logger = Log.ForContext<TestRunner>();
         protected readonly EntityManager entityManager;
-        protected readonly ITestDataLoader testDataLoader;
+        protected readonly IDataSourceReader testDataLoader;
      
 
-        public TestRunner(EntityManager entityManager, ITestDataLoader testDataLoader)
+        public TestRunner(EntityManager entityManager, IDataSourceReader testDataLoader)
         {
             this.entityManager = entityManager;
             this.testDataLoader = testDataLoader;
@@ -117,7 +118,7 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(testCase).NotNull();
 
             var testCaseEntity = testCase.TestCaseEntity;
-            var dataSource = testDataLoader.GetTestCaseData(testCase);
+            var dataSource = testDataLoader.LoadData(testCase.TestDataId);
             if (dataSource is IEnumerable dataSourceCollection)
             {
                 foreach (var item in dataSourceCollection)
@@ -212,7 +213,7 @@ namespace Pixel.Automation.RunTime
                     testEntityManager.RegisterDefault<IFileSystem>(testCaseFileSystem);
                     testEntityManager.SetCurrentFileSystem(testCaseFileSystem);                 
 
-                    var dataSource = testDataLoader.GetTestCaseData(testCase);
+                    var dataSource = testDataLoader.LoadData(testCase.TestDataId);
                     if (dataSource is IEnumerable dataSourceCollection)
                     {
                         testEntityManager.Arguments = dataSource.FirstOrDefault();

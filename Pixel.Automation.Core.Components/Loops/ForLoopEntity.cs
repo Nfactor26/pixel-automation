@@ -101,7 +101,7 @@ namespace Pixel.Automation.Core.Components.Loops
 
                 iteration++;
 
-                var incrementResult = ExecuteScript(statements[2]).Result;  //Execute the increment statement
+                _ = ExecuteScript(statements[2]).Result;  //Execute the increment statement
             }
 
         }

@@ -17,8 +17,7 @@ namespace Pixel.Automation.Core
         #region data members       
 
         private readonly IServiceResolver serviceProvider;
-        private IFileSystem fileSystem;
-        private bool isPrimaryManager = false;
+        private IFileSystem fileSystem;      
         private bool areDefaultServicesInitialized = false;
        
         public Entity RootEntity { get; set; }
@@ -46,13 +45,7 @@ namespace Pixel.Automation.Core
                 this.arguments = value;
                 UpdateArgumentPropertiesInfo();          
             }
-        }
-      
-        /// <summary>
-        /// Working directory represents the process folder
-        /// </summary>
-        [DataMember]
-        public string WorkingDirectory { get; set; }
+        }     
 
         #endregion data members        
 
@@ -60,8 +53,7 @@ namespace Pixel.Automation.Core
 
         public EntityManager(IServiceResolver serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-            this.isPrimaryManager = true;
+            this.serviceProvider = serviceProvider;          
             this.serviceProvider.RegisterDefault<EntityManager>(this);
         }
 
@@ -77,8 +69,7 @@ namespace Pixel.Automation.Core
             if(dataModel != null)
             {
                 this.Arguments = dataModel;
-            }
-            this.isPrimaryManager = false;
+            }           
         }
 
         #endregion Constructor
@@ -99,7 +90,7 @@ namespace Pixel.Automation.Core
 
         #region Find Entities   
 
-        public IComponent FindComponentWithId(string id,SearchScope searchScope=SearchScope.Children)
+        public IComponent FindComponentWithId(string id, SearchScope searchScope=SearchScope.Children)
         {
             return RootEntity.GetComponentById(id, searchScope);
         }
@@ -147,40 +138,20 @@ namespace Pixel.Automation.Core
             this.serviceProvider.RegisterDefault<T>(instance);
         }
 
-        #endregion Services      
-
-
-        private readonly Dictionary<string, IArgumentProcessor> argumentProcessors = new Dictionary<string, IArgumentProcessor>();
+        #endregion Services
+     
 
         public IArgumentProcessor GetArgumentProcessor(IScopedEntity scopedEntity)
-        {
-            //if (scopedEntity != null)
-            //{
-            //    object scopedGlobals = scopedEntity.GetScopedTypeInstance();
-            //    if (argumentProcessors.ContainsKey((scopedEntity as IComponent).Id))
-            //    {
-            //        var cachedArgumentProcessor = argumentProcessors[(scopedEntity as IComponent).Id];
-            //        cachedArgumentProcessor.SetGlobals(scopedGlobals);
-            //        return cachedArgumentProcessor;
-            //    }
-
-            //    IArgumentProcessor scopedArgumentProcessor = GetServiceOfType<IArgumentProcessor>();
-            //    scopedArgumentProcessor.SetGlobals(scopedGlobals);
-            //    argumentProcessors.Add((scopedEntity as IComponent).Id, scopedArgumentProcessor);
-            //    return scopedArgumentProcessor;
-            //}
-
-            //if (this.argumentsProcessor == null)
-            //{
-            //    argumentsProcessor = GetServiceOfType<IArgumentProcessor>();
-            //    argumentsProcessor.SetGlobals(this.Arguments);
-            //}
+        {           
             return GetServiceOfType<IArgumentProcessor>();
         }
 
 
         private Dictionary<string, IEnumerable<string>> argumentPropertiesInfo = new Dictionary<string, IEnumerable<string>>();
 
+        /// <summary>
+        /// Update cache of all properties grouped by type which are present in arguments object
+        /// </summary>
         private void UpdateArgumentPropertiesInfo()
         {
             this.argumentPropertiesInfo.Clear();
@@ -196,17 +167,21 @@ namespace Pixel.Automation.Core
         }
 
         /// <summary>
-        /// Get all the properties of a given type defined in Argument type
+        /// Get all the properties of a given type present in either the arguments object or script engine variables collection
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public IEnumerable<string> GetPropertiesOfType(Type propertyType)
         {
             List<string> matchingProperties = new List<string>();
+            
+            //look in to arguments object properties
             if(this.argumentPropertiesInfo.ContainsKey(propertyType.GetDisplayName()))
             {
                 matchingProperties.AddRange(this.argumentPropertiesInfo[propertyType.GetDisplayName()] ?? Enumerable.Empty<string>());
             }
+          
+            //look in to script engine variables
             IScriptEngine scriptEngine = GetServiceOfType<IScriptEngine>();
             var declaredVariables = scriptEngine.GetScriptVariables()?.Where(v => v.PropertyType.Equals(propertyType))?.Select( a => a.PropertyName) ?? Enumerable.Empty<string>();
             matchingProperties.AddRange(declaredVariables);

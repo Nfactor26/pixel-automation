@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using System;
@@ -28,7 +27,9 @@ namespace Pixel.Automation.Core.Components
             IComponent targetComponent = EntityManager.FindComponentWithId(ComponentId,SearchScope.Descendants);
 
             if (!targetComponent.IsEnabled)
+            {
                 return;
+            }
 
             if (targetComponent is Entity)
             {

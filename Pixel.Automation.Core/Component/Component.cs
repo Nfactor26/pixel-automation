@@ -196,43 +196,19 @@ namespace Pixel.Automation.Core
 
         /// <inheritdoc/>
         public virtual bool ValidateComponent()
-        {
-            //validate all the required components are present
+        {           
             try
             {
                 isValid = true;
                 if(string.IsNullOrEmpty(name)|| string.IsNullOrEmpty(tag))
                 {
                     isValid = false;
-                }
-
-                //if(parent==null||eventAggregator==null||entityManager==null)
-                //{
-                //    isValid = false;
-                //}
-
-                //if (parent == null || entityManager == null)
-                //{
-                //    isValid = false;
-                //}
-
-                //var properties = this.GetType().GetProperties();
-                //foreach (var prop in properties)
-                //{
-                //    var requiredComponentAttribute = prop.CustomAttributes.FirstOrDefault(a => a.AttributeType.Equals(typeof(RequiredComponentAttribute)));
-                //    if (requiredComponentAttribute != null)
-                //    {
-                //        if (prop.GetValue(this) == null)
-                //        {
-                //            isValid = false;
-                //        }
-                //    }
-                //}
+                }              
                 return isValid;
             }
             finally
             {
-                OnPropertyChanged("IsValid");
+                OnPropertyChanged(nameof(IsValid));
             }
         }
 

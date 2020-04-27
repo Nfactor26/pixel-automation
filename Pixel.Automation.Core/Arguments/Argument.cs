@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Extensions;
+using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Arguments
@@ -89,16 +89,7 @@ namespace Pixel.Automation.Core.Arguments
 
         protected string GetDisplayName(Type type)
         {
-            switch (type.IsGenericType)
-            {
-                case true:
-                    if (type.ContainsGenericParameters)
-                        return type.Name.Split('`')[0];
-                    else
-                        return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(x => GetDisplayName(x)).ToArray()) + ">";
-                case false:
-                    return type.Name;
-            }           
+            return type.GetDisplayName();
         }
 
         public abstract Type GetArgumentType();

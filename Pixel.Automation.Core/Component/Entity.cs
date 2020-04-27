@@ -26,7 +26,7 @@ namespace Pixel.Automation.Core
             {
                 return components;
             }
-            set
+            protected set
             {
                 components = value;
             }
@@ -51,10 +51,8 @@ namespace Pixel.Automation.Core
         {
             get
             {
-                var actors = components.OfType<ActorComponent>();
-                if(actors!=null)
-                     return actors;
-                return new List<ActorComponent>();
+                var actors = components.OfType<ActorComponent>();                
+                return actors ?? new List<ActorComponent>();
             }
         }
 
@@ -63,10 +61,8 @@ namespace Pixel.Automation.Core
         {
             get
             {
-                var entities = components.OfType<Entity>();
-                if (entities != null)
-                    return entities;
-                return new List<Entity>();
+                var entities = components.OfType<Entity>();           
+                return entities ?? new List<Entity>();
             }
         }
 
@@ -95,19 +91,16 @@ namespace Pixel.Automation.Core
         public virtual Entity AddComponent(IComponent component)
         {
             if (component == null)
-                throw new NullReferenceException("component parameter is null.");
-
-            if (this.components==null)
-                this.components = new List<IComponent>();
+            {
+                throw new ArgumentException("component is required parameter for AddComponent(IComponent) method.");
+            }
           
             try
             {
                 if (!this.components.Contains(component))
                 {                   
-                    component.Parent = this;
-
-                    //Todo : Temp hack in order to add test cases since they have a different entity manager
-                    //This can allow components that are not test case entity to pass this check in case of some bad flow.
+                    component.Parent = this;                    
+                    
                     if ((component as Component).EntityManager == null)
                     {
                         (component as Component).EntityManager = this.EntityManager;
@@ -116,17 +109,20 @@ namespace Pixel.Automation.Core
                     }
                     else
                     {
+                        //When adding TestCaseEntity, EntityManager is already set.
                         this.EntityManager.RestoreParentChildRelation(component);
                         component.ResolveDependencies();
                     }
 
 
                     if (this.components.Count>0)
-                        component.ProcessOrder = this.components.Last().ProcessOrder + 1;                
-                    this.components.Add(component);                
+                    {
+                        component.ProcessOrder = this.components.Last().ProcessOrder + 1;
+                    }
+                    this.components.Add(component);
 
-                    OnPropertyChanged("ComponentCollection");                 
-                   
+                    OnPropertyChanged(nameof(ComponentCollection));
+
                     component.ValidateComponent();
                         
                 }
@@ -147,13 +143,13 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="component"></param>
         public virtual void RemoveComponent(IComponent component,bool dispose=true)
-        {
-            //TODO : Ensure that a component can't be removed if there is another dependent component on it
+        {           
             if (component!=null && this.components.Contains(component))
             {                
                 this.components.Remove(component);
                 component.Parent = null;
                 (component as Component).EntityManager = null;
+               
                 int i = 1;
                 foreach(var c in this.components)
                 {
@@ -164,7 +160,8 @@ namespace Pixel.Automation.Core
                 {
                     disposable.Dispose();
                 }
-                OnPropertyChanged("ComponentCollection");
+              
+                OnPropertyChanged(nameof(ComponentCollection));
                
             }
                
@@ -173,7 +170,7 @@ namespace Pixel.Automation.Core
         public void RefereshComponents()
         {
             this.Components = this.Components.OrderBy(c => c.ProcessOrder).ToList();
-            OnPropertyChanged("ComponentCollection");
+            OnPropertyChanged(nameof(ComponentCollection));
         }
 
         public virtual IEnumerable<IComponent> GetNextComponentToProcess()
@@ -181,10 +178,12 @@ namespace Pixel.Automation.Core
             foreach (var component in this.ComponentCollection)
             {
                 if (!component.IsEnabled)
+                {
                     continue;
+                }
 
 
-                if(component is IEntityProcessor)
+                if (component is IEntityProcessor)
                 {
                     yield return component;
                     continue;

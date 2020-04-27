@@ -68,8 +68,7 @@ namespace Pixel.Automation.Core
         }
 
         public static IArgumentProcessor GetArgumentProcessor(this IComponent component)
-        {
-            //component.TryGetScopedParent(out IScopedEntity scopedEntity);
+        {        
             return (component as Component).EntityManager.GetArgumentProcessor(null);
         }
     }

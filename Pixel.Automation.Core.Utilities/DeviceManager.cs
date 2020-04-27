@@ -17,8 +17,11 @@ namespace Pixel.Automation.Core.Utilities
         {
             foreach(IDevice device in this.allDevices)
             {
-                if (device is T)
-                    return device as T;
+                if (device is T requiredDevice)
+                {
+                    return requiredDevice;
+
+                }
             }
             throw new InvalidOperationException($"Device of type {typeof(T)} is not available");
         }      

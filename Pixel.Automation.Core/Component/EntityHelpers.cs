@@ -215,6 +215,13 @@ namespace Pixel.Automation.Core
            
         }
 
+        /// <summary>
+        /// Get components with specified attribute.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="rootEntity">Parent entity</param>
+        /// <param name="searchScope">SearchScope for component to be looked</param>
+        /// <returns></returns>
         public static IEnumerable<IComponent> GetComponentsWithAttribute<T>(this Entity rootEntity, SearchScope searchScope = SearchScope.Children)
         {
             IEnumerable<IComponent> components = default;
@@ -267,23 +274,29 @@ namespace Pixel.Automation.Core
             rootEntity.ResetComponent();
         }
        
-
+        /// <summary>
+        /// Get all child components that implement ILoop
+        /// </summary>
+        /// <param name="rootEntity"></param>
+        /// <returns></returns>
         public static IEnumerable<ILoop> GetInnerLoops(this Entity rootEntity)
         {
             foreach (var component in rootEntity.Components)
             {
                 if (!component.IsEnabled)
-                    continue;
-
-                if (component is ILoop)
                 {
-                    yield return (component as ILoop);
+                    continue;
+                }
+
+                if (component is ILoop loopComponent)
+                {
+                    yield return loopComponent;
                     continue; //don't process inner childs of loop.it will take care of it's inner loops during execution itself
                 }
 
-                if (component is Entity)
+                if (component is Entity entity)
                 {
-                    foreach (var item in GetInnerLoops(component as Entity))
+                    foreach (var item in GetInnerLoops(entity))
                     {
                         yield return item;
                     }
@@ -291,21 +304,23 @@ namespace Pixel.Automation.Core
             }
         }
 
-        //public static int GetMaxComponentId(this Entity rootEntity)
-        //{          
-        //    var allComponents = GetAllComponents(rootEntity);
-        //    int maxComponentId = allComponents.Count() > 0 ? allComponents.Max(c => c.Id) : rootEntity.Id;
-        //    return rootEntity.Id > maxComponentId ? rootEntity.Id : maxComponentId;
-        //}
-
-
-        public static T GetAnsecstorOfType<T>(this IComponent childComponent) where T : class,IComponent
+        /// <summary>
+        /// Find ancestor component of a given type for a specified component
+        /// </summary>
+        /// <typeparam name="T">Type of ancestor</typeparam>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        /// <exception cref="MissingComponentException">Thrown when ancestor of specified  type T could not be found</exception>
+        public static T GetAnsecstorOfType<T>(this IComponent component) where T : class,IComponent
         {
-            var parent = childComponent.Parent;
+            var parent = component.Parent;
             while(parent!=null)
             {               
-                if (parent is T)
-                    return (parent as T);
+                if (parent is T requiredComponent)
+                {
+                    return requiredComponent;
+                }
+                   
                 parent = parent.Parent;
             }
             throw new MissingComponentException($"Ancestor of type :{typeof(T)} could not be located");

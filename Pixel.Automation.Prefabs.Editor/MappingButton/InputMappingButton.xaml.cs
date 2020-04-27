@@ -92,7 +92,7 @@ namespace Pixel.Automation.Prefabs.Editor
         private string GeneratedMappingCode(IEnumerable<PropertyMap> mappings)
         {
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.PrefabAssembly}\"");
+            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.DataModelAssembly}\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = Pixel.Automation.Project.DataModels;");

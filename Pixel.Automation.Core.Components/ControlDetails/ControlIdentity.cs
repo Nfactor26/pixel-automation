@@ -1,6 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Enums;
+﻿using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;

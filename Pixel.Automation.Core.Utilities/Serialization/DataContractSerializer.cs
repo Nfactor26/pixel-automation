@@ -10,7 +10,8 @@ namespace Pixel.Automation.Core.Utilities
 {   
     public  class XmlSerializer : ISerializer
     {
-
+        private readonly XmlWriterSettings settings = new XmlWriterSettings() { Indent = true, NamespaceHandling = NamespaceHandling.OmitDuplicates };
+       
         /// <summary>
         /// Serialize a model 
         /// </summary>
@@ -18,15 +19,13 @@ namespace Pixel.Automation.Core.Utilities
         /// <param name="path">Relative path of xml where data will be serialized</param>
         /// <param name="model">Model to serialize</param>
         /// <exception cref="BusinessModels.XmlSerializationException">ModelSerializationException is thrown when serialization fails</exception>
-        public void Serialize<T>(string path, T model,List<Type> knownTypes=null)
+        public void Serialize<T>(string path, T model, List<Type> knownTypes=null)
         {
             try
             {              
-
-                XmlWriterSettings settings = new XmlWriterSettings() { Indent = true, NamespaceHandling= NamespaceHandling.OmitDuplicates};
-                using (XmlWriter writer = XmlWriter.Create(path,settings))
+                using (XmlWriter writer = XmlWriter.Create(path, settings))
                 {
-                    var ds = new DataContractSerializer(typeof(T),knownTypes);
+                    var ds = new DataContractSerializer(typeof(T), knownTypes);
                     ds.WriteObject(writer, model);
                 }
             }
@@ -62,7 +61,7 @@ namespace Pixel.Automation.Core.Utilities
                 Log.Error(ex, ex.Message);
             }
 
-            return default(T);
+            return default;
 
         }
 

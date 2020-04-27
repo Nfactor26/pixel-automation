@@ -17,6 +17,9 @@ namespace Pixel.Automation.Core.Models
         public bool IsActive { get; set; } = true;
 
         [DataMember(IsRequired = false)]
+        public string DataModelAssembly { get; set; }
+
+        [DataMember(IsRequired = false)]
         public string Description { get; set; }
 
         public override bool Equals(object obj)
@@ -38,9 +41,6 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public class ProjectVersion : VersionInfo
     {
-        [DataMember(IsRequired = false)]
-        public string DataModelAssembly { get; set; }
-
         public ProjectVersion()
         {
         }
@@ -54,11 +54,7 @@ namespace Pixel.Automation.Core.Models
     [DataContract]
     [Serializable]
     public class PrefabVersion : VersionInfo
-    {  
-
-        [DataMember(IsRequired = false)]
-        public string PrefabAssembly { get; set; }      
-
+    {
         public PrefabVersion()
         {
         }

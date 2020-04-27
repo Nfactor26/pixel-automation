@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-
-
-namespace Pixel.Automation.Core.Models
+﻿namespace Pixel.Automation.Core.Models
 {
     public class ScriptResult
     {      

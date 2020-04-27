@@ -29,7 +29,7 @@ namespace Pixel.Automation.Core.Components.Sequences
             set
             {
                 targetAppId = value;
-                OnPropertyChanged("TargetAppId");
+                OnPropertyChanged(nameof(TargetAppId));
             }
         }
 
@@ -52,7 +52,9 @@ namespace Pixel.Automation.Core.Components.Sequences
             set
             {
                 if (value > 0)
+                {
                     acquireFocusTimeout = value;
+                }
             }
         }
 
@@ -140,7 +142,7 @@ namespace Pixel.Automation.Core.Components.Sequences
         public void SetAppContext(string targetAppId)
         {
             this.targetAppId = targetAppId;
-            OnPropertyChanged("TargetAppId");
+            OnPropertyChanged(nameof(TargetAppId));
         }
 
         public string GetAppContext()
@@ -156,7 +158,9 @@ namespace Pixel.Automation.Core.Components.Sequences
         protected virtual void Dispose(bool isDisposing)
         {
             if (isDisposing)
+            {
                 mutex = null;
+            }
         }
     }
 }

@@ -30,7 +30,9 @@ namespace Pixel.Automation.Core.Components.Loops
                 currentParent = currentParent.Parent;
             }
             if (currentParent == null)
+            {
                 throw new InvalidOperationException("Decision Evaluator must be a child of Entity that implemnets IConditional or ILoop interface");
+            }
             (currentParent as ILoop).ExitCriteriaSatisfied = true;
         }
     }

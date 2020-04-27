@@ -14,6 +14,7 @@ namespace Pixel.Automation.Core.Components.Processors
         {
 
         }
+       
         public override async Task BeginProcess()
         {          
             //TODO : Since Test Runner doesn't know when this will finish, Test Runner continues with next execution.

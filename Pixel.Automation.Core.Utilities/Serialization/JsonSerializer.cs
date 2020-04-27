@@ -10,6 +10,11 @@ namespace Pixel.Automation.Core.Utilities
     public class JsonSerializer : ISerializer
     {
         private readonly ILogger logger = Log.ForContext<JsonSerializer>();
+        private readonly JsonSerializerSettings settings = new JsonSerializerSettings()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
+        };
 
         public T Deserialize<T>(string path, List<Type> knownTypes = null) where T : new()
         {
@@ -24,13 +29,7 @@ namespace Pixel.Automation.Core.Utilities
         public T DeserializeContent<T>(string content, List<Type> knownTypes = null) where T : new()
         {
             try
-            {
-                JsonSerializerSettings settings = new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
-                };
-               
+            {               
                 T myObject = JsonConvert.DeserializeObject<T>(content, settings);
                 return myObject;
             }
@@ -38,18 +37,13 @@ namespace Pixel.Automation.Core.Utilities
             {
                 logger.Error(ex, ex.Message);
             }           
-            return default(T);
+            return default;
         }
 
         public void Serialize<T>(string path, T model, List<Type> knownTypes = null)
         {
             try
-            {
-                JsonSerializerSettings settings = new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto,
-                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
-                };
+            {                
                 var jsonValue = JsonConvert.SerializeObject(model, typeof(T), Formatting.Indented, settings);
                 using (StreamWriter s = new StreamWriter(path, false))
                 {

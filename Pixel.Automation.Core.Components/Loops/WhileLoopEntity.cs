@@ -49,8 +49,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-        {
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();           
+        {                
             int iteration = 0;
             while (true)
             {               

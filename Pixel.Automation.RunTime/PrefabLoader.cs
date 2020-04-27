@@ -1,15 +1,15 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
+﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Pixel.Automation.Core.Models;
-using Dawn;
 
 namespace Pixel.Automation.RunTime
 {
+    /// <inheritdoc/>
     public class PrefabLoader : IPrefabLoader
     {
         private Entity prefabRoot;
@@ -28,7 +28,7 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(applicationId).NotEmpty().NotNull();
             Guard.Argument(prefabId).NotEmpty().NotNull();
             Guard.Argument(entityManager).NotNull();
-            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.PrefabAssembly), p => { return "Assembly Name is not set on Prefab Version"; });   
+            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.DataModelAssembly), p => { return "Assembly Name is not set on Prefab Version"; });   
          
          
             this.prefabManager = new EntityManager(entityManager, null);   
@@ -39,7 +39,7 @@ namespace Pixel.Automation.RunTime
             this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
             this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
 
-            string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.PrefabAssembly);
+            string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.DataModelAssembly);
             if(!File.Exists(prefabAssembly))
             {
                 throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");

@@ -36,12 +36,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public string PrefabAssembly
         {
-            get => prefabVersion.PrefabAssembly;
+            get => prefabVersion.DataModelAssembly;
             private set
             {
                 if (!prefabVersion.IsDeployed && !string.IsNullOrEmpty(value))
                 {
-                    prefabVersion.PrefabAssembly = value;
+                    prefabVersion.DataModelAssembly = value;
                 }
                 NotifyOfPropertyChange(() => PrefabAssembly);
             }

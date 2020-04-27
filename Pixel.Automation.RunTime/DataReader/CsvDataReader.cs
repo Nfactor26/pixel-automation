@@ -8,6 +8,7 @@ using System.IO;
 
 namespace Pixel.Automation.RunTime.DataReader
 {
+    /// <inheritdoc/>
     public class CsvDataReader : IDataReader
     {
         
@@ -27,7 +28,7 @@ namespace Pixel.Automation.RunTime.DataReader
                 throw new ArgumentException("Delimiter is not specified");
             }        
         }
-
+       
         public IEnumerable<string[]> GetAllRows()
         {
             using (var streamReader = new StreamReader(this.metaData.TargetFile))
