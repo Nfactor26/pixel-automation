@@ -10,8 +10,7 @@ namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]
-    [Scriptable("ScriptFile")]
+    [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
     public class ScriptedActionActorComponent : ScriptedComponentBase
     {
 

@@ -15,6 +15,7 @@ namespace Pixel.Automation.Core.Components.Loops
     [Serializable]
     [ToolBoxItem("Do..While Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a while loop", tags: new string[] { "while loop" })]
     [Scriptable("ScriptFile")]
+    [Initializer(typeof(ScriptFileInitializer))]
     public class DoWhileLoopEntity : Entity, ILoop
     {
 

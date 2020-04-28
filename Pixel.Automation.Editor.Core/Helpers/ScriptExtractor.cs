@@ -36,16 +36,22 @@ namespace Pixel.Automation.Editor.Core.Helpers
                 }
             }
 
-            var scriptedActors = entity.GetComponentsWithAttribute<ScriptableAttribute>(SearchScope.Descendants);
-            foreach (var scriptedActor in scriptedActors)
+            List<IComponent> scriptedComponents = new List<IComponent>();
+            if(entity.GetType().GetCustomAttributes(typeof(ScriptableAttribute), true).Any())
             {
-                ScriptableAttribute scriptableAttribute = scriptedActor.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
+                scriptedComponents.Add(entity);
+            }
+
+            var  allComponents  = scriptedComponents.Union(entity.GetComponentsWithAttribute<ScriptableAttribute>(SearchScope.Descendants));
+            foreach (var component in allComponents)
+            {
+                ScriptableAttribute scriptableAttribute = component.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
                 if(scriptableAttribute != null)
                 {
                     foreach (var scriptFileProperty in scriptableAttribute.ScriptFiles)
                     {
-                        var property = scriptedActor.GetType().GetProperty(scriptFileProperty);
-                        string scriptFile = property.GetValue(scriptedActor)?.ToString();
+                        var property = component.GetType().GetProperty(scriptFileProperty);
+                        string scriptFile = property.GetValue(component)?.ToString();
                         if (!string.IsNullOrEmpty(scriptFile))
                         {
                             yield return new ScriptStatus() { ScriptName = scriptFile };

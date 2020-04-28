@@ -8,8 +8,7 @@ namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Execute [Inline]", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]
-    [Scriptable("ScriptFile")]
+    [ToolBoxItem("Execute [Inline]", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]   
     public class ScriptedAssignActorComponent : ScriptedComponentBase
     {       
         public ScriptedAssignActorComponent() : base("Assign", "ScriptedAssign")

@@ -13,6 +13,7 @@ namespace Pixel.Automation.Core.Components.Decisions
     [Serializable]
     [ToolBoxItem("If", "Decisions", iconSource: null, description: "Wraps a group of automation entity that are processed only if the if criteria is satisfied ", tags: new string[] { "Deicsion", "DecisionGroup", "Entity" })]
     [Scriptable("ScriptFile")]
+    [Initializer(typeof(ScriptFileInitializer))]
     public class IfEntity : Entity
     {
         protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";

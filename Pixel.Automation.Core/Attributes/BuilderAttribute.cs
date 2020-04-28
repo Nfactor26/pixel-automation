@@ -6,6 +6,7 @@ namespace Pixel.Automation.Core.Attributes
     /// Builder Attribute captures type of Builder class that can be used to Create a properly configured instance
     /// of component that is decorated with this attribute.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class BuilderAttribute : Attribute
     {
         public Type Builder { get; }

@@ -1,14 +1,16 @@
 ﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Scripting.Components
 {
     [DataContract]
     [Serializable]
+    [Scriptable("ScriptFile")]
+    [Initializer(typeof(ScriptFileInitializer))]
     public abstract class ScriptedComponentBase : AsyncActorComponent
     {
         protected string scriptFile;
@@ -23,12 +25,6 @@ namespace Pixel.Automation.Scripting.Components
         protected ScriptedComponentBase(string name,string tag) : base(name,tag)
         {
 
-        }
-
-        public override void ResolveDependencies()
-        {
-            var fileSystem = this.EntityManager.GetServiceOfType<IFileSystem>();
-            this.scriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory,  Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
-        }
+        }        
     }
 }

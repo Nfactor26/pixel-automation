@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Runtime.Serialization;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -15,6 +14,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
     [DataContract]
     [Serializable]
     [Scriptable("InputMappingScript", "OutputMappingScript")]
+    [Initializer(typeof(ScriptFileInitializer))]
     public class PrefabEntity : Entity
     {
         [DataMember]
@@ -109,14 +109,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         {           
             return this;
         }
-
-        public override void ResolveDependencies()
-        {
-            var fileSystem = this.EntityManager.GetServiceOfType<IFileSystem>();
-            this.InputMappingScript = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
-            this.OutputMappingScript = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
-        }
-
+        
         #endregion overridden methods
     }
 }

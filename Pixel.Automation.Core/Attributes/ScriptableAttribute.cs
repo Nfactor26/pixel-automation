@@ -7,6 +7,7 @@ namespace Pixel.Automation.Core.Attributes
     /// Indicates that a component has local scripts.
     /// This information is used by prefab builder to import associated script files
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ScriptableAttribute : Attribute
     {
         public List<string> ScriptFiles { get; }

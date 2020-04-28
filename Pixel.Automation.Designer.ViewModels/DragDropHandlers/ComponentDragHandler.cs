@@ -289,25 +289,34 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             var sourceItem = dropInfo.Data as ComponentToolBoxItem;
             var targetItem = dropInfo.TargetItem as IComponent;
 
-            if (targetItem is Entity)
+            if (targetItem is Entity parentEntity)
             {
                 if (sourceItem is ComponentToolBoxItem)
                 {
                     //create new instance of underlying type and add to targetItem
                     Type typeOfComponent = (sourceItem as ComponentToolBoxItem).TypeOfComponent;
+                    IComponent componentToAdd = default;
 
                     BuilderAttribute builderAttibute = typeOfComponent.GetCustomAttributes(typeof(BuilderAttribute), false).OfType<BuilderAttribute>().FirstOrDefault();
                     if(builderAttibute != null)
                     {
                         IComponentBuillder componentBuilder = Activator.CreateInstance(builderAttibute.Builder) as IComponentBuillder;
-                        var component = componentBuilder.CreateComponent();
-                        (targetItem as Entity).AddComponent(component);
-                        return;
+                        componentToAdd = componentBuilder.CreateComponent();
+                        parentEntity.AddComponent(componentToAdd);                      
+                    }
+                    else
+                    {
+                        componentToAdd = Activator.CreateInstance(typeOfComponent) as IComponent;
+                        parentEntity.AddComponent(componentToAdd);
                     }
 
-                    object instance = Activator.CreateInstance(typeOfComponent);
-                    (targetItem as Entity).AddComponent(instance as IComponent);
-                    //(instance as Entity).ResolveDependencies();
+                    var initializers = typeOfComponent.GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
+                    foreach(var intializer in initializers)
+                    {
+                        IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
+                        componentInitializer.IntializeComponent(componentToAdd, parentEntity.EntityManager);
+                    }
+                  
                 }
             }
 
