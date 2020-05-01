@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Pixel.Automation.Core.Interfaces
 {
-    public interface IServiceResolver : ICloneable
+    public interface IServiceResolver : ICloneable, IDisposable
     {
         T Get<T>(string key = null);      
        

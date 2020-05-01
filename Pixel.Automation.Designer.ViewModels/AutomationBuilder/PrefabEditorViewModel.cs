@@ -107,7 +107,7 @@ namespace Pixel.Automation.Designer.ViewModels
         #endregion Save project
 
 
-        public override async Task CloseAsync()
+        protected override async Task CloseAsync()
         {
             this.Dispose();           
             var shell = IoC.Get<IShell>();

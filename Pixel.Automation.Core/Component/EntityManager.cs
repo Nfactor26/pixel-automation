@@ -216,7 +216,6 @@ namespace Pixel.Automation.Core
         {
             if(isDisposing)
             {
-                (this.serviceProvider as IDisposable)?.Dispose();
                 foreach (var component in this.RootEntity.GetAllComponents())
                 {
                     if (component is IDisposable disposable)
@@ -224,6 +223,10 @@ namespace Pixel.Automation.Core
                         disposable.Dispose();
                     }
                 }
+
+                this.serviceProvider.Dispose();
+
+
                 RootEntity = null;
                 arguments = null;
             }

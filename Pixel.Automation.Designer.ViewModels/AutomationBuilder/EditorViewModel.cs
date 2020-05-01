@@ -287,7 +287,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-        public abstract Task CloseAsync();
+        protected abstract Task CloseAsync();
 
         #endregion Close Screen
 
