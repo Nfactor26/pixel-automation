@@ -17,8 +17,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IProjectFileSystem projectFileSystem;       
         private AutomationProject activeProject;     
-        private Entity rootEntity;
-        private int compilationIteration = 0;
+        private Entity rootEntity;     
 
         public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator) : base(serializer, projectFileSystem, typeProvider, scriptEditorFactory, scriptEngineFactory, codeEditorFactory, codeGenerator)
         {
@@ -49,14 +48,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
                 File.WriteAllText(Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs"), dataModelInitialContent);               
             }             
-        }
-      
-        protected override string GetNewDataModelAssemblyName()
-        {
-            compilationIteration++;
-            string dataModelAssemblyName = $"{this.activeProject.Name.Trim().Replace(' ', '_')}_{compilationIteration}";
-            return dataModelAssemblyName;
-        }
+        }      
 
         private void Initialize(EntityManager entityManager, AutomationProject automationProject)
         {
@@ -173,6 +165,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             throw new System.NotImplementedException();
         }
-       
+
+        protected override string GetProjectName()
+        {
+            return this.activeProject.Name;
+        }
     }
 }
