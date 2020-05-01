@@ -15,6 +15,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public abstract class ProjectManager : IProjectManager
     {
+        private int compilationIteration = 0;
+
         protected EntityManager entityManager;
         protected ISerializer serializer;
         protected IFileSystem fileSystem;
@@ -68,9 +70,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             File.WriteAllText(fileName, fileContents);        
             T entity = serializer.Deserialize<T>(fileName, typeProvider.GetAllTypes());
             return entity;
-        }
-
-        protected abstract string GetNewDataModelAssemblyName();
+        }  
 
         protected object CompileAndCreateDataModel(string dataModelName)
         {
@@ -128,6 +128,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region helper methods
 
+        protected abstract string GetProjectName();
+
         public void RestoreParentChildRelation(Entity entity, bool resetId = false)
         {
             Guard.Argument(entity).NotNull();
@@ -142,6 +144,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 Debug.Assert(component.Parent != null);            
             }
+        }
+
+        protected string GetNewDataModelAssemblyName()
+        {
+            var assemblyFiles = Directory.GetFiles(this.fileSystem.TempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(this.fileSystem.TempDirectory, f)));
+            if (assemblyFiles.Any())
+            {
+                var mostRecentAssembly = assemblyFiles.OrderBy(a => a.CreationTime).Last();
+                string assemblyName = Path.GetFileNameWithoutExtension(mostRecentAssembly.Name);
+                if (int.TryParse(assemblyName.Split('_', StringSplitOptions.RemoveEmptyEntries).Last(), out int lastIteration))
+                {
+                    compilationIteration = lastIteration;
+                }
+            }
+
+            compilationIteration++;
+            string dataModelAssemblyName = $"{GetProjectName().Trim().Replace(' ', '_')}_{compilationIteration}";
+            return dataModelAssemblyName;
         }
 
         #endregion helper methods

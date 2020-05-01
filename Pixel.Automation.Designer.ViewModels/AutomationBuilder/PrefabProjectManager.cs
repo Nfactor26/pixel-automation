@@ -7,8 +7,6 @@ using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -18,8 +16,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     
         private PrefabDescription prefabDescription;
         private Entity rootEntity;
-        private Entity prefabbedEntity;
-        private int compilationIteration = 0;
+        private Entity prefabbedEntity;      
 
         public PrefabProjectManager(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator) : base(serializer, prefabFileSystem, typeProvider, scriptEditorFactory, scriptEngineFactory, codeEditorFactory, codeGenerator)
         {
@@ -126,24 +123,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public override void SaveAs()
         {
             throw new NotImplementedException();
-        }        
+        }
 
-        protected override string GetNewDataModelAssemblyName()
+        protected override string GetProjectName()
         {
-            var assemblyFiles = Directory.GetFiles(this.fileSystem.TempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(this.fileSystem.TempDirectory, f)));
-            if(assemblyFiles.Any())
-            {
-                var mostRecentAssembly = assemblyFiles.OrderBy(a => a.CreationTime).Last();
-                string assemblyName = Path.GetFileNameWithoutExtension(mostRecentAssembly.Name);
-                if(int.TryParse(assemblyName.Split('_', StringSplitOptions.RemoveEmptyEntries).Last(), out int lastIteration))
-                {
-                    compilationIteration = lastIteration;
-                }
-            }
-
-            compilationIteration++;
-            string dataModelAssemblyName = $"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{compilationIteration}";
-            return dataModelAssemblyName;
+            return this.prefabDescription.PrefabName;
         }
     }
 }
