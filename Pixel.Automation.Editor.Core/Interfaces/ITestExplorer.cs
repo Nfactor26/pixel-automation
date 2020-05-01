@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core
 {
-    public interface ITestExplorer
+    public interface ITestExplorer : IDisposable
     {
         void SetActiveInstance(object instance);
 

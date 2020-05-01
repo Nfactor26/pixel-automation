@@ -1,6 +1,5 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -11,6 +10,8 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.TestData.Repository.ViewModels;
 using Pixel.Automation.TestExplorer;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -25,7 +26,8 @@ namespace Pixel.Automation.Designer.ViewModels
     public class AutomationBuilderViewModel :  EditorViewModel , IAutomationBuilder
     {
         #region data members        
-      
+
+        private readonly ILogger logger = Log.ForContext<AutomationBuilderViewModel>();
         private readonly ITestExplorer testExplorerToolBox;
         private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;
      
@@ -111,6 +113,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
             this.projectManager.Refresh();
             this.ReOpenTestCases(testCaseEntities);
+            logger.Information($"Data model was edited for automation project : {this.CurrentProject.Name}");
         }
 
         private void ReOpenTestCases(IEnumerable<IComponent> testCaseEntities)
@@ -160,10 +163,9 @@ namespace Pixel.Automation.Designer.ViewModels
                     break;
                 default:
                     break;
-            }        
-            this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);         
-            this.testDataRepositoryViewModel?.SetActiveInstance(this.testDataRepository);
+            }                  
             await base.OnActivateAsync(cancellationToken);
+            logger.Information($"Automation Project : {this.CurrentProject.Name} was activated");
         }
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
@@ -171,6 +173,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.testExplorerToolBox?.CloseActiveInstance();
             this.testDataRepositoryViewModel?.CloseActiveInstance();
             await base.OnDeactivateAsync(close, cancellationToken);
+            logger.Information($"Automation Project : {this.CurrentProject.Name} was deactivated");
         }
 
         #endregion OnLoad
@@ -202,17 +205,28 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async void CloseScreen()
         {
             MessageBoxResult result = MessageBox.Show("Are you sure you want to close? Any unsaved changes will be lost.", "Confirm Close", MessageBoxButton.OKCancel);
-            if (result == MessageBoxResult.OK)
+            try
             {
-                await CloseAsync();
+                if (result == MessageBoxResult.OK)
+                {
+                    await CloseAsync();
+                    logger.Information($"{this.CurrentProject.Name} was closed");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
             }
         }
 
-        public override async  Task CloseAsync()
+        protected override async  Task CloseAsync()
         {
-            this.Dispose();
-            this.testExplorerToolBox?.CloseActiveInstance();          
+            //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.
+            this.testExplorerToolBox?.CloseActiveInstance();
             this.testDataRepositoryViewModel?.CloseActiveInstance();
+
+            this.Dispose();
+                
             var shell = IoC.Get<IShell>();
             await this.TryCloseAsync(true);
             await(shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);

@@ -20,7 +20,7 @@ namespace Pixel.Automation.Designer.ViewModels
     /// The idea is to isolate all dependencies of a Automation Project in to child kernel so that they can be configured for different lifespan such as singleton when required.
     /// Constants can be registered as default as well so that you get same instance throughout the project.
     /// </summary>
-    public class ServiceResolver : IServiceResolver, ICloneable, IDisposable
+    public class ServiceResolver : IServiceResolver
     {
         private readonly IKernel kernel = default;
 
@@ -117,17 +117,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             IArgumentTypeProvider argumentTypeProvider = Get<IArgumentTypeProvider>();
             argumentTypeProvider.WithDataModelAssembly(scriptArguments.GetModelType().Assembly);
-        }
-
-        /// <summary>
-        /// Configure CodeEditor. CodeEditory should be configured only for primary entity manager.
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        //public void ConfigureCodeEditor(IFileSystem fileSystem)
-        //{
-        //    ICodeEditorFactory codeEditorFactory = Get<ICodeEditorFactory>();
-        //    codeEditorFactory.Initialize(fileSystem.DataModelDirectory, fileSystem.GetAssemblyReferences());
-        //}
+        }     
 
         /// <summary>
         /// Configure ScriptEditor with specified globalsType. This method can be called again with a different globalsType.
@@ -187,8 +177,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Dispose(true);          
         }
 
         protected virtual void Dispose(bool isDisposing)

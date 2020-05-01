@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Editor.Core;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -20,17 +21,24 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public void SetActiveInstance(object instance)
         {
-            if (instance is TestRepositoryManager)
-            {
-                this.ActiveInstance = instance as TestRepositoryManager;
-                NotifyOfPropertyChange(nameof(ActiveInstance));
-                NotifyOfPropertyChange(nameof(IsTestProcessOpen));
-            }
+            this.ActiveInstance = instance as TestRepositoryManager;
+            NotifyOfPropertyChange(nameof(ActiveInstance));
+            NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
 
         public void CloseActiveInstance()
-        {
-            this.ActiveInstance = null;
+        {         
+            if(this.ActiveInstance != null)
+            {
+                var openTests = new List<TestCaseViewModel>(this.ActiveInstance.OpenTestCases);
+                foreach (var testCase in openTests)
+                {
+                    this.ActiveInstance.DoneEditing(testCase, false);
+                }
+
+                this.ActiveInstance = null;
+            }
+           
             NotifyOfPropertyChange(nameof(ActiveInstance));
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
@@ -44,6 +52,19 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             return this.ActiveInstance?.OpenTestCases.Count > 0;
         }
-              
+
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if(this.ActiveInstance != null)
+            {
+                CloseActiveInstance();
+            }          
+        }
+     
+        public void Dispose()
+        {
+            Dispose(true);
+        }
     }
 }
