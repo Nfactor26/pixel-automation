@@ -7,6 +7,10 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>E:\Git\Pixel.Automation\.builds\</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Images\OffsetPicker.png" />
     <None Remove="Images\PrefabIcon.jpg" />

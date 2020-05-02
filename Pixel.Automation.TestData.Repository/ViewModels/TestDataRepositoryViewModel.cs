@@ -12,6 +12,21 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public override PaneLocation PreferredLocation => PaneLocation.Bottom;
 
+        public override bool IsActiveItem
+        {
+            get => this.isActiveItem;
+            set
+            {
+                this.isActiveItem = value;
+                NotifyOfPropertyChange(() => IsActiveItem);
+                //whenever this is no more ActiveItem, set selected test data source to null.
+                if (value == false && this.ActiveInstance != null)
+                {
+                    this.ActiveInstance.SelectedTestDataSource = null;
+                }
+            }
+        }
+
         public TestDataRepositoryViewModel(IEventAggregator eventAggregator)
         {
             this.DisplayName = "Test Data Repository";
@@ -50,6 +65,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
             }
             return Task.CompletedTask;
+        }
+
+
+        /// <summary>
+        /// One of the list box item can be directly selected without actually activating the view.
+        /// Make sure that whenever an item is selected, we set IsActiveItem to true.
+        /// </summary>
+        public void Activate()
+        {
+            this.IsActiveItem = true;
         }
     }
 }

@@ -4,8 +4,8 @@ namespace Pixel.Automation.Editor.Core
 {
     public abstract class ToolBox : ScreenBase, IToolBox
     {
-        bool isActiveItem;
-        public bool IsActiveItem
+        protected bool isActiveItem;
+        public virtual bool IsActiveItem
         {
             get => isActiveItem;
             set

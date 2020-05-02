@@ -23,13 +23,10 @@ namespace Pixel.Automation.Designer.ViewModels
 {
     public class AppBootstrapper : BootstrapperBase
     {
-
         private IKernel kernel;
 
         public AppBootstrapper()
         {
-           
-
             ConsoleManager.Show();
 
             Log.Logger = new LoggerConfiguration()
@@ -39,7 +36,6 @@ namespace Pixel.Automation.Designer.ViewModels
              .CreateLogger();
 
             Initialize();
-
         }
 
         protected override void OnStartup(object sender, StartupEventArgs e)
@@ -72,21 +68,7 @@ namespace Pixel.Automation.Designer.ViewModels
                         viewAssemblies.Add(Assembly.LoadFrom(System.IO.Path.Combine(Environment.CurrentDirectory, item)));
                         break;
                 }
-            }
-            //if(Directory.Exists("Editors"))
-            //{
-            //    foreach (var item in Directory.GetFiles("Editors", "Pixel.*.dll"))
-            //    {
-            //        viewAssemblies.Add(Assembly.LoadFrom(System.IO.Path.Combine(Environment.CurrentDirectory, item)));
-            //    }
-            //}
-            //if (Directory.Exists("Scripting"))
-            //{
-            //    foreach (var item in Directory.GetFiles("Scripting", "Pixel.*.dll"))
-            //    {
-            //        viewAssemblies.Add(Assembly.LoadFile(System.IO.Path.Combine(Environment.CurrentDirectory, item)));
-            //    }
-            //}
+            }       
             return viewAssemblies;
         }
 
@@ -173,9 +155,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 Log.Error(ex, ex.Message);
                 throw ex;
-            }
-
-            
+            }        
 
         }
 
@@ -204,7 +184,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             e.Handled = true;
             Trace.WriteLine(e.Exception.Message);
-            Debug.Assert(false);
+            Debug.Assert(false,e.Exception.Message);
         }
 
 

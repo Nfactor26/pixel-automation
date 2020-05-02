@@ -17,27 +17,36 @@
         <local:ApplicationTemplateSelector x:Key="AppTemplateSelector"/>
 
         <DataTemplate x:Key="DefaultApplication">
-            <iconPacks:PackIconMaterial Width="{TemplateBinding Width}"
+            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                <iconPacks:PackIconMaterial Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}"
+                                        IsHitTestVisible="False"
                                         Margin="2"
                                         Padding="4"                                      
                                         Kind="Application" />
+            </Border>          
         </DataTemplate>
 
         <DataTemplate x:Key="WinApplication">
-            <iconPacks:PackIconSimpleIcons Width="{TemplateBinding Width}"
+            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                <iconPacks:PackIconMaterial Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}"
+                                        IsHitTestVisible="False"
                                         Margin="2"
                                         Padding="4"                                      
                                         Kind="Windows" />
+            </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="WebApplication">
-            <iconPacks:PackIconEntypo Width="{TemplateBinding Width}" IsHitTestVisible="True"
+            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                <iconPacks:PackIconEntypo Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}"
+                                        IsHitTestVisible="False"
                                         Margin="2"
-                                        Padding="4"                                     
+                                        Padding="4"                                      
                                         Kind="Browser" />
+            </Border>          
         </DataTemplate>
 
         <Style x:Key="AddApplicationButtonStyle" TargetType="{x:Type Button}">
@@ -48,15 +57,15 @@
             <Setter Property="Height" Value="32"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate>
-                        <StackPanel Orientation="Horizontal" Background="{DynamicResource MahApps.Brushes.Control.Background}">
-                            <iconPacks:PackIconMaterial x:Name="PlusIcon" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}"
+                    <ControlTemplate>                      
+                            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                                <iconPacks:PackIconMaterial x:Name="PlusIcon" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
                                         Margin="2"
                                         Padding="4"
                                         Foreground="{DynamicResource MahApps.Brushes.Accent}"
                                         Kind="PlusCircleOutline" />
-                        </StackPanel>
+                            </Border>                    
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="PlusIcon" Property="Foreground" Value="Gray"/>

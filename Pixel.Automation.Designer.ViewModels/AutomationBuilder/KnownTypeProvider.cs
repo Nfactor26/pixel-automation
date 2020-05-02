@@ -1,6 +1,6 @@
-﻿using Caliburn.Micro;
-using Pixel.Automation.Core;
+﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,8 +11,10 @@ using System.Reflection;
 namespace Pixel.Automation.Designer.ViewModels
 {
     public class KnownTypeProvider : ITypeProvider
-    { 
-        ISerializer serializer;
+    {
+        private readonly ILogger logger = Log.ForContext<KnownTypeProvider>();
+        private readonly ISerializer serializer;
+        private readonly string typeCacheFile = Path.Combine(Environment.CurrentDirectory, "TypeCache.bin"); 
         public Dictionary<string, List<Type>> KnownTypes { get; } = new Dictionary<string, List<Type>>();
 
         #region constructor
@@ -37,8 +39,7 @@ namespace Pixel.Automation.Designer.ViewModels
         }
   
         public void RefreshDefaultTypeCache()
-        {
-            var typeCacheFile = Path.Combine("Components", "TypeCache.bin");
+        {        
             if (File.Exists(typeCacheFile))
             {
                 File.Delete(typeCacheFile);
@@ -55,15 +56,13 @@ namespace Pixel.Automation.Designer.ViewModels
                 assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('_'));
                              
                 if (KnownTypes.ContainsKey(assemblyName))
+                {
                     KnownTypes.Remove(assemblyName);
-            }
-
-            //GC.Collect();
+                }
+            }       
 
             foreach (var assemblyPath in loadFromAssemblies)
             {
-                
-
                 List<Type> customTypes = new List<Type>();
                 var assembly = Assembly.LoadFrom(assemblyPath);
                 foreach (Type t in assembly.DefinedTypes)
@@ -72,7 +71,6 @@ namespace Pixel.Automation.Designer.ViewModels
                     {
                         customTypes.Add(t);
                     }
-
                 }
 
                 if (customTypes.Count()>0)
@@ -97,7 +95,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
 
             }
-            KnownTypes.Add(assembly.FullName, customTypes);
+            KnownTypes.Add(assembly.FullName, customTypes);         
         }
 
         public void ClearCustomTypes()
@@ -124,31 +122,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private void GenerateTypeCache()
         {
             List<Type> defaultTypes = new List<Type>();
-
-            //foreach (var item in IoC.GetAll<IComponent>())
-            //    defaultTypes.Add(item.GetType());
-
-            //foreach (var item in IoC.GetAll<IApplication>())
-            //    defaultTypes.Add(item.GetType());
-
-            //foreach(var assembly in Directory.EnumerateFiles("Components"))
-            //{
-            //    try
-            //    {
-            //        if (assembly.Contains("Pixel"))
-            //        {
-            //            Assembly pixelAssembly = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory,assembly));
-            //            var definedTypes = pixelAssembly.DefinedTypes.Where(t => t.IsPublic && !t.IsAbstract);
-            //            foreach (var definedType in definedTypes)
-            //                defaultTypes.Add(definedType);
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //    }
-
-            //}
-
+         
             foreach (var assembly in Directory.EnumerateFiles(".","Pixel.*.dll"))
             {
                 try
@@ -174,19 +148,18 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 catch (Exception ex)
                 {
+                    logger.Error(ex, ex.Message);
                 }
 
             }
 
-            KnownTypes.Add("Default", defaultTypes);
-
-            var typeCacheFile = Path.Combine("Components", "TypeCache.bin");
+            KnownTypes.Add("Default", defaultTypes);      
             serializer.Serialize<List<Type>>(typeCacheFile, defaultTypes);
+            logger.Information($"Created file {this.typeCacheFile}");
         }
 
         private bool TryLoadTypeFromCache()
-        {
-            var typeCacheFile = Path.Combine("Components", "TypeCache.bin");
+        {         
             if (File.Exists(typeCacheFile))
             {
                 var cachedTypes = serializer.Deserialize<List<Type>>(typeCacheFile);
@@ -195,7 +168,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             return false;
         }
-
+       
         #endregion private methods
     }
 }
