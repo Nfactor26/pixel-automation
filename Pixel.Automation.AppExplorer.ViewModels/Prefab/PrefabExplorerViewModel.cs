@@ -195,7 +195,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void ToggleRename(PrefabDescription prefabItem)
         {
             if (SelectedPrefab == prefabItem)
+            {
                 CanEdit = !CanEdit;
+            }
         }
 
         /// <summary>

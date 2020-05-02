@@ -26,7 +26,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public BindableCollection<TestDataSource> TestDataSourceCollection { get; set; } = new BindableCollection<TestDataSource>();
 
-        public TestDataSource SelectedTestDataSource { get; set; }
+        private TestDataSource selectedTestDataSource;
+        public TestDataSource SelectedTestDataSource
+        {
+            get => this.selectedTestDataSource;
+            set
+            {
+                this.selectedTestDataSource = value;
+                NotifyOfPropertyChange(() => SelectedTestDataSource);
+            }
+        }
 
         #region Constructor
         public TestDataRepository(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory, IWindowManager windowManager, IArgumentTypeProvider argumentTypeProvider)

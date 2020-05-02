@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -46,6 +48,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 CanEdit = false;
                 if (value != null)
                 {
+                    //If we directly click an application icon without selection view first, IsActiveItem is not set. Hence, explicitly setting it whenever
+                    //one of the application is selected.
+                    this.IsActiveItem = true;
                     //Notification for property grid to display selected application details
                     this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails));
                 }
@@ -169,11 +174,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
        
         public void GoBack()
         {
-            IsApplicationOpen = false;
-            //if (this.selectedApplication.IsDirty)
-            //{
-            //    SaveApplication(this.selectedApplication);
-            //}
+            IsApplicationOpen = false;        
             if (this.eventAggregator.HandlerExistsFor(typeof(RepositoryApplicationOpenedEventArgs)))
             {
                 this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(string.Empty, string.Empty));
@@ -253,7 +254,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         private void LoadApplications()
         {
-            foreach (var app in Directory.GetDirectories(applicationsRepository))
+            if(!Directory.Exists(this.applicationsRepository))
+            {
+                Directory.CreateDirectory(this.applicationsRepository);
+            }
+            foreach (var app in Directory.GetDirectories(this.applicationsRepository))
             {
                 string appFile = Directory.GetFiles(Path.Combine(this.applicationsRepository, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
                 ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
@@ -295,7 +300,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public void ToggleRename(ApplicationDescription targetItem)
         {
             if (selectedApplication == targetItem)
+            {
                 CanEdit = !CanEdit;
+            }
         }
 
         public void RenameApplication(ActionExecutionContext context, ApplicationDescription application)
@@ -332,8 +339,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             get => isActiveItem;
             set
             {
-                isActiveItem = value;
+                isActiveItem = value;              
                 NotifyOfPropertyChange(() => IsActiveItem);
+                if (isActiveItem == false)
+                {
+                    this.SelectedApplication = null;
+                }
             }
 
         }
@@ -394,12 +405,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         #region IDisposable
 
-        public void Dispose()
+        protected virtual void Dispose(bool isDisposing)
         {
             this.ControlExplorer.ControlCreated -= OnControlCreated;
             this.ControlExplorer.ControlDeleted -= OnControlDeleted;
             this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;
             this.PrefabExplorer.PrefabDeleted -= OnPrefabDeleted;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         #endregion IDisposable
