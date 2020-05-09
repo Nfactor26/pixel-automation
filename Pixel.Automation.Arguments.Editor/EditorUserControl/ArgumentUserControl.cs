@@ -84,9 +84,11 @@ namespace Pixel.Automation.Arguments.Editor
         public async void ShowScriptEditor(object sender, RoutedEventArgs e)
         {
             if (OwnerComponent == null && Argument == null)
+            {
                 return;
+            }
 
-            EntityManager entityManager = this.OwnerComponent.EntityManager;
+            var entityManager = this.OwnerComponent.EntityManager;
 
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             IScriptEditorFactory scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
@@ -107,9 +109,11 @@ namespace Pixel.Automation.Arguments.Editor
         {
             //Using outside automation process such as Application in ApplicationRepository
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
 
-            EntityManager entityManager = this.OwnerComponent.EntityManager;
+            var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             IArgumentTypeProvider typeProvider = entityManager.GetServiceOfType<IArgumentTypeProvider>();
             ArgumentTypeBrowserViewModel typeBrowserWindow = new ArgumentTypeBrowserViewModel(typeProvider);
@@ -153,7 +157,9 @@ namespace Pixel.Automation.Arguments.Editor
                         string processDirectory = this.OwnerComponent.EntityManager.GetCurrentFileSystem().WorkingDirectory;
                         string fileToDelete = Path.Combine(processDirectory, "Scripts", this.Argument.ScriptFile);
                         if (File.Exists(fileToDelete))
+                        {
                             File.Delete(fileToDelete);
+                        }
                     }
                 }
             }

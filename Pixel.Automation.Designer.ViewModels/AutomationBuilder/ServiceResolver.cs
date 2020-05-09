@@ -38,9 +38,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public T Get<T>(string key = null)
         {
             var instance = kernel.Get<T>(key);
-            if (instance != null)
-                return instance;
-            throw new Exception(string.Format("Could not locate any instances of contract {0}.", typeof(T).ToString()));
+            return instance ?? throw new Exception(string.Format("Could not locate any instances of contract {0}.", typeof(T).ToString()));
         }
 
 
@@ -52,9 +50,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public IEnumerable<T> GetAll<T>()
         {
             var instances = kernel.GetAll<T>();
-            if (instances != null)
-                return instances;
-            throw new Exception(string.Format("Could not locate any instances of contract {0}.", typeof(T).ToString()));
+            return instances ?? throw new Exception(string.Format("Could not locate any instances of contract {0}.", typeof(T).ToString()));
         }
 
         /// <summary>

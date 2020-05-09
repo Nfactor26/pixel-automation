@@ -12,7 +12,7 @@ namespace Pixel.Automation.Core.Components
     /// </summary>   
     public class ScriptFileInitializer : IComponentInitializer
     {          
-        public void IntializeComponent(IComponent component, EntityManager entityManager)
+        public void IntializeComponent(IComponent component, IEntityManager entityManager)
         {
             var scriptableAttribute = component.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
             if(scriptableAttribute != null)

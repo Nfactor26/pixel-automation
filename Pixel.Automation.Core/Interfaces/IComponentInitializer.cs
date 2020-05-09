@@ -5,6 +5,6 @@
     /// </summary>
     public interface IComponentInitializer
     {
-        void IntializeComponent(IComponent component, EntityManager entityManager);
+        void IntializeComponent(IComponent component, IEntityManager entityManager);
     }
 }

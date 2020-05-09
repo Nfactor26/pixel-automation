@@ -126,10 +126,10 @@ namespace Pixel.Automation.Core
         }       
 
         [NonSerialized]
-        EntityManager entityManager;
+        IEntityManager entityManager;
         [Browsable(false)]
         [IgnoreDataMember]     
-        public EntityManager EntityManager
+        public IEntityManager EntityManager
         {
             get
             {               
@@ -148,26 +148,26 @@ namespace Pixel.Automation.Core
         {
             get
             {
-                return this.GetArgumentProcessor();
+                return this.EntityManager.GetArgumentProcessor();
             }
         }
 
 
         [NonSerialized]
         protected bool isValid=true;   
-        [Browsable(false)]    
-        public  bool IsValid
+        [Browsable(false)]
+        public bool IsValid
         {
             get
             {
                 return isValid;
-            }   
+            }
             protected set
             {
                 isValid = value;
                 OnPropertyChanged();
-            }         
-        }
+            }
+        }       
 
         protected Component(string name="",string tag="")
         {
@@ -319,7 +319,7 @@ namespace Pixel.Automation.Core
                 OnPropertyChanged("ErrorMessages");
             }
         }
-
+       
 
         protected ActorComponent(string name = "", string tag = ""):base(name,tag)
         {
@@ -420,7 +420,7 @@ namespace Pixel.Automation.Core
                 OnPropertyChanged("ErrorMessages");
             }
         }
-
+                
 
         protected AsyncActorComponent(string name = "", string tag = "") : base(name, tag)
         {
@@ -458,4 +458,5 @@ namespace Pixel.Automation.Core
 
         }
     }
+
 }

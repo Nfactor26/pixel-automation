@@ -18,6 +18,16 @@ namespace Pixel.Automation.Core.Interfaces
         }
 
         /// <summary>
+        /// Gets the EntityManager for the component
+        /// </summary>
+        IEntityManager EntityManager
+        {
+            get;
+            set;
+        }
+
+
+        /// <summary>
         /// Unique Id of the component
         /// </summary>
         string Id

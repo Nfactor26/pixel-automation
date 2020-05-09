@@ -1,7 +1,5 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Exceptions;
+﻿using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
-using System;
 using System.Linq;
 
 namespace Pixel.Automation.Core.Components
@@ -9,7 +7,7 @@ namespace Pixel.Automation.Core.Components
     public static class EntityManagerExtensions
     {
 
-        public static IApplication GetApplicationDetails(this EntityManager entityManager, IComponent childComponent)
+        public static IApplication GetApplicationDetails(this IEntityManager entityManager, IComponent childComponent)
         {
             //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity for default cases
             if (childComponent.Parent is ApplicationEntity)
@@ -22,7 +20,7 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        public static T GetApplicationDetails<T>(this EntityManager entityManager, IComponent childComponent) where T : class, IApplication
+        public static T GetApplicationDetails<T>(this IEntityManager entityManager, IComponent childComponent) where T : class, IApplication
         {
             //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity for default cases
             if (childComponent.Parent is ApplicationEntity)
@@ -35,7 +33,7 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        public static IControlLocator GetControlLocator(this EntityManager entityManager, IControlIdentity forControl)
+        public static IControlLocator GetControlLocator(this IEntityManager entityManager, IControlIdentity forControl)
         {
             ApplicationEntity applicationDetails = entityManager.GetApplicationEntityByApplicationId(forControl.ApplicationId);
             var controlLocator = applicationDetails.GetComponentsOfType<IControlLocator>().
@@ -43,7 +41,7 @@ namespace Pixel.Automation.Core.Components
             return controlLocator;        
         }
 
-        public static ICoordinateProvider GetCoordinateProvider(this EntityManager entityManager, IControlIdentity forControl)
+        public static ICoordinateProvider GetCoordinateProvider(this IEntityManager entityManager, IControlIdentity forControl)
         {
             ApplicationEntity applicationDetails = entityManager.GetApplicationEntityByApplicationId(forControl.ApplicationId);
             var coordinateProvider = applicationDetails.GetComponentsOfType<ICoordinateProvider>().
@@ -51,7 +49,7 @@ namespace Pixel.Automation.Core.Components
             return coordinateProvider;
         }
 
-        public static ApplicationEntity GetApplicationEntityByApplicationId(this EntityManager entityManager, string applicationId)
+        public static ApplicationEntity GetApplicationEntityByApplicationId(this IEntityManager entityManager, string applicationId)
         {
             var applicationsInPool = (entityManager.RootEntity.GetComponentsByTag("ApplicationPoolEntity").Single() as Entity).GetComponentsOfType<ApplicationEntity>();
             if (applicationsInPool != null)
@@ -69,7 +67,7 @@ namespace Pixel.Automation.Core.Components
         
 
 
-        static ApplicationEntity GetApplicationDetailsEntity(EntityManager entityManager, IComponent childComponent)
+        static ApplicationEntity GetApplicationDetailsEntity(IEntityManager entityManager, IComponent childComponent)
         {
             var current = childComponent;
             while (true)

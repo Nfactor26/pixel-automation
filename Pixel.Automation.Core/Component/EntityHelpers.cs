@@ -54,10 +54,10 @@ namespace Pixel.Automation.Core
                         }
                     }
                     return componentsOfTypeT;
-            }
 
-            return null;
-           
+                default:
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentsOfType)}");
+            }           
         }
 
         /// <summary>
@@ -97,6 +97,8 @@ namespace Pixel.Automation.Core
                         }
                     }
                     break;
+                default:
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation GetComponentsOftype<>");
             }       
 
             if(throwIfMissing)
@@ -118,10 +120,11 @@ namespace Pixel.Automation.Core
             switch(searchScope)
             {
                 case SearchScope.Children:
-
                     var components = rootEntity.Components.Where(c => c.Tag.Equals(tag));
                     if (components == null)
+                    {
                         components = new List<IComponent>();
+                    }
                     return components;
 
                 case SearchScope.Descendants:
@@ -137,7 +140,7 @@ namespace Pixel.Automation.Core
                     }
                     return componentsWithTag;
                 default:
-                    throw new InvalidOperationException();
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentsByTag)}");
             }           
         }
 
@@ -161,16 +164,23 @@ namespace Pixel.Automation.Core
                     foreach (var component in rootEntity.Components)
                     {
                         if (component.Id.Equals(id))
+                        {
                             return component;
+                        }
+                       
                         if (component is Entity)
                         {
                             foundComponent = (component as Entity).GetComponentById(id, searchScope);
                             if (foundComponent != null)
+                            {
                                 break;
+                            }
                         }
 
                     }
                     break;
+                default:
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentById)}");
             }
          
 
@@ -190,11 +200,8 @@ namespace Pixel.Automation.Core
             switch (searchScope)
             {
                 case SearchScope.Children:
-
-                    var components = rootEntity.Components.Where(c => c.Name.Equals(name));
-                    if (components == null)
-                        components = new List<IComponent>();
-                    return components;
+                    var components = rootEntity.Components.Where(c => c.Name.Equals(name));                
+                    return components ?? new List<IComponent>();
 
                 case SearchScope.Descendants:
                     List<IComponent> childComponents = GetAllComponents(rootEntity);
@@ -210,7 +217,7 @@ namespace Pixel.Automation.Core
                     return componentsWithName;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentsByName)}");
             }
            
         }
@@ -238,7 +245,7 @@ namespace Pixel.Automation.Core
                     return components ?? new List<IComponent>();
                
                 default:
-                    throw new InvalidOperationException();
+                    throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentsWithAttribute)}");
             }
         }
 
@@ -268,6 +275,7 @@ namespace Pixel.Automation.Core
                 if(component is Entity)
                 {
                     (component as Entity).ResetHierarchy();
+                    continue;
                 }
                 component.ResetComponent();
             }
@@ -291,7 +299,7 @@ namespace Pixel.Automation.Core
                 if (component is ILoop loopComponent)
                 {
                     yield return loopComponent;
-                    continue; //don't process inner childs of loop.it will take care of it's inner loops during execution itself
+                    continue;
                 }
 
                 if (component is Entity entity)

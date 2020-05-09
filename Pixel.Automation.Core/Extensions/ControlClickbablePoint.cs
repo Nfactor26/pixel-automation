@@ -16,10 +16,12 @@ namespace Pixel.Automation.Core.Extensions
         /// <param name="y">Calculated y-coord to perform mouse operations at</param>
         public static void GetClickablePoint(this IControlIdentity controlIdentity, Rectangle boundingBox,out double x, out double y)
         {
-            //target control is the leaft node in controlIdentity and contains the actual configuration for pivot and offset.
+            //target control is the leaf node in controlIdentity and contains the actual configuration for pivot and offset.
             var targetControl = controlIdentity;
             while (targetControl.Next != null)
+            {
                 targetControl = targetControl.Next;
+            }
 
             switch (targetControl.PivotPoint)
             {

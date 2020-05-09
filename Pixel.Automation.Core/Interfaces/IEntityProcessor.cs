@@ -6,7 +6,7 @@ namespace Pixel.Automation.Core.Interfaces
     /// Interface to be implemented by processors.
     /// A processor is responsible for iterating through its child components and processing them 
     /// </summary>
-    public interface IEntityProcessor
+    public interface IEntityProcessor : IComponent
     {       
         /// <summary>
         /// Initiate processing of child components

@@ -5,6 +5,6 @@ namespace Pixel.Automation.Core.Interfaces
 {
     public interface IPrefabLoader
     {
-        Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, EntityManager primaryEntityManager);
+        Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, IEntityManager primaryEntityManager);
     }
 }

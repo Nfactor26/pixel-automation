@@ -2,15 +2,12 @@
 
 namespace Pixel.Automation.Core.Interfaces
 {
-    public interface ILoop
+    public interface ILoop : IComponent
     {
-
         bool ExitCriteriaSatisfied
         {
             get;set;
-        }     
-        
-        //OutArgument<int> CurrentIteration { get;}
-       
+        }  
+      
     }
 }

@@ -68,12 +68,13 @@ namespace Pixel.Automation.Core
 
 
         #region Constructor
-        public Entity()
+      
+        public Entity() : base(string.Empty, string.Empty)
         {
             this.components = new List<IComponent>();
         }
 
-        public Entity(string name="",string tag="") : base(name:name, tag:tag)
+        public Entity(string name="", string tag="") : base(name:name, tag:tag)
         {
             this.components = new List<IComponent>();
         }
@@ -101,11 +102,11 @@ namespace Pixel.Automation.Core
                 {                   
                     component.Parent = this;                    
                     
-                    if ((component as Component).EntityManager == null)
+                    if (component.EntityManager == null)
                     {
-                        (component as Component).EntityManager = this.EntityManager;
+                        component.EntityManager = this.EntityManager;
                         component.ResolveDependencies();
-                        (component as Component).EntityManager.RestoreParentChildRelation(component);
+                        component.EntityManager.RestoreParentChildRelation(component);
                     }
                     else
                     {
@@ -139,7 +140,7 @@ namespace Pixel.Automation.Core
         }
 
         /// <summary>
-        /// Remove component from this entity and set componen't parent to null 
+        /// Remove component from this entity and set component's parent to null 
         /// </summary>
         /// <param name="component"></param>
         public virtual void RemoveComponent(IComponent component,bool dispose=true)
@@ -148,7 +149,7 @@ namespace Pixel.Automation.Core
             {                
                 this.components.Remove(component);
                 component.Parent = null;
-                (component as Component).EntityManager = null;
+                component.EntityManager = null;
                
                 int i = 1;
                 foreach(var c in this.components)

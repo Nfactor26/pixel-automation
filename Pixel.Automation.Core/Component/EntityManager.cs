@@ -1,5 +1,4 @@
 ﻿using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System;
@@ -12,14 +11,14 @@ namespace Pixel.Automation.Core
 {
     [DataContract]
     [Serializable]
-    public class EntityManager : IDisposable
+    public class EntityManager : IDisposable, IEntityManager
     {
         #region data members       
 
         private readonly IServiceResolver serviceProvider;
-        private IFileSystem fileSystem;      
+        private IFileSystem fileSystem;
         private bool areDefaultServicesInitialized = false;
-       
+
         public Entity RootEntity { get; set; }
 
         [NonSerialized]
@@ -41,11 +40,11 @@ namespace Pixel.Automation.Core
                 {
                     IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
                     this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments?.ToScriptArguments(this), value?.ToScriptArguments(this));
-                }          
+                }
                 this.arguments = value;
-                UpdateArgumentPropertiesInfo();          
+                UpdateArgumentPropertiesInfo();
             }
-        }     
+        }
 
         #endregion data members        
 
@@ -53,7 +52,7 @@ namespace Pixel.Automation.Core
 
         public EntityManager(IServiceResolver serviceProvider)
         {
-            this.serviceProvider = serviceProvider;          
+            this.serviceProvider = serviceProvider;
             this.serviceProvider.RegisterDefault<EntityManager>(this);
         }
 
@@ -61,20 +60,20 @@ namespace Pixel.Automation.Core
         /// Create EntityManager from an existing entity manager 
         /// </summary>
         /// <param name="entityManager"></param>
-        public EntityManager(EntityManager entityManager, object dataModel)
+        public EntityManager(IEntityManager entityManager, object dataModel)
         {
             //cloning service resolver allows us to register new defaults in scope of this EntityManager since we get a new ninject childkernel
-            this.serviceProvider = entityManager.serviceProvider.Clone() as IServiceResolver;          
+            this.serviceProvider = entityManager.GetServiceOfType<IServiceResolver>().Clone() as IServiceResolver;
             this.RootEntity = entityManager.RootEntity;
-            if(dataModel != null)
+            if (dataModel != null)
             {
                 this.Arguments = dataModel;
-            }           
+            }
         }
 
         #endregion Constructor
 
-        #region File System
+        #region Run time services
 
         public void SetCurrentFileSystem(IFileSystem fileSystem)
         {
@@ -86,22 +85,17 @@ namespace Pixel.Automation.Core
             return this.fileSystem;
         }
 
-        #endregion File System
-
-        #region Find Entities   
-
-        public IComponent FindComponentWithId(string id, SearchScope searchScope=SearchScope.Children)
+        public IArgumentProcessor GetArgumentProcessor()
         {
-            return RootEntity.GetComponentById(id, searchScope);
-        }
-       
-        public IEnumerable<IComponent> FindComponentsWithTag(string tag, SearchScope searchScope = SearchScope.Children)
-        {
-            return RootEntity.GetComponentsByTag(tag, searchScope);
+            return GetServiceOfType<IArgumentProcessor>();
         }
 
+        public IScriptEngine GetScriptEngine()
+        {
+            return GetServiceOfType<IScriptEngine>();
+        }
 
-        #endregion Find Entities       
+        #endregion Run time services    
 
         #region Services     
 
@@ -113,8 +107,7 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         public virtual T GetServiceOfType<T>(string key = null)
         {
-            return this.serviceProvider.Get<T>(key);
-            throw new ArgumentException($"Service of type : {typeof(T)} is not registered with key : {key ?? string.Empty}");
+            return this.serviceProvider.Get<T>(key);          
         }
 
         /// <summary>
@@ -124,10 +117,9 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         public virtual IEnumerable<T> GetAllServicesOfType<T>()
         {
-            return this.serviceProvider.GetAll<T>();
-            throw new ArgumentException($"Services of type : {typeof(T)} is not registered");
+            return this.serviceProvider.GetAll<T>();            
         }
-        
+
         /// <summary>
         ///  Register a instance for a given service type. Whenever this service type is requested, this instance will be returned
         /// </summary>
@@ -138,13 +130,7 @@ namespace Pixel.Automation.Core
             this.serviceProvider.RegisterDefault<T>(instance);
         }
 
-        #endregion Services
-     
-
-        public IArgumentProcessor GetArgumentProcessor(IScopedEntity scopedEntity)
-        {           
-            return GetServiceOfType<IArgumentProcessor>();
-        }
+        #endregion Services      
 
 
         private Dictionary<string, IEnumerable<string>> argumentPropertiesInfo = new Dictionary<string, IEnumerable<string>>();
@@ -156,14 +142,14 @@ namespace Pixel.Automation.Core
         {
             this.argumentPropertiesInfo.Clear();
 
-            if(this.arguments != null)
+            if (this.arguments != null)
             {
                 var propertiesGroupedByType = this.arguments.GetType().GetProperties().GroupBy(p => p.PropertyType);
                 foreach (var propertyGroup in propertiesGroupedByType)
                 {
                     this.argumentPropertiesInfo.Add(propertyGroup.Key.GetDisplayName(), propertyGroup.Select(p => p.Name));
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -174,23 +160,23 @@ namespace Pixel.Automation.Core
         public IEnumerable<string> GetPropertiesOfType(Type propertyType)
         {
             List<string> matchingProperties = new List<string>();
-            
+
             //look in to arguments object properties
-            if(this.argumentPropertiesInfo.ContainsKey(propertyType.GetDisplayName()))
+            if (this.argumentPropertiesInfo.ContainsKey(propertyType.GetDisplayName()))
             {
                 matchingProperties.AddRange(this.argumentPropertiesInfo[propertyType.GetDisplayName()] ?? Enumerable.Empty<string>());
             }
-          
+
             //look in to script engine variables
             IScriptEngine scriptEngine = GetServiceOfType<IScriptEngine>();
-            var declaredVariables = scriptEngine.GetScriptVariables()?.Where(v => v.PropertyType.Equals(propertyType))?.Select( a => a.PropertyName) ?? Enumerable.Empty<string>();
+            var declaredVariables = scriptEngine.GetScriptVariables()?.Where(v => v.PropertyType.Equals(propertyType))?.Select(a => a.PropertyName) ?? Enumerable.Empty<string>();
             matchingProperties.AddRange(declaredVariables);
             return matchingProperties;
         }
 
         public void RestoreParentChildRelation(IComponent entityComponent, bool resetId = false)
-        {   
-            if(entityComponent is Entity entity)
+        {
+            if (entityComponent is Entity entity)
             {
                 foreach (var component in entity.Components)
                 {
@@ -202,19 +188,19 @@ namespace Pixel.Automation.Core
                     }
                     Debug.Assert(component.Parent != null);
                 }
-            }            
+            }
         }
-     
+
         #region IDisposable
 
         public void Dispose()
         {
-            Dispose(true);   
+            Dispose(true);
         }
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if(isDisposing)
+            if (isDisposing)
             {
                 foreach (var component in this.RootEntity.GetAllComponents())
                 {

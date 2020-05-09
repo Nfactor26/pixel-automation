@@ -85,7 +85,7 @@ namespace Pixel.Automation.Arguments.Editor
             if (OwnerComponent == null && Argument == null)
                 return;
 
-            EntityManager entityManager = this.OwnerComponent.EntityManager;
+            var entityManager = this.OwnerComponent.EntityManager;
 
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             IScriptEditorFactory scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
@@ -109,7 +109,7 @@ namespace Pixel.Automation.Arguments.Editor
             if (this.OwnerComponent?.EntityManager == null)
                 return;
 
-            EntityManager entityManager = this.OwnerComponent.EntityManager;
+            var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             IArgumentTypeProvider typeProvider = entityManager.GetServiceOfType<IArgumentTypeProvider>();
             ArgumentTypeBrowserViewModel typeBrowserWindow = new ArgumentTypeBrowserViewModel(typeProvider);

@@ -65,11 +65,6 @@ namespace Pixel.Automation.Core
             }
             scopedEntity = null;
             return false;
-        }
-
-        public static IArgumentProcessor GetArgumentProcessor(this IComponent component)
-        {        
-            return (component as Component).EntityManager.GetArgumentProcessor(null);
-        }
+        }     
     }
 }

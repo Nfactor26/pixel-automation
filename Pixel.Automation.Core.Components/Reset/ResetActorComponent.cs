@@ -24,7 +24,7 @@ namespace Pixel.Automation.Core.Components
 
         public override void Act()
         {        
-            IComponent targetComponent = EntityManager.FindComponentWithId(ComponentId,SearchScope.Descendants);
+            IComponent targetComponent = EntityManager.RootEntity.GetComponentById(ComponentId,SearchScope.Descendants);
 
             if (!targetComponent.IsEnabled)
             {

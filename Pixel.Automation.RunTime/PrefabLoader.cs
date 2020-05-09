@@ -16,14 +16,14 @@ namespace Pixel.Automation.RunTime
         private Type dataModelType;
         private object dataModelInstance;
         private IPrefabFileSystem prefabFileSystem;
-        private EntityManager prefabManager;      
+        private IEntityManager prefabManager;      
 
         public PrefabLoader()
         {            
         }
 
 
-        public Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, EntityManager entityManager)
+        public Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, IEntityManager entityManager)
         {
             Guard.Argument(applicationId).NotEmpty().NotNull();
             Guard.Argument(prefabId).NotEmpty().NotNull();
