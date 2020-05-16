@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.Components.Decisions
     [Initializer(typeof(ScriptFileInitializer))]
     public class IfEntity : Entity
     {
-        protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";
+        protected string scriptFile;
         [DataMember]
         [Browsable(false)]
         public string ScriptFile
@@ -56,15 +56,11 @@ namespace Pixel.Automation.Core.Components.Decisions
 
         private async Task<ScriptResult> ExecuteScript()
         {
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
             ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);        
             return result;          
         }
 
-        public override void ResetComponent()
-        {
-            base.ResetComponent();           
-        }
 
         public override void ResolveDependencies()
         {

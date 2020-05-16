@@ -415,9 +415,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("FindBy strategy {0} for locating web control  is not supported", webControlIdentity.FindByStrategy.ToString()));
-            }
-            //if (foundControl == null)
-            //    throw new ElementNotFoundException($"Failed to locate control : {webControlIdentity.ToString()}");
+            }       
             return foundControl;
         }
 

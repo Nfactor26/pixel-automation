@@ -96,7 +96,7 @@ namespace Pixel.Automation.Core
         }
 
         #endregion Run time services    
-
+               
         #region Services     
 
         /// <summary>
@@ -132,6 +132,7 @@ namespace Pixel.Automation.Core
 
         #endregion Services      
 
+        #region private methods
 
         private Dictionary<string, IEnumerable<string>> argumentPropertiesInfo = new Dictionary<string, IEnumerable<string>>();
 
@@ -190,6 +191,8 @@ namespace Pixel.Automation.Core
                 }
             }
         }
+
+        #endregion private methods
 
         #region IDisposable
 

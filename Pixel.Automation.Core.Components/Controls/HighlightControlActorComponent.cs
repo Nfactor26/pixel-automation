@@ -37,12 +37,12 @@ namespace Pixel.Automation.Core.Components.Controls
 
         public override void Act()
         {
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
 
             UIControl targetControl = default;         
-            if (this.Parent.GetComponentsOfType<ControlEntity>(SearchScope.Descendants).Any())
+            if (this.Parent.GetComponentsOfType<IControlEntity>(SearchScope.Descendants).Any())
             {
-                var controlEntity = this.Parent.GetFirstComponentOfType<ControlEntity>(SearchScope.Descendants);
+                var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(SearchScope.Descendants);
                 targetControl = controlEntity.GetControl();
             }
             else
@@ -64,7 +64,8 @@ namespace Pixel.Automation.Core.Components.Controls
                 Thread.Sleep((int)(highlightDuration * 1000));
 
                 highlightRectangle.Visible = false;
-
+        
+                return;
             }
 
         }
@@ -81,7 +82,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 GroupActor = new HighlightControlActorComponent()
             };
             groupEntity.GroupPlaceHolder.MaxComponentsCount = 1;
-            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(ControlEntity);
+            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity);
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;
         }

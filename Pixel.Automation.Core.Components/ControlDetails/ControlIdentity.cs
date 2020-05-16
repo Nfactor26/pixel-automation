@@ -140,20 +140,6 @@ namespace Pixel.Automation.Core.Components
             return this.Name;
         }
 
-        public abstract object Clone();
-        //{
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        var formatter = new BinaryFormatter();
-
-        //        formatter.Serialize(stream, this);
-        //        stream.Seek(0, SeekOrigin.Begin);
-
-        //        IControlIdentity copy = (IControlIdentity)formatter.Deserialize(stream);
-        //        //RestoreParentChildRelation(copy);
-        //        return copy;
-        //    }
-        //}
-
+        public abstract object Clone();        
     }
 }

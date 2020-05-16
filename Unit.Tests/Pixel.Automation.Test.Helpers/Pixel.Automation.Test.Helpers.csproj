@@ -17,4 +17,8 @@
     <ProjectReference Include="..\..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\" />
+  </ItemGroup>
+
 </Project>

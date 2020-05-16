@@ -25,6 +25,11 @@ namespace Pixel.Automation.Core.Components.Sequences
         [Description("Exception encountered during processing of try block")]
         public Argument Exception { get; set; } = new OutArgument<Exception>() { CanChangeType = false, Mode = ArgumentMode.DataBound, CanChangeMode = false };
 
+        public TryCatchSequence() : base("Try Catch", "TryCatchSequence")
+        {
+
+        }
+
         public override async Task BeginProcess()
         {
             try

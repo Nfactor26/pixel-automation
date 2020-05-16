@@ -149,6 +149,16 @@ namespace Pixel.Automation.Core
                 fs.Write(content ?? string.Empty);
             }
         }
+
+        public bool Exists(string path)
+        {
+            return File.Exists(path);
+        }
+
+        public string ReadAllText(string path)
+        {
+            return File.ReadAllText(path);
+        }
     }
 
     public abstract class VersionedFileSystem : FileSystem, IVersionedFileSystem

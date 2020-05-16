@@ -41,6 +41,10 @@ namespace Pixel.Automation.Core.Interfaces
         void SaveToFile<T>(T model, string directory, string fileName) where T : new();
 
         void CreateOrReplaceFile(string directory, string fileName, string content);
+
+        bool Exists(string path);
+
+        string ReadAllText(string path);
     }
 
     public interface IVersionedFileSystem : IFileSystem

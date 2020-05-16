@@ -19,7 +19,7 @@ namespace Pixel.Automation.Core.Components.Loops
     public class DoWhileLoopEntity : Entity, ILoop
     {
 
-        protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";
+        protected string scriptFile;
         [DataMember]
         [Browsable(false)]
         public string ScriptFile
@@ -56,8 +56,9 @@ namespace Pixel.Automation.Core.Components.Loops
             do
             {               
                 Log.Information("Running iteration : {Iteration} of Do..While Loop component with Id : {Id}", iteration, this.Id);
-              
-                var iterator = base.GetNextComponentToProcess().GetEnumerator();
+
+                var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+                var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
                 while (iterator.MoveNext())
                 {
                     yield return iterator.Current;
@@ -85,7 +86,7 @@ namespace Pixel.Automation.Core.Components.Loops
 
         private async Task<ScriptResult> ExecuteScript()
         {
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
             ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
             return result;           
         }
@@ -107,8 +108,10 @@ namespace Pixel.Automation.Core.Components.Loops
             base.AddComponent(statementsPlaceHolder);
         }
 
-        public override Entity AddComponent(Core.Interfaces.IComponent component)
+        public override Entity AddComponent(Interfaces.IComponent component)
         {
+            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+            placeHolderEntity.AddComponent(component);
             return this;
         }
     }

@@ -45,10 +45,11 @@ namespace Pixel.Automation.Core.Components.Processors
         {
             if (component is Entity)
             {
-                return base.AddComponent(component);
+                base.AddComponent(component);
+                return this;
             }
-            logger.Warning($"Only Entity can be added as a child component. An attempt was made to add component of type : {component.GetType()}");
-            return this;
+
+            throw new ArgumentException($"Only Entities can be added to a Entity Processor");
         }
        
         [NonSerialized]

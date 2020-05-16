@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Components.TestCase
     public class TearDownEntity : Entity
     {
 
-        public TearDownEntity() : base("Tear Down","TearDown")
+        public TearDownEntity() : base("Tear Down", "TearDown")
         {
         }
      

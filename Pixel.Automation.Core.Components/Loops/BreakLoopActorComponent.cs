@@ -31,7 +31,7 @@ namespace Pixel.Automation.Core.Components.Loops
             }
             if (currentParent == null)
             {
-                throw new InvalidOperationException("Decision Evaluator must be a child of Entity that implemnets IConditional or ILoop interface");
+                throw new InvalidOperationException("BreakLoopActor must be added inside a loop construct such as for loop, while loop, etc.");
             }
             (currentParent as ILoop).ExitCriteriaSatisfied = true;
         }

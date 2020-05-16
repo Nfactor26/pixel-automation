@@ -11,7 +11,7 @@ namespace Pixel.Automation.Core.Components.TestCase
 
     public class OneTimeTearDownEntity : Entity
     {
-        public OneTimeTearDownEntity() : base("One Time TearDown","OneTimeTearDown")
+        public OneTimeTearDownEntity() : base("One Time TearDown", "OneTimeTearDown")
         {
         }
 

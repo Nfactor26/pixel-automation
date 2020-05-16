@@ -34,13 +34,13 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        public IApplication GetTargetApplicationDetails()
+        public virtual IApplication GetTargetApplicationDetails()
         {
             LoadApplicationDetails();
             return this.applicationDetails;
         }
 
-        public T GetTargetApplicationDetails<T>() where T : class, IApplication
+        public virtual T GetTargetApplicationDetails<T>() where T : class, IApplication
         {
             return GetTargetApplicationDetails() as T;         
         }
@@ -49,13 +49,14 @@ namespace Pixel.Automation.Core.Components
         {
             if (this.applicationDetails == null)
             {
-                if (File.Exists(this.ApplicationFile))
+                var fileSystem = this.EntityManager.GetCurrentFileSystem();
+                if (fileSystem.Exists(this.ApplicationFile))
                 {                  
                     ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
                     var masterApplicationDetails = serializer.Deserialize<ApplicationDescription>(this.ApplicationFile);
                     this.applicationDetails = masterApplicationDetails.ApplicationDetails;
-                    (this.applicationDetails as Component).Parent = this;
-                    (this.applicationDetails as Component).EntityManager = this.EntityManager;                  
+                    (this.applicationDetails as Interfaces.IComponent).Parent = this;
+                    (this.applicationDetails as Interfaces.IComponent).EntityManager = this.EntityManager;                  
                     this.Name = this.applicationDetails.ApplicationName;
                     logger.Information("Loaded application details for Application Entity with Id: {0}", this.Id);
                     return;

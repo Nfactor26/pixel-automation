@@ -14,7 +14,7 @@ namespace Pixel.Automation.Core.Components
 
         [DataMember]
         [System.ComponentModel.Browsable(false)]
-        public Type AllowedComponentsType { get; set; } = typeof(Component);
+        public Type AllowedComponentsType { get; set; } = typeof(IComponent);
 
         public PlaceHolderEntity() : base("Place Holder","PlaceHolder")
         {
@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Components
         {
             if(!AllowedComponentsType.IsAssignableFrom(component.GetType()))
             {
-                return this;
+                throw new ArgumentException($"Only components of type {AllowedComponentsType} can be added");
             }
           
             if(this.MaxComponentsCount.HasValue)
@@ -38,6 +38,10 @@ namespace Pixel.Automation.Core.Components
                 if (this.Components.Count < MaxComponentsCount)
                 {
                     return base.AddComponent(component);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Allowed capacity of {MaxComponentsCount} already reached. Can't add any more child component to {this}");
                 }
             }           
 

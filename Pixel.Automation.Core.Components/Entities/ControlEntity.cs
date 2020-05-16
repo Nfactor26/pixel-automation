@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.Components
 {
     [DataContract]
     [Serializable]
-    public abstract class ControlEntity : Entity
+    public abstract class ControlEntity : Entity, IControlEntity
     {
         /// <summary>
         /// Control file inside the repository 
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Core.Components
         {
             get
             {
-                if(controlDetails == null)
+                if (controlDetails == null)
                 {
                     controlDetails = GetControlDetails();
                 }
@@ -109,14 +109,14 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-        [DataMember]    
+        [DataMember]
         [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
         public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
 
         [DataMember]
         [Browsable(false)]
-        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]      
+        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
         public virtual Argument Filter { get; set; }
 
@@ -125,7 +125,7 @@ namespace Pixel.Automation.Core.Components
 
         public ControlEntity(string name = "Control Entity", string tag = "ControlEntity") : base(name, tag)
         {
-            
+
         }
 
         protected IControlIdentity GetControlDetails()
@@ -141,7 +141,7 @@ namespace Pixel.Automation.Core.Components
             }
 
             throw new FileNotFoundException($"Control file : {this.ControlFile} could not be found");
-          
+
         }
 
         public override IEnumerable<IComponent> GetNextComponentToProcess()
@@ -149,8 +149,8 @@ namespace Pixel.Automation.Core.Components
             foreach (var component in base.GetNextComponentToProcess())
             {
                 yield return component;
-            }           
-        }     
+            }
+        }
 
         public abstract T GetTargetControl<T>();
 
@@ -196,7 +196,7 @@ namespace Pixel.Automation.Core.Components
         }
 
         protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
-        {         
+        {
 
             IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
             var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, bool>>(predicateScriptFile);

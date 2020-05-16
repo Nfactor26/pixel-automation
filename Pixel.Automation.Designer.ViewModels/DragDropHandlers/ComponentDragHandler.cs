@@ -21,20 +21,26 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 {
     public class ComponentDropHandler : IDropTarget
     {
+        private readonly ILogger logger = Log.ForContext<ComponentDropHandler>();
+
         public void DragOver(IDropInfo dropInfo)
         {
             try
             {
                 //if source && target are same , do nothing
                 if (dropInfo.Data == dropInfo.TargetItem)
+                {
                     return;
+                }
 
                 //Component/Entity dragged on to another entity from Component Toolbox
                 if (dropInfo.Data is ComponentToolBoxItem && dropInfo.TargetItem is Entity)
                 {
                     //don't allow applications to be dropped on process canvas
                     if ((dropInfo.Data as ComponentToolBoxItem).TypeOfComponent.GetInterface("IApplication") != null)
-                         return;
+                    {
+                        return;
+                    }
                     dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                     dropInfo.Effects = DragDropEffects.Copy;
                     return;
@@ -106,7 +112,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
             }          
 
 
@@ -123,7 +129,9 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     var automationBuilder = (dropInfo.VisualTarget as TreeView).DataContext as IEditor;                 
                                     
                     if (sourceItem.TypeOfComponent.GetInterface("IComponent") != null)
+                    {
                         HandleComponentDrop(dropInfo);
+                    }
                 }
 
                 if (dropInfo.Data is IComponent && dropInfo.TargetItem is IComponent)
@@ -176,7 +184,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
             }
 
         }
@@ -385,7 +393,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     {
                         if (availableApplications.Any(a => a.ApplicationId.Equals(sourceItem.ApplicationId)))
                         {
-                            Log.Information("An attempt was made to add application with id : {applicationId} to the Application Pool. Application with such id already exists.", sourceItem.ApplicationId);
+                            logger.Information("An attempt was made to add application with id : {applicationId} to the Application Pool. Application with such id already exists.", sourceItem.ApplicationId);
                             return;
 
                         }
@@ -426,7 +434,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         if (!applicationExists)
                         {
                             //TODO : Show message box to the user and with his consent automatically add the application to the Pool
-                            Log.Warning($"Automation Sequence can't be created for application : {sourceItem.ApplicationName}. Please add this application to Application Pool first");
+                            logger.Warning($"Automation Sequence can't be created for application : {sourceItem.ApplicationName}. Please add this application to Application Pool first");
                         }
                     }
                 }

@@ -17,7 +17,7 @@ namespace Pixel.Automation.Core.Components
             var scriptableAttribute = component.GetType().GetCustomAttributes(true).OfType<ScriptableAttribute>().FirstOrDefault();
             if(scriptableAttribute != null)
             {
-                var fileSystem = entityManager.GetServiceOfType<IFileSystem>();
+                var fileSystem = entityManager.GetCurrentFileSystem();
 
                 foreach(var scriptFile in scriptableAttribute.ScriptFiles)
                 {

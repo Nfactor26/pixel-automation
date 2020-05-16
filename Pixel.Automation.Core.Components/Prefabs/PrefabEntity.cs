@@ -71,11 +71,16 @@ namespace Pixel.Automation.Core.Components.Prefabs
             protected set => base.Components = value;
         }
                
+        public PrefabEntity() : base("Prefab Entity", "PrefabEntity")
+        {
+
+        }
+
         public override async void BeforeProcess()
         {
             this.LoadPrefab();
           
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScript);
             inputMappingAction.Invoke(prefabDataModel);       
           
@@ -92,8 +97,8 @@ namespace Pixel.Automation.Core.Components.Prefabs
         }
 
         public override async void OnCompletion()
-        {           
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+        {
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScript);
             outputMappingAction.Invoke(prefabDataModel);
 

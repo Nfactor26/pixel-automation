@@ -16,6 +16,8 @@ namespace Pixel.Automation.Core.Components.Sequences
     [ToolBoxItem("Sequence", "Sequences", iconSource: null, description: "Represents a sequence of  steps within an application", tags: new string[] { "Automation Sequence" })]
     public class SequenceEntity : Entity , IApplicationContext , IDisposable
     {
+        private readonly ILogger logger = Log.ForContext<SequenceEntity>();
+
         string targetAppId = string.Empty;
         [DataMember]
         [ReadOnly(true)]
@@ -42,9 +44,9 @@ namespace Pixel.Automation.Core.Components.Sequences
         double acquireFocusTimeout = 3;
         [DataMember]
         [Display(Name = "Timeout", Order = 30, GroupName = "Application Details")]
-        [Description("Maximum amount of time(seconds) to wait before focus can be acquired")]
+        [Description("Timeout(seconds) for acquiring lock on mutex in order to set window as foregroud window")]
         /// <summary>
-        /// Maximum amount of time(seconds ) to wait before focus can be acquired.
+        /// Timeout(seconds) for acquiring lock on mutex in order to set window as foregroud window
         /// </summary>
         public double AcquireFocusTimeout
         {
@@ -64,7 +66,7 @@ namespace Pixel.Automation.Core.Components.Sequences
         private readonly string mutexName = "Local\\Pixel.AppFocus";
         private bool wasMutexAcquired = false;
 
-        public SequenceEntity() : base("Sequence","Sequence")
+        public SequenceEntity() : base("Sequence", "Sequence")
         {
 
         }
@@ -75,15 +77,14 @@ namespace Pixel.Automation.Core.Components.Sequences
             if (!string.IsNullOrEmpty(this.targetAppId) && RequiresFocus)
             {
                 if(mutex==null)
-                {
-                    //Log.Information($"Mutex acuried by thread with id : {Thread.CurrentThread.ManagedThreadId}");                  
+                {                           
                     mutex = new Mutex(false, mutexName);
                 }
 
-                Log.Information($"Waiting to acquire focus : {this}");
+                logger.Debug($"Waiting to acquire lock on Mutex : {this}");
                 if (mutex.WaitOne(TimeSpan.FromSeconds(acquireFocusTimeout)))
                 {
-                    Log.Information($"Focus acquired by {this}");
+                    logger.Debug($"Mutex lock acquired by {this}");
                     wasMutexAcquired = true;
                     IApplication targetApp = this.EntityManager.GetApplicationDetails(this);
                     IntPtr hWnd = targetApp.Hwnd;
@@ -92,29 +93,27 @@ namespace Pixel.Automation.Core.Components.Sequences
                         IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
                         ApplicationWindow appWindow = windowManager.FromHwnd(hWnd);
                         windowManager.SetForeGroundWindow(appWindow);
+                        logger.Information($"Window with hWnd : {hWnd} is set to foreground window");
+                        return;
                     }
-                    else
-                    {
-                        throw new Exception($"Handle of the application is 0. Failed to focus application window.");
-                    }
+                   
+                    throw new InvalidOperationException($"hWnd of the application window is 0. Can't set foreground window");                    
                 }
                 else
                 {
                     wasMutexAcquired = false;
-                    throw new TimeoutException($"Failed to acquire focus  within configured timeout of  {this.acquireFocusTimeout} ms.");
+                    throw new TimeoutException($"Failed to acquire mutex lock  within configured timeout of  {this.acquireFocusTimeout} ms.");
                 }
             }
         }
 
         public override void OnCompletion()
         {
-            if(mutex!=null)
-            {
-                //Log.Information($"Mutex will be released by thread with id : {Thread.CurrentThread.ManagedThreadId}");
+            if(mutex!=null && wasMutexAcquired)
+            {               
                 mutex.ReleaseMutex();
-                //mutex.Dispose();
-                //mutex = null;
-                Log.Information($"Focus released by {this}");
+                wasMutexAcquired = false;
+                logger.Information($"Mutex lock released by {this}");
             }
           
             base.OnCompletion();
@@ -124,16 +123,13 @@ namespace Pixel.Automation.Core.Components.Sequences
         public override void OnFault(IComponent faultingComponent)
         {
             if (mutex != null)
-            {
-                //Log.Information($"Mutex will be released by thread with id : {Thread.CurrentThread.ManagedThreadId}");
-                if (wasMutexAcquired)
+            {              
+                if (wasMutexAcquired && wasMutexAcquired)
                 {
                     mutex.ReleaseMutex();
-
-                }
-                //mutex.Dispose();
-                //mutex = null;
-                Log.Information($"Focus mutex released by {this}");
+                    wasMutexAcquired = false;
+                    logger.Information($"Mutex lock released by {this}");
+                }             
             }
 
             base.OnFault(faultingComponent);
@@ -157,10 +153,12 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if (isDisposing)
+            if (isDisposing && mutex != null)
             {
-                mutex = null;
+                mutex.Dispose();
+                mutex = null;              
             }
+            wasMutexAcquired = false;
         }
     }
 }

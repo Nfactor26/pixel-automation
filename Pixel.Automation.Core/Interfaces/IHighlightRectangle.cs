@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Set the location of the HighlightRectangle relative to top-left of the screen
         /// </summary>
-        Rectangle Location { set; }
+        Rectangle Location { get;  set; }
 
         /// <summary>
         /// Toggle the visibility of the HighlightRectangle

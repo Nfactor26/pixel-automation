@@ -1,7 +1,6 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -15,6 +14,8 @@ namespace Pixel.Automation.Core.Components.Waits
     [ToolBoxItem("Delay (seconds)", "Core Components", iconSource: null, description: "Wait for a specified amout of time in seconds", tags: new string[] { "Wait", "Core" })]
     public class DelayActorComponent : ActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<DelayActorComponent>();
+
         [DataMember]
         [Description("Amount of time in seconds to wait e.g. 0.5 , 1 ,10 ,etc.")]
         [Display(Name = "Delay Amount (seconds)", Order = 10, GroupName = "Input")]
@@ -27,8 +28,9 @@ namespace Pixel.Automation.Core.Components.Waits
 
         public override void Act()
         {
-            var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+            var argumentProcessor = this.ArgumentProcessor;
             double waitAmount = argumentProcessor.GetValue<double>(this.WaitAmount);
+            logger.Information($"Sleep for {waitAmount} seconds.");
             Thread.Sleep((int)(waitAmount * 1000));
         }
     }

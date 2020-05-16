@@ -1,5 +1,4 @@
 ﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -44,16 +43,7 @@ namespace Pixel.Automation.Core.Components.Processors
             }
 
             await Task.CompletedTask;
-        }
-
-        public override Entity AddComponent(IComponent component)
-        {
-            if(component is Entity)
-            {
-                return base.AddComponent(component);
-            }
-            return this;
-        }
+        }    
 
     }
 }

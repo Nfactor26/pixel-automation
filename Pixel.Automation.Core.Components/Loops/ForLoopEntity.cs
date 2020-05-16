@@ -19,7 +19,10 @@ namespace Pixel.Automation.Core.Components.Loops
     [Initializer(typeof(ScriptFileInitializer))]
     public class ForLoopEntity : Entity, ILoop
     {
-        protected string scriptFile = $"{Guid.NewGuid().ToString()}.csx";
+
+        private readonly ILogger logger = Log.ForContext<ForLoopEntity>();
+
+        protected string scriptFile;
         /// <summary>
         /// Script file holds the exit criteria script
         /// </summary>
@@ -54,10 +57,9 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-        {
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+        {           
             IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
-            string[] statements = File.ReadAllText(Path.Combine(fileSystem.ScriptsDirectory,this.scriptFile))?.Trim()
+            string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.ScriptsDirectory,this.scriptFile))?.Trim()
                 .Split(new char[] {';'});
 
             //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
@@ -72,7 +74,7 @@ namespace Pixel.Automation.Core.Components.Loops
                                $"statement must have exactly three parts structured in the form initialization;condition;increment");
             }
 
-           var initResult = ExecuteScript(statements[0]).Result; //execute the initialization part
+            _ = ExecuteScript(statements[0]).Result; //execute the initialization part
 
             int iteration = 0;
             for (int i = 0; ; i++)
@@ -81,14 +83,15 @@ namespace Pixel.Automation.Core.Components.Loops
                 this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
                 if (this.exitCriteriaSatisfied)
                 {
-                    Log.Information($"loop condition evaluated to false for For loop component with Id : {Id} " +
+                    logger.Information($"loop condition evaluated to false for For loop component with Id : {Id} " +
                      $"after {iteration} iterations", iteration, this.Id);
                     break;
                 }
 
-                Log.Debug("Running iteration : {Iteration} of For Loop component with Id : {Id}", i, this.Id);
+                logger.Debug("Running iteration : {Iteration} of For Loop component with Id : {Id}", i, this.Id);
 
-                var iterator = base.GetNextComponentToProcess().GetEnumerator();
+                var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+                var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
                 while (iterator.MoveNext())
                 {
                     yield return iterator.Current;
@@ -109,7 +112,7 @@ namespace Pixel.Automation.Core.Components.Loops
 
         private async Task<ScriptResult> ExecuteScript(string scriptToExecute)
         {
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
             ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute);         
             return result;
         }
@@ -128,8 +131,14 @@ namespace Pixel.Automation.Core.Components.Loops
             }
 
             PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
-            this.AddComponent(statementsPlaceHolder);
-            
+            base.AddComponent(statementsPlaceHolder);            
+        }
+
+        public override Entity AddComponent(Interfaces.IComponent component)
+        {
+            var placeHolderEntity =  this.GetFirstComponentOfType<PlaceHolderEntity>();
+            placeHolderEntity.AddComponent(component);
+            return this;
         }
     }
 }

@@ -9,7 +9,8 @@ namespace Pixel.Automation.Core.Components
 
         public static IApplication GetApplicationDetails(this IEntityManager entityManager, IComponent childComponent)
         {
-            //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity for default cases
+            //TODO : Since component has entityManager , can we instead have this extension method on IComponent itself?
+            //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity
             if (childComponent.Parent is ApplicationEntity)
             {
                 return (childComponent.Parent as ApplicationEntity).GetTargetApplicationDetails();
@@ -22,7 +23,8 @@ namespace Pixel.Automation.Core.Components
 
         public static T GetApplicationDetails<T>(this IEntityManager entityManager, IComponent childComponent) where T : class, IApplication
         {
-            //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity for default cases
+            //TODO : Since component has entityManager , can we instead have this extension method on IComponent itself?
+            //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity
             if (childComponent.Parent is ApplicationEntity)
             {
                 return (childComponent.Parent as ApplicationEntity).GetTargetApplicationDetails<T>();
@@ -51,7 +53,7 @@ namespace Pixel.Automation.Core.Components
 
         public static ApplicationEntity GetApplicationEntityByApplicationId(this IEntityManager entityManager, string applicationId)
         {
-            var applicationsInPool = (entityManager.RootEntity.GetComponentsByTag("ApplicationPoolEntity").Single() as Entity).GetComponentsOfType<ApplicationEntity>();
+            var applicationsInPool = (entityManager.RootEntity.GetComponentsOfType<ApplicationPoolEntity>().Single()).GetComponentsOfType<ApplicationEntity>();
             if (applicationsInPool != null)
             {
                 ApplicationEntity targetApp = applicationsInPool.FirstOrDefault(a => a.ApplicationId.Equals(applicationId));
@@ -61,10 +63,8 @@ namespace Pixel.Automation.Core.Components
                 }
             }
 
-            throw new ConfigurationException($"ApplicationDetails entity for application with id : {applicationId} is missing from ApplicationPool entity");
-        }
-
-        
+            throw new ConfigurationException($"ApplicationEntity for application with id : {applicationId} is missing from ApplicationPoolentity");
+        }        
 
 
         static ApplicationEntity GetApplicationDetailsEntity(IEntityManager entityManager, IComponent childComponent)
@@ -80,20 +80,7 @@ namespace Pixel.Automation.Core.Components
             }
 
             string targetAppId = (current as IApplicationContext).GetAppContext();
-
-
-            //Lookup in application pool as new application could have been added later
-            var applicationsInPool = (entityManager.RootEntity.GetComponentsByTag("ApplicationPoolEntity").Single() as Entity).GetComponentsOfType<ApplicationEntity>();
-            if (applicationsInPool != null)
-            {
-                ApplicationEntity targetApp = applicationsInPool.FirstOrDefault(a => a.ApplicationId.Equals(targetAppId));
-                if (targetApp != null)
-                {
-                    return targetApp;
-                }
-            }
-
-            throw new ConfigurationException($"ApplicationDetails entity for application with id : {targetAppId} is missing from ApplicationPool entity");
+            return GetApplicationEntityByApplicationId(entityManager, targetAppId);         
         }
 
     }

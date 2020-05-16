@@ -31,7 +31,7 @@ namespace Pixel.Automation.Core.Components.Helpers
         {
             IApplication targetApplication = this.EntityManager.GetApplicationDetails(this);
             string applicationName = targetApplication.ApplicationName;
-            var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+            var argumentProcessor = this.ArgumentProcessor;
             string saveLocation = argumentProcessor.GetValue<string>(this.SaveLocation);       
             if (string.IsNullOrEmpty(saveLocation))
             {
@@ -44,7 +44,9 @@ namespace Pixel.Automation.Core.Components.Helpers
             {
                 string saveAt = Path.Combine(saveLocation, this.GetRootEntity().Id.ToString(), applicationName);
                 if (!Directory.Exists(saveAt))
+                {
                     Directory.CreateDirectory(saveAt);
+                }
                 screenShot.Save($"{saveAt}\\{this.Id}.png");
             }         
            

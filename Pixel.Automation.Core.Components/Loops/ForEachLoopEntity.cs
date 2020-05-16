@@ -69,8 +69,9 @@ namespace Pixel.Automation.Core.Components.Loops
                     Log.Information("Running iteration : {Iteration} of ForEach Loop Component with Id : {Id}", index, this.Id);
 
                     this.Current.SetValue(argumentProcessor, item);
-                 
-                    var iterator = base.GetNextComponentToProcess().GetEnumerator();
+
+                    var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+                    var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
                     while (iterator.MoveNext())
                     {
                         yield return iterator.Current;
@@ -105,8 +106,10 @@ namespace Pixel.Automation.Core.Components.Loops
 
         }
 
-        public override Entity AddComponent(Core.Interfaces.IComponent component)
+        public override Entity AddComponent(Interfaces.IComponent component)
         {
+            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+            placeHolderEntity.AddComponent(component);
             return this;
         }
 

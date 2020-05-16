@@ -13,4 +13,14 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
+    <ProjectReference Include="..\..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Test.Helpers\Pixel.Automation.Test.Helpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Reset\" />
+  </ItemGroup>
+
 </Project>

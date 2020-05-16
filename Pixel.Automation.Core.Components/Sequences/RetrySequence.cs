@@ -29,12 +29,17 @@ namespace Pixel.Automation.Core.Components.Sequences
         [DataMember]
         [Display(Name = "Interval (seconds)", GroupName = "Retry Configuration", Order = 20)]
         [Description("Interval between subsequent retries")]
-        public Argument RetryInterval { get; set; } = new InArgument<double>() { CanChangeType = false, DefaultValue = 1000 };
+        public Argument RetryInterval { get; set; } = new InArgument<double>() { CanChangeType = false, DefaultValue = 1 };
 
         [DataMember]
         [Display(Name = "Exception", GroupName = "Retry Configuration", Order = 30)]
         [Description("Last exception encountered during processing of execute block. This can be used inside retry block.")]
-        public Argument Exception { get; set; }  = new OutArgument<Exception>() { CanChangeType = false };      
+        public Argument Exception { get; set; }  = new OutArgument<Exception>() { CanChangeType = false }; 
+
+        public RetrySequence() : base("Retry Sequence", "RetrySequence")
+        {
+
+        }
 
         public override async Task BeginProcess()
         {

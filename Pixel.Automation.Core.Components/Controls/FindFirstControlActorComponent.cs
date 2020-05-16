@@ -51,7 +51,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
         public override void Act()
         {
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             int retryAttempts = argumentProcessor.GetValue<int>(this.RetryAttempts);
             var retrySequence = new List<TimeSpan>();
             foreach (var i in Enumerable.Range(1, retryAttempts))
@@ -59,13 +59,13 @@ namespace Pixel.Automation.Core.Components.Controls
                 retrySequence.Add(TimeSpan.FromSeconds(2));
             }
 
-            var retryPolicy =  Policy.Handle<Exception>()         
+            var retryPolicy = Policy.Handle<Exception>()
             .WaitAndRetry(retrySequence, (exception, timeSpan, retryCount, context) =>
             {
                 logger.Information($"None of the controls could be located. Retry count is : {retryCount}");
-            });
+            });           
 
-            var controlEntities = this.Parent.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+            var controlEntities = this.Parent.GetComponentsOfType<IControlEntity>(Core.Enums.SearchScope.Descendants);
         
             // we don't want to wait too long when looking up multiple controls in round robin and expecting only one to be found.
             foreach (var controlEntity in controlEntities)
@@ -74,27 +74,36 @@ namespace Pixel.Automation.Core.Components.Controls
                 controlEntity.ControlDetails.RetryInterval = 1;
             }
 
-            var foundCountol = retryPolicy.Execute(() =>
+            UIControl foundControl = default;
+            try
             {
-                foreach (var controlEntity in controlEntities)
+                foundControl = retryPolicy.Execute(() =>
                 {
-                    try
+                    foreach (var controlEntity in controlEntities)
                     {
-                        var foundControl = controlEntity.GetControl();
-                        argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
-                        argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
-                        logger.Information("Located control {0}", controlEntity.ControlDetails);
-                        return foundControl;
-                    }
-                    catch
-                    {
+                        try
+                        {
+                            var foundControl = controlEntity.GetControl();
+                            argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
+                            argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
+                            logger.Information("Located control {0}", controlEntity.ControlDetails);
+                            return foundControl;
+                        }
+                        catch
+                        {
 
+                        }
                     }
-                }
-                throw new Exception("None of the control could be located");
-            });
+                    throw new Exception("None of the control could be located");
+                });
 
-            if(foundCountol != null)
+            }
+            catch
+            {
+
+            }
+
+            if(foundControl != null)
             {
                 return;
             }
@@ -117,7 +126,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 Tag = "FindFirstControlsGroup",
                 GroupActor = new FindFirstControlActorComponent()
             };          
-            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(ControlEntity);
+            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity);
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;
         }

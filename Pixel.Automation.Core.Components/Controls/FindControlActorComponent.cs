@@ -34,9 +34,10 @@ namespace Pixel.Automation.Core.Components.Controls
 
         public override void Act()
         {          
-            ControlEntity controlEntity = this.Parent.GetFirstComponentOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+            var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(Core.Enums.SearchScope.Descendants);
             var foundControl = controlEntity.GetControl();
-            IArgumentProcessor argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+
+            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
             argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
         }
@@ -52,8 +53,8 @@ namespace Pixel.Automation.Core.Components.Controls
                 Tag = "FindControlGroup",
                 GroupActor = new FindControlActorComponent()
             };
-                 groupEntity.GroupPlaceHolder.MaxComponentsCount = 1;
-            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(ControlEntity);
+            groupEntity.GroupPlaceHolder.MaxComponentsCount = 1;
+            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity);
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;
         }

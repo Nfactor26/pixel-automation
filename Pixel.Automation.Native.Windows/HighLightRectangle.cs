@@ -145,6 +145,10 @@ namespace Pixel.Automation.Native.Windows
         /// </summary>
         public Rectangle Location
         {
+            get
+            {
+                return highlightLocation;
+            }
             set
             {
                 highlightLocation = value;

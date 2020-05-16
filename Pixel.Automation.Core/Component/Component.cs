@@ -169,12 +169,18 @@ namespace Pixel.Automation.Core
             }
         }       
 
-        protected Component(string name="",string tag="")
+        public Component()
         {
             this.Id = Guid.NewGuid().ToString();
+            this.IsEnabled = true;
+        }
+
+        public Component(string name="",string tag="") : this()
+        {
+          
             this.Name = string.IsNullOrEmpty(name)? GetType().Name : name;
             this.Tag =  string.IsNullOrEmpty(tag) ? GetType().Name : tag;
-            this.IsEnabled = true;
+            
         }
 
         /// <inheritdoc/>
@@ -236,7 +242,12 @@ namespace Pixel.Automation.Core
     [Serializable]
     public abstract class DataComponent : Component
     {
-        protected DataComponent(string name = "", string tag = ""):base(name,tag)
+        public DataComponent() : base()
+        {
+
+        }
+
+        public DataComponent(string name = "", string tag = ""):base(name,tag)
         {
             
         }
@@ -320,8 +331,12 @@ namespace Pixel.Automation.Core
             }
         }
        
+        public  ActorComponent() : base()
+        {
 
-        protected ActorComponent(string name = "", string tag = ""):base(name,tag)
+        }
+
+        public ActorComponent(string name = "", string tag = ""):base(name,tag)
         {
 
         }
@@ -422,7 +437,12 @@ namespace Pixel.Automation.Core
         }
                 
 
-        protected AsyncActorComponent(string name = "", string tag = "") : base(name, tag)
+        public AsyncActorComponent() : base()
+        {
+
+        }
+
+        public AsyncActorComponent(string name = "", string tag = "") : base(name, tag)
         {
 
         }
@@ -453,7 +473,12 @@ namespace Pixel.Automation.Core
     [Serializable]
     public abstract class ServiceComponent : Component
     {
-        protected ServiceComponent(string name = "", string tag = ""):base(name,tag)
+        public ServiceComponent() : base()
+        {
+
+        }
+
+        public ServiceComponent(string name = "", string tag = ""):base(name,tag)
         {
 
         }

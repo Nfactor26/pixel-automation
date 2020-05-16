@@ -48,6 +48,7 @@ namespace Pixel.Automation.Core.Components
                 {
                     groupPlaceHolder = this.Components.FirstOrDefault() as PlaceHolderEntity;
                 }
+                groupPlaceHolder.EntityManager = this.EntityManager;
                 return groupPlaceHolder;
             }
             set
@@ -80,6 +81,7 @@ namespace Pixel.Automation.Core.Components
           
         public override Entity AddComponent(Core.Interfaces.IComponent component)
         {
+            this.GroupPlaceHolder?.AddComponent(component);
             return this;
         }
     }

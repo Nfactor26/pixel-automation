@@ -56,7 +56,9 @@ namespace Pixel.Automation.UIA.Components
             }
 
             if (uiaElement is T result)
+            {
                 return result;
+            }
             throw new Exception($"AutomationElement is not compatible with type {typeof(T)}");
 
         }
@@ -64,7 +66,6 @@ namespace Pixel.Automation.UIA.Components
         public override UIControl GetControl()
         {         
             AutomationElement uiaElement = GetTargetControl<AutomationElement>();
-            UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;        
             return new WinUIControl(this.ControlDetails) { TargetControl = uiaElement };
         }
 
