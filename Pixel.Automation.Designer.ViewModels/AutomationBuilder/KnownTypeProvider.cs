@@ -132,15 +132,16 @@ namespace Pixel.Automation.Designer.ViewModels
                         case ".\\Pixel.Automation.Input.Devices.dll":
                         case ".\\Pixel.Automation.Web.Selenium.Components.dll":
                         case ".\\Pixel.Automation.Window.Management.dll":
-                        case ".\\Pixel.Automation.Core.Components.dll":
-                        case ".\\Pixel.Automation.Core.Utilities.dll":
+                        case ".\\Pixel.Automation.Core.Components.dll":                     
                         case ".\\Pixel.Automation.RunTime.dll":
                         case ".\\Pixel.Automation.Scripting.Components.dll":
                         case ".\\Pixel.Automation.UIA.Components.dll":
                             Assembly pixelAssembly = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, assembly));
                             var definedTypes = pixelAssembly.DefinedTypes.Where(t => t.IsPublic && !t.IsAbstract);
                             foreach (var definedType in definedTypes)
+                            {
                                 defaultTypes.Add(definedType);
+                            }
                             break;
 
                     }

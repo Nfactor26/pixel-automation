@@ -29,7 +29,7 @@ namespace Pixel.Automation.Core.Components.Helpers
 
         public override void Act()
         {
-            IApplication targetApplication = this.EntityManager.GetApplicationDetails(this);
+            IApplication targetApplication = this.EntityManager.GetOwnerApplication(this);
             string applicationName = targetApplication.ApplicationName;
             var argumentProcessor = this.ArgumentProcessor;
             string saveLocation = argumentProcessor.GetValue<string>(this.SaveLocation);       

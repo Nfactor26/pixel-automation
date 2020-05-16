@@ -124,14 +124,14 @@ namespace Pixel.Automation.RunTime.DataReader
                         csvReader.ReadHeader();
                     }
 
-                    int currentRow = 0;
+                    int currentRow = -1;
                     while (currentRow < rowIndex && csvReader.Read())
                     {
                         currentRow++;
                     }
                     if (currentRow < rowIndex)
                     {
-                        throw new ArgumentException($"Row Index {rowIndex} doesn't exist in file");
+                        throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
                     }
                     return csvReader.Context.Record;
                 }
@@ -152,14 +152,14 @@ namespace Pixel.Automation.RunTime.DataReader
                         csvReader.ReadHeader();
                     }
 
-                    int currentRow = 0;
+                    int currentRow = -1;
                     while (currentRow < rowIndex && csvReader.Read())
                     {
                         currentRow++;
                     }
                     if (currentRow < rowIndex)
                     {
-                        throw new ArgumentException($"Row Index {rowIndex} doesn't exist in file");
+                        throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
                     }
                     T instance = csvReader.GetRecord<T>();
                     return instance;

@@ -40,7 +40,7 @@ namespace Pixel.Automation.RunTime
             this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
 
             string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.DataModelAssembly);
-            if(!File.Exists(prefabAssembly))
+            if(!prefabFileSystem.Exists(prefabAssembly))
             {
                 throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");
             }

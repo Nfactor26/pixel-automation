@@ -4,7 +4,7 @@ using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Utilities;
+using Pixel.Automation.RunTime.Serialization;
 using Pixel.Automation.Designer.ViewModels.Modules;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;

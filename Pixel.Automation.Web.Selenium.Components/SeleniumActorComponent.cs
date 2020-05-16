@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Exceptions;
 using System;
 using System.ComponentModel;
@@ -18,7 +17,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             get
             {
-                return this.EntityManager.GetApplicationDetails<WebApplication>(this);
+                return this.EntityManager.GetOwnerApplication<WebApplication>(this);
             }
         }
 

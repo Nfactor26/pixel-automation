@@ -169,6 +169,136 @@ namespace Pixel.Automation.Core.Tests.Component
             Assert.IsNull(entityManager.Arguments);
         }
 
+
+        /// <summary>
+        /// Validate that for a given component it's owner application details can be retrieved using GetOwnerApplication() from EntityManager
+        /// when component is a child of ApplicationEntity
+        /// </summary>
+        [Test]
+        public void ValidateThatCanGetOWnerApplicationDetailsForComponentWhenChildOfApplicationEntity()
+        {
+            var serviceResolver = Substitute.For<IServiceResolver>();
+            var entityManager = new EntityManager(serviceResolver);
+
+            Entity rootEntity = new Entity() { EntityManager = entityManager };
+            entityManager.RootEntity = rootEntity;
+            var applicationPoolEntity = new Entity();
+            rootEntity.AddComponent(applicationPoolEntity);
+
+            var applicationDetails = Substitute.For<IApplication>();
+
+            var applicationEntity = Substitute.For<Entity, IApplicationEntity>();
+            applicationEntity.Components.Returns(new List<IComponent>());           
+            (applicationEntity as IApplicationEntity).GetTargetApplicationDetails().Returns(applicationDetails);
+            (applicationEntity as IApplicationEntity).GetTargetApplicationDetails<IApplication>().Returns(applicationDetails);
+
+            applicationPoolEntity.AddComponent(applicationEntity);
+
+            var component = Substitute.For<IComponent>();
+            component.Parent.Returns(applicationEntity);           
+
+            var targetApplicationDetailsOne = entityManager.GetOwnerApplication<IApplication>(component);
+            Assert.IsNotNull(targetApplicationDetailsOne);
+
+            var targetApplicationDetailsTwo = entityManager.GetOwnerApplication(component);
+            Assert.IsNotNull(targetApplicationDetailsTwo);
+
+            Assert.AreSame(targetApplicationDetailsOne, targetApplicationDetailsTwo);
+        }
+
+
+        /// <summary>
+        /// Validate that for a given component it's owner application details can be retrieved from process tree.
+        /// The component is descendant of a sequence . Sequnce stores information of associated application id.
+        /// The ApplicationEntity mapped to Sequence resides in a application pool.
+        /// </summary>
+        [Test]
+        public void ValidateThatCanGetOwnerApplicationDetailsForComponentWhenDescendantOfSequence()
+        {
+            var serviceResolver = Substitute.For<IServiceResolver>();
+            var entityManager = new EntityManager(serviceResolver);
+
+            var rootEntity = new Entity() { EntityManager = entityManager };
+            entityManager.RootEntity = rootEntity;
+        
+            var applicationPoolEntity = new Entity();
+            rootEntity.AddComponent(applicationPoolEntity);
+
+            var applicationDetails = Substitute.For<IApplication>();
+
+            var applicationEntity = Substitute.For<Entity, IApplicationEntity>();
+            (applicationEntity as IApplicationEntity).ApplicationId.Returns("MockId");
+            applicationEntity.Components.Returns(new List<IComponent>());
+            (applicationEntity as IApplicationEntity).GetTargetApplicationDetails().Returns(applicationDetails);
+            (applicationEntity as IApplicationEntity).GetTargetApplicationDetails<IApplication>().Returns(applicationDetails);
+            applicationPoolEntity.AddComponent(applicationEntity);
+
+
+            var testCaseEntity = new Entity();
+            rootEntity.AddComponent(testCaseEntity);
+            var sequence = Substitute.For<Entity, IApplicationContext>();
+            sequence.Components.Returns(new List<IComponent>());        
+            (sequence as IApplicationContext).GetAppContext().Returns("MockId");
+            testCaseEntity.AddComponent(sequence);
+            var actorComponent = Substitute.For<ActorComponent>();
+            actorComponent.Parent = sequence; 
+
+            var ownerApplicationDetailsOne = entityManager.GetOwnerApplication<IApplication>(actorComponent);
+            Assert.IsNotNull(ownerApplicationDetailsOne);
+
+
+            var ownerApplicationDetailsTwo = entityManager.GetOwnerApplication<IApplication>(actorComponent);
+            Assert.IsNotNull(ownerApplicationDetailsTwo);
+
+            Assert.AreSame(ownerApplicationDetailsOne, ownerApplicationDetailsTwo);
+        }
+
+        /// <summary>
+        /// Given a standard test case process setup where application entity in application pool has a control locator / coordinate provider available and a control identity 
+        /// component needs control locator / coordinate provider , it should be able to retrieve control locator / coordinate provider from its mapped application.
+        /// </summary>
+        [Test]
+        public void ValidateThatControlLocatorAndCoordinateProviderCanBeRetrieved()
+        {
+
+            var serviceResolver = Substitute.For<IServiceResolver>();
+            var entityManager = new EntityManager(serviceResolver);
+
+            var rootEntity = new Entity() { EntityManager = entityManager };
+            entityManager.RootEntity = rootEntity;
+
+            var applicationPoolEntity = new Entity();
+            rootEntity.AddComponent(applicationPoolEntity);
+
+            var controlLocator = Substitute.For<IControlLocator, IComponent>();
+            controlLocator.CanProcessControlOfType(Arg.Any<IControlIdentity>()).Returns(true);
+            var coordinateProvider = Substitute.For<ICoordinateProvider, IComponent>();
+            coordinateProvider.CanProcessControlOfType(Arg.Any<IControlIdentity>()).Returns(true);       
+
+
+            var applicationEntity = Substitute.For<Entity, IApplicationEntity>();
+            (applicationEntity as IApplicationEntity).ApplicationId.Returns("MockId");
+            applicationEntity.Components.Returns(new List<IComponent>() { controlLocator as IComponent, coordinateProvider as IComponent });
+            applicationPoolEntity.AddComponent(applicationEntity);
+
+          
+
+            var testCaseEntity = new Entity();
+            rootEntity.AddComponent(testCaseEntity);
+            var sequence = new Entity();
+            testCaseEntity.AddComponent(sequence);
+
+            var controlIdentity = Substitute.For<IControlIdentity, IComponent>();
+            controlIdentity.ApplicationId.Returns("MockId"); //while scraping a control for a application, application id is mapped and store
+            sequence.AddComponent(controlIdentity as IComponent);
+
+            var retrievedControlLocator = entityManager.GetControlLocator(controlIdentity);
+            Assert.IsNotNull(retrievedControlLocator);
+
+            //Typically same class will implement both IControlLocator and ICoordinateProvider
+            var retrievedCoordinateProvider = entityManager.GetCoordinateProvider(controlIdentity);
+            Assert.IsNotNull(retrievedCoordinateProvider);
+        }
     }
 
 }

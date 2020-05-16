@@ -32,39 +32,18 @@ namespace Pixel.Automation.Core.Components.Tests
         [Test]
         public void GivenSequenceEntityIsConfiguredToRequreFocusValidateThatApplicationWindowIsSetToForegroundWindow()
         {
-            var entityManager = Substitute.For<IEntityManager>();           
-        
+            var entityManager = Substitute.For<IEntityManager>();
+            
+            var applicationDetails = Substitute.For<IApplication, IComponent>();
+            applicationDetails.Hwnd.Returns(new IntPtr(1));
+            entityManager.GetOwnerApplication(Arg.Any<IComponent>()).Returns(applicationDetails);
+
             var applicationWindowManager = Substitute.For<IApplicationWindowManager>();
             applicationWindowManager.When(x => x.SetForeGroundWindow(Arg.Any<ApplicationWindow>())).Do(x => { });
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(applicationWindowManager);
-            var fileSystem = Substitute.For<IFileSystem>();
-            fileSystem.Exists(Arg.Any<string>()).Returns(true);
-            entityManager.GetCurrentFileSystem().Returns(fileSystem);
-
-            var serializer = Substitute.For<ISerializer>();
-            var applicationDetails = Substitute.For<IApplication, IComponent>();
-            applicationDetails.Hwnd.Returns(new IntPtr(1));
-            var applicationDescription = new ApplicationDescription()
-            {
-                ApplicationName = "MockApplication",
-                ApplicationType = "Windows",
-                ApplicationDetails = applicationDetails
-            };
-            serializer.Deserialize<ApplicationDescription>(Arg.Any<string>(), null).Returns(applicationDescription);
-            entityManager.GetServiceOfType<ISerializer>().Returns(serializer);
-
-            //set up a simple process containing sequence entity
-            var applicationEntity = new ApplicationEntity() { ApplicationId = "MockId", EntityManager = entityManager };
-            var sequenceEntity = new SequenceEntity() { TargetAppId = "MockId", RequiresFocus = true };
-
-            var rootEntity = new Entity() { EntityManager = entityManager };
-            entityManager.RootEntity = rootEntity;
-            var appPoolEntity = new ApplicationPoolEntity();
-            rootEntity.AddComponent(appPoolEntity);
-            appPoolEntity.AddComponent(applicationEntity);
-            rootEntity.AddComponent(sequenceEntity);
-
-
+        
+            var sequenceEntity = new SequenceEntity() { EntityManager = entityManager, TargetAppId = "MockId", RequiresFocus = true };
+            
             //Act
             using(sequenceEntity)
             {
@@ -85,8 +64,22 @@ namespace Pixel.Automation.Core.Components.Tests
         [Test]
         public void GivenSequenceEntityIsConfiguredToRequreFocusValidateThatExceptionIsThrownIfOWnerApplicationWindowHandleIsZero()
         {
-           //TODO : Move GetApplicationDetails to EntityManager instead of having it as extension
-           //TODO : Can we find somehow if hWnd is not valid and throw in that case as well instead of just throwing for 0 as hWnd
+
+            var entityManager = Substitute.For<IEntityManager>();
+
+            var applicationDetails = Substitute.For<IApplication, IComponent>();
+            applicationDetails.Hwnd.Returns(new IntPtr(0));
+            entityManager.GetOwnerApplication(Arg.Any<IComponent>()).Returns(applicationDetails);   
+      
+
+            var sequenceEntity = new SequenceEntity() { EntityManager = entityManager,  TargetAppId = "MockId", RequiresFocus = true };
+
+            //Act
+            using (sequenceEntity)
+            {
+                Assert.Throws<InvalidOperationException>(() => { sequenceEntity.BeforeProcess(); });
+                sequenceEntity.OnFault(sequenceEntity);
+            }         
         }
 
 

@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -20,7 +19,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         {
             get
             {
-                return this.EntityManager.GetApplicationDetails<WinApplication>(this);
+                return this.EntityManager.GetOwnerApplication<WinApplication>(this);
             }
         }
 

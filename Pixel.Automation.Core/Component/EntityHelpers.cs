@@ -38,10 +38,8 @@ namespace Pixel.Automation.Core
             switch(searchScope)
             {
                 case SearchScope.Children:
-                    IEnumerable<T> components = rootEntity.Components.OfType<T>();
-                    if (components == null)
-                        components = new List<T>();
-                    return components;
+                    IEnumerable<T> components = rootEntity.Components.OfType<T>();                  
+                    return components ?? new List<T>();
 
                 case SearchScope.Descendants:
                     List<IComponent> childComponents = GetAllComponents(rootEntity);

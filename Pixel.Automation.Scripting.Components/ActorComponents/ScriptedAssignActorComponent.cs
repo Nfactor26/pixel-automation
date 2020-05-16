@@ -17,7 +17,7 @@ namespace Pixel.Automation.Scripting.Components
 
         public override async Task ActAsync()
         {
-            IScriptEngine scriptExecutor = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
             _ = await scriptExecutor.ExecuteFileAsync(this.scriptFile);
         }
       

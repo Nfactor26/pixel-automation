@@ -23,6 +23,14 @@ namespace Pixel.Automation.Core.Interfaces
 
         void RegisterDefault<T>(T instance) where T : class;
 
+        IApplication GetOwnerApplication(IComponent component);
+
+        T GetOwnerApplication<T>(IComponent component) where T : class, IApplication;
+
+        IControlLocator GetControlLocator(IControlIdentity forControl);
+
+        ICoordinateProvider GetCoordinateProvider(IControlIdentity forControl);
+
         void RestoreParentChildRelation(IComponent entityComponent, bool resetId = false);
 
         IEnumerable<string> GetPropertiesOfType(Type propertyType);

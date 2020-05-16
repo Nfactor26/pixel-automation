@@ -98,7 +98,7 @@ namespace Pixel.Automation.UIA.Components
         {
             get
             {
-                return this.EntityManager.GetApplicationDetails<WinApplication>(this);
+                return this.EntityManager.GetOwnerApplication<WinApplication>(this);
             }
         }
         

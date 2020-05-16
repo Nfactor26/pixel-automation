@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Pixel.Automation.Core.Utilities
+namespace Pixel.Automation.RunTime.Serialization
 {
     public class BinarySerializer : ISerializer
     {

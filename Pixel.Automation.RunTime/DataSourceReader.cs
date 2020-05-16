@@ -37,7 +37,7 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(dataSourceId).NotNull().NotEmpty();
             
             string dataSourceFile = Path.Combine(this.fileSystem.TestDataRepository, $"{dataSourceId}.dat");
-            if (!File.Exists(dataSourceFile))
+            if (!this.fileSystem.Exists(dataSourceFile))
             {
                 throw new FileNotFoundException($"{dataSourceFile} doesn't exist. Can't load required data for test case");
             }

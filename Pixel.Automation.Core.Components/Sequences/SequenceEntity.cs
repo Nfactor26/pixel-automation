@@ -86,7 +86,7 @@ namespace Pixel.Automation.Core.Components.Sequences
                 {
                     logger.Debug($"Mutex lock acquired by {this}");
                     wasMutexAcquired = true;
-                    IApplication targetApp = this.EntityManager.GetApplicationDetails(this);
+                    IApplication targetApp = this.EntityManager.GetOwnerApplication(this);
                     IntPtr hWnd = targetApp.Hwnd;
                     if (hWnd != IntPtr.Zero)
                     {

@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System;
@@ -132,6 +133,105 @@ namespace Pixel.Automation.Core
 
         #endregion Services      
 
+        /// <summary>
+        /// Get the owner application for a given component
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public IApplication GetOwnerApplication(IComponent component)
+        {
+            //This will allow IControlLocator<T> or ICoordinate provider to get IApplication since they are immediate child of ApplicationDetailsEntity
+            if (component.Parent is IApplicationEntity appEntity)
+            {
+                return appEntity.GetTargetApplicationDetails();
+            }
+            var targetApp = GetApplicationEntity(component);
+            return targetApp.GetTargetApplicationDetails();
+
+        }
+
+        /// <summary>
+        /// Get owner application of specified type T for a given component 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public T GetOwnerApplication<T>(IComponent component) where T : class, IApplication
+        {
+            if (component.Parent is IApplicationEntity appEntity)
+            {
+                return appEntity.GetTargetApplicationDetails<T>();
+            }
+            var targetApp = GetApplicationEntity(component);
+            return targetApp.GetTargetApplicationDetails<T>();
+        }
+
+
+        /// <summary>
+        /// Get IControlLocator for a given control identity
+        /// </summary>
+        /// <param name="forControl"></param>
+        /// <returns></returns>
+        public IControlLocator GetControlLocator(IControlIdentity forControl)
+        {
+            var applicationEntity = GetApplicationEntity(forControl.ApplicationId);
+            var controlLocator = (applicationEntity as Entity).GetComponentsOfType<IControlLocator>().Single(c => c.CanProcessControlOfType(forControl));
+            return controlLocator;
+        }
+
+        /// <summary>
+        /// Get ICoordinateProvider for a given control identity
+        /// </summary>
+        /// <param name="forControl"></param>
+        /// <returns></returns>
+        public ICoordinateProvider GetCoordinateProvider(IControlIdentity forControl)
+        {
+            var applicationEntity = GetApplicationEntity(forControl.ApplicationId);
+            var coordinateProvider = (applicationEntity as Entity).GetComponentsOfType<ICoordinateProvider>().Single(c => c.CanProcessControlOfType(forControl));
+            return coordinateProvider;
+        }
+
+        /// <summary>
+        /// Retrieve the owner application entity for a given component
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        private IApplicationEntity GetApplicationEntity(IComponent component)
+        {
+            var current = component;
+            while (true)
+            {
+                if (current is IApplicationContext)
+                {
+                    break;
+                }
+                current = current.Parent;
+            }
+            string targetAppId = (current as IApplicationContext).GetAppContext();
+
+            return GetApplicationEntity(targetAppId);
+        }
+
+        /// <summary>
+        /// Retrieve the application entity with a given application id
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        private IApplicationEntity GetApplicationEntity(string applicationId)
+        {
+            var applicationsInPool = this.RootEntity.GetComponentsOfType<IApplicationEntity>(Enums.SearchScope.Descendants);
+            if (applicationsInPool != null)
+            {
+                var targetApp = applicationsInPool.FirstOrDefault(a => a.ApplicationId.Equals(applicationId));
+                if (targetApp != null)
+                {
+                    return targetApp;
+                }
+            }
+
+            throw new ConfigurationException($"ApplicationEntity for application with id : {applicationId} is missing from ApplicationPoolentity");
+        }       
+
         #region private methods
 
         private Dictionary<string, IEnumerable<string>> argumentPropertiesInfo = new Dictionary<string, IEnumerable<string>>();
@@ -182,10 +282,10 @@ namespace Pixel.Automation.Core
                 foreach (var component in entity.Components)
                 {
                     component.Parent = entity;
-                    (component as Component).EntityManager = entity.EntityManager;
-                    if (component is Entity)
+                    component.EntityManager = entity.EntityManager;
+                    if (component is Entity childEntity)
                     {
-                        RestoreParentChildRelation(component as Entity, resetId);
+                        RestoreParentChildRelation(childEntity, resetId);
                     }
                     Debug.Assert(component.Parent != null);
                 }

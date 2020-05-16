@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Runtime.Serialization;
@@ -21,9 +20,9 @@ namespace Pixel.Automation.Scripting.Components
 
         public override async Task ActAsync()
         {
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
-            action(this.EntityManager.GetApplicationDetails(this), this);
+            action(this.EntityManager.GetOwnerApplication(this), this);
         }
      
     }

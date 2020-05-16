@@ -2,7 +2,6 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Models;
 using System;
@@ -29,7 +28,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         {
             get
             {
-                return this.EntityManager.GetApplicationDetails<WinApplication>(this);
+                return this.EntityManager.GetOwnerApplication<WinApplication>(this);
             }
         }
 

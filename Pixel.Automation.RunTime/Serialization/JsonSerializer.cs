@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Pixel.Automation.Core.Utilities
+namespace Pixel.Automation.RunTime.Serialization
 {
     public class JsonSerializer : ISerializer
     {

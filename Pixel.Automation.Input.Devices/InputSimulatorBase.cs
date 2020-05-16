@@ -14,15 +14,15 @@ namespace Pixel.Automation.Input.Devices
     {
         protected ISyntheticKeyboard GetKeyboard()
         {
-            var deviceManager = this.EntityManager.GetServiceOfType<IDeviceManager>();
-            return deviceManager.AcquireDevice<ISyntheticKeyboard>();
+            var keyboard = this.EntityManager.GetServiceOfType<ISyntheticKeyboard>();
+            return keyboard;
         }
 
 
         protected ISyntheticMouse GetMouse()
         {
-            var deviceManager = this.EntityManager.GetServiceOfType<IDeviceManager>();
-            return deviceManager.AcquireDevice<ISyntheticMouse>();
+            var mouse = this.EntityManager.GetServiceOfType<ISyntheticMouse>();
+            return mouse;
         }
 
         [Browsable(false)]

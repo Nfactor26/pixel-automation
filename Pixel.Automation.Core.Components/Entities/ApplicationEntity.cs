@@ -14,7 +14,7 @@ namespace Pixel.Automation.Core.Components
 
     [DataContract]
     [Serializable]
-    public class ApplicationEntity : Entity
+    public class ApplicationEntity : Entity, IApplicationEntity
     {
         private readonly ILogger logger = Log.ForContext<ApplicationEntity>();
 
@@ -25,11 +25,16 @@ namespace Pixel.Automation.Core.Components
         [DataMember]
         [Browsable(false)]
         public string ApplicationFile { get; set; }
-      
+
         private IApplication applicationDetails;
 
 
-        public ApplicationEntity(string name = "Application", string tag = "Application") : base(name,tag)
+        internal ApplicationEntity()
+        {
+
+        }
+
+        public ApplicationEntity(string name = "Application", string tag = "Application") : base(name, tag)
         {
 
         }
@@ -42,7 +47,7 @@ namespace Pixel.Automation.Core.Components
 
         public virtual T GetTargetApplicationDetails<T>() where T : class, IApplication
         {
-            return GetTargetApplicationDetails() as T;         
+            return GetTargetApplicationDetails() as T;
         }
 
         private void LoadApplicationDetails()
@@ -51,12 +56,12 @@ namespace Pixel.Automation.Core.Components
             {
                 var fileSystem = this.EntityManager.GetCurrentFileSystem();
                 if (fileSystem.Exists(this.ApplicationFile))
-                {                  
+                {
                     ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
                     var masterApplicationDetails = serializer.Deserialize<ApplicationDescription>(this.ApplicationFile);
                     this.applicationDetails = masterApplicationDetails.ApplicationDetails;
                     (this.applicationDetails as Interfaces.IComponent).Parent = this;
-                    (this.applicationDetails as Interfaces.IComponent).EntityManager = this.EntityManager;                  
+                    (this.applicationDetails as Interfaces.IComponent).EntityManager = this.EntityManager;
                     this.Name = this.applicationDetails.ApplicationName;
                     logger.Information("Loaded application details for Application Entity with Id: {0}", this.Id);
                     return;
@@ -68,14 +73,14 @@ namespace Pixel.Automation.Core.Components
 
         public override void ResolveDependencies()
         {
-            if(!this.Components.Any(a => a is IControlLocator))
+            if (!this.Components.Any(a => a is IControlLocator))
             {
                 LoadApplicationDetails();
                 var controlLocatorAttribute = this.applicationDetails.GetType().GetCustomAttributes(typeof(ControlLocatorAttribute), false).OfType<ControlLocatorAttribute>().FirstOrDefault();
-                if(controlLocatorAttribute != null)
+                if (controlLocatorAttribute != null)
                 {
                     Component controlLocator = Activator.CreateInstance(controlLocatorAttribute.LocatorType) as Component;
-                    if(controlLocator != null)
+                    if (controlLocator != null)
                     {
                         base.AddComponent(controlLocator);
                         logger.Information("Added control locator of type : {0} to Applicaton Entity " +
@@ -85,5 +90,5 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-    } 
+    }
 }

@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace Pixel.Automation.Core.Utilities
+namespace Pixel.Automation.RunTime.Serialization
 {   
     public  class XmlSerializer : ISerializer
     {

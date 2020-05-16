@@ -5,7 +5,6 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Components;
 using Polly;
 using Polly.Retry;
 using Serilog;
@@ -33,7 +32,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             get
             {
-                return this.EntityManager.GetApplicationDetails<WebApplication>(this);
+                return this.EntityManager.GetOwnerApplication<WebApplication>(this);
             }
         }
 
