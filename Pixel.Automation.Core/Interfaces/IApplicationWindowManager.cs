@@ -89,5 +89,13 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="hWnd"></param>
         /// <returns></returns>
         ApplicationWindow FromHwnd(IntPtr hWnd);
+
+
+        /// <summary>
+        /// Create ApplicationWindow from a processId. Process MainWindowHandle is used to locate window.
+        /// </summary>
+        /// <param name="processId"></param>
+        /// <returns></returns>
+        ApplicationWindow FromProcessId(int processId);
     }
 }

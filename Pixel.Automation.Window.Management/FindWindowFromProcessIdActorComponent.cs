@@ -35,10 +35,9 @@ namespace Pixel.Automation.Window.Management
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
-        
-            int processId = argumentProcessor.GetValue<int>(this.ProcessId);
-            Process process = Process.GetProcessById(processId);
-            var foundWindow = windowManager.FromHwnd(process.MainWindowHandle);
+
+            int processId = argumentProcessor.GetValue<int>(this.ProcessId);           
+            var foundWindow = windowManager.FromProcessId(processId);
 
             argumentProcessor.SetValue<ApplicationWindow>(this.FoundWindow, foundWindow);
         }

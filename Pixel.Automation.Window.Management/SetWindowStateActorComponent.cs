@@ -8,7 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.CoreComponents
+namespace Pixel.Automation.Window.Management
 {
 
     [DataContract]
@@ -26,12 +26,7 @@ namespace Pixel.Automation.CoreComponents
         [Category("Input")]
         public WindowState DesiredState { get; set; } = WindowState.Maximize;
 
-        //[DataMember]
-        //[DisplayName("Activate Window")]
-        //[Category("Input")]
-        //public bool ShouldActivate { get; set; } = true;
-
-        
+    
         public SetWindowStateActorComponent() : base("Set Window State", " SetWindowState")
         {
 

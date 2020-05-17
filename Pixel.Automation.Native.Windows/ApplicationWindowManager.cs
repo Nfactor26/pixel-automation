@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -263,6 +264,16 @@ namespace Pixel.Automation.Native.Windows
             bool isVisible = ((windowInfo.dwStyle & User32.WindowStyles.WS_VISIBLE) == User32.WindowStyles.WS_VISIBLE);
 
             return new ApplicationWindow((int)processId, hWnd, title, windowSize, isVisible);
+        }
+
+        public ApplicationWindow FromProcessId(int processId)
+        {
+            Process process = Process.GetProcessById(processId);
+            if(process.HasExited )
+            {
+                throw new InvalidOperationException($"Process with id {processId} is already exited.");
+            }
+            return FromHwnd(process.MainWindowHandle);
         }
 
         /// <summary>

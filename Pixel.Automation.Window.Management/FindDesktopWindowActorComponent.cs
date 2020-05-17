@@ -133,11 +133,10 @@ namespace Pixel.Automation.Window.Management
                             argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, foundWindow);
                         }
                         break;
-                    case FilterMode.Custom:
-                        bool found = false;
+                    case FilterMode.Custom:                      
                         foreach (var window in foundWindows)
                         {
-                            found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
+                            var found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
                             if (found)
                             {
                                 argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, window);
@@ -153,7 +152,7 @@ namespace Pixel.Automation.Window.Management
 
         protected async Task<bool> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
         {
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, bool>>(predicateScriptFile);
 
             bool isMatch = fn(this, applicationWindow);
