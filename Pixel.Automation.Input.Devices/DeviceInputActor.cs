@@ -1,7 +1,9 @@
 ﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Exceptions;
+using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -10,7 +12,7 @@ namespace Pixel.Automation.Input.Devices
 {
     [DataContract]
     [Serializable]
-    public abstract class InputSimulatorBase : ActorComponent
+    public abstract class DeviceInputActor : ActorComponent
     {
         protected ISyntheticKeyboard GetKeyboard()
         {
@@ -26,15 +28,39 @@ namespace Pixel.Automation.Input.Devices
         }
 
         [Browsable(false)]
-        protected ControlEntity ControlEntity
+        protected IControlEntity ControlEntity
         {
-            get => this.Parent as ControlEntity;          
+            get => this.Parent as IControlEntity;          
         }
 
-        protected InputSimulatorBase(string name = "", string tag = ""):base(name,tag)
+        protected DeviceInputActor(string name = "", string tag = ""):base(name,tag)
         {
 
-        }     
+        }
+
+        internal protected ScreenCoordinate GetScreenCoordinateFromControl(InArgument<UIControl> targetControl)
+        {
+            var argumentProcessor = this.ArgumentProcessor;
+            UIControl control;
+            if (targetControl.IsConfigured())
+            {
+                control = argumentProcessor.GetValue<UIControl>(targetControl);
+            }
+            else
+            {
+                ThrowIfMissingControlEntity();
+                control = this.ControlEntity.GetControl();
+            }
+          
+            if (control != null)
+            {
+                control.GetClickablePoint(out double x, out double y);
+                return new ScreenCoordinate(x, y);
+            }
+
+            throw new ElementNotFoundException("Control could not be located");
+        }
+
 
         protected void ThrowIfMissingControlEntity()
         {

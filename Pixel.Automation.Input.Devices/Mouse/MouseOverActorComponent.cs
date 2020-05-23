@@ -15,7 +15,7 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Mouse Over", "Input Device", "Mouse", iconSource: null, description: "Move mouse to desired coordinates", tags: new string[] { "Click" })]
 
-    public class MouseOverActorComponent : InputSimulatorBase
+    public class MouseOverActorComponent : DeviceInputActor
     {
         [DataMember]
         [Display(Name = "Target Control", GroupName = "Control Details")]     
@@ -74,21 +74,7 @@ namespace Pixel.Automation.Input.Devices
             switch (this.Target)
             {
                 case Target.Control:
-                    UIControl targetControl = default;
-                    if (this.TargetControl.IsConfigured())
-                    {
-                        targetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
-                    }
-                    else
-                    {
-                        ThrowIfMissingControlEntity();
-                        targetControl = this.ControlEntity.GetControl();
-                    }
-                    if (targetControl != null)
-                    {                      
-                        targetControl.GetClickablePoint(out double x, out double y);
-                        screenCoordinate = new ScreenCoordinate(x, y);
-                    }
+                    screenCoordinate = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
                     break;
                 case Target.Empty:
                     screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.MoveTo);

@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Devices;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -12,14 +13,14 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Move", "Input Device", "Mouse", iconSource: null, description: "Move mouse by configured coordinates", tags: new string[] { "Move By" })]
 
-    public class MouseMoveByActorComponent : InputSimulatorBase
+    public class MouseMoveByActorComponent : DeviceInputActor
     {
         [DataMember]      
         [Display(Name = "Move By", GroupName = "Mouse Move Configuration")]
         [Description("Represents the amount by which cursor should be moved")]       
-        public Argument MoveBy { get; set; } = new InArgument<ScreenCoordinate>()
+        public Argument MoveBy { get; set; } = new InArgument<Point>()
         {
-            DefaultValue = new ScreenCoordinate(),
+            DefaultValue = new Point(),
             CanChangeType = false
         };
 
@@ -34,9 +35,9 @@ namespace Pixel.Automation.Input.Devices
 
         public override void Act()
         {           
-            ScreenCoordinate offsetCoordinates = this.ArgumentProcessor.GetValue<ScreenCoordinate>(this.MoveBy);
+            var offsetCoordinates = this.ArgumentProcessor.GetValue<Point>(this.MoveBy);
             var syntheticMouse = GetMouse();
-            syntheticMouse.MoveMouseBy(offsetCoordinates.XCoordinate, offsetCoordinates.YCoordinate, this.SmootMode);       
+            syntheticMouse.MoveMouseBy(offsetCoordinates.X, offsetCoordinates.Y, this.SmootMode);       
         }
     }
 }

@@ -102,7 +102,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Scripting.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RunTime.Tests", "Unit.Tests\Pixel.Automation.RunTime.Tests\Pixel.Automation.RunTime.Tests.csproj", "{605AB381-D359-464D-9600-A45478B4FB69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.Window.Management.Tests", "Unit.Tests\Pixel.Automation.Window.Management.Tests\Pixel.Automation.Window.Management.Tests.csproj", "{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Management.Tests", "Unit.Tests\Pixel.Automation.Window.Management.Tests\Pixel.Automation.Window.Management.Tests.csproj", "{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Tests", "Unit.Tests\Pixel.Automation.Input.Devices.Tests\Pixel.Automation.Input.Devices.Tests.csproj", "{96FBE50C-DB2E-43F6-84F7-7F29481E889E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -246,6 +248,10 @@ Global
 		{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96FBE50C-DB2E-43F6-84F7-7F29481E889E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96FBE50C-DB2E-43F6-84F7-7F29481E889E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96FBE50C-DB2E-43F6-84F7-7F29481E889E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96FBE50C-DB2E-43F6-84F7-7F29481E889E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -288,6 +294,7 @@ Global
 		{ABCC3DDB-FE99-4822-9551-6A24C9E63998} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{605AB381-D359-464D-9600-A45478B4FB69} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
+		{96FBE50C-DB2E-43F6-84F7-7F29481E889E} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

@@ -12,7 +12,7 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Scroll", "Input Device", "Mouse", iconSource: null, description: "Perform a scroll  action using mouse", tags: new string[] { "Scroll" })]
 
-    public class ScrollActorComponent : InputSimulatorBase
+    public class ScrollActorComponent : DeviceInputActor
     {
         /// <summary>
         /// Note : 1 unit of scroll is equivalent to 120 pixels . This is specific to library being used
@@ -22,7 +22,7 @@ namespace Pixel.Automation.Input.Devices
         [Display(Name = "Amount", GroupName = "Scroll Configuration")]           
         public Argument ScrollAmount { get; set; } = new InArgument<int>() { DefaultValue = 1, CanChangeType = false };
 
-        ScrollMode scrollMode;
+        ScrollMode scrollMode = ScrollMode.Vertical;
         [DataMember]
         [Display(Name = "Mode", GroupName = "Scroll Configuration")]
         public ScrollMode ScrollMode
@@ -31,7 +31,7 @@ namespace Pixel.Automation.Input.Devices
             set
             {
                 this.scrollMode = value;
-                OnPropertyChanged("ScrollMode");
+                OnPropertyChanged();
                 switch (value)
                 {
                     case ScrollMode.Vertical:
@@ -45,7 +45,7 @@ namespace Pixel.Automation.Input.Devices
             }
         }
 
-        ScrollDirection scrollDirection;
+        ScrollDirection scrollDirection = ScrollDirection.Down;
         [DataMember]
         [Display(Name = "Direction", GroupName = "Scroll Configuration")]
         public ScrollDirection ScrollDirection
@@ -57,14 +57,18 @@ namespace Pixel.Automation.Input.Devices
                 {
                     case ScrollMode.Horizontal:
                         if (value == ScrollDirection.Left || value == ScrollDirection.Right)
+                        {
                             this.scrollDirection = value;
+                        }
                         break;
                     case ScrollMode.Vertical:
                         if (value == ScrollDirection.Down || value == ScrollDirection.Up)
+                        {
                             this.scrollDirection = value;
+                        }
                         break;
                 }
-                OnPropertyChanged("ScrollDirection");
+                OnPropertyChanged();
             }
         }
 
@@ -77,7 +81,9 @@ namespace Pixel.Automation.Input.Devices
         {         
             int amountToScroll = this.ArgumentProcessor.GetValue<int>(this.ScrollAmount);
             if (this.scrollDirection.Equals(ScrollDirection.Down) || this.scrollDirection.Equals(ScrollDirection.Right))
+            {
                 amountToScroll *= -1;
+            }
             var syntheticMouse = GetMouse();
             switch (this.scrollMode)
             {

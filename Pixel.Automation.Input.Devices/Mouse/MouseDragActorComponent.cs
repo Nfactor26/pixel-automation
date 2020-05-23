@@ -17,7 +17,7 @@ namespace Nish26.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Drag", "Input Device", "Mouse", iconSource: null, description: "Perform a drag action using mouse", tags: new string[] { "Drag" })]
 
-    public class MouseDragActorComponent : InputSimulatorBase
+    public class MouseDragActorComponent : DeviceInputActor
     {
         [DataMember]
         [Display(Name = "Target Control", GroupName = "Control Details")]  
@@ -48,22 +48,29 @@ namespace Nish26.Automation.Input.Devices
                     case DragMode.From:
 
                         if (this.Name.EndsWith(" [End]"))
+                        {
                             this.Name = this.Name.Replace(" [End]", "");
+                        }
 
                         if (!this.Name.EndsWith(" [Start]"))
+                        {
                             this.Name += " [Start]";
+                        }
 
                         break;
                     case DragMode.To:
                         if (this.Name.EndsWith(" [Start]"))
+                        {
                             this.Name = this.Name.Replace(" [Start]", "");
+                        }
 
                         if (!this.Name.EndsWith(" [End]"))
+                        {
                             this.Name += " [End]";
+                        }
                         break;
                 }
                 OnPropertyChanged(nameof(Name));
-
             }
 
         }

@@ -10,9 +10,9 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Hot Key", "Input Device", "Keyboard", iconSource: null, description: "Press a key comibnation shuch as ctrl+c,etc.", tags: new string[] { "HotKeys" })]
 
-    public class HotKeyActorComponent : InputSimulatorBase
+    public class HotKeyActorComponent : DeviceInputActor
     {
-        string keySequence = string.Empty;
+        string keySequence = "Ctrl + C";
         [DataMember]
         [Display(Name = "Hot Key", GroupName = "Key Configuration")]          
         public string KeySequence
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Input.Devices
             set
             {
                 keySequence = value;                           
-                OnPropertyChanged("KeySequence");
+                OnPropertyChanged();
             }
         }
 

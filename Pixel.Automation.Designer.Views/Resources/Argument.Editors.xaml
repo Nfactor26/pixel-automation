@@ -104,4 +104,15 @@
         </StackPanel>        
     </DataTemplate>
 
+    <DataTemplate x:Key="InArgument_Point">
+        <StackPanel Orientation="Vertical">
+            <TextBox x:Name="XCoordinate"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
+                 Text="{Binding Path=DefaultValue.X,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Metro:TextBoxHelper.UseFloatingWatermark="True"
+                 Metro:TextBoxHelper.Watermark="x-coordinate" Metro:TextBoxHelper.ClearTextButton="True" />
+            <TextBox x:Name="YCoordinate"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
+                 Text="{Binding Path=DefaultValue.Y,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Metro:TextBoxHelper.UseFloatingWatermark="True"
+                 Metro:TextBoxHelper.Watermark="y-coordinate" Metro:TextBoxHelper.ClearTextButton="True" />
+        </StackPanel>
+    </DataTemplate>
+    
 </ResourceDictionary>

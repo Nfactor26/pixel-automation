@@ -17,7 +17,7 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Click", "Input Device", "Mouse", iconSource: null, description: "Perform a click action using mouse at given coordinates", tags: new string[] { "Click" })]
 
-    public class MouseClickActorComponent : InputSimulatorBase
+    public class MouseClickActorComponent : DeviceInputActor
     {
         [DataMember]
         [Display(Name = "Target Control", GroupName = "Control Details")]               
@@ -85,21 +85,7 @@ namespace Pixel.Automation.Input.Devices
             switch (this.Target)
             {
                 case Target.Control:
-                    UIControl targetControl;
-                    if (this.TargetControl.IsConfigured())
-                    {
-                        targetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
-                    }
-                    else
-                    {
-                        ThrowIfMissingControlEntity();
-                        targetControl = this.ControlEntity.GetControl();
-                    }
-                    if (targetControl != null)
-                    {                       
-                        targetControl.GetClickablePoint(out double x, out double y);
-                        screenCoordinate = new ScreenCoordinate(x, y);
-                    }
+                    screenCoordinate = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
                     break;
                 case Target.Empty:
                     screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.ClickAt);
@@ -150,7 +136,7 @@ namespace Pixel.Automation.Input.Devices
                     break;
             }
         }
-
+        
         public override bool ValidateComponent()
         {          
             if(!this.TargetControl.IsConfigured() && this.ControlEntity == null)

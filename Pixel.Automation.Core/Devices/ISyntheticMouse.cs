@@ -9,15 +9,32 @@ namespace Pixel.Automation.Core.Devices
         /// </summary>
         int MouseWheelClickSize { get; set; }
 
+        /// <summary>
+        /// Hold down specified mouse button e.g. hold down left to start dragging
+        /// </summary>
+        /// <param name="mouseButton"></param>
+        /// <returns></returns>
         ISyntheticMouse ButtonDown(MouseButton mouseButton);
 
-
+        /// <summary>
+        /// Release a specified mouse button which was earlier hold down 
+        /// </summary>
+        /// <param name="mouseButton"></param>
+        /// <returns></returns>
         ISyntheticMouse ButtonUp(MouseButton mouseButton);
 
-
+        /// <summary>
+        /// Click specified mouse button
+        /// </summary>
+        /// <param name="mouseButton"></param>
+        /// <returns></returns>
         ISyntheticMouse Click(MouseButton mouseButton);
 
-
+        /// <summary>
+        /// Double Click specified mouse button
+        /// </summary>
+        /// <param name="mouseButton"></param>
+        /// <returns></returns>
         ISyntheticMouse DoubleClick(MouseButton mouseButton);
 
 
@@ -46,8 +63,12 @@ namespace Pixel.Automation.Core.Devices
         /// </summary>
         /// <param name="scrollAmountInClicks">The amount to scroll in clicks. A positive value indicates that the wheel was rotated to the right; a negative value indicates that the wheel was rotated to the left.</param>
         ISyntheticMouse HorizontalScroll(int scrollAmountInClicks);
-        
+
+        /// <summary>
+        /// Retrieve the current location of cursor
+        /// </summary>
+        /// <returns></returns>
         Point GetCursorPosition();
-     
+
     }
 }

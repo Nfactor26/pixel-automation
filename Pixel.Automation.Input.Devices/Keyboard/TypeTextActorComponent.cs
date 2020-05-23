@@ -10,7 +10,7 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Type text", "Input Device", "Keyboard", iconSource: null, description: "Type text using keyboard", tags: new string[] { "Type" })]
 
-    public class TypeTextActorComponent : InputSimulatorBase
+    public class TypeTextActorComponent : DeviceInputActor
     {
         [DataMember]
         [Category("Input Text Configuration")]    

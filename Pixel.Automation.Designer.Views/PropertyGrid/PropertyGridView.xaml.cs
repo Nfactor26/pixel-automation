@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Arguments.Editor;
 using Pixel.Automation.Editor.Core.Editors;
+using Serilog;
 using System;
 using System.Diagnostics;
 using System.Windows.Controls;
@@ -12,6 +13,8 @@ namespace Pixel.Automation.Designer.Views
     /// </summary>
     public partial class PropertyGridView : UserControl
     {
+        private readonly ILogger logger = Log.ForContext<PropertyGridView>();
+
         public PropertyGridView()
         {
             InitializeComponent();
@@ -42,7 +45,7 @@ namespace Pixel.Automation.Designer.Views
                     targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.Name.Equals("Keys"))
+                if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
                 {
                     targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
                     return;
@@ -50,6 +53,7 @@ namespace Pixel.Automation.Designer.Views
             }
             catch (Exception ex)
             {
+                logger.Error(ex, ex.Message);
                 Debug.Assert(false, ex.Message);
             }
         }

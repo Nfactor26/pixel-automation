@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
@@ -11,7 +10,7 @@ namespace Pixel.Automation.Input.Devices
     [Serializable]
     [ToolBoxItem("Key Press", "Input Device", "Keyboard", iconSource: null, description: "Press a key such as Enter", tags: new string[] { "KeyPress" })]
 
-    public class KeyPressActorComponent : InputSimulatorBase
+    public class KeyPressActorComponent : DeviceInputActor
     {
         PressMode pressMode;
         [DataMember]
@@ -25,7 +24,7 @@ namespace Pixel.Automation.Input.Devices
             set
             {
                 pressMode = value;
-                OnPropertyChanged("KeyPressMode");
+                OnPropertyChanged();
             }
         }
 
@@ -39,7 +38,7 @@ namespace Pixel.Automation.Input.Devices
             set
             {
                 keySequence = value;               
-                OnPropertyChanged("KeySequence");
+                OnPropertyChanged();
             }
         }
 
@@ -57,15 +56,21 @@ namespace Pixel.Automation.Input.Devices
             {
                 case PressMode.KeyPress:
                     foreach (var key in keysToPress)
+                    {
                         syntheticKeyboard.KeyPress(key);
+                    }
                     break;
                 case PressMode.KeyDown:
                     foreach (var key in keysToPress)
+                    {
                         syntheticKeyboard.KeyDown(key);
+                    }
                     break;
                 case PressMode.KeyUp:
                     foreach (var key in keysToPress)
+                    {
                         syntheticKeyboard.KeyUp(key);
+                    }
                     break;
             }
 
