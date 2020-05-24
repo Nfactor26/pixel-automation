@@ -60,7 +60,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             IWebElement foundControl = GetTargetControl<IWebElement>();
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
-            return new WebUIControl(this.ControlDetails, webControlLocator) { TargetControl = foundControl };
+            return new WebUIControl(this.ControlDetails, foundControl,  webControlLocator) ;
         }    
 
 
@@ -78,9 +78,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
             var foundControls = webControlLocator.FindAllControls(this.ControlDetails, searchRoot);
             List<UIControl> foundUIControls = new List<UIControl>();
-            foreach(var control in foundControls)
+            foreach(var foundControl in foundControls)
             {
-                foundUIControls.Add(new WebUIControl(this.ControlDetails, webControlLocator) { TargetControl = control });
+                foundUIControls.Add(new WebUIControl(this.ControlDetails, foundControl,  webControlLocator));
             }
             return foundUIControls;
         }

@@ -1,8 +1,8 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Core.Components;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -44,36 +44,23 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         }
 
         public override void Act()
-        {
-            string scriptResult = string.Empty;
+        {           
             string jsCode = ArgumentProcessor.GetValue<string>(this.Script);
+            List<object> allArguments = new List<object>();
 
-            if (this.Parent is ControlEntity)
+            if (this.Parent is IControlEntity)
             {
-                UIControl targetControl;
-                if (this.TargetControl.IsConfigured())
-                {
-                    targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
-                }
-                else
-                {
-                    ThrowIfMissingControlEntity();
-                    targetControl = this.ControlEntity.GetControl();
-                }
-
-                IWebElement control = targetControl.GetApiControl<IWebElement>();
-                var arguments = ArgumentProcessor.GetValue<object[]>(this.Arguments);
-                List<object> allArguments = new List<object>();
+                IWebElement control = GetTargetControl(this.TargetControl);
                 allArguments.Add(control);
-                allArguments.AddRange(arguments);
-                scriptResult = (this.ApplicationDetails.WebDriver as IJavaScriptExecutor).ExecuteScript(jsCode, allArguments.ToArray())?.ToString();
+            }
 
-            }
-            else
+            if (this.Arguments.IsConfigured())
             {
-                scriptResult = (this.ApplicationDetails.WebDriver as IJavaScriptExecutor).ExecuteScript(jsCode)?.ToString();
+                var arguments = ArgumentProcessor.GetValue<object[]>(this.Arguments);
+                allArguments.AddRange(arguments);
             }
-          
+
+            var scriptResult = (this.ApplicationDetails.WebDriver as IJavaScriptExecutor).ExecuteScript(jsCode, allArguments.ToArray())?.ToString();
             ArgumentProcessor.SetValue<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
 
             Log.Information("Execute javascript interaction completed");

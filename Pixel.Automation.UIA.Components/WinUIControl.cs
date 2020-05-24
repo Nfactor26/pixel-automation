@@ -12,15 +12,18 @@ namespace Pixel.Automation.UIA.Components
     {     
        
         private readonly IControlIdentity controlIdentity;
+        private readonly AutomationElement automationElement;
 
-        public WinUIControl(IControlIdentity controlIdentity)
+        public WinUIControl(IControlIdentity controlIdentity, AutomationElement automationElement)
         {          
             this.controlIdentity = controlIdentity;
+            this.automationElement = automationElement;
+            this.TargetControl = automationElement;
         }
 
         public override Rectangle GetBoundingBox()
         {
-            var boundingBox = (TargetControl as AutomationElement).Current.BoundingRectangle;
+            var boundingBox = this.automationElement.Current.BoundingRectangle;
             return new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
         }
 

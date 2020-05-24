@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Dawn;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
@@ -8,22 +9,29 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     public class WebUIControl : UIControl
     {
-        private readonly WebControlLocatorComponent webControlLocator; 
+        private readonly ICoordinateProvider coordinateProvider; 
         private readonly IControlIdentity controlIdentity;
-        public WebUIControl(IControlIdentity controlIdentity, WebControlLocatorComponent webControlLocator)
+        private readonly IWebElement webElement;
+
+        public WebUIControl(IControlIdentity controlIdentity, IWebElement webElement, ICoordinateProvider coordinateProvider)
         {
+            Guard.Argument(controlIdentity).NotNull();
+            Guard.Argument(webElement).NotNull();
+            Guard.Argument(coordinateProvider).NotNull();
+
             this.controlIdentity = controlIdentity;
-            this.webControlLocator = webControlLocator;
+            this.coordinateProvider = coordinateProvider;
+            this.webElement = webElement;
+            this.TargetControl = webElement;
         }
 
         public override Rectangle GetBoundingBox()
         {
             //webdriver imlementation for location doesn't consider browser window titlebar space resulting in to incorrect y-coodrinate.
-            //Hence, custom implementation
-            IWebElement targetControl = GetApiControl<IWebElement>();
-            //var boundingBox = new Rectangle(targetControl.Location, targetControl.Size);
+            //Hence, custom implementation          
+            //var boundingBox = new Rectangle(webElement.Location, webElement.Size);
             //return boundingBox;
-            var boundingBox = webControlLocator.GetBoundingBox(targetControl);
+            var boundingBox = coordinateProvider.GetBoundingBox(webElement);
             return boundingBox;
         }
 

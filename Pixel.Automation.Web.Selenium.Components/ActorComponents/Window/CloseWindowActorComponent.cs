@@ -11,7 +11,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Close Window", "Selenium","Browser", iconSource: null, description: "Closes a Selenium based browser", tags: new string[] { "Close", "Shutdown", "Dispose", "Web" })]
+    [ToolBoxItem("Close Window", "Selenium","Browser", iconSource: null, description: "Close a tab or window", tags: new string[] { "Close", "Tab" , "Window", "Web" })]
     public class CloseWindowActorComponent : SeleniumActorComponent
     {
         [DataMember]
@@ -30,24 +30,11 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
             {
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber-1]);
                 webDriver.Close();
+                return;
             }
-            else
-            {
-                Log.Warning("Only {n} windows/tabs are open.Can't close configured window with index : {index}", webDriver.WindowHandles.Count(), this.WindowNumber);
-            }
-        }
 
-        public override bool ValidateComponent()
-        {
-            if(WindowNumber is InArgument<int> winNumber)
-            {
-                if(winNumber.DefaultValue < 2)
-                {
-                    IsValid = true;
-                }
-            }
-            return base.ValidateComponent();
-        }
+            throw new IndexOutOfRangeException($"Only {webDriver.WindowHandles.Count} windows / tabs are open. Can't close configured window  with index : {this.WindowNumber}");
+        }     
 
         public override string ToString()
         {

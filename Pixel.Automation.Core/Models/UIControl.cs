@@ -8,13 +8,13 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public abstract class UIControl
     {
-        public object TargetControl { get; set; }
+        protected object TargetControl { get; set; }
 
         public Rectangle BoundingBox { get; set; }
 
         public Point ClickablPoint { get; set; }
 
-        public T GetApiControl<T>()
+        public virtual T GetApiControl<T>()
         {
             if (this.TargetControl is T requiredControl)
             {

@@ -35,19 +35,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override void Act()
         {
-            UIControl targetControl;
-            if (this.TargetControl.IsConfigured())
-            {
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
-            }
-            else
-            {
-                ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();
-            }
-
-            IWebElement control = targetControl.GetApiControl<IWebElement>();
-
+            IWebElement control = GetTargetControl(this.TargetControl);
             string selectText = ArgumentProcessor.GetValue<string>(this.Input);
 
             SelectElement selectElement = new SelectElement(control);

@@ -15,11 +15,11 @@ namespace Pixel.Automation.Web.Selenium.Components
     {
         [DataMember]
         [Description("Amount of horizontal scroll")]
-        public Argument HorizontalScroll { get; set; } = new InArgument<int>() { DefaultValue = 0 };
+        public Argument HorizontalScroll { get; set; } = new InArgument<int>() { Mode = ArgumentMode.Default, DefaultValue = 0 };
 
         [DataMember]              
         [Description("Amount of vertical scroll")]
-        public Argument VerticalScroll { get; set; } = new InArgument<string>();        
+        public Argument VerticalScroll { get; set; } = new InArgument<int>() { Mode = ArgumentMode.Default, DefaultValue = 0 };        
 
         public ScrollPageActorComponent() : base("Scroll By Amount", "ScrollByAmount")
         {
@@ -27,11 +27,10 @@ namespace Pixel.Automation.Web.Selenium.Components
         }
 
         public override void Act()
-        {
-            var arugmentProcessor = this.ArgumentProcessor;
+        {           
             int verticalScrollAmount = this.ArgumentProcessor.GetValue<int>(this.VerticalScroll);
             int horizontalScrollAmount = this.ArgumentProcessor.GetValue<int>(this.HorizontalScroll);
-            ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll({horizontalScrollAmount},{verticalScrollAmount});");
+            _ = ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll({horizontalScrollAmount}, {verticalScrollAmount});");
         }
 
         public override string ToString()

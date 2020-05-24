@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Models;
@@ -21,6 +22,10 @@ namespace Pixel.Automation.Web.Selenium.Components
         [Browsable(true)]
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
+        [DataMember]
+        [DisplayName("Force Click")]
+        public bool ForceClick { get; set; } = false;
+
         public ClickActorComponent():base("Click","Click")
         {
 
@@ -28,20 +33,19 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override void Act()
         {
-            UIControl targetControl;
-            if (this.TargetControl.IsConfigured())
-            {              
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);               
+            IWebElement control = GetTargetControl(this.TargetControl);
+            if(this.ForceClick)
+            {
+                //doesn't check for preconditions like whether element is clickable,etc
+                Actions action = new Actions(ApplicationDetails.WebDriver);
+                action.Click(control).Build().Perform();
             }
             else
             {
-                ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();              
+                control.Click();
             }
-
-            IWebElement control = targetControl.GetApiControl<IWebElement>(); 
-            control.Click();
-            Log.Information("Click interaction completed");
+           
+            Log.Information("Click completed");
         }
 
         public override string ToString()

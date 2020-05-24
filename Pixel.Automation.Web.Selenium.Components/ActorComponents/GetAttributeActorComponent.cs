@@ -36,26 +36,12 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override void Act()
         {
-            Debug.Assert(!string.IsNullOrEmpty(this.AttributeName));
-            Debug.Assert(!string.IsNullOrWhiteSpace(this.AttributeName));
-
-            UIControl targetControl;
-            if (this.TargetControl.IsConfigured())
-            {              
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
-            }
-            else
-            {
-                ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();               
-            }
-
-            IWebElement control = targetControl.GetApiControl<IWebElement>();
+            IWebElement control = GetTargetControl(this.TargetControl);
             string extractedValue = control.GetAttribute(this.AttributeName);
 
             ArgumentProcessor.SetValue<string>(Result, extractedValue);
 
-            Log.Information("GetAttribute interaction completed");          
+            Log.Information("GetAttribute  completed");          
         }
 
         public override string ToString()

@@ -32,21 +32,10 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override void Act()
         {
-            UIControl targetControl = default;
-            if (this.TargetControl.IsConfigured())
-            {
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
-            }
-            else
-            {
-                ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();
-            }
-
             int offsetAmount = ArgumentProcessor.GetValue<int>(this.OffSet);
-            IWebElement control = targetControl.GetApiControl<IWebElement>();
+            IWebElement control = GetTargetControl(this.TargetControl);
             int elemPos = control.Location.Y+ offsetAmount;
-            ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript("window.scroll(0, " + elemPos + ");");
+            ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll(0, {elemPos});");
 
             Log.Information("ScrollTo interaction completed");
         }

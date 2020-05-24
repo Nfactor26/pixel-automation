@@ -18,10 +18,18 @@ namespace Pixel.Automation.Core.Interfaces
         void GetClickablePoint(IControlIdentity targetControl,out double x, out double y);
 
         /// <summary>
-        /// Get bounding box of the control on screen
+        /// Get bounding box of the control on screen.
         /// </summary>
         /// <param name="targetControl"><see cref="IControlIdentity"/> whose bounding box is required</param>
         /// <param name="screenBounds"><see cref="Rectangle"/> as the bounding box</param>
         void GetScreenBounds(IControlIdentity targetControl, out Rectangle screenBounds);
+
+
+        /// <summary>
+        /// Get bounding box of control which is already looked up
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        Rectangle GetBoundingBox(object control);
     }
 }

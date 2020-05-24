@@ -519,8 +519,11 @@ namespace Pixel.Automation.UIA.Components
             screenBounds = GetBoundingBox(targetControl);
         }
 
-        public Rectangle GetBoundingBox(AutomationElement automationElement)
+        public Rectangle GetBoundingBox(object control)
         {
+            Guard.Argument(control).NotNull().Compatible<AutomationElement>();
+
+            var automationElement = control as AutomationElement;
             var boundingBox = automationElement.Current.BoundingRectangle;
             return new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
         }

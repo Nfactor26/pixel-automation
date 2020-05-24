@@ -66,7 +66,7 @@ namespace Pixel.Automation.UIA.Components
         public override UIControl GetControl()
         {         
             AutomationElement uiaElement = GetTargetControl<AutomationElement>();
-            return new WinUIControl(this.ControlDetails) { TargetControl = uiaElement };
+            return new WinUIControl(this.ControlDetails, uiaElement);
         }
 
 
@@ -87,7 +87,7 @@ namespace Pixel.Automation.UIA.Components
             List<UIControl> foundUIControls = new List<UIControl>();
             foreach (var control in foundControls)
             {
-                foundUIControls.Add(new WinUIControl(this.ControlDetails) { TargetControl = control });
+                foundUIControls.Add(new WinUIControl(this.ControlDetails, control));
             }
             return foundUIControls;
         }     

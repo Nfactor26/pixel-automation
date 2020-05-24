@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Dawn;
+using OpenQA.Selenium;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
@@ -22,7 +23,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]
-    public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement,ISearchContext>, ICoordinateProvider
+    public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement, ISearchContext>, ICoordinateProvider
     {
 
         [RequiredComponent]
@@ -44,7 +45,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             {
                 return ApplicationDetails.WebDriver;
             }
-        }      
+        }
 
 
         [NonSerialized]
@@ -85,7 +86,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             set
             {
                 if (value == retryAttempts)
+                {
                     return;
+                }
                 retryAttempts = value;
                 retrySequence.Clear();
                 foreach (var i in Enumerable.Range(1, value))
@@ -109,7 +112,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             set
             {
                 if (value == retryInterval)
+                {
                     return;
+                }
                 retryInterval = value;
                 retrySequence.Clear();
                 foreach (var i in Enumerable.Range(1, retryAttempts))
@@ -124,11 +129,10 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         [NonSerialized]
         private List<TimeSpan> retrySequence;
-        
+
 
         /// <summary>
-        /// Contrsuctor
-        /// Note : Don't change tag as it is used by ControlExists/ControlNotExists components
+        /// Contrsuctor      
         /// </summary>
         public WebControlLocatorComponent() : base("Web Control Locator", "SeleniumControlLocator")
         {
@@ -152,8 +156,8 @@ namespace Pixel.Automation.Web.Selenium.Components
         public bool CanProcessControlOfType(IControlIdentity controlIdentity)
         {
             return controlIdentity is WebControlIdentity;
-        }    
-       
+        }
+
         public override void ResetComponent()
         {
             //this.searchRoots.Clear();
@@ -165,20 +169,20 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public IWebElement FindControl(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
         {
-            Debug.Assert(controlIdentity != null , "controlIdentity is null");
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
 
             IControlIdentity currentControl = controlIdentity;
             ISearchContext currentRoot = searchRoot ?? WebDriver;
             SwitchToTargetFrame(controlIdentity as WebControlIdentity); //All nested controls must be in same frame.Hence, switch once at start
-            while(true)
+            while (true)
             {
-                WebControlIdentity webControlIdentity = currentControl as WebControlIdentity;               
-                switch(webControlIdentity.SearchScope)
+                WebControlIdentity webControlIdentity = currentControl as WebControlIdentity;
+                switch (webControlIdentity.SearchScope)
                 {
                     case SearchScope.Children:
-                        throw new ConfigurationException("SearchScope.Children is not supported by Web Control Locator");                      
+                        throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
                     case SearchScope.Descendants:
-                        if(webControlIdentity.Index.HasValue)
+                        if (webControlIdentity.Index.HasValue)
                         {
                             var descendantControls = FindAllDescendantControls(webControlIdentity, currentRoot);
                             currentRoot = GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);
@@ -186,7 +190,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                         else
                         {
                             currentRoot = FindDescendantControl(webControlIdentity, currentRoot);
-                        }                      
+                        }
                         break;
                     case SearchScope.Sibling:
                         if (webControlIdentity.Index.HasValue)
@@ -197,18 +201,18 @@ namespace Pixel.Automation.Web.Selenium.Components
                         else
                         {
                             currentRoot = FindSiblingControl(webControlIdentity, currentRoot);
-                        }                       
+                        }
                         break;
                     case SearchScope.Ancestor:
                         if (webControlIdentity.Index.HasValue)
                         {
-                            throw new InvalidOperationException("There can be only one ancestor for a given control");
+                            throw new NotSupportedException("There can be only one ancestor for a given control. Index based lookup is invalid in this context");
                         }
                         else
                         {
                             currentRoot = FindAncestorControl(webControlIdentity, currentRoot);
-                        }                      
-                        break;                  
+                        }
+                        break;
                 }
 
                 if (webControlIdentity.Next != null)
@@ -217,21 +221,40 @@ namespace Pixel.Automation.Web.Selenium.Components
                     continue;
                 }
 
-                return currentRoot as IWebElement;                
+                return currentRoot as IWebElement;
             }
-           
+
         }
 
-        public IEnumerable<IWebElement> FindAllControls(IControlIdentity controlIdentity, ISearchContext searchRoot)
+        public IEnumerable<IWebElement> FindAllControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
         {
-            var foundElements = FindAllElement(controlIdentity as WebControlIdentity, searchRoot ?? WebDriver);
-            return foundElements;
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+
+            WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+            SwitchToTargetFrame(webControlIdentity);
+
+            switch (webControlIdentity.SearchScope)
+            {
+                case SearchScope.Descendants:
+                    var foundElements = FindAllElement(controlIdentity as WebControlIdentity, searchRoot ?? WebDriver);
+                    return foundElements;
+                case SearchScope.Sibling:
+                    var siblingElements = FindAllSiblingControls(controlIdentity, searchRoot ?? WebDriver);
+                    return siblingElements;
+                case SearchScope.Children:
+                case SearchScope.Ancestor:
+                default:
+                    throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
+            }
+
         }
 
         #region Descendant Control
 
         public IWebElement FindDescendantControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
         {
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+
             ConfigureRetryPolicy(controlIdentity);
             IWebElement foundControl = default;
             foundControl = policy.Execute(() =>
@@ -248,11 +271,13 @@ namespace Pixel.Automation.Web.Selenium.Components
                     HighlightElement(foundControl);
                 }
             });
-            return foundControl;           
+            return foundControl;
         }
 
         public IReadOnlyCollection<IWebElement> FindAllDescendantControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
         {
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+
             ConfigureRetryPolicy(controlIdentity);
             WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
             Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
@@ -266,90 +291,20 @@ namespace Pixel.Automation.Web.Selenium.Components
         #endregion Descendant Control
 
         #region Ancestor Control
+
         public IWebElement FindAncestorControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
         {
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
             ConfigureRetryPolicy(controlIdentity);
             IWebElement foundControl = default;
-            foundControl = policy.Execute(() =>
+            try
             {
-                try
-                {
-                    WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-                    Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
+                WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+                Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
 
-                    string identifier = webControlIdentity.Identifier;
-                    int searchTimeout = webControlIdentity.SearchTimeout;
-                    string ancestorSelector = ConvertLookupToSelector(webControlIdentity.FindByStrategy, identifier);
-                    //SwitchToTargetFrame(webControlIdentity);
-
-                    switch (webControlIdentity.FindByStrategy)
-                    {
-                        case "Id":
-                        case "ClassName":
-                        case "Name":
-                        case "CssSelector":
-                        case "TagName":
-                            IJavaScriptExecutor jsExecutor = WebDriver as IJavaScriptExecutor;
-                            foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).
-                             Until(p => { return jsExecutor.ExecuteScript(this.ancestorLookupScript, searchRoot, ancestorSelector) as IWebElement; });
-                            break;
-                        case "XPath":
-                            foundControl = FindElement(webControlIdentity, searchRoot);
-                            break;
-                        case "LinkText":
-                        case "PartialLinkText":
-                        default:
-                            throw new InvalidOperationException($"SearchScope : Ancestor is not supported for FindBy modes [LinkText,PartialLinkText]");
-                    }
-
-                    Log.Information($"{webControlIdentity.ToString()} has been located");
-                    return foundControl;
-
-                }
-                finally
-                {
-                    HighlightElement(foundControl);
-                }
-            });
-            return foundControl;            
-        }
-       
-        #endregion Ancestor Control
-
-        #region Sibling Control
-        public IWebElement FindSiblingControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
-        {
-            ConfigureRetryPolicy(controlIdentity);
-            IWebElement foundControl = default;
-            foundControl = policy.Execute(() =>
-            {                try
-                {
-                    WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-                    Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
-                    var foundControls = FindAllSiblingControls(controlIdentity, searchRoot);
-                    if (foundControls.Count() > 1)
-                        throw new ArgumentException("Found more than one Sibling Control.Consider using LookType.FindAll instead of LookType.FindSingle");
-                    return foundControls.Single();
-                }
-                finally
-                {
-                    HighlightElement(foundControl);
-                }
-            });
-            return foundControl;            
-        }
-
-        public IReadOnlyCollection<IWebElement> FindAllSiblingControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
-        {
-            ConfigureRetryPolicy(controlIdentity);
-            WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-            Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
-            var foundControls = policy.Execute(() =>
-            {
                 string identifier = webControlIdentity.Identifier;
                 int searchTimeout = webControlIdentity.SearchTimeout;
-                string siblingSelector = ConvertLookupToSelector(webControlIdentity.FindByStrategy, identifier);
-               
+
                 switch (webControlIdentity.FindByStrategy)
                 {
                     case "Id":
@@ -357,28 +312,99 @@ namespace Pixel.Automation.Web.Selenium.Components
                     case "Name":
                     case "CssSelector":
                     case "TagName":
+                        string ancestorSelector = ConvertLookupToSelector(webControlIdentity.FindByStrategy, identifier);
+                        foundControl = policy.Execute(() =>
+                        {
+                            IJavaScriptExecutor jsExecutor = WebDriver as IJavaScriptExecutor;
+                            return new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).
+                             Until(p => { return jsExecutor.ExecuteScript(this.ancestorLookupScript, searchRoot, ancestorSelector) as IWebElement; });
+                        });
+                        break;
+                    case "XPath":
+                        foundControl = FindElement(webControlIdentity, searchRoot);
+                        break;
+                    case "LinkText":
+                    case "PartialLinkText":
+                    default:
+                        throw new InvalidOperationException($"SearchScope : Ancestor is not supported for FindBy modes [LinkText,PartialLinkText]");
+                }
+
+                Log.Information($"{webControlIdentity.ToString()} has been located");
+            }
+            finally
+            {
+                HighlightElement(foundControl);
+            }
+
+            return foundControl;
+        }
+
+        #endregion Ancestor Control
+
+        #region Sibling Control
+        public IWebElement FindSiblingControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
+        {
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+
+            IWebElement foundControl = default;
+            try
+            {
+                WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+                Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
+                var foundControls = FindAllSiblingControls(controlIdentity, searchRoot);
+                if (foundControls.Count() > 1)
+                {
+                    throw new ArgumentException("Found more than one Sibling Control.Consider using LookType.FindAll instead of LookType.FindSingle");
+                }
+                foundControl = foundControls.Single();
+            }
+            finally
+            {
+                HighlightElement(foundControl);
+            }
+            return foundControl;
+        }
+
+        public IReadOnlyCollection<IWebElement> FindAllSiblingControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
+        {
+            Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+
+            ConfigureRetryPolicy(controlIdentity);
+            WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+            string identifier = webControlIdentity.Identifier;
+            int searchTimeout = webControlIdentity.SearchTimeout;
+            switch (webControlIdentity.FindByStrategy)
+            {
+                case "Id":
+                case "ClassName":
+                case "Name":
+                case "CssSelector":
+                case "TagName":
+                    var foundControls = policy.Execute(() =>
+                    {
+                        string siblingSelector = ConvertLookupToSelector(webControlIdentity.FindByStrategy, identifier);
                         IJavaScriptExecutor jsExecutor = WebDriver as IJavaScriptExecutor;
                         return new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).
                         Until(p =>
                         {
                             return jsExecutor.ExecuteScript(this.siblingLookupScript, searchRoot, siblingSelector)
                                     as IReadOnlyCollection<IWebElement>;
-                        });                     
-                    case "XPath":
-                        return FindAllElement(webControlIdentity, searchRoot);                     
-                    case "LinkText":
-                    case "PartialLinkText":
-                    default:
-                        throw new InvalidOperationException($"SearchScope : Sibling is not supported for FindBy modes [LinkText,PartialLinkText]");
-                }
-            });
-            return foundControls;           
-          
+                        });
+                    });
+                    return foundControls;
+                case "XPath":
+                    return FindAllElement(webControlIdentity, searchRoot);
+                case "LinkText":
+                case "PartialLinkText":
+                default:
+                    throw new NotSupportedException($"SearchScope : Sibling is not supported for FindBy modes [LinkText,PartialLinkText]");
+            }
         }
 
         #endregion Sibling Control
 
         #region Find Control
+
         private IWebElement FindElement(WebControlIdentity webControlIdentity, ISearchContext searchRoot)
         {
             IWebElement foundControl = default;
@@ -413,12 +439,12 @@ namespace Pixel.Automation.Web.Selenium.Components
                     foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElement(By.XPath(identifier)); });
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format("FindBy strategy {0} for locating web control  is not supported", webControlIdentity.FindByStrategy.ToString()));
-            }       
+                    throw new NotSupportedException(string.Format("FindBy strategy {0} for locating web control  is not supported", webControlIdentity.FindByStrategy.ToString()));
+            }
             return foundControl;
         }
 
-        private ReadOnlyCollection<IWebElement> FindAllElement( WebControlIdentity webControlIdentity, ISearchContext searchRoot)
+        private ReadOnlyCollection<IWebElement> FindAllElement(WebControlIdentity webControlIdentity, ISearchContext searchRoot)
         {
             ReadOnlyCollection<IWebElement> foundControls = new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
 
@@ -452,7 +478,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     foundControls = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElements(By.XPath(identifier)); });
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format("FindBy strategy {0} for locating web control  is not supported", webControlIdentity.FindByStrategy.ToString()));
+                    throw new NotSupportedException(string.Format("FindBy strategy {0} for locating web control  is not supported", webControlIdentity.FindByStrategy.ToString()));
             }
 
             return foundControls;
@@ -473,13 +499,16 @@ namespace Pixel.Automation.Web.Selenium.Components
         public void GetScreenBounds(IControlIdentity controlDetails, out Rectangle screenBounds)
         {
             WebControlIdentity controlIdentity = controlDetails as WebControlIdentity;
-            IWebElement targetControl = this.FindControl(controlIdentity,WebDriver);
+            IWebElement targetControl = this.FindControl(controlIdentity, WebDriver);
             screenBounds = GetBoundingBox(targetControl);
         }
 
-        public Rectangle GetBoundingBox(IWebElement targetControl)
+        public Rectangle GetBoundingBox(object targetControl)
         {
-            if (targetControl.Displayed)
+            Guard.Argument(targetControl).NotNull().Compatible<IWebElement>();
+
+            IWebElement webControl = targetControl as IWebElement;
+            if (webControl.Displayed)
             {
                 string getScreenCoordinate = @"
                        
@@ -501,11 +530,12 @@ namespace Pixel.Automation.Web.Selenium.Components
 
                     ";
 
-                dynamic boundingBox = (WebDriver as IJavaScriptExecutor).ExecuteScript(getScreenCoordinate, targetControl);
+                dynamic boundingBox = (WebDriver as IJavaScriptExecutor).ExecuteScript(getScreenCoordinate, webControl);
                 Rectangle screenBounds = new Rectangle(Convert.ToInt32(boundingBox["left"]), Convert.ToInt32(boundingBox["top"]), Convert.ToInt32(boundingBox["width"]), Convert.ToInt32(boundingBox["height"]));
                 return screenBounds;
             }
-            throw new InvalidOperationException($"{targetControl.ToString()} is not visible.");
+            throw new InvalidOperationException($"{webControl.ToString()} is not visible.");
+
         }
 
         #endregion ICoordinateProvider    
@@ -540,7 +570,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                         Identifier = identity,
                         RetryAttempts = webControlIdentity.RetryAttempts,
                         RetryInterval = webControlIdentity.RetryInterval,
-                        SearchTimeout = webControlIdentity.SearchTimeout                       
+                        SearchTimeout = webControlIdentity.SearchTimeout
                     }, null);
                     webDriver.SwitchTo().Frame(frameElement);
                     break;
@@ -556,7 +586,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         protected IWebElement GetWebElementAtConfiguredIndex(IReadOnlyCollection<IWebElement> foundControls, WebControlIdentity webControlIdentity)
         {
-            if(webControlIdentity.Index.HasValue)
+            if (webControlIdentity.Index.HasValue)
             {
                 int index = webControlIdentity.Index.Value; ;
                 if (foundControls.Count() > index)
@@ -605,7 +635,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 
                 return null;
               }
-              return FindAncestor(arguments[0],arguments[1]);";       
+              return FindAncestor(arguments[0],arguments[1]);";
 
         private string ConvertLookupToSelector(string lookupKey, string lookupValue)
         {
@@ -649,12 +679,13 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         private void HighlightElement(IWebElement foundControl)
         {
-            if(this.highlightRectangle == null)
-            {
-                this.highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
-            }
             if (showBoundingBox && foundControl != null)
             {
+                if (this.highlightRectangle == null)
+                {
+                    this.highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
+                }
+
                 Rectangle boundingBox = GetBoundingBox(foundControl);
                 if (boundingBox != Rectangle.Empty)
                 {
@@ -669,11 +700,11 @@ namespace Pixel.Automation.Web.Selenium.Components
 
             }
         }
-             
+
         private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
         {
             RetryAttempts = controlIdentity.RetryAttempts;
-            RetryInterval = controlIdentity.RetryInterval;         
+            RetryInterval = controlIdentity.RetryInterval;
         }
 
         #endregion private methods
