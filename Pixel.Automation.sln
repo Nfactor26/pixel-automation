@@ -106,7 +106,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Man
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Tests", "Unit.Tests\Pixel.Automation.Input.Devices.Tests\Pixel.Automation.Input.Devices.Tests.csproj", "{96FBE50C-DB2E-43F6-84F7-7F29481E889E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.Web.Selenium.Components.Tests", "Unit.Tests\Pixel.Automation.Web.Selenium.Components.Tests\Pixel.Automation.Web.Selenium.Components.Tests.csproj", "{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Selenium.Components.Tests", "Unit.Tests\Pixel.Automation.Web.Selenium.Components.Tests\Pixel.Automation.Web.Selenium.Components.Tests.csproj", "{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test.Runner", "Test.Runner", "{29D9A408-E435-410E-86C8-D7A7D3936908}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.Test.Runner", "Pixel.Automation.Test.Runner\Pixel.Automation.Test.Runner.csproj", "{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -258,6 +262,10 @@ Global
 		{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -302,6 +310,7 @@ Global
 		{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{96FBE50C-DB2E-43F6-84F7-7F29481E889E} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{E9C28ACD-7807-423C-A0BD-C7369E46CCDA} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
+		{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF} = {29D9A408-E435-410E-86C8-D7A7D3936908}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

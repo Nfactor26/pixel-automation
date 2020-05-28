@@ -244,8 +244,7 @@ namespace Pixel.Automation.TestExplorer
 
             //This is required because OpenForEdit might be called from RunAll for tests which are not open for edit.
             //Opening a test initializes dependencies like script engine , script editor , etc for test case.
-            //script editor can only be created on dispatcher thread although it won't be used while running.
-            //A better design would be if we could somehow distinguish between design time and run time and configure required services accordingly.
+            //script editor can only be created on dispatcher thread although it won't be used while running.          
             Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
             if(!dispatcher.CheckAccess())
             {
@@ -255,18 +254,30 @@ namespace Pixel.Automation.TestExplorer
             }
 
             if (this.OpenTestCases.Contains(testCaseVM))
+            {
                 return;
-         
+            }
+
             string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCaseVM.Id, "TestAutomation.proc");
             testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
             testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
 
             if (await this.TestRunner.TryOpenTestCase(testCaseVM.TestCase))
             {
+                SetupScriptEditor();
                 this.OpenTestCases.Add(testCaseVM);
                 testCaseVM.IsOpenForEdit = true;
                 NotifyOfPropertyChange(nameof(CanSaveAll));
             }       
+
+            void SetupScriptEditor()
+            {
+                var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
+                IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                var workspaceManager = scriptEditor.GetWorkspaceManager();
+                string scriptFileContent = File.ReadAllText(Path.Combine(this.fileSystem.WorkingDirectory, testCaseVM.TestCase.ScriptFile));
+                workspaceManager.AddDocument(testCaseVM.TestCase.ScriptFile, scriptFileContent);
+            }
 
         }
 

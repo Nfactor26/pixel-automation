@@ -133,7 +133,9 @@ namespace Pixel.Automation.Core.Components
             if (File.Exists(this.ControlFile))
             {
                 ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
-                var controlDescription = serializer.Deserialize<ControlDescription>(this.ControlFile);
+                var controlFileContent = File.ReadAllText(this.ControlFile);
+                controlFileContent=  controlFileContent.Replace("Pixel.Automation.AppExplorer.ViewModels.Control.ControlDescriptionEx, Pixel.Automation.AppExplorer.ViewModels", "Pixel.Automation.Core.Models.ControlDescription, Pixel.Automation.Core");
+                var controlDescription = serializer.DeserializeContent<ControlDescription>(controlFileContent);
                 var controlDetails = controlDescription.ControlDetails;
                 (controlDetails as Component).Parent = this;
                 (controlDetails as Component).EntityManager = this.EntityManager;

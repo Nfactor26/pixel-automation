@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.TestData
@@ -22,7 +23,9 @@ namespace Pixel.Automation.Core.TestData
         public bool IsOrdered { get; set; }
 
         [DataMember]
-        public bool IsMuted { get; set; }  
+        public bool IsMuted { get; set; }
+
+        public List<TestCase> Tests { get; set; } = new List<TestCase>();
 
         public object Clone()
         {

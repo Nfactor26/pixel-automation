@@ -36,8 +36,9 @@ namespace Pixel.Automation.RunTime.Serialization
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
+                throw ex;
             }           
-            return default;
+           
         }
 
         public void Serialize<T>(string path, T model, List<Type> knownTypes = null)
@@ -52,7 +53,8 @@ namespace Pixel.Automation.RunTime.Serialization
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);             
+                logger.Error(ex, ex.Message);
+                throw ex;
             }        
         }
     }

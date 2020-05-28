@@ -136,7 +136,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             foreach (var component in entity.Components)
             {
                 component.Parent = entity;
-                (component as Component).EntityManager = entity.EntityManager;              
+                component.EntityManager = entity.EntityManager;              
                 if (component is Entity)
                 {
                     RestoreParentChildRelation(component as Entity, resetId);

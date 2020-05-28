@@ -19,11 +19,11 @@ namespace Pixel.Automation.RunTime
     public class TestRunner : NotifyPropertyChanged, ITestRunner
     {
         protected readonly ILogger logger = Log.ForContext<TestRunner>();
-        protected readonly EntityManager entityManager;
+        protected readonly IEntityManager entityManager;
         protected readonly IDataSourceReader testDataLoader;
      
 
-        public TestRunner(EntityManager entityManager, IDataSourceReader testDataLoader)
+        public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader)
         {
             this.entityManager = entityManager;
             this.testDataLoader = testDataLoader;
@@ -54,60 +54,52 @@ namespace Pixel.Automation.RunTime
             get => !isSetupComplete;
         }
 
-        public void SetUp()
+        public async Task SetUp()
         {
-            Task setupTask = new Task(async () =>
+            try
             {
-                try
-                {                 
-                    logger.Information("Performing one time setup");
+                logger.Information("Performing one time setup");
 
-                    var oneTimeSetUp = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Descendants);
-                    await ProcessEntity(oneTimeSetUp);
-                    IsSetupComplete = true;
+                var oneTimeSetUp = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Descendants);
+                await ProcessEntity(oneTimeSetUp);
+                IsSetupComplete = true;
 
-                    Log.Information("One time setup completed");
+                Log.Information("One time setup completed");
 
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.Message, ex);
-                }               
-            });
-            setupTask.Start();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex);
+            }
         }
-
+     
         public bool CanTearDown
         {
             get => isSetupComplete;
         }
 
-        public void TearDown()
+        public async Task TearDown()
         {
-            Task tearDownTask = new Task(async () =>
+            try
             {
-                try
-                {               
-                  
-                    logger.Information("Performing One time teardown");
 
-                    var oneTimeTearDown = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Descendants);
-                    await ProcessEntity(oneTimeTearDown);
+                logger.Information("Performing One time teardown");
 
-                    logger.Information("One time teardown completed");
+                var oneTimeTearDown = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Descendants);
+                await ProcessEntity(oneTimeTearDown);
 
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.Message, ex);
-                }
-                finally
-                {
-                    IsSetupComplete = false; //even if something breaks during teardown , consider teardown complete as false               
-                }
+                logger.Information("One time teardown completed");
 
-            });
-            tearDownTask.Start();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex);
+            }
+            finally
+            {
+                IsSetupComplete = false; //even if something breaks during teardown , consider teardown complete as false               
+            }
+
         }
 
         [NonSerialized]
@@ -219,14 +211,10 @@ namespace Pixel.Automation.RunTime
                         testEntityManager.Arguments = dataSource.FirstOrDefault();
                     }
 
-                    IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                    var workspaceManager = scriptEditor.GetWorkspaceManager();
                     string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.ScriptFile));
-                    workspaceManager.AddDocument(testCase.ScriptFile, scriptFileContent);
-
+                  
                     //Execute script file to set up initial state of script engine
-                    IScriptEngine scriptEngine = testEntityManager.GetServiceOfType<IScriptEngine>();
-                    //scriptEngine.SetGlobals(testCase.TestCaseEntity.EntityManager.Arguments);
+                    IScriptEngine scriptEngine = testEntityManager.GetServiceOfType<IScriptEngine>();                 
                     await scriptEngine.ExecuteScriptAsync(scriptFileContent);
 
                     testCaseEntity.EntityManager = testEntityManager;
@@ -340,15 +328,15 @@ namespace Pixel.Automation.RunTime
 
                             case Entity entity:
                                 //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
-                                if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(component as Entity))
+                                if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(entity))
                                 {                                   
                                     var processedEntity = this.entitiesBeingProcessed.Pop();
                                     processedEntity.OnCompletion();
                                 }
                                 else
-                                {                                   
-                                    component.BeforeProcess();
-                                    this.entitiesBeingProcessed.Push(component as Entity);
+                                {
+                                    entity.BeforeProcess();
+                                    this.entitiesBeingProcessed.Push(entity);
                                 }
                                 break;
                         }

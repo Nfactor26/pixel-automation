@@ -122,14 +122,11 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         public override void OnFault(IComponent faultingComponent)
         {
-            if (mutex != null)
-            {              
-                if (wasMutexAcquired && wasMutexAcquired)
-                {
-                    mutex.ReleaseMutex();
-                    wasMutexAcquired = false;
-                    logger.Information($"Mutex lock released by {this}");
-                }             
+            if (mutex != null && wasMutexAcquired)
+            {
+                mutex.ReleaseMutex();
+                wasMutexAcquired = false;
+                logger.Information($"Mutex lock released by {this}");
             }
 
             base.OnFault(faultingComponent);

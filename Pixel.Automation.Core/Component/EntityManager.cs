@@ -54,7 +54,7 @@ namespace Pixel.Automation.Core
         public EntityManager(IServiceResolver serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.serviceProvider.RegisterDefault<EntityManager>(this);
+            this.serviceProvider.RegisterDefault<IEntityManager>(this);
         }
 
         /// <summary>

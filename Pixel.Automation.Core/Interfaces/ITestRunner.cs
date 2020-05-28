@@ -15,12 +15,12 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Process One Time Set Up Components
         /// </summary>
-        void SetUp();
+        Task SetUp();
 
         /// <summary>
         /// Process One Time Tear Down components
         /// </summary>
-        void TearDown();
+        Task TearDown();
 
         /// <summary>
         ///  Run test case asynchronously for each of test data in data source

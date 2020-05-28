@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>E:\Git\Pixel.Automation\.builds\</OutputPath>
+    <OutputPath>..\.builds\Designer</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

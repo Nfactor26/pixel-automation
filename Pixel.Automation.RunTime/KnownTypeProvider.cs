@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace Pixel.Automation.Designer.ViewModels
+namespace Pixel.Automation.RunTime
 {
     public class KnownTypeProvider : ITypeProvider
     {

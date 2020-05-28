@@ -479,14 +479,15 @@ namespace Pixel.Automation.UIA.Components
         }
 
         private void HighlightElement(AutomationElement foundControl)
-        {
-            if (highlightRectangle == null)
-            {
-                highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
-            }
+        {         
 
             if (showBoundingBox && foundControl != null)
             {
+                if (highlightRectangle == null)
+                {
+                    highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
+                }
+
                 var boundingBox = foundControl.Current.BoundingRectangle;
                 if (boundingBox != System.Windows.Rect.Empty)
                 {
