@@ -2,7 +2,7 @@
   "profiles": {
     "Pixel.Automation.Designer.Views": {
       "commandName": "Project",
-      "workingDirectory": "E:\\Git\\Pixel.Automation\\.builds\\netcoreapp3.1"
+      "workingDirectory": "..\\.builds\\netcoreapp3.1\\Designer"
     }
   }
 }

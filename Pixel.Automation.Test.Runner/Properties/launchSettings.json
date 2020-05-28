@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Pixel.Automation.Test.Runner": {
+      "commandName": "Project",
+      "workingDirectory": "..\\.builds\\Runner\\netcoreapp3.1"
+    }
+  }
+}

@@ -40,7 +40,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             get => projectVersion.DataModelAssembly;
             private set
             {
-                if (!projectVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (projectVersion.IsDeployed && !string.IsNullOrEmpty(value))
                 {
                     projectVersion.DataModelAssembly = value;
                 }
@@ -135,13 +135,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             using (var compilationResult = workspaceManager.CompileProject(assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);            
-            }
-                            
-            string deployedAssemblyName = $"{assemblyName}.dll";
+            }                          
+        
          
             this.IsDeployed = true;
             this.IsActive = false;
-            this.DataModelAssembly = Path.Combine(Path.GetRelativePath(this.fileSystem.WorkingDirectory, this.fileSystem.ReferencesDirectory), deployedAssemblyName);
+            this.DataModelAssembly = $"{assemblyName}.dll";
 
 
             //Replace the assemly name in the process file
