@@ -44,7 +44,7 @@
                             <iconPacks:PackIconMaterial Kind="Asterisk" Width="8" Height="8"  DockPanel.Dock="Left"
                                        Margin="5,2,2,0" Visibility="{Binding Editor.IsModified, FallbackValue=Collapsed, Converter={StaticResource boolToVisConverter}}"
                                        Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" />                         
-                            <Button Content="{iconPacks:FontAwesome TrashAltRegular}" ToolTip="{Binding Delete}" 
+                            <Button Content="{iconPacks:FontAwesome TrashAltRegular}" ToolTip="{Binding Delete}" Background="Transparent"
                                        Style="{StaticResource EditControlButtonStyle}" Margin="0,0,10,0" IsEnabled="{Binding IsOpen,Converter={StaticResource invBoolConverter}}"
                                        cal:Message.Attach="[Event Click] = [Action DeleteDocument($dataContext)]"  HorizontalAlignment="Right"
                                        Padding="2"  DockPanel.Dock="Right"/>

@@ -120,7 +120,17 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {
             try
             {
-                this.editorService.RemoveDocument(documentName);
+                if (this.editorService.HasDocument(documentName))
+                {
+                    this.editorService.RemoveDocument(documentName);
+
+                    var documentToRemove = this.Documents.Where(a => a.DocumentName.Equals(documentName)).FirstOrDefault();
+                    if (documentToRemove != null)
+                    {                    
+                        this.Documents.Remove(documentToRemove);
+                    }                         
+                    logger.Information($"{documentName} was deleted from workspace");
+                }                
             }
             catch (Exception ex)
             {
