@@ -35,10 +35,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private ApplicationDescription activeApplication;
 
-        public BindableCollection<ControlDescription> Controls { get; set; } = new BindableCollection<ControlDescription>();
+        public BindableCollection<ControlDescriptionViewModel> Controls { get; set; } = new BindableCollection<ControlDescriptionViewModel>();
 
-        private ControlDescription selectedControl;
-        public ControlDescription SelectedControl
+        private ControlDescriptionViewModel selectedControl;
+        public ControlDescriptionViewModel SelectedControl
         {
             get => selectedControl;
             set
@@ -78,10 +78,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
-        public void ToggleRename(ControlDescription targetControl)
+        public void ToggleRename(ControlDescriptionViewModel targetControl)
         {
             if (SelectedControl == targetControl)
+            {
                 CanEdit = !CanEdit;
+            }
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// </summary>
         /// <param name="context"></param>
         /// <param name="controlToRename"></param>
-        public void RenameControl(ActionExecutionContext context, ControlDescription controlToRename)
+        public void RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
         {
             try
             {
@@ -99,6 +101,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
                     controlToRename.ControlName = newName;
                     CanEdit = false;                 
+                    SaveControlDetails(controlToRename);
                 }
             }
             catch (Exception ex)
@@ -140,7 +143,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescription.ControlName), ListSortDirection.Ascending));          
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as ControlDescription).ControlName.ToLower().Contains(this.filterText.ToLower());
+                return (a as ControlDescriptionViewModel).ControlName.ToLower().Contains(this.filterText.ToLower());
             });
         }
 
@@ -153,7 +156,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             LoadControlDetails(application);
             
             this.Controls.Clear();
-            this.Controls.AddRange(this.activeApplication.ControlsCollection);              
+            this.Controls.AddRange(this.activeApplication.ControlsCollection.Select(a => new ControlDescriptionViewModel(a)));              
         }     
 
         private void LoadControlDetails(ApplicationDescription application)
@@ -166,7 +169,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                  
                     if(File.Exists(controlFile))
                     {
-                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
+                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);                   
                         application.ControlsCollection.Add(controlDescription);
                     }
                     logger.Warning("Prefab file : {0} doesn't exist", controlFile);
@@ -178,7 +181,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// Delete the control
         /// </summary>
         /// <param name="controlToDelete"></param>
-        public void DeleteControl(ControlDescription controlToDelete)
+        public void DeleteControl(ControlDescriptionViewModel controlToDelete)
         {
             Guard.Argument(controlToDelete).NotNull();
 
@@ -193,7 +196,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
                 this.Controls.Remove(controlToDelete);
 
-                OnControlDeleted(controlToDelete);
+                OnControlDeleted(controlToDelete.ControlDescription);
             }
             catch (Exception ex)
             {
@@ -203,7 +206,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
 
-        public async void EditControl(ControlDescription controlToEdit)
+        public async void EditControl(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit).NotNull();
 
@@ -221,52 +224,54 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// Create a copy of control
         /// </summary>
         /// <param name="controlToRename"></param>
-        public void CloneControl(ControlDescription controlToClone)
+        public void CloneControl(ControlDescriptionViewModel controlToClone)
         {
             Guard.Argument(controlToClone).NotNull();
 
-            var clonedControl = controlToClone.Clone() as ControlDescription;
-            clonedControl.ControlName = Path.GetRandomFileName();
-            Directory.CreateDirectory(GetControlDirectory(clonedControl));
-            SaveBitMapSource((controlToClone as ControlDescriptionEx).ImageSource, GetControlImageFile(clonedControl));
-            SaveControlDetails(clonedControl);
-            this.Controls.Add(clonedControl);
+            var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
+            var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+            controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
+            Directory.CreateDirectory(GetControlDirectory(controlDescriptionViewModel));
+            SaveBitMapSource(controlDescriptionViewModel.ImageSource, GetControlImageFile(controlDescriptionViewModel));
+            SaveControlDetails(controlDescriptionViewModel);
+            this.Controls.Add(controlDescriptionViewModel);
             OnControlCreated(clonedControl);
         }
 
 
-        private void AddControl(ControlDescription controlItem)
+        private void AddControl(ControlDescriptionViewModel controlItem)
         {
             Directory.CreateDirectory(GetControlDirectory(controlItem));
-            SaveBitMapSource((controlItem as ControlDescriptionEx).ImageSource, GetControlImageFile(controlItem));
+            SaveBitMapSource(controlItem.ImageSource, GetControlImageFile(controlItem));
             SaveControlDetails(controlItem);
             this.Controls.Add(controlItem);
          
-            OnControlCreated(controlItem);
+            OnControlCreated(controlItem.ControlDescription);
         }
 
 
-        private void SaveControlDetails(ControlDescription controlToSave)
+        private void SaveControlDetails(ControlDescriptionViewModel controlToSave)
         {
             string fileToCreate = GetControlFile(controlToSave);
             if(File.Exists(fileToCreate))
             {
                 File.Delete(fileToCreate);
             }
-            serializer.Serialize(fileToCreate, controlToSave);
+            serializer.Serialize<ControlDescription>(fileToCreate, controlToSave.ControlDescription);
+            logger.Information($"Control details saved for {controlToSave.ControlName}");
         }
 
-        private string GetControlFile(ControlDescription controlItem)
+        private string GetControlFile(ControlDescriptionViewModel controlItem)
         {
            return Path.Combine(GetControlDirectory(controlItem), $"{controlItem.ControlId}.dat");
         }
 
-        private string GetControlImageFile(ControlDescription controlItem)
+        private string GetControlImageFile(ControlDescriptionViewModel controlItem)
         {
             return Path.Combine(GetControlDirectory(controlItem), "ScreenShot.Png");
         }
 
-        private string GetControlDirectory(ControlDescription controlItem)
+        private string GetControlDirectory(ControlDescriptionViewModel controlItem)
         {
             return Path.Combine(applicationsRepository, this.activeApplication.ApplicationId, controlsDirectory , controlItem.ControlId);
         }
@@ -321,14 +326,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     }
 
                     //create an instance of ControlToolBoxItem to display in the toolbox
-                    ControlDescriptionEx controlItem = new ControlDescriptionEx(control);
-                    controlItem.ControlName = (this.Controls.Count() + 1).ToString();
-                    controlItem.ControlImage = GetControlImageFile(controlItem);
-                    controlItem.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+                    var controlDescription = new ControlDescription(control);
+                    ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
+                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
+                    controlDescriptionViewModel.ControlImage = GetControlImageFile(controlDescriptionViewModel);
+                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
 
-                    control.ControlImage = controlItem.ControlImage;
+                    control.ControlImage = controlDescriptionViewModel.ControlImage;
                     //save the captured control details to file
-                    AddControl(controlItem);
+                    AddControl(controlDescriptionViewModel);
                 }
             }
             await Task.CompletedTask;
