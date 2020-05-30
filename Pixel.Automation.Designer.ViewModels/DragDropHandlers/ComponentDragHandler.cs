@@ -1,4 +1,5 @@
 ﻿using GongSolutions.Wpf.DragDrop;
+using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -82,7 +83,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
 
                 //Handle dragging of control from control repository
-                if (dropInfo.Data is ControlDescription && dropInfo.TargetItem is Entity)
+                if (dropInfo.Data is ControlDescriptionViewModel && dropInfo.TargetItem is Entity)
                 {
                     dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                     dropInfo.Effects = DragDropEffects.Copy;
@@ -170,7 +171,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     return;
                 }
 
-                if (dropInfo.Data is ControlDescription)
+                if (dropInfo.Data is ControlDescriptionViewModel)
                 {
                     HandleControlDrop(dropInfo);
                     return;
@@ -343,13 +344,9 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         }
 
         void HandleControlDrop(IDropInfo dropInfo)
-        {
-            var sourceItem = dropInfo.Data as ControlDescription;
-            Entity targetItem = dropInfo.TargetItem as Entity;
-
-            if (targetItem is Entity)
-            {
-                ControlDescription controlItem = sourceItem as ControlDescription;
+        {                 
+            if (dropInfo.TargetItem is Entity targetEntity && dropInfo.Data is ControlDescriptionViewModel controlItem)
+            {              
                 IControlIdentity controlIdentity = controlItem.ControlDetails;
                 ContainerEntityAttribute containerEntityAttribute = controlIdentity.GetType().
                     GetCustomAttributes(typeof(ContainerEntityAttribute), false).FirstOrDefault() 
@@ -360,7 +357,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         as ControlEntity;
                     controlEntity.Name = controlItem.ControlName;
                     controlEntity.ControlFile = Path.Combine("ApplicationsRepository", controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
-                    targetItem.AddComponent(controlEntity);
+                    targetEntity.AddComponent(controlEntity);
                 }
                 //else
                 //{
