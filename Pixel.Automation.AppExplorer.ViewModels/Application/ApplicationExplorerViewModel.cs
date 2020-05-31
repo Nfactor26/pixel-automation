@@ -47,7 +47,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 CanEdit = false;
                 if (value != null)
                 {
-                    //If we directly click an application icon without selection view first, IsActiveItem is not set. Hence, explicitly setting it whenever
+                    //If we directly click an application icon without selecting view first, IsActiveItem is not set. Hence, explicitly setting it whenever
                     //one of the application is selected.
                     this.IsActiveItem = true;
                     //Notification for property grid to display selected application details

@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -11,6 +12,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
     public class ControlDescriptionViewModel : NotifyPropertyChanged
     {
         private readonly ControlDescription controlDescription;
+
+        [Browsable(false)]
         public ControlDescription ControlDescription
         {
             get => this.controlDescription;
@@ -21,30 +24,40 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             this.controlDescription = controlDescription;
         }
               
+        [Browsable(false)]
         public string ApplicationId
         {
             get => this.controlDescription.ApplicationId;
             set => this.controlDescription.ApplicationId = value;
         }
-      
+
+        [Browsable(false)]
         public string ControlId
         {
             get => this.controlDescription.ControlId;
             set => this.controlDescription.ControlId = value;
         }
      
+        public string GroupName
+        {
+            get => this.controlDescription.GroupName;
+            set => this.controlDescription.GroupName = value;
+        }
+
         public string ControlName
         {
             get => this.controlDescription.ControlName;
             set => this.controlDescription.ControlName = value;
         }
-
+      
+        [Browsable(false)]
         public string ControlImage
         {
             get => this.controlDescription.ControlImage;
             set => this.controlDescription.ControlImage = value;
         }
 
+        [Browsable(false)]
         public IControlIdentity ControlDetails
         {
             get => this.controlDescription.ControlDetails;
@@ -52,7 +65,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
       
-        ImageSource imageSource;        
+        ImageSource imageSource;
+
+        [Browsable(false)]
         public ImageSource ImageSource
         {
             get

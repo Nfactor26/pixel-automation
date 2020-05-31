@@ -106,9 +106,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 //Will throw if dll is in use 
                 Directory.Delete(prefabDirectory, true);
             }
-            catch 
+            catch(Exception ex)
             {
-            
+                logger.Error(ex, ex.Message);
             }          
            
         }
@@ -212,15 +212,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 var keyArgs = context.EventArgs as KeyEventArgs;
                 if (keyArgs != null && keyArgs.Key == Key.Enter)
                 {
+                    string previousName = prefabItem.PrefabName;
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
                     prefabItem.PrefabName = newName;
                     CanEdit = false;
-                    //OnCollectionChanged();
+                    SavePrefabDescription(prefabItem);
+                    logger.Information($"Prefab : {previousName} renamed to : {newName}");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
                 CanEdit = false;
             }
         }

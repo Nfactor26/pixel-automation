@@ -260,6 +260,7 @@ namespace Pixel.Automation.TestExplorer
 
             string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCaseVM.Id, "TestAutomation.proc");
             testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
+            testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
             testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
 
             if (await this.TestRunner.TryOpenTestCase(testCaseVM.TestCase))

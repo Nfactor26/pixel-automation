@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -45,6 +46,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 selectedControl = value;
                 CanEdit = false;
+                //Notification for property grid to display selected application details
+                this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value));
             }
         }
 
@@ -138,9 +141,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         private void CreateCollectionView()
         {
             var groupedItems = CollectionViewSource.GetDefaultView(Controls);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ControlDescription.GroupName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescription.GroupName), ListSortDirection.Ascending));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescription.ControlName), ListSortDirection.Ascending));          
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ControlDescriptionViewModel.GroupName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.GroupName), ListSortDirection.Ascending));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.ControlName), ListSortDirection.Ascending));          
             groupedItems.Filter = new Predicate<object>((a) =>
             {
                 return (a as ControlDescriptionViewModel).ControlName.ToLower().Contains(this.filterText.ToLower());
@@ -172,7 +175,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);                   
                         application.ControlsCollection.Add(controlDescription);
                     }
-                    logger.Warning("Prefab file : {0} doesn't exist", controlFile);
+                    logger.Warning("Control file : {0} doesn't exist", controlFile);
                 }
             }          
         }
@@ -250,7 +253,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
 
-        private void SaveControlDetails(ControlDescriptionViewModel controlToSave)
+        public void SaveControlDetails(ControlDescriptionViewModel controlToSave)
         {
             string fileToCreate = GetControlFile(controlToSave);
             if(File.Exists(fileToCreate))
@@ -258,6 +261,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 File.Delete(fileToCreate);
             }
             serializer.Serialize<ControlDescription>(fileToCreate, controlToSave.ControlDescription);
+
+
+            var view = CollectionViewSource.GetDefaultView(Controls);
+            view.Refresh();
+            NotifyOfPropertyChange(() => Controls);
+
             logger.Information($"Control details saved for {controlToSave.ControlName}");
         }
 

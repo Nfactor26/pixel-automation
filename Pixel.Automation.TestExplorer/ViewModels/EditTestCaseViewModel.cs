@@ -77,7 +77,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     ValidateRequiredProperty(nameof(TestCaseDisplayName), TestCaseDisplayName);                     
                     if(this.existingTestCases.Any(a => a.DisplayName.Equals(TestCaseDisplayName)))
                     {
-                       AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique  within a category.");
+                       AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
                     }
                     break;                   
             }        
