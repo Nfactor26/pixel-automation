@@ -39,7 +39,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => prefabVersion.DataModelAssembly;
             private set
             {
-                if (!prefabVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (prefabVersion.IsDeployed && !string.IsNullOrEmpty(value))
                 {
                     prefabVersion.DataModelAssembly = value;
                 }
@@ -148,12 +148,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
             }
-
-            string deployedAssemblyName = $"{assemblyName}.dll";
-
             this.IsDeployed = true;
             this.IsActive = false;
-            this.PrefabAssembly = Path.Combine(Path.GetRelativePath(this.fileSystem.WorkingDirectory, this.fileSystem.ReferencesDirectory), deployedAssemblyName);
+            this.PrefabAssembly = $"{assemblyName}.dll";
 
 
             //Replace the assemly name in the process and template file

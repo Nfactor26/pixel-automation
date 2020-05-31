@@ -22,8 +22,8 @@
         </Grid.RowDefinitions>
 
         <Grid x:Name="VersionGrid" Grid.Row="0">
-          
-            <DataGrid x:Name="AvailableVersions" ItemsSource="{Binding AvailableVersions}"  MaxHeight="600"
+
+            <DataGrid x:Name="AvailableVersions" ItemsSource="{Binding AvailableVersions}" SelectedItem="{Binding SelectedVersion}"  MaxHeight="600"
                   CanUserSortColumns="True" CanUserAddRows="False" CanUserResizeRows="False" CanUserResizeColumns="True"                 
                   Grid.Column="1" GridLinesVisibility="All"
                   Margin="10" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled"    
