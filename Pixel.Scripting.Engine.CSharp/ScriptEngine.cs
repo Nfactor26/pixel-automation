@@ -120,10 +120,13 @@ namespace Pixel.Scripting.Engine.CSharp
         public IScriptEngine WithAdditionalSearchPaths(params string[] searchPaths)
         {
             if (string.IsNullOrEmpty(this.baseDirectory))
-                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");        
+            {
+                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
+            }                     
         
-            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();          
-            scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
+            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
+            metaDataReferenceResolver = CreateScriptMetaDataResolver();
+            scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
 
             //for #load references look in to the same folder
             scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths,
@@ -135,8 +138,9 @@ namespace Pixel.Scripting.Engine.CSharp
         public void RemoveSearchPaths(params string[] searchPaths)
         {
             this.searchPaths = this.searchPaths.Except(searchPaths).ToList<string>();
-            scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-            //scriptOptions = scriptOptions.WithMetadataResolver(this.scriptMetaDataResolver);
+            metaDataReferenceResolver = CreateScriptMetaDataResolver();
+            scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
+            scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
         }
 
         public IScriptEngine WithAdditionalNamespaces(params string[] namespaces)
