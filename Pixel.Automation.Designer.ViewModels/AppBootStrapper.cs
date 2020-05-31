@@ -23,8 +23,10 @@ namespace Pixel.Automation.Designer.ViewModels
 {
     public class AppBootstrapper : BootstrapperBase
     {
-        private IKernel kernel;
+        private readonly ILogger logger = Log.ForContext<AppBootstrapper>();
 
+        private IKernel kernel;
+   
         public AppBootstrapper()
         {
             ConsoleManager.Show();
@@ -124,7 +126,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                Log.Error(ex,ex.Message);
+                logger.Error(ex,ex.Message);
                 Debug.Assert(false,ex.Message);
             }
         }
@@ -148,12 +150,12 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch(TypeLoadException ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
                 throw ex;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
                 throw ex;
             }        
 
@@ -163,7 +165,9 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             var instances = kernel.GetAll(serviceType);
             if(instances!=null)
+            {
                 return instances;
+            }
             throw new Exception(string.Format("Could not locate any instances of contract {0}.", serviceType.ToString()));
 
         }       
@@ -183,8 +187,7 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             e.Handled = true;
-            Trace.WriteLine(e.Exception.Message);
-            Debug.Assert(false,e.Exception.Message);
+            logger.Error(e.Exception, e.Exception.Message);
         }
 
 

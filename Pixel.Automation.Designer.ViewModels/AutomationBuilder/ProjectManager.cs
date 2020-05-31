@@ -22,19 +22,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected IFileSystem fileSystem;
         protected ITypeProvider typeProvider;
         protected IScriptEngineFactory scriptEngineFactory;
-        protected ICodeEditorFactory codeEditorFactory;
-        protected IScriptEditorFactory scriptEditorFactory;
+        protected ICodeEditorFactory codeEditorFactory;   
         protected readonly ICodeGenerator codeGenerator;
 
    
-        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory,ICodeGenerator codeGenerator)
+        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory,ICodeGenerator codeGenerator)
         {
             this.serializer = serializer;
             this.fileSystem = fileSystem;
             this.typeProvider = typeProvider;
             this.scriptEngineFactory = scriptEngineFactory;
-            this.codeEditorFactory = codeEditorFactory;
-            this.scriptEditorFactory = scriptEditorFactory;
+            this.codeEditorFactory = codeEditorFactory;         
             this.codeGenerator = codeGenerator;
         }
 

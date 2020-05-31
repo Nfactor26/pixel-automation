@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
 {
     [DataContract]
     [Serializable]
-    [Scriptable("InputMappingScript", "OutputMappingScript")]
+    [Scriptable(nameof(InputMappingScript), nameof(OutputMappingScript))]
     [Initializer(typeof(ScriptFileInitializer))]
     public class PrefabEntity : Entity
     {
