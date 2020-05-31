@@ -334,13 +334,23 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         void HandlerPrefabDrop(IDropInfo dropInfo)
         {
             var sourceItem = dropInfo.Data as PrefabDescription;           
-            var targetItem = dropInfo.TargetItem as Entity;         
-            targetItem.AddComponent(new PrefabEntity()
+            var targetItem = dropInfo.TargetItem as Entity;
+
+            var prefabEntity = new PrefabEntity()
             {
                 PrefabId = sourceItem.PrefabId,
                 ApplicationId = sourceItem.ApplicationId,
                 PrefabVersion = sourceItem.DeployedVersions.OrderBy(a => a.Version).Last()
-            });          
+            };
+
+            var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
+            foreach (var intializer in initializers)
+            {
+                IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
+                componentInitializer.IntializeComponent(prefabEntity, targetItem.EntityManager);
+            }
+
+            targetItem.AddComponent(prefabEntity);          
         }
 
         void HandleControlDrop(IDropInfo dropInfo)
