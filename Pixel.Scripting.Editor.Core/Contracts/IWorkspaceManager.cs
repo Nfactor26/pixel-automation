@@ -86,7 +86,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
     public interface IScriptWorkspaceManager : IWorkspaceManager
     {
-
+        void WithSearchPaths(params string[] searchPaths);
     }
 
     public interface ICodeWorkspaceManager : IWorkspaceManager

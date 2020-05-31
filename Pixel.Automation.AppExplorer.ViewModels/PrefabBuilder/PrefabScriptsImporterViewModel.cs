@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Serilog;
 using System;
 using System.DirectoryServices;
 using System.IO;
@@ -22,11 +23,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
     /// If all the scripts are valid, copy the scripts from process directory to prefab directory.
     /// </summary>
     public class PrefabScriptsImporterViewModel : StagedSmartScreen
-    {      
+    {
+        private readonly ILogger logger = Log.ForContext<PrefabScriptsImporterViewModel>();
+
         private readonly PrefabDescription prefabToolBoxItem;
         private readonly Entity rootEntity;
 
-        private readonly IScriptEngine scriptEngine;
+        private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly IScriptExtactor scriptExtractor;
         private readonly IArgumentExtractor argumentExtractor;
@@ -38,19 +41,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public PrefabScriptsImporterViewModel(PrefabDescription prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
             IArgumentExtractor argumentExtractor,
-            IPrefabFileSystem prefabFileSystem, IScriptEngine scriptEngine)
+            IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory)
         {
             Guard.Argument(prefabToolBoxItem).NotNull();
             Guard.Argument(rootEntity).NotNull();
             Guard.Argument(prefabFileSystem).NotNull();         
             Guard.Argument(scriptExtractor).NotNull();
-            Guard.Argument(scriptEngine).NotNull();
+            Guard.Argument(scriptEngineFactory).NotNull();
 
             this.prefabToolBoxItem = prefabToolBoxItem;
             this.prefabFileSystem = prefabFileSystem;
             this.scriptExtractor = scriptExtractor;
             this.argumentExtractor = argumentExtractor;
-            this.scriptEngine = scriptEngine;           
+            this.scriptEngineFactory = scriptEngineFactory;           
             this.rootEntity = rootEntity;           
 
         }      
@@ -66,6 +69,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
             catch (Exception ex)
             {
+                logger.Error(ex, ex.Message);
                 errorDescription = ex.Message;
                 AddOrAppendErrors("", ex.Message);
                 return false;
@@ -78,7 +82,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         }
 
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
-        {          
+        {
+            logger.Information($"Activate screen is {nameof(PrefabScriptsImporterViewModel)}");
+
             this.RequiredScripts.AddRange(scriptExtractor.ExtractScripts(rootEntity));
             ValidateScripts();
             await base.OnActivateAsync(cancellationToken);
@@ -92,6 +98,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 string fileContent = File.ReadAllText(filePath);
                 fileContent = fileContent.Replace("using Pixel.Automation.Project.DataModels;", $"using {prefabToolBoxItem.NameSpace};");
                 File.WriteAllText(Path.Combine(prefabFileSystem.WorkingDirectory, $"Scripts\\{Path.GetFileName(scriptFile.ScriptName)}"), fileContent);
+                logger.Information($"Copied script file : {scriptFile} from {filePath}");
             }
         }
 
@@ -104,7 +111,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 {
                     //Make all path relative to Scripts. Assumption here is that even if any shared script file was used in actual process, it would have been referred from 
                     //Scripts folder
-                    argument.ScriptFile = $"Scripts\\{Path.GetFileName(argument.ScriptFile)}";
+                    argument.ScriptFile = $"Scripts\\{Path.GetFileName(argument.ScriptFile)}";                    
                 }
             }
 
@@ -126,6 +133,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         private void ValidateScripts()
         {
+            logger.Information("Validating script files");
+
             ClearErrors("");
             CopyScriptsToPrefabsDirectory();          
 
@@ -133,6 +142,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             object dataModelInstance = Activator.CreateInstance(dataModelType);
 
+            var scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
+            scriptEngine.SetWorkingDirectory(prefabFileSystem.WorkingDirectory);
             scriptEngine.WithSearchPaths(Environment.CurrentDirectory, Path.Combine(Environment.CurrentDirectory, ""));
             scriptEngine.WithAdditionalAssemblyReferences(prefabFileSystem.GetAssemblyReferences());
             scriptEngine.WithAdditionalAssemblyReferences(dataModelAssembly);
@@ -148,6 +159,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 AddOrAppendErrors("", "Some of the scripts could not be compiled.");
             }
+
+            logger.Information("Validating of script files completed");
+
         }
 
     }

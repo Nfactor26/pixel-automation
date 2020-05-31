@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Pixel.Automation.Editor.Core.Helpers;
+using Serilog;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
     public class PrefabBuilderViewModel : Wizard
     {
+        private readonly ILogger logger = Log.ForContext<PrefabBuilderViewModel>();
+
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly ICodeGenerator codeGenerator;
         private readonly ICodeEditorFactory codeEditorFactory;
@@ -34,6 +37,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public void Initialize(ApplicationDescription applicationItem, Entity rootEntity)
         {
+            logger.Information($"Create prefab initiated by user for application : {applicationItem.ApplicationName}");
+
             this.stagedScreens.Clear();
             PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
             prefabToolBoxItem = new PrefabDescription()
@@ -50,6 +55,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var prefabToolBoxViewModel = new NewPrefabViewModel(applicationItem, prefabToolBoxItem);
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
+            //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
             IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetServiceOfType<IScriptEngine>();
             var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator,
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
@@ -59,11 +65,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references.ToArray());  
             var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabToolBoxItem, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
-
-            var scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
-            scriptEngine.SetWorkingDirectory(prefabFileSystem.WorkingDirectory);
+         
             var prefabScriptImporterViewModel = new PrefabScriptsImporterViewModel(prefabToolBoxItem, rootEntity, 
-                new ScriptExtractor(new ArgumentExtractor()), new ArgumentExtractor(), prefabFileSystem, scriptEngine);
+                new ScriptExtractor(new ArgumentExtractor()), new ArgumentExtractor(), prefabFileSystem, scriptEngineFactory);
             this.stagedScreens.Add(prefabScriptImporterViewModel);
 
             prefabToolBoxViewModel.NextScreen = prefabDataModelBuilderViewModel;
@@ -78,7 +82,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public PrefabDescription SavePrefab()
         {
             serializer.Serialize<PrefabDescription>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
-            serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);        
+            serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
+            logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
             return this.prefabToolBoxItem;
         }        
        
@@ -96,6 +101,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 //When cancelling at a later stage when assembly is generated and loaded , there will be exception deleting folder
             }
+            logger.Information($"Create prefab cancelled by user");
             await this.TryCloseAsync(false);
         }
 

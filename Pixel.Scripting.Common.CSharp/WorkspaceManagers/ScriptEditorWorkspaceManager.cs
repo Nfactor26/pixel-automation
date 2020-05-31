@@ -19,7 +19,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
     {
         private Type globalsType = default;
-     
+        private List<string> searchPaths = new List<string>();
+
         public ScriptWorkSpaceManager(string workingDirectory, Type globalsType) : base(workingDirectory)
         {
             this.globalsType = globalsType ?? typeof(object);
@@ -114,7 +115,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopDefault.Imports);
             compilationOptions = compilationOptions.WithMetadataReferenceResolver(CreateMetaDataResolver());
             //SourceFileResolver is required so that #load directive can be used in script
-            compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(ImmutableArray<string>.Empty, this.GetWorkingDirectory()));
+            compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
             return compilationOptions;
         }
 
@@ -123,8 +124,18 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             var scriptEnvironmentService = workspace.Services.GetService<IScriptEnvironmentService>();          
             var metaDataResolver = ScriptMetadataResolver.Default;
             metaDataResolver = metaDataResolver.WithBaseDirectory(scriptEnvironmentService.BaseDirectory);
-            metaDataResolver = metaDataResolver.WithSearchPaths(scriptEnvironmentService.MetadataReferenceSearchPaths);
+            var scriptReferencesLocation = ImmutableArray<string>.Empty;
+            scriptReferencesLocation = scriptReferencesLocation.AddRange(scriptEnvironmentService.MetadataReferenceSearchPaths);
+            scriptReferencesLocation = scriptReferencesLocation.AddRange(this.searchPaths);
+            metaDataResolver = metaDataResolver.WithSearchPaths(scriptReferencesLocation);
+          
             return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
+        }
+
+        public void WithSearchPaths(params string[] searchPaths)
+        {
+            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
+            this.compilationOptions = CreateCompilationOptions();
         }
     }
 }

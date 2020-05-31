@@ -74,7 +74,7 @@ namespace Pixel.Automation.Test.Runner
             IScriptEngine scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
             scriptEngine.SetWorkingDirectory(fileSystem.WorkingDirectory);
             scriptEngine.SetGlobals(scriptArguments.GetModelData());
-            scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, Path.Combine(System.Environment.CurrentDirectory, ""));
+            scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, fileSystem.ReferencesDirectory);
             scriptEngine.WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences());
             scriptEngine.WithAdditionalAssemblyReferences(scriptArguments.GetModelType().Assembly);
             this.RegisterDefault<IScriptEngine>(scriptEngine);

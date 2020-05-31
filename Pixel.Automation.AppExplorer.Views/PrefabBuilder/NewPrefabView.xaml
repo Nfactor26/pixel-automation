@@ -20,27 +20,20 @@
         <DockPanel LastChildFill="True" MinWidth="320">
             <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
             <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
-                         Text="{Binding PrefabName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding PrefabName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=LostFocus}"
                          controls:TextBoxHelper.Watermark="Prefab Name"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
+                         controls:TextBoxHelper.UseFloatingWatermark="True"  
+                         controls:TextBoxHelper.ClearTextButton="True"
                          ToolTip="Display name of prefab" />
-        </DockPanel>
-
-        <DockPanel LastChildFill="True" MinWidth="320">
-            <Label Content="Namespace" MinWidth="80" DockPanel.Dock="Left" ></Label>
-            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center" IsReadOnly="True"
-                         Text="{Binding NameSpace, Mode=OneWay}"
-                         controls:TextBoxHelper.Watermark="NameSpace"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
-                         ToolTip="NameSpace for generated data models for Prefab" />
-        </DockPanel>
+        </DockPanel>      
 
         <DockPanel LastChildFill="True" MinWidth="320" >
             <Label Content="Group" DockPanel.Dock="Left" MinWidth="80"></Label>
             <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
                          Text="{Binding GroupName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                          controls:TextBoxHelper.Watermark="Group Name"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                  
+                         controls:TextBoxHelper.UseFloatingWatermark="True"  
+                         controls:TextBoxHelper.ClearTextButton="True"
                          ToolTip="Group of Prefab e.g. Screen One" />
         </DockPanel>
       
@@ -49,7 +42,8 @@
             <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
                          Text="{Binding Description, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                          controls:TextBoxHelper.Watermark="Description"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
+                         controls:TextBoxHelper.UseFloatingWatermark="True"   
+                         controls:TextBoxHelper.ClearTextButton="True"
                          ToolTip="Description of Prefab" />
         </DockPanel>
         

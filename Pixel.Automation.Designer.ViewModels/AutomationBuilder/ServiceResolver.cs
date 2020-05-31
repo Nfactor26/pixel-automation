@@ -84,7 +84,7 @@ namespace Pixel.Automation.Designer.ViewModels
             IScriptEngine scriptEngine = scriptEngineFactory.CreateScriptEngine(false);
             scriptEngine.SetWorkingDirectory(fileSystem.WorkingDirectory);
             scriptEngine.SetGlobals(scriptArguments.GetModelData());
-            scriptEngine.WithSearchPaths(System.Environment.CurrentDirectory, Path.Combine(System.Environment.CurrentDirectory, ""));
+            scriptEngine.WithSearchPaths(Environment.CurrentDirectory, fileSystem.ReferencesDirectory);
             scriptEngine.WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences());
             scriptEngine.WithAdditionalAssemblyReferences(scriptArguments.GetModelType().Assembly);          
             this.RegisterDefault<IScriptEngine>(scriptEngine);            
@@ -135,6 +135,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
             assemblyReferences.Add(scriptArguments.GetModelType().Assembly.Location);
             scriptEditorFactory.Initialize(fileSystem.WorkingDirectory, scriptArguments.GetModelType(), assemblyReferences.ToArray());
+            scriptEditorFactory.GetWorkspaceManager().WithSearchPaths(fileSystem.ReferencesDirectory);
         }
 
         public void OnDataModelUpdated(IFileSystem fileSystem, ScriptArguments previousArgs, ScriptArguments newArgs)

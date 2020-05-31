@@ -9,11 +9,8 @@ using Pixel.Automation.Editor.Core;
 using Serilog;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -21,6 +18,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
     public class ApplicationExplorerViewModel : Conductor<IScreen>.Collection.OneActive, IToolBox, IDisposable
     {
+        private readonly ILogger logger = Log.ForContext<ApplicationExplorerViewModel>();
+
         private readonly string applicationsRepository = "ApplicationsRepository";
         private readonly string controlsDirectory = "Controls";
         private readonly string prefabsDirectory = "Prefabs";
@@ -88,42 +87,62 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         private void OnControlCreated(object sender, ControlDescription e)
         {
-            if (this.selectedApplication != null)
+            try
             {
-                this.selectedApplication.AddControl(e);
-                SaveApplication(this.selectedApplication);
+                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).Single();
+                targetApplication.AddControl(e);
+                SaveApplication(targetApplication);
+                logger.Information($"Added control {e.ControlId} to application : {targetApplication.ApplicationName}");
             }
-            Debug.Assert(this.selectedApplication != null, "SelectedApplication is null");
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         private void OnControlDeleted(object sender, ControlDescription e)
         {
-            if (this.selectedApplication != null)
+            try
             {
-                this.selectedApplication.DeleteControl(e);
-                SaveApplication(this.selectedApplication);
+                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
+                targetApplication.DeleteControl(e);
+                SaveApplication(targetApplication);
+                logger.Information($"Deleted control {e.ControlId} from application : {targetApplication.ApplicationName}");
             }
-            Debug.Assert(this.selectedApplication != null, "SelectedApplication is null");
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         private void OnPrefabCreated(object sender, PrefabDescription e)
         {
-            if (this.selectedApplication != null)
+            try
             {
-                this.selectedApplication.AddPrefab(e);               
-                SaveApplication(this.selectedApplication);
+                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
+                targetApplication.AddPrefab(e);
+                SaveApplication(targetApplication);
+                logger.Information($"Added Prefab {e.PrefabName} to application : {targetApplication.ApplicationName}");
             }
-            Debug.Assert(this.selectedApplication != null, "SelectedApplication is null");
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         private void OnPrefabDeleted(object sender, PrefabDescription e)
         {
-            if (this.selectedApplication != null)
+            try
             {
-                this.selectedApplication.DeletePrefab(e);  
-                SaveApplication(this.selectedApplication);
+                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
+                targetApplication.DeletePrefab(e);
+                SaveApplication(targetApplication);
+                logger.Information($"Deleted Prefab {e.PrefabName} from application : {targetApplication.ApplicationName}");
             }
-            Debug.Assert(this.selectedApplication != null, "SelectedApplication is null");
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         public void ShowInExplorer()
@@ -201,7 +220,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.SelectedApplication = newApplication;
             SaveApplication(newApplication);
             NotifyOfPropertyChange(() => Applications);
-            Log.Information($"New application of type {application.ToString()} has been added to the application repository");
+           
+            logger.Information($"New application of type {application.ToString()} has been added to the application repository");
         }
 
         public void DeleteApplication(ApplicationDescription application)
@@ -214,7 +234,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 Directory.Delete(applicationFolder, true);
             }
             Applications.Remove(application);
-            Log.Information($"Application with name : {application.ApplicationName} has been deleted from applicaton repository");
+            
+            logger.Information($"Application with name : {application.ApplicationName} has been deleted from applicaton repository");
         }
 
         /// <summary>
@@ -238,7 +259,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
 
             serializer.Serialize(appFile, application, typeProvider.KnownTypes["Default"]);
-            //application.IsDirty = false;
+
+            logger.Information($"Saved application data for : {application.ApplicationName}");
         }
 
 
@@ -315,16 +337,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
                     if (newName != application.ApplicationName)
                     {
+                        var previousName = application.ApplicationName;
                         application.ApplicationName = newName;
                         application.ApplicationDetails.ApplicationName = newName;
                         SaveApplication(application);
                         CanEdit = false;
+                        logger.Information($"Application : {previousName} renamed to : {application.ApplicationName}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
                 CanEdit = false;
             }
         }
@@ -411,6 +435,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.ControlExplorer.ControlDeleted -= OnControlDeleted;
             this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;
             this.PrefabExplorer.PrefabDeleted -= OnPrefabDeleted;
+
+            logger.Information($"{nameof(ApplicationExplorerViewModel)} has been disposed");
         }
 
         public void Dispose()

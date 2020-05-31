@@ -23,7 +23,7 @@ namespace Pixel.Automation.Test.Runner
             var kernel = new StandardKernel(new CommonModule(), new DevicesModule(), new WindowsModule());
 
             var projectManager = kernel.Get<ProjectManager>();
-            projectManager.LoadProject("NotePad", "1.0.0.0");
+            projectManager.LoadProject("NotePad", "3.0.0.0");
             projectManager.LoadTestCases();
 
             await projectManager.Setup();

@@ -8,15 +8,18 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading;
 using Pixel.Automation.Core;
+using Serilog;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
     public class PrefabDataModelEditorViewModel : StagedSmartScreen
     {
+        private readonly ILogger logger = Log.ForContext<PrefabDataModelEditorViewModel>();
+
         private Assembly dataModelAssembly;
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly PrefabDescription prefabDescription;
-        private int iteration = -1;
+        private int iteration = 0;
 
         public IMultiEditor CodeEditor { get; set; }
 
@@ -36,16 +39,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 var workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
                 using (var compilationResult = workspaceManager.CompileProject($"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
                 {
+                    logger.Information("Prefab assembly was successfuly compiled");
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
-                    dataModelAssembly = Assembly.LoadFrom(Path.Combine(this.prefabFileSystem.TempDirectory, compilationResult.OutputAssemblyName));              
+                    dataModelAssembly = Assembly.LoadFrom(Path.Combine(this.prefabFileSystem.TempDirectory, compilationResult.OutputAssemblyName));    
+                    logger.Information($"Loaded prefab assembly : {compilationResult.OutputAssemblyName}");
                     errorDescription = string.Empty;
                     return true;
                 }
 
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                errorDescription = exception.Message;
+                logger.Error(ex, ex.Message);
+                errorDescription = ex.Message;
                 AddOrAppendErrors("", errorDescription);
                 return false;
             }
@@ -59,6 +65,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
+            logger.Information($"Activate screen is {nameof(PrefabDataModelEditorViewModel)}");
+          
             var generatedCode = (this.PreviousScreen as IStagedScreen).GetProcessedResult();
             if(string.IsNullOrEmpty(generatedCode?.ToString()))
             {

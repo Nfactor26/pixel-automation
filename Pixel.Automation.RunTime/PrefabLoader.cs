@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
 using System.Linq;
@@ -35,11 +36,19 @@ namespace Pixel.Automation.RunTime
 
             this.prefabFileSystem = this.prefabManager.GetServiceOfType<IPrefabFileSystem>();
             this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
+
+            //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
+            var scriptEngine = entityManager.GetScriptEngine();
+            scriptEngine.WithAdditionalSearchPaths(this.prefabFileSystem.ReferencesDirectory);
+            //Similalry, Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
+            var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+            scriptEditorFactory.GetWorkspaceManager().WithSearchPaths(this.prefabFileSystem.ReferencesDirectory);
+
             
             this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
             this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
 
-            string prefabAssembly = Path.Combine(Environment.CurrentDirectory, prefabVersion.DataModelAssembly);
+            string prefabAssembly = Path.Combine(this.prefabFileSystem.ReferencesDirectory, prefabVersion.DataModelAssembly);
             if(!prefabFileSystem.Exists(prefabAssembly))
             {
                 throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");
