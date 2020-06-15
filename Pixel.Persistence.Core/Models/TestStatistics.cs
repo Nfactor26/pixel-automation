@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Core.TestData
-{
+namespace Pixel.Persistence.Core.Models
+{ 
     [DataContract]
     [Serializable]
     public class TestStatistics
     {
         [DataMember]
-        public string TestCaseId { get; set; }
+        public string TestId { get; set; }
+
+        [DataMember]
+        public string TestName { get; set; }
 
         [DataMember]
         public string CategoryId { get; set; }
-        
+
+        [DataMember]
+        public string CategoryName { get; set; }
+
         [DataMember]
         public int NumberOfTimesExeucted { get; set; }
 
@@ -27,9 +33,6 @@ namespace Pixel.Automation.Core.TestData
 
         [DataMember]
         public int AverageExecutionTime { get; set; }
-
-        [DataMember]
-        public int  LastExecutionTime { get; set; }    
 
     }
 

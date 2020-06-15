@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>PixelRun</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -11,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Extensions.ChildKernel" Version="3.3.0" />
     <PackageReference Include="ninject.extensions.conventions" Version="3.3.0" />
@@ -29,6 +31,8 @@
     <ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />
+    <ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
     <ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
     <ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
   </ItemGroup>

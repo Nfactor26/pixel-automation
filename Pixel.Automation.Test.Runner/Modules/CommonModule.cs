@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.RunTime.Serialization;
+using Pixel.Persistence.Services.Client;
 
 namespace Pixel.Automation.Test.Runner.Modules
 {
@@ -27,6 +28,7 @@ namespace Pixel.Automation.Test.Runner.Modules
 
             Kernel.Bind<IEntityManager>().To<EntityManager>().InSingletonScope();
 
+            Kernel.Bind<ITestSessionClient>().To<TestSessionClient>().InSingletonScope();
         }
     }
 }

@@ -3,6 +3,8 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
+using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -21,22 +23,25 @@ namespace Pixel.Automation.Test.Runner
         private readonly IProjectFileSystem fileSystem;
         private readonly ITypeProvider typeProvider;
         private readonly IEntityManager entityManager;
+        private readonly ITestSessionClient sessionClient;
         private ITestRunner testRunner;
 
         private AutomationProject automationProject;
         private List<TestCategory> availableCategories = new List<TestCategory>();
-       
-        public ProjectManager(IEntityManager entityManager, ISerializer serializer, IProjectFileSystem fileSystem, ITypeProvider typeProvider)
+
+        public ProjectManager(IEntityManager entityManager, ISerializer serializer, IProjectFileSystem fileSystem, ITypeProvider typeProvider, ITestSessionClient sessionClient)
         {
             Guard.Argument(entityManager).NotNull();
             Guard.Argument(serializer).NotNull();
             Guard.Argument(fileSystem).NotNull();
             Guard.Argument(typeProvider).NotNull();
+            Guard.Argument(sessionClient).NotNull();
 
             this.entityManager = entityManager;
             this.serializer = serializer;
             this.fileSystem = fileSystem;
-            this.typeProvider = typeProvider;           
+            this.typeProvider = typeProvider;
+            this.sessionClient = sessionClient;
         }
 
 
@@ -63,7 +68,7 @@ namespace Pixel.Automation.Test.Runner
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IProjectFileSystem>(this.fileSystem);
             this.entityManager.Arguments = Activator.CreateInstance(processDataModelType);
-          
+
             var processEntity = serializer.Deserialize<Entity>(this.fileSystem.ProcessFile, typeProvider.GetAllTypes());
             processEntity.EntityManager = this.entityManager;
             this.entityManager.RootEntity = processEntity;
@@ -81,7 +86,7 @@ namespace Pixel.Automation.Test.Runner
             {
                 testCategories.Add(testCategory);
             }
-         
+
             foreach (var testDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
             {
                 foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testDirectory))
@@ -91,32 +96,12 @@ namespace Pixel.Automation.Test.Runner
                 }
             }
             this.availableCategories.AddRange(testCategories);
-          
-        }
 
-        
-        public IEnumerable<TestCase> GetNextTestCaseToRun(Func<TestCategory, TestCase, bool> canRun)
-        {            
-            foreach(var testCategory in this.availableCategories)
-            {
-                foreach(var test in testCategory.Tests)
-                {
-                    if (test.IsMuted)
-                    {
-                        continue;
-                    }
-
-                    //if (canRun(testCategory, test))
-                    {
-                        yield return test;
-                    }
-                }
-            }
         }
 
         public async Task Setup()
         {
-           await this.testRunner.SetUp();
+            await this.testRunner.SetUp();
         }
 
         public async Task TearDown()
@@ -124,25 +109,82 @@ namespace Pixel.Automation.Test.Runner
             await this.testRunner.TearDown();
         }
 
-        public async Task RunTestCaseAsync(TestCase testCase)
+
+        public async Task RunAll(ITestSelector testSelector)
+        {
+            TestSession testSession = new TestSession(automationProject.Name);
+
+            try
+            {
+                await this.Setup();
+
+                foreach (var testCategory in this.availableCategories)
+                {
+                    if(!testSelector.CanRunCategory(testCategory))
+                    {
+                        continue;
+                    }
+
+                    foreach (var testCase in testCategory.Tests)
+                    {                      
+                        if (!testSelector.CanRunTest(testCase))
+                        {
+                            continue;
+                        }
+
+                        var testResult = await this.RunTestCaseAsync(testCategory, testCase);
+                        testSession.TestResultCollection.Add(testResult);
+                        logger.Information($"Test case : {testCase.DisplayName} completed with result {testResult.Result} in time {testResult.ExecutionTime}");
+                        if (testResult.Result == Persistence.Core.Models.TestState.Failed)
+                        {
+                            logger.Warning($"Test case failed with error : {testResult.ErrorMessage ?? "unknown" }");
+                        }
+
+                    }
+                }             
+                
+                await this.TearDown();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, ex);
+            }
+
+            try
+            {
+                await sessionClient.AddSession(testSession);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, ex);
+            }
+        }
+       
+        public async Task<Persistence.Core.Models.TestResult> RunTestCaseAsync(TestCategory category, TestCase testCase)
         {
             logger.Information($"Start execution of test case : {testCase.DisplayName}");
 
             string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCase.Id, "TestAutomation.proc");
             testCase.TestCaseEntity = serializer.Deserialize<Entity>(testCaseProcessFile, typeProvider.GetAllTypes());
-            //this.entityManager.RestoreParentChildRelation(testCase.TestCaseEntity);
+
             if (await this.testRunner.TryOpenTestCase(testCase))
             {
                 await foreach (var result in this.testRunner.RunTestAsync(testCase))
                 {
-                    logger.Information($"Test case : {testCase.DisplayName} completed with result {result.Result} in time {result.ExecutionTime}");
-                    if(result.Result == TestState.Failed)
+                    var testResult = new Persistence.Core.Models.TestResult()
                     {
-                        logger.Warning($"Test case failed with error : {result.ErrorMessage ?? "unknown" }");
-                    }
+                        TestId = testCase.Id,
+                        TestName = testCase.DisplayName,
+                        CategoryId = category.Id,
+                        CategoryName = category.DisplayName,
+                        Result = (Persistence.Core.Models.TestState)((int)result.Result),
+                        ExecutionTime = result.ExecutionTime.TotalSeconds,
+                        ErrorMessage = result.ErrorMessage
+                    };
+                    return testResult;
                 }
-
             }
+            throw new Exception($"Failed to open test case : {testCase}");
         }
     }
 }
