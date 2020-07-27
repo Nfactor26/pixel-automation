@@ -36,7 +36,7 @@ namespace Pixel.Persistence.Respository
             await sessions.InsertOneAsync(testSession);
         }
 
-        public async Task DeleteApplicationAsync(string sessionId)
+        public async Task DeleteTestSessionAsync(string sessionId)
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
             await sessions.DeleteOneAsync(s => s.SessionId.Equals(sessionId));

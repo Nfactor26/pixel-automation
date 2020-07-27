@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj">
       <Private>false</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
   </ItemGroup>
 
 </Project>

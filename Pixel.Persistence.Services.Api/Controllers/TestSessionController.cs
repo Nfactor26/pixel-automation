@@ -29,7 +29,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
             {
                 return testSessions.ToList();
             }
-            return NotFound();
+            return NoContent();
         }
 
         // GET: api/TestSession/5
@@ -64,7 +64,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return NotFound();
             }
 
-            await testSessionRepository.DeleteApplicationAsync(testSession.SessionId);
+            await testSessionRepository.DeleteTestSessionAsync(testSession.SessionId);
             return NoContent();
         }
     }

@@ -69,6 +69,11 @@ namespace Pixel.Automation.RunTime.Serialization
         {
             throw new NotImplementedException();
         }
+
+        public string Serialize<T>(T model, List<Type> knownTypes = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

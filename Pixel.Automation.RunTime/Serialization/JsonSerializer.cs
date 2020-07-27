@@ -57,5 +57,18 @@ namespace Pixel.Automation.RunTime.Serialization
                 throw ex;
             }        
         }
+
+        public string Serialize<T>(T model, List<Type> knownTypes = null)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(model, typeof(T), Formatting.Indented, settings);                
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+                throw ex;
+            }
+        }
     }
 }

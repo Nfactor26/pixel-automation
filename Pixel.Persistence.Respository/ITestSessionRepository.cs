@@ -12,7 +12,7 @@ namespace Pixel.Persistence.Respository
 
         Task AddTestSessionAsync(TestSession testSession);
 
-        Task DeleteApplicationAsync(string sessionId);
+        Task DeleteTestSessionAsync(string sessionId);
        
     }
 }

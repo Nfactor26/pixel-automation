@@ -6,11 +6,15 @@ using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -27,6 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         private readonly IEventAggregator eventAggregator;
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
+        private readonly IApplicationRepositoryClient appRepoClient;
 
         public ControlExplorerViewModel ControlExplorer { get; private set; }
 
@@ -57,12 +62,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }      
 
-        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, ISerializer serializer, ITypeProvider typeProvider, ControlExplorerViewModel controlExplorer, PrefabExplorerViewModel prefabExplorer)
+        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, ISerializer serializer, ITypeProvider typeProvider,
+            IApplicationRepositoryClient appRepoClient, ControlExplorerViewModel controlExplorer, PrefabExplorerViewModel prefabExplorer)
         {
             this.DisplayName = "Application Repository";
             this.eventAggregator = eventAggregator;
             this.serializer = serializer;
             this.typeProvider = typeProvider;
+            this.appRepoClient = appRepoClient;
             this.ControlExplorer = controlExplorer;
             this.PrefabExplorer = prefabExplorer;
             this.ControlExplorer.ControlCreated += OnControlCreated;
@@ -211,6 +218,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             if (string.IsNullOrEmpty(newApplication.ApplicationName))
             {
                 newApplication.ApplicationName = $"{this.Applications.Count() + 1}";
+                newApplication.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
             }
             Directory.CreateDirectory(Path.Combine(applicationsRepository, newApplication.ApplicationId));
             Directory.CreateDirectory(Path.Combine(applicationsRepository, newApplication.ApplicationId, controlsDirectory));
@@ -260,6 +268,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
             serializer.Serialize(appFile, application, typeProvider.KnownTypes["Default"]);
 
+            Task saveApplicationTask = new Task(async () =>
+            {
+                try
+                {
+                    await appRepoClient.AddApplication(application, appFile);
+                }
+                catch(Exception ex)
+                {
+                    logger.Error(ex, ex.Message);
+                }
+            });
+            saveApplicationTask.Start();           
+
             logger.Information($"Saved application data for : {application.ApplicationName}");
         }
 
@@ -274,19 +295,61 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             return Path.Combine(applicationsRepository, application.ApplicationId, $"{application.ApplicationId}.app");
         }
 
+        private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
+        {
+            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
+            if(File.Exists(metaDataFile))
+            {
+                return this.serializer.Deserialize<List<ApplicationMetaData>>(metaDataFile);
+            }
+            return Array.Empty<ApplicationMetaData>();
+        }
+
+        private void CreateOrUpdateApplicationMetaData(IEnumerable<ApplicationMetaData> applicationMetaDatas)
+        {
+            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
+            if (File.Exists(metaDataFile))
+            {
+                File.Delete(metaDataFile);
+            }
+            this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
+        }
+
         private void LoadApplications()
         {
-            if(!Directory.Exists(this.applicationsRepository))
+            Task downloadApplicationsTask = new Task(async () =>
             {
-                Directory.CreateDirectory(this.applicationsRepository);
-            }
-            foreach (var app in Directory.GetDirectories(this.applicationsRepository))
+                if (!Directory.Exists(this.applicationsRepository))
+                {
+                    Directory.CreateDirectory(this.applicationsRepository);
+                }
+
+                var serverApplicationMetaData = await this.appRepoClient.GetMetaData();
+                var localApplicationMetaData = GetLocalApplicationMetaData();
+                foreach(var metaData in serverApplicationMetaData)
+                {
+                    if(localApplicationMetaData.Any(a => a.ApplicationId.Equals(metaData.ApplicationId) && a.LastUpdated < metaData.LastUpdated)
+                             || !localApplicationMetaData.Any(a => a.ApplicationId.Equals(metaData.ApplicationId)))
+                    {                  
+                         var applicationDescription = await this.appRepoClient.GetApplication(metaData.ApplicationId);
+                        SaveApplication(applicationDescription);
+                    }
+                }
+                CreateOrUpdateApplicationMetaData(serverApplicationMetaData);
+            });
+            downloadApplicationsTask.ContinueWith(a =>
             {
-                string appFile = Directory.GetFiles(Path.Combine(this.applicationsRepository, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
-                Applications.Add(application);
-            }
-            Applications.OrderBy(a => a.ApplicationName);
+                foreach (var app in Directory.GetDirectories(this.applicationsRepository))
+                {
+                    string appFile = Directory.GetFiles(Path.Combine(this.applicationsRepository, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                    ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
+                    Applications.Add(application);
+                }
+                Applications.OrderBy(a => a.ApplicationName);
+                NotifyOfPropertyChange(() => Applications);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            downloadApplicationsTask.Start();          
         }
 
         private void InitializeKnownApplications()
@@ -445,5 +508,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         }
 
         #endregion IDisposable
+               
     }
 }

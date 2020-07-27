@@ -7,12 +7,12 @@ namespace Pixel.Persistence.Services.Client
 {
     public class TestSessionClient : ITestSessionClient
     {
-        private readonly string baseUrl = "https://localhost:44364/api";
+        private readonly string baseUrl = "http://localhost:49574/api";
         private readonly IRestClient client;
 
         public TestSessionClient()
         {            
-            this.client = new RestClient(baseUrl); ;
+            this.client = new RestClient(baseUrl);
         }
 
         public async Task AddSession(TestSession testSession)

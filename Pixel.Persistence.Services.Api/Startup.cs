@@ -31,7 +31,10 @@ namespace Pixel.Persistence.Services.Api
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
         
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
+            services.AddTransient<IApplicationRepository, ApplicationRepository>();
             services.AddControllers();
+
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +44,12 @@ namespace Pixel.Persistence.Services.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pixel Persistence V1");
+            });
 
             app.UseHttpsRedirection();
 

@@ -15,6 +15,15 @@ namespace Pixel.Automation.Core.Interfaces
         void Serialize<T>(string path, T model, List<Type> knownTypes = null);
 
         /// <summary>
+        /// Serialize a model to string and get the serialized data as string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="knownTypes"></param>
+        /// <returns></returns>
+        string Serialize<T>(T model, List<Type> knownTypes = null);
+
+        /// <summary>
         /// Desirialize data from a given file 
         /// </summary>
         /// <typeparam name="T"><see cref="Type"/> to which data will be desirialized</typeparam>

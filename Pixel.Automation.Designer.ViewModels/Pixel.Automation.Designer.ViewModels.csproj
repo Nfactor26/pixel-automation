@@ -39,6 +39,8 @@
     <ProjectReference Include="..\Pixel.Automation.TestExplorer\Pixel.Automation.TestExplorer.csproj">
       <Private>false</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
   </ItemGroup>
 
 </Project>
