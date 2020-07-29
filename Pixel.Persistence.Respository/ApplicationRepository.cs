@@ -43,18 +43,19 @@ namespace Pixel.Persistence.Respository
 
         public async IAsyncEnumerable<ApplicationMetaData> GetMetadataAsync()
         {
+            
             var filter = Builders<GridFSFileInfo>.Filter.Empty;
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            var options = new GridFSFindOptions
+            //var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+            //var options = new GridFSFindOptions
+            //{               
+            //    Sort = sort
+            //};
+            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
             {
-                Limit = 1,
-                Sort = sort
-            };
-            using (var cursor = await bucket.FindAsync(filter, options))
-            {
-                var files = await cursor.ToListAsync();
-                foreach(var file in files)
+                var files = await cursor.ToListAsync();              
+                foreach(var group in files.GroupBy(a => a.Metadata["applicationId"]))
                 {
+                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
                     yield return new ApplicationMetaData() 
                     { 
                         ApplicationId = file.Metadata["applicationId"].AsString,

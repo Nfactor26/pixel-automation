@@ -23,39 +23,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
 
-        [Route("fetch/metadata")]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationMetaData>>> GetMetaData()
-        {
-            try
-            {
-                List<ApplicationMetaData> applications = new List<ApplicationMetaData>();
-                await foreach (var applicationMetadata in applicationRepository.GetMetadataAsync())
-                {
-                    applications.Add(applicationMetadata);
-                }
-                return applications;
-            }
-            catch (Exception ex)
-            {
-                return NoContent();
-            }
-        }
-
-
         [HttpGet("{applicationId}")]
         public async Task<ActionResult> Get(string applicationId)
         {
-            try
-            {
-                var applicationBytes = await applicationRepository.GetApplicationFile(applicationId);
-                return File(applicationBytes, "application/octet-stream", applicationId);
-            }
-            catch (Exception ex)
-            {
-                return NoContent();
-            }
-           
+            var applicationBytes = await applicationRepository.GetApplicationFile(applicationId);
+            return File(applicationBytes, "application/octet-stream", applicationId);
         }
 
 

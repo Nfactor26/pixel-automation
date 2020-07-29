@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -22,17 +23,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 {
     public class ControlExplorerViewModel : Screen, IHandle<IEnumerable<ScrapedControl>>
     {
-        private readonly string applicationsRepository = "ApplicationsRepository";
-        private readonly string controlsDirectory = "Controls";
-
-
         private readonly ILogger logger = Log.ForContext<ControlExplorerViewModel>();
-        private readonly ISerializer serializer;
-        private readonly ITypeProvider typeProvider;       
         private readonly IControlEditor controlEditor;
         private readonly IEventAggregator eventAggregator;
-        private readonly IWindowManager windowManager;
-
+        private readonly IWindowManager windowManager;     
+        private readonly IApplicationDataManager applicationDataManager;
 
         private ApplicationDescription activeApplication;
 
@@ -51,18 +46,51 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
-        public ControlExplorerViewModel(IWindowManager windowManager,IEventAggregator eventAggregator, IControlEditor controlEditor, ISerializer serializer, ITypeProvider typeProvider)
+        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditor controlEditor, ISerializer serializer, IApplicationDataManager applicationDataManager)
         {
-            this.windowManager = windowManager;
-            this.serializer = serializer;
-            this.typeProvider = typeProvider;
+            this.windowManager = windowManager;           
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnPublishedThread(this);
             this.controlEditor = controlEditor;
+            this.applicationDataManager = applicationDataManager;
 
             CreateCollectionView();
         }
-                
+      
+        #region Filter 
+
+
+        string filterText = string.Empty;
+        public string FilterText
+        {
+            get
+            {
+                return filterText;
+            }
+            set
+            {
+                filterText = value;
+
+                var view = CollectionViewSource.GetDefaultView(Controls);
+                view.Refresh();
+                NotifyOfPropertyChange(() => Controls);
+
+            }
+        }
+
+        private void CreateCollectionView()
+        {
+            var groupedItems = CollectionViewSource.GetDefaultView(Controls);
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ControlDescriptionViewModel.GroupName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.GroupName), ListSortDirection.Ascending));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.ControlName), ListSortDirection.Ascending));
+            groupedItems.Filter = new Predicate<object>((a) =>
+            {
+                return (a as ControlDescriptionViewModel).ControlName.ToLower().Contains(this.filterText.ToLower());
+            });
+        }
+
+        #endregion Filter
 
         #region Edit ControlToolBoxItem
 
@@ -94,7 +122,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// </summary>
         /// <param name="context"></param>
         /// <param name="controlToRename"></param>
-        public void RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
+        public async Task RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
         {
             try
             {
@@ -103,8 +131,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 {
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
                     controlToRename.ControlName = newName;
-                    CanEdit = false;                 
-                    SaveControlDetails(controlToRename);
+                    CanEdit = false;
+                    await SaveControlDetails(controlToRename, false);
                 }
             }
             catch (Exception ex)
@@ -116,68 +144,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
 
         #endregion Edit ControlToolBoxItem
-
-        #region Filter 
-
-
-        string filterText = string.Empty;
-        public string FilterText
-        {
-            get
-            {
-                return filterText;
-            }
-            set
-            {
-                filterText = value;
-
-                var view = CollectionViewSource.GetDefaultView(Controls);
-                view.Refresh();
-                NotifyOfPropertyChange(() => Controls);
-
-            }
-        }
-
-        private void CreateCollectionView()
-        {
-            var groupedItems = CollectionViewSource.GetDefaultView(Controls);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ControlDescriptionViewModel.GroupName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.GroupName), ListSortDirection.Ascending));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.ControlName), ListSortDirection.Ascending));          
-            groupedItems.Filter = new Predicate<object>((a) =>
-            {
-                return (a as ControlDescriptionViewModel).ControlName.ToLower().Contains(this.filterText.ToLower());
-            });
-        }
-
-        #endregion Filter
-
+        
 
         public void SetActiveApplication(ApplicationDescription application)
         {
             this.activeApplication = application;
             LoadControlDetails(application);
-            
+
             this.Controls.Clear();
-            this.Controls.AddRange(this.activeApplication.ControlsCollection.Select(a => new ControlDescriptionViewModel(a)));              
-        }     
+            this.Controls.AddRange(this.activeApplication.ControlsCollection.Select(a => new ControlDescriptionViewModel(a)));
+        }
 
         private void LoadControlDetails(ApplicationDescription application)
         {
             if (application.ControlsCollection.Count() == 0)
             {
-                foreach (var controlId in application.AvailableControls)
-                {
-                    string controlFile = Path.Combine("ApplicationsRepository", application.ApplicationId, "Controls", controlId, $"{controlId}.dat");
-                 
-                    if(File.Exists(controlFile))
-                    {
-                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);                   
-                        application.ControlsCollection.Add(controlDescription);
-                    }
-                    logger.Warning("Control file : {0} doesn't exist", controlFile);
-                }
-            }          
+                var controls = this.applicationDataManager.GetAllControls(application).ToList();
+                application.ControlsCollection.AddRange(controls);
+            }
         }
 
         /// <summary>
@@ -186,30 +170,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToDelete"></param>
         public void DeleteControl(ControlDescriptionViewModel controlToDelete)
         {
-            Guard.Argument(controlToDelete).NotNull();
-
-            try
-            {
-                //delete the .control file
-                string controlDirectory = GetControlDirectory(controlToDelete);
-                if (Directory.Exists(controlDirectory))
-                {
-                    Directory.Delete(controlDirectory, true);
-                }
-
-                this.Controls.Remove(controlToDelete);
-
-                OnControlDeleted(controlToDelete.ControlDescription);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, ex.Message);
-            }
-
+           
         }
 
 
-        public async void EditControl(ControlDescriptionViewModel controlToEdit)
+        public async Task EditControl(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit).NotNull();
 
@@ -219,7 +184,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             if (result.HasValue && result.Value)
             {
                 controlToEdit.ControlDetails = copyOfControlToEdit;
-                SaveControlDetails(controlToEdit);
+                await SaveControlDetails(controlToEdit, false);
             }
         }
 
@@ -227,62 +192,36 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// Create a copy of control
         /// </summary>
         /// <param name="controlToRename"></param>
-        public void CloneControl(ControlDescriptionViewModel controlToClone)
+        public async Task CloneControl(ControlDescriptionViewModel controlToClone)
         {
             Guard.Argument(controlToClone).NotNull();
 
             var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
             var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
             controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
-            Directory.CreateDirectory(GetControlDirectory(controlDescriptionViewModel));
-            SaveBitMapSource(controlDescriptionViewModel.ImageSource, GetControlImageFile(controlDescriptionViewModel));
-            SaveControlDetails(controlDescriptionViewModel);
-            this.Controls.Add(controlDescriptionViewModel);
-            OnControlCreated(clonedControl);
+            await SaveControlDetails(controlDescriptionViewModel, true);
+            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource, "Default");
+            this.Controls.Add(controlDescriptionViewModel);           
         }
 
-
-        private void AddControl(ControlDescriptionViewModel controlItem)
+        private readonly object locker = new object();
+        public async Task SaveControlDetails(ControlDescriptionViewModel controlToSave, bool updateApplication)
         {
-            Directory.CreateDirectory(GetControlDirectory(controlItem));
-            SaveBitMapSource(controlItem.ImageSource, GetControlImageFile(controlItem));
-            SaveControlDetails(controlItem);
-            this.Controls.Add(controlItem);
-         
-            OnControlCreated(controlItem.ControlDescription);
-        }
-
-
-        public void SaveControlDetails(ControlDescriptionViewModel controlToSave)
-        {
-            string fileToCreate = GetControlFile(controlToSave);
-            if(File.Exists(fileToCreate))
+            await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
+            if(updateApplication)
             {
-                File.Delete(fileToCreate);
-            }
-            serializer.Serialize<ControlDescription>(fileToCreate, controlToSave.ControlDescription);
-
-
+                lock (locker)
+                {
+                    this.activeApplication.AddControl(controlToSave.ControlDescription);                   
+                }
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication);
+            }             
+         
             var view = CollectionViewSource.GetDefaultView(Controls);
             view.Refresh();
             NotifyOfPropertyChange(() => Controls);
 
             logger.Information($"Control details saved for {controlToSave.ControlName}");
-        }
-
-        private string GetControlFile(ControlDescriptionViewModel controlItem)
-        {
-           return Path.Combine(GetControlDirectory(controlItem), $"{controlItem.ControlId}.dat");
-        }
-
-        private string GetControlImageFile(ControlDescriptionViewModel controlItem)
-        {
-            return Path.Combine(GetControlDirectory(controlItem), "ScreenShot.Png");
-        }
-
-        private string GetControlDirectory(ControlDescriptionViewModel controlItem)
-        {
-            return Path.Combine(applicationsRepository, this.activeApplication.ApplicationId, controlsDirectory , controlItem.ControlId);
         }
 
         private BitmapImage ConvertToImageSource(Bitmap src)
@@ -297,15 +236,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             return image;
         }
 
-        private void SaveBitMapSource(ImageSource imageSource, string saveLocation)
+
+        private async Task AddControl(ControlDescriptionViewModel controlItem)
+        {
+            await SaveBitMapSource(controlItem.ControlDescription, controlItem.ImageSource, "Default");
+            await SaveControlDetails(controlItem, true);            
+            this.Controls.Add(controlItem);         
+        }
+
+        private async Task SaveBitMapSource(ControlDescription controlDescription, ImageSource imageSource, string resolution)
         {
             if (imageSource is BitmapImage image)
-            {               
-                using (var fileStream = new FileStream(saveLocation, FileMode.Create))
+            {
+                using (var stream = new MemoryStream())
                 {
                     BitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(image));
-                    encoder.Save(fileStream);
+                    encoder.Save(stream);
+                    controlDescription.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(controlDescription, stream, resolution);
                 }
                 return;
             }
@@ -338,27 +286,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     var controlDescription = new ControlDescription(control);
                     ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
                     controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                    controlDescriptionViewModel.ControlImage = GetControlImageFile(controlDescriptionViewModel);
+                    //controlDescriptionViewModel.ControlImage = GetControlImageFile(controlDescriptionViewModel);
                     controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
 
                     control.ControlImage = controlDescriptionViewModel.ControlImage;
                     //save the captured control details to file
-                    AddControl(controlDescriptionViewModel);
+                    await AddControl(controlDescriptionViewModel);
                 }
             }
             await Task.CompletedTask;
-        }
-
-        public event EventHandler<ControlDescription> ControlCreated = delegate { };
-        protected virtual void OnControlCreated(ControlDescription createdPrefab)
-        {
-            this.ControlCreated(this, createdPrefab);
-        }
-
-        public event EventHandler<ControlDescription> ControlDeleted = delegate { };
-        protected virtual void OnControlDeleted(ControlDescription deletedPrefab)
-        {
-            this.ControlDeleted(this, deletedPrefab);
         }     
     }
 }

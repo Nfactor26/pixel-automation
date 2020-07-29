@@ -1,5 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pixel.Persistence.Core.Models
@@ -14,5 +14,8 @@ namespace Pixel.Persistence.Core.Models
         public string ApplicationType { get; set; }
     
         public DateTime LastUpdated { get; set; }
+
+        public IEnumerable<ControlMetaData> ControlsMeta { get; set; }
+               
     }
 }

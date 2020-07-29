@@ -6,13 +6,10 @@ using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -23,15 +20,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
     public class ApplicationExplorerViewModel : Conductor<IScreen>.Collection.OneActive, IToolBox, IDisposable
     {
         private readonly ILogger logger = Log.ForContext<ApplicationExplorerViewModel>();
-
-        private readonly string applicationsRepository = "ApplicationsRepository";
-        private readonly string controlsDirectory = "Controls";
-        private readonly string prefabsDirectory = "Prefabs";
-
-        private readonly IEventAggregator eventAggregator;
-        private readonly ISerializer serializer;
-        private readonly ITypeProvider typeProvider;
-        private readonly IApplicationRepositoryClient appRepoClient;
+    
+        private readonly IEventAggregator eventAggregator;      
+        private readonly ITypeProvider typeProvider;   
+        private readonly IApplicationDataManager applicationDataManager;
 
         public ControlExplorerViewModel ControlExplorer { get; private set; }
 
@@ -62,23 +54,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }      
 
-        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, ISerializer serializer, ITypeProvider typeProvider,
-            IApplicationRepositoryClient appRepoClient, ControlExplorerViewModel controlExplorer, PrefabExplorerViewModel prefabExplorer)
+        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager, ITypeProvider typeProvider,
+             ControlExplorerViewModel controlExplorer, PrefabExplorerViewModel prefabExplorer)
         {
             this.DisplayName = "Application Repository";
             this.eventAggregator = eventAggregator;
-            this.serializer = serializer;
-            this.typeProvider = typeProvider;
-            this.appRepoClient = appRepoClient;
+            this.typeProvider = typeProvider;          
+            this.applicationDataManager = applicationDataManager;
             this.ControlExplorer = controlExplorer;
-            this.PrefabExplorer = prefabExplorer;
-            this.ControlExplorer.ControlCreated += OnControlCreated;
-            this.ControlExplorer.ControlDeleted += OnControlDeleted;
+            this.PrefabExplorer = prefabExplorer;           
             this.PrefabExplorer.PrefabCreated += OnPrefabCreated;
             this.PrefabExplorer.PrefabDeleted += OnPrefabDeleted;
             CreateCollectionView();
             InitializeKnownApplications();
-            LoadApplications();
+            
+            var applications = this.applicationDataManager.GetAllApplications();
+            this.Applications.AddRange(applications);
+            Applications.OrderBy(a => a.ApplicationName);
         }      
 
         private void CreateCollectionView()
@@ -92,43 +84,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             });
         }
 
-        private void OnControlCreated(object sender, ControlDescription e)
-        {
-            try
-            {
-                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).Single();
-                targetApplication.AddControl(e);
-                SaveApplication(targetApplication);
-                logger.Information($"Added control {e.ControlId} to application : {targetApplication.ApplicationName}");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
-
-        private void OnControlDeleted(object sender, ControlDescription e)
-        {
-            try
-            {
-                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
-                targetApplication.DeleteControl(e);
-                SaveApplication(targetApplication);
-                logger.Information($"Deleted control {e.ControlId} from application : {targetApplication.ApplicationName}");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
-
         private void OnPrefabCreated(object sender, PrefabDescription e)
         {
             try
             {
                 var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
-                targetApplication.AddPrefab(e);
-                SaveApplication(targetApplication);
+                targetApplication.AddPrefab(e);             
                 logger.Information($"Added Prefab {e.PrefabName} to application : {targetApplication.ApplicationName}");
             }
             catch (Exception ex)
@@ -143,7 +104,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             {
                 var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
                 targetApplication.DeletePrefab(e);
-                SaveApplication(targetApplication);
+                //SaveApplication(targetApplication);
                 logger.Information($"Deleted Prefab {e.PrefabName} from application : {targetApplication.ApplicationName}");
             }
             catch (Exception ex)
@@ -208,7 +169,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             NotifyOfPropertyChange(nameof(IsApplicationOpen));
         }
 
-        public void AddApplication(KnownApplication knownApplication)
+        public async Task AddApplication(KnownApplication knownApplication)
         {
             Guard.Argument(knownApplication).NotNull();
 
@@ -220,13 +181,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 newApplication.ApplicationName = $"{this.Applications.Count() + 1}";
                 newApplication.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
             }
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, newApplication.ApplicationId));
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, newApplication.ApplicationId, controlsDirectory));
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, newApplication.ApplicationId, prefabsDirectory));
-
+        
             this.Applications.Add(newApplication);
             this.SelectedApplication = newApplication;
-            SaveApplication(newApplication);
+            await SaveApplication(newApplication);
             NotifyOfPropertyChange(() => Applications);
            
             logger.Information($"New application of type {application.ToString()} has been added to the application repository");
@@ -236,120 +194,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             Guard.Argument(application).NotNull();
 
-            string applicationFolder = GetApplicationDirectory(application);
-            if (Directory.Exists(applicationFolder))
-            {
-                Directory.Delete(applicationFolder, true);
-            }
-            Applications.Remove(application);
+            //string applicationFolder = GetApplicationDirectory(application);
+            //if (Directory.Exists(applicationFolder))
+            //{
+            //    Directory.Delete(applicationFolder, true);
+            //}
+            //Applications.Remove(application);
             
             logger.Information($"Application with name : {application.ApplicationName} has been deleted from applicaton repository");
         }
-
-        /// <summary>
-        /// Save the ApplicationDetails of ApplicationToolBoxItem to File
-        /// </summary>
-        /// <param name="application"></param>
-        public void SaveApplication(ApplicationDescription application)
+        public async Task SaveApplication(ApplicationDescription application)
         {
             Guard.Argument(application).NotNull();
-
-            string appDirectory = GetApplicationDirectory(application);
-            if (!Directory.Exists(appDirectory))
-            {
-                Directory.CreateDirectory(appDirectory);
-            }
-
-            string appFile = GetApplicationFile(application);
-            if (File.Exists(appFile))
-            {
-                File.Delete(appFile);
-            }
-
-            serializer.Serialize(appFile, application, typeProvider.KnownTypes["Default"]);
-
-            Task saveApplicationTask = new Task(async () =>
-            {
-                try
-                {
-                    await appRepoClient.AddApplication(application, appFile);
-                }
-                catch(Exception ex)
-                {
-                    logger.Error(ex, ex.Message);
-                }
-            });
-            saveApplicationTask.Start();           
-
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);
+          
             logger.Information($"Saved application data for : {application.ApplicationName}");
-        }
-
-
-        private string GetApplicationDirectory(ApplicationDescription application)
-        {
-            return Path.Combine(applicationsRepository, application.ApplicationId);
-        }
-
-        private string GetApplicationFile(ApplicationDescription application)
-        {
-            return Path.Combine(applicationsRepository, application.ApplicationId, $"{application.ApplicationId}.app");
-        }
-
-        private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
-        {
-            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
-            if(File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<ApplicationMetaData>>(metaDataFile);
-            }
-            return Array.Empty<ApplicationMetaData>();
-        }
-
-        private void CreateOrUpdateApplicationMetaData(IEnumerable<ApplicationMetaData> applicationMetaDatas)
-        {
-            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
-        }
-
-        private void LoadApplications()
-        {
-            Task downloadApplicationsTask = new Task(async () =>
-            {
-                if (!Directory.Exists(this.applicationsRepository))
-                {
-                    Directory.CreateDirectory(this.applicationsRepository);
-                }
-
-                var serverApplicationMetaData = await this.appRepoClient.GetMetaData();
-                var localApplicationMetaData = GetLocalApplicationMetaData();
-                foreach(var metaData in serverApplicationMetaData)
-                {
-                    if(localApplicationMetaData.Any(a => a.ApplicationId.Equals(metaData.ApplicationId) && a.LastUpdated < metaData.LastUpdated)
-                             || !localApplicationMetaData.Any(a => a.ApplicationId.Equals(metaData.ApplicationId)))
-                    {                  
-                         var applicationDescription = await this.appRepoClient.GetApplication(metaData.ApplicationId);
-                        SaveApplication(applicationDescription);
-                    }
-                }
-                CreateOrUpdateApplicationMetaData(serverApplicationMetaData);
-            });
-            downloadApplicationsTask.ContinueWith(a =>
-            {
-                foreach (var app in Directory.GetDirectories(this.applicationsRepository))
-                {
-                    string appFile = Directory.GetFiles(Path.Combine(this.applicationsRepository, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                    ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
-                    Applications.Add(application);
-                }
-                Applications.OrderBy(a => a.ApplicationName);
-                NotifyOfPropertyChange(() => Applications);
-            }, TaskScheduler.FromCurrentSynchronizationContext());
-
-            downloadApplicationsTask.Start();          
         }
 
         private void InitializeKnownApplications()
@@ -390,7 +249,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }
 
-        public void RenameApplication(ActionExecutionContext context, ApplicationDescription application)
+        public async Task RenameApplication(ActionExecutionContext context, ApplicationDescription application)
         {
             try
             {
@@ -403,7 +262,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         var previousName = application.ApplicationName;
                         application.ApplicationName = newName;
                         application.ApplicationDetails.ApplicationName = newName;
-                        SaveApplication(application);
+                        await SaveApplication(application);
                         CanEdit = false;
                         logger.Information($"Application : {previousName} renamed to : {application.ApplicationName}");
                     }
@@ -493,9 +352,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         #region IDisposable
 
         protected virtual void Dispose(bool isDisposing)
-        {
-            this.ControlExplorer.ControlCreated -= OnControlCreated;
-            this.ControlExplorer.ControlDeleted -= OnControlDeleted;
+        {           
             this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;
             this.PrefabExplorer.PrefabDeleted -= OnPrefabDeleted;
 

@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Core.Models;
+using RestSharp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Models;
-using RestSharp;
-using RestSharp.Extensions;
 
 namespace Pixel.Persistence.Services.Client
 {
@@ -41,15 +40,7 @@ namespace Pixel.Persistence.Services.Client
             }
             throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? "Failed to download application with id :" + applicationId}");
         }
-
-
-        public async Task<IEnumerable<ApplicationMetaData>> GetMetaData()
-        {
-            RestRequest restRequest = new RestRequest("fetch/metadata");      
-            var response = await client.ExecuteGetAsync<IEnumerable<ApplicationMetaData>>(restRequest);
-            return response.Data ?? Array.Empty<ApplicationMetaData>();
-        }
-
+               
         public async Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload)
         {
             List<ApplicationDescription> applicationDescriptions = new List<ApplicationDescription>();         
@@ -62,7 +53,7 @@ namespace Pixel.Persistence.Services.Client
         }
         
 
-        public async Task<ApplicationDescription> AddApplication(ApplicationDescription applicationDescription, string applicationFile)
+        public async Task<ApplicationDescription> AddOrUpdateApplication(ApplicationDescription applicationDescription, string applicationFile)
         {
             RestRequest restRequest = new RestRequest() { Method = Method.POST };
             var applicationMetaData = new ApplicationMetaData() { ApplicationId = applicationDescription.ApplicationId, ApplicationName = applicationDescription.ApplicationName, ApplicationType = applicationDescription.ApplicationType };

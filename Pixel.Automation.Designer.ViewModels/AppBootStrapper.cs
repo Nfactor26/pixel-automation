@@ -18,6 +18,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using Pixel.Persistence.Services.Client;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -43,6 +46,18 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
+            var resetEvent = new ManualResetEvent(false);
+            var downloadApplicationDataTask = new Task(async () =>
+            {
+                var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                await applicationDataManger.DownloadApplicationsDataAsync();
+                Log.Information("Download data completed");
+                resetEvent.Set();
+            });
+            downloadApplicationDataTask.Start();
+            Log.Information("Waiting for data download");
+            resetEvent.WaitOne();
+            Log.Information("Initializing Root View now");
             DisplayRootViewFor<IShell>();
         }
 

@@ -7,15 +7,11 @@ namespace Pixel.Persistence.Services.Client
 {
     public interface IApplicationRepositoryClient
     {
-        Task<ApplicationDescription> GetApplication(string applicationId);
-
-        Task<IEnumerable<ApplicationMetaData>> GetMetaData();
+        Task<ApplicationDescription> GetApplication(string applicationId);        
 
         Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload);
         
-        Task<ApplicationDescription> AddApplication(ApplicationDescription applicationDescription, string applicationFile);
-
-        Task<ApplicationDescription> UpdateApplication(ApplicationDescription applicationDescription);
+        Task<ApplicationDescription> AddOrUpdateApplication(ApplicationDescription applicationDescription, string applicationFile);
 
     }
 }
