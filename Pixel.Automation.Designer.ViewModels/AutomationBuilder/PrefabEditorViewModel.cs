@@ -79,21 +79,21 @@ namespace Pixel.Automation.Designer.ViewModels
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
                 await windowManager.ShowDialogAsync(editor);               
             }
-            this.projectManager.Refresh();
+            await this.projectManager.Refresh();
         }
 
         #endregion Automation Project     
 
         #region Save project
 
-        public override void DoSave()
+        public override async Task DoSave()
         {
-            projectManager.Save();          
+            await projectManager.Save();          
         }
 
         public async override Task Manage()
         {
-            DoSave();
+            await DoSave();
 
             var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
             PrefabVersionManagerViewModel versionManager = new PrefabVersionManagerViewModel(this.PrefabDescription, workspaceManagerFactory, this.serializer);

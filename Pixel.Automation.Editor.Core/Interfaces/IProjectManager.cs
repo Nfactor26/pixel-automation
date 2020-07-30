@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -9,7 +10,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
         IFileSystem GetProjectFileSystem();
 
-        void Save();
+        Task Save();
 
         void SaveAs();
 

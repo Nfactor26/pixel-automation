@@ -53,7 +53,7 @@ namespace Pixel.Automation.Designer.ViewModels
             flyout.IsOpen = !flyout.IsOpen;
         }
 
-        public async void DoNew()
+        public async Task DoNew()
         {
             Log.Debug("DoNew start");
             if (!Directory.Exists("Automations"))
@@ -68,12 +68,12 @@ namespace Pixel.Automation.Designer.ViewModels
             var result = await windowManager.ShowDialogAsync(newProjectVM);
             if (result.HasValue && result.Value)
             {
-                OpenProject(newProject);
+                await OpenProject(newProject);
             }
             Log.Debug("DoNew end");
         }
 
-        public void DoOpen()
+        public async Task DoOpen()
         {
             Log.Debug("DoOpen start");
 
@@ -82,19 +82,19 @@ namespace Pixel.Automation.Designer.ViewModels
             if (string.IsNullOrEmpty(fileToOpen))
                 return;
             var automationProject = serializer.Deserialize<AutomationProject>(fileToOpen, null);
-            OpenProject(automationProject);
+            await OpenProject(automationProject);
             Log.Debug("DoOpen end");
 
         }
 
-        private async void OpenProject(AutomationProject automationProject)
+        private async Task OpenProject(AutomationProject automationProject)
         {
             Log.Debug("OpenProject start");
 
             var automationBuilder = IoC.Get<IAutomationBuilder>();
             var shell = IoC.Get<IShell>();
             await (shell as ShellViewModel).ActivateItemAsync(automationBuilder as Screen);
-            automationBuilder.DoLoad(automationProject);
+            await automationBuilder.DoLoad(automationProject);
 
             Log.Debug("OpenProject end");
 

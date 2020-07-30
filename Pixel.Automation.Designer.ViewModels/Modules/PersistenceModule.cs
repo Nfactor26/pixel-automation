@@ -10,7 +10,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IMetaDataClient>().To<MetaDataClient>();
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();
-            Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>();
+            Kernel.Bind<IProjectRepositoryClient>().To<ProjectRepositoryClient>();
+            Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
         }
     }
 }

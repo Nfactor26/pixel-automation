@@ -285,11 +285,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     //create an instance of ControlToolBoxItem to display in the toolbox
                     var controlDescription = new ControlDescription(control);
                     ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
-                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                    //controlDescriptionViewModel.ControlImage = GetControlImageFile(controlDescriptionViewModel);
-                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
-
-                    control.ControlImage = controlDescriptionViewModel.ControlImage;
+                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();           
+                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);  
+                    
                     //save the captured control details to file
                     await AddControl(controlDescriptionViewModel);
                 }

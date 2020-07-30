@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -34,7 +35,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public HomeViewModel(ISerializer serializer)
         {
-            Guard.Argument<ISerializer>(serializer).NotNull($"{nameof(serializer)} is reuired parameter");
+            Guard.Argument(serializer).NotNull($"{nameof(serializer)} is reuired parameter");
 
             this.DisplayName = "Home";
             this.serializer = serializer;
@@ -61,7 +62,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         }
 
-        public async void CreateNewProject()
+        public async Task CreateNewProject()
         {
             if (!Directory.Exists("Automations"))
             {
@@ -74,11 +75,11 @@ namespace Pixel.Automation.Designer.ViewModels
             var result = await windowManager.ShowDialogAsync(newProjectVM);
             if (result.HasValue && result.Value)
             {
-                OpenProject(newProject);
+               await OpenProject(newProject);
             }
         }
 
-        public async void OpenProject(AutomationProject automationProject)
+        public async Task OpenProject(AutomationProject automationProject)
         {
             try
             {
@@ -86,8 +87,9 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     var fileToOpen = ShowOpenFileDialog();
                     if (string.IsNullOrEmpty(fileToOpen))
+                    {
                         return;
-
+                    }
 
                     string fileType = Path.GetExtension(fileToOpen);
                     switch (fileType)
@@ -104,7 +106,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
 
                 IAutomationBuilder automationBuilder = IoC.Get<IAutomationBuilder>();
-                automationBuilder.DoLoad(automationProject);
+                await automationBuilder.DoLoad(automationProject);
                 var shell = IoC.Get<IShell>();
                 await (shell as ShellViewModel).ActivateItemAsync(automationBuilder as Screen);
 

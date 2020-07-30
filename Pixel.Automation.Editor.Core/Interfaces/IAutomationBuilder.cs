@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -14,7 +15,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Load project from the current workspace
         /// </summary>
         /// <param name="project"></param>
-        void DoLoad(AutomationProject project, VersionInfo versionInfo = null);
+        Task DoLoad(AutomationProject project, VersionInfo versionInfo = null);
      
     }
 }

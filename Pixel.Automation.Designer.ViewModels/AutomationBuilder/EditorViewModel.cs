@@ -263,7 +263,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Save project
 
-        public abstract void DoSave();
+        public abstract Task DoSave();
 
 
         public abstract Task Manage();

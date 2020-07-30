@@ -72,7 +72,7 @@ namespace Pixel.Persistence.Respository
             using (var cursor = await controlBucket.FindAsync(filter, options))
             {
                 var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                var result = await controlBucket.DownloadAsBytesByNameAsync(fileInfo.Filename);
+                var result = await controlBucket.DownloadAsBytesAsync(fileInfo.Id);
                 yield return new DataFile() { FileName = fileInfo.Filename, Bytes = result, Type = "ControlFile" };
             }
             //Get all the images

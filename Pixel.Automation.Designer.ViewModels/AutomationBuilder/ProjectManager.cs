@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -48,7 +49,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return this.fileSystem;
         }
 
-        public abstract void Save();
+        public abstract Task Save();
 
         public abstract void  SaveAs();
       

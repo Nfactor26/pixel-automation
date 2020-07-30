@@ -9,6 +9,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.TestData.Repository.ViewModels;
 using Pixel.Automation.TestExplorer;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -66,7 +67,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public AutomationProject CurrentProject { get; private set; }
 
-        public virtual void DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
+        public async Task DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
             Debug.Assert(project != null);
 
@@ -79,7 +80,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var targetVersion = versionToLoad ?? project.ActiveVersion;
             if(targetVersion != null)
             {
-                this.processRoot = this.projectManager.Load(project, targetVersion);
+                this.processRoot = await this.projectManager.Load(project, targetVersion);
 
                 this.EntityManager.RootEntity = this.processRoot;
                 this.WorkFlowRoot = new BindableCollection<Entity>();
@@ -111,7 +112,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
 
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
-            this.projectManager.Refresh();
+            await this.projectManager.Refresh();
             this.ReOpenTestCases(testCaseEntities);
             logger.Information($"Data model was edited for automation project : {this.CurrentProject.Name}");
         }
@@ -180,17 +181,18 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #region Save project
 
-        public override void DoSave()
+        public override async Task DoSave()
         {
-            projectManager.Save();
+           await projectManager.Save();
         }
 
         public async override Task Manage()
         {
-            DoSave();
+            await DoSave();
 
             var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
-            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, this.serializer);
+            var applicationDataManager = this.EntityManager.GetServiceOfType<IApplicationDataManager>();
+            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, applicationDataManager, this.serializer);
             IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
             await windowManager.ShowDialogAsync(versionManager);
 

@@ -49,10 +49,25 @@ namespace Pixel.Automation.Designer.ViewModels
             var resetEvent = new ManualResetEvent(false);
             var downloadApplicationDataTask = new Task(async () =>
             {
-                var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                await applicationDataManger.DownloadApplicationsDataAsync();
-                Log.Information("Download data completed");
-                resetEvent.Set();
+                try
+                {
+                    var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                    Log.Information("Downloading application data now");
+                    await applicationDataManger.DownloadApplicationsDataAsync();
+                    Log.Information("Download of application data completed");
+                    Log.Information("Downloading project information now");
+                    await applicationDataManger.DownloadProjectsAsync();
+                    Log.Information("Download of project information completed");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.Message, ex);
+                }
+                finally
+                {
+                    resetEvent.Set();
+                }
+              
             });
             downloadApplicationDataTask.Start();
             Log.Information("Waiting for data download");

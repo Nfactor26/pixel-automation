@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -15,6 +16,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private readonly ISerializer serializer;
+        private readonly IApplicationDataManager applicationDataManager;
         private readonly AutomationProject automationProject;
 
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
@@ -30,11 +32,14 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
         }
        
-        public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory, ISerializer serializer)
+        public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory, 
+            IApplicationDataManager applicationDataManager,
+            ISerializer serializer)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = workspaceManagerFactory;
             this.serializer = serializer;
+            this.applicationDataManager = applicationDataManager;
             this.automationProject = automationProject;
             foreach (var version in this.automationProject.AvailableVersions)
             {
@@ -56,7 +61,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// Create a copy of selected version and deploy the selected version.
         /// </summary>
         /// <returns></returns>
-        public Task Deploy()
+        public async Task Deploy()
         {
             try
             {
@@ -74,15 +79,14 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
                     this.automationProject.AvailableVersions.Add(newVersion);
                     serializer.Serialize<AutomationProject>(projectFileSystem.ProjectFile, this.automationProject);
-                }
-             
+                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, this.SelectedVersion.ProjectVersion);
+                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
+                }             
             }
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-            }
-
-            return Task.CompletedTask;
+            }           
         }
        
     }

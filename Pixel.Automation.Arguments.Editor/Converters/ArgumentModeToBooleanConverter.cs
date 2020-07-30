@@ -27,15 +27,16 @@ namespace Pixel.Automation.Arguments.Editor
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
+            {
                 return ArgumentMode.Default;
-            switch(bool.Parse(value.ToString()))
+
+            }
+            switch (bool.Parse(value.ToString()))
             {
                 case true:
                     return ArgumentMode.Scripted;
                 case false:
-                    return ArgumentMode.DataBound;
-                default:
-                    return ArgumentMode.Default;
+                    return ArgumentMode.DataBound;            
 
             }
         }

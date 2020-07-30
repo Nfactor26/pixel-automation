@@ -2,7 +2,6 @@
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Pixel.Persistence.Core.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,7 +36,7 @@ namespace Pixel.Persistence.Respository
             using (var cursor = await bucket.FindAsync(filter, options))
             {
                 var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                return await bucket.DownloadAsBytesByNameAsync(fileInfo.Filename);
+                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
             }                
         }
 

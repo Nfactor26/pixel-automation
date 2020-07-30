@@ -17,7 +17,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Save the project state in the current workspace
         /// </summary>
-        void DoSave();      
+        Task DoSave();      
 
         /// <summary>
         /// Unload the project

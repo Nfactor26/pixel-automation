@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -43,10 +44,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public Entity Refresh()
+        public async Task<Entity> Refresh()
         {
             this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");      
-            this.Save();
+            await this.Save();
             this.Initialize(this.entityManager, this.prefabDescription);
             return this.rootEntity;
         }
@@ -109,7 +110,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <summary>
         /// Save any changes to Prefab
         /// </summary>
-        public override void Save()
+        public override async Task Save()
         {
             this.rootEntity.ResetHierarchy();
             serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetAllTypes());
@@ -118,6 +119,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             prefabParent.RemoveComponent(this.prefabbedEntity);
             this.prefabFileSystem.CreateOrReplaceTemplate(this.rootEntity);
             prefabParent.AddComponent(this.prefabbedEntity);
+            await Task.CompletedTask;
         }
 
         public override void SaveAs()

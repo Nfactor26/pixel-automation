@@ -31,9 +31,18 @@ namespace Pixel.Automation.Core.Models
                 OnPropertyChanged();
             }
         }
-        
+
         [DataMember]
-        public string ControlImage { get; set; }              
+        private string controlImage;
+        public string ControlImage
+        {
+            get => controlImage;
+            set
+            {
+                controlImage = value;
+                this.ControlDetails.ControlImage = value;
+            }
+        }
      
         [DataMember]
         public IControlIdentity ControlDetails { get; set; }

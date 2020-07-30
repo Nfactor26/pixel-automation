@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.IO;
@@ -15,6 +16,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private readonly string saveDirectory = ".\\Automations\\";  //Todo : Get this from config
         private readonly ISerializer serializer;
+        private readonly IApplicationDataManager applicationDataManager;
 
         public AutomationProject NewProject { get; }
 
@@ -36,12 +38,14 @@ namespace Pixel.Automation.Designer.ViewModels
             set => this.ProjectType = value;
         }
 
-        public NewProjectViewModel(ISerializer serializer)
+        public NewProjectViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager)
         {
-            Guard.Argument<ISerializer>(serializer).NotNull($"{nameof(serializer)} is reuired parameter");
+            Guard.Argument(serializer).NotNull($"{nameof(serializer)} is required parameter");
+            Guard.Argument(applicationDataManager).NotNull($"{nameof(applicationDataManager)} is required parameter");
 
             this.DisplayName = "Create New Project";
             this.serializer = serializer;
+            this.applicationDataManager = applicationDataManager;
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject()
             {
@@ -68,7 +72,7 @@ namespace Pixel.Automation.Designer.ViewModels
             //create and save the project file
             string projectFile = Path.Combine(projectFolder, this.NewProject.Name + ".atm");
             serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
-
+            await this.applicationDataManager.AddOrUpdateProjectAsync(this.NewProject, null);
             logger.Information($"Created new project : {this.Name} of type : {this.ProjectType}");
 
             await this.TryCloseAsync(true);

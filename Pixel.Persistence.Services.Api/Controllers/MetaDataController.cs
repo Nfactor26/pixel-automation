@@ -13,10 +13,13 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
         private readonly IApplicationRepository applicationRepository;
         private readonly IControlRepository controlRepository;
-        public MetaDataController(IApplicationRepository applicationRepository, IControlRepository controlRepository)
+        private readonly IProjectRepository projectRepository;
+
+        public MetaDataController(IApplicationRepository applicationRepository, IControlRepository controlRepository, IProjectRepository projectRepository)
         {
             this.applicationRepository = applicationRepository;
             this.controlRepository = controlRepository;
+            this.projectRepository = projectRepository;
         }
 
 
@@ -36,6 +39,31 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 applicationMetadata.ControlsMeta = controlMetaDatas;
             }
             return applications;
+        }
+
+        [Route("project")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProjectMetaData>>> GetProjectsMetaData()
+        {
+            List<ProjectMetaData> projects = new List<ProjectMetaData>();
+            await foreach (var projectMetaData in projectRepository.GetProjectsMetadataAsync())
+            {
+                projects.Add(projectMetaData);
+            }
+            return projects;
+        }
+
+
+        [Route("project/{projectId}")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProjectMetaData>>> GetProjectMetaData(string projectId)
+        {
+            List<ProjectMetaData> projects = new List<ProjectMetaData>();
+            await foreach (var projectMetaData in projectRepository.GetProjectMetadataAsync(projectId))
+            {
+                projects.Add(projectMetaData);             
+            }
+            return projects;
         }
     }
 }

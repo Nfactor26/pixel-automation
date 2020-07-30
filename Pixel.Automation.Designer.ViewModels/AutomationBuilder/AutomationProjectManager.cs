@@ -7,27 +7,34 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public class AutomationProjectManager : ProjectManager
     {
-        private readonly IProjectFileSystem projectFileSystem;       
-        private AutomationProject activeProject;     
+        private readonly IProjectFileSystem projectFileSystem;
+        private readonly IApplicationDataManager applicationDataManager;
+        private AutomationProject activeProject;
+        private VersionInfo loadedVersion;
         private Entity rootEntity;     
 
-        public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,  IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator) : base(serializer, projectFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
+        public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,  IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) : base(serializer, projectFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
         {
-            this.projectFileSystem = projectFileSystem;   
+            this.projectFileSystem = projectFileSystem;
+            this.applicationDataManager = applicationDataManager;
         }
      
 
-        public Entity Load(AutomationProject activeProject, VersionInfo versionToLoad)
+        public async  Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad)
         {
-            this.activeProject = activeProject;         
+            this.activeProject = activeProject;
+            this.loadedVersion = versionToLoad;
+            await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
@@ -122,11 +129,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public Entity Refresh()
+        public async  Task<Entity> Refresh()
         {
             this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
            
-            Save();
+            await this.Save();
 
             //TODO : Since we are discarding existing entities and starting with a fresh copy , any launched applications will be orphaned .
             //We need  a way to restore the state 
@@ -139,9 +146,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
 
-        public override void Save()
+        public override async Task Save()
         {
-            //Remove all the test cases as we don't want them to save as a part of automation project
+            //Remove all the test cases as we don't want them to save as a part of  automamtion process file
             var testCaseEntities = this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
             Entity parentEntity = testCaseEntities.FirstOrDefault()?.Parent;
             foreach (var testEntity in testCaseEntities)
@@ -152,6 +159,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
             this.rootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.rootEntity, typeProvider.GetAllTypes());
+            await this.applicationDataManager.AddOrUpdateProjectAsync(this.activeProject, this.loadedVersion);
 
             //Add back the test cases that were already open
             foreach (var testCaseEntity in testCaseEntities)

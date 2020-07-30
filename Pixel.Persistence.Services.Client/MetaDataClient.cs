@@ -1,10 +1,7 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -26,6 +23,21 @@ namespace Pixel.Persistence.Services.Client
         {
             RestRequest restRequest = new RestRequest("application");
             var response = await client.ExecuteGetAsync<IEnumerable<ApplicationMetaData>>(restRequest);
+            return response.Data;
+        }
+
+
+        public async Task<IEnumerable<ProjectMetaData>> GetProjectsMetaData()
+        {
+            RestRequest restRequest = new RestRequest("project");
+            var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
+            return response.Data;
+        }
+
+        public async Task<IEnumerable<ProjectMetaData>> GetProjectMetaData(string projectId)
+        {
+            RestRequest restRequest = new RestRequest($"project/{projectId}");
+            var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
             return response.Data;
         }
     }

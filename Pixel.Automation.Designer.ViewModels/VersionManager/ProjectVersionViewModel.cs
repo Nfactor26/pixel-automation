@@ -16,6 +16,11 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly ProjectVersion projectVersion;
         private readonly IProjectFileSystem fileSystem;
 
+        public ProjectVersion ProjectVersion
+        {
+            get => this.projectVersion;
+        }
+
         public Version Version
         {
             get => projectVersion.Version;

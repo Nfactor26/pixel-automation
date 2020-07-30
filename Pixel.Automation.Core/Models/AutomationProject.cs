@@ -27,7 +27,7 @@ namespace Pixel.Automation.Core.Models
         public List<ProjectVersion> AvailableVersions { get; set; } = new List<ProjectVersion>();
 
         /// <summary>
-        /// Get all the versions that are deployed. Deployed Prefabs can be used in an automation.
+        /// Get all the versions that are deployed.
         /// </summary>
         public IEnumerable<ProjectVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
 
