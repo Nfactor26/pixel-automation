@@ -1,50 +1,56 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Microsoft.Win32;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Designer.ViewModels.Flyouts;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
     public class ShellViewModel : Conductor<IScreen>.Collection.OneActive, IShell, IHandle<PropertyGridObjectEventArgs>, IHandle<ActivateScreenNotification>
     {
-        public IObservableCollection<FlyoutBaseViewModel> FlyoutViewModels { get; }
-            = new BindableCollection<FlyoutBaseViewModel>();
+        private readonly ILogger logger = Log.ForContext<ShellViewModel>();
 
-        public BindableCollection<IToolBox> Tools { get; }
+        public IObservableCollection<IFlyOut> FlyoutViewModels { get; }
+            = new BindableCollection<IFlyOut>();
 
-        public List<IControlScrapper> ScreenScrappers { get; }
+        public BindableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
+
+        public List<IControlScrapper> ScreenScrappers { get; } = new List<IControlScrapper>();
 
         ISerializer serializer;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, List<IToolBox> tools, List<IControlScrapper> scrappers) : base()
+        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers) : base()
         {
-            LogManager.GetLog = t => new DebugLog(t);
-            DisplayName = "Pixel Automation";
+            Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
+            Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
+            Guard.Argument(flyOuts, nameof(flyOuts)).NotNull().NotEmpty();
+            Guard.Argument(scrappers, nameof(scrappers)).NotNull().NotEmpty();
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;           
+         
+            DisplayName = "Pixel Automation";        
 
-            this.Tools = new BindableCollection<IToolBox>();
             this.Tools.AddRange(tools);
+            this.ScreenScrappers.AddRange(scrappers);
+            this.FlyoutViewModels.AddRange(flyOuts);
+
             propertyGrid = this.Tools.OfType<PropertyGridViewModel>().FirstOrDefault();
-
-
-            this.ScreenScrappers = scrappers;
-            this.serializer = serializer;
+          
             eventAggregator.SubscribeOnUIThread(this);
 
             _ = ActivateItemAsync(IoC.Get<IHome>() as Screen, CancellationToken.None);
 
-            this.FlyoutViewModels.Add(new SettingsViewModel());
+           
         }
 
         public void ToggleFlyout(int index)
@@ -55,11 +61,11 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoNew()
         {
-            Log.Debug("DoNew start");
+            logger.Debug("DoNew start");
             if (!Directory.Exists("Automations"))
             {
                 Directory.CreateDirectory("Automations");
-                Log.Information("Created folder Automations");
+                logger.Information("Created folder Automations");
             }
 
             IWindowManager windowManager = IoC.Get<IWindowManager>();
@@ -70,33 +76,33 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 await OpenProject(newProject);
             }
-            Log.Debug("DoNew end");
+            logger.Debug("DoNew end");
         }
 
         public async Task DoOpen()
         {
-            Log.Debug("DoOpen start");
+            logger.Debug("DoOpen start");
 
             var fileToOpen = ShowOpenFileDialog();
-            Log.Information("Picked project file : {$file} to open", fileToOpen);
+            logger.Information("Picked project file : {$file} to open", fileToOpen);
             if (string.IsNullOrEmpty(fileToOpen))
                 return;
             var automationProject = serializer.Deserialize<AutomationProject>(fileToOpen, null);
             await OpenProject(automationProject);
-            Log.Debug("DoOpen end");
+            logger.Debug("DoOpen end");
 
         }
 
         private async Task OpenProject(AutomationProject automationProject)
         {
-            Log.Debug("OpenProject start");
+            logger.Debug("OpenProject start");
 
             var automationBuilder = IoC.Get<IAutomationBuilder>();
             var shell = IoC.Get<IShell>();
             await (shell as ShellViewModel).ActivateItemAsync(automationBuilder as Screen);
             await automationBuilder.DoLoad(automationProject);
 
-            Log.Debug("OpenProject end");
+            logger.Debug("OpenProject end");
 
         }
 
@@ -123,7 +129,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             //TODO : Having run a processor , trying to save process freezes on attempting to log. Resolve this issue.
 
-            Log.Debug("Save start");
+            logger.Debug("Save start");
 
             if (this.ActiveItem != null)
             {
@@ -133,7 +139,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
             }
 
-            Log.Debug("Save end");
+            logger.Debug("Save end");
 
         }
 
@@ -148,7 +154,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public void SaveAll()
         {
-            Log.Debug("SaveAll start");
+            logger.Debug("SaveAll start");
 
             foreach (var item in this.Items)
             {
@@ -158,7 +164,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
             }
 
-            Log.Debug("SaveAll end");
+            logger.Debug("SaveAll end");
         }
 
         public bool CanEditDataModel

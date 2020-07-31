@@ -21,6 +21,7 @@ using System.Windows;
 using Pixel.Persistence.Services.Client;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -120,7 +121,11 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 kernel = new StandardKernel(new ToolBoxModule(), new ScrappersModule(), new ScriptingModule(), new CodeGeneratorModule(), new PersistenceModule());                
                 kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
-             
+
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", true, true)
+                    .Build();
+                kernel.Bind<IConfiguration>().ToConstant(config);
 
                 kernel.Bind<IEventAggregator>().To<EventAggregator>().InSingletonScope();
                 kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();

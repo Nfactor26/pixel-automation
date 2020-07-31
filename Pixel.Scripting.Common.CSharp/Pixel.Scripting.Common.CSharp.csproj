@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.11.0" />
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.4.0" />

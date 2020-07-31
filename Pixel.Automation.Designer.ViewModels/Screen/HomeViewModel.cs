@@ -35,10 +35,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public HomeViewModel(ISerializer serializer)
         {
-            Guard.Argument(serializer).NotNull($"{nameof(serializer)} is reuired parameter");
-
             this.DisplayName = "Home";
-            this.serializer = serializer;
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             LoadRecentProjects();
         }
 

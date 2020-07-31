@@ -1,9 +1,10 @@
 ﻿using Caliburn.Micro;
 using MahApps.Metro.Controls;
+using Pixel.Automation.Editor.Core.Interfaces;
 
 namespace Pixel.Automation.Designer.ViewModels.Flyouts
 {
-    public abstract class FlyoutBaseViewModel : PropertyChangedBase
+    public abstract class FlyoutBaseViewModel : PropertyChangedBase, IFlyOut
     {
         private string header;
         private bool isOpen;

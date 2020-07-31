@@ -4,35 +4,40 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pixel.Automation.Designer.Views.Flyouts"
-             xmlns:cal="http://www.caliburnproject.org" 
-             mc:Ignorable="d" Width="250"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d" Width="600"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <!--<Style x:Key="AppThemeMenuItemStyle"
-                   BasedOn="{DynamicResource MetroMenuItem}"
-                   TargetType="{x:Type MenuItem}">
-            <Setter Property="Command" Value="{Binding ChangeAccentCommand}" />
-            <Setter Property="Header" Value="{Binding Name, Mode=OneWay}" />
-            <Setter Property="Icon" Value="{StaticResource AppThemeMenuIcon}" />
-        </Style>-->
-
-        <!--<Style x:Key="AccentColorMenuItemStyle"
-                   BasedOn="{DynamicResource MetroMenuItem}"
-                   TargetType="{x:Type MenuItem}">
-            <Setter Property="Command" Value="{Binding ChangeAccentCommand}" />
-            <Setter Property="Header" Value="{Binding Name, Mode=OneWay}" />
-            <Setter Property="Icon" Value="{StaticResource AccentMenuIcon}" />
-        </Style>-->
-
+        
     </UserControl.Resources>
-    <StackPanel Orientation="Vertical" Width="220" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="15">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-            <Label Content="Theme : "></Label>
-            <ComboBox x:Name="AppThemes" DisplayMemberPath="Name"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-            <Label Content="Accent : "></Label>
-            <ComboBox x:Name="AccentColors" DisplayMemberPath="Name" Width="Auto"/>
-        </StackPanel>      
-    </StackPanel>
+    
+    
+    <DockPanel LastChildFill="False">
+
+        <Controls:MetroTabControl x:Name="SettingsTabControl" Height="Auto" TabStripPlacement="Top" DockPanel.Dock="Top" TabStripMargin="10">
+            <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="Theme">
+                <StackPanel Margin="10,5,5,5">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                        <Label Content="Theme" Padding="0,0,0,5"></Label>
+                        <ComboBox x:Name="AppThemes" DisplayMemberPath="Name" Width="200" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                        <Label Content="Accent" Padding="0,5,0,5"></Label>
+                        <ComboBox x:Name="AccentColors" DisplayMemberPath="Name" Width="200" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </StackPanel>
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="Network">
+                <StackPanel Margin="5">
+                    
+                </StackPanel>
+            </Controls:MetroTabItem>
+        </Controls:MetroTabControl>
+        <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="10,10,0,0">
+            <Button x:Name="Save" Content="Save" DockPanel.Dock="Left" Margin="0" Width="100"
+                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"></Button>
+        </DockPanel>
+      
+    </DockPanel>
 </UserControl>

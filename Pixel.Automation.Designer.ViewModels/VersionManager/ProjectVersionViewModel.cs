@@ -1,8 +1,9 @@
 ﻿using Caliburn.Micro;
-using Pixel.Automation.Core;
+using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,29 +13,27 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
     public class ProjectVersionViewModel : PropertyChangedBase
     {
+        private readonly ILogger logger = Log.ForContext<ProjectVersionViewModel>();
+
         private readonly AutomationProject automationProject;
-        private readonly ProjectVersion projectVersion;
         private readonly IProjectFileSystem fileSystem;
 
-        public ProjectVersion ProjectVersion
-        {
-            get => this.projectVersion;
-        }
+        public ProjectVersion ProjectVersion { get; }
 
         public Version Version
         {
-            get => projectVersion.Version;
-            set => projectVersion.Version = value;
+            get => ProjectVersion.Version;
+            set => ProjectVersion.Version = value;
         }
 
         public bool IsDeployed
         {
-            get => projectVersion.IsDeployed;
+            get => ProjectVersion.IsDeployed;
             set
             {
-                if (!projectVersion.IsDeployed && value)
+                if (!ProjectVersion.IsDeployed && value)
                 {
-                    projectVersion.IsDeployed = value;
+                    ProjectVersion.IsDeployed = value;
                 }
                 NotifyOfPropertyChange(() => IsDeployed);
             }
@@ -42,12 +41,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         public string DataModelAssembly
         {
-            get => projectVersion.DataModelAssembly;
+            get => ProjectVersion.DataModelAssembly;
             private set
             {
-                if (projectVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (ProjectVersion.IsDeployed && !string.IsNullOrEmpty(value))
                 {
-                    projectVersion.DataModelAssembly = value;
+                    ProjectVersion.DataModelAssembly = value;
                 }
                 NotifyOfPropertyChange(() => DataModelAssembly);
             }
@@ -58,10 +57,10 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// </summary>
         public bool IsActive
         {
-            get => projectVersion.IsActive;
+            get => ProjectVersion.IsActive;
             set
             {
-                projectVersion.IsActive = value;
+                ProjectVersion.IsActive = value;
                 NotifyOfPropertyChange(() => IsActive);
             }
         }
@@ -69,22 +68,23 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem)
         {
-            this.automationProject = automationProject;
-            this.projectVersion = projectVersion;
-            this.fileSystem = fileSystem;
+            this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+            this.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
         }
 
 
         public ProjectVersion Clone()
         {
+            logger.Information($"Trying to clone version : {this.ProjectVersion} of project: {this.automationProject.Name}");
             ////Increment active version for project        
-            ProjectVersion newVersionInfo = new ProjectVersion(new Version(this.projectVersion.Version.Major + 1, 0, 0, 0))
+            ProjectVersion newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
             {
                 IsActive = true,
                 IsDeployed = false
             };
 
-            this.fileSystem.Initialize(this.automationProject.Name, this.projectVersion);
+            this.fileSystem.Initialize(this.automationProject.Name, this.ProjectVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
             Directory.CreateDirectory(newWorkingDirectory);
@@ -107,7 +107,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     CopyAll(diSourceSubDir, nextTargetSubDir);
                 }
             }
-
+            logger.Information($"Completed cloning version : {this.ProjectVersion} of project: {this.automationProject.Name}. Cloned version is : {newVersionInfo}");
             return newVersionInfo;
         }
 
@@ -117,8 +117,10 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// Set IsDeployed to true and set the assembly name
         /// </summary>
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
-        {
-            this.fileSystem.Initialize(this.automationProject.Name, this.projectVersion);
+        {          
+
+            this.fileSystem.Initialize(this.automationProject.Name, this.ProjectVersion);
+            logger.Information($"Project file system has been initialized.");
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
@@ -140,19 +142,23 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             using (var compilationResult = workspaceManager.CompileProject(assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);            
-            }                          
-        
-         
+            }
+
+            logger.Information($"Workspace prepared and compilation done.");
+
             this.IsDeployed = true;
             this.IsActive = false;
             this.DataModelAssembly = $"{assemblyName}.dll";
 
+            logger.Information($"Data model assembly name is : {this.DataModelAssembly}");
 
             //Replace the assemly name in the process file
             UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName);
-          
+
+            logger.Information($"Assembly references updated in process file.");
+
             //Replace the assembly name in all of the test process file
-            foreach(var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+            foreach (var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
             {
                 var testProcessFile = Directory.GetFiles(directory, "*.proc").FirstOrDefault();
                 if(testProcessFile != null)
@@ -160,6 +166,8 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     UpdateAssemblyReference(testProcessFile, assemblyName);
                 }
             }
+
+            logger.Information($"Assembly references updated in all tes cases.");
         }
 
         /// <summary>

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.11.0" />
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="InputSimulatorStandard" Version="1.0.0">
       <Private>false</Private>
     </PackageReference>

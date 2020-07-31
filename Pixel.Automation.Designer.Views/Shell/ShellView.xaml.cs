@@ -1,18 +1,5 @@
-﻿using MahApps.Metro;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Pixel.Automation.Designer.Views
 {
@@ -25,13 +12,6 @@ namespace Pixel.Automation.Designer.Views
         {
             InitializeComponent();
         }
-
-        //private void ChangeAccent_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var theme = MahApps.Metro.ThemeManager.DetectAppStyle(System.Windows.Application.Current);
-        //    var accent = MahApps.Metro.ThemeManager.GetAccent("Blue");
-        //    MahApps.Metro.ThemeManager.ChangeAppStyle(System.Windows.Application.Current, accent, theme.Item1);
-        //}
 
         [DebuggerStepThrough]
         private void OnManagerLayoutUpdated(object sender, EventArgs e)
@@ -47,16 +27,8 @@ namespace Pixel.Automation.Designer.Views
             var mainWindowIcon = (mainWindow != null) ? mainWindow.Icon : null;
             foreach (var window in Manager.FloatingWindows)
             {
-                window.Icon = mainWindowIcon;
-                //window.ShowInTaskbar = showFloatingWindowsInTaskbar;
+                window.Icon = mainWindowIcon;             
             }
         }
-
-        //private void ChangeTheme_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var theme = ThemeManager.DetectAppStyle(Application.Current);
-        //    var appTheme = ThemeManager.GetAppTheme("BaseDark");
-        //    ThemeManager.ChangeAppStyle(Application.Current, theme.Item2, appTheme);
-        //}
     }
 }
