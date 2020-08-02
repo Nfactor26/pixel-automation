@@ -1,4 +1,6 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
@@ -12,19 +14,20 @@ namespace Pixel.Persistence.Services.Client
 {
     public class ProjectRepositoryClient : IProjectRepositoryClient
     {
-        private readonly string baseUrl = "http://localhost:49574/api/project";
-        private readonly IRestClient client;
+        private readonly string baseUrl;
         private readonly ISerializer serializer;
 
-        public ProjectRepositoryClient(ISerializer serializer)
+        public ProjectRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
         {
-            this.serializer = serializer;
-            this.client = new RestClient(baseUrl);
+            Guard.Argument(serializer, nameof(serializer)).NotNull();
+            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
+            this.serializer = serializer;           
         }
 
         public async Task<AutomationProject> GetProjectFile(string projectId)
         {
             RestRequest restRequest = new RestRequest($"{projectId}");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
             {
@@ -42,6 +45,7 @@ namespace Pixel.Persistence.Services.Client
         public async Task<byte[]> GetProjectDataFiles(string projectId, string version)
         {
             RestRequest restRequest = new RestRequest($"{projectId}/{version}");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
             {
@@ -60,6 +64,7 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", projectFile);
+            var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);
             return result;
         }
@@ -78,6 +83,7 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", projectFile);
+            var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);
             return result;
         }

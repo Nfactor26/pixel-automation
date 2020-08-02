@@ -48,31 +48,39 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             base.OnStartup(sender, e);
             var resetEvent = new ManualResetEvent(false);
-            var downloadApplicationDataTask = new Task(async () =>
+            var applicationSettings = IoC.Get<ApplicationSettings>();
+            if(!applicationSettings.IsOfflineMode)
             {
-                try
+                var downloadApplicationDataTask = new Task(async () =>
                 {
-                    var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                    Log.Information("Downloading application data now");
-                    await applicationDataManger.DownloadApplicationsDataAsync();
-                    Log.Information("Download of application data completed");
-                    Log.Information("Downloading project information now");
-                    await applicationDataManger.DownloadProjectsAsync();
-                    Log.Information("Download of project information completed");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.Message, ex);
-                }
-                finally
-                {
-                    resetEvent.Set();
-                }
-              
-            });
-            downloadApplicationDataTask.Start();
-            Log.Information("Waiting for data download");
-            resetEvent.WaitOne();
+                    try
+                    {
+                        var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                        Log.Information("Downloading application data now");
+                        await applicationDataManger.DownloadApplicationsDataAsync();
+                        Log.Information("Download of application data completed");
+                        Log.Information("Downloading project information now");
+                        await applicationDataManger.DownloadProjectsAsync();
+                        Log.Information("Download of project information completed");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.Message, ex);
+                    }
+                    finally
+                    {
+                        resetEvent.Set();
+                    }                  
+                });
+                downloadApplicationDataTask.Start();
+                Log.Information("Waiting for data download");
+                resetEvent.WaitOne();
+            }
+            else
+            {
+                Log.Information("Application is configured to run in offline mode.");
+            }
+            
             Log.Information("Initializing Root View now");
             DisplayRootViewFor<IShell>();
         }
@@ -96,9 +104,8 @@ namespace Pixel.Automation.Designer.ViewModels
                     case ".\\Pixel.Automation.TestData.Repository.dll":
                     case ".\\Pixel.Automation.TestExplorer.dll":
                     case ".\\Pixel.Scripting.Script.Editor.dll":
-                    case ".\\Pixel.Automation.AppExplorer.Views.dll":
-                    //case ".\\Pixel.Automation.Designer.Views.dll":
-                        viewAssemblies.Add(Assembly.LoadFrom(System.IO.Path.Combine(Environment.CurrentDirectory, item)));
+                    case ".\\Pixel.Automation.AppExplorer.Views.dll":                 
+                        viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
                         break;
                 }
             }       
@@ -126,6 +133,10 @@ namespace Pixel.Automation.Designer.ViewModels
                     .AddJsonFile("appsettings.json", true, true)
                     .Build();
                 kernel.Bind<IConfiguration>().ToConstant(config);
+                var applicationSettings = config.GetSection("applicationSettings").Get<ApplicationSettings>();
+                kernel.Bind<ApplicationSettings>().ToConstant(applicationSettings);
+                var userSettings = config.GetSection("userSettings").Get<UserSettings>();
+                kernel.Bind<UserSettings>().ToConstant(userSettings);
 
                 kernel.Bind<IEventAggregator>().To<EventAggregator>().InSingletonScope();
                 kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();
@@ -137,7 +148,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope();
                 kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
                 kernel.Bind<INewProject>().To<NewProjectViewModel>();              
-                kernel.Bind<IAutomationBuilder>().To<AutomationBuilderViewModel>();
+                kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>();
                 kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>();              
             
 
@@ -180,7 +191,9 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 var instance = kernel.Get(serviceType, key);
                 if (instance != null)
+                {
                     return instance;
+                }
                 throw new Exception(string.Format("Could not locate any instances of contract {0}.", serviceType.ToString()));
             }
             catch(TypeLoadException ex)

@@ -1,4 +1,6 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
@@ -13,20 +15,22 @@ namespace Pixel.Persistence.Services.Client
 {
     public class ApplicationRepositoryClient : IApplicationRepositoryClient
     {
-        private readonly string baseUrl = "http://localhost:49574/api/application";
-        private readonly IRestClient client;
+        private readonly string baseUrl;       
         private readonly ISerializer serializer;
 
-        public ApplicationRepositoryClient(ISerializer serializer)
+        public ApplicationRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
         {
-            this.serializer = serializer;
-            this.client = new RestClient(baseUrl);           
+            Guard.Argument(serializer, nameof(serializer)).NotNull();
+            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
+            this.serializer = serializer;        
+            this.baseUrl = applicationSettings.PersistenceServiceUri;
         }
 
 
         public async Task<ApplicationDescription> GetApplication(string applicationId)
         {
             RestRequest restRequest = new RestRequest($"{applicationId}");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
             {
@@ -59,6 +63,7 @@ namespace Pixel.Persistence.Services.Client
             var applicationMetaData = new ApplicationMetaData() { ApplicationId = applicationDescription.ApplicationId, ApplicationName = applicationDescription.ApplicationName, ApplicationType = applicationDescription.ApplicationType };
             restRequest.AddParameter(nameof(ApplicationMetaData), serializer.Serialize<ApplicationMetaData>(applicationMetaData), ParameterType.RequestBody);      
             restRequest.AddFile("file", applicationFile);
+            var client = new RestClient(baseUrl);
             var result = await client.PostAsync<ApplicationDescription>(restRequest);
             return result;
         }      
@@ -68,6 +73,7 @@ namespace Pixel.Persistence.Services.Client
         {
             RestRequest restRequest = new RestRequest();
             restRequest.AddJsonBody(applicationDescription);
+            var client = new RestClient(baseUrl);
             var result = await client.PutAsync<ApplicationDescription>(restRequest);
             return result;
         }

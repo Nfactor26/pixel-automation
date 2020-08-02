@@ -16,6 +16,19 @@
     <DockPanel LastChildFill="False">
 
         <Controls:MetroTabControl x:Name="SettingsTabControl" Height="Auto" TabStripPlacement="Top" DockPanel.Dock="Top" TabStripMargin="10">
+         
+            <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="General">
+                <StackPanel Margin="10,5,5,5">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                        <Label Content="Persistence Service" Padding="0,0,0,5"></Label>
+                        <TextBox x:Name="PersistenceServiceUri" Controls:TextBoxHelper.Watermark="Service endpoint" Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
+                    </StackPanel>
+                    <StackPanel  HorizontalAlignment="Stretch" Margin="0,5,0,0">                     
+                        <CheckBox x:Name="IsOfflineMode" Content="Work Offline"></CheckBox>
+                    </StackPanel>
+                </StackPanel>
+            </Controls:MetroTabItem>
+            
             <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="Theme">
                 <StackPanel Margin="10,5,5,5">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
@@ -27,12 +40,7 @@
                         <ComboBox x:Name="AccentColors" DisplayMemberPath="Name" Width="200" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </StackPanel>
-            </Controls:MetroTabItem>
-            <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="Network">
-                <StackPanel Margin="5">
-                    
-                </StackPanel>
-            </Controls:MetroTabItem>
+            </Controls:MetroTabItem>          
         </Controls:MetroTabControl>
         <DockPanel LastChildFill="False" DockPanel.Dock="Top" Margin="10,10,0,0">
             <Button x:Name="Save" Content="Save" DockPanel.Dock="Left" Margin="0" Width="100"

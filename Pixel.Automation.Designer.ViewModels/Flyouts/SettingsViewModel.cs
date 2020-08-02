@@ -1,7 +1,7 @@
 ﻿using Dawn;
 using MahApps.Metro;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Binder;
+using Pixel.Automation.Core;
 using Pixel.Automation.Editor.Core;
 using System;
 using System.Collections.Generic;
@@ -28,8 +28,9 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
             }
             set
             {
-                selectedAccentColor = value;
-                selectedAccentColor.DoChangeTheme();
+                this.selectedAccentColor = value;
+                this.selectedAccentColor.DoChangeTheme();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -42,10 +43,38 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
             }
             set
             {
-                selectedAppTheme = value;
-                selectedAppTheme.DoChangeTheme();
+                this.selectedAppTheme = value;
+                this.selectedAppTheme.DoChangeTheme();
+                NotifyOfPropertyChange();
             }
         }
+
+        private string persistenceServiceUri;
+        public string PersistenceServiceUri
+        {
+            get => this.persistenceServiceUri;
+            set
+            {
+                this.persistenceServiceUri = value;
+                if(string.IsNullOrEmpty(value))
+                {
+                    this.IsOfflineMode = true;
+                }
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private bool isOfflineMode;
+        public bool IsOfflineMode
+        {
+            get => this.isOfflineMode;
+            set
+            {
+                this.isOfflineMode = value;
+                NotifyOfPropertyChange();
+            }
+        }
+       
 
         public SettingsViewModel(IConfiguration configurationManager)
         {
@@ -70,7 +99,11 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
 
             var userSettings = configurationManager.GetSection("userSettings").Get<UserSettings>();
             this.SelectedAccentColor = this.AccentColors.FirstOrDefault(a => a.Name.Equals(userSettings.Accent));
-            this.SelectedAppTheme = this.AppThemes.FirstOrDefault(a => a.Name.Equals(userSettings.Theme));          
+            this.SelectedAppTheme = this.AppThemes.FirstOrDefault(a => a.Name.Equals(userSettings.Theme));
+
+            var applicationSettings = configurationManager.GetSection("applicationSettings").Get<ApplicationSettings>();
+            this.PersistenceServiceUri = applicationSettings.PersistenceServiceUri;
+            this.IsOfflineMode = applicationSettings.IsOfflineMode;
         }
 
 
@@ -79,7 +112,13 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
             var userSettings = configurationManager.GetSection("userSettings").Get<UserSettings>();
             userSettings.Theme = this.selectedAppTheme?.Name ?? "Light";
             userSettings.Accent = this.selectedAccentColor?.Name ?? "Blue";
+        
+            var applicationSettings = configurationManager.GetSection("applicationSettings").Get<ApplicationSettings>();
+            applicationSettings.PersistenceServiceUri = this.persistenceServiceUri;
+            applicationSettings.IsOfflineMode = this.isOfflineMode;
+
             AddOrUpdateSection("userSettings", userSettings);
+            AddOrUpdateSection("applicationSettings", applicationSettings);
         }
 
         private void AddOrUpdateSection<T>(string sectionKey, T sectionData)

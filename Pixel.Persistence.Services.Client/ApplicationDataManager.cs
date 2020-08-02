@@ -1,22 +1,25 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
-{ 
+{
     public class ApplicationDataManager : IApplicationDataManager
     {
-        private readonly string applicationsRepository = "ApplicationsRepository";
+        private readonly ILogger logger = Log.ForContext<ApplicationDataManager>();
+
         private readonly string controlsDirectory = "Controls";
         private readonly string prefabsDirectory = "Prefabs";
-        private readonly string projectsDirectory = "Automations";
+      
 
         private readonly IApplicationRepositoryClient appRepositoryClient;
         private readonly IControlRepositoryClient controlRepositoryClient;
@@ -24,16 +27,34 @@ namespace Pixel.Persistence.Services.Client
         private readonly IMetaDataClient metaDataClient;
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
+        private readonly ApplicationSettings applicationSettings;
+
+        bool IsOnlineMode
+        {
+            get => !this.applicationSettings.IsOfflineMode;
+        }
 
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
-            IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient, IProjectRepositoryClient projectRepositoryClient)
+            IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
+            IProjectRepositoryClient projectRepositoryClient, ApplicationSettings applicationSettings)
         {
-            this.serializer = serializer;
-            this.typeProvider = typeProvider;
-            this.metaDataClient = metaDataClient;
-            this.appRepositoryClient = appRepositoryClient;
-            this.controlRepositoryClient = controlRepositoryClient;
-            this.projectRepositoryClient = projectRepositoryClient;
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
+            this.metaDataClient = Guard.Argument(metaDataClient, nameof(metaDataClient)).NotNull().Value;
+            this.appRepositoryClient = Guard.Argument(appRepositoryClient, nameof(appRepositoryClient)).NotNull().Value;
+            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient, nameof(controlRepositoryClient)).NotNull().Value;
+            this.projectRepositoryClient = Guard.Argument(projectRepositoryClient, nameof(projectRepositoryClient)).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(ApplicationSettings)).NotNull();
+
+            if (!Directory.Exists(applicationSettings.ApplicationDirectory))
+            {
+                Directory.CreateDirectory(applicationSettings.ApplicationDirectory);
+            }
+
+            if (!Directory.Exists(applicationSettings.AutomationDirectory))
+            {
+                Directory.CreateDirectory(applicationSettings.AutomationDirectory);
+            }
         }
 
         #region Applications 
@@ -44,12 +65,17 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="applicationDescription"></param>
         public async Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription)
         {
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, applicationDescription.ApplicationId));
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, applicationDescription.ApplicationId, controlsDirectory));
-            Directory.CreateDirectory(Path.Combine(applicationsRepository, applicationDescription.ApplicationId, prefabsDirectory));
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId));
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, controlsDirectory));
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, prefabsDirectory));
 
             string savedFile = SaveApplicationToDisk(applicationDescription);
-            await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription, savedFile);
+            
+            if(IsOnlineMode)
+            {
+                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription, savedFile);
+            }
+            
         }
 
         /// <summary>
@@ -58,58 +84,56 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         public async Task DownloadApplicationsDataAsync()
         {
-            if (!Directory.Exists(this.applicationsRepository))
+            if (IsOnlineMode)
             {
-                Directory.CreateDirectory(this.applicationsRepository);
-            }
-            var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
-            var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
-            foreach (var applicationMetaData in serverApplicationMetaDataCollection)
-            {
-                if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId) && a.LastUpdated < applicationMetaData.LastUpdated)
-                         || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId)))
+                var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
+                var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
+                foreach (var applicationMetaData in serverApplicationMetaDataCollection)
                 {
-                    var applicationDescription = await this.appRepositoryClient.GetApplication(applicationMetaData.ApplicationId);
-                    SaveApplicationToDisk(applicationDescription);
-                }
-
-                var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId));
-                List<string> controlsToDownload = new List<string>();
-                foreach (var controlMetaData in applicationMetaData.ControlsMeta)
-                {
-                    if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
+                    if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId) && a.LastUpdated < applicationMetaData.LastUpdated)
+                             || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId)))
                     {
-                        continue;
+                        var applicationDescription = await this.appRepositoryClient.GetApplication(applicationMetaData.ApplicationId);
+                        SaveApplicationToDisk(applicationDescription);
                     }
-                    controlsToDownload.Add(controlMetaData.ControlId);
-                }
 
-                if (controlsToDownload.Any())
-                {
-                    GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
+                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId));
+                    List<string> controlsToDownload = new List<string>();
+                    foreach (var controlMetaData in applicationMetaData.ControlsMeta)
                     {
-                        ApplicationId = applicationMetaData.ApplicationId,
-                        ControlIdCollection = new List<string>(controlsToDownload)
-                    };
-                    var zippedContent = await this.controlRepositoryClient.GetControls(request);
-
-                    using (var memoryStream = new MemoryStream(zippedContent, false))
-                    {
-                        var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                        foreach (var entry in zipArchive.Entries)
+                        if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
                         {
-                            var targetFile = Path.Combine(applicationsRepository, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
-                            if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
+                            continue;
+                        }
+                        controlsToDownload.Add(controlMetaData.ControlId);
+                    }
+
+                    if (controlsToDownload.Any())
+                    {
+                        GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
+                        {
+                            ApplicationId = applicationMetaData.ApplicationId,
+                            ControlIdCollection = new List<string>(controlsToDownload)
+                        };
+                        var zippedContent = await this.controlRepositoryClient.GetControls(request);
+
+                        using (var memoryStream = new MemoryStream(zippedContent, false))
+                        {
+                            var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                            foreach (var entry in zipArchive.Entries)
                             {
-                                Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
+                                if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
+                                {
+                                    Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                                }
+                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
                             }
-                            entry.ExtractToFile(Path.Combine(applicationsRepository, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
                         }
                     }
                 }
+                CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
             }
-            CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
-
         }
 
         /// <summary>
@@ -118,9 +142,9 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         public IEnumerable<ApplicationDescription> GetAllApplications()
         {
-            foreach (var app in Directory.GetDirectories(this.applicationsRepository))
+            foreach (var app in Directory.GetDirectories(this.applicationSettings.ApplicationDirectory))
             {
-                string appFile = Directory.GetFiles(Path.Combine(this.applicationsRepository, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                string appFile = Directory.GetFiles(Path.Combine(this.applicationSettings.ApplicationDirectory, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
                 ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
                 yield return application;
             }
@@ -154,12 +178,12 @@ namespace Pixel.Persistence.Services.Client
 
         private string GetApplicationDirectory(ApplicationDescription application)
         {
-            return Path.Combine(applicationsRepository, application.ApplicationId);
+            return Path.Combine(applicationSettings.ApplicationDirectory, application.ApplicationId);
         }
 
         private string GetApplicationFile(ApplicationDescription application)
         {
-            return Path.Combine(applicationsRepository, application.ApplicationId, $"{application.ApplicationId}.app");
+            return Path.Combine(applicationSettings.ApplicationDirectory, application.ApplicationId, $"{application.ApplicationId}.app");
         }
 
         #endregion Applications
@@ -169,7 +193,10 @@ namespace Pixel.Persistence.Services.Client
         public async Task AddOrUpdateControlAsync(ControlDescription controlDescription)
         {
             string savedFile = SaveControlToDisk(controlDescription);
-            await controlRepositoryClient.AddOrUpdateControl(controlDescription, savedFile);
+            if(IsOnlineMode)
+            {
+                await controlRepositoryClient.AddOrUpdateControl(controlDescription, savedFile);
+            }
         }
 
         public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream, string imageResolution)
@@ -181,7 +208,10 @@ namespace Pixel.Persistence.Services.Client
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.CopyTo(fs);
             }
-            await controlRepositoryClient.AddOrUpdateControlImage(controlDescription, saveLocation, imageResolution ?? "Default");
+            if(IsOnlineMode)
+            {
+                await controlRepositoryClient.AddOrUpdateControlImage(controlDescription, saveLocation, imageResolution ?? "Default");
+            }
             return saveLocation;
         }
 
@@ -225,58 +255,91 @@ namespace Pixel.Persistence.Services.Client
 
         private string GetControlDirectory(ControlDescription controlItem)
         {
-            return Path.Combine(applicationsRepository, controlItem.ApplicationId, controlsDirectory, controlItem.ControlId);
+            return Path.Combine(applicationSettings.ApplicationDirectory, controlItem.ApplicationId, controlsDirectory, controlItem.ControlId);
         }
 
         #endregion Controls
 
         #region Project
 
+        public string GetProjectsRootDirectory()
+        {
+            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory);
+        }
+
+        public string GetProjectDirectory(AutomationProject automationProject)
+        {
+            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory, automationProject.Name);
+        }
+
+        public string GetProjectFile(AutomationProject automationProject)
+        {
+            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.atm");
+        }
+
+        public IEnumerable<AutomationProject> GetAllProjects()
+        {          
+            foreach (var item in Directory.EnumerateDirectories(this.applicationSettings.AutomationDirectory))
+            {
+                string automationProjectFile = $"{item}\\{Path.GetFileName(item)}.atm";
+                if(File.Exists(automationProjectFile))
+                {
+                    var automationProject = serializer.Deserialize<AutomationProject>(automationProjectFile, null);
+                    yield return automationProject;
+                    continue;
+                }
+                logger.Warning($"atomation file{automationProjectFile} doesn't exist.");
+            }
+            yield break;
+        }
+
         public async Task AddOrUpdateProjectAsync(AutomationProject automationProject, VersionInfo projectVersion)
         {
-            string projectFileLocation = Path.Combine(projectsDirectory, automationProject.Name, $"{automationProject.Name}.atm");
-            await this.projectRepositoryClient.AddOrUpdateProject(automationProject, projectFileLocation);
-            if (projectVersion != null)
+            if(IsOnlineMode)
             {
-                string versionDirectory = Path.Combine(projectsDirectory, automationProject.Name, projectVersion.ToString());
-                if (!Directory.Exists(versionDirectory))
+                string projectFileLocation = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.atm");
+                await this.projectRepositoryClient.AddOrUpdateProject(automationProject, projectFileLocation);
+                if (projectVersion != null)
                 {
-                    throw new ArgumentException($"Save project version data failed.{projectVersion.ToString()} directory doesn't exist for project : {automationProject.Name}");
+                    string versionDirectory = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, projectVersion.ToString());
+                    if (!Directory.Exists(versionDirectory))
+                    {
+                        throw new ArgumentException($"Save project version data failed.{projectVersion.ToString()} directory doesn't exist for project : {automationProject.Name}");
+                    }
+                    string zipLocation = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.zip");
+                    if (File.Exists(zipLocation))
+                    {
+                        File.Delete(zipLocation);
+                    }
+                    ZipFile.CreateFromDirectory(versionDirectory, zipLocation);
+                    await this.projectRepositoryClient.AddOrUpdateProjectDataFiles(automationProject, projectVersion, zipLocation);
                 }
-                string zipLocation = Path.Combine(projectsDirectory, automationProject.Name, $"{automationProject.Name}.zip");
-                if (File.Exists(zipLocation))
-                {
-                    File.Delete(zipLocation);
-                }
-                ZipFile.CreateFromDirectory(versionDirectory, zipLocation);
-                await this.projectRepositoryClient.AddOrUpdateProjectDataFiles(automationProject, projectVersion, zipLocation);              
-            }
+            }         
         }
 
         public async Task DownloadProjectsAsync()
         {
-            if (!Directory.Exists(this.projectsDirectory))
+            if(IsOnlineMode)
             {
-                Directory.CreateDirectory(this.projectsDirectory);
-            }
-            var serverProjectsMetaDataCollection = await this.metaDataClient.GetProjectsMetaData();
-            var localProjectsMetaDataCollection = GetLocalProjectsMetaData();
-            foreach (var projectMetaData in serverProjectsMetaDataCollection)
-            {
-                if (localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId) && a.LastUpdated < projectMetaData.LastUpdated)
-                         || !localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId)))
+                var serverProjectsMetaDataCollection = await this.metaDataClient.GetProjectsMetaData();
+                var localProjectsMetaDataCollection = GetLocalProjectsMetaData();
+                foreach (var projectMetaData in serverProjectsMetaDataCollection)
                 {
-                    var projectFile = await this.projectRepositoryClient.GetProjectFile(projectMetaData.ProjectId);
-                    SaveProjectToDisk(projectFile);
+                    if (localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId) && a.LastUpdated < projectMetaData.LastUpdated)
+                             || !localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId)))
+                    {
+                        var projectFile = await this.projectRepositoryClient.GetProjectFile(projectMetaData.ProjectId);
+                        SaveProjectToDisk(projectFile);
+                    }
                 }
-            }
-            CreateOrUpdateProjectsMetaData(serverProjectsMetaDataCollection);
+                CreateOrUpdateProjectsMetaData(serverProjectsMetaDataCollection);
+            }           
         }
 
         private string SaveProjectToDisk(AutomationProject automationProject)
         {
 
-            string projectDirectory = Path.Combine(this.projectsDirectory, automationProject.Name);
+            string projectDirectory = Path.Combine(this.applicationSettings.AutomationDirectory, automationProject.Name);
             if (!Directory.Exists(projectDirectory))
             {
                 Directory.CreateDirectory(projectDirectory);
@@ -294,31 +357,33 @@ namespace Pixel.Persistence.Services.Client
 
         public async Task DownloadProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion)
         {
-
-            var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
-            var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject.Name);
-
-            var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
-            var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
-
-            if (serverVersion?.LastUpdated  > (localVersion?.LastUpdated ?? DateTime.MinValue))
+            if(IsOnlineMode)
             {
-                var zippedContent = await this.projectRepositoryClient.GetProjectDataFiles(automationProject.ProjectId, projectVersion.ToString());
-                string versionDirectory = Path.Combine(this.projectsDirectory, automationProject.Name, projectVersion.ToString());
-                using (var memoryStream = new MemoryStream(zippedContent, false))
+                var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
+                var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject.Name);
+
+                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
+                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
+
+                if (serverVersion?.LastUpdated > (localVersion?.LastUpdated ?? DateTime.MinValue))
                 {
-                    var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                    zipArchive.ExtractToDirectory(versionDirectory);
+                    var zippedContent = await this.projectRepositoryClient.GetProjectDataFiles(automationProject.ProjectId, projectVersion.ToString());
+                    string versionDirectory = Path.Combine(this.applicationSettings.AutomationDirectory, automationProject.Name, projectVersion.ToString());
+                    using (var memoryStream = new MemoryStream(zippedContent, false))
+                    {
+                        var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                        zipArchive.ExtractToDirectory(versionDirectory);
+                    }
                 }
-            }
-            CreateOrUpdateProjectVersionMetaData(automationProject.Name, serverProjectMetaDataCollection);
+                CreateOrUpdateProjectVersionMetaData(automationProject.Name, serverProjectMetaDataCollection);
+            }          
         }
 
         #endregion Project
 
         private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
         {
-            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
+            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, "Applications.meta");
             if (File.Exists(metaDataFile))
             {
                 return this.serializer.Deserialize<List<ApplicationMetaData>>(metaDataFile);
@@ -328,7 +393,7 @@ namespace Pixel.Persistence.Services.Client
 
         private IEnumerable<ProjectMetaData> GetLocalProjectsMetaData()
         {
-            string metaDataFile = Path.Combine(projectsDirectory, "Projects.meta");
+            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, "Projects.meta");
             if (File.Exists(metaDataFile))
             {
                 return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
@@ -338,7 +403,7 @@ namespace Pixel.Persistence.Services.Client
 
         private IEnumerable<ProjectMetaData> GetLocalProjectVersionMetaData(string projectName)
         {
-            string metaDataFile = Path.Combine(projectsDirectory, projectName, "Versions.meta");
+            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, projectName, "Versions.meta");
             if (File.Exists(metaDataFile))
             {
                 return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
@@ -348,7 +413,7 @@ namespace Pixel.Persistence.Services.Client
 
         private void CreateOrUpdateProjectsMetaData(IEnumerable<ProjectMetaData> projects)
         {
-            string metaDataFile = Path.Combine(this.projectsDirectory, "Projects.meta");
+            string metaDataFile = Path.Combine(this.applicationSettings.AutomationDirectory, "Projects.meta");
             if (File.Exists(metaDataFile))
             {
                 File.Delete(metaDataFile);
@@ -358,7 +423,7 @@ namespace Pixel.Persistence.Services.Client
 
         private void CreateOrUpdateProjectVersionMetaData(string projectName, IEnumerable<ProjectMetaData> projects)
         {
-            string metaDataFile = Path.Combine(projectsDirectory, projectName, "Versions.meta");
+            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, projectName, "Versions.meta");
             if (File.Exists(metaDataFile))
             {
                 File.Delete(metaDataFile);
@@ -368,10 +433,10 @@ namespace Pixel.Persistence.Services.Client
 
         private void CreateOrUpdateApplicationMetaData(IEnumerable<ApplicationMetaData> applicationMetaDatas)
         {
-            string metaDataFile = Path.Combine(applicationsRepository, "Applications.meta");
-            if (System.IO.File.Exists(metaDataFile))
+            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, "Applications.meta");
+            if (File.Exists(metaDataFile))
             {
-                System.IO.File.Delete(metaDataFile);
+                File.Delete(metaDataFile);
             }
             this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
         }

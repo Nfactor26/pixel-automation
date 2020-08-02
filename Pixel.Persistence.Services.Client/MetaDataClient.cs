@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
 using System.Collections.Generic;
@@ -8,20 +9,19 @@ namespace Pixel.Persistence.Services.Client
 {
     public class MetaDataClient : IMetaDataClient
     {
-        private readonly string baseUrl = "http://localhost:49574/api/metadata";
-        private readonly IRestClient client;
-        private readonly ISerializer serializer;
+        private readonly string baseUrl;             
 
-        public MetaDataClient(ISerializer serializer)
+        public MetaDataClient(ApplicationSettings applicationSettings)
         {
-            this.serializer = serializer;
-            this.client = new RestClient(baseUrl);
+            Guard.Argument(applicationSettings).NotNull();
+            this.baseUrl = applicationSettings.PersistenceServiceUri;
         }
 
 
         public async Task<IEnumerable<ApplicationMetaData>> GetApplicationMetaData()
         {
             RestRequest restRequest = new RestRequest("application");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync<IEnumerable<ApplicationMetaData>>(restRequest);
             return response.Data;
         }
@@ -30,6 +30,7 @@ namespace Pixel.Persistence.Services.Client
         public async Task<IEnumerable<ProjectMetaData>> GetProjectsMetaData()
         {
             RestRequest restRequest = new RestRequest("project");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
             return response.Data;
         }
@@ -37,6 +38,7 @@ namespace Pixel.Persistence.Services.Client
         public async Task<IEnumerable<ProjectMetaData>> GetProjectMetaData(string projectId)
         {
             RestRequest restRequest = new RestRequest($"project/{projectId}");
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
             return response.Data;
         }

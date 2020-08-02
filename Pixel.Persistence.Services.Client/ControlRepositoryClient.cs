@@ -1,4 +1,6 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
@@ -10,14 +12,15 @@ namespace Pixel.Persistence.Services.Client
 {
     public class ControlRepositoryClient : IControlRepositoryClient
     {
-        private readonly string baseUrl = "http://localhost:49574/api/control";
-        private readonly IRestClient client;
+        private readonly string baseUrl;     
         private readonly ISerializer serializer;
 
-        public ControlRepositoryClient(ISerializer serializer)
+        public ControlRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
         {
+            Guard.Argument(serializer, nameof(serializer)).NotNull();
+            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             this.serializer = serializer;
-            this.client = new RestClient(baseUrl);
+            this.baseUrl = applicationSettings.PersistenceServiceUri;
         }
 
         public async Task<byte[]> GetControls(GetControlDataForApplicationRequest controlDataRequest)
@@ -28,6 +31,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ControlIdCollection), controlId, ParameterType.QueryString);
             }
+            var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
             {
@@ -47,6 +51,7 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ControlMetaData), serializer.Serialize<ControlMetaData>(controlMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", controlFile);
+            var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);
             return result;
         }
@@ -63,6 +68,7 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);
+            var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);
             return result;
         }
