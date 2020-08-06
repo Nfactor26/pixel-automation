@@ -5,7 +5,7 @@ using Pixel.Automation.Core.Interfaces.Scripting;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    internal class CodeGeneratorModule : NinjectModule
+    internal class CodeGeneratorModules : NinjectModule
     {
         public override void Load()
         {

@@ -46,7 +46,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
-        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditor controlEditor, ISerializer serializer, IApplicationDataManager applicationDataManager)
+        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditor controlEditor,
+            IApplicationDataManager applicationDataManager)
         {
             this.windowManager = windowManager;           
             this.eventAggregator = eventAggregator;
@@ -162,17 +163,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 var controls = this.applicationDataManager.GetAllControls(application).ToList();
                 application.ControlsCollection.AddRange(controls);
             }
-        }
-
-        /// <summary>
-        /// Delete the control
-        /// </summary>
-        /// <param name="controlToDelete"></param>
-        public void DeleteControl(ControlDescriptionViewModel controlToDelete)
-        {
-           
-        }
-
+        }     
 
         public async Task EditControl(ControlDescriptionViewModel controlToEdit)
         {

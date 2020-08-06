@@ -90,29 +90,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }           
         }
 
-        /// <summary>
-        /// Delete the prefab 
-        /// </summary>
-        /// <param name="prefabToDelete"></param>
-        public void DeletePrefab(PrefabDescription prefabToDelete)
-        {
-            Guard.Argument(prefabToDelete).NotNull();
-
-            string prefabDirectory = Path.Combine("ApplicationsRepository", prefabToDelete.ApplicationId, "Prefabs", prefabToDelete.PrefabId);
-            this.Prefabs.Remove(prefabToDelete);
-            OnPrefabDeleted(prefabToDelete);
-            try
-            {
-                //Will throw if dll is in use 
-                Directory.Delete(prefabDirectory, true);
-            }
-            catch(Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }          
-           
-        }
-
+       
         /// <summary>
         /// Open Prefab for Edit in Designer
         /// </summary>
@@ -270,11 +248,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             this.PrefabCreated(this, createdPrefab);
         }
-
-        public event EventHandler<PrefabDescription> PrefabDeleted = delegate { };
-        protected virtual void OnPrefabDeleted(PrefabDescription deletedPrefab)
-        {
-            this.PrefabCreated(this, deletedPrefab);
-        }
+      
     }
 }

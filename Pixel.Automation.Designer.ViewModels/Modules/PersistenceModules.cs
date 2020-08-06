@@ -3,7 +3,7 @@ using Pixel.Persistence.Services.Client;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    public class PersistenceModule : NinjectModule
+    public class PersistenceModules : NinjectModule
     {
         public override void Load()
         {
@@ -11,6 +11,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();
             Kernel.Bind<IProjectRepositoryClient>().To<ProjectRepositoryClient>();
+            Kernel.Bind<ITestSessionClient>().To<TestSessionClient>();
             Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
         }
     }

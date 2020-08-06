@@ -90,7 +90,6 @@
                                     <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditControl($dataContext)]" ></MenuItem>
                                     <MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action SaveControlDetails($dataContext, false)]" ></MenuItem>
                                     <MenuItem x:Name="Clone" Header="Clone" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CloneControl($dataContext)]" ></MenuItem>
-                                    <!--<MenuItem x:Name="Delete" Header="Delete" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action DeleteControl($dataContext)]" ></MenuItem>-->
                                 </StackPanel>
                             </ControlTemplate>
                         </ContextMenu.Template>

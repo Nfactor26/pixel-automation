@@ -276,19 +276,14 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         void HandleParentChange(IDropInfo dropInfo)
         {
-            var sourceItem = dropInfo.Data as IComponent;
-            var targetItem = dropInfo.TargetItem as IComponent;
-
-            //if (targetItem is AutomationUnitEntity && sourceItem is AutomationUnitEntity)
-            //    return;
-
-            if (targetItem is Entity)
+            var sourceItem = dropInfo.Data as Component;           
+            if (dropInfo.TargetItem is Entity entity)
             {
-                if (sourceItem is Component && (sourceItem as Component).Parent != null)
+                if (sourceItem?.Parent != null)
                 {
-                    (sourceItem as Component).Parent.RemoveComponent(sourceItem as IComponent, false);
-                    (sourceItem as Component).ProcessOrder = (targetItem as Entity).Components.Count + 1;
-                    (targetItem as Entity).AddComponent(sourceItem as IComponent);
+                    sourceItem.Parent.RemoveComponent(sourceItem, false);
+                    sourceItem.ProcessOrder = entity.Components.Count + 1;
+                    entity.AddComponent(sourceItem as IComponent);
                 }
             }
         }
@@ -369,21 +364,10 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     controlEntity.ControlFile = Path.Combine("ApplicationsRepository", controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
                     targetEntity.AddComponent(controlEntity);
                 }
-                //else
-                //{
-                //    ControlEntity controlEntity = new ControlEntity()
-                //    {
-                //        Name = controlItem.Name,
-                //        ControlDetails = controlItem.ControlDetails
-                //    };
-                //    targetItem.AddComponent(controlEntity);
-                //}                
-               
-                         
+                
             }
 
         }
-
 
         void HandleApplicationDrop(IDropInfo dropInfo)
         {

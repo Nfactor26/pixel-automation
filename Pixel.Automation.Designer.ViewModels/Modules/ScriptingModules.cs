@@ -6,7 +6,7 @@ using Pixel.Scripting.Editor.Core.Contracts;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    internal class ScriptingModule : NinjectModule
+    internal class ScriptingModules : NinjectModule
     {
         public override void Load()
         {

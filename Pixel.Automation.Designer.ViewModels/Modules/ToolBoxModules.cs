@@ -10,7 +10,7 @@ using Pixel.Automation.TestExplorer.ViewModels;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    public class ToolBoxModule : NinjectModule
+    public class ToolBoxModules : NinjectModule
     {
         public override void Load()
         {

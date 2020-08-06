@@ -1,27 +1,19 @@
 ﻿using Caliburn.Micro;
+using Microsoft.Extensions.Configuration;
 using Ninject;
-using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.RunTime.Serialization;
 using Pixel.Automation.Designer.ViewModels.Modules;
-using Pixel.Automation.Editor.Core;
-using Pixel.Automation.Editor.Core.Helpers;
-using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Native.Windows;
-using Pixel.Automation.RunTime;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows;
-using Pixel.Persistence.Services.Client;
-using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -122,52 +114,12 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     return;
                 }
-
-
+                
                 LogManager.GetLog = type => new DebugLog(type);
 
-                kernel = new StandardKernel(new ToolBoxModule(), new ScrappersModule(), new ScriptingModule(), new CodeGeneratorModule(), new PersistenceModule());                
-                kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
-
-                IConfiguration config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true, true)
-                    .Build();
-                kernel.Bind<IConfiguration>().ToConstant(config);
-                var applicationSettings = config.GetSection("applicationSettings").Get<ApplicationSettings>();
-                kernel.Bind<ApplicationSettings>().ToConstant(applicationSettings);
-                var userSettings = config.GetSection("userSettings").Get<UserSettings>();
-                kernel.Bind<UserSettings>().ToConstant(userSettings);
-
-                kernel.Bind<IEventAggregator>().To<EventAggregator>().InSingletonScope();
-                kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();
-                //kernel.Bind<IKernel>().ToConstant(kernel);
-                kernel.Bind<ISerializer>().To<JsonSerializer>().InSingletonScope();
-
-
-                //viewmodel bindings
-                kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope();
-                kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
-                kernel.Bind<INewProject>().To<NewProjectViewModel>();              
-                kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>();
-                kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>();              
-            
-
-                kernel.Bind<ITypeProvider>().To<KnownTypeProvider>().InSingletonScope();              
-                kernel.Bind<IServiceResolver>().To<ServiceResolver>();
-                kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
-
-                kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>();
-                kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
-                kernel.Bind<ITestCaseFileSystem>().To<TestCaseFileSystem>();
-
-                kernel.Bind<IApplicationWindowManager>().To<ApplicationWindowManager>().InSingletonScope();                
-                kernel.Bind<IHighlightRectangleFactory>().To<HighlightRectangleFactory>().InSingletonScope();
-                kernel.Bind<IScreenCapture>().To<ScreenCapture>().InSingletonScope();
-
-                kernel.Bind<IPrefabLoader>().To<PrefabLoader>();
-
-                kernel.Bind<IArgumentExtractor>().To<ArgumentExtractor>().InSingletonScope();
-                kernel.Bind<IScriptExtactor>().To<ScriptExtractor>().InSingletonScope();
+                kernel = new StandardKernel(new ViewModules(), new ToolBoxModules(), new ScrappersModules(), new ScriptingModules(),
+                    new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(),  new WindowsModules(), new SettingsModules());                
+                kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));             
 
             }
             catch (Exception ex)
@@ -186,7 +138,7 @@ namespace Pixel.Automation.Designer.ViewModels
                     serviceType = Type.GetType(key);
                     if (serviceType == null)
                     {
-                        throw new ArgumentNullException("serviceType argument is null");
+                        throw new ArgumentNullException($"{nameof(serviceType)} argument is null");
                     }
                 }
                 var instance = kernel.Get(serviceType, key);

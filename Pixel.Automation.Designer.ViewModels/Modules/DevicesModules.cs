@@ -4,7 +4,7 @@ using Pixel.Automation.Native.Windows.Device;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    public class DevicesModule : NinjectModule
+    public class DevicesModules : NinjectModule
     {
         public override void Load()
         {            

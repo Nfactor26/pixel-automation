@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using System;
@@ -26,42 +27,24 @@ namespace Pixel.Automation.Designer.ViewModels
                 filterText = value;
 
                 var view = CollectionViewSource.GetDefaultView(Components);
-                view.Refresh();
-                //if (!string.IsNullOrEmpty(filterText))
-                //{                
-                //    //if(view.GroupDescriptions.Count>0)  
-                //    //view.GroupDescriptions.RemoveAt(0);
-                //    view.Refresh();
-                //}
-                //else
-                //{
-                //    view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
-                //}
+                view.Refresh();              
                 NotifyOfPropertyChange(() => FilterText);
                
             }
         }
 
-        BindableCollection<ComponentToolBoxItem> components;
-        public BindableCollection<ComponentToolBoxItem> Components
-        {
-            get
-            {
-                return this.components;
-            }
-        }
+        public BindableCollection<ComponentToolBoxItem> Components { get; } = new BindableCollection<ComponentToolBoxItem>();
 
-        Dictionary<string, List<ComponentToolBoxItem>> customComponents;
+        Dictionary<string, List<ComponentToolBoxItem>> customComponents = new Dictionary<string, List<ComponentToolBoxItem>>();
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
 
         public ComponentToolBoxViewModel(ITypeProvider knownTypesProvider)
-        {
-            this.knownTypesProvider = knownTypesProvider;
+        {         
+
+            this.knownTypesProvider = Guard.Argument(knownTypesProvider, nameof(knownTypesProvider)).NotNull().Value;
 
             this.DisplayName = "Components";
-            this.components = new BindableCollection<ComponentToolBoxItem>();
-            this.customComponents = new Dictionary<string, List<ComponentToolBoxItem>>();
             var groupedItems = CollectionViewSource.GetDefaultView(Components);
             groupedItems.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
             groupedItems.GroupDescriptions.Add(new PropertyGroupDescription("SubCategory"));
@@ -83,13 +66,13 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private void LoadToolBoxItems()
         {
-            this.components.Clear();
+            this.Components.Clear();
 
             foreach (var item in knownTypesProvider.GetAllTypes())
             {
                 if(TryCreateToolBoxItem(item,out ComponentToolBoxItem toolBoxItem))
                 {
-                    this.components.Add(toolBoxItem);
+                    this.Components.Add(toolBoxItem);
                 }
             }
         }
@@ -138,7 +121,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 foreach(var toolBoxItem in this.customComponents[owner])
                 {
-                    this.components.Remove(toolBoxItem);
+                    this.Components.Remove(toolBoxItem);
                 }              
                 this.customComponents.Remove(owner);
             }           
@@ -151,7 +134,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 foreach (var toolBoxItem in this.customComponents[owner])
                 {
-                    this.components.Remove(toolBoxItem);
+                    this.Components.Remove(toolBoxItem);
                 }
             }
          
@@ -163,7 +146,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 foreach (var toolBoxItem in this.customComponents[owner])
                 {
-                    this.components.Add(toolBoxItem);
+                    this.Components.Add(toolBoxItem);
                 }               
             }          
         }

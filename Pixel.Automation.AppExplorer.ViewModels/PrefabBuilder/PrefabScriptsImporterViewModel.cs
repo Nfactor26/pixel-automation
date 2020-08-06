@@ -9,7 +9,6 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
 using System;
-using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Reflection;

@@ -8,8 +8,6 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Windows.Threading;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -26,7 +24,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public ServiceResolver(IKernel parentKernel)
         {
-            this.kernel = new ChildKernel(parentKernel, new WorkspaceModules(), new ScopedModules(), new ScriptingModule(), new DevicesModule());            
+            this.kernel = new ChildKernel(parentKernel, new WorkspaceModules(), new ScopedModules(), new ScriptingModules(), new DevicesModules());            
         }        
 
         /// <summary>
@@ -187,7 +185,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public object Clone()
         {
-            return new ServiceResolver(new ChildKernel(this.kernel, new ScopedModules(), new ScriptingModule()));
+            return new ServiceResolver(new ChildKernel(this.kernel, new ScopedModules(), new ScriptingModules()));
         }
     }
 }

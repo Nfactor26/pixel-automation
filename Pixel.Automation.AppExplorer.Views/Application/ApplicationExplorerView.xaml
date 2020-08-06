@@ -181,8 +181,7 @@
                                             <StackPanel>
                                                 <MenuItem x:Name="Open" Header="Open" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action OpenApplication($dataContext)]" ></MenuItem>
                                                 <MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action SaveApplication($dataContext)]" ></MenuItem>
-                                                <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>
-                                                <!--<MenuItem x:Name="Delete" Header="Delete" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action DeleteApplication($dataContext)]" ></MenuItem>-->
+                                                <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>                                                
                                             </StackPanel>
                                         </ControlTemplate>
                                     </ContextMenu.Template>

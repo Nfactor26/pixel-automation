@@ -63,8 +63,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.applicationDataManager = applicationDataManager;
             this.ControlExplorer = controlExplorer;
             this.PrefabExplorer = prefabExplorer;           
-            this.PrefabExplorer.PrefabCreated += OnPrefabCreated;
-            this.PrefabExplorer.PrefabDeleted += OnPrefabDeleted;
+            this.PrefabExplorer.PrefabCreated += OnPrefabCreated;           
             CreateCollectionView();
             InitializeKnownApplications();
             
@@ -97,27 +96,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 logger.Error(ex, ex.Message);
             }
         }
-
-        private void OnPrefabDeleted(object sender, PrefabDescription e)
-        {
-            try
-            {
-                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
-                targetApplication.DeletePrefab(e);
-                //SaveApplication(targetApplication);
-                logger.Information($"Deleted Prefab {e.PrefabName} from application : {targetApplication.ApplicationName}");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
-
-        public void ShowInExplorer()
-        {
-
-        }
-
 
         #region Filter 
 
@@ -190,24 +168,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             logger.Information($"New application of type {application.ToString()} has been added to the application repository");
         }
 
-        public void DeleteApplication(ApplicationDescription application)
-        {
-            Guard.Argument(application).NotNull();
-
-            //string applicationFolder = GetApplicationDirectory(application);
-            //if (Directory.Exists(applicationFolder))
-            //{
-            //    Directory.Delete(applicationFolder, true);
-            //}
-            //Applications.Remove(application);
-            
-            logger.Information($"Application with name : {application.ApplicationName} has been deleted from applicaton repository");
-        }
         public async Task SaveApplication(ApplicationDescription application)
         {
             Guard.Argument(application).NotNull();
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);
-          
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);          
             logger.Information($"Saved application data for : {application.ApplicationName}");
         }
 
@@ -353,9 +317,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         protected virtual void Dispose(bool isDisposing)
         {           
-            this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;
-            this.PrefabExplorer.PrefabDeleted -= OnPrefabDeleted;
-
+            this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;           
             logger.Information($"{nameof(ApplicationExplorerViewModel)} has been disposed");
         }
 

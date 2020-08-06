@@ -142,16 +142,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
-        #endregion Create Test Data Source
-
-        #region Delete Test Data Source
-
-        public void DeleteTestDataSource()
-        {
-            //TODO : We need to check if data source is in use by some test case before we allow deleting it
-        }
-
-        #endregion Delete Test Data Source
+        #endregion Create Test Data Source       
 
         #region Edit Test Data Source
 
