@@ -13,12 +13,12 @@ namespace Pixel.Persistence.Services.Client
         public TestSessionClient(ApplicationSettings applicationSettings)
         {
             Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.baseUrl = applicationSettings.PersistenceServiceUri;
+            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/TestSession";
         }
 
         public async Task AddSession(TestSession testSession)
         {         
-            RestRequest restRequest = new RestRequest("TestSession");           
+            RestRequest restRequest = new RestRequest();           
             restRequest.AddJsonBody(testSession);
             var client = new RestClient(baseUrl);
             _ = await client.PostAsync<TestSession>(restRequest);

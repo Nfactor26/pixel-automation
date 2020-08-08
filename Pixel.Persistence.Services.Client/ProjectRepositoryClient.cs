@@ -21,7 +21,8 @@ namespace Pixel.Persistence.Services.Client
         {
             Guard.Argument(serializer, nameof(serializer)).NotNull();
             Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.serializer = serializer;           
+            this.serializer = serializer;
+            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Project";
         }
 
         public async Task<AutomationProject> GetProjectFile(string projectId)

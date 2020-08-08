@@ -14,7 +14,7 @@ namespace Pixel.Persistence.Services.Client
         public MetaDataClient(ApplicationSettings applicationSettings)
         {
             Guard.Argument(applicationSettings).NotNull();
-            this.baseUrl = applicationSettings.PersistenceServiceUri;
+            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/MetaData";
         }
 
 
