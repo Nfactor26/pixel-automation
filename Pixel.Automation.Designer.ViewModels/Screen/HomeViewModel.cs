@@ -92,7 +92,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 //we need a new instance of automationEditor everytime we open a project. Don't inject it as a constructor parameter.
                 //TODO : Create a factory for automation editor which should be injected as a constructor parameter.
-                var automationEditor = IoC.Get<IAutomationBuilder>();
+                var automationEditor = IoC.Get<IAutomationEditor>();
                 await automationEditor.DoLoad(automationProject);   
                 if(this.Parent is IConductor conductor)
                 {

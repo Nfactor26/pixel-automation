@@ -179,6 +179,10 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             if(isDisposing)
             {
+                foreach (IDisposable module in this.kernel.GetModules())
+                {
+                    module.Dispose();
+                }
                 this.kernel?.Dispose();
             }
         }

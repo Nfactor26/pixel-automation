@@ -11,7 +11,6 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -304,7 +303,7 @@ namespace Pixel.Automation.TestExplorer
                 {
                     SaveTestCase(testCaseVM);
                 }
-                
+                testCaseVM.TestResults.Clear();
                 this.TestRunner.CloseTestCase(testCaseVM.TestCase);
                 this.OpenTestCases.Remove(testCaseVM);
 
@@ -316,18 +315,10 @@ namespace Pixel.Automation.TestExplorer
         }
 
         public void DoneEditing(string testCaseId)
-        {
+        {           
             var targetTestCase = OpenTestCases.FirstOrDefault(a => a.Id.Equals(testCaseId));
-            if (targetTestCase != null)
-            {
-                SaveTestCase(targetTestCase);
-                targetTestCase.TestCaseEntity = null;
-                targetTestCase.TestResults.Clear();
-                this.OpenTestCases.Remove(targetTestCase);
-                targetTestCase.IsOpenForEdit = false;
-                NotifyOfPropertyChange(nameof(CanSaveAll));
-                return;
-            }
+            DoneEditing(targetTestCase, true);
+           
         }
 
         public bool CanSaveAll

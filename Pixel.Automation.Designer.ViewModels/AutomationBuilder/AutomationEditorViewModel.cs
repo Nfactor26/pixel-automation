@@ -1,5 +1,7 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -13,10 +15,7 @@ using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,22 +23,21 @@ using System.Windows;
 namespace Pixel.Automation.Designer.ViewModels
 {
 
-    public class AutomationBuilderViewModel :  EditorViewModel , IAutomationBuilder
+    public class AutomationEditorViewModel :  EditorViewModel , IAutomationEditor
     {
         #region data members        
 
-        private readonly ILogger logger = Log.ForContext<AutomationBuilderViewModel>();
+        private readonly ILogger logger = Log.ForContext<AutomationEditorViewModel>();
         private readonly ITestExplorer testExplorerToolBox;
-        private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;
-     
-        Entity processRoot = default;
+        private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;     
+ 
         TestRepositoryManager testCaseManager = default;
         TestDataRepository testDataRepository = default;
 
         #endregion data members
 
         #region constructor
-        public AutomationBuilderViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
+        public AutomationEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
             IScriptExtactor scriptExtractor, IToolBox[] toolBoxes) : base(
             globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes)
         {
@@ -69,8 +67,10 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
-            Debug.Assert(project != null);
+            Guard.Argument(project, nameof(project)).NotNull();
 
+            //Getting AutomationProjectManager from EntityManager service resolver instead of injecting this as a constructor parameter since we want
+            //all dependencies of automation project manager to be resolved by entity manager's service resolver ( which uses child kernel to resolve this)
             this.projectManager = this.EntityManager.GetServiceOfType<AutomationProjectManager>().WithEntityManager(this.EntityManager) as AutomationProjectManager;
 
             this.CurrentProject = project;
@@ -80,12 +80,8 @@ namespace Pixel.Automation.Designer.ViewModels
             var targetVersion = versionToLoad ?? project.ActiveVersion;
             if(targetVersion != null)
             {
-                this.processRoot = await this.projectManager.Load(project, targetVersion);
-
-                this.EntityManager.RootEntity = this.processRoot;
-                this.WorkFlowRoot = new BindableCollection<Entity>();
-                this.WorkFlowRoot.Add(this.processRoot);
-                this.BreadCrumbItems.Add(this.processRoot);
+                await this.projectManager.Load(project, targetVersion);
+                UpdateWorkFlowRoot();
                 return;
             }
 
@@ -111,26 +107,23 @@ namespace Pixel.Automation.Designer.ViewModels
                 await windowManager.ShowDialogAsync(editor);              
             }
 
-            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsByTag("TestCase", SearchScope.Descendants);
-            await this.projectManager.Refresh();
-            this.ReOpenTestCases(testCaseEntities);
-            logger.Information($"Data model was edited for automation project : {this.CurrentProject.Name}");
-        }
-
-        private void ReOpenTestCases(IEnumerable<IComponent> testCaseEntities)
-        {
-            Entity parentEntity = testCaseEntities.FirstOrDefault()?.Parent;
+            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);         
             foreach (var testEntity in testCaseEntities)
             {
-                testEntity.Parent.RemoveComponent(testEntity);
                 this.testCaseManager.DoneEditing(testEntity.Tag);
             }
-
+           
+            this.projectManager.Refresh();
+           
             foreach (var testEntity in testCaseEntities)
             {
                 this.testCaseManager.OpenForEdit(testEntity.Tag);
             }
-        }
+
+            UpdateWorkFlowRoot();
+
+            logger.Information($"Data model was edited for automation project : {this.CurrentProject.Name}");
+        }       
 
         private void InitializeTestProcess()
         {
@@ -223,15 +216,18 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async  Task CloseAsync()
         {
+            SetSelectedItem(null);
+            this.globalEventAggregator.Unsubscribe(this);
+
             //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.
             this.testExplorerToolBox?.CloseActiveInstance();
             this.testDataRepositoryViewModel?.CloseActiveInstance();
+            this.testDataRepository = null;
+            this.testCaseManager = null;
+            this.projectManager = null;                                                
 
-            this.Dispose();
-                
-            var shell = IoC.Get<IShell>();
-            await this.TryCloseAsync(true);
-            await(shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+            this.Dispose();           
+            await this.TryCloseAsync(true);            
         }
 
         #endregion Close Screen

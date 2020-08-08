@@ -30,7 +30,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         ISerializer serializer;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers) : base()
+        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
         {
             Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
             Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
@@ -48,7 +48,7 @@ namespace Pixel.Automation.Designer.ViewModels
           
             eventAggregator.SubscribeOnUIThread(this);
 
-            _ = ActivateItemAsync(IoC.Get<IHome>() as Screen, CancellationToken.None);
+            _ = ActivateItemAsync(homeScreen as Screen, CancellationToken.None);
 
            
         }
@@ -97,10 +97,9 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             logger.Debug("OpenProject start");
 
-            var automationBuilder = IoC.Get<IAutomationBuilder>();
-            var shell = IoC.Get<IShell>();
-            await (shell as ShellViewModel).ActivateItemAsync(automationBuilder as Screen);
-            await automationBuilder.DoLoad(automationProject);
+            var automationEditor = IoC.Get<IAutomationEditor>();            
+            await this.ActivateItemAsync(automationEditor as Screen);
+            await automationEditor.DoLoad(automationProject);
 
             logger.Debug("OpenProject end");
 
@@ -112,7 +111,9 @@ namespace Pixel.Automation.Designer.ViewModels
             openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
             openFileDialog.InitialDirectory = "Automations";
             if (openFileDialog.ShowDialog() == true)
+            {
                 return openFileDialog.FileName;
+            }
             return string.Empty;
         }
 
@@ -188,13 +189,13 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             get
             {
-                return this.ActiveItem is IAutomationBuilder;
+                return this.ActiveItem is IAutomationEditor;
             }
 
         }
         public void ReloadAutomationProject()
         {
-            var activeItem = this.ActiveItem as IAutomationBuilder;
+            var activeItem = this.ActiveItem as IAutomationEditor;
             if (activeItem != null)
             {
                 activeItem.DoSave();
@@ -283,9 +284,8 @@ namespace Pixel.Automation.Designer.ViewModels
         public async Task HandleAsync(ActivateScreenNotification activateScreenNotification, CancellationToken cancellationToken)
         {
             if (activateScreenNotification?.ScreenToActivate != null)
-            {
-                var shell = IoC.Get<IShell>();
-                await (shell as ShellViewModel).ActivateItemAsync(activateScreenNotification.ScreenToActivate, CancellationToken.None);
+            {            
+                await this.ActivateItemAsync(activateScreenNotification.ScreenToActivate, CancellationToken.None);
             }
             await Task.CompletedTask;
         }

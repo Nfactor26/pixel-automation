@@ -1,11 +1,10 @@
 ﻿using Dawn;
-using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,17 +25,27 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected ICodeEditorFactory codeEditorFactory;   
         protected readonly ICodeGenerator codeGenerator;
 
-   
-        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory,ICodeGenerator codeGenerator)
+        protected Entity RootEntity
         {
-            this.serializer = serializer;
-            this.fileSystem = fileSystem;
-            this.typeProvider = typeProvider;
-            this.scriptEngineFactory = scriptEngineFactory;
-            this.codeEditorFactory = codeEditorFactory;         
-            this.codeGenerator = codeGenerator;
+            get => this.entityManager.RootEntity;
+            set => this.entityManager.RootEntity = value;
         }
 
+
+        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory,ICodeGenerator codeGenerator)
+        {
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
+            this.scriptEngineFactory = Guard.Argument(scriptEngineFactory, nameof(scriptEngineFactory)).NotNull().Value;
+            this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;     
+            this.codeGenerator = Guard.Argument(codeGenerator, nameof(codeGenerator)).NotNull().Value;
+        }
+
+        ///<inheritdoc/>
+        public abstract Task Save();
+
+        ///<inheritdoc/>
         public IProjectManager WithEntityManager(EntityManager entityManager)
         {
             this.entityManager = entityManager;
@@ -44,15 +53,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return this;
         }
 
+        ///<inheritdoc/>
         public IFileSystem GetProjectFileSystem()
         {
             return this.fileSystem;
         }
-
-        public abstract Task Save();
-
-        public abstract void  SaveAs();
-      
+               
+        ///<inheritdoc/>
         public T Load<T>(string fileName) where T : new()
         {         
             string fileContents = File.ReadAllText(fileName);
@@ -69,24 +76,37 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             File.WriteAllText(fileName, fileContents);        
             T entity = serializer.Deserialize<T>(fileName, typeProvider.GetAllTypes());
             return entity;
-        }  
+        }
 
+        #region helper methods
+
+        protected virtual void ConfigureCodeEditor()
+        {
+            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());               
+        }
+
+        /// <summary>
+        /// Create a workspace manager. Add all the documents from data model directory to this workspace , compile the workspace and
+        /// create an instnace of data model from generated assembly.
+        /// </summary>
+        /// <param name="dataModelName"></param>
+        /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel(string dataModelName)
         {
             ICodeWorkspaceManager workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
 
             string dataModelDirectory = this.fileSystem.DataModelDirectory;
             string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");
-            if(existingDataModelFiles.Any())
+            if (existingDataModelFiles.Any())
             {
                 //This will add all the documents to workspace so that they are available during compilation
-                foreach(var dataModelFile in existingDataModelFiles)
+                foreach (var dataModelFile in existingDataModelFiles)
                 {
                     string documentName = Path.GetFileName(dataModelFile);
                     if (!workspaceManager.HasDocument(documentName))
                     {
                         workspaceManager.AddDocument(documentName, File.ReadAllText(dataModelFile));
-                    }                
+                    }
                 }
 
                 using (var compilationResult = workspaceManager.CompileProject(GetNewDataModelAssemblyName()))
@@ -105,46 +125,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
 
             throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
-         
+
         }
-
-
-        #region Service Configuration
-
-        protected virtual void ConfigureCodeEditor()
-        {
-            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());
-            //ICodeEditorScreen codeEditorScreen = codeEditorFactory.CreateCodeEditor();
-            //this.entityManager.RegisterDefault<ICodeEditorScreen>(codeEditorScreen);           
-        }
-
-        #endregion Service Configuration
-             
-        public object GetDataModel()
-        {
-            return this.entityManager.Arguments;
-        }
-
-        #region helper methods
-
+        
+        /// <summary>
+        /// Get the name of the project
+        /// </summary>
+        /// <returns></returns>
         protected abstract string GetProjectName();
 
-        public void RestoreParentChildRelation(Entity entity, bool resetId = false)
-        {
-            Guard.Argument(entity).NotNull();
-            foreach (var component in entity.Components)
-            {
-                component.Parent = entity;
-                component.EntityManager = entity.EntityManager;              
-                if (component is Entity)
-                {
-                    RestoreParentChildRelation(component as Entity, resetId);
-                }
-
-                Debug.Assert(component.Parent != null);            
-            }
-        }
-
+        /// <summary>
+        /// Check project temp folder for any existing assemblies and extract the iteration number that was used for naming that assembly.
+        /// Generate the next assembly name by incrementing this iteration number e.g.  ProjectName_n+1 if n was the iteration used for last assembly.
+        /// </summary>
+        /// <returns></returns>
         protected string GetNewDataModelAssemblyName()
         {
             var assemblyFiles = Directory.GetFiles(this.fileSystem.TempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(this.fileSystem.TempDirectory, f)));
@@ -163,6 +157,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return dataModelAssemblyName;
         }
 
+        protected void RestoreParentChildRelation(Entity entity, bool resetId = false)
+        {
+            this.entityManager.RestoreParentChildRelation(entity, resetId);
+        }
+             
         #endregion helper methods
 
     }

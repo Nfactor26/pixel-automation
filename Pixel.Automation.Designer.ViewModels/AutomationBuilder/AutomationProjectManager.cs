@@ -9,6 +9,7 @@ using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,15 +21,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IApplicationDataManager applicationDataManager;
         private AutomationProject activeProject;
-        private VersionInfo loadedVersion;
-        private Entity rootEntity;     
+        private VersionInfo loadedVersion;     
 
         public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,  IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) : base(serializer, projectFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
         {
-            this.projectFileSystem = projectFileSystem;
-            this.applicationDataManager = applicationDataManager;
+            this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
         }
-     
+
+        #region Load Project
 
         public async  Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad)
         {
@@ -38,15 +39,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
-            AddDataModelFile();
+            CreateDataModelFile();
             ConfigureCodeEditor();          
+            
             this.entityManager.Arguments  = CompileAndCreateDataModel("DataModel");
 
-            Initialize(entityManager, this.activeProject);           
-            return this.rootEntity;
+            Initialize(entityManager, this.activeProject);
+            return this.RootEntity;
         }   
 
-        private void AddDataModelFile()
+        private void CreateDataModelFile()
         {
             string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
             if (!dataModelFiles.Any())
@@ -62,16 +64,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             if (!File.Exists(this.projectFileSystem.ProcessFile))
             {
-                this.rootEntity = new Entity("Automation Process", "Root");
+                this.RootEntity = new Entity("Automation Process", "Root");
             }
             else
             {
-                this.rootEntity = DeserializeProject();
+                this.RootEntity = DeserializeProject();
             }
-
-            this.rootEntity.EntityManager = entityManager;
-            AddDefaultEntities();
-            RestoreParentChildRelation(rootEntity);
+                       
+            AddDefaultEntities();            
         }
 
         private Entity DeserializeProject()
@@ -86,40 +86,44 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             switch (this.activeProject.ProjectType)
             {
                 case ProjectType.ProcessAutomation:
-                    if (this.rootEntity.Components.Count() == 0)
+                    if (this.RootEntity.Components.Count() == 0)
                     {
                         var appPoolEntity = new ApplicationPoolEntity();
-                        rootEntity.AddComponent(appPoolEntity);
+                        this.RootEntity.AddComponent(appPoolEntity);
 
                         SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "#Launch Applications" };
-                        rootEntity.AddComponent(launchProcessor);
+                        this.RootEntity.AddComponent(launchProcessor);
 
                         SequentialEntityProcessor searchProcessor = new SequentialEntityProcessor() { Name = "#Run Automation" };
-                        rootEntity.AddComponent(searchProcessor);
+                        this.RootEntity.AddComponent(searchProcessor);
 
                         SequentialEntityProcessor resetProcessor = new SequentialEntityProcessor() { Name = "#Reset Applications" };
-                        rootEntity.AddComponent(resetProcessor);
+                        this.RootEntity.AddComponent(resetProcessor);
 
                         SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "#Shutdown Applications" };
-                        rootEntity.AddComponent(shutDownProcessor);
+                        this.RootEntity.AddComponent(shutDownProcessor);
                     }
                     break;
 
                 case ProjectType.TestAutomation:
-                    if (this.rootEntity.Components.Count() == 0)
+                    if (this.RootEntity.Components.Count() == 0)
                     {
                         var appPoolEntity = new ApplicationPoolEntity();
-                        rootEntity.AddComponent(appPoolEntity);
+                        this.RootEntity.AddComponent(appPoolEntity);
 
                         TestFixtureEntity testFixtureEntity = new TestFixtureEntity();
-                        rootEntity.AddComponent(testFixtureEntity);                      
+                        this.RootEntity.AddComponent(testFixtureEntity);                      
                     }
                     break;
 
                 default:
                     break;
             }
+
+            RestoreParentChildRelation(RootEntity);
         }
+
+        #endregion Load Project
 
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
@@ -129,23 +133,26 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public async  Task<Entity> Refresh()
-        {
+        public void Refresh()
+        {           
+            Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
+
             this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
-           
-            await this.Save();
+            this.RootEntity.ResetHierarchy();
+            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());            
 
             //TODO : Since we are discarding existing entities and starting with a fresh copy , any launched applications will be orphaned .
             //We need  a way to restore the state 
-            this.rootEntity = DeserializeProject();
-            this.rootEntity.EntityManager = entityManager;
-
-            AddDefaultEntities();
-            RestoreParentChildRelation(rootEntity);
-            return this.rootEntity;
+            this.RootEntity = DeserializeProject();
+            AddDefaultEntities();            
         }
 
+        #region overridden methods
 
+        /// <summary>
+        /// Save automation project data
+        /// </summary>
+        /// <returns></returns>
         public override async Task Save()
         {
             //Remove all the test cases as we don't want them to save as a part of  automamtion process file
@@ -157,8 +164,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
          
             serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
-            this.rootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.rootEntity, typeProvider.GetAllTypes());
+            this.RootEntity.ResetHierarchy();
+            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());
             await this.applicationDataManager.AddOrUpdateProjectAsync(this.activeProject, this.loadedVersion);
 
             //Add back the test cases that were already open
@@ -168,15 +175,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-
-        public override void SaveAs()
-        {
-            throw new System.NotImplementedException();
-        }
-
         protected override string GetProjectName()
         {
             return this.activeProject.Name;
         }
+
+        #endregion overridden methods
     }
 }

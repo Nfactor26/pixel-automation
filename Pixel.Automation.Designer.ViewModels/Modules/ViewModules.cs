@@ -17,7 +17,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope();
             Kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
             Kernel.Bind<INewProject>().To<NewProjectViewModel>();
-            Kernel.Bind<IAutomationBuilder>().To<AutomationBuilderViewModel>();
+            Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>();
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>();
             Kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
 

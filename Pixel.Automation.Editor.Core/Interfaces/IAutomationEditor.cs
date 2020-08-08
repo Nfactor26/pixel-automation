@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
-    public interface IAutomationBuilder : IEditor, IDisposable
+    public interface IAutomationEditor : IEditor, IDisposable
     {
         AutomationProject CurrentProject
         {

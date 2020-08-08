@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Interfaces;
@@ -15,15 +16,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IPrefabFileSystem prefabFileSystem;      
     
-        private PrefabDescription prefabDescription;
-        private Entity rootEntity;
-        private Entity prefabbedEntity;      
+        private PrefabDescription prefabDescription;       
+        private Entity prefabbedEntity;       
 
         public PrefabProjectManager(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator) : base(serializer, prefabFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
         {
-            this.prefabFileSystem = prefabFileSystem;
+            this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
         }
-   
+
+        #region load project
+
         public Entity Load(PrefabDescription prefabDescription, VersionInfo versionInfo)
         {
             this.prefabDescription = prefabDescription;
@@ -31,27 +33,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
                 
             ConfigureCodeEditor();
+          
             this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
-            Initialize(this.entityManager, this.prefabDescription);
-            return this.rootEntity;
+           
+            Initialize(this.entityManager, this.prefabDescription);           
+            return this.RootEntity;
         }
-
-        /// <summary>
-        /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
-        /// This is required every time data model is compiled and data model has custom types defined. When data model has custom types
-        /// it's assembly details are captured during serialization.Also, Arguments refernce the data  model in this case. Hence, we need to 
-        /// save and deserialize again so that arguments refer correct assembly.
-        /// </summary>
-        /// <param name="entityManager"></param>
-        /// <returns></returns>
-        public async Task<Entity> Refresh()
-        {
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");      
-            await this.Save();
-            this.Initialize(this.entityManager, this.prefabDescription);
-            return this.rootEntity;
-        }
-
+    
 
         private void Initialize(EntityManager entityManager, PrefabDescription prefabDescription)
         {
@@ -59,7 +47,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 throw new FileNotFoundException();
             }         
-            this.rootEntity = AddEntitiesAndPrefab();        
+            this.RootEntity = AddEntitiesAndPrefab();        
             
         }     
 
@@ -107,29 +95,48 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return templateRoot;
         }
 
+        #endregion load project
+
         /// <summary>
-        /// Save any changes to Prefab
+        /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
+        /// This is required every time data model is compiled and data model has custom types defined. When data model has custom types
+        /// it's assembly details are captured during serialization.Also, Arguments refernce the data  model in this case. Hence, we need to 
+        /// save and deserialize again so that arguments refer correct assembly.
+        /// </summary>
+        /// <param name="entityManager"></param>
+        /// <returns></returns>
+        public async Task<Entity> Refresh()
+        {
+            await this.Save();
+            this.Initialize(this.entityManager, this.prefabDescription);
+            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");         
+            return this.RootEntity;
+        }
+
+
+        #region overridden methods
+
+        /// <summary>
+        /// Save prefab data
         /// </summary>
         public override async Task Save()
         {
-            this.rootEntity.ResetHierarchy();
+            this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetAllTypes());
 
             var prefabParent = this.prefabbedEntity.Parent;
             prefabParent.RemoveComponent(this.prefabbedEntity);
-            this.prefabFileSystem.CreateOrReplaceTemplate(this.rootEntity);
+            this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
             prefabParent.AddComponent(this.prefabbedEntity);
             await Task.CompletedTask;
         }
 
-        public override void SaveAs()
-        {
-            throw new NotImplementedException();
-        }
 
         protected override string GetProjectName()
         {
             return this.prefabDescription.PrefabName;
         }
+
+        #endregion overridden methods
     }
 }

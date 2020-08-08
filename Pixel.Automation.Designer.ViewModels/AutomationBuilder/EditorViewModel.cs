@@ -1,4 +1,6 @@
 ﻿using Caliburn.Micro;
+using Dawn;
+using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Components;
@@ -26,49 +28,34 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly IEventAggregator globalEventAggregator;
         protected readonly ISerializer serializer;
         protected readonly IScriptExtactor scriptExtractor;
-        readonly IComponentBox componentToolBox;        
-
-        public EntityManager EntityManager { get; }
+     
+        public EntityManager EntityManager { get; private set; }
 
         public IObservableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
    
-        public ComponentDropHandler ComponentDropHandler { get; protected set; }
-        
-        BindableCollection<Entity> workFlowRoot = new BindableCollection<Entity>();
-        public BindableCollection<Entity> WorkFlowRoot
-        {
-            get => workFlowRoot;
-            protected set
-            {
-                this.workFlowRoot = value;
-                NotifyOfPropertyChange(() => WorkFlowRoot);
-            }
+        public IDropTarget ComponentDropHandler { get; protected set; }        
+      
+        public BindableCollection<Entity> WorkFlowRoot { get; set; } = new BindableCollection<Entity>();
 
-        }
 
         #endregion data members
 
         #region constructor
+
         public EditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver,
-            ISerializer serializer, IScriptExtactor scriptExtractor,
-            IToolBox[] toolBoxes)
+            ISerializer serializer, IScriptExtactor scriptExtractor,  IToolBox[] toolBoxes)
         {
-            this.globalEventAggregator = globalEventAggregator;
+            Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull();
+            Guard.Argument(toolBoxes, nameof(toolBoxes)).NotNull().NotEmpty();
+
+            this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
             this.globalEventAggregator.SubscribeOnUIThread(this);
 
-            this.serializer = serializer;
-            this.scriptExtractor = scriptExtractor;
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
 
             this.Tools.AddRange(toolBoxes);
-            foreach (var item in Tools)
-            {
-                if (item is IComponentBox)
-                {
-                    componentToolBox = item as IComponentBox;
-                    continue;
-                }               
-            }
-
+          
             this.EntityManager = new EntityManager(serviceResolver);
             this.ComponentDropHandler = new ComponentDropHandler();
         }
@@ -77,13 +64,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
-        public void AddComponent(Entity parent, IComponent childComponent)
-        {
-
-        }
-
         public void DeleteComponent(IComponent component)
         {
+            //TODO : Disable delete button on the root entity
+            if (component.Tag.Equals("Root"))
+            {
+                logger.Warning("Root entity can't be deleted");
+                return;
+            }
+
             IEnumerable<Editor.Core.ViewModels.ScriptStatus> scripts = default;
             if (component is Entity entity)
             {
@@ -112,18 +101,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 return;
             }
 
-            if (component.Tag.Equals("Root"))
-            {
-                logger.Warning("Root entity can't be deleted");
-                return;
-            }
-
             if (scripts?.Any() ?? false)
             {
                 foreach (var script in scripts)
                 {
-                    File.Delete(Path.Combine(this.EntityManager.GetCurrentFileSystem().WorkingDirectory, script.ScriptName));
-                    logger.Information($"Deleted script file {script.ScriptName}");
+                    try
+                    {
+                        File.Delete(Path.Combine(this.EntityManager.GetCurrentFileSystem().WorkingDirectory, script.ScriptName));
+                        logger.Information($"Deleted script file {script.ScriptName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Warning($"There was an error while trying to delete file : {script.ScriptName}");
+                        logger.Error(ex.Message, ex);
+                    }
                 }
             }         
 
@@ -173,7 +164,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, ex.Message);
+                    logger.Error(ex, ex.Message);
                 }
                 finally
                 {
@@ -210,7 +201,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, ex.Message);
+                    logger.Error(ex, ex.Message);
                 }
                 finally
                 {
@@ -226,13 +217,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Automation Project
 
+        public abstract Task DoSave();
+
+        public abstract Task Manage();
 
         public abstract Task EditDataModel();
-       
 
         public void DoUnload()
         {
             this.EntityManager?.Dispose();
+            this.EntityManager = null;
+        }
+
+        protected void UpdateWorkFlowRoot()
+        {
+            this.WorkFlowRoot.Clear();
+            this.WorkFlowRoot.Add(this.EntityManager.RootEntity);
+            this.BreadCrumbItems.Clear();
+            this.BreadCrumbItems.Add(this.EntityManager.RootEntity);
         }
 
 
@@ -245,7 +247,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public void ZoomInToEntity(Entity entity)
         {
             if (this.BreadCrumbItems.Contains(entity))
+            {
                 return;
+            }
             this.BreadCrumbItems.Add(entity);
             this.WorkFlowRoot[0] = entity;
         }
@@ -260,17 +264,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         #endregion Utilities
-
-        #region Save project
-
-        public abstract Task DoSave();
-
-
-        public abstract Task Manage();
-       
-
-        #endregion Save project
-
+     
         #region Close Screen
 
         public override bool CanClose()
@@ -317,7 +311,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected virtual void Dispose(bool isDisposing)
         {
             if(isDisposing)
-            {
+            {              
+                this.Tools.Clear();
+                this.WorkFlowRoot.Clear();
                 this.DoUnload();
             }
         }

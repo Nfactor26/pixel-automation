@@ -20,7 +20,19 @@ namespace Pixel.Automation.Core
         private IFileSystem fileSystem;
         private bool areDefaultServicesInitialized = false;
 
-        public Entity RootEntity { get; set; }
+        private Entity rootEntity;
+        public Entity RootEntity
+        {
+            get => rootEntity;
+            set
+            {
+                rootEntity = value;
+                if(rootEntity != null)
+                {
+                    rootEntity.EntityManager = this;
+                }
+            }
+        }
 
         [NonSerialized]
         object arguments;

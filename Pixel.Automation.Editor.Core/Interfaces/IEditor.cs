@@ -30,13 +30,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         Task Manage();
 
         /// <summary>
-        /// Addd Component to an Entity
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="componentToAdd"></param>
-        void AddComponent(Entity parent, IComponent componentToAdd);
-
-        /// <summary>
         /// Remove component from its parent
         /// </summary>
         /// <param name="component"></param>

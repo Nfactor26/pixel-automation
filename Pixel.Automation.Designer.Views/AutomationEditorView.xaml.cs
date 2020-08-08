@@ -7,9 +7,9 @@ using System.Windows.Input;
 namespace Pixel.Automation.Designer.Views
 {
     /// <summary>
-    /// Interaction logic for AutomationBuilderView.xaml
+    /// Interaction logic for AutomationEditorView.xaml
     /// </summary>
-    public partial class AutomationBuilderView : UserControl , INotifyPropertyChanged
+    public partial class AutomationEditorView : UserControl , INotifyPropertyChanged
     {
 
         double scaleX = 1.0;
@@ -77,11 +77,11 @@ namespace Pixel.Automation.Designer.Views
             }
         }
 
-        public AutomationBuilderView()
+        public AutomationEditorView()
         {
             InitializeComponent();
-            WorkFlowRoot.RequestBringIntoView += WorkFlowRoot_RequestBringIntoView;      
-        }
+            WorkFlowRoot.RequestBringIntoView += WorkFlowRoot_RequestBringIntoView;           
+        }      
 
         private void OnScroll(object sender, MouseWheelEventArgs e)
         {
@@ -175,6 +175,6 @@ namespace Pixel.Automation.Designer.Views
             this.TransformY = 0;
             this.ScaleX = 1;
             this.ScaleY = 1;
-        }
+        }      
     }
 }

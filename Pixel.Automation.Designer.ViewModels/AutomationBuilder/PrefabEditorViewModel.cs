@@ -10,20 +10,14 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
     public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
-    {
-        #region data members
-      
-        private Entity processRoot = default;      
-
-        #endregion data members
-
+    {      
         #region constructor
+     
         public PrefabEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
              IScriptExtactor scriptExtractor, IToolBox[] toolBoxes) :
             base(globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes)
@@ -50,12 +44,8 @@ namespace Pixel.Automation.Designer.ViewModels
             var targetVersion = versionToLoad ?? PrefabDescription.ActiveVersion;
             if (targetVersion != null)
             {
-                this.processRoot = this.projectManager.Load(prefabDescription, targetVersion);
-
-                this.EntityManager.RootEntity = this.processRoot;
-                this.WorkFlowRoot = new BindableCollection<Entity>();
-                this.WorkFlowRoot.Add(this.processRoot);
-                this.BreadCrumbItems.Add(this.processRoot);
+                this.projectManager.Load(prefabDescription, targetVersion);
+                UpdateWorkFlowRoot();
                 return;
             }
 
@@ -80,6 +70,8 @@ namespace Pixel.Automation.Designer.ViewModels
                 await windowManager.ShowDialogAsync(editor);               
             }
             await this.projectManager.Refresh();
+
+            UpdateWorkFlowRoot();
         }
 
         #endregion Automation Project     
@@ -109,10 +101,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async Task CloseAsync()
         {
-            this.Dispose();           
-            var shell = IoC.Get<IShell>();
-            await this.TryCloseAsync(true);
-            await (shell as ShellViewModel).DeactivateItemAsync(this, true, CancellationToken.None);
+            this.Dispose();         
+            await this.TryCloseAsync(true);        
         }
 
         public event EventHandler<PrefabUpdatedEventArgs> PrefabUpdated = delegate { };
