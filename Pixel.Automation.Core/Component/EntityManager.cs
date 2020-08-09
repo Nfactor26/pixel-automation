@@ -44,18 +44,21 @@ namespace Pixel.Automation.Core
             }
             set
             {
-                if (!areDefaultServicesInitialized)
+                if (this.arguments != value)
                 {
-                    this.serviceProvider.ConfigureDefaultServices(this.fileSystem, value.ToScriptArguments(this));
-                    areDefaultServicesInitialized = true;
-                }
-                else
-                {
-                    IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
-                    this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments?.ToScriptArguments(this), value?.ToScriptArguments(this));
-                }
-                this.arguments = value;
-                UpdateArgumentPropertiesInfo();
+                    if (!areDefaultServicesInitialized)
+                    {
+                        this.serviceProvider.ConfigureDefaultServices(this.fileSystem, value.ToScriptArguments(this));
+                        areDefaultServicesInitialized = true;
+                    }
+                    else
+                    {
+                        IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
+                        this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments?.ToScriptArguments(this), value?.ToScriptArguments(this));
+                    }
+                    this.arguments = value;
+                    UpdateArgumentPropertiesInfo();
+                }              
             }
         }
 

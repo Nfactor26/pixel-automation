@@ -27,7 +27,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IEventAggregator eventAggregator;
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private ApplicationDescription activeApplication;
-        private PrefabBuilderViewModel prefabBuilder;
+        private IPrefabBuilderViewModelFactory prefabBuilderFactory;
 
         public BindableCollection<PrefabDescription> Prefabs { get; set; } = new BindableCollection<PrefabDescription>();
       
@@ -37,10 +37,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
             ISerializer serializer, IWorkspaceManagerFactory workspaceManagerFactory,
-            PrefabBuilderViewModel prefabBuilder)
+            IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
             this.eventAggregator = eventAggregator;
-            this.prefabBuilder = prefabBuilder;
+            this.prefabBuilderFactory = prefabBuilderFactory;
             this.windowManager = windowManager;
             this.serializer = serializer;
             this.workspaceManagerFactory = workspaceManagerFactory;
@@ -64,7 +64,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 foreach(var prefabId in application.AvailablePrefabs)
                 {
-                    string prefabFile = Path.Combine("ApplicationsRepository", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
+                    string prefabFile = Path.Combine("Applications", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
                     if(File.Exists(prefabFile))
                     {
                         PrefabDescription prefabDescription = serializer.Deserialize<PrefabDescription>(prefabFile);
@@ -80,11 +80,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             Guard.Argument(entity).NotNull();
 
-            this.prefabBuilder.Initialize(this.activeApplication, entity);
-            var result = await windowManager.ShowDialogAsync(this.prefabBuilder);
+            var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilderViewModel();
+            prefabBuilder.Initialize(this.activeApplication, entity);
+            var result = await windowManager.ShowDialogAsync(prefabBuilder);
             if (result.HasValue && result.Value)
             {
-                var createdPrefab = this.prefabBuilder.SavePrefab();                 
+                var createdPrefab = prefabBuilder.SavePrefab();                 
                 this.Prefabs.Add(createdPrefab);
                 OnPrefabCreated(createdPrefab);
             }           
@@ -133,7 +134,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             Guard.Argument(prefabToSave).NotNull();
 
-            string prefabDescriptionFile = Path.Combine("ApplicationsRepository", prefabToSave.ApplicationId, "Prefabs", prefabToSave.PrefabId, "PrefabDescription.dat");
+            string prefabDescriptionFile = Path.Combine("Applications", prefabToSave.ApplicationId, "Prefabs", prefabToSave.PrefabId, "PrefabDescription.dat");
             serializer.Serialize<PrefabDescription>(prefabDescriptionFile, prefabToSave);
             if(!this.Prefabs.Contains(prefabToSave))
             {
