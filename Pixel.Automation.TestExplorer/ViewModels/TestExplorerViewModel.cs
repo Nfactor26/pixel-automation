@@ -1,12 +1,13 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Editor.Core;
-using System.Collections.Generic;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class TestExplorerViewModel : ToolBox, ITestExplorer 
-    {      
-       
+    {
+        private readonly object locker = new object();
+
         public TestRepositoryManager ActiveInstance { get; set; }
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
@@ -21,24 +22,22 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public void SetActiveInstance(object instance)
         {
-            this.ActiveInstance = instance as TestRepositoryManager;
+            Guard.Argument(instance).NotNull().Compatible<TestRepositoryManager>();
+            lock (locker)
+            {
+                this.ActiveInstance = instance as TestRepositoryManager;
+            }
+         
             NotifyOfPropertyChange(nameof(ActiveInstance));
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
 
-        public void CloseActiveInstance()
-        {         
-            if(this.ActiveInstance != null)
+        public void ClearActiveInstance()
+        { 
+            lock(locker)
             {
-                var openTests = new List<TestCaseViewModel>(this.ActiveInstance.OpenTestCases);
-                foreach (var testCase in openTests)
-                {
-                    this.ActiveInstance.DoneEditing(testCase, false);
-                }
-
-                this.ActiveInstance = null;
+                this.ActiveInstance = null;               
             }
-           
             NotifyOfPropertyChange(nameof(ActiveInstance));
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
@@ -56,10 +55,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if(this.ActiveInstance != null)
-            {
-                CloseActiveInstance();
-            }          
+            ClearActiveInstance();
         }
      
         public void Dispose()

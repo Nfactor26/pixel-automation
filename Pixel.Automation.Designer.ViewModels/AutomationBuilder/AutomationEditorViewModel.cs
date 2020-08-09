@@ -164,8 +164,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            this.testExplorerToolBox?.CloseActiveInstance();
-            this.testDataRepositoryViewModel?.CloseActiveInstance();
+            this.testExplorerToolBox?.ClearActiveInstance();
+            this.testDataRepositoryViewModel?.ClearActiveInstance();
             await base.OnDeactivateAsync(close, cancellationToken);
             logger.Information($"Automation Project : {this.CurrentProject.Name} was deactivated");
         }
@@ -220,8 +220,14 @@ namespace Pixel.Automation.Designer.ViewModels
             this.globalEventAggregator.Unsubscribe(this);
 
             //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.
-            this.testExplorerToolBox?.CloseActiveInstance();
-            this.testDataRepositoryViewModel?.CloseActiveInstance();
+            this.testExplorerToolBox?.ClearActiveInstance();
+            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
+            foreach (var testEntity in testCaseEntities)
+            {
+                this.testCaseManager.DoneEditing(testEntity.Tag);
+            }
+
+            this.testDataRepositoryViewModel?.ClearActiveInstance();
             this.testDataRepository = null;
             this.testCaseManager = null;
             this.projectManager = null;                                                

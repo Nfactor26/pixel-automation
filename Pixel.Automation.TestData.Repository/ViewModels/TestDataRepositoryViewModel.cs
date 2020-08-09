@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Notfications;
 
@@ -8,6 +9,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataRepositoryViewModel : ToolBox , IHandle<ShowTestDataSourceNotification>
     {
+        private readonly object locker = new object();
+
         public TestDataRepository ActiveInstance { get; set; }
 
         public override PaneLocation PreferredLocation => PaneLocation.Bottom;
@@ -40,17 +43,21 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public void SetActiveInstance(object instance)
         {
-            if (instance is TestDataRepository)
+            Guard.Argument(instance).NotNull().Compatible<TestDataRepository>();
+            lock (locker)
             {
                 this.ActiveInstance = instance as TestDataRepository;
-                NotifyOfPropertyChange(nameof(ActiveInstance));
-                NotifyOfPropertyChange(nameof(IsTestProcessOpen));
             }
+            NotifyOfPropertyChange(nameof(ActiveInstance));
+            NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
 
-        public void CloseActiveInstance()
+        public void ClearActiveInstance()
         {
-            this.ActiveInstance = null;
+            lock (locker)
+            {
+                this.ActiveInstance = null;
+            }
             NotifyOfPropertyChange(nameof(ActiveInstance));
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
