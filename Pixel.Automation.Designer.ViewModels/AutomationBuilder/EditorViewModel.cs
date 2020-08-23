@@ -153,13 +153,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     NotifyOfPropertyChange(() => CanRunComponent);
                     NotifyOfPropertyChange(() => CanResetProcessorComponents);
 
-                    if (component is ActorComponent)
+                    if (component is ActorComponent actorComponent)
                     {
-                        (component as ActorComponent).Act();
+                        actorComponent.Act();
                     }
-                    else if (component is IEntityProcessor)
+                    else if(component is AsyncActorComponent asyncActorComponent)
                     {
-                        await (component as IEntityProcessor).BeginProcess();
+                        await asyncActorComponent.ActAsync();
+                    }
+                    else if (component is IEntityProcessor entityProcessor)
+                    {
+                        await entityProcessor.BeginProcess();
                     }
                 }
                 catch (Exception ex)
