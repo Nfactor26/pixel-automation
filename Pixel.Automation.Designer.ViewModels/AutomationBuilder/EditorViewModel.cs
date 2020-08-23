@@ -28,6 +28,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly IEventAggregator globalEventAggregator;
         protected readonly ISerializer serializer;
         protected readonly IScriptExtactor scriptExtractor;
+        protected readonly ApplicationSettings applicationSettings;
      
         public EntityManager EntityManager { get; private set; }
 
@@ -43,7 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #region constructor
 
         public EditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver,
-            ISerializer serializer, IScriptExtactor scriptExtractor,  IToolBox[] toolBoxes)
+            ISerializer serializer, IScriptExtactor scriptExtractor,  IToolBox[] toolBoxes, IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
         {
             Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull();
             Guard.Argument(toolBoxes, nameof(toolBoxes)).NotNull().NotEmpty();
@@ -53,11 +54,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
-
+            this.ComponentDropHandler = Guard.Argument(componentDropHandler, nameof(componentDropHandler)).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             this.Tools.AddRange(toolBoxes);
           
             this.EntityManager = new EntityManager(serviceResolver);
-            this.ComponentDropHandler = new ComponentDropHandler();
+         
         }
 
         #endregion constructor

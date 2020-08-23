@@ -28,6 +28,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
+        private readonly ApplicationSettings applicationSettings;
 
         public BindableCollection<PrefabDescription> Prefabs { get; set; } = new BindableCollection<PrefabDescription>();
       
@@ -37,13 +38,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
             ISerializer serializer, IWorkspaceManagerFactory workspaceManagerFactory,
-            IPrefabBuilderViewModelFactory prefabBuilderFactory)
+            IPrefabBuilderViewModelFactory prefabBuilderFactory, ApplicationSettings applicationSettings)
         {
             this.eventAggregator = eventAggregator;
             this.prefabBuilderFactory = prefabBuilderFactory;
             this.windowManager = windowManager;
             this.serializer = serializer;
             this.workspaceManagerFactory = workspaceManagerFactory;
+            this.applicationSettings = applicationSettings;
             CreateCollectionView();
         }
 
@@ -116,7 +118,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             try
             {               
-                PrefabVersionManagerViewModel deployPrefabViewModel = new PrefabVersionManagerViewModel(targetPrefab, this.workspaceManagerFactory, this.serializer);
+                PrefabVersionManagerViewModel deployPrefabViewModel = new PrefabVersionManagerViewModel(targetPrefab, this.workspaceManagerFactory, this.serializer, this.applicationSettings);
                 var result = await windowManager.ShowDialogAsync(deployPrefabViewModel);
                 if (result.GetValueOrDefault())
                 {

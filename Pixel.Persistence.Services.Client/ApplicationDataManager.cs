@@ -219,7 +219,7 @@ namespace Pixel.Persistence.Services.Client
         {
             foreach (var controlId in applicationDescription.AvailableControls)
             {
-                string controlFile = Path.Combine("ApplicationsRepository", applicationDescription.ApplicationId, "Controls", controlId, $"{controlId}.dat");
+                string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, "Controls", controlId, $"{controlId}.dat");
 
                 if (File.Exists(controlFile))
                 {

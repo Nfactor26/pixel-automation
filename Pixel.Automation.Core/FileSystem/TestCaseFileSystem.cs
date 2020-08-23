@@ -12,7 +12,7 @@ namespace Pixel.Automation.Core
         public string TestProcessFile { get; private set; }
 
 
-        public TestCaseFileSystem(ISerializer serializer) : base(serializer)
+        public TestCaseFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
         }

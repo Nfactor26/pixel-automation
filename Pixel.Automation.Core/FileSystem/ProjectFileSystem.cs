@@ -6,8 +6,7 @@ using System.IO;
 namespace Pixel.Automation.Core
 {
     public class ProjectFileSystem : VersionedFileSystem, IProjectFileSystem
-    {
-        private readonly string automationsDirectory = "Automations";
+    {      
         private string projectId;
 
         public string ProjectFile { get; private set; }
@@ -18,7 +17,7 @@ namespace Pixel.Automation.Core
 
         public string TestDataRepository { get; protected set; }
      
-        public ProjectFileSystem(ISerializer serializer) : base(serializer)
+        public ProjectFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
         }
@@ -27,10 +26,10 @@ namespace Pixel.Automation.Core
         {
             this.ActiveVersion = versionInfo;
             this.projectId = projectId;
-            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, versionInfo.ToString());
+            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());
             this.TestCaseRepository = Path.Combine(this.WorkingDirectory, "TestCases");
             this.TestDataRepository = Path.Combine(this.WorkingDirectory, "TestDataRepository");
-            this.ProjectFile = Path.Combine(Environment.CurrentDirectory, automationsDirectory, projectId, $"{projectId}.atm");
+            this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
             this.ProcessFile = Path.Combine(this.WorkingDirectory, $"{projectId}.proc");
 
             if (!Directory.Exists(TestCaseRepository))
@@ -52,7 +51,7 @@ namespace Pixel.Automation.Core
 
         public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testCaseId)
         {
-            var fileSystem = new TestCaseFileSystem(this.serializer);
+            var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings);
             fileSystem.Initialize(this.WorkingDirectory, testCaseId);
             return fileSystem;
         }

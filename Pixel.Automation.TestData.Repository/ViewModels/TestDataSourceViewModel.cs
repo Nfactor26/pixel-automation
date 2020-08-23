@@ -150,7 +150,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            openFileDialog.InitialDirectory = "Automations";
+            openFileDialog.InitialDirectory = fileSystem.WorkingDirectory;
             if (openFileDialog.ShowDialog() == true)
             {
                 string selectedFile = openFileDialog.FileName;

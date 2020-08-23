@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
@@ -19,8 +20,8 @@ namespace Pixel.Automation.Designer.ViewModels
         #region constructor
      
         public PrefabEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
-             IScriptExtactor scriptExtractor, IToolBox[] toolBoxes) :
-            base(globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes)
+             IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
+            base(globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
         {
         }
 
@@ -88,7 +89,7 @@ namespace Pixel.Automation.Designer.ViewModels
             await DoSave();
 
             var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
-            PrefabVersionManagerViewModel versionManager = new PrefabVersionManagerViewModel(this.PrefabDescription, workspaceManagerFactory, this.serializer);
+            PrefabVersionManagerViewModel versionManager = new PrefabVersionManagerViewModel(this.PrefabDescription, workspaceManagerFactory, this.serializer, this.applicationSettings);
             IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
             await windowManager.ShowDialogAsync(versionManager);
 

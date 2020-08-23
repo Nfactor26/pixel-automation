@@ -23,6 +23,13 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
     public class ComponentDropHandler : IDropTarget
     {
         private readonly ILogger logger = Log.ForContext<ComponentDropHandler>();
+        private readonly ApplicationSettings applicationSettings;
+
+        public ComponentDropHandler(ApplicationSettings applicationSettings)
+        {
+            this.applicationSettings = applicationSettings;
+        }
+
 
         public void DragOver(IDropInfo dropInfo)
         {
@@ -361,7 +368,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     ControlEntity controlEntity = Activator.CreateInstance(containerEntityAttribute.ContainerEntityType)
                         as ControlEntity;
                     controlEntity.Name = controlItem.ControlName;
-                    controlEntity.ControlFile = Path.Combine("ApplicationsRepository", controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
+                    controlEntity.ControlFile = Path.Combine(applicationSettings.ApplicationDirectory, controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
                     targetEntity.AddComponent(controlEntity);
                 }
                 
@@ -395,7 +402,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         Name = $"Details : {sourceItem.ApplicationName}",
                         ApplicationId = sourceItem.ApplicationId,
                         EntityManager = targetEntity.EntityManager,
-                        ApplicationFile = Path.Combine("ApplicationsRepository", sourceItem.ApplicationId, $"{sourceItem.ApplicationId}.app")
+                        ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, sourceItem.ApplicationId, $"{sourceItem.ApplicationId}.app")
                     
                     };
                     appDetailsEntity.GetTargetApplicationDetails();

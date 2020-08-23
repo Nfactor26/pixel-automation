@@ -19,6 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
         private readonly AutomationProject automationProject;
+        private readonly ApplicationSettings applicationSettings;
 
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
 
@@ -34,16 +35,17 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
        
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory, 
-            IApplicationDataManager applicationDataManager, ISerializer serializer)
+            IApplicationDataManager applicationDataManager, ISerializer serializer, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             foreach (var version in this.automationProject.AvailableVersions)
             {
-                IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer);
+                IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, applicationSettings);
                 AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, version, projectFileSystem));
             }
         }
@@ -71,7 +73,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                   
                     //Create a new active version from selected version
                     ProjectVersion newVersion = this.SelectedVersion.Clone();
-                    IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer);
+                    IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
                     projectFileSystem.Initialize(this.automationProject.Name, newVersion);                   
 
                     //Deploy the selected version

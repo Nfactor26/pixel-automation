@@ -10,7 +10,9 @@ namespace Pixel.Automation.Core
 {
     public abstract class FileSystem : IFileSystem
     {
-        protected readonly ISerializer serializer;     
+        protected readonly ISerializer serializer;
+
+        protected readonly ApplicationSettings applicationSettings;
 
         public string ReferencesFile => Path.Combine(this.DataModelDirectory, "AssemblyReferences.dat");
 
@@ -24,9 +26,10 @@ namespace Pixel.Automation.Core
 
         public string ReferencesDirectory { get; protected set; }      
 
-        public FileSystem(ISerializer serializer)
+        public FileSystem(ISerializer serializer, ApplicationSettings applicationSettings)
         {
             this.serializer = serializer;
+            this.applicationSettings = applicationSettings;
         }
 
         protected void Initialize()
@@ -167,7 +170,7 @@ namespace Pixel.Automation.Core
 
         public abstract void SwitchToVersion(VersionInfo versionInfo);
 
-        public VersionedFileSystem(ISerializer serializer) : base(serializer)
+        public VersionedFileSystem(ISerializer  serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
            
         }

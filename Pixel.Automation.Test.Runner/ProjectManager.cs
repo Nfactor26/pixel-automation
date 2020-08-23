@@ -53,7 +53,7 @@ namespace Pixel.Automation.Test.Runner
 
             logger.Information($"Trying to load version {projectVersion} for project : {projectName}");
 
-            this.automationProject = serializer.Deserialize<AutomationProject>(Path.Combine("Automations", projectName, $"{projectName}.atm"), null);
+            this.automationProject = serializer.Deserialize<AutomationProject>(this.fileSystem.ProjectFile, null);
             if (!Version.TryParse(projectVersion, out Version version))
             {
                 throw new ArgumentException($"{nameof(projectVersion)} : {projectVersion} doesn't have a valid format");

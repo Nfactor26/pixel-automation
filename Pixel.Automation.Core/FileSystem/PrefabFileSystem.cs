@@ -9,8 +9,7 @@ using System.Text.RegularExpressions;
 namespace Pixel.Automation.Core
 {
     public class PrefabFileSystem : VersionedFileSystem, IPrefabFileSystem
-    {
-        private readonly string applicationsDirectory = "ApplicationsRepository";
+    {      
         private readonly string prefabsDirectory = "Prefabs";
         private string applicationId;
         private string prefabId;     
@@ -22,7 +21,7 @@ namespace Pixel.Automation.Core
         public string TemplateFile { get; private set; }
 
      
-        public PrefabFileSystem(ISerializer serializer) : base(serializer)
+        public PrefabFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
         }
@@ -34,17 +33,17 @@ namespace Pixel.Automation.Core
             this.applicationId = applicationId;
             this.prefabId = prefabId;        
 
-            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationsDirectory, applicationId, prefabsDirectory, prefabId, version.ToString());    
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationsDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
+            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, version.ToString());    
+            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
             this.PrefabFile = Path.Combine(this.WorkingDirectory, "Prefab.dat");
-            this.TemplateFile = Path.Combine(Environment.CurrentDirectory, applicationsDirectory, applicationId, prefabsDirectory, prefabId, "Template.dat");
+            this.TemplateFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "Template.dat");
 
             base.Initialize();
         }
 
         public void Initialize(string applicationId, string prefabId)
         {
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationsDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
+            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
             PrefabDescription prefabDescription = this.serializer.Deserialize<PrefabDescription>(this.PrefabDescriptionFile);
             var deployedVersions = prefabDescription.DeployedVersions.OrderBy(a => a.Version);
             var latestVersion = deployedVersions.LastOrDefault();

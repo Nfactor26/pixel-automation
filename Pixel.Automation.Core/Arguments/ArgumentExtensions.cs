@@ -82,8 +82,8 @@ namespace Pixel.Automation.Core
 
             string containedInDll = argument.GetArgumentType().Assembly.Location;
 
-            //include those in application directory but not in Automations folder i.e. dynamically compiled dll's by project
-            if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.StartsWith(Path.Combine(Environment.CurrentDirectory, "Automations")))
+            //include those in application directory but not in Temp folder i.e. dynamically compiled dll's by project.
+            if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp"))
             {
                 distinctReferences.Add(Path.GetFileName(containedInDll));
             }
@@ -92,7 +92,7 @@ namespace Pixel.Automation.Core
                 foreach (var type in argument.GetArgumentType().GenericTypeArguments)
                 {
                     containedInDll = type.Assembly.Location;
-                    if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.StartsWith(Path.Combine(Environment.CurrentDirectory, "Automations")) && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
+                    if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp") && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
                     {
                         distinctReferences.Add(Path.GetFileName(containedInDll));
                     }

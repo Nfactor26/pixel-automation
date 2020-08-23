@@ -16,6 +16,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private readonly ISerializer serializer;
         private readonly PrefabDescription prefabDescription;
+        private readonly ApplicationSettings applicationSettings;
 
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
 
@@ -31,15 +32,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
 
-        public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, ISerializer serializer)
+        public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, ISerializer serializer, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = workspaceManagerFactory;
             this.serializer = serializer;
             this.prefabDescription = prefabDescription;
+            this.applicationSettings = applicationSettings;
             foreach (var version in this.prefabDescription.AvailableVersions)
             {
-                IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer);
+                IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
                 AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, version, fileSystem));
             }
         }
@@ -66,7 +68,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     //Create a new active version from selected version
                     PrefabVersion newVersion = this.SelectedVersion.Clone();
 
-                    IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer);
+                    IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
                     fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, newVersion);
                     AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, newVersion, fileSystem));
 

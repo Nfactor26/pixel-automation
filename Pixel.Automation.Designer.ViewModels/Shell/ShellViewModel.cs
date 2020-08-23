@@ -9,7 +9,6 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +29,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
         ISerializer serializer;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
+        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts,
+            IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
         {
             Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
             Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
@@ -62,12 +62,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public async Task DoNew()
         {
             logger.Debug("DoNew start");
-            if (!Directory.Exists("Automations"))
-            {
-                Directory.CreateDirectory("Automations");
-                logger.Information("Created folder Automations");
-            }
-
+            
             IWindowManager windowManager = IoC.Get<IWindowManager>();
             INewProject newProjectVM = IoC.Get<INewProject>();
             AutomationProject newProject = newProjectVM.NewProject;
@@ -109,7 +104,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
-            openFileDialog.InitialDirectory = "Automations";
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
             if (openFileDialog.ShowDialog() == true)
             {
                 return openFileDialog.FileName;

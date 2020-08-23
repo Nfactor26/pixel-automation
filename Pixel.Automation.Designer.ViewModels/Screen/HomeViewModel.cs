@@ -84,7 +84,7 @@ namespace Pixel.Automation.Designer.ViewModels
                             break;
                         case ".proc":
                             string projectFileName = Path.GetFileNameWithoutExtension(fileToOpen);
-                            automationProject = serializer.Deserialize<AutomationProject>($"Automations\\{projectFileName}\\{projectFileName}.atm", null);
+                            automationProject = serializer.Deserialize<AutomationProject>(this.applicationDataManager.GetProjectFile(automationProject), null);
                             break;
                     }
 

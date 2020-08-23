@@ -61,7 +61,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 this.NewProject.LastOpened = DateTime.Now;
 
-                //create a directory inside Automations directory with name equal to newProject name
+                //create a directory inside projects directory with name equal to newProject name
                 string projectFolder = this.applicationDataManager.GetProjectDirectory(this.NewProject);
                 if (Directory.Exists(projectFolder))
                 {

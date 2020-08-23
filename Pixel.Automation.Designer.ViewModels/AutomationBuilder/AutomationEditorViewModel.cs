@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
@@ -38,9 +39,9 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #region constructor
         public AutomationEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
-            IScriptExtactor scriptExtractor, IToolBox[] toolBoxes) : base(
-            globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes)
-        {
+            IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
+            globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
+        {        
         
             foreach (var item in Tools)
             {               
@@ -185,7 +186,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
             var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
             var applicationDataManager = this.EntityManager.GetServiceOfType<IApplicationDataManager>();
-            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, applicationDataManager, this.serializer);
+            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, applicationDataManager, this.serializer, this.applicationSettings);
             IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
             await windowManager.ShowDialogAsync(versionManager);
 
