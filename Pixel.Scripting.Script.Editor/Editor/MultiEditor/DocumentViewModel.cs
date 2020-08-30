@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System.Linq;
 
 namespace Pixel.Scripting.Script.Editor.MultiEditor
 {
@@ -49,7 +48,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {
             if(SelectedDocument?.IsModified ?? false)
             {
-                this.editor.SaveDocument(SelectedDocument.DocumentName);
+                this.editor.SaveDocument(SelectedDocument.DocumentName, SelectedDocument.ProjectName);
                 SelectedDocument.IsModified = false;
             }
             NotifyOfPropertyChange(() => CanSave);
@@ -61,7 +60,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             {
                 if(document.IsModified)
                 {
-                    this.editor.SaveDocument(document.DocumentName);
+                    this.editor.SaveDocument(document.DocumentName, document.ProjectName);
                     document.IsModified = false;
                 }
             }
@@ -71,7 +70,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {
             if(editableDocument != null)
             {
-                editor.OpenDocumentAsync(editableDocument.DocumentName);
+                editor.OpenDocumentAsync(editableDocument.DocumentName, editableDocument.ProjectName);
             }
         }
 
@@ -79,7 +78,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {
             if (editableDocument != null && !editableDocument.IsOpen)
             {
-                editor.DeleteDocument(editableDocument.DocumentName);
+                editor.DeleteDocument(editableDocument.DocumentName, editableDocument.ProjectName);
             }          
         }
 

@@ -19,6 +19,7 @@ using Pixel.Scripting.Editor.Services.CodeActions;
 using Pixel.Scripting.Editor.Services.Completion;
 using Pixel.Scripting.Editor.Services.CSharp;
 using Pixel.Scripting.Editor.Services.CSharp.Formatting;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,6 +32,8 @@ namespace Pixel.Script.Editor.Services.CSharp
 {
     public class EditorService : IEditorService
     {
+        private readonly ILogger logger = Log.ForContext<EditorService>();
+
         private WorkspaceOptions editorOptions;
         private AdhocWorkspaceManager workspaceManager;
         private IntellisenseService intelliSenseService;
@@ -58,19 +61,20 @@ namespace Pixel.Script.Editor.Services.CSharp
             return this.workspaceManager;
         }
 
-        public void Initialize(WorkspaceOptions editorOptions, Type globalsType)
+        public void Initialize(WorkspaceOptions editorOptions)
         {
             ClearState();
             
             this.editorOptions = editorOptions;
-            if (globalsType == null)
+            switch(editorOptions.WorkspaceType)
             {
-                this.workspaceManager = new CodeWorkspaceManager(editorOptions.WorkingDirectory);
-            }
-            else
-            {
-                this.workspaceManager = new ScriptWorkSpaceManager(editorOptions.WorkingDirectory, globalsType);
-            }
+                case WorkspaceType.Code:
+                    this.workspaceManager = new CodeWorkspaceManager(editorOptions.WorkingDirectory);
+                    break;
+                case WorkspaceType.Script:
+                    this.workspaceManager = new ScriptWorkSpaceManager(editorOptions.WorkingDirectory);
+                    break;
+            }           
 
             this.workspaceManager.WithAssemblyReferences(editorOptions.AssemblyReferences ?? Array.Empty<string>());
 
@@ -97,11 +101,15 @@ namespace Pixel.Script.Editor.Services.CSharp
                         return null;
                     }
 
-                    DiagnosticResultEx diagnosticResult = new DiagnosticResultEx();
+                   
                     var document = workspaceManager.GetDocumentById(diagnosticEventData.DocumentId);
                     var project = diagnosticEventData.Solution.GetProject(diagnosticEventData.ProjectId);
-                    diagnosticResult.Id = diagnosticEventData.Id;
-                    diagnosticResult.FileName = document.Name;
+                    DiagnosticResultEx diagnosticResult = new DiagnosticResultEx()
+                    {
+                        Id = diagnosticEventData.Id,
+                        FileName = document.Name,
+                        ProjectName = project.Name
+                    };                   
                     List<DiagnosticLocation> quickFixes = new List<DiagnosticLocation>();
                     foreach (var diagnosticData in diagnosticEventData.Diagnostics)
                     {
@@ -135,6 +143,8 @@ namespace Pixel.Script.Editor.Services.CSharp
             }
 
             OnWorkspaceChanged(new WorkspaceChangedEventArgs());
+
+            logger.Information($"{nameof(EditorService)} of type {editorOptions.WorkspaceType} is initialized now.");
         }
 
         public void SwitchToDirectory(string directory)
@@ -185,18 +195,18 @@ namespace Pixel.Script.Editor.Services.CSharp
         private void ClearState()
         {
             if (this.workspaceManager != null)
-            {                    
+            {                
                 this.workspaceManager.Dispose();
+                logger.Information("Disposed workspace manager for editor service");
             }
         }
 
         /// <inheritdoc/>
         public void CreateFileIfNotExists(string targetFile, string initialContent)
-        {
-            //TODO : Path should not be relative as well. We are expecting only filename.
+        {          
             if (Path.IsPathRooted(targetFile))
             {
-                throw new ArgumentException($"{targetFile} must be  relative path to working directory .");
+                throw new ArgumentException($"{targetFile} must be  relative path to working directory.");
             }
 
             string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetFile);
@@ -215,25 +225,25 @@ namespace Pixel.Script.Editor.Services.CSharp
             {
                 return File.ReadAllText(documentLocation);
             }
-            throw new FileNotFoundException($"{targetFile} doesn't exist at location {workspaceManager.GetWorkingDirectory()}");
+            throw new FileNotFoundException($"{targetFile} doesn't exist at location {documentLocation}");
         }
 
         /// <inheritdoc/>
-        public bool HasDocument(string targetDocument)
+        public bool HasDocument(string targetDocument, string ownerProject)
         {
-            return this.workspaceManager.HasDocument(targetDocument);
+            return this.workspaceManager.HasDocument(targetDocument, ownerProject);
         }
 
         /// <inheritdoc/>
-        public void AddDocument(string targetDocument, string documentContent)
+        public void AddDocument(string targetDocument, string addToProject, string documentContent)
         {
-            this.workspaceManager.AddDocument(targetDocument, documentContent);
+            this.workspaceManager.AddDocument(targetDocument, addToProject, documentContent);
         }
 
         /// <inheritdoc/>
-        public void RemoveDocument(string targetDocument)
+        public void RemoveDocument(string targetDocument, string removeFromProject)
         {
-            if(this.workspaceManager.TryRemoveDocument(targetDocument))
+            if(this.workspaceManager.TryRemoveDocument(targetDocument, removeFromProject))
             {
                 string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetDocument);
                 File.Delete(documentLocation);
@@ -244,27 +254,27 @@ namespace Pixel.Script.Editor.Services.CSharp
         }
 
         /// <inheritdoc/>
-        public void SetContent(string targetDocument, string documentContent)
+        public void SetContent(string targetDocument, string ownerProject, string documentContent)
         {
             _ =  UpdateBufferAsync(new UpdateBufferRequest() { FileName = targetDocument, Buffer = documentContent });           
         }
 
         /// <inheritdoc/>
-        public void SaveDocument(string targetDocument)
+        public void SaveDocument(string targetDocument, string ownerProject)
         {
-            this.workspaceManager.SaveDocument(targetDocument);
+            this.workspaceManager.SaveDocument(targetDocument, ownerProject);
         }
 
         /// <inheritdoc/>
-        public bool TryOpenDocument(string targetDocument)
+        public bool TryOpenDocument(string targetDocument, string ownerProject)
         {
-            return this.workspaceManager.TryOpenDocument(targetDocument);
+            return this.workspaceManager.TryOpenDocument(targetDocument, ownerProject);
         }
 
         /// <inheritdoc/>
-        public bool TryCloseDocument(string targetDocument)
+        public bool TryCloseDocument(string targetDocument, string ownerProject)
         {
-            return this.workspaceManager.TryCloseDocument(targetDocument);
+            return this.workspaceManager.TryCloseDocument(targetDocument, ownerProject);
         }
 
         public async Task UpdateBufferAsync(UpdateBufferRequest request)

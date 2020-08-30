@@ -19,10 +19,10 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
 
         public async Task<GetCodeActionsResponse> GetCodeActionsAsync(GetCodeActionsRequest request)
         {
-            if (!this.workspaceManager.IsDocumentOpen(request.FileName))
+            if (!this.workspaceManager.IsDocumentOpen(request.FileName, request.ProjectName))
+            {
                 return emptyResponse;
-
-
+            }
             var availableActions = await GetAvailableCodeActions(request);
 
             return new GetCodeActionsResponse

@@ -16,11 +16,12 @@ namespace Pixel.Scripting.Script.Editor.Features
     class TextManager : IDisposable
     {
         private readonly IEditorService editorService;
-        private readonly TextEditor textEditor;  
+        private readonly CodeTextEditor textEditor;  
         private OverloadInsightWindow insightWindow;
         private CompletionWindow completionWindow;
         private Brush completionBackGround;
-        public TextManager(IEditorService editorService, TextEditor textEditor)
+      
+        public TextManager(IEditorService editorService, CodeTextEditor textEditor)
         {
             this.editorService = editorService;
             this.textEditor = textEditor;         
@@ -78,7 +79,8 @@ namespace Pixel.Scripting.Script.Editor.Features
                     var currentLocation = this.textEditor.Document.GetLocation(this.textEditor.CaretOffset);
                     var signatureOverloads = await editorService.GetSignaturesAsync(new SignatureHelpRequest()
                     {
-                        FileName = this.textEditor.Document.FileName,
+                        FileName = this.textEditor.FileName,
+                        ProjectName = this.textEditor.ProjectName,
                         Line = currentLocation.Line - 1,
                         Column = currentLocation.Column - 2
                     });
@@ -106,7 +108,8 @@ namespace Pixel.Scripting.Script.Editor.Features
                 var currentLocation = this.textEditor.Document.GetLocation(this.textEditor.CaretOffset);
                 var completions = await this.editorService.GetCompletionsAsync(new AutoCompleteRequest()
                 {
-                    FileName = this.textEditor.Document.FileName,
+                    FileName = this.textEditor.FileName,
+                    ProjectName = this.textEditor.ProjectName,
                     Line = currentLocation.Line - 1,
                     Column = currentLocation.Column - 1,
                     TriggerCharacter = triggerChar,

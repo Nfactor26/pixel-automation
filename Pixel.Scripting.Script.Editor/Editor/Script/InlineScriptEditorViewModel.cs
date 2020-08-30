@@ -11,7 +11,8 @@ namespace Pixel.Scripting.Script.Editor.Script
 {
     public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged
     {
-        private string targetDocument;      
+        private string targetDocument;
+        private string ownerProject;
         private readonly IEditorService editorService;
 
         public CodeTextEditor Editor { get; private set; }
@@ -54,7 +55,7 @@ namespace Pixel.Scripting.Script.Editor.Script
                 VerticalAlignment = VerticalAlignment.Stretch,
                 WordWrap = true
             };
-            OpenDocument(this.targetDocument);
+            OpenDocument(this.targetDocument, this.ownerProject, string.Empty);
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
             OnPropertyChanged(nameof(Editor));          
@@ -71,39 +72,43 @@ namespace Pixel.Scripting.Script.Editor.Script
             Deactivate();
         }
 
-        public virtual void OpenDocument(string targetDocument, string initialContent = "")
+        public virtual void OpenDocument(string targetDocument, string ownerProject, string initialContent)
         {          
             this.targetDocument = targetDocument;
+            this.ownerProject = ownerProject;
             this.editorService.CreateFileIfNotExists(targetDocument, initialContent);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
-            this.Editor.OpenDocument(targetDocument);
-            //Activate();
+            string fileContents = this.editorService.GetFileContentFromDisk(targetDocument);
+            if (!this.editorService.HasDocument(this.targetDocument, this.ownerProject))
+            {
+                this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);
+                this.editorService.SetContent(targetDocument, ownerProject, fileContents);
+            }          
+            this.Editor.OpenDocument(targetDocument, ownerProject);
+            this.Editor.Text = fileContents;
         }
 
-        public void SetContent(string targetDocument, string documentContent)
+
+        public void SetContent(string documentName, string ownerProject, string documentContent)
         {
-            this.editorService.SetContent(targetDocument, documentContent);
+            this.editorService.SetContent(targetDocument, ownerProject, documentContent);
             this.Editor.Text = documentContent;
         }
-
+     
         public virtual void CloseDocument(bool save = true)
         {
             if(this.targetDocument != null)
             {
                 if (save)
                 {
-                    this.editorService.SaveDocument(this.targetDocument);
+                    this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
                 }
-                this.editorService.TryCloseDocument(this.targetDocument);
+                this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
             }           
         }
 
         public virtual void Activate()
-        {
-            if (!this.editorService.HasDocument(this.targetDocument))
-                this.editorService.AddDocument(this.targetDocument, this.Editor.Text);
-            this.editorService.TryOpenDocument(this.targetDocument);
-         
+        {            
+            this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);         
         }
 
         public virtual void Deactivate()

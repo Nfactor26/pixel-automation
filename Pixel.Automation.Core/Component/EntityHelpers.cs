@@ -331,6 +331,23 @@ namespace Pixel.Automation.Core
             }
             throw new MissingComponentException($"Ancestor of type :{typeof(T)} could not be located");
         }
+
+        public static bool TryGetAnsecstorOfType<T>(this IComponent component, out T ancestor) where T : class, IComponent
+        {
+            var parent = component.Parent;
+            while (parent != null)
+            {
+                if (parent is T requiredComponent)
+                {
+                    ancestor = requiredComponent;
+                    return true;
+                }
+
+                parent = parent.Parent;
+            }
+            ancestor = null;
+            return false;
+        }
     }
    
 }

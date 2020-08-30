@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
 
 namespace Pixel.Scripting.Common.CSharp
 {
@@ -13,10 +12,10 @@ namespace Pixel.Scripting.Common.CSharp
             return new CodeWorkspaceManager(workingDirectory);
         }
 
-        public IScriptWorkspaceManager CreateScriptWorkspaceManager(string workingDirectory, Type globalsType)
+        public IScriptWorkspaceManager CreateScriptWorkspaceManager(string workingDirectory)
         {
             Guard.Argument(workingDirectory).NotEmpty().NotNull();     
-            return new ScriptWorkSpaceManager(workingDirectory, globalsType);
+            return new ScriptWorkSpaceManager(workingDirectory);
         }
     }
 }

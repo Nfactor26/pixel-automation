@@ -77,7 +77,8 @@ namespace Pixel.Scripting.Script.Editor
             {
                 var typeDescription = await this.editorService.GetTypeDescriptionAsync(new TypeLookupRequest()
                 {
-                    FileName = this.Document.FileName,
+                    FileName = this.FileName,
+                    ProjectName = this.ProjectName,
                     Line = position.Value.Line - 1,
                     Column = position.Value.Column - 1,
                     IncludeDocumentation = true

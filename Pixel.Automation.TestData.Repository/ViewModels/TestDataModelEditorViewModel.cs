@@ -12,12 +12,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataModelEditorViewModel : StagedSmartScreen
     {
-        public IInlineScriptEditor ScriptEditor { get; set; }    
+        public IInlineScriptEditor ScriptEditor { get; set; }
+       
+        private readonly IScriptEditorFactory editorFactory;
+       
         private TestDataSource testDataSource;
    
-        public TestDataModelEditorViewModel(IInlineScriptEditor scriptEditor)
-        {           
-            this.ScriptEditor = scriptEditor;          
+        public TestDataModelEditorViewModel(IScriptEditorFactory editorFactory)
+        {
+            this.editorFactory = editorFactory;
+            this.ScriptEditor = editorFactory.CreateInlineScriptEditor();          
         }
 
         private bool TryGenerateDataModelCode(out string generatedCode, out string errorDescription)
@@ -110,9 +114,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         protected override  async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
-            {
-                this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, string.Empty); //File is saved to disk as well
-                this.ScriptEditor.SetContent(this.testDataSource.ScriptFile, generatedCode.ToString());
+            {                
+                editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), (this.PreviousScreen as TestDataSourceViewModel).TypeDefinition.ActualType);
+                this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, testDataSource.Name, generatedCode.ToString()); //File is saved to disk as well              
                 this.ScriptEditor.Activate();
             }
             if (!string.IsNullOrEmpty(errorDescription))
@@ -128,6 +132,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
             this.ScriptEditor.CloseDocument(false);
+            this.editorFactory.RemoveProject(testDataSource.Name);
             await base.OnDeactivateAsync(close, cancellationToken);
         }
     }

@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.Diagnostics;
@@ -23,7 +24,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
-        public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,  IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) : base(serializer, projectFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
+        public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
+        ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) 
+        : base(serializer, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
@@ -38,12 +41,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-
+     
             CreateDataModelFile();
-            ConfigureCodeEditor();          
-            
-            this.entityManager.Arguments  = CompileAndCreateDataModel("DataModel");
+            ConfigureCodeEditor();
 
+            this.entityManager.Arguments  = CompileAndCreateDataModel("DataModel");
+          
+            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize(entityManager, this.activeProject);
             return this.RootEntity;
         }   
@@ -138,6 +143,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
 
             this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
+            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());            
 

@@ -4,7 +4,9 @@ namespace Pixel.Scripting.Editor.Core.Models.Diagnostics
 {
     public class DiagnosticResult
     {
-        public string FileName { get; set; }      
+        public string FileName { get; set; }    
+        
+        public string ProjectName { get; set; }
 
         public IEnumerable<DiagnosticLocation> QuickFixes { get; set; }    
 

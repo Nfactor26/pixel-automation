@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Editor.Core.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -23,43 +24,40 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     /// </summary>
     public abstract class AdhocWorkspaceManager : IWorkspaceManager
     {
+        protected readonly ILogger logger = Log.ForContext<AdhocWorkspaceManager>();
+
         private string currentDirectory;
         private string workingDirectory;
-        protected AdhocWorkspace workspace = default;
-
-        protected readonly string defaultProjectName = "Scripts";
-        protected readonly string tempFolder = "Temp";
-
+        protected AdhocWorkspace workspace = default;              
+      
         protected List<Assembly> additionalReferences;
-       
+
         public AdhocWorkspaceManager(string workingDirectory)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
-           
+
             this.workingDirectory = workingDirectory;
 
             InitializeCompositionHost();
-       
+
             workspace = new AdhocWorkspace(HostServices);
             workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(), VersionStamp.Create()));
             this.additionalReferences = new List<Assembly>();
         }
-
-        protected abstract ProjectId CreateNewProject();
 
         protected virtual CSharpCompilationOptions CreateCompilationOptions()
         {
             var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopRefsDefault.Imports);
             return compilationOptions;
         }
-      
+
         public Workspace GetWorkspace()
         {
             return this.workspace;
         }
 
         public bool TryGetProject(string documentName, out Project project)
-        {        
+        {
             foreach (var proj in this.workspace.CurrentSolution.Projects)
             {
                 foreach (var document in proj.Documents)
@@ -73,6 +71,41 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             }
             project = default;
             return false;
+        }
+
+        public bool HasProject(string projectName)
+        {
+            foreach (var project in this.workspace.CurrentSolution.Projects)
+            {
+                if (project.Name.Equals(projectName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public virtual void RemoveProject(string projectName)
+        {
+            var project = GetProjectByName(projectName);
+            var updatedSolution = workspace.CurrentSolution.RemoveProject(project.Id);
+            if(!workspace.TryApplyChanges(updatedSolution))
+            {
+                throw new Exception($"Failed to remove project : {projectName} from workspace");
+            }
+            logger.Information($"Removed project {projectName}. Workspace has total {workspace.CurrentSolution.Projects.Count()} project now.");
+        }
+
+        protected virtual Project GetProjectByName(string projectName)
+        {
+            foreach (var project in this.workspace.CurrentSolution.Projects)
+            {
+                if (project.Name.Equals(projectName))
+                {
+                    return project;
+                }
+            }
+            throw new ArgumentException($"Project with name {projectName} doesn't exist in workspace");
         }
 
         public bool TryGetDocument(string documentName, out Document document)
@@ -89,6 +122,29 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                         return true;
                     }
                 }
+            }
+            document = default;
+            return false;
+        }
+
+        public bool TryGetDocument(string documentName, string projectName, out Document document)
+        {
+            Guard.Argument(documentName).NotNull().NotEmpty();
+            Guard.Argument(projectName).NotNull().NotEmpty();
+
+            foreach (var project in this.workspace.CurrentSolution.Projects)
+            {
+                if(project.Name.Equals(projectName))
+                {
+                    foreach (var doc in project.Documents)
+                    {
+                        if (doc.Name.Equals(Path.GetFileName(documentName)))
+                        {
+                            document = doc;
+                            return true;
+                        }
+                    }
+                }               
             }
             document = default;
             return false;
@@ -122,24 +178,28 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <inheritdoc/>
-        public abstract void AddDocument(string targetDocument, string initialContent);
+        public abstract void AddDocument(string targetDocument, string addToProject, string initialContent);
 
         /// <inheritdoc/>
-        public bool TryRemoveDocument(string targetDocument)
+        public bool TryRemoveDocument(string targetDocument, string removeFromProject)
         {
-            if(TryGetDocument(targetDocument,out Document document))
+            if(TryGetDocument(targetDocument, removeFromProject, out Document document))
             {
                 var project = document.Project;
                 project = project.RemoveDocument(document.Id);
-                return workspace.TryApplyChanges(project.Solution);
+                if(workspace.TryApplyChanges(project.Solution))
+                {
+                    logger.Information($"Removed document {targetDocument} from project {removeFromProject}");
+                    return true;
+                }
             }
             return false;
         }
 
         /// <inheritdoc/>
-        public bool IsDocumentOpen(string targetDocument)
+        public bool IsDocumentOpen(string targetDocument, string ownerProject)
         {
-            if (TryGetDocument(targetDocument, out Document document))
+            if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
                 return workspace.IsDocumentOpen(document.Id);               
             }
@@ -147,13 +207,14 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <inheritdoc/>
-        public bool TryOpenDocument(string targetDocument)
+        public bool TryOpenDocument(string targetDocument, string ownerProject)
         {
-            if (TryGetDocument(targetDocument, out Document document))
+            if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
                 if(!workspace.IsDocumentOpen(document.Id))
                 {
                     workspace.OpenDocument(document.Id);
+                    logger.Information($"Document {targetDocument} from project {ownerProject} is open now");
                     return true;
                 }               
             }
@@ -166,15 +227,14 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         /// </summary>
         /// <param name="targetDocument">Relative path of document to working directory</param>
         /// <returns></returns>
-        public virtual bool TryCloseDocument(string targetDocument)
+        public virtual bool TryCloseDocument(string targetDocument, string ownerProject)
         {
-            if (TryGetDocument(targetDocument, out Document document))
+            if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
                 if (workspace.IsDocumentOpen(document.Id))
                 {
                     workspace.CloseDocument(document.Id);
-                    var updatedSolution = workspace.CurrentSolution.RemoveProject(document.Project.Id);
-                    workspace.TryApplyChanges(updatedSolution);
+                    logger.Information($"Document {targetDocument} from project {ownerProject} is closed now");
                     return true;
                 }               
             }
@@ -182,29 +242,30 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <inheritdoc/>
-        public bool HasDocument(string targetDocument)
+        public bool HasDocument(string targetDocument, string ownerProject)
         {
-            return TryGetDocument(targetDocument, out Document document);
+            return TryGetDocument(targetDocument, ownerProject, out Document _ );
         }
 
         /// <inheritdoc/>
-        public void SaveDocument(string targetDocument)
+        public void SaveDocument(string targetDocument, string ownerProject)
         {
-            if (TryGetDocument(targetDocument, out Document document))
+            if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
                 SourceText documentText = document.GetTextSynchronously(CancellationToken.None);
                 using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), targetDocument)))
                 {
                     documentText.Write(writer);
                 }
+                logger.Information($"Document {targetDocument} from project {ownerProject} has been saved.");
             }
-          
+
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetBufferAsync(string targetDocument)
+        public async Task<string> GetBufferAsync(string targetDocument, string ownerProject)
         {
-            if (TryGetDocument(targetDocument, out Document document))
+            if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
                 var sourceText = await document.GetTextAsync();
                 return sourceText.ToString();
@@ -217,7 +278,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             if (TryGetDocument(updateBufferRequest.FileName, out Document document))
             {
                 var solution = workspace.CurrentSolution;
-                var sourceText = SourceText.From(updateBufferRequest.Buffer,encoding:System.Text.Encoding.UTF8);
+                var sourceText = SourceText.From(updateBufferRequest.Buffer, encoding:System.Text.Encoding.UTF8);
                 solution = solution.WithDocumentText(document.Id, sourceText);
                 workspace.TryApplyChanges(solution);
             }
@@ -326,8 +387,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Dispose(true);          
         }
 
         protected virtual void Dispose(bool isDisposing)
@@ -336,9 +396,11 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             {
                 this.workspace?.Dispose();
                 this.workspace = null;
+                logger.Information($"Workspace is disposed now.");
+
             }
-        }
-      
+        }       
+
         #endregion IDisposable
     }
 }

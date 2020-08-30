@@ -117,22 +117,19 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
                 TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
 
-                using (var scriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor())
+                TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(this.scriptEditorFactory);
+
+                newTestDataSource.NextScreen = testDataModelEditor;
+                testDataModelEditor.PreviousScreen = newTestDataSource;
+
+                TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
+
+                var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
+                if (result.HasValue && result.Value)
                 {
-                    TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(scriptEditor);
-
-                    newTestDataSource.NextScreen = testDataModelEditor;
-                    testDataModelEditor.PreviousScreen = newTestDataSource;
-
-                    TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { newTestDataSource, testDataModelEditor });
-
-                    var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
-                    if (result.HasValue && result.Value)
-                    {
-                        serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
-                        this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
-                        //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
-                    }
+                    serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
+                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
+                    //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
                 }
 
             }
@@ -169,9 +166,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
-            var scriptEditor = this.scriptEditorFactory.CreateScriptEditor();
-            scriptEditor.OpenDocument(testDataSource.ScriptFile, string.Empty); //File contents will be fetched from disk         
-            var result = await windowManager.ShowDialogAsync(scriptEditor);          
+            string projectName = testDataSource.Id;
+            var globalsType = this.argumentTypeProvider.GetCustomDefinedTypes().First(a => a.DisplayName.Equals(testDataSource.MetaData.TargetTypeName)).ActualType;
+            this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), globalsType);
+            using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
+            {
+                scriptEditor.OpenDocument(testDataSource.ScriptFile, string.Empty, projectName); //File contents will be fetched from disk         
+                var result = await windowManager.ShowDialogAsync(scriptEditor);
+                this.scriptEditorFactory.RemoveProject(projectName);
+            }
+    
         }
 
         private async void EditCsvDataSource(TestDataSource testDataSource)

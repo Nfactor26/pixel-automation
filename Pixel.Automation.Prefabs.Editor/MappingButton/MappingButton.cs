@@ -17,6 +17,13 @@ namespace Pixel.Automation.Prefabs.Editor
             set { SetValue(ScriptFileProperty, value); }
         }
 
+        public static readonly DependencyProperty OwnerComponentProperty = DependencyProperty.Register("OwnerComponent", typeof(Component), typeof(MappingButton),
+                                                                                        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+        public Component OwnerComponent
+        {
+            get { return (Component)GetValue(OwnerComponentProperty); }
+            set { SetValue(OwnerComponentProperty, value); }
+        }
 
         public static readonly DependencyProperty ScriptFileProperty = DependencyProperty.Register("ScriptFile", typeof(string), typeof(MappingButton),
                                                                                     new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));

@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
@@ -19,7 +20,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private PrefabDescription prefabDescription;       
         private Entity prefabbedEntity;       
 
-        public PrefabProjectManager(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory, ICodeGenerator codeGenerator) : base(serializer, prefabFileSystem, typeProvider, scriptEngineFactory, codeEditorFactory, codeGenerator)
+        public PrefabProjectManager(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
+            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
+            : base(serializer, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
         }
@@ -35,7 +38,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             ConfigureCodeEditor();
           
             this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
-           
+
+            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize(this.entityManager, this.prefabDescription);           
             return this.RootEntity;
         }
@@ -109,7 +114,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             await this.Save();
             this.Initialize(this.entityManager, this.prefabDescription);
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");         
+            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
+            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             return this.RootEntity;
         }
 

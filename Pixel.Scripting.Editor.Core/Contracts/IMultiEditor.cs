@@ -13,14 +13,14 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// Open a document for edit
         /// </summary>
         /// <param name="documentName"></param>
-        Task OpenDocumentAsync(string documentName);
+        Task OpenDocumentAsync(string documentName, string ownerProject);
 
         /// <summary>
         /// Close document
         /// </summary>
         /// <param name="documentName"></param>
         /// <param name="save"></param>
-        void CloseDocument(string documentName, bool save);
+        void CloseDocument(string documentName, string ownerProject, bool save);
 
 
         /// <summary>
@@ -28,33 +28,34 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="documentName"></param>
         /// <returns></returns>
-        bool HasDocument(string documentName);
+        bool HasDocument(string documentName, string ownerProject);
 
         /// <summary>
         /// Add a new document to workspace
         /// </summary>
         /// <param name="documentName"></param>
+        /// <param name="ownerProject"></param>
         /// <param name="initialContent"></param>
         /// <param name="openAfterAdd"></param>
-        Task AddDocumentAsync(string documentName, string initialContent, bool openAfterAdd);
+        Task AddDocumentAsync(string documentName, string ownerProject, string initialContent, bool openAfterAdd);
 
         /// <summary>
         /// Delete document
         /// </summary>
         /// <param name="documentName"></param>
-        void DeleteDocument(string documentName);
+        void DeleteDocument(string documentName, string ownerProject);
 
         /// <summary>
         /// Rename document
         /// </summary>
         /// <param name="currentName"></param>
         /// <param name="newName"></param>
-        void RenameDocument(string documentName, string newName);
+        void RenameDocument(string documentName, string newName, string ownerProject);
 
         /// <summary>
         /// Save document contents
         /// </summary>
         /// <param name="documentName"></param>
-        void SaveDocument(string documentName);
+        void SaveDocument(string documentName, string ownerProject);
     }
 }

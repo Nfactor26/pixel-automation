@@ -18,9 +18,9 @@ namespace Pixel.Scripting.Script.Editor.Code
             };
         }    
 
-        public override void OpenDocument(string documentName, string initialContent = "")
+        public override void OpenDocument(string documentName, string ownerProject, string initialContent)
         {
-            base.OpenDocument(documentName, initialContent);
+            base.OpenDocument(documentName, ownerProject, initialContent ?? string.Empty);
             Activate();
         }
     }

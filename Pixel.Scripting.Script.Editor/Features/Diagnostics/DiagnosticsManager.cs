@@ -17,14 +17,15 @@ namespace Pixel.Scripting.Script.Editor.Features
         private IDisposable diagnoticResultObserver;
         private readonly Dispatcher dispatcher;
 
-        public DiagnosticsManager(IEditorService editorService,TextDocument textDocument,TextMarkerService textMarkerService)
+        public DiagnosticsManager(IEditorService editorService, CodeTextEditor textEditor, TextDocument textDocument, TextMarkerService textMarkerService)
         {          
             this.textDocument = textDocument;
             this.textMarkerService = textMarkerService;
             dispatcher = Dispatcher.CurrentDispatcher;
 
-            string documentName = textDocument.FileName;
-            diagnostiResultObservervable = editorService.DiagnosticsUpdated?.Where(r =>r.FileName.Equals(documentName));
+            string documentName = textEditor.FileName;
+            string projectName = textEditor.ProjectName;
+            diagnostiResultObservervable = editorService.DiagnosticsUpdated?.Where(r =>r.FileName.Equals(documentName) && r.ProjectName.Equals(projectName));
             diagnoticResultObserver = diagnostiResultObservervable?.Subscribe(OnDiagnosticsUpdated);
 
         }

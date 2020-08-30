@@ -1,12 +1,13 @@
 ﻿using Caliburn.Micro;
-using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Extensions;
+using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using Pixel.Automation.Core.Components;
 
 namespace Pixel.Automation.Editor.Core.Editors
 {
@@ -42,9 +43,20 @@ namespace Pixel.Automation.Editor.Core.Editors
             {
                 var entityManager = this.ActorComponent.EntityManager;
                 IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
-                IScriptEditorFactory scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor();
-                scriptEditor.OpenDocument(this.ScriptFile, GetDefaultScript(this.ActorComponent));
+                IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
+                if (ActorComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                {
+                    //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                    editorFactory.AddProject(ActorComponent.Id, new string[] { testCaseEntity.Tag }, ActorComponent.EntityManager.Arguments.GetType());
+                }
+                else
+                {
+                    editorFactory.AddProject(ActorComponent.Id, Array.Empty<string>(), ActorComponent.EntityManager.Arguments.GetType());
+                }
+                string initialContent = GetDefaultScript(this.ActorComponent);
+                editorFactory.AddDocument(ScriptFile, ActorComponent.Id, initialContent);
+                scriptEditor.OpenDocument(this.ScriptFile, ActorComponent.Id, initialContent);
                 await windowManager.ShowDialogAsync(scriptEditor);
             }
           

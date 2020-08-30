@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -18,18 +19,21 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     /// </summary>
     public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
     {
-        private Type globalsType = default;
+        private readonly ILogger logger = Log.ForContext<ScriptWorkSpaceManager>();
         private List<string> searchPaths = new List<string>();
 
-        public ScriptWorkSpaceManager(string workingDirectory, Type globalsType) : base(workingDirectory)
-        {
-            this.globalsType = globalsType ?? typeof(object);
+        public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
+        {         
             DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.ScriptSemantic);            
         }     
 
-        protected override ProjectId CreateNewProject()
+        public  void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType)
         {
-            if(compilationOptions == null)
+            Guard.Argument(projectName).NotNull().NotEmpty();
+            Guard.Argument(projectReferences).NotNull();         
+            Guard.Argument(globalsType).NotNull();
+
+            if (compilationOptions == null)
             {
                 compilationOptions = CreateCompilationOptions();
             }
@@ -38,42 +42,41 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             var defaultMetaDataReferences = ProjectReferences.DesktopRefsDefault.GetReferences(DocumentationProviderFactory);
             var additionalProjectReferences = ProjectReferences.Empty.With(assemblyReferences: this.additionalReferences);
             var additionalMetaDataReferences = additionalProjectReferences.GetReferences(DocumentationProviderFactory);
-            var argumentsProjectReferences = new List<ProjectReference>();
-
-            //During initialization of ScriptEditorFactory from ProjectManager, We add a project initially that contains Arguments.csx file.
-            //We want this project to be available to all other script editor projects so that intelli-sense for any arguments defined inside 
-            //this script file is available in subsequent scripts.
-            if (workspace.CurrentSolution.Projects.Count() >= 1)
+       
+            var otherProjectReferences = new List<ProjectReference>();
+            foreach(var reference in projectReferences)
             {
-                argumentsProjectReferences.Add(new ProjectReference(workspace.CurrentSolution.Projects.First().Id));
+                var project = GetProjectByName(reference);
+                otherProjectReferences.Add(new ProjectReference(project.Id));
             }
 
-            var scriptProjectInfo = ProjectInfo.Create(id, VersionStamp.Create(), Guid.NewGuid().ToString(),
-              Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences : argumentsProjectReferences, isSubmission: true, hostObjectType: globalsType)
+            var scriptProjectInfo = ProjectInfo.Create(id, VersionStamp.Create(), projectName,
+              Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences: otherProjectReferences, isSubmission: true, hostObjectType: globalsType)
                .WithMetadataReferences(new[]
                {
                     MetadataReference.CreateFromFile(globalsType.Assembly.Location)
                }
                .Concat(defaultMetaDataReferences).Concat(additionalMetaDataReferences)
-               )            
+               )
                .WithCompilationOptions(compilationOptions);
 
             workspace.AddProject(scriptProjectInfo);
 
-            return id;
+            logger.Information($"Added new project : {projectName}. Workspace has total {workspace.CurrentSolution.Projects.Count()} project now.");
+
         }
 
         /// <inheritdoc/>
-        public override void AddDocument(string targetDocument, string initialContent)
+        public override void AddDocument(string targetDocument, string addToProject, string initialContent)
         {
             Guard.Argument(targetDocument).NotEmpty().NotNull();
-            Guard.Argument(initialContent).NotNull();   
+            Guard.Argument(initialContent).NotNull();
 
-        
-            ProjectId projectId = CreateNewProject();
+
+            var project = GetProjectByName(addToProject);
 
             var scriptDocumentInfo = DocumentInfo.Create(
-            DocumentId.CreateNewId(projectId), Path.GetFileName(targetDocument),
+            DocumentId.CreateNewId(project.Id), Path.GetFileName(targetDocument),
             sourceCodeKind: SourceCodeKind.Script,
             filePath: Path.Combine(this.GetWorkingDirectory(), targetDocument),
             loader: TextLoader.From(TextAndVersion.Create(SourceText.From(initialContent), VersionStamp.Create())));           
@@ -81,32 +84,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             var updatedSolution = workspace.CurrentSolution.AddDocument(scriptDocumentInfo);
             workspace.TryApplyChanges(updatedSolution);
 
-            //return scriptDocumentInfo.Id;
-        }
-
-        /// <summary>
-        /// Close document and remove owner project from workspace
-        /// </summary>
-        /// <param name="targetDocument">Relative path of document to working directory</param>
-        /// <returns></returns>
-        public override bool TryCloseDocument(string targetDocument)
-        {
-            if (TryGetDocument(targetDocument, out Document document))
-            {
-                if (workspace.IsDocumentOpen(document.Id))
-                {
-                    workspace.CloseDocument(document.Id);
-                    //We want to remove projects other then the first project when closing editor
-                    if(document.Project.Id != workspace.CurrentSolution.ProjectIds.First())
-                    {
-                        var updatedSolution = workspace.CurrentSolution.RemoveProject(document.Project.Id);
-                        workspace.TryApplyChanges(updatedSolution);
-                    }                   
-                    return true;
-                }
-            }
-            return false;
-        }
+            logger.Information($"Added document {targetDocument} to project {addToProject}");
+        }              
 
         private CSharpCompilationOptions compilationOptions = default;
 

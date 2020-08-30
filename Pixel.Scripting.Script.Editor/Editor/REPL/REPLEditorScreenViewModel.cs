@@ -15,8 +15,8 @@ namespace Pixel.Scripting.Script.Editor.REPL
         private readonly IEditorService editorService;
         private readonly IScriptEngine scriptEngine;
         private readonly string documentName;
-        object previousState = default;
-        object globals = default;
+        private readonly string projectName;
+        object previousState = default;       
 
         private string result;
         public string Result
@@ -45,19 +45,21 @@ namespace Pixel.Scripting.Script.Editor.REPL
                 FontFamily = new FontFamily("Consolas")
             };
 
-            documentName = Path.GetRandomFileName();
+            this.documentName = Path.GetRandomFileName();
+            this.projectName = Guid.NewGuid().ToString();
             this.editorService.CreateFileIfNotExists(documentName, string.Empty);
             this.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
 
-            if (!this.editorService.HasDocument(documentName))
-                this.editorService.AddDocument(documentName, string.Empty);
-            this.editorService.TryOpenDocument(documentName);
-            this.Editor.OpenDocument(documentName);
+            if (!this.editorService.HasDocument(documentName, projectName))
+            {
+                this.editorService.AddDocument(documentName, projectName, string.Empty);
+            }
+            this.editorService.TryOpenDocument(documentName, projectName);
+            this.Editor.OpenDocument(documentName, projectName);
         }      
 
         public void SetGlobals(object globals)
-        {
-            this.globals = globals;
+        {           
             this.scriptEngine.SetGlobals(globals);
         }
 
@@ -101,7 +103,7 @@ namespace Pixel.Scripting.Script.Editor.REPL
         public void Dispose()
         {
             (this.editorService as IDisposable)?.Dispose();
-            this.editorService.TryCloseDocument(this.documentName);
+            this.editorService.TryCloseDocument(this.documentName, this.projectName);
             (this.Editor as IDisposable)?.Dispose();
         }       
     }

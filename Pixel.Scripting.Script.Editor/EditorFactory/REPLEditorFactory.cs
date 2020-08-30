@@ -26,7 +26,7 @@ namespace Pixel.Scripting.Script.Editor
                 WorkingDirectory = workingDirectory,
                 EnableCodeActions = false,              
                 AssemblyReferences = editorReferences               
-            }, globalsType);          
+            });          
             scriptEngine.SetWorkingDirectory(Path.Combine(workingDirectory, "Temp"));           
         }
 
@@ -43,6 +43,31 @@ namespace Pixel.Scripting.Script.Editor
         {
             if (!isInitialized)
                 throw new InvalidOperationException($"{nameof(REPLEditorFactory)} is not yet initialized");
+        }
+
+        public void AddProject(string projectName, string[] projectreferences)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddDocument(string documentName, string projectName, string documentContent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveDocument(string documentName, string projectName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveProject(string projectName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Initialize(string workingDirectory, string[] editorReferences)
+        {
+            throw new NotImplementedException();
         }
     }
 }

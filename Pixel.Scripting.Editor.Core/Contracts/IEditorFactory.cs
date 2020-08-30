@@ -3,11 +3,7 @@
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
     public interface IEditorFactory
-    {        
-    }
-
-    public interface ICodeEditorFactory : IEditorFactory
-    {        
+    {
         /// <summary>
         /// Initialize the editor factory with initial working directory and a collection of assembly names that should be referenced
         /// by underlying project created by workspace
@@ -15,6 +11,17 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="workingDirectory"></param>
         /// <param name="editorReferences"></param>
         void Initialize(string workingDirectory, string[] editorReferences);
+
+        void AddDocument(string documentName, string projectName, string documentContent);
+
+        void RemoveDocument(string documentName, string projectName);
+
+        void RemoveProject(string projectName);
+    }
+
+    public interface ICodeEditorFactory : IEditorFactory
+    {
+        void AddProject(string projectName, string[] projectreferences);
 
         /// <summary>
         /// Create a  standalone code editor screen with ok and cancel buttons.
@@ -38,27 +45,14 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// Create a code editor control  that supports opening and editing multiple documents
         /// </summary>
         /// <returns></returns>
-        IMultiEditor CreateMultiCodeEditorControl();
+        IMultiEditor CreateMultiCodeEditorControl();       
 
-        /// <summary>
-        /// Get the underlying workspace manager associated with any of the code editors created by this factory.
-        /// This can be used to compile project , add documents, remove documents , etc to the workspace.
-        /// </summary>
-        /// <returns></returns>
-        ICodeWorkspaceManager GetWorkspaceManager();
+        CompilationResult CompileProject(string projectName, string outputAssemblyName);
     }
 
     public interface IScriptEditorFactory : IEditorFactory
     {
-
-        /// <summary>
-        /// Initialize ScriptEditorFactory with a working directory , globals type available to script and any assembly references
-        /// that should be available for scripts to use
-        /// </summary>
-        /// <param name="workingDirectory"></param>
-        /// <param name="globalsType"></param>
-        /// <param name="editorReferences"></param>
-        void Initialize(string workingDirectory, Type globalsType, string[] editorReferences);
+        void AddProject(string projectName, string[] projectreferences, Type globalsType);
 
         /// <summary>
         /// Create a script editor
@@ -79,12 +73,6 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor();
-
-        /// <summary>
-        /// Get the underlying workspace manager associated with any of the script editors created by this factory.
-        /// This can be used to  add documents, remove documents , etc to the workspace without actually opening editor.
-        /// <returns></returns>
-        IScriptWorkspaceManager GetWorkspaceManager();
      
     }
 

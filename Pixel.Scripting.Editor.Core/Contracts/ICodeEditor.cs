@@ -2,11 +2,11 @@
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
-    public interface ICodeEditor
+    public interface ICodeEditor : IDisposable
     {
-        void OpenDocument(string documentName, string initialContent);
+        void OpenDocument(string documentName, string ownerProject, string initialContent);
 
-        void SetContent(string documentName, string documentContent);
+        void SetContent(string documentName, string ownerProject, string documentContent);
 
         void CloseDocument(bool save = true);
 

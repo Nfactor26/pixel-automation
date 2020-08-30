@@ -22,8 +22,10 @@ namespace Pixel.Script.Editor.Services.CSharp.Signature
 
         public async Task<SignatureHelpResponse> GetSignatures(SignatureHelpRequest request)
         {
-            if (!this.workspaceManager.IsDocumentOpen(request.FileName))
+            if (!this.workspaceManager.IsDocumentOpen(request.FileName, request.ProjectName))
+            {
                 return emptyResponse;
+            }
 
             this.workspaceManager.TryGetDocument(request.FileName, out Document document);
             var invocation = await GetInvocation(document, request);

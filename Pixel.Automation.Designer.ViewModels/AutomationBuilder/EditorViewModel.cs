@@ -5,7 +5,6 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Serilog;

@@ -205,8 +205,7 @@ namespace Pixel.Automation.TestExplorer
                 if(saveTestEntity)
                 {
                     this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, testCaseFileSystem.TestDirectory, Path.GetFileName(testCaseFileSystem.TestProcessFile));               
-                }
-                
+                }           
               
             }
         }
@@ -273,10 +272,10 @@ namespace Pixel.Automation.TestExplorer
             void SetupScriptEditor()
             {
                 var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
-                IScriptEditorFactory scriptEditor = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                var workspaceManager = scriptEditor.GetWorkspaceManager();
+                IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();             
+                editorFactory.AddProject(testCaseVM.Id, Array.Empty<string>(), testEntityManager.Arguments.GetType());
                 string scriptFileContent = File.ReadAllText(Path.Combine(this.fileSystem.WorkingDirectory, testCaseVM.TestCase.ScriptFile));
-                workspaceManager.AddDocument(testCaseVM.TestCase.ScriptFile, scriptFileContent);
+                editorFactory.AddDocument(testCaseVM.TestCase.ScriptFile, testCaseVM.TestCase.Id, scriptFileContent);              
             }
 
         }
@@ -348,7 +347,7 @@ namespace Pixel.Automation.TestExplorer
                 var entityManager = testCaseVM.TestCaseEntity.EntityManager;
                 var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
                 IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
-                scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, string.Empty);
+                scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.Id, string.Empty);
                 var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                 if (result.HasValue && result.Value)
                 {

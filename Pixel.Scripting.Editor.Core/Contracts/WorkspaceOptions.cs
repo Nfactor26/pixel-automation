@@ -14,5 +14,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         public string[] AssemblyReferences { get; set; } 
 
+        public WorkspaceType WorkspaceType { get; set; }
+    }
+
+    public enum WorkspaceType
+    {
+        Code,
+        Script
     }
 }

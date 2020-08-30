@@ -45,7 +45,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             this.Tools.Add(new DocumentViewModel(this, Documents));
         }
       
-        public async Task OpenDocumentAsync(string documentName)
+        public async Task OpenDocumentAsync(string documentName, string ownerProject)
         {
             var targetDocument = Documents.FirstOrDefault(d => d.DocumentName.Equals(documentName))
                 ?? throw new ArgumentException($"{documentName} is not available in workspace");
@@ -54,47 +54,52 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
                 return;
             }
           
-            if (!this.editorService.TryOpenDocument(documentName))
+            if (!this.editorService.TryOpenDocument(documentName, ownerProject))
             {
                 throw new Exception($"failed to open document {documentName}");
             }
             
             targetDocument.OpenForEdit(this, this.editorService);
             targetDocument.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
-            targetDocument.Editor.OpenDocument(documentName);
+            targetDocument.Editor.OpenDocument(documentName, ownerProject);
             this.OpenDocuments.Add(targetDocument);           
             await ActivateItemAsync(targetDocument, CancellationToken.None);
         }
 
-        public void CloseDocument(string documentName, bool save = true)
+        public void CloseDocument(string documentName, string ownerProject, bool save = true)
         {
             var targetDocument = Documents.FirstOrDefault(d => d.DocumentName.Equals(documentName))
                   ?? throw new ArgumentException($"{documentName} is not available in workspace");          
             if (save)
             {
-                SaveDocument(documentName);
+                SaveDocument(documentName, ownerProject);
             }
-            this.editorService.TryCloseDocument(documentName);
+            this.editorService.TryCloseDocument(documentName, ownerProject);
             this.OpenDocuments.Remove(targetDocument);
             targetDocument.Dispose();
         }
 
-        public bool HasDocument(string documentName)
+        public bool HasDocument(string documentName, string ownerProject)
         {
-            return this.editorService.HasDocument(documentName);
+            return this.editorService.HasDocument(documentName, ownerProject);
         }
 
-        public async Task AddDocumentAsync(string documentName, string initialContent, bool openAfterAdd)
+        public async Task AddDocumentAsync(string documentName, string ownerProject, string initialContent, bool openAfterAdd)
         {
-            AddDocument(documentName, initialContent);
+            //Todo : MultiEditor should allow adding a new project as well when Editor is configured to allow adding new project
+            if(string.IsNullOrEmpty(ownerProject))
+            {
+                ownerProject = this.Documents.First().ProjectName;
+            }
+            AddDocument(documentName, ownerProject, initialContent);
             if (openAfterAdd)
             {
-                await OpenDocumentAsync(documentName);
+                await OpenDocumentAsync(documentName, ownerProject);
             }         
 
         }
 
-        private void AddDocument(string documentName, string initialContent)
+        private void AddDocument(string documentName, string ownerProject, string initialContent)
         {
             if (string.IsNullOrEmpty(Path.GetExtension(documentName)))
             {
@@ -103,26 +108,26 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
             if (!Documents.Any(a => a.DocumentName.Equals(documentName)))
             {
-                EditableDocumentViewModel editableDocument = new EditableDocumentViewModel(documentName);
+                EditableDocumentViewModel editableDocument = new EditableDocumentViewModel(documentName, ownerProject);
                 this.Documents.Add(editableDocument);
             }
 
-            if (this.editorService.HasDocument(documentName))
+            if (this.editorService.HasDocument(documentName, ownerProject))
             {
                 return;
             }         
 
-            this.editorService.AddDocument(documentName, initialContent);
+            this.editorService.AddDocument(documentName, ownerProject, initialContent);
             this.editorService.CreateFileIfNotExists(documentName, initialContent);
         }
 
-        public void DeleteDocument(string documentName)
+        public void DeleteDocument(string documentName, string ownerProject)
         {
             try
             {
-                if (this.editorService.HasDocument(documentName))
+                if (this.editorService.HasDocument(documentName, ownerProject))
                 {
-                    this.editorService.RemoveDocument(documentName);
+                    this.editorService.RemoveDocument(documentName, ownerProject);
 
                     var documentToRemove = this.Documents.Where(a => a.DocumentName.Equals(documentName)).FirstOrDefault();
                     if (documentToRemove != null)
@@ -138,25 +143,25 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             }
         }
 
-        public void RenameDocument(string documentName, string newName)
+        public void RenameDocument(string documentName, string newName, string ownerProject)
         {
 
         }
 
-        public void SaveDocument(string documentName)
+        public void SaveDocument(string documentName, string ownerProject)
         {
             var targetDocument = Documents.FirstOrDefault(d => d.DocumentName.Equals(documentName))
               ?? throw new ArgumentException($"{documentName} is not available in workspace");
           
-            this.editorService.SaveDocument(documentName);
+            this.editorService.SaveDocument(documentName, ownerProject);
         }      
 
-        public void SetContent(string documentName, string documentContent)
+        public void SetContent(string documentName, string ownerProject, string documentContent)
         {
             var targetDocument = Documents.FirstOrDefault(d => d.DocumentName.Equals(documentName))
                ?? throw new ArgumentException($"{documentName} is not available in workspace");
            
-            this.editorService.SetContent(documentName, documentContent);
+            this.editorService.SetContent(documentName, ownerProject, documentContent);
             targetDocument.Editor.Text = documentContent;
         }
 
@@ -183,7 +188,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             var openDocuments = new List<EditableDocumentViewModel>(this.OpenDocuments);
             foreach (var document in openDocuments)
             {
-                CloseDocument(document.DocumentName, true);
+                CloseDocument(document.DocumentName, document.ProjectName, true);
             }
             await this.TryCloseAsync(true);
         }
@@ -196,9 +201,9 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             var openDocuments = new List<EditableDocumentViewModel>(this.OpenDocuments);
             foreach (var document in openDocuments)
             {
-                CloseDocument(document.DocumentName, false);
+                CloseDocument(document.DocumentName, document.ProjectName, false);
             }
-            await this.TryCloseAsync(true);
+            await this.TryCloseAsync(false);
         }
 
         public void Close()
@@ -206,7 +211,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             var openDocuments = new List<EditableDocumentViewModel>(this.OpenDocuments);
             foreach (var document in openDocuments)
             {
-                CloseDocument(document.DocumentName, false);
+                CloseDocument(document.DocumentName, document.ProjectName, false);
             }
         }
 

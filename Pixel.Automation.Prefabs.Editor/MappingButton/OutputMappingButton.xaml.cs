@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -26,11 +27,20 @@ namespace Pixel.Automation.Prefabs.Editor
         {
             var propertyMappings = GenerateMapping(this.AssignFrom, this.AssignTo);
             string generatedCode = GeneratedMappingCode(propertyMappings);
-
             IWindowManager windowManager = IoC.Get<IWindowManager>();
-            IScriptEditorFactory scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-            IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor();
-            scriptEditor.OpenDocument(this.ScriptFile, generatedCode);
+            IScriptEditorFactory editorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+            IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
+            if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            {
+                //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                editorFactory.AddProject(OwnerComponent.Id, new string[] { testCaseEntity.Tag }, EntityManager.Arguments.GetType());
+            }
+            else
+            {
+                editorFactory.AddProject(OwnerComponent.Id, Array.Empty<string>(), EntityManager.Arguments.GetType());
+            }
+            editorFactory.AddDocument(ScriptFile, OwnerComponent.Id, generatedCode);
+            scriptEditor.OpenDocument(this.ScriptFile, OwnerComponent.Id, generatedCode);
             await windowManager.ShowDialogAsync(scriptEditor);
 
         }

@@ -1,13 +1,13 @@
 ﻿using Caliburn.Micro;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
-using System.IO;
 
 namespace Pixel.Scripting.Script.Editor
 {
     public abstract class EditorViewModel : Screen, ICodeEditor, IDisposable
     {       
         protected string targetDocument;
+        protected string ownerProject;
         protected readonly IEditorService editorService;
 
 
@@ -20,23 +20,27 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService = editorService;          
         }
 
-        public virtual void OpenDocument(string targetDocument, string intialContent)
+        public virtual void OpenDocument(string targetDocument, string ownerProject, string intialContent)
         {
             this.targetDocument = targetDocument;
+            this.ownerProject = ownerProject;
             this.editorService.CreateFileIfNotExists(targetDocument, intialContent);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
+            string fileContents = this.editorService.GetFileContentFromDisk(targetDocument);           
 
-            if (!this.editorService.HasDocument(targetDocument))
+            if (!this.editorService.HasDocument(targetDocument, ownerProject))
             {
-                this.editorService.AddDocument(targetDocument, this.editor.Text);
-            }
+                this.editorService.AddDocument(targetDocument, ownerProject, fileContents);
+                this.editorService.SetContent(targetDocument, ownerProject, fileContents);
 
-            this.editorService.TryOpenDocument(targetDocument);                    
+            }
+            this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);
+            this.Editor.OpenDocument(targetDocument, ownerProject);
+            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
         }
 
-        public void SetContent(string targetDocument, string documentContent)
+        public void SetContent(string targetDocument, string documentContent, string ownerProject)
         {
-            this.editorService.SetContent(targetDocument, documentContent);
+            this.editorService.SetContent(targetDocument, ownerProject, documentContent);
             this.Editor.Text = documentContent;
         }
 
@@ -44,15 +48,15 @@ namespace Pixel.Scripting.Script.Editor
         {
             if (save)
             {
-               this.editorService.SaveDocument(this.targetDocument);
+               this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
             }
-            this.editorService.TryCloseDocument(this.targetDocument);
+            this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
             Dispose(true);
         }
 
         public virtual void Activate()
         {
-            this.editor.OpenDocument(this.targetDocument);
+            this.editor.OpenDocument(this.targetDocument, this.ownerProject);
         }
 
         public virtual void Deactivate()
@@ -62,7 +66,7 @@ namespace Pixel.Scripting.Script.Editor
 
         protected void SaveDocument()
         {
-            this.editorService.SaveDocument(this.targetDocument);
+            this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
         }
 
         public async void Save()
@@ -80,6 +84,7 @@ namespace Pixel.Scripting.Script.Editor
         protected virtual void Dispose(bool isDisposing)
         {
             (editor as IDisposable).Dispose();
+            editor = null;
         }
 
         public void Dispose()

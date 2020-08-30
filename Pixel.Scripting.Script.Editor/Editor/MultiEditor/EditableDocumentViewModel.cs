@@ -16,6 +16,8 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public string DocumentName { get; private set; }
 
+        public string ProjectName { get; private set; }
+
         private bool isOpen;
         public bool IsOpen
         {
@@ -49,9 +51,10 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         }
 
 
-        public EditableDocumentViewModel(string fileName)
+        public EditableDocumentViewModel(string fileName, string projectName)
         {
             this.DocumentName = fileName;
+            this.ProjectName = projectName;
             this.DisplayName = Path.GetFileName(fileName);
         }
        
@@ -83,7 +86,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
                var result =  MessageBox.Show("Would you like to save changes?", "Save Changes", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                saveChanges = result.Equals(MessageBoxResult.OK);
             }
-            this.editor.CloseDocument(this.DocumentName, saveChanges);
+            this.editor.CloseDocument(this.DocumentName, this.ProjectName, saveChanges);
             await base.OnDeactivateAsync(true, CancellationToken.None);
         }
 

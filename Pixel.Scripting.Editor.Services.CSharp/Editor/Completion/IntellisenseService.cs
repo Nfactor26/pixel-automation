@@ -27,8 +27,10 @@ namespace Pixel.Scripting.Editor.Services.Completion
 
         public async Task<IEnumerable<AutoCompleteResponse>> GetCompletions(AutoCompleteRequest request)
         {
-            if (!this.workspaceManager.IsDocumentOpen(request.FileName))
+            if (!this.workspaceManager.IsDocumentOpen(request.FileName, request.ProjectName))
+            {
                 return emptyResponse;
+            }
 
             this.workspaceManager.TryGetDocument(request.FileName, out Document document);
             var wordToComplete = request.WordToComplete;

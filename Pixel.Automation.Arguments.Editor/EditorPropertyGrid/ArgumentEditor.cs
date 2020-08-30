@@ -12,6 +12,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Xceed.Wpf.Toolkit.PropertyGrid;
+using Pixel.Automation.Core.Components.TestCase;
 
 namespace Pixel.Automation.Arguments.Editor
 {
@@ -88,7 +89,8 @@ namespace Pixel.Automation.Arguments.Editor
             var entityManager = this.OwnerComponent.EntityManager;
 
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
-            IScriptEditorFactory scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+            IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+            IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
 
             string initialContent = string.Empty;
             if (string.IsNullOrEmpty(Argument.ScriptFile))
@@ -97,9 +99,18 @@ namespace Pixel.Automation.Arguments.Editor
                 Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
                 initialContent = Argument.GenerateInitialScript();
             }
-           
-            IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor();
-            scriptEditor.OpenDocument(Argument.ScriptFile, initialContent);
+            if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            {
+                //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                editorFactory.AddProject(OwnerComponent.Id, new string[] { testCaseEntity.Tag }, OwnerComponent.EntityManager.Arguments.GetType());
+            }
+            else
+            {
+                editorFactory.AddProject(OwnerComponent.Id, Array.Empty<string>(), OwnerComponent.EntityManager.Arguments.GetType());
+            }
+            editorFactory.AddDocument(Argument.ScriptFile, OwnerComponent.Id, initialContent);
+            scriptEditor.OpenDocument(Argument.ScriptFile, OwnerComponent.Id, initialContent);
+                 
             await windowManager.ShowDialogAsync(scriptEditor);
         }
 

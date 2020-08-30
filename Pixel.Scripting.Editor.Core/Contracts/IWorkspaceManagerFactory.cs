@@ -6,6 +6,6 @@ namespace Pixel.Scripting.Editor.Core.Contracts
     {
         ICodeWorkspaceManager CreateCodeWorkspaceManager(string workingDirectory);
 
-        IScriptWorkspaceManager CreateScriptWorkspaceManager(string workingDirectory, Type globalsType);
+        IScriptWorkspaceManager CreateScriptWorkspaceManager(string workingDirectory);
     }
 }

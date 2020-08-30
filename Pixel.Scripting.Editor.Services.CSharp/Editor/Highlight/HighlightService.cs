@@ -21,7 +21,7 @@ namespace Pixel.Script.Editor.Services.CSharp.Highlight
 
         public async Task<HighlightResponse> GetHighlights(HighlightRequest request)
         {
-            if (!this.workspaceManager.IsDocumentOpen(request.FileName))
+            if (!this.workspaceManager.IsDocumentOpen(request.FileName, request.ProjectName))
                 return emptyResponse;
 
             this.workspaceManager.TryGetDocument(request.FileName, out Document document);

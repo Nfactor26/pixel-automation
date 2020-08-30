@@ -9,13 +9,15 @@ namespace Pixel.Scripting.Editor.Core.Models
 
     public class SimpleFileRequest : IRequest
     {
-        private string _fileName;
+        private string fileName;
 
         public string FileName
         {
-            get => _fileName?.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-            set => _fileName = value;
+            get => fileName?.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            set => fileName = value;
         }
+
+        public string ProjectName { get; set; }
     }
 
     public class Request : SimpleFileRequest

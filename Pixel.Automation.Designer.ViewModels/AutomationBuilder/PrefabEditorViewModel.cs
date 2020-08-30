@@ -62,10 +62,10 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
                 {
-                    await editor.AddDocumentAsync(Path.GetFileName(file), File.ReadAllText(file), false);
+                    await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabDescription.PrefabName, File.ReadAllText(file), false);
                 }
-                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", string.Empty, false);
-                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs");
+                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName, string.Empty, false);
+                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName);
                             
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
                 await windowManager.ShowDialogAsync(editor);               

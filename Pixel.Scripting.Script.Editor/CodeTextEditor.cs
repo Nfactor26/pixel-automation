@@ -12,6 +12,22 @@ namespace Pixel.Scripting.Script.Editor
 {
     public partial class CodeTextEditor : TextEditor , IDisposable
     {
+        public string FileName
+        {
+            get => this.Document.FileName;
+            private set
+            {
+                this.Document.FileName = Path.GetFileName(value);
+            }
+        }
+
+        public string ProjectName
+        {
+            get;
+            private set;
+        }
+
+
         IEditorService editorService;      
         private CodeActionsControl codeActionsControl;
         private IVisualLineTransformer syntaxHighlighter;
@@ -34,11 +50,13 @@ namespace Pixel.Scripting.Script.Editor
 
         partial void InitializeMouseHover();       
 
-        public void OpenDocument(string documentName)
+        public void OpenDocument(string documentName, string projectName)
         {
-            this.Document.FileName = Path.GetFileName(documentName);        
+            this.FileName = documentName;
+            this.ProjectName = projectName;
+            
             this.textManager = new TextManager(this.editorService, this);
-            syntaxHighlighter = new SyntaxHighlightingColorizer(this.Document.FileName, this.editorService, new ClassificationHighlightColors());
+            syntaxHighlighter = new SyntaxHighlightingColorizer(this.FileName, this.ProjectName, this.editorService, new ClassificationHighlightColors());
             TextArea.TextView.LineTransformers.Insert(0, syntaxHighlighter);
 
             this.textMarkerService = new TextMarkerService(this);
@@ -47,7 +65,7 @@ namespace Pixel.Scripting.Script.Editor
 
             if(this.editorService.IsFeatureEnabled(EditorFeature.Diagnostics))
             {
-                diagnosticsManager = new DiagnosticsManager(this.editorService, this.Document, this.textMarkerService);
+                diagnosticsManager = new DiagnosticsManager(this.editorService, this, this.Document, this.textMarkerService);
             }
 
             if (this.editorService.IsFeatureEnabled(EditorFeature.CodeActions))

@@ -14,7 +14,8 @@ namespace Pixel.Scripting.Script.Editor.Features
 {
     public class SemanticHighlighter : IHighlighter , ILineTracker
     {       
-        private string documentName;
+        private readonly string documentName;
+        private readonly string projectName;
         private IClassificationHighlightColors classificationHighlightColors;
         private IEditorService editorService;
         private HighlightCache highLightCache;
@@ -29,10 +30,11 @@ namespace Pixel.Scripting.Script.Editor.Features
 
         IDisposable bufferedSubscription;
         IDisposable intervalSubscription;
-        public SemanticHighlighter(string documentName,TextView textView, IDocument document, IEditorService editorService, IClassificationHighlightColors classificationHighlightColors)
+        public SemanticHighlighter(string documentName, string projectName, TextView textView, IDocument document, IEditorService editorService, IClassificationHighlightColors classificationHighlightColors)
         {
             this.textView = textView;
             this.documentName = documentName;
+            this.projectName = projectName;
             this.Document = document;
             this.editorService = editorService;
             this.classificationHighlightColors = classificationHighlightColors;
@@ -150,7 +152,8 @@ namespace Pixel.Scripting.Script.Editor.Features
                 //Debug.WriteLine($"Highlight queried for line : {lineNumber}");
                 HighlightRequest highlightRequest = new HighlightRequest()
                 {               
-                    FileName = this.Document.FileName,
+                    FileName = this.documentName,
+                    ProjectName = this.projectName,
                     Lines = new int[] { lineNumber - 1 }
                 };
                 var response = await this.editorService.GetHighlightsAsync(highlightRequest);

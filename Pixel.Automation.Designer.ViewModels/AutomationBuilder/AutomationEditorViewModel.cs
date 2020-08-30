@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
+using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Designer.ViewModels.VersionManager;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -92,20 +93,24 @@ namespace Pixel.Automation.Designer.ViewModels
 
 
         public override async Task EditDataModel()
-        {         
+        {            
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
             using (var editor = editorFactory.CreateMultiCodeEditorScreen())
             {
                 foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
                 {
-                    await editor.AddDocumentAsync(Path.GetFileName(file), File.ReadAllText(file), false);
+                    await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
                 }
 
-                await editor.AddDocumentAsync("DataModel.cs", string.Empty, false);
-                await editor.OpenDocumentAsync("DataModel.cs");
+                await editor.AddDocumentAsync("DataModel.cs", this.CurrentProject.Name, string.Empty, false);
+                await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);
 
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-                await windowManager.ShowDialogAsync(editor);              
+                bool? hasChanges = await windowManager.ShowDialogAsync(editor);    
+                if(hasChanges.HasValue && !hasChanges.Value)
+                {
+                    return;
+                }
             }
 
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);         
@@ -134,7 +139,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 IEventAggregator eventAggregator = this.EntityManager.GetServiceOfType<IEventAggregator>();                          
                 IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
 
-                this.testCaseManager = new TestRepositoryManager(eventAggregator,this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, testRunner, windowManager);
+                this.testCaseManager = new TestRepositoryManager(eventAggregator, this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, testRunner, windowManager);
             }
             this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);
 

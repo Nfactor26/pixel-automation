@@ -35,9 +35,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public override bool TryProcessStage(out string errorDescription)
         {
             try
-            {
-                var workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
-                using (var compilationResult = workspaceManager.CompileProject($"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
+            {               
+                using (var compilationResult = this.codeEditorFactory.CompileProject(this.prefabDescription.PrefabName.Trim().Replace(' ', '_'), $"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
                 {
                     logger.Information("Prefab assembly was successfuly compiled");
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
@@ -77,10 +76,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
             foreach (var file in Directory.GetFiles(prefabFileSystem.DataModelDirectory, "*.cs"))
             {
-                await this.CodeEditor.AddDocumentAsync(Path.GetFileName(file), File.ReadAllText(file), false);
+                await this.CodeEditor.AddDocumentAsync(Path.GetFileName(file), prefabDescription.PrefabId, File.ReadAllText(file), false);
             }
-            await this.CodeEditor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", generatedCode.ToString(), false);
-            await this.CodeEditor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs");           
+            await this.CodeEditor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabDescription.PrefabId, generatedCode.ToString(), false);
+            await this.CodeEditor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabDescription.PrefabId);           
         
             await base.OnActivateAsync(cancellationToken);
 

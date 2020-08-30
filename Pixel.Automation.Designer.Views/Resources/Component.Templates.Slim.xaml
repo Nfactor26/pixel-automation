@@ -200,10 +200,14 @@
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
                     <prefabs:InputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding InputMappingScript, Mode=OneWay}"
-                                                AssignFrom="{Binding DataModelType, Mode=OneWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
+                                                AssignFrom="{Binding DataModelType, Mode=OneWay}"
+                                                OwnerComponent="{Binding}"
+                                                EntityManager="{Binding EntityManager, Mode=OneWay}"
                                                 AssignTo="{Binding PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
                     <prefabs:OutputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding OutputMappingScript, Mode=OneWay}" 
-                                                AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" EntityManager="{Binding EntityManager, Mode=OneWay}"
+                                                AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
+                                                OwnerComponent="{Binding}"
+                                                EntityManager="{Binding EntityManager, Mode=OneWay}"
                                                 AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>                 
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"

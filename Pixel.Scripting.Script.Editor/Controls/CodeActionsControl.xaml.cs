@@ -1,5 +1,4 @@
-﻿using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Editing;
+﻿using ICSharpCode.AvalonEdit.Editing;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Editor.Core.Models.CodeActions;
 using Pixel.Scripting.Editor.Core.Models.FileOperations;
@@ -18,13 +17,13 @@ namespace Pixel.Scripting.Script.Editor.Controls
     /// </summary>
     public partial class CodeActionsControl : Popup , IDisposable
     {
-        private readonly TextEditor textEditor;
+        private readonly CodeTextEditor textEditor;
         private readonly IEditorService editorService;
         public ObservableCollection<EditorCodeAction> AvailableCodeActions { get; private set; } = new ObservableCollection<EditorCodeAction>();
 
         Caret lastCaretPos = default;
 
-        public CodeActionsControl(TextEditor textEditor, IEditorService editorService)
+        public CodeActionsControl(CodeTextEditor textEditor, IEditorService editorService)
         {
             InitializeComponent();
 
@@ -58,7 +57,8 @@ namespace Pixel.Scripting.Script.Editor.Controls
             Caret caret = sender as Caret;
             var codeActionResponse = await this.editorService.GetCodeActionsAsync(new GetCodeActionsRequest()
             {
-                FileName = this.textEditor.Document.FileName,
+                FileName = this.textEditor.FileName,
+                ProjectName = this.textEditor.ProjectName,
                 Line = caret.Line - 1,
                 Column = caret.Column - 1
             });
@@ -98,7 +98,8 @@ namespace Pixel.Scripting.Script.Editor.Controls
             var codeActionToApply = (sender as Button).DataContext as EditorCodeAction;
             RunCodeActionRequest runCodeActionRequest = new RunCodeActionRequest()
             {
-                FileName = this.textEditor.Document.FileName,
+                FileName = this.textEditor.FileName,
+                ProjectName = this.textEditor.ProjectName,
                 Line = lastCaretPos.Line - 1,
                 Column = lastCaretPos.Column - 1,
                 WantsTextChanges = true,

@@ -18,7 +18,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         IWorkspaceManager GetWorkspaceManager();
 
-        void Initialize(WorkspaceOptions editorOptions, Type globalsType);
+        void Initialize(WorkspaceOptions editorOptions);
                
         void SwitchToDirectory(string directory);
 
@@ -49,47 +49,47 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="documentName">Relative path of document to working directory</param>
         /// <returns></returns>
-        bool HasDocument(string documentName);
+        bool HasDocument(string documentName, string ownerProject);
 
         /// <summary>
         /// Add a new document to underlying workspace with some content
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
         /// <param name="documentContent">Content of the document</param>
-        void AddDocument(string targetDocument, string documentContent);
+        void AddDocument(string targetDocument, string addToProject, string documentContent);
 
         /// <summary>
         /// Remove document from underlying workspace
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
-        void RemoveDocument(string targetDocument);
+        void RemoveDocument(string targetDocument, string removeFromProject);
 
         /// <summary>
         /// Set content of document
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
         /// <param name="documentContent">New content of the document</param>
-        void SetContent(string targetDocument, string documentContent);
+        void SetContent(string targetDocument, string ownerProject, string documentContent);
 
         /// <summary>
         /// Save document
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
-        void SaveDocument(string targetDocument);
+        void SaveDocument(string targetDocument, string ownerProject);
 
         /// <summary>
         /// Open a document for edit.
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
         /// <returns></returns>
-        bool TryOpenDocument(string targetDocument);
+        bool TryOpenDocument(string targetDocument, string ownerProject);
 
         /// <summary>
         /// Close document for edit.
         /// </summary>
         /// <param name="targetDocument">Relative path of the document to working directory</param>
         /// <returns></returns>
-        bool TryCloseDocument(string targetDocument);
+        bool TryCloseDocument(string targetDocument, string ownerProject);
       
 
         /// <summary>

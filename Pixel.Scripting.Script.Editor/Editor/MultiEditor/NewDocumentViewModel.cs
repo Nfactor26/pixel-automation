@@ -33,7 +33,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public async Task AddDocument()
         {
-            await editor.AddDocumentAsync(this.DocumentName, string.Empty, true);         
+            await editor.AddDocumentAsync(this.DocumentName, string.Empty, string.Empty, true);         
             await this.TryCloseAsync(true);
         }
 

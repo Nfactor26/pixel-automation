@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,10 +21,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected EntityManager entityManager;
         protected ISerializer serializer;
         protected IFileSystem fileSystem;
-        protected ITypeProvider typeProvider;
-        protected IScriptEngineFactory scriptEngineFactory;
-        protected ICodeEditorFactory codeEditorFactory;   
+        protected ITypeProvider typeProvider;    
+        protected ICodeEditorFactory codeEditorFactory;
+        protected IScriptEditorFactory scriptEditorFactory;
         protected readonly ICodeGenerator codeGenerator;
+        protected IArgumentTypeProvider argumentTypeProvider;
 
         protected Entity RootEntity
         {
@@ -32,13 +34,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
 
-        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IScriptEngineFactory scriptEngineFactory, ICodeEditorFactory codeEditorFactory,ICodeGenerator codeGenerator)
+        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
-            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
-            this.scriptEngineFactory = Guard.Argument(scriptEngineFactory, nameof(scriptEngineFactory)).NotNull().Value;
-            this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;     
+            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value; 
+            this.argumentTypeProvider = Guard.Argument(argumentTypeProvider, nameof(argumentTypeProvider)).NotNull().Value;
+            this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;
+            this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
             this.codeGenerator = Guard.Argument(codeGenerator, nameof(codeGenerator)).NotNull().Value;
         }
 
@@ -85,6 +88,33 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());               
         }
 
+
+        /// <summary>
+        /// Configure ScriptEditor with specified globalsType. This method can be called again with a different globalsType.
+        /// On doing so,  underlying workspace will be disposed and new workspace will be created to reflect change in globalsType.
+        /// If there are any inline script editor controls, they are not impacted. They will pick up this change in globalsType.
+        /// ScriptEditor should be configured for primary as well as secondary entity manager since they have different globalsType.
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <param name="globalsType"></param>
+        protected virtual void ConfigureScriptEditor(IFileSystem fileSystem)
+        {          
+            var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
+            assemblyReferences.Add(this.entityManager.Arguments.GetType().Assembly.Location);
+            this.scriptEditorFactory.Initialize(fileSystem.WorkingDirectory, assemblyReferences.ToArray());           
+        }
+
+
+        /// <summary>
+        /// Add data model assembly to arguments type provider so that it can show types defined in data model assembly 
+        /// </summary>
+        /// <param name="scriptArguments"></param>
+        protected virtual void ConfigureArgumentTypeProvider(Assembly assembly)
+        {          
+            this.argumentTypeProvider.WithDataModelAssembly(assembly);
+        }
+
+
         /// <summary>
         /// Create a workspace manager. Add all the documents from data model directory to this workspace , compile the workspace and
         /// create an instnace of data model from generated assembly.
@@ -92,8 +122,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="dataModelName"></param>
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel(string dataModelName)
-        {
-            ICodeWorkspaceManager workspaceManager = this.codeEditorFactory.GetWorkspaceManager();
+        {            
+            this.codeEditorFactory.AddProject(this.GetProjectName(), Array.Empty<string>());
 
             string dataModelDirectory = this.fileSystem.DataModelDirectory;
             string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");
@@ -103,13 +133,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 foreach (var dataModelFile in existingDataModelFiles)
                 {
                     string documentName = Path.GetFileName(dataModelFile);
-                    if (!workspaceManager.HasDocument(documentName))
-                    {
-                        workspaceManager.AddDocument(documentName, File.ReadAllText(dataModelFile));
-                    }
+                    this.codeEditorFactory.AddDocument(documentName, this.GetProjectName(), File.ReadAllText(dataModelFile));
                 }
 
-                using (var compilationResult = workspaceManager.CompileProject(GetNewDataModelAssemblyName()))
+                using (var compilationResult = this.codeEditorFactory.CompileProject(this.GetProjectName(), GetNewDataModelAssemblyName()))
                 {
                     compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
                     Assembly assembly = Assembly.LoadFrom(Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName));
