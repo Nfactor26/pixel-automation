@@ -45,6 +45,12 @@ namespace Pixel.Automation.Core.Components
             return this.applicationDetails;
         }
 
+
+        public void SetTargetApplicationDetails(IApplication applicationDetails)
+        {
+            this.applicationDetails = applicationDetails;
+        }
+
         public virtual T GetTargetApplicationDetails<T>() where T : class, IApplication
         {
             return GetTargetApplicationDetails() as T;

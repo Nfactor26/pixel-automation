@@ -11,7 +11,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Set the globals object for the IArgumentProcessor
         /// </summary>      
         /// <param name="dataModel"></param>
-        void SetGlobals(object globals);
+        void Initialize(IScriptEngine scriptEngine, object globals);
 
         /// <summary>
         /// Get the value of argument

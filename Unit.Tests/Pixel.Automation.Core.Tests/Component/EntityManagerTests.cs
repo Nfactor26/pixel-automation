@@ -16,6 +16,7 @@ namespace Pixel.Automation.Core.Tests.Component
         private IServiceResolver serviceResolver;
         private IFileSystem fileSystem;
         private IArgumentProcessor argumentProcessor;
+        private IScriptEngineFactory scriptEngineFactory;
         private IScriptEngine scriptEngine;
         private ISerializer serializer;
         private IDevice syntheticMouse;
@@ -40,12 +41,16 @@ namespace Pixel.Automation.Core.Tests.Component
                 propertyCollection
              );
 
+            this.scriptEngineFactory = Substitute.For<IScriptEngineFactory>();
+            this.scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns(this.scriptEngine);
+
             this.syntheticMouse = Substitute.For<ISyntheticMouse>();
             this.syntheticKeyboard = Substitute.For<ISyntheticKeyboard>();
 
             serviceResolver.Get<IArgumentProcessor>().Returns(this.argumentProcessor);
             serviceResolver.Get<IFileSystem>().Returns(this.fileSystem);
             serviceResolver.Get<ISerializer>().Returns(this.serializer);
+            serviceResolver.Get<IScriptEngineFactory>().Returns(this.scriptEngineFactory);
             serviceResolver.Get<IScriptEngine>().Returns(this.scriptEngine);
             serviceResolver.Get<ISyntheticKeyboard>().Returns(this.syntheticKeyboard as ISyntheticKeyboard);
             serviceResolver.Get<ISyntheticMouse>().Returns(this.syntheticMouse as ISyntheticMouse);
@@ -56,6 +61,7 @@ namespace Pixel.Automation.Core.Tests.Component
             this.dataModel = new Person();
 
             this.entityManager = new EntityManager(serviceResolver);
+            this.entityManager.SetCurrentFileSystem(fileSystem);
             this.entityManager.Arguments = this.dataModel;
 
 
@@ -67,8 +73,7 @@ namespace Pixel.Automation.Core.Tests.Component
         [Test]
         [Order(10)]
         public void VerifyThatEntityManagerCanBeInitialized()
-        {
-
+        { 
             this.serviceResolver.Received(1).RegisterDefault<EntityManager>(entityManager);
         }
 
@@ -90,7 +95,7 @@ namespace Pixel.Automation.Core.Tests.Component
             this.serviceResolver.Received(1).Get<ISerializer>();
             this.serviceResolver.Received(1).Get<IFileSystem>();
             this.serviceResolver.Received(1).Get<IScriptEngine>();
-            this.serviceResolver.Received(1).Get<IArgumentProcessor>();
+            this.serviceResolver.Received(2).Get<IArgumentProcessor>();
             this.serviceResolver.Received(1).Get<ISyntheticMouse>();
             this.serviceResolver.Received(1).Get<ISyntheticKeyboard>();
         }

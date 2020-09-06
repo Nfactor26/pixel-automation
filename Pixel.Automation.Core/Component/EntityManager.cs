@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Exceptions;
+﻿using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System;
@@ -16,9 +15,12 @@ namespace Pixel.Automation.Core
     {
         #region data members       
 
-        private readonly IServiceResolver serviceProvider;
+        protected IServiceResolver serviceProvider;
         private IFileSystem fileSystem;
+        private IArgumentProcessor argumentProcessor;
+        private IScriptEngine scriptEngine;
         private bool areDefaultServicesInitialized = false;
+        private bool isPrimaryEntityManager = true;
 
         private Entity rootEntity;
         public Entity RootEntity
@@ -48,17 +50,18 @@ namespace Pixel.Automation.Core
                 {
                     if (!areDefaultServicesInitialized)
                     {
-                        this.serviceProvider.ConfigureDefaultServices(this.fileSystem, value.ToScriptArguments(this));
+                        this.arguments = value;
+                        ConfigureServices();
                         areDefaultServicesInitialized = true;
                     }
                     else
                     {
-                        IFileSystem fileSystem = this.GetServiceOfType<IFileSystem>();
-                        this.serviceProvider.OnDataModelUpdated(fileSystem, this.arguments?.ToScriptArguments(this), value?.ToScriptArguments(this));
+                        UpdateServices(value, this.arguments);
+                        this.arguments = value;
                     }
                     this.arguments = value;
                     UpdateArgumentPropertiesInfo();
-                }              
+                }
             }
         }
 
@@ -70,21 +73,19 @@ namespace Pixel.Automation.Core
         {
             this.serviceProvider = serviceProvider;
             this.serviceProvider.RegisterDefault<IEntityManager>(this);
+            this.serviceProvider.RegisterDefault<IServiceResolver>(serviceProvider);
         }
 
         /// <summary>
         /// Create EntityManager from an existing entity manager 
         /// </summary>
         /// <param name="entityManager"></param>
-        public EntityManager(IEntityManager entityManager, object dataModel)
+        public EntityManager(IEntityManager parentEntityManager)
         {
-            //cloning service resolver allows us to register new defaults in scope of this EntityManager since we get a new ninject childkernel
-            this.serviceProvider = entityManager.GetServiceOfType<IServiceResolver>().Clone() as IServiceResolver;
-            this.RootEntity = entityManager.RootEntity;
-            if (dataModel != null)
-            {
-                this.Arguments = dataModel;
-            }
+            this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>() as IServiceResolver;
+            this.RootEntity = parentEntityManager.RootEntity;
+            this.isPrimaryEntityManager = false;
+            this.SetCurrentFileSystem(parentEntityManager.GetCurrentFileSystem());
         }
 
         #endregion Constructor
@@ -103,16 +104,49 @@ namespace Pixel.Automation.Core
 
         public IArgumentProcessor GetArgumentProcessor()
         {
-            return GetServiceOfType<IArgumentProcessor>();
+            return this.argumentProcessor;
         }
 
         public IScriptEngine GetScriptEngine()
         {
-            return GetServiceOfType<IScriptEngine>();
+            return this.scriptEngine;
         }
 
+        private void ConfigureServices()
+        {
+            IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
+
+            if (isPrimaryEntityManager)
+            {
+                scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, fileSystem.ReferencesDirectory).
+                WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences()).
+                WithAdditionalAssemblyReferences(this.arguments.GetType().Assembly);
+            }
+           
+            this.scriptEngine = scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
+            this.scriptEngine.SetGlobals(this.arguments);
+
+            this.argumentProcessor = this.GetServiceOfType<IArgumentProcessor>();
+            this.argumentProcessor.Initialize(this.scriptEngine, this.arguments);         
+        }
+
+        private void UpdateServices(object newArgs, object prevArgs)
+        {
+            IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
+
+            var previousDataModelAssembly = prevArgs.GetType().Assembly;
+            var newDataModleAssembly = newArgs.GetType().Assembly;
+            scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
+            scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModleAssembly);
+
+            this.scriptEngine.SetGlobals(newArgs);
+            this.argumentProcessor.Initialize(this.scriptEngine, newArgs);
+
+        }
+
+
         #endregion Run time services    
-               
+
         #region Services     
 
         /// <summary>
@@ -144,9 +178,11 @@ namespace Pixel.Automation.Core
         public virtual void RegisterDefault<T>(T instance) where T : class
         {
             this.serviceProvider.RegisterDefault<T>(instance);
-        }
+        }           
 
         #endregion Services      
+
+        #region Get Component Helpers
 
         /// <summary>
         /// Get the owner application for a given component
@@ -245,7 +281,9 @@ namespace Pixel.Automation.Core
             }
 
             throw new ConfigurationException($"ApplicationEntity for application with id : {applicationId} is missing from ApplicationPoolentity");
-        }       
+        }
+
+        #endregion  Get Component Helpers
 
         #region private methods
 
@@ -330,9 +368,11 @@ namespace Pixel.Automation.Core
 
                 this.serviceProvider.Dispose();
 
+                this.RootEntity = null;
+                this.arguments = null;
+                this.serviceProvider = null;
+                this.fileSystem = null;
 
-                RootEntity = null;
-                arguments = null;
             }
         }
 

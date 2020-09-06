@@ -1,4 +1,7 @@
-﻿using Ninject.Modules;
+﻿using Caliburn.Micro;
+using Ninject.Extensions.Conventions;
+using Ninject.Modules;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Scripting.Components.Arguments;
 
@@ -12,7 +15,11 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
     {
         public override void Load()
         {
-            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InSingletonScope();
+            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();
+
+            Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
+            .StartsWith("Pixel.Scripting.Engine.CSharp")).SelectAllClasses().InheritedFrom<IScriptEngineFactory>()
+            .BindAllInterfaces().Configure(s => s.InSingletonScope()));
         }
     }
 }

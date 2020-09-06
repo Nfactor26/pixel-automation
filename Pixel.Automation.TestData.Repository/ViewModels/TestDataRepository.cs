@@ -171,7 +171,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), globalsType);
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
             {
-                scriptEditor.OpenDocument(testDataSource.ScriptFile, string.Empty, projectName); //File contents will be fetched from disk         
+                scriptEditor.OpenDocument(testDataSource.ScriptFile, projectName, string.Empty); //File contents will be fetched from disk         
                 var result = await windowManager.ShowDialogAsync(scriptEditor);
                 this.scriptEditorFactory.RemoveProject(projectName);
             }

@@ -90,6 +90,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 }
 
+                logger.Information($"Trying to open project : {automationProject.Name}");
+
                 //we need a new instance of automationEditor everytime we open a project. Don't inject it as a constructor parameter.
                 //TODO : Create a factory for automation editor which should be injected as a constructor parameter.
                 var automationEditor = IoC.Get<IAutomationEditor>();
@@ -97,6 +99,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 if(this.Parent is IConductor conductor)
                 {
                     await conductor.ActivateItemAsync(automationEditor as Screen);
+                    logger.Information($"Project : {automationProject.Name} is open now.");
                     return;
                 }
                 throw new Exception("Failed to activate automation editor after loading project");

@@ -32,7 +32,10 @@ namespace Pixel.Automation.RunTime.Tests
 
             var csvDataReader = Substitute.For<IDataReader>();
 
-            var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngine, new []{ csvDataReader });
+            var scriptEngineFactory = Substitute.For<IScriptEngineFactory>();
+            scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns(scriptEngine);
+
+            var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngineFactory, new []{ csvDataReader });
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 
@@ -66,7 +69,11 @@ namespace Pixel.Automation.RunTime.Tests
             var csvDataReader = Substitute.For<IDataReader>();
             csvDataReader.CanProcessFileType("csv").Returns(true);
 
-            var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngine, new[] { csvDataReader });
+
+            var scriptEngineFactory = Substitute.For<IScriptEngineFactory>();
+            scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns(scriptEngine);
+
+            var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngineFactory, new[] { csvDataReader });
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 

@@ -49,7 +49,7 @@ namespace Pixel.Automation.Prefabs.Editor
 
         private IEnumerable<PropertyMap> GenerateMapping(Type assignFrom, Type assignTo)
         {
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var assignFromProperties = assignFrom.GetProperties();
             var scriptVariables = scriptEngine.GetScriptVariables();
             var assignToProperties = assignTo.GetProperties().Where(a =>

@@ -235,47 +235,58 @@ namespace Pixel.Automation.TestExplorer
 
         public async void OpenForEdit(TestCaseViewModel testCaseVM)
         {
-            if (!testCaseVM.CanOpenForEdit)
+            try
             {
-                return;
+                logger.Information($"Trying to open test case : {testCaseVM.DisplayName} for edit.");
+
+                if (!testCaseVM.CanOpenForEdit)
+                {
+                    logger.Information($"Test case : {testCaseVM.DisplayName} is alreayd open for edit.");
+                    return;
+                }
+
+                //This is required because OpenForEdit might be called from RunAll for tests which are not open for edit.
+                //Opening a test initializes dependencies like script engine , script editor , etc for test case.
+                //script editor can only be created on dispatcher thread although it won't be used while running.          
+                Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+                if (!dispatcher.CheckAccess())
+                {
+                    System.Action openForEditAction = () => OpenForEdit(testCaseVM);
+                    dispatcher.Invoke(openForEditAction);
+                    return;
+                }
+
+                if (this.OpenTestCases.Contains(testCaseVM))
+                {
+                    return;
+                }
+
+                string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCaseVM.Id, "TestAutomation.proc");
+                testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
+                testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
+                testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
+
+                if (await this.TestRunner.TryOpenTestCase(testCaseVM.TestCase))
+                {
+                    SetupScriptEditor();
+                    this.OpenTestCases.Add(testCaseVM);
+                    testCaseVM.IsOpenForEdit = true;
+                    NotifyOfPropertyChange(nameof(CanSaveAll));
+                }
+
+                void SetupScriptEditor()
+                {
+                    var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
+                    IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                    editorFactory.AddProject(testCaseVM.Id, Array.Empty<string>(), testEntityManager.Arguments.GetType());
+                    string scriptFileContent = File.ReadAllText(Path.Combine(this.fileSystem.WorkingDirectory, testCaseVM.TestCase.ScriptFile));
+                    editorFactory.AddDocument(testCaseVM.TestCase.ScriptFile, testCaseVM.TestCase.Id, scriptFileContent);
+                }
+                logger.Information($"Test Case : {testCaseVM.DisplayName} is open for edit now.");
             }
-
-            //This is required because OpenForEdit might be called from RunAll for tests which are not open for edit.
-            //Opening a test initializes dependencies like script engine , script editor , etc for test case.
-            //script editor can only be created on dispatcher thread although it won't be used while running.          
-            Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-            if(!dispatcher.CheckAccess())
+            catch (Exception ex)
             {
-                System.Action openForEditAction = () => OpenForEdit(testCaseVM);
-                dispatcher.Invoke(openForEditAction);
-                return;
-            }
-
-            if (this.OpenTestCases.Contains(testCaseVM))
-            {
-                return;
-            }
-
-            string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCaseVM.Id, "TestAutomation.proc");
-            testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
-            testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
-            testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
-
-            if (await this.TestRunner.TryOpenTestCase(testCaseVM.TestCase))
-            {
-                SetupScriptEditor();
-                this.OpenTestCases.Add(testCaseVM);
-                testCaseVM.IsOpenForEdit = true;
-                NotifyOfPropertyChange(nameof(CanSaveAll));
-            }       
-
-            void SetupScriptEditor()
-            {
-                var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
-                IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();             
-                editorFactory.AddProject(testCaseVM.Id, Array.Empty<string>(), testEntityManager.Arguments.GetType());
-                string scriptFileContent = File.ReadAllText(Path.Combine(this.fileSystem.WorkingDirectory, testCaseVM.TestCase.ScriptFile));
-                editorFactory.AddDocument(testCaseVM.TestCase.ScriptFile, testCaseVM.TestCase.Id, scriptFileContent);              
+                logger.Error(ex, ex.Message);
             }
 
         }
@@ -288,7 +299,6 @@ namespace Pixel.Automation.TestExplorer
                 if (targetTestCase != null)
                 {
                     OpenForEdit(targetTestCase);
-                    logger.Information($"Test Case : {targetTestCase} is open for edit now.");
                     break;
                 }
             }
@@ -298,6 +308,8 @@ namespace Pixel.Automation.TestExplorer
         {
             if (this.OpenTestCases.Contains(testCaseVM))
             {
+                logger.Information($"Trying to close test case : {testCaseVM.DisplayName} for edit.");
+
                 if (autoSave)
                 {
                     SaveTestCase(testCaseVM);
@@ -308,8 +320,9 @@ namespace Pixel.Automation.TestExplorer
 
                 testCaseVM.TestCaseEntity = null;
                 testCaseVM.IsOpenForEdit = false;
+                logger.Information($"Test Case {testCaseVM.DisplayName} has been closed.");
 
-            }         
+            }
             NotifyOfPropertyChange(nameof(CanSaveAll));
         }
 
@@ -351,7 +364,7 @@ namespace Pixel.Automation.TestExplorer
                 var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                 if (result.HasValue && result.Value)
                 {
-                    var scriptEngine = entityManager.GetServiceOfType<IScriptEngine>();
+                    var scriptEngine = entityManager.GetScriptEngine();
                     scriptEngine.ClearState();
                     await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
                 }

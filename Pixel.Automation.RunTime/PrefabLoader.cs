@@ -2,7 +2,6 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
 using System.Linq;
@@ -29,22 +28,22 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(applicationId).NotEmpty().NotNull();
             Guard.Argument(prefabId).NotEmpty().NotNull();
             Guard.Argument(entityManager).NotNull();
-            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.DataModelAssembly), p => { return "Assembly Name is not set on Prefab Version"; });   
-         
-         
-            this.prefabManager = new EntityManager(entityManager, null);   
+            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.DataModelAssembly), p => { return "Assembly Name is not set on Prefab Version"; });
+
+
+            this.prefabManager = new EntityManager(entityManager);
 
             this.prefabFileSystem = this.prefabManager.GetServiceOfType<IPrefabFileSystem>();
             this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
 
             //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
-            var scriptEngine = entityManager.GetScriptEngine();
-            scriptEngine.WithAdditionalSearchPaths(this.prefabFileSystem.ReferencesDirectory);
+            var scriptEngineFactory = entityManager.GetServiceOfType<IScriptEngineFactory>();
+            scriptEngineFactory.WithAdditionalSearchPaths(this.prefabFileSystem.ReferencesDirectory);
             //Similalry, Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
-            var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.GetWorkspaceManager().WithSearchPaths(this.prefabFileSystem.ReferencesDirectory);
+            //var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+            //scriptEditorFactory.GetWorkspaceManager().WithSearchPaths(this.prefabFileSystem.ReferencesDirectory);
 
-            
+
             this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
             this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
 

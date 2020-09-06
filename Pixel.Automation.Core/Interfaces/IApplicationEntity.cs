@@ -8,6 +8,8 @@
 
         IApplication GetTargetApplicationDetails();
 
+        void SetTargetApplicationDetails(IApplication applicationDetails);
+
         T GetTargetApplicationDetails<T>() where T : class, IApplication;
     }
 }

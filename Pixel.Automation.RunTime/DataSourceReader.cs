@@ -17,19 +17,21 @@ namespace Pixel.Automation.RunTime
         private readonly IProjectFileSystem fileSystem;
         private readonly ISerializer serializer;
         private readonly IDataReader[] dataReaders;
+        private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly IScriptEngine scriptEngine;
 
-        public DataSourceReader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngine scriptEngine, IDataReader[] dataReaders)
+        public DataSourceReader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngineFactory scriptEngineFactory, IDataReader[] dataReaders)
         {
             Guard.Argument(serializer).NotNull();
             Guard.Argument(fileSystem).NotNull();
-            Guard.Argument(scriptEngine).NotNull();
+            Guard.Argument(scriptEngineFactory).NotNull();
             Guard.Argument(dataReaders).NotNull();
 
             this.serializer = serializer;
             this.fileSystem = fileSystem;
-            this.scriptEngine = scriptEngine;
+            this.scriptEngineFactory = scriptEngineFactory;
             this.dataReaders = dataReaders;
+            this.scriptEngine = this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
         }
 
         public IEnumerable<object> LoadData(string dataSourceId)

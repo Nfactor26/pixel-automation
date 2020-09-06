@@ -22,7 +22,7 @@ namespace Pixel.Automation.Prefabs.Editor
         {
             this.assignFrom = assignFrom;
             this.assignTo = assignTo;
-            scriptEngine = entityManager.GetServiceOfType<IScriptEngine>();
+            scriptEngine = entityManager.GetScriptEngine();
             if (existingMapping.Count() >0 )
             {
                 RefreshMapping(existingMapping, assignFrom);

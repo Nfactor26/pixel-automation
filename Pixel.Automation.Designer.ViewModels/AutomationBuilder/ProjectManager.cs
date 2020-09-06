@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public abstract class ProjectManager : IProjectManager
     {
+        protected readonly ILogger logger = Log.ForContext<ProjectManager>();
+
         private int compilationIteration = 0;
 
         protected EntityManager entityManager;
@@ -85,7 +88,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected virtual void ConfigureCodeEditor()
         {
-            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());               
+            logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
+            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());       
+            logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
+
         }
 
 
@@ -98,10 +104,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="fileSystem"></param>
         /// <param name="globalsType"></param>
         protected virtual void ConfigureScriptEditor(IFileSystem fileSystem)
-        {          
+        {      
+            logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
             var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
             assemblyReferences.Add(this.entityManager.Arguments.GetType().Assembly.Location);
-            this.scriptEditorFactory.Initialize(fileSystem.WorkingDirectory, assemblyReferences.ToArray());           
+            this.scriptEditorFactory.Initialize(fileSystem.WorkingDirectory, assemblyReferences.ToArray());      
+            logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
         }
 
 
@@ -122,7 +130,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="dataModelName"></param>
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel(string dataModelName)
-        {            
+        {
+            logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
             this.codeEditorFactory.AddProject(this.GetProjectName(), Array.Empty<string>());
 
             string dataModelDirectory = this.fileSystem.DataModelDirectory;
@@ -139,8 +148,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 using (var compilationResult = this.codeEditorFactory.CompileProject(this.GetProjectName(), GetNewDataModelAssemblyName()))
                 {
                     compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
-                    Assembly assembly = Assembly.LoadFrom(Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName));
-
+                    string assemblyLocation = Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName);
+                    Assembly assembly = Assembly.LoadFrom(assemblyLocation);
+                    logger.Information($"Data model assembly compiled and assembly loaded from {assemblyLocation}");
                     Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(dataModelName));
                     if (typeofDataModel != null)
                     {

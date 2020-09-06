@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,9 +12,10 @@ namespace Pixel.Automation.Arguments.Editor
 {
     public class ArgumentTypeProvider : IArgumentTypeProvider
     {
+        private readonly ILogger logger = Log.ForContext<ArgumentTypeProvider>();
         private List<TypeDefinition> commonTypes;
         private List<TypeDefinition> allKnownTypes;
-        private List<TypeDefinition> definedTypes;
+        private List<TypeDefinition> dataModelTypes = new List<TypeDefinition>();
 
 
         public ArgumentTypeProvider()
@@ -29,8 +31,9 @@ namespace Pixel.Automation.Arguments.Editor
                 {
                     try
                     {
-                        Assembly assembly = Assembly.LoadFile(assemblyPath);
+                        Assembly assembly = Assembly.LoadFile(assemblyPath);                      
                         PopulateAvailableTypesInAssembly(assembly);
+                        logger.Information($"Adding types from assembly {assembly.FullName}");
                     }
                     catch (Exception)
                     {                       
@@ -48,11 +51,13 @@ namespace Pixel.Automation.Arguments.Editor
         /// <returns></returns>
         public IArgumentTypeProvider WithDataModelAssembly(Assembly assembly)
         {
-            this.definedTypes = new List<TypeDefinition>();
+            logger.Information($"Adding types from data model assembly {assembly.FullName}");
+            this.dataModelTypes.Clear();
             foreach(var type in PopulateAvailableTypesInAssembly(assembly))
             {
-              this.definedTypes.Add(new TypeDefinition("DataModel","Models",type));
+              this.dataModelTypes.Add(new TypeDefinition("DataModel", "Models", type));
             }
+            logger.Information($"Data model assembly has {dataModelTypes.Count} defined types");
             return this;
         }
 
@@ -72,7 +77,7 @@ namespace Pixel.Automation.Arguments.Editor
 
         public IEnumerable<TypeDefinition> GetCustomDefinedTypes()
         {
-            return definedTypes ?? new List<TypeDefinition>();
+            return dataModelTypes;
         }
 
         private void InitializeCommonTypes()
@@ -84,6 +89,7 @@ namespace Pixel.Automation.Arguments.Editor
             {
                 commonTypes.Add(new TypeDefinition(type));
             }
+            logger.Information($"Initialized commmon types. Total count : {commonTypes.Count}");
         }
 
         private void InitializeAllKnownTypes()
@@ -99,12 +105,17 @@ namespace Pixel.Automation.Arguments.Editor
                         this.allKnownTypes.Add(new TypeDefinition(type));
                 }
             }
+            logger.Information($"Initialized all known types. Total count : {allKnownTypes.Count}");
         }
 
         private IEnumerable<Type> PopulateAvailableTypesInAssembly(Assembly assembly)
         {
             if (assembly.IsDynamic)
-                yield break;          
+            {
+                logger.Warning($"Assembly : {assembly.FullName} is a dynamic assembly. Skip identify defined types in assembly");
+                yield break;
+
+            }
             var publicTypesInAssembly = assembly.GetExportedTypes().Where(t => (t.IsClass) || t.IsValueType || t.IsEnum);
             foreach (var type in publicTypesInAssembly.Distinct())
             {

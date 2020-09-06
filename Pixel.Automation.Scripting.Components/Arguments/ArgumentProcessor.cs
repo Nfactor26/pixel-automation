@@ -13,18 +13,13 @@ namespace Pixel.Automation.Scripting.Components.Arguments
     ///<inheritdoc/>
     public class ArgumentProcessor : IArgumentProcessor
     {
-        private readonly IScriptEngine scriptEngine;
+        private IScriptEngine scriptEngine;
         private object globalsObject;
 
-        public ArgumentProcessor(IScriptEngine scriptEngine)
-        {
-            Guard.Argument<IScriptEngine>(scriptEngine).NotNull();
-            this.scriptEngine = scriptEngine;
-        }
-
-        public void SetGlobals(object globalsObject)
-        {
-            this.globalsObject = globalsObject;
+        public void Initialize(IScriptEngine scriptEngine, object globalsObject)
+        {          
+            this.scriptEngine = Guard.Argument<IScriptEngine>(scriptEngine).NotNull().Value;
+            this.globalsObject = Guard.Argument(globalsObject).NotNull().Value;
         }
      
         public T GetValue<T>(Argument argument)

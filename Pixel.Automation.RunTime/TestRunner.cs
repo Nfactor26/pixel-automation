@@ -117,7 +117,7 @@ namespace Pixel.Automation.RunTime
                 {
                     testCaseEntity.EntityManager.Arguments = item;
                     
-                    IScriptEngine scriptEngine = testCaseEntity.EntityManager.GetServiceOfType<IScriptEngine>();
+                    IScriptEngine scriptEngine = testCaseEntity.EntityManager.GetScriptEngine();
                     scriptEngine.ClearState();
                     var state = await scriptEngine.ExecuteFileAsync(testCase.ScriptFile);
                                        
@@ -198,12 +198,11 @@ namespace Pixel.Automation.RunTime
                 if (!string.IsNullOrEmpty(testCase.TestDataId))
                 {
                     //we create a new EntityManager for TestCaseEntity that can use ArgumentProcessor with different globals object               
-                    EntityManager testEntityManager = new EntityManager(this.entityManager, null);
+                    EntityManager testEntityManager = new EntityManager(this.entityManager);
 
-                    ITestCaseFileSystem testCaseFileSystem = testEntityManager.GetServiceOfType<ITestCaseFileSystem>();
-                    testCaseFileSystem.Initialize(this.entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.Id);
-                    testEntityManager.RegisterDefault<IFileSystem>(testCaseFileSystem);
-                    testEntityManager.SetCurrentFileSystem(testCaseFileSystem);                 
+                    //ITestCaseFileSystem testCaseFileSystem = testEntityManager.GetServiceOfType<ITestCaseFileSystem>();
+                    //testCaseFileSystem.Initialize(this.entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.Id);                 
+                    //testEntityManager.SetCurrentFileSystem(testCaseFileSystem);
 
                     var dataSource = testDataLoader.LoadData(testCase.TestDataId);
                     if (dataSource is IEnumerable dataSourceCollection)
@@ -211,10 +210,10 @@ namespace Pixel.Automation.RunTime
                         testEntityManager.Arguments = dataSource.FirstOrDefault();
                     }
 
-                    string scriptFileContent = File.ReadAllText(Path.Combine(entityManager.GetCurrentFileSystem().WorkingDirectory, testCase.ScriptFile));
+                    string scriptFileContent = File.ReadAllText(Path.Combine(testEntityManager.GetCurrentFileSystem().WorkingDirectory, testCase.ScriptFile));
                   
                     //Execute script file to set up initial state of script engine
-                    IScriptEngine scriptEngine = testEntityManager.GetServiceOfType<IScriptEngine>();                 
+                    IScriptEngine scriptEngine = testEntityManager.GetScriptEngine();                 
                     await scriptEngine.ExecuteScriptAsync(scriptFileContent);
 
                     testCaseEntity.EntityManager = testEntityManager;

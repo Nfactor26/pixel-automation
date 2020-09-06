@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Scripting;
-using Pixel.Scripting.Common.CSharp;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using System;
@@ -12,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Engine.CSharp
@@ -20,24 +18,12 @@ namespace Pixel.Scripting.Engine.CSharp
     public class ScriptEngine : IScriptEngine
     {
         #region data members      
-
-        private readonly string cacheFolder = "cache";
-
+      
         private string scriptsDirectory;
 
-        private ScriptOptions scriptOptions = ScriptOptions.Default;
+        private ScriptOptions scriptOptions;
 
-        private ScriptMetadataResolver scriptMetaDataResolver;
-
-        private MetadataReferenceResolver metaDataReferenceResolver;
-
-        private string baseDirectory;
-
-        private List<string> searchPaths  = new List<string>();
-
-        private List<string> namespaces = new List<string>();
-       
-        private ScriptExecutor scriptExecutor = default;
+        private ScriptExecutor scriptExecutor;
 
         private object scriptGlobals = default;
 
@@ -45,25 +31,13 @@ namespace Pixel.Scripting.Engine.CSharp
 
         #region constructor       
 
-        internal ScriptEngine(ScriptExecutor scriptExecutor)
+        internal ScriptEngine(ScriptOptions scriptOptions, ScriptExecutor scriptExecutor)
         {
-            this.scriptExecutor = scriptExecutor;
+            this.scriptOptions = Guard.Argument(scriptOptions).NotNull();
+            this.scriptExecutor = Guard.Argument(scriptExecutor).NotNull();
         }
-
-        private MetadataReferenceResolver CreateScriptMetaDataResolver()
-        {
-            scriptMetaDataResolver = ScriptMetadataResolver.Default;
-            scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
-            scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-            return new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);
-        }
-
+       
         #endregion constructor    
-
-        public string GetWorkingDirectory()
-        {
-            return this.scriptsDirectory;
-        }
 
         public void SetWorkingDirectory(string scriptsDirectory)
         {           
@@ -89,135 +63,7 @@ namespace Pixel.Scripting.Engine.CSharp
                 this.ClearState();
                 this.scriptGlobals = globalsObject;
             }
-        }
-
-
-        public IScriptEngine WithSearchPaths(string baseDirectory, params string[] searchPaths)
-        {
-            Guard.Argument(baseDirectory).NotNull().NotEmpty();
-
-            this.baseDirectory = baseDirectory;
-            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
-
-            metaDataReferenceResolver = CreateScriptMetaDataResolver();
-            scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            scriptOptions = scriptOptions.AddReferences(ProjectReferences.DesktopDefault.GetReferences());
-            scriptOptions = scriptOptions.WithImports(ProjectReferences.NamespaceDefault.Imports);
-            scriptOptions = scriptOptions.WithFileEncoding(System.Text.Encoding.UTF8);
-            scriptOptions = scriptOptions.WithEmitDebugInformation(true);
-
-            //scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
-            //scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-
-            //for #load references look in to the same folder
-            scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths,
-            baseDirectory));
-
-            //scriptOptions = scriptOptions.WithMetadataResolver(this.scriptMetaDataResolver);
-            return this;
-        }
-
-        public IScriptEngine WithAdditionalSearchPaths(params string[] searchPaths)
-        {
-            if (string.IsNullOrEmpty(this.baseDirectory))
-            {
-                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
-            }                     
-        
-            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
-            metaDataReferenceResolver = CreateScriptMetaDataResolver();
-            scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-
-            //for #load references look in to the same folder
-            scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths,
-            baseDirectory));
-          
-            return this;
-        }
-
-        public void RemoveSearchPaths(params string[] searchPaths)
-        {
-            this.searchPaths = this.searchPaths.Except(searchPaths).ToList<string>();
-            metaDataReferenceResolver = CreateScriptMetaDataResolver();
-            scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
-        }
-
-        public IScriptEngine WithAdditionalNamespaces(params string[] namespaces)
-        {
-            this.namespaces = this.namespaces.Union(namespaces).ToList<string>();
-            this.scriptOptions = this.scriptOptions.AddImports(this.namespaces);
-            return this;
-        }
-
-        public void RemoveNamespaces(params string[] namespaces)
-        {
-            this.namespaces = this.namespaces.Except(namespaces).ToList<string>();
-            scriptOptions = scriptOptions.WithImports(this.namespaces);
-        }
-
-        public IScriptEngine WithAdditionalAssemblyReferences(params Assembly[] references)
-        {           
-            foreach (var assembly in references)
-            {              
-                if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
-                {
-                    continue;
-                }
-                scriptOptions = scriptOptions.AddReferences(assembly);
-            }     
-            return this;
-        }
-
-        public IScriptEngine WithAdditionalAssemblyReferences(string[] assemblyReferences)
-        {
-            Guard.Argument(assemblyReferences).NotNull();
-          
-            foreach (var reference in assemblyReferences)
-            {
-                Assembly assembly = default;              
-                if (!Path.IsPathRooted(reference))
-                {
-                    string assemblyLocation = Path.Combine(Environment.CurrentDirectory, reference);
-                    if (!File.Exists(assemblyLocation))
-                    {
-                        throw new FileNotFoundException($"{assemblyLocation} was not found");
-                    }
-                    assembly = Assembly.LoadFrom(assemblyLocation);
-                }
-                else
-                {                
-                    assembly = Assembly.LoadFrom(reference);
-                }  
-                
-                if(scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
-                {
-                    continue;
-                }
-
-                scriptOptions = scriptOptions.AddReferences(assembly);
-
-            }           
-          
-            return this;
-
-        }
-
-        public void RemoveReferences(params Assembly[] references)
-        {
-            var currentReferences = this.scriptOptions.MetadataReferences;
-            List<MetadataReference> referencesToKeep = new List<MetadataReference>();
-            foreach(var metaDataReference in currentReferences)
-            {
-                if(references.Any(a => a.Location.Equals(metaDataReference.Display)))
-                {
-                    continue;
-                }
-                referencesToKeep.Add(metaDataReference);
-            }          
-            scriptOptions = scriptOptions.WithReferences(new Assembly[] { });
-            scriptOptions = scriptOptions.AddReferences(referencesToKeep);
-        }
+        }    
 
         public bool IsCompleteSubmission(string code)
         {
@@ -343,7 +189,7 @@ namespace Pixel.Scripting.Engine.CSharp
             }
             else
             {
-                targetFile = Path.Combine(this.GetWorkingDirectory(), scriptFile);
+                targetFile = Path.Combine(this.scriptsDirectory, scriptFile);
             }
             if(File.Exists(targetFile))
             {

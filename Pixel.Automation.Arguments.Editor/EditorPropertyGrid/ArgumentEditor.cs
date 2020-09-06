@@ -95,7 +95,7 @@ namespace Pixel.Automation.Arguments.Editor
             string initialContent = string.Empty;
             if (string.IsNullOrEmpty(Argument.ScriptFile))
             {
-                var fileSystem = entityManager.GetServiceOfType<IFileSystem>();
+                var fileSystem = entityManager.GetCurrentFileSystem();
                 Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
                 initialContent = Argument.GenerateInitialScript();
             }

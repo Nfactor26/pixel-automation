@@ -80,10 +80,11 @@ namespace Pixel.Automation.Designer.ViewModels
 
             //Always open the most recent non-deployed version if no version is specified
             var targetVersion = versionToLoad ?? project.ActiveVersion;
+            logger.Information($"Version : {targetVersion} will be loaded.");
             if(targetVersion != null)
             {
                 await this.projectManager.Load(project, targetVersion);
-                UpdateWorkFlowRoot();
+                UpdateWorkFlowRoot();             
                 return;
             }
 
@@ -93,42 +94,51 @@ namespace Pixel.Automation.Designer.ViewModels
 
 
         public override async Task EditDataModel()
-        {            
-            var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-            using (var editor = editorFactory.CreateMultiCodeEditorScreen())
+        {
+            try
             {
-                foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                logger.Information($"Opening code editor for editing data model for project : {this.CurrentProject.Name}");
+                var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                using (var editor = editorFactory.CreateMultiCodeEditorScreen())
                 {
-                    await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
+                    foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                    {
+                        await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
+                    }
+
+                    await editor.AddDocumentAsync("DataModel.cs", this.CurrentProject.Name, string.Empty, false);
+                    await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);
+
+                    IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
+                    bool? hasChanges = await windowManager.ShowDialogAsync(editor);
+                    if (hasChanges.HasValue && !hasChanges.Value)
+                    {
+                        return;
+                    }
+                }
+                logger.Information($"Editing data model completed for project : {this.CurrentProject.Name}");
+
+                logger.Information($"Closing all open test cases for project: {this.CurrentProject.Name}");
+                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
+                foreach (var testEntity in testCaseEntities)
+                {
+                    this.testCaseManager.DoneEditing(testEntity.Tag);
                 }
 
-                await editor.AddDocumentAsync("DataModel.cs", this.CurrentProject.Name, string.Empty, false);
-                await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);
+                this.projectManager.Refresh();
 
-                IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-                bool? hasChanges = await windowManager.ShowDialogAsync(editor);    
-                if(hasChanges.HasValue && !hasChanges.Value)
+                UpdateWorkFlowRoot();
+
+                logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
+                foreach (var testEntity in testCaseEntities)
                 {
-                    return;
+                    this.testCaseManager.OpenForEdit(testEntity.Tag);
                 }
             }
-
-            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);         
-            foreach (var testEntity in testCaseEntities)
-            {
-                this.testCaseManager.DoneEditing(testEntity.Tag);
+            catch (Exception ex)
+            { 
+                logger.Information(ex, ex.Message);
             }
-           
-            this.projectManager.Refresh();
-           
-            foreach (var testEntity in testCaseEntities)
-            {
-                this.testCaseManager.OpenForEdit(testEntity.Tag);
-            }
-
-            UpdateWorkFlowRoot();
-
-            logger.Information($"Data model was edited for automation project : {this.CurrentProject.Name}");
         }       
 
         private void InitializeTestProcess()

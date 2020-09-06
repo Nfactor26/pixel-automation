@@ -15,19 +15,10 @@ namespace Pixel.Automation.Scripting.Components.Tests
         public void CanBeInitialized()
         {
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
-            var argumentProcessor = new ArgumentProcessor(scriptEngine);
+            var argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, new object());
 
             Assert.IsNotNull(argumentProcessor);
-        }
-
-
-        /// <summary>
-        /// Validate that constructor throws a ArgumentNullException when null is passed for IScriptEngine argument.
-        /// </summary>
-        [Test]
-        public void ShouldThrowExceptionWhenInitializedWithNullArgument()
-        {
-            Assert.Throws<ArgumentNullException>(() => { new ArgumentProcessor(null); });
-        }
+        }     
     }
 }

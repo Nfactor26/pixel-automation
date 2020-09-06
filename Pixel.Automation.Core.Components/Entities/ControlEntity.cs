@@ -198,7 +198,7 @@ namespace Pixel.Automation.Core.Components
         protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
         {
 
-            IScriptEngine scriptEngine = this.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, bool>>(predicateScriptFile);
             bool isMatch = fn(this, targetElement);
             return isMatch;

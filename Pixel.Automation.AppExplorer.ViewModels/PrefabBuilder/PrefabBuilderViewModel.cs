@@ -56,7 +56,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
             //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
-            IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetServiceOfType<IScriptEngine>();
+            IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetScriptEngine();
             var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator,
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);

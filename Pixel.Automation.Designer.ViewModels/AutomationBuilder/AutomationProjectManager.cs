@@ -60,13 +60,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", "Pixel.Automation.Project.DataModels", new[] { typeof(object).Namespace });
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
-                File.WriteAllText(Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs"), dataModelInitialContent);               
+                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs");
+                File.WriteAllText(dataModelFile, dataModelInitialContent);
+                logger.Information($"Created data model file : {dataModelFile}");
             }             
         }      
 
         private void Initialize(EntityManager entityManager, AutomationProject automationProject)
         {
-
+            logger.Information($"Loading project file for {this.GetProjectName()} now");
             if (!File.Exists(this.projectFileSystem.ProcessFile))
             {
                 this.RootEntity = new Entity("Automation Process", "Root");
@@ -76,7 +78,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.RootEntity = DeserializeProject();
             }
                        
-            AddDefaultEntities();            
+            AddDefaultEntities();
+            logger.Information($"Project file for {this.GetProjectName()} has ben loaded ");
         }
 
         private Entity DeserializeProject()
@@ -125,7 +128,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     break;
             }
 
-            RestoreParentChildRelation(RootEntity);
+            RestoreParentChildRelation(this.RootEntity);
         }
 
         #endregion Load Project
@@ -142,16 +145,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {           
             Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
 
+            logger.Information($"{this.GetProjectName()} will be re-loaded");
             this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());            
+                   
+            var rootEntity = DeserializeProject();
+            //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
+            foreach(var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
+            {
+                var newApplicationEntity = rootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
+                newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
+            }         
+            this.RootEntity = rootEntity;
+            RestoreParentChildRelation(this.RootEntity);
+            logger.Information($"Reload completed for project {this.GetProjectName()}");
 
-            //TODO : Since we are discarding existing entities and starting with a fresh copy , any launched applications will be orphaned .
-            //We need  a way to restore the state 
-            this.RootEntity = DeserializeProject();
-            AddDefaultEntities();            
         }
 
         #region overridden methods

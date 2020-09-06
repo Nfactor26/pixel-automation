@@ -27,7 +27,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         [Test]    
         public void ShouldThrowExecptionIfArgumentTypeIsNotAssignableToRequestedType()
         {           
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(defaultScriptEngine);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(defaultScriptEngine, new object());
             var argument = new InArgument<int>() { Mode = ArgumentMode.Default, DefaultValue = 100 };
 
             Assert.Throws<InvalidOperationException>(() => argumentProcessor.GetValue<bool>(argument));
@@ -40,7 +41,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         [Test]
         public void CanGetDefaultValueOfInArgumentHavingValueTypesInDefaultMode()
         {           
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(defaultScriptEngine);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(defaultScriptEngine, new object());
             var argument = new InArgument<int>() { Mode = ArgumentMode.Default, DefaultValue = 100 };
 
             var result = argumentProcessor.GetValue<int>(argument);
@@ -55,7 +57,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         [Test]
         public void CanGetDefaultValueOfInArgumentHavingReferenceTypesInDefaultMode()
         { 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(defaultScriptEngine);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(defaultScriptEngine, new object());
             List<int> numbers = new List<int>() { 1, 2, 3, 4, 5 };
             var argument = new InArgument<List<int>>() { Mode = ArgumentMode.Default, DefaultValue = numbers };
 
@@ -70,7 +73,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         [Test]
         public void ShouldReturnDefaultValueOfTypeWhenPropertyPathIsNotConfigured()
         {             
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(defaultScriptEngine);        
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(defaultScriptEngine, new object());
             var argument = new InArgument<bool>() { Mode = ArgumentMode.DataBound };
 
             var result = argumentProcessor.GetValue<bool>(argument);
@@ -88,8 +92,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.HasScriptVariable(Arg.Any<string>()).Returns(false);
             Person person = new Person() { Name = "Sheldon Cooper", Age = 40 };
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);
-            argumentProcessor.SetGlobals(person);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, person);
             var argument = new InArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "Name" };
 
             var result = argumentProcessor.GetValue<string>(argument);
@@ -108,8 +112,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.HasScriptVariable(Arg.Any<string>()).Returns(false);
             Person person = new Person() { Name = "Sheldon Cooper", Age = 40 , Address = new Address() { City = "East Texas", Country = "US" } };
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);
-            argumentProcessor.SetGlobals(person);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, person);
             var argument = new InArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "Address.City" };
 
             var result = argumentProcessor.GetValue<string>(argument);
@@ -129,7 +133,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
             scriptEngine.HasScriptVariable(Arg.Is<string>("person")).Returns(true);
             scriptEngine.GetVariableValue<Person>(Arg.Is<string>("person")).Returns(person);
 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);      
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, person);
             var argument = new InArgument<Person>() { Mode = ArgumentMode.DataBound, PropertyPath = "person" };
 
             var result = argumentProcessor.GetValue<Person>(argument);
@@ -149,7 +154,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
             scriptEngine.HasScriptVariable(Arg.Is<string>("person")).Returns(true);
             scriptEngine.GetVariableValue<object>(Arg.Is<string>("person")).Returns(person);
 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);          
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, person);
             var argument = new InArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "person.Address.City" };
 
             var result = argumentProcessor.GetValue<string>(argument);
@@ -172,8 +178,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.HasScriptVariable(Arg.Is<string>("Name")).Returns(true);
             scriptEngine.GetVariableValue<string>(Arg.Is<string>("Name")).Returns(Name);
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);
-            argumentProcessor.SetGlobals(person);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, person);
             var argument = new OutArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "Name" };
 
             var result = argumentProcessor.GetValue<string>(argument);
@@ -193,7 +199,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         {
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.CreateDelegateAsync<Func<int>>(Arg.Any<string>()).Returns(() => { return 200; });
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, new object());
             var argument = new InArgument<int>() { Mode = ArgumentMode.Scripted , ScriptFile = "script.csx" };
 
             var result = argumentProcessor.GetValue<int>(argument);
@@ -209,7 +216,8 @@ namespace Pixel.Automation.Scripting.Components.Tests
         {
             IScriptEngine scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.CreateDelegateAsync<Func<int>>(Arg.Any<string>()).Returns(() => { throw new NotImplementedException(); });
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(scriptEngine);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
+            argumentProcessor.Initialize(scriptEngine, new object());
             var argument = new InArgument<int>() { Mode = ArgumentMode.Scripted, ScriptFile = "script.csx" };
 
             Assert.Throws<NotImplementedException>(() => argumentProcessor.GetValue<int>(argument));
