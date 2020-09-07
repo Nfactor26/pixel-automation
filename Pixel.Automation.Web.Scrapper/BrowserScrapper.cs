@@ -1,7 +1,4 @@
 ﻿using Caliburn.Micro;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Infrastructure;
-using Microsoft.Owin.Hosting;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
@@ -9,12 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Pixel.Automation.Web.Scrapper
 {
     public class BrowserScrapper : PropertyChangedBase, IControlScrapper, IHandle<RepositoryApplicationOpenedEventArgs>
-    {
-        IDisposable signalR;
+    {        
         public string DisplayName
         {
             get
@@ -46,11 +44,12 @@ namespace Pixel.Automation.Web.Scrapper
 
         private readonly IEventAggregator eventAggregator;
         private readonly IScreenCapture screenCapture;
+        private IHost host;
 
         public BrowserScrapper(IEventAggregator eventAggregator, IScreenCapture screenCapture)
         {
             this.eventAggregator = eventAggregator;
-            this.eventAggregator.Subscribe(this);
+            this.eventAggregator.SubscribeOnPublishedThread(this);
             this.screenCapture = screenCapture;
         }
 
@@ -63,28 +62,34 @@ namespace Pixel.Automation.Web.Scrapper
         {
             try
             {
-                GlobalHost.DependencyResolver = new DefaultDependencyResolver(); //without this restarting server fails silently since dependency resolver is disposed as well 
-                GlobalHost.DependencyResolver.Register(typeof(ScrapperHub), () => new ScrapperHub(screenCapture));
-                signalR = WebApp.Start<Startup>("http://localhost:9143/");             
+                host = CreateHostBuilder(null).Build();
+                host.RunAsync();
             }
             catch (Exception ex)
             {
-               Log.Error(ex,ex.Message);                
-            }
+               Log.Error(ex, ex.Message);                
+            }           
         }
+
+        IHostBuilder CreateHostBuilder(string[] args) =>
+           Host.CreateDefaultBuilder(args)
+             .ConfigureWebHostDefaults(webBuilder =>
+             {
+                 webBuilder.ConfigureServices(a => a.Add( new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IScreenCapture), this.screenCapture)))
+                 .ConfigureKestrel(serverOptions =>
+                 {
+                     serverOptions.ListenLocalhost(9143);
+                 })
+                 .UseStartup<Startup>();
+             });
 
         public void StopCapture()
         {
-            var connectionManager = GlobalHost.DependencyResolver.Resolve<IConnectionManager>();
-            var scrapperHub =  connectionManager.GetHubContext<ScrapperHub>();
-            scrapperHub.Clients.All.onServerClosing(); //this will stop scrapping if active on the client
-
             //stop server after a while so that message is sent
             Task stopServerTask = new Task(() =>
             {
                 Thread.Sleep(2000);
-                signalR?.Dispose();               
-                signalR = null;       
+                host?.StopAsync();
             });
             stopServerTask.Start();
              
@@ -105,6 +110,7 @@ namespace Pixel.Automation.Web.Scrapper
             targetApplicationId = message.ApplicationId;
             ScrapperHub.ApplicationId = targetApplicationId;
             NotifyOfPropertyChange(() => CanToggleScrapper);
+            await Task.CompletedTask;
         }
     }
 }

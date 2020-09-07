@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using Pixel.Automation.Core.Arguments;
+﻿using Microsoft.AspNetCore.SignalR;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Web.Selenium.Components;
@@ -14,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Scrapper
 {
-    [HubName("scrapper")]
     public class ScrapperHub : Hub
     {
         public static string ApplicationId { get; set; }
@@ -37,16 +34,9 @@ namespace Pixel.Automation.Web.Scrapper
             }
 
             return capturedIdentities;
-
         }
 
-        public override Task OnConnected()
-        {
-            Log.Information("Session connected to Scrapper Hub");
-            return base.OnConnected();
-        }
-
-        public void AddWebControlDetails(ScrapedData captureData)
+        public async Task AddWebControlDetails(ScrapedData captureData)
         {          
             WebControlIdentity controlIdentity = new WebControlIdentity()
             {
@@ -77,7 +67,7 @@ namespace Pixel.Automation.Web.Scrapper
 
             ScrapedControl scrapedControl = new ScrapedControl() { ControlData = controlIdentity, ControlImage = controlImage };
             capturedControls.Enqueue(scrapedControl);
-
+            await Task.CompletedTask;
             Log.Information("Recevied control with identifier : {identifier}", controlIdentity.Identifier);
         }
 
