@@ -122,7 +122,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Core", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Respository", "Pixel.Persistence.Respository\Pixel.Persistence.Respository.csproj", "{2CB3D6DB-B509-41B1-84F8-1AA13AA43101}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Persistence.Services.Client", "Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj", "{DC616BF5-7555-4972-99DC-71E208FA3C82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Client", "Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj", "{DC616BF5-7555-4972-99DC-71E208FA3C82}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{31FC611F-42BE-4506-AEF5-89BB59963695}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chrome", "Chrome", "{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0}"
+	ProjectSection(SolutionItems) = preProject
+		Extensions\Chrome\background.html = Extensions\Chrome\background.html
+		Extensions\Chrome\background.js = Extensions\Chrome\background.js
+		Extensions\Chrome\icon.png = Extensions\Chrome\icon.png
+		Extensions\Chrome\jquery-1.6.4-vsdoc.js = Extensions\Chrome\jquery-1.6.4-vsdoc.js
+		Extensions\Chrome\jquery-1.6.4.min.js = Extensions\Chrome\jquery-1.6.4.min.js
+		Extensions\Chrome\manifest.json = Extensions\Chrome\manifest.json
+		Extensions\Chrome\optimal-select.min.js = Extensions\Chrome\optimal-select.min.js
+		Extensions\Chrome\signalr.js = Extensions\Chrome\signalr.js
+		Extensions\Chrome\Web.Scrapper.js = Extensions\Chrome\Web.Scrapper.js
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -343,6 +358,8 @@ Global
 		{143EDF5C-5970-4EF9-82C5-E11F96DF701A} = {FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}
 		{2CB3D6DB-B509-41B1-84F8-1AA13AA43101} = {AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}
 		{DC616BF5-7555-4972-99DC-71E208FA3C82} = {FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}
+		{31FC611F-42BE-4506-AEF5-89BB59963695} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
+		{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0} = {31FC611F-42BE-4506-AEF5-89BB59963695}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}
