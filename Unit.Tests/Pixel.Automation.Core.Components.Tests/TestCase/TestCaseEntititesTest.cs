@@ -61,7 +61,7 @@ namespace Pixel.Automation.Core.Components.Tests
           
             Assert.AreEqual("Test Fixture", entity.Name);
             Assert.AreEqual("TestFixture", entity.Tag);
-            Assert.AreEqual(2, entity.Components.Count());
+            Assert.AreEqual(4, entity.Components.Count());
 
         }
 
@@ -74,7 +74,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             Assert.AreEqual("Test Case", entity.Name);
             Assert.AreEqual("TestCase", entity.Tag);
-            Assert.AreEqual(3, entity.Components.Count());
+            Assert.AreEqual(0, entity.Components.Count());
 
         }
     }
