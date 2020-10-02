@@ -6,7 +6,7 @@ namespace Pixel.Automation.TestExplorer
 {
     public class TreeViewItemStyleSelector : StyleSelector
     {
-        public Style TestCategoryStyle { get; set; }
+        public Style TestFixtureStyle { get; set; }
 
         public Style TestCaseStyle { get; set; }
 
@@ -20,9 +20,9 @@ namespace Pixel.Automation.TestExplorer
                 {
                     return TestCaseStyle;
                 }
-                if (item is TestCategoryViewModel)
+                if (item is TestFixtureViewModel)
                 {
-                    return TestCategoryStyle;
+                    return TestFixtureStyle;
                 }              
             }
             return null;

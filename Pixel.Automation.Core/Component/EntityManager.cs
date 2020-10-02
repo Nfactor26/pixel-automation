@@ -135,9 +135,14 @@ namespace Pixel.Automation.Core
             IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
 
             var previousDataModelAssembly = prevArgs.GetType().Assembly;
-            var newDataModleAssembly = newArgs.GetType().Assembly;
-            scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
-            scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModleAssembly);
+            var newDataModelAssembly = newArgs.GetType().Assembly;
+
+            //Note : Important check . Otherwise all script engine states are cleared which is not desirable during test execution
+            if(previousDataModelAssembly != newDataModelAssembly)
+            {
+                scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
+                scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModelAssembly);
+            }  
 
             this.scriptEngine.SetGlobals(newArgs);
             this.argumentProcessor.Initialize(this.scriptEngine, newArgs);
@@ -356,7 +361,8 @@ namespace Pixel.Automation.Core
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if (isDisposing)
+            //TODO : We need to dispose components for non-primary Entity manager
+            if (isDisposing && this.isPrimaryEntityManager)
             {
                 foreach (var component in this.RootEntity.GetAllComponents())
                 {
@@ -366,14 +372,14 @@ namespace Pixel.Automation.Core
                     }
                 }
 
-                this.serviceProvider.Dispose();
-
-                this.RootEntity = null;
-                this.arguments = null;
-                this.serviceProvider = null;
-                this.fileSystem = null;
-
+                this.serviceProvider.Dispose();               
             }
+
+            this.RootEntity = null;
+            this.arguments = null;
+            this.serviceProvider = null;
+            this.fileSystem = null;
+
         }
 
         #endregion IDisposable

@@ -1,11 +1,11 @@
 ﻿namespace Pixel.Automation.TestExplorer.Views
 {
     /// <summary>
-    /// Interaction logic for EditTestCategoryView.xaml
+    /// Interaction logic for EditTestFixtureView.xaml
     /// </summary>
-    public partial class EditTestCategoryView
+    public partial class EditTestFixtureView
     {
-        public EditTestCategoryView()
+        public EditTestFixtureView()
         {
             InitializeComponent();
         }

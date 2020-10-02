@@ -15,8 +15,8 @@ namespace Pixel.Automation.Core.TestData
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [DataMember]
-        public string CategoryId { get; set; } 
-        
+        public string FixtureId { get; set; }
+
         [DataMember]
         public string DisplayName { get; set; }
 

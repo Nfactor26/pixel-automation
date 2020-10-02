@@ -27,7 +27,7 @@ namespace Pixel.Automation.Test.Runner
         private ITestRunner testRunner;
 
         private AutomationProject automationProject;
-        private List<TestCategory> availableCategories = new List<TestCategory>();
+        private List<TestFixture> availableFixtures = new List<TestFixture>();
 
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IProjectFileSystem fileSystem, ITypeProvider typeProvider, ITestSessionClient sessionClient)
         {
@@ -81,21 +81,21 @@ namespace Pixel.Automation.Test.Runner
 
         public void LoadTestCases()
         {
-            List<TestCategory> testCategories = new List<TestCategory>();
-            foreach (var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseRepository))
-            {
-                testCategories.Add(testCategory);
-            }
+            //List<TestCategory> testCategories = new List<TestCategory>();
+            //foreach (var testCategory in this.fileSystem.LoadFiles<TestCategory>(this.fileSystem.TestCaseRepository))
+            //{
+            //    testCategories.Add(testCategory);
+            //}
 
-            foreach (var testDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
-            {
-                foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testDirectory))
-                {
-                    var ownerCategory = testCategories.Single(a => a.Id.Equals(testCase.CategoryId));
-                    ownerCategory.Tests.Add(testCase);
-                }
-            }
-            this.availableCategories.AddRange(testCategories);
+            //foreach (var testDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+            //{
+            //    foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testDirectory))
+            //    {
+            //        var ownerCategory = testCategories.Single(a => a.Id.Equals(testCase.CategoryId));
+            //        ownerCategory.Tests.Add(testCase);
+            //    }
+            //}
+            //this.availableFixtures.AddRange(testCategories);
 
         }
 
@@ -118,12 +118,12 @@ namespace Pixel.Automation.Test.Runner
             {
                 await this.Setup();
 
-                foreach (var testCategory in this.availableCategories)
+                foreach (var testCategory in this.availableFixtures)
                 {
-                    if(!testSelector.CanRunCategory(testCategory))
-                    {
-                        continue;
-                    }
+                    //if(!testSelector.CanRunCategory(testCategory))
+                    //{
+                    //    continue;
+                    //}
 
                     foreach (var testCase in testCategory.Tests)
                     {                      
@@ -160,23 +160,23 @@ namespace Pixel.Automation.Test.Runner
             }
         }
        
-        public async Task<Persistence.Core.Models.TestResult> RunTestCaseAsync(TestCategory category, TestCase testCase)
+        public async Task<Persistence.Core.Models.TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
         {
             logger.Information($"Start execution of test case : {testCase.DisplayName}");
 
             string testCaseProcessFile = Path.Combine(this.fileSystem.TestCaseRepository, testCase.Id, "TestAutomation.proc");
             testCase.TestCaseEntity = serializer.Deserialize<Entity>(testCaseProcessFile, typeProvider.GetAllTypes());
 
-            if (await this.testRunner.TryOpenTestCase(testCase))
+            if (await this.testRunner.TryOpenTestCase(fixture, testCase))
             {
-                await foreach (var result in this.testRunner.RunTestAsync(testCase))
+                await foreach (var result in this.testRunner.RunTestAsync(fixture, testCase))
                 {
                     var testResult = new Persistence.Core.Models.TestResult()
                     {
                         TestId = testCase.Id,
                         TestName = testCase.DisplayName,
-                        CategoryId = category.Id,
-                        CategoryName = category.DisplayName,
+                        CategoryId = fixture.Id,
+                        CategoryName = fixture.DisplayName,
                         Result = (Persistence.Core.Models.TestState)((int)result.Result),
                         ExecutionTime = result.ExecutionTime.TotalSeconds,
                         ErrorMessage = result.ErrorMessage

@@ -1,5 +1,7 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
+using System;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -9,6 +11,8 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         IProjectManager WithEntityManager(EntityManager entityManager);
 
         IFileSystem GetProjectFileSystem();
+
+        IScriptEditorScreen CreateScriptEditor(string projectId, string[] projectReferences, Type globalsType, string scriptFile);
 
         /// <summary>
         /// Save all project data

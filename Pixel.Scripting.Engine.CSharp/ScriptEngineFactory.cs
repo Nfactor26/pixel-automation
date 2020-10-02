@@ -197,6 +197,7 @@ namespace Pixel.Scripting.Engine.CSharp
                 scriptOptions = scriptOptions.WithReferences(new Assembly[] { });
                 scriptOptions = scriptOptions.AddReferences(referencesToKeep);
 
+                List<WeakReference<IScriptEngine>> itemsToRemove = new List<WeakReference<IScriptEngine>>();
                 //Clear the state of each script engine since scriptOptions don't match with ScriptState anymore
                 foreach (var scriptEngineReference in this.createdScriptEngines)
                 {
@@ -206,10 +207,11 @@ namespace Pixel.Scripting.Engine.CSharp
                     }
                     else
                     {
-                        this.createdScriptEngines.Remove(scriptEngineReference);
+                        itemsToRemove.Add(scriptEngineReference);
                     }
                 }
 
+                this.createdScriptEngines.RemoveAll(a=> itemsToRemove.Contains(a));
             }
 
         }

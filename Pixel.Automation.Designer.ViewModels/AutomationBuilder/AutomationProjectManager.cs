@@ -115,12 +115,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 case ProjectType.TestAutomation:
                     if (this.RootEntity.Components.Count() == 0)
-                    {
-                        var appPoolEntity = new ApplicationPoolEntity();
-                        this.RootEntity.AddComponent(appPoolEntity);
-
-                        TestFixtureEntity testFixtureEntity = new TestFixtureEntity();
-                        this.RootEntity.AddComponent(testFixtureEntity);                      
+                    {                      
+                        this.RootEntity.AddComponent(new ApplicationPoolEntity());
+                        this.RootEntity.AddComponent(new OneTimeSetUpEntity() { Name = "Environment Setup" });
+                        this.RootEntity.AddComponent(new OneTimeTearDownEntity() { Name = "Environment Teardown" });
                     }
                     break;
 
@@ -168,28 +166,28 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #region overridden methods
 
         /// <summary>
-        /// Save automation project data
+        /// Save automation project and process
         /// </summary>
         /// <returns></returns>
         public override async Task Save()
         {
-            //Remove all the test cases as we don't want them to save as a part of  automamtion process file
-            var testCaseEntities = this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-            Entity parentEntity = testCaseEntities.FirstOrDefault()?.Parent;
-            foreach (var testEntity in testCaseEntities)
+            //Remove all the test fixtures as we don't want them to save as a part of  automamtion process file
+            var testFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(SearchScope.Descendants);
+            Entity parentEntity = testFixtureEntities.FirstOrDefault()?.Parent;
+            foreach (var testEntity in testFixtureEntities)
             {
                 testEntity.Parent.RemoveComponent(testEntity);
             }
-         
+
             serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());
             await this.applicationDataManager.AddOrUpdateProjectAsync(this.activeProject, this.loadedVersion);
 
             //Add back the test cases that were already open
-            foreach (var testCaseEntity in testCaseEntities)
+            foreach (var testFixtureEntity in testFixtureEntities)
             {
-                parentEntity.AddComponent(testCaseEntity);
+                parentEntity.AddComponent(testFixtureEntity);
             }
         }
 

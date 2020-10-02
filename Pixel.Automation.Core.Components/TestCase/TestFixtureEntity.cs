@@ -1,16 +1,15 @@
-﻿using Pixel.Automation.Core.Attributes;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Components.TestCase
 {
+    /// <summary>
+    /// TestFixtureEntity can have multiple test cases
+    /// </summary>
     [DataContract]
-    [Serializable]
-    [ToolBoxItem("TestFixture", "Test Entities", iconSource: null, description: "Test Fixture Entity", tags: new string[] { "Test" })]
-
+    [Serializable]   
     public class TestFixtureEntity : Entity
-    {
-       
+    {      
         public TestFixtureEntity() : base("Test Fixture", "TestFixture")
         {
 
@@ -21,7 +20,9 @@ namespace Pixel.Automation.Core.Components.TestCase
             if (this.components.Count == 0)
             {
                 this.AddComponent(new OneTimeSetUpEntity());
-                this.AddComponent(new OneTimeTearDownEntity());               
+                this.AddComponent(new OneTimeTearDownEntity());
+                this.AddComponent(new SetUpEntity());
+                this.AddComponent(new TearDownEntity());
             }
 
         }

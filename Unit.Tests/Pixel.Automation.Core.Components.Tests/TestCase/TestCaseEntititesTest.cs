@@ -50,18 +50,7 @@ namespace Pixel.Automation.Core.Components.Tests
             Assert.AreEqual("Tear Down", entity.Name);
             Assert.AreEqual("TearDown", entity.Tag);
             Assert.AreEqual(0, entity.Components.Count());
-        }
-
-        [Test]
-        public void VerifyThatTestSequenceEntityCanBeInitialized()
-        {
-            var entity = new TestSequenceEntity();
-            entity.ResolveDependencies();
-
-            Assert.AreEqual("Test Sequence", entity.Name);
-            Assert.AreEqual("TestSequence", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
-        }
+        }     
 
         [Test]
         public void VerifyThatTestFixtureEntityCanBeInitialized()

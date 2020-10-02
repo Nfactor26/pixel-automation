@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Editor.Core;
+using System.Linq;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -49,7 +50,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public bool HasTestCaseOpenForEdit()
         {
-            return this.ActiveInstance?.OpenTestCases.Count > 0;
+            return this.ActiveInstance?.TestFixtures.Any(f => f.IsOpenForEdit) ?? false;
         }
 
 

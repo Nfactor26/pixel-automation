@@ -7,7 +7,6 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
-using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Designer.ViewModels.VersionManager;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -17,7 +16,9 @@ using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -118,21 +119,26 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 logger.Information($"Editing data model completed for project : {this.CurrentProject.Name}");
 
-                logger.Information($"Closing all open test cases for project: {this.CurrentProject.Name}");
+                logger.Information($"Closing all open TestCases for project: {this.CurrentProject.Name}");
+
+                //closing fixture will also close test cases
                 var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-                foreach (var testEntity in testCaseEntities)
+                var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
+                Debug.Assert(testFixtures.Any(a => a == null), "Invalid setup. TestCaseEntity must have a TestFixtureEntity as it's parent");
+                foreach (var fixture in testFixtures)
                 {
-                    this.testCaseManager.DoneEditing(testEntity.Tag);
+                    await this.testCaseManager.CloseTestFixtureAsync(fixture.Tag);
                 }
 
                 this.projectManager.Refresh();
 
                 UpdateWorkFlowRoot();
 
+                //Opening test case will also open parent TestFixture if not already open.
                 logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
                 foreach (var testEntity in testCaseEntities)
                 {
-                    this.testCaseManager.OpenForEdit(testEntity.Tag);
+                    await this.testCaseManager.OpenTestCaseAsync(testEntity.Tag);
                 }
             }
             catch (Exception ex)
@@ -192,7 +198,15 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-           await projectManager.Save();
+            try
+            {
+                this.testCaseManager.SaveAll();
+                await projectManager.Save();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         public async override Task Manage()
@@ -240,7 +254,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
             foreach (var testEntity in testCaseEntities)
             {
-                this.testCaseManager.DoneEditing(testEntity.Tag);
+                this.testCaseManager.CloseTestCaseAsync(testEntity.Tag);
             }
 
             this.testDataRepositoryViewModel?.ClearActiveInstance();

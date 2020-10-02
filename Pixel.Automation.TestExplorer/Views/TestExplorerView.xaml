@@ -18,8 +18,9 @@
         <converters:NullToBooleanConverter x:Key="nullToBoolConverter"/>
         <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
         <converters:TrimmedTextConverter x:Key="trimmedTextConverter"/>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
         
-        <HierarchicalDataTemplate DataType="{x:Type localVM:TestCategoryViewModel}" ItemsSource="{Binding Tests}">
+        <HierarchicalDataTemplate DataType="{x:Type localVM:TestFixtureViewModel}" ItemsSource="{Binding Tests}">
 
         </HierarchicalDataTemplate>
 
@@ -30,6 +31,21 @@
         <iconPacks:PackIconEntypo x:Key="FailureIcon" Kind="EmojiSad" Foreground="Red" x:Shared="False"/>
         <iconPacks:PackIconEntypo x:Key="AbortedIcon" Kind="EmojiNeutral" Foreground="Yellow" x:Shared="False"/>
 
+        <Style TargetType="{x:Type GroupItem}" x:Key="FixtureGroupStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Expander Header="{Binding Name}" IsExpanded="False"
+                                  Background="{DynamicResource MahApps.Brushes.Window.Background}"   
+                                  controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
+                                  BorderThickness="0" FontSize="11">
+                            <ItemsPresenter />
+                        </Expander>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
         <Style x:Key="ResultButtonStyle" TargetType="Button" BasedOn="{StaticResource EditControlButtonStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Result, FallbackValue=None}" Value="Success">
@@ -63,6 +79,7 @@
 
         <Style x:Key="TestCaseStyle" TargetType="TreeViewItem" >
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource boolToVisConverter}}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TreeViewItem">
@@ -79,7 +96,7 @@
                                     <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" HorizontalAlignment="Left"
                                          DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0" Foreground="Black"
                                          cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
-                                         cal:Message.Attach="[Event DoubleClick] = [Action OpenForEdit($dataContext)]">
+                                         cal:Message.Attach="[Event DoubleClick] = [Action OpenTestCaseAsync($dataContext)]">
                                         <TextBlock.ToolTip>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                                 <Label Content="Test data :"></Label>
@@ -99,17 +116,17 @@
                                     <StackPanel.ContextMenu>
                                         <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                             <MenuItem x:Name="Open" Header="Open" IsEnabled="{Binding CanOpenForEdit}"                                         
-                                                cal:Message.Attach="[Event Click] = [Action OpenForEdit($dataContext)]"/>
+                                                cal:Message.Attach="[Event Click] = [Action OpenTestCaseAsync($dataContext)]"/>
                                             <MenuItem x:Name="Close" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
-                                                cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'false')]"/>
+                                                cal:Message.Attach="[Event Click] = [Action CloseTestCaseAsync($dataContext,'false')]"/>
                                             <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
                                                 cal:Message.Attach="[Event Click] = [Action SaveTestCase($dataContext, 'true')]"/>
                                             <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
-                                                cal:Message.Attach="[Event Click] = [Action DoneEditing($dataContext,'true')]"/>
+                                                cal:Message.Attach="[Event Click] = [Action CloseTestCaseAsync($dataContext,'true')]"/>
                                             <MenuItem x:Name="Edit" Header="Edit Details"                                       
-                                                cal:Message.Attach="[Event Click] = [Action EditTestCase($dataContext)]"/>
+                                                cal:Message.Attach="[Event Click] = [Action EditTestCaseAsync($dataContext)]"/>
                                             <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                    
-                                                cal:Message.Attach="[Event Click] = [Action EditScript($dataContext)]"/>
+                                                cal:Message.Attach="[Event Click] = [Action EditTestScriptAsync($dataContext)]"/>
                                             <MenuItem x:Name="ShowDataSource" Header="Show Data Source" IsEnabled="{Binding TestDataId, Converter={StaticResource nullToBoolConverter}}" 
                                                 cal:Message.Attach="[Event Click] = [Action ShowDataSource($dataContext)]"/>
                                             <MenuItem x:Name="Delete" Header="Delete" IsEnabled="{Binding IsOpenForEdit, Converter={StaticResource inverseBoolConverter}}" 
@@ -124,7 +141,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="false">
                                 <Setter TargetName="TestCaseLabel" Property="FontSize" Value="13"></Setter>
-                            </Trigger>
+                            </Trigger>                          
                             <Trigger Property="IsSelected" Value="true">
                                 <Setter TargetName="TestCaseLabel" Property="FontSize" Value="14"></Setter>
                                 <Setter TargetName="TestCaseLabel" Property="FontWeight" Value="Bold"></Setter>
@@ -159,8 +176,9 @@
             </Setter>
         </Style>
 
-        <Style x:Key="TestCategoryStyle" TargetType="TreeViewItem" >
+        <Style x:Key="TestFixtureStyle" TargetType="TreeViewItem" >
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource boolToVisConverter}}"/>            
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TreeViewItem">
@@ -170,12 +188,20 @@
                                 <ItemsPresenter x:Name="ItemsHost"/>
                                 <Expander.ContextMenu>
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem x:Name="AddTestCase" Header="Add"                                       
-                                            cal:Message.Attach="[Event Click] = [Action AddTestCase($dataContext)]"/>
-                                        <MenuItem x:Name="Edit" Header="Edit"                                       
-                                            cal:Message.Attach="[Event Click] = [Action EditTestCategory($dataContext)]"/>
-                                        <MenuItem x:Name="Delete" Header="Delete"
-                                            cal:Message.Attach="[Event Click] = [Action DeleteTestCategory($dataContext)]"/>
+                                        <MenuItem x:Name="OpenTestFixture" Header="Open"                                       
+                                            cal:Message.Attach="[Event Click] = [Action OpenTestFixtureAsync($dataContext)]"/>
+                                        <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
+                                                cal:Message.Attach="[Event Click] = [Action SaveTestFixture($dataContext, 'true')]"/>
+                                        <MenuItem x:Name="CloseTestFixture" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
+                                                cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'false')]"/>
+                                        <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
+                                                cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'true')]"/>
+                                        <MenuItem x:Name="AddTestCase" Header="Add Test"                                       
+                                            cal:Message.Attach="[Event Click] = [Action AddTestCaseAsync($dataContext)]"/>
+                                        <MenuItem x:Name="Edit" Header="Edit Details"                                       
+                                            cal:Message.Attach="[Event Click] = [Action EditTestFixtureAsync($dataContext)]"/>
+                                        <MenuItem x:Name="EditScript" Header="Edit Script"                                       
+                                            cal:Message.Attach="[Event Click] = [Action EditTestFixtureScriptAsync($dataContext)]"/>                                     
                                     </ContextMenu>
                                 </Expander.ContextMenu>
                             </Expander>
@@ -186,15 +212,15 @@
                             </Trigger>
                             <DataTrigger Binding="{Binding IsMuted}" Value="True">
                                 <Setter Property="Foreground" Value="Gray"/>
-                            </DataTrigger>
+                            </DataTrigger>                       
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
-            </Setter>
+            </Setter>            
         </Style>
 
         <local:TreeViewItemStyleSelector x:Key="TreeViewItemStyleSelector" TestCaseStyle="{StaticResource TestCaseStyle}"
-                                         TestCategoryStyle ="{StaticResource TestCategoryStyle}"/>
+                                         TestFixtureStyle ="{StaticResource TestFixtureStyle}"/>
 
 
     </UserControl.Resources>
@@ -209,16 +235,16 @@
         <StackPanel x:Name="ToolBar" Orientation="Horizontal" Margin="5,5,5,0" Grid.Row="0" 
                    IsEnabled="{Binding IsTestProcessOpen}">
             <StackPanel DataContext="{Binding Path=ActiveInstance}" Orientation="Horizontal">
-                <Button x:Name="AddTestCategory" Margin="0,0,2,0" HorizontalAlignment="Right" 
-                                            Height="20" Width="20" ToolTip="Add new category"                                              
-                                            cal:Message.Attach="[Event Click] = [Action AddTestCategory()]"                       
+                <Button x:Name="AddTestFixture" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Add new fixture"                                              
+                                            cal:Message.Attach="[Event Click] = [Action AddTestFixtureAsync()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material PlaylistPlus}"/>
                 <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
                                             DataContext="{Binding Path=TestRunner}"
                                             Height="20" Width="20" ToolTip="Setup"     
                                             IsEnabled="{Binding CanSetUp}"
-                                            cal:Message.Attach="[Event Click] = [Action SetUp()]"
+                                            cal:Message.Attach="[Event Click] = [Action SetUpEnvironment()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material Flash}"/>
 
@@ -226,7 +252,7 @@
                                             DataContext="{Binding Path=TestRunner}"
                                             Height="20" Width="20" ToolTip="Teardown"  
                                             IsEnabled="{Binding CanTearDown}"
-                                            cal:Message.Attach="[Event Click] = [Action TearDown()]"
+                                            cal:Message.Attach="[Event Click] = [Action TearDownEnvironment()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material FlashOff}"/>
 
@@ -258,14 +284,23 @@
             </StackPanel>
         </StackPanel>
 
-        <TextBox x:Name="Filter" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+        <TextBox x:Name="Filter" Text="{Binding ActiveInstance.FilterText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
                  controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                  controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch"
                  VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
 
         <TreeView x:Name="TestExplorerTreeView" Grid.Row="2"
                                   ItemContainerStyleSelector="{StaticResource TreeViewItemStyleSelector}"
-                                  ItemsSource="{Binding ActiveInstance.TestCategories}" BorderThickness="0">
+                                  ItemsSource="{Binding ActiveInstance.TestFixtures}" BorderThickness="0">
+            <!--<TreeView.GroupStyle>
+                <GroupStyle ContainerStyle="{StaticResource FixtureGroupStyle}">
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock  Text="{Binding Path=Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </TreeView.GroupStyle>-->           
         </TreeView>
 
     </Grid>

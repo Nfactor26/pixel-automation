@@ -34,10 +34,12 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlMargin}">
                 <StackPanel Orientation="Horizontal" Margin="4 0 0 0">
-                    <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}"/>
-                    <Label Content="Muted" ></Label>
+                    <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Muted test cases are not executed"/>
+                    <Label Content="Muted" ></Label>                   
+                    <controls:NumericUpDown Minimum="0" Value="{Binding Order}" Margin="10,0,0,0" ToolTip="Order of execution of test case within a fixture"/>
+                    <Label Content="Order" ></Label>
                 </StackPanel>
-            </StackPanel>
+            </StackPanel>          
         </StackPanel>
         <DockPanel LastChildFill="False" Margin="{StaticResource ControlMargin}">
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,4,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>

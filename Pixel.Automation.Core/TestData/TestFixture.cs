@@ -6,9 +6,9 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Core.TestData
 {
     [DataContract]
-    [Serializable] 
-    [FileDescription("tcat")]
-    public class TestCategory : ICloneable
+    [Serializable]
+    [FileDescription("fixture")]
+    public class TestFixture
     {
         [DataMember]
         public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -20,22 +20,30 @@ namespace Pixel.Automation.Core.TestData
         public string Description { get; set; }
 
         [DataMember]
-        public bool IsOrdered { get; set; }
+        public string Group { get; set; } = "Default";
+
+        [DataMember]
+        public IEnumerable<string> Tags { get; set; } = new List<string>();
+
+        public List<TestCase> Tests { get; set; } = new List<TestCase>();
 
         [DataMember]
         public bool IsMuted { get; set; }
 
-        public List<TestCase> Tests { get; set; } = new List<TestCase>();
+        public Entity TestFixtureEntity { get; set; }
+
+        [DataMember]
+        public string ScriptFile { get; set; }
 
         public object Clone()
         {
-            TestCategory copy = new TestCategory()
+            TestFixture copy = new TestFixture()
             {
                 Id = this.Id,
                 DisplayName = this.DisplayName,
                 Description = this.Description,
-                IsOrdered = this.IsOrdered,
-                IsMuted = this.IsMuted              
+                Tags = this.Tags,
+                IsMuted = this.IsMuted
             };
             return copy;
         }
@@ -44,6 +52,5 @@ namespace Pixel.Automation.Core.TestData
         {
             return $"{Id}";
         }
-
     }
 }

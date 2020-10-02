@@ -112,7 +112,7 @@ namespace Pixel.Automation.Core
             yield break;
         }
 
-        public void SaveToFile<T>(T model,string directory) where T : new()
+        public void SaveToFile<T>(T model, string directory) where T : new()
         {
             var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;
             if (fileDescription != null)
@@ -161,6 +161,11 @@ namespace Pixel.Automation.Core
         public string ReadAllText(string path)
         {
             return File.ReadAllText(path);
+        }
+
+        public string GetRelativePath(string path)
+        {
+            return Path.GetRelativePath(this.WorkingDirectory, path);
         }
     }
 

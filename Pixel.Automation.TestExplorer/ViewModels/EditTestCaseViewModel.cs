@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Editor.Core;
+﻿using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Editor.Core;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,7 +37,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             this.testCase = testCaseVM;
             this.existingTestCases = existingTestCases;
-            this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase);
+            this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase);
         }
 
 

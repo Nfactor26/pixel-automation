@@ -8,7 +8,7 @@ namespace Pixel.Automation.Test.Runner
 {
     public interface ITestSelector
     {
-        bool CanRunCategory(TestCategory testCategory);
+        bool CanRunCategory(TestFixture testCategory);
 
         bool CanRunTest(TestCase testCase);
     }
@@ -49,7 +49,7 @@ namespace Pixel.Automation.Test.Runner
             return this;
         }
 
-        public bool CanRunCategory(TestCategory category)
+        public bool CanRunCategory(TestFixture category)
         {
             bool canRun = !includedCategories.Any() || includedCategories.Contains(category.DisplayName);
             canRun = canRun && excludedCategories.Any() && !excludedCategories.Contains(category.DisplayName);

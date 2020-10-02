@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
 using System;
 using System.Collections.Generic;
@@ -8,89 +9,84 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class TestCaseViewModel : NotifyPropertyChanged
     {
-        private readonly TestCase testCase;
-
-        public TestCase TestCase
-        {
-            get => testCase;
-        }
+        public TestCase TestCase { get; }    
 
         public TestCaseViewModel(TestCase testCase)
         {
-            this.testCase = testCase;
+            this.TestCase = testCase;
         }
 
         public string Id
         {
-            get => testCase.Id;
-            set => testCase.Id = value;
+            get => TestCase.Id;
+            set => TestCase.Id = value;
         }
 
-        public string CategoryId
+        public string FixtureId
         {
-            get => testCase.CategoryId;
-            set => testCase.CategoryId = value;
+            get => TestCase.FixtureId;
+            set => TestCase.FixtureId = value;
         }
 
         public string DisplayName
         {
-            get => testCase.DisplayName;
+            get => TestCase.DisplayName;
             set
             {
-                testCase.DisplayName = value;
+                TestCase.DisplayName = value;
                 OnPropertyChanged();
 
             }
         }
         public string Description
         {
-            get => testCase.Description;
-            set => testCase.Description = value;
+            get => TestCase.Description;
+            set => TestCase.Description = value;
         }
 
         public IEnumerable<string> Tags
         {
-            get => testCase.Tags;
-            set => testCase.Tags = value;
+            get => TestCase.Tags;
+            set => TestCase.Tags = value;
         }
 
         public bool IsMuted
         {
-            get => testCase.IsMuted;
+            get => TestCase.IsMuted;
             set
             {
-                testCase.IsMuted = value;
+                TestCase.IsMuted = value;
                 OnPropertyChanged();
             }
         }
         public int Order
 
         {
-            get => testCase.Order;
-            set => testCase.Order = value;
+            get => TestCase.Order;
+            set => TestCase.Order = value;
 
         }
 
         public Entity TestCaseEntity
 
         {
-            get => testCase.TestCaseEntity;
-            set => testCase.TestCaseEntity = value;
+            get => TestCase.TestCaseEntity;
+            set => TestCase.TestCaseEntity = value;
         }
 
         public string ScriptFile
         {
-            get => testCase.ScriptFile;
-            set => testCase.ScriptFile = value;
+            get => TestCase.ScriptFile;
+            set => TestCase.ScriptFile = value;
         }
 
 
         public string TestDataId
         {
-            get => testCase.TestDataId;
+            get => TestCase.TestDataId;
             set
             {
-                testCase.TestDataId = value;
+                TestCase.TestDataId = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanOpenForEdit));
             }
@@ -143,5 +139,22 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => testResults = value;
         }
 
+
+        bool isVisible = true;
+        public bool IsVisible
+        {
+            get => isVisible;
+            private set
+            {
+                isVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public void UpdateVisibility(string filterText)
+        {
+            IsVisible = string.IsNullOrEmpty(filterText) ? true :  this.DisplayName.ToLower().Contains(filterText.ToLower());
+        }
     }
 }

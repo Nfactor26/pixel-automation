@@ -8,38 +8,71 @@ namespace Pixel.Automation.Core.Interfaces
     {
         /// <summary>
         /// Indicates if test case can be executed.
-        /// For ex, this should be false if SetUp is not done yet.
+        /// For ex, this should be false if Environment SetUp is not done yet.
         /// </summary>
         bool CanRunTests { get; }
 
         /// <summary>
-        /// Process One Time Set Up Components
+        /// Perform environment setup e.g. launching required applications
         /// </summary>
-        Task SetUp();
+        /// <returns></returns>
+        Task SetUpEnvironment();
+
 
         /// <summary>
-        /// Process One Time Tear Down components
+        /// Perform environment teardown e.g. close applications 
         /// </summary>
-        Task TearDown();
+        /// <returns></returns>
+        Task TearDownEnvironment();
+
+        /// <summary>
+        /// Perform one time setup for test fixture
+        /// </summary>
+        /// <returns></returns>
+        Task OneTimeSetUp(TestFixture fixture);
+
+
+        /// <summary>
+        /// Perform one time tear down for test fixture
+        /// </summary>
+        /// <returns></returns>
+        Task OneTimeTearDown(TestFixture fixture);
+
 
         /// <summary>
         ///  Run test case asynchronously for each of test data in data source
         /// </summary>
-        /// <param name="testCase"></param>
+        /// <param name="fixture">TestFixture to which TestCase belongs</param>
+        /// <param name="testCase">TestCase to run</param>
         /// <returns>TestResult for each execution</returns>
-        IAsyncEnumerable<TestResult> RunTestAsync(TestCase testCase);
+        IAsyncEnumerable<TestResult> RunTestAsync(TestFixture fixture, TestCase testCase);
 
-    
         /// <summary>
-        /// Initialize Test Case with and add it to TestFixture
+        /// Try to open test fixture for editing
         /// </summary>
-        /// <param name="testCase"></param>     
-        Task<bool> TryOpenTestCase(TestCase testCase);
+        /// <param name="fixture"></param>
+        /// <returns></returns>
+        Task<bool> TryOpenTestFixture(TestFixture fixture);
+
 
         /// <summary>
-        /// Remove test entity from TestFixture
+        /// Try to close an open test fixture
+        /// </summary>
+        /// <param name="fixture"></param>
+        /// <returns></returns>
+        Task<bool> TryCloseTestFixture(TestFixture fixture);
+
+        /// <summary>
+        /// Try to open test case for editing. Parent fixture is also opened if not already open.
+        /// </summary>
+        /// <param name="fixture">TestFixture to which TestCase belongs</param>     
+        /// <param name="testCase">TestCase to open</param>     
+        Task<bool> TryOpenTestCase(TestFixture fixture, TestCase testCase);
+
+        /// <summary>
+        /// Try to close an open test caes
         /// </summary>
         /// <param name="testCaseEntity"></param>
-        Task CloseTestCase(TestCase testCase);
+        Task<bool> TryCloseTestCase(TestFixture fixture, TestCase testCase);
     }
 }

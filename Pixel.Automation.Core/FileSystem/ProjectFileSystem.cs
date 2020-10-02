@@ -49,10 +49,10 @@ namespace Pixel.Automation.Core
             Initialize(this.projectId, version);            
         }
 
-        public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testCaseId)
+        public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId)
         {
             var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings);
-            fileSystem.Initialize(this.WorkingDirectory, testCaseId);
+            fileSystem.Initialize(this.WorkingDirectory, testFixtureId);
             return fileSystem;
         }
 

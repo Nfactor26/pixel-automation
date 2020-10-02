@@ -50,6 +50,11 @@ namespace Pixel.Automation.Editor.Core.Editors
                     //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
                     editorFactory.AddProject(ActorComponent.Id, new string[] { testCaseEntity.Tag }, ActorComponent.EntityManager.Arguments.GetType());
                 }
+                else if (ActorComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                {
+                    //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                    editorFactory.AddProject(ActorComponent.Id, new string[] { testFixtureEntity.Tag }, ActorComponent.EntityManager.Arguments.GetType());
+                }               
                 else
                 {
                     editorFactory.AddProject(ActorComponent.Id, Array.Empty<string>(), ActorComponent.EntityManager.Arguments.GetType());
