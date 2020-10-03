@@ -230,12 +230,12 @@ namespace Pixel.Automation.RunTime
 
                         logger.Information("Finished execution of test case  : {testCase}.", testCase);
 
-                        result = new TestResult() { Result = TestState.Success };
+                        result = new TestResult() { Result = TestState.Success, TestData = item.ToString() };
 
                     }
                     catch (Exception ex)
                     {
-                        result = new TestResult() { Result = TestState.Failed, Error = ex };
+                        result = new TestResult() { Result = TestState.Failed, Error = ex, TestData = item.ToString() };
                     }
                     finally
                     {

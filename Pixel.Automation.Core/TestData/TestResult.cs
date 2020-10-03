@@ -37,6 +37,8 @@ namespace Pixel.Automation.Core.TestData
                 OnPropertyChanged();
             }
         }
+        
+        public string TestData { get; set; }
 
         public string ErrorMessage
         {

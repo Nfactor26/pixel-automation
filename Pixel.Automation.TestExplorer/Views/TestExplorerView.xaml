@@ -65,10 +65,10 @@
                 <Setter.Value>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="ExecutionTime" Width="100"
+                            <TextBlock x:Name="ExecutionTime" Width="100" ToolTip="{Binding TestData}"
                                                Padding="0"  Margin="24,0,0,0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="10"
                                                Text="{Binding ExecutionTime,StringFormat='{}{0:hh\\:mm\\:ss}'}"/>
-                            <Button x:Name="TestStatus"                                  
+                            <Button x:Name="TestStatus" ToolTip="{Binding ErrorMessage}"                                 
                                         Style="{StaticResource ResultButtonStyle}"  Margin="0,0,10,0"
                                         Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Center" />
                         </StackPanel>
@@ -90,16 +90,17 @@
                                         Background="{DynamicResource MahApps.Brushes.Control.Background}"
                                         Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}">
 
-                                    <iconPacks:PackIconMaterial x:Name="OpenIndicator" VerticalAlignment="Center"
-                                         Foreground="{DynamicResource MahApps.Brushes.Validation1}" 
-                                         DockPanel.Dock="Left"  Visibility="Hidden" Kind="LockOpenOutline" />
+                                    <iconPacks:PackIconOcticons x:Name="OpenIndicator" VerticalAlignment="Center"
+                                         Foreground="{DynamicResource MahApps.Brushes.Accent2}"
+                                         Margin="0,1,0,0"  Width="14" Height="14" ToolTip="Open for edit"
+                                         DockPanel.Dock="Left"  Visibility="Hidden" Kind="IssueOpened" />
                                     <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" HorizontalAlignment="Left"
                                          DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0" Foreground="Black"
                                          cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
                                          cal:Message.Attach="[Event DoubleClick] = [Action OpenTestCaseAsync($dataContext)]">
                                         <TextBlock.ToolTip>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                                <Label Content="Test data :"></Label>
+                                                <Label Content="Data source :"></Label>
                                                 <Label Content="{Binding TestDataId}"></Label>
                                             </StackPanel>
                                         </TextBlock.ToolTip>
