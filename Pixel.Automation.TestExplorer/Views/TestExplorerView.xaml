@@ -235,50 +235,59 @@
 
         <StackPanel x:Name="ToolBar" Orientation="Horizontal" Margin="5,5,5,0" Grid.Row="0" 
                    IsEnabled="{Binding IsTestProcessOpen}">
-            <StackPanel DataContext="{Binding Path=ActiveInstance}" Orientation="Horizontal">
+            <StackPanel  Orientation="Horizontal">
+                
                 <Button x:Name="AddTestFixture" Margin="0,0,2,0" HorizontalAlignment="Right" 
-                                            Height="20" Width="20" ToolTip="Add new fixture"                                              
+                                            Height="20" Width="20" ToolTip="Add new fixture"    
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"      
                                             cal:Message.Attach="[Event Click] = [Action AddTestFixtureAsync()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material PlaylistPlus}"/>
-                <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                            DataContext="{Binding Path=TestRunner}"
+             
+                <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                                                                  
                                             Height="20" Width="20" ToolTip="Setup"     
-                                            IsEnabled="{Binding CanSetUp}"
+                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanSetUpEnvironment, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance.TestRunner}"   
                                             cal:Message.Attach="[Event Click] = [Action SetUpEnvironment()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material Flash}"/>
 
-                <Button x:Name="TearDown" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                            DataContext="{Binding Path=TestRunner}"
+                <Button x:Name="TearDown" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                          
                                             Height="20" Width="20" ToolTip="Teardown"  
-                                            IsEnabled="{Binding CanTearDown}"
+                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanTearDownEnvironment, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance.TestRunner}" 
                                             cal:Message.Attach="[Event Click] = [Action TearDownEnvironment()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material FlashOff}"/>
 
                 <Button x:Name="RunSelected" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Run Selected"     
-                                            IsEnabled="{Binding TestRunner.CanRunTests , FallbackValue=False}"
+                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanRunTests, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}" 
                                             cal:Message.Attach="[Event Click] = [Action RunSelected()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material Run}"/>
 
                 <Button x:Name="RunAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Run All"   
-                                            IsEnabled="{Binding TestRunner.CanRunTests , FallbackValue=False}"
+                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanRunTests, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
                                             cal:Message.Attach="[Event Click] = [Action RunAll()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material RunFast}"/>
+                
                 <Button x:Name="Abort" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Abort Running Tests"   
-                                            IsEnabled="{Binding CanAbort}"
+                                            IsEnabled="{Binding ActiveInstance.CanAbort, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
                                             cal:Message.Attach="[Event Click] = [Action AbortRun()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:FontAwesome StopCircleRegular}"/>
-                <Button x:Name="SaveAll" Margin="0,0,2,0" HorizontalAlignment="Right" 
+
+                <Button x:Name="SaveAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Save changes to all open tests"    
-                                            IsEnabled="{Binding CanSaveAll}" VerticalAlignment="Center"
+                                            IsEnabled="{Binding ActiveInstance.CanSaveAll, FallbackValue=false}"
+                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
                                             cal:Message.Attach="[Event Click] = [Action SaveAllOpenTests()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight ContentSaveAll}"/>
