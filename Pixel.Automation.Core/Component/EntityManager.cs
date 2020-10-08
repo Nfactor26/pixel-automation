@@ -134,15 +134,18 @@ namespace Pixel.Automation.Core
         {
             IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
 
-            var previousDataModelAssembly = prevArgs.GetType().Assembly;
-            var newDataModelAssembly = newArgs.GetType().Assembly;
-
-            //Note : Important check . Otherwise all script engine states are cleared which is not desirable during test execution
-            if(previousDataModelAssembly != newDataModelAssembly)
+            if(isPrimaryEntityManager)
             {
-                scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
-                scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModelAssembly);
-            }  
+                var previousDataModelAssembly = prevArgs.GetType().Assembly;
+                var newDataModelAssembly = newArgs.GetType().Assembly;
+
+                //Note : Important check . Otherwise all script engine states are cleared which is not desirable during test execution
+                if (previousDataModelAssembly != newDataModelAssembly)
+                {
+                    scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
+                    scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModelAssembly);
+                }
+            }
 
             this.scriptEngine.SetGlobals(newArgs);
             this.argumentProcessor.Initialize(this.scriptEngine, newArgs);
