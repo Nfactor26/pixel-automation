@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿using Dawn;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Rendering;
@@ -7,11 +8,15 @@ using Pixel.Scripting.Script.Editor.Controls;
 using Pixel.Scripting.Script.Editor.Features;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Pixel.Scripting.Script.Editor
 {
     public partial class CodeTextEditor : TextEditor , IDisposable
     {
+        /// <summary>
+        /// Name of the file currently open in editor
+        /// </summary>
         public string FileName
         {
             get => this.Document.FileName;
@@ -21,6 +26,9 @@ namespace Pixel.Scripting.Script.Editor
             }
         }
 
+        /// <summary>
+        /// Name of the project to which File belongs
+        /// </summary>
         public string ProjectName
         {
             get;
@@ -28,12 +36,13 @@ namespace Pixel.Scripting.Script.Editor
         }
 
 
-        IEditorService editorService;      
+        private IEditorService editorService;      
         private CodeActionsControl codeActionsControl;
         private IVisualLineTransformer syntaxHighlighter;
         private TextMarkerService textMarkerService;
         private DiagnosticsManager diagnosticsManager;
         private TextManager textManager;
+      
         public CodeTextEditor(IEditorService editorService)
         {
             this.editorService = editorService;
@@ -48,10 +57,20 @@ namespace Pixel.Scripting.Script.Editor
 
         }
 
-        partial void InitializeMouseHover();       
+        partial void SubscribeToMouseEvents();
+
+        partial void UnSubscribeFromMouseEvents();
 
         public void OpenDocument(string documentName, string projectName)
         {
+            Guard.Argument(documentName).NotNull().NotEmpty();
+            Guard.Argument(projectName).NotNull().NotEmpty();
+
+            if(!string.IsNullOrEmpty(this.FileName) && !string.IsNullOrEmpty(this.ProjectName))
+            {
+                throw new InvalidOperationException($"File : {this.FileName} is already open in Editor");
+            }
+
             this.FileName = documentName;
             this.ProjectName = projectName;
             
@@ -65,36 +84,48 @@ namespace Pixel.Scripting.Script.Editor
 
             if(this.editorService.IsFeatureEnabled(EditorFeature.Diagnostics))
             {
-                diagnosticsManager = new DiagnosticsManager(this.editorService, this, this.Document, this.textMarkerService);
+                this.diagnosticsManager = new DiagnosticsManager(this.editorService, this, this.Document, this.textMarkerService);
             }
 
             if (this.editorService.IsFeatureEnabled(EditorFeature.CodeActions))
             {
-                codeActionsControl = new CodeActionsControl(this, this.editorService);
+                this.codeActionsControl = new CodeActionsControl(this, this.editorService);
             }
           
-
-            //var documentChangeObservable = Observable.FromEventPattern<DocumentChangeEventArgs>(this.Document, nameof(Document.Changed));
-            //documentChangeObservableSubscription = documentChangeObservable.Throttle(TimeSpan.FromMilliseconds(50)).Subscribe(Observer.Create<EventPattern<DocumentChangeEventArgs>>(d =>
-            //{
-            //    synchronizationContextScheduler.Schedule(() =>
-            //    {
-            //        this.editorService.GetWorkspaceManager().ChangeBuffer(documentName, this.Document.Text);
-            //    });
-            //}));      
-
-            InitializeMouseHover();
+            SubscribeToMouseEvents();
 
             //Set it to false once since setting the text while opening sets IsModified to true.
             this.IsModified = false;
         }
      
+        /// <summary>
+        /// Close the document
+        /// </summary>
         public void CloseDocument()
         {
-            //TextArea.TextView.LineTransformers.RemoveAt(0);
-            //documentChangeObservableSubscription.Dispose();
+            Dispose(true);
         }         
       
+        /// <summary>
+        /// Suspend any document updates e.g. reacting to mouse overs
+        /// </summary>
+        public void SuspendEditorUpdates()
+        {
+            UnSubscribeFromMouseEvents();
+            var semanticHighlighter = this.Document.LineTrackers.FirstOrDefault(a => a is SemanticHighlighter) as SemanticHighlighter;
+            semanticHighlighter?.SuspendHighlight();
+        }
+
+        /// <summary>
+        /// Resume processing document updates e.g. reacting to mouse overs
+        /// </summary>
+        public void ResumeEditorUpdates()
+        {
+            SubscribeToMouseEvents();
+            var semanticHighlighter = this.Document.LineTrackers.FirstOrDefault(a => a is SemanticHighlighter) as SemanticHighlighter;
+            semanticHighlighter?.ResumeHighlight();
+        }
+
 
         /// <summary>
         /// Gets the document used for code completion, can be overridden to provide a custom document
@@ -109,8 +140,7 @@ namespace Pixel.Scripting.Script.Editor
 
         protected virtual void Dispose(bool isDisposing)
         {
-            MouseHover -= OnMouseHover;
-            MouseHoverStopped -= OnHoverStopped;
+            UnSubscribeFromMouseEvents();
             TextArea.TextView.BackgroundRenderers.Clear();
             TextArea.TextView.LineTransformers.Clear();
             foreach (var tracker in TextArea.Document.LineTrackers)

@@ -54,16 +54,6 @@ namespace Pixel.Scripting.Script.Editor
             Dispose(true);
         }
 
-        public virtual void Activate()
-        {
-            this.editor.OpenDocument(this.targetDocument, this.ownerProject);
-        }
-
-        public virtual void Deactivate()
-        {
-            this.editor.CloseDocument();
-        }
-
         protected void SaveDocument()
         {
             this.editorService.SaveDocument(this.targetDocument, this.ownerProject);

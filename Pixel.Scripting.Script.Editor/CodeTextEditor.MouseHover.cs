@@ -12,10 +12,18 @@ namespace Pixel.Scripting.Script.Editor
     public partial class CodeTextEditor : TextEditor
     {
         private ToolTip toolTip = new ToolTip();
-        partial void InitializeMouseHover()
+      
+        partial void SubscribeToMouseEvents()
         {
+            UnSubscribeFromMouseEvents();
             MouseHover += OnMouseHover;
             MouseHoverStopped += OnHoverStopped;
+        }
+
+        partial void UnSubscribeFromMouseEvents()
+        {
+            MouseHover -= OnMouseHover;
+            MouseHoverStopped -= OnHoverStopped;
         }
 
         private void OnHoverStopped(object sender, System.Windows.Input.MouseEventArgs e)

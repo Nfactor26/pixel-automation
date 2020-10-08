@@ -16,6 +16,15 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService = editorService;
         }
 
+        private void EnsureInitialized()
+        {
+            if (!isInitialized)
+            {
+                throw new InvalidOperationException($"{nameof(ScriptEditorFactory)} is not yet initialized");
+            }
+        }
+
+
         public void Initialize(string workingDirectory, string[] editorReferences)
         {
             this.isInitialized = true;
@@ -39,15 +48,7 @@ namespace Pixel.Scripting.Script.Editor
         {
             EnsureInitialized();
             return new ScriptEditorScreenViewModel(this.editorService);
-        }
-
-        private void EnsureInitialized()
-        {
-            if (!isInitialized)
-            {
-                throw new InvalidOperationException($"{nameof(ScriptEditorFactory)} is not yet initialized");
-            }
-        }
+        }      
 
         /// <summary>
         /// Create script editor that uses currentDirectory relative to workingDirectory to read and write files.

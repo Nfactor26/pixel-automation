@@ -9,16 +9,15 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void SetContent(string documentName, string ownerProject, string documentContent);
 
         void CloseDocument(bool save = true);
-
-        void Activate();
-
-        void Deactivate();
+       
     }
 
 
     public interface IInlineScriptEditor : ICodeEditor, IDisposable
     {
+        void Activate();
 
+        void Deactivate();
     }   
 
     public interface IScriptEditorScreen : ICodeEditor

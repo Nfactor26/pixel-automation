@@ -20,8 +20,7 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         public override void OpenDocument(string documentName, string ownerProject, string initialContent)
         {
-            base.OpenDocument(documentName, ownerProject, initialContent ?? string.Empty);
-            Activate();
+            base.OpenDocument(documentName, ownerProject, initialContent ?? string.Empty);           
         }
 
         protected override void Dispose(bool isDisposing)

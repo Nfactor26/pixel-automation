@@ -63,8 +63,7 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         private void OnFocus(object sender, RoutedEventArgs e)
         {
-            Activate();
-            //this.Editor.InvalidateVisual();
+            Activate();         
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -72,7 +71,7 @@ namespace Pixel.Scripting.Script.Editor.Script
             Deactivate();
         }
 
-        public virtual void OpenDocument(string targetDocument, string ownerProject, string initialContent)
+        public void OpenDocument(string targetDocument, string ownerProject, string initialContent)
         {          
             this.targetDocument = targetDocument;
             this.ownerProject = ownerProject;
@@ -94,7 +93,7 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.Editor.Text = documentContent;
         }
      
-        public virtual void CloseDocument(bool save = true)
+        public void CloseDocument(bool save = true)
         {
             if(this.targetDocument != null)
             {
@@ -106,14 +105,16 @@ namespace Pixel.Scripting.Script.Editor.Script
             }           
         }
 
-        public virtual void Activate()
-        {            
-            this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);         
+        public void Activate()
+        {
+            this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);
+            this.Editor.ResumeEditorUpdates();
         }
 
-        public virtual void Deactivate()
+        public void Deactivate()
         {
             CloseDocument(true);
+            this.Editor.SuspendEditorUpdates();
         }
 
         protected virtual void Dispose(bool isDisposing)
@@ -130,7 +131,7 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         #region INotifyPropertyChanged
 
-        [field: NonSerializedAttribute()]
+        [field: NonSerialized()]
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
         protected virtual void OnPropertyChanged([CallerMemberName]string name = "")
