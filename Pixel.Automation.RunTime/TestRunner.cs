@@ -22,9 +22,9 @@ namespace Pixel.Automation.RunTime
      
 
         public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader)
-        {
-            this.entityManager = entityManager;
-            this.testDataLoader = testDataLoader;
+        {           
+            this.entityManager = Guard.Argument(entityManager).NotNull().Value; 
+            this.testDataLoader = Guard.Argument(testDataLoader).NotNull().Value;         
         }   
 
         #region ITestRunner
@@ -62,12 +62,12 @@ namespace Pixel.Automation.RunTime
                 await ProcessEntity(oneTimeSetUp);
                 IsSetupComplete = true;
 
-                Log.Information("Environment setup completed");
+                logger.Information("Environment setup completed");
 
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex.Message, ex);
             }
         }
      
@@ -91,7 +91,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex, ex.Message);
             }
             finally
             {
@@ -117,7 +117,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex, ex.Message);
             }
         }
 
@@ -137,7 +137,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex, ex.Message);
             }
         }
 
@@ -182,10 +182,6 @@ namespace Pixel.Automation.RunTime
                                     testScriptEngine.SetVariableValue(variable.PropertyName, fixtureScriptEngine.GetVariableValue<object>(variable.PropertyName));
                                 }
 
-                                //foreach (var sharedVariable in fixtureEntity.SharedData)
-                                //{
-                                //    testScriptEngine.SetVariableValue(sharedVariable.Key, sharedVariable.Value);
-                                //}
                                 await testScriptEngine.ExecuteFileAsync(testCase.ScriptFile);
 
                                 var setupEntity = fixtureEntity.GetFirstComponentOfType<SetUpEntity>(Core.Enums.SearchScope.Children);
@@ -268,14 +264,6 @@ namespace Pixel.Automation.RunTime
                     IScriptEngine scriptEngine = fixtureEntityManager.GetScriptEngine();
                     await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
 
-                    //foreach (var scriptVariable in scriptEngine.GetScriptVariables())
-                    //{
-                    //    if (!fixtureEntity.SharedData.ContainsKey(scriptVariable.PropertyName))
-                    //    {
-                    //        fixtureEntity.SharedData.Add(scriptVariable.PropertyName, scriptEngine.GetVariableValue<object>(scriptVariable.PropertyName));
-                    //    }
-                    //}
-
                     logger.Information("Executed script file : {0} for fixture.", fixture.ScriptFile);
                     return true;
 
@@ -285,7 +273,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to open test fixture {0}", fixture);
+                logger.Error(ex, "{0}. Failed to open test fixture {1}", ex.Message, fixture);
                 return false;
             }
         }
@@ -324,7 +312,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to close test fixture {0}", fixture);
+                logger.Error(ex, "{0}. Failed to close test fixture {1}", ex.Message, fixture);
                 return false;
             }
         }
@@ -359,11 +347,7 @@ namespace Pixel.Automation.RunTime
                     }
 
                     requireFixture.AddComponent(testCaseEntity);
-                    await Task.CompletedTask;
-                    //Execute fixture and test script file to set up initial state of script engine for test case
-                    //IScriptEngine scriptEngine = testEntityManager.GetScriptEngine();
-                    //await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
-                    //await scriptEngine.ExecuteFileAsync(testCase.ScriptFile);
+                    await Task.CompletedTask;                
 
                     logger.Information("Added test case : {testCase} to Fixture.", testCase);
 
@@ -373,7 +357,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to open test case {0}", testCase);
+                logger.Error(ex, "{0}. Failed to open test case {1}", ex.Message, testCase);
                 return false;
             }
         }
@@ -400,7 +384,7 @@ namespace Pixel.Automation.RunTime
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to close test case {0}", testCase);
+                logger.Error(ex, "{0}. Failed to close test case {0}", ex.Message, testCase);
                 return false;
             }    
         }
@@ -497,12 +481,12 @@ namespace Pixel.Automation.RunTime
                 }
                 targetEntity.OnCompletion();
 
-                Log.Information("All components have been processed for Entity : {Id},{Name}", targetEntity.Id, targetEntity.Name);
+                logger.Information("All components have been processed for Entity : {Id}, {Name}", targetEntity.Id, targetEntity.Name);
 
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex, ex.Message);
                 if (actorBeingProcessed is ActorComponent)
                 {
                     ActorComponent currentActor = actorBeingProcessed as ActorComponent;
@@ -519,7 +503,7 @@ namespace Pixel.Automation.RunTime
                     }
                     catch (Exception faultHandlingExcpetion)
                     {
-                        Log.Error(faultHandlingExcpetion.Message, faultHandlingExcpetion);
+                        logger.Error(faultHandlingExcpetion.Message, faultHandlingExcpetion);
                     }
                 }
 

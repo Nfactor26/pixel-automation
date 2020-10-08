@@ -14,6 +14,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -66,9 +67,9 @@ namespace Pixel.Automation.TestExplorer
         {
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.TestRunner = Guard.Argument(testRunner).NotNull().Value; ;          
-            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value; ;            
-            this.windowManager = Guard.Argument(windowManager).NotNull().Value; ;     
+            this.TestRunner = Guard.Argument(testRunner).NotNull().Value;        
+            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;            
+            this.windowManager = Guard.Argument(windowManager).NotNull().Value;    
 
             LoadExistingTests();
             CreateDefaultView();
@@ -683,18 +684,32 @@ namespace Pixel.Automation.TestExplorer
             Task runTestCasesTask = new Task(async () =>
             {
                 foreach (var testFixture in this.TestFixtures)
-                {
+                {                   
                     foreach (var test in testFixture.Tests)
                     {
-
                         if (test.IsSelected)
                         {
+                            //open fixture if not already open
+                            bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
+                            if (!testFixture.IsOpenForEdit)
+                            {
+                                await OpenTestFixtureAsync(testFixture);
+                            }
+
                             await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
                             await TryRunTestCaseAsync(test);
                             await this.TestRunner.OneTimeTearDown(testFixture.TestFixture);
+                           
+                            //close fixture if it was opened
+                            if (!isFixtureAlreadyOpenForEdit)
+                            {
+                                await CloseTestFixtureAsync(testFixture, false);
+                            }
+
                             break;
                         }
                     }
+                    
                 }
             });
             runTestCasesTask.Start();
@@ -708,6 +723,13 @@ namespace Pixel.Automation.TestExplorer
             {
                 foreach (var testFixture in this.TestFixtures)
                 {
+                    //open fixture if not already open
+                    bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
+                    if(!testFixture.IsOpenForEdit)
+                    {
+                        await OpenTestFixtureAsync(testFixture);
+                    }
+
                     await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
                     foreach (var test in testFixture.Tests)
                     {
@@ -717,6 +739,12 @@ namespace Pixel.Automation.TestExplorer
                         }                           
                     }
                     await this.TestRunner.OneTimeTearDown(testFixture.TestFixture);
+
+                    //close fixture if it was opened
+                    if (!isFixtureAlreadyOpenForEdit)
+                    {
+                        await CloseTestFixtureAsync(testFixture, false);
+                    }
                 }
                 CanAbort = false;
             });           
