@@ -40,10 +40,18 @@
         <Setter Property="Width" Value="20"></Setter>
         <Setter Property="Height" Value="20"></Setter>
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="Gray"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <!--<Setter Property="LayoutTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                    </Setter.Value>
+                </Setter>-->
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

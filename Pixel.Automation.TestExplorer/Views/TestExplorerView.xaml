@@ -95,7 +95,7 @@
                                          Margin="0,1,0,0"  Width="14" Height="14" ToolTip="Open for edit"
                                          DockPanel.Dock="Left"  Visibility="Hidden" Kind="IssueOpened" />
                                     <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" HorizontalAlignment="Left"
-                                         DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0" Foreground="Black"
+                                         DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0"
                                          cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
                                          cal:Message.Attach="[Event DoubleClick] = [Action OpenTestCaseAsync($dataContext)]">
                                         <TextBlock.ToolTip>
@@ -184,8 +184,11 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TreeViewItem">
                         <StackPanel Orientation="Vertical">
-                            <Expander x:Name="TestCategory" Header="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
-                                     Background="{StaticResource MahApps.Brushes.Control.Background}" BorderThickness="0" Margin="5,0,0,0" FontSize="11">
+                            <Expander x:Name="TestCategory" Header="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" 
+                                     Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                                     Background="{DynamicResource MahApps.Brushes.Window.Background}"   
+                                     controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
+                                     BorderThickness="0" Margin="5,0,0,0" FontSize="11">
                                 <ItemsPresenter x:Name="ItemsHost"/>
                                 <Expander.ContextMenu>
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -226,7 +229,7 @@
 
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
         <Grid.RowDefinitions>
             <RowDefinition Height="45"></RowDefinition>
             <RowDefinition Height="45"></RowDefinition>
