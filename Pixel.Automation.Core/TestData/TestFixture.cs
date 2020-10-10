@@ -17,6 +17,15 @@ namespace Pixel.Automation.Core.TestData
         public string DisplayName { get; set; }
 
         [DataMember]
+        public int Order { get; set; }
+
+        [DataMember]
+        public bool IsMuted { get; set; }
+
+        [DataMember]
+        public string ScriptFile { get; set; }
+
+        [DataMember]
         public string Description { get; set; }
 
         [DataMember]
@@ -27,23 +36,18 @@ namespace Pixel.Automation.Core.TestData
 
         public List<TestCase> Tests { get; set; } = new List<TestCase>();
 
-        [DataMember]
-        public bool IsMuted { get; set; }
-
-        public Entity TestFixtureEntity { get; set; }
-
-        [DataMember]
-        public string ScriptFile { get; set; }
+        public Entity TestFixtureEntity { get; set; }   
 
         public object Clone()
         {
             TestFixture copy = new TestFixture()
-            {
-                Id = this.Id,
+            {               
                 DisplayName = this.DisplayName,
+                Order = this.Order,
+                IsMuted = this.IsMuted,             
                 Description = this.Description,
-                Tags = this.Tags,
-                IsMuted = this.IsMuted
+                Group = this.Group,
+                Tags = this.Tags               
             };
             return copy;
         }

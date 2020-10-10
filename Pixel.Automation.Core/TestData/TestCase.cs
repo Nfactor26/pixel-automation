@@ -21,37 +21,37 @@ namespace Pixel.Automation.Core.TestData
         public string DisplayName { get; set; }
 
         [DataMember]
-        public string Description { get; set; }
-
-        [DataMember]
-        public IEnumerable<string> Tags { get; set; } = new List<string>();
-     
-        [DataMember]
-        public bool IsMuted { get; set; }      
-
-        [DataMember]
         public int Order { get; set; }
-     
-        public Entity TestCaseEntity { get; set; }
+
+        [DataMember]
+        public bool IsMuted { get; set; }
 
         [DataMember]
         public string ScriptFile { get; set; }
-      
+
+
         [DataMember(IsRequired = false)]
         public string TestDataId { get; set; }
+
+        [DataMember]
+        public string Description { get; set; }
+
+        [DataMember]
+        public IEnumerable<string> Tags { get; set; } = new List<string>();     
+     
+     
+        public Entity TestCaseEntity { get; set; }  
         
 
         public object Clone()
         {
             TestCase copy = new TestCase()
-            {
-                Id = this.Id,
+            {              
                 DisplayName = this.DisplayName,
                 Description = this.Description,   
                 Tags = this.Tags,
                 IsMuted = this.IsMuted,               
-                Order = this.Order,
-                TestCaseEntity = this.TestCaseEntity                
+                Order = this.Order            
             };
             return copy;
         }

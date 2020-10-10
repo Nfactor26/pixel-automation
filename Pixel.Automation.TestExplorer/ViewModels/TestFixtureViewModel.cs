@@ -39,19 +39,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => TestFixture.Description = value;
         }
 
-        public string Group
-        {
-            get => TestFixture.Group;
-            set => TestFixture.Group = value;
-        }
-
-
-        public IEnumerable<string> Tags
-        {
-            get => TestFixture.Tags;
-            set => TestFixture.Tags = value;
-        }
-
         public bool IsMuted
         {
             get => TestFixture.IsMuted;
@@ -60,6 +47,29 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 TestFixture.IsMuted = value;
                 OnPropertyChanged();
             }
+        }
+
+
+        public int Order
+        {
+            get => TestFixture.Order;
+            set
+            {
+                TestFixture.Order = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<string> Tags
+        {
+            get => TestFixture.Tags;
+            set => TestFixture.Tags = value;
+        }
+
+        public string Group
+        {
+            get => TestFixture.Group;
+            set => TestFixture.Group = value;
         }
         
         public Entity TestFixtureEntity
@@ -92,9 +102,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => !isOpenForEdit;
         }
 
-
-
-
         bool isSelected;
         public bool IsSelected
         {
@@ -116,7 +123,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 OnPropertyChanged();
             }
         }
-
 
         public void UpdateVisibility(string filterText)
         {

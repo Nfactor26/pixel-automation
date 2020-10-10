@@ -108,7 +108,7 @@ namespace Pixel.Automation.TestExplorer
         {
             var fixtureGroupedItems = CollectionViewSource.GetDefaultView(TestFixtures);
             fixtureGroupedItems.GroupDescriptions.Add(new PropertyGroupDescription("Group"));
-            fixtureGroupedItems.SortDescriptions.Add(new SortDescription("Group", ListSortDirection.Ascending));
+            fixtureGroupedItems.SortDescriptions.Add(new SortDescription("Order", ListSortDirection.Ascending));
             fixtureGroupedItems.SortDescriptions.Add(new SortDescription("DisplayName", ListSortDirection.Ascending));
             fixtureGroupedItems.Filter = new Predicate<object>((a) =>
             {
@@ -141,6 +141,7 @@ namespace Pixel.Automation.TestExplorer
                 TestFixture newTestFixture = new TestFixture()
                 {
                     DisplayName = $"Fixture#{TestFixtures.Count() + 1}",
+                    Order = TestFixtures.Count() + 1,
                     TestFixtureEntity = new TestFixtureEntity()
                 };
                 TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(newTestFixture);
@@ -376,6 +377,7 @@ namespace Pixel.Automation.TestExplorer
                 {
                     FixtureId = testFixtureVM.Id,
                     DisplayName = $"Test#{testFixtureVM.Tests.Count() + 1}",
+                    Order = testFixtureVM.Tests.Count() + 1,
                     TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testFixtureVM.Tests.Count() + 1}" }
                 };
                 TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
@@ -721,7 +723,7 @@ namespace Pixel.Automation.TestExplorer
             CanAbort = true;
             Task runTestCasesTask = new Task(async() =>
             {
-                foreach (var testFixture in this.TestFixtures)
+                foreach (var testFixture in this.TestFixtures.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
                 {
                     //open fixture if not already open
                     bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
@@ -731,7 +733,7 @@ namespace Pixel.Automation.TestExplorer
                     }
 
                     await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
-                    foreach (var test in testFixture.Tests)
+                    foreach (var test in testFixture.Tests.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
                     {
                         if (!isCancellationRequested)
                         {

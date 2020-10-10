@@ -31,18 +31,20 @@
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
-                <Label Content="Group"/>
-                <TextBox x:Name="Group" Text="{Binding Group, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                <Label Content="Tags"/>
+                <TextBox x:Name="Tags" Text="{Binding Tags, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                      controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
-                     controls:TextBoxHelper.Watermark="Group"  HorizontalAlignment="Stretch"
+                     controls:TextBoxHelper.Watermark="Tags (comma seperate e.g. tag1,tag2)"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlMargin}">
                 <StackPanel Orientation="Horizontal" Margin="4 0 0 0">
                     <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Tests belonging to a muted fixture are not executed"/>
                     <Label Content="Muted" ></Label>
-                </StackPanel>              
-            </StackPanel>
+                    <controls:NumericUpDown Minimum="0" Value="{Binding Order}" Margin="10,0,0,0" ToolTip="Order of execution of fixture"/>
+                    <Label Content="Order" ></Label>
+                </StackPanel>
+            </StackPanel>           
         </StackPanel>
         <DockPanel LastChildFill="False" Margin="{StaticResource ControlMargin}">
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,4,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>

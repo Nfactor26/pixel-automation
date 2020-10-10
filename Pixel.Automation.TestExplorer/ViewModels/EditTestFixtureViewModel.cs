@@ -19,7 +19,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 CopyOfTestFixture.DisplayName = value;
                 ValidateProperty(nameof(TestFixtureDisplayName));
-                NotifyOfPropertyChange(() => TestFixtureDisplayName);
+                NotifyOfPropertyChange();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 CopyOfTestFixture.Description = value;
                 ValidateProperty(nameof(TestFixtureDescription));
-                NotifyOfPropertyChange(() => TestFixtureDescription);
+                NotifyOfPropertyChange();
             }
         }
 
@@ -40,6 +40,23 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestFixture.IsMuted = value;
         }
 
+        public int Order
+        {
+            get => CopyOfTestFixture.Order;
+            set => CopyOfTestFixture.Order = value;
+        }
+
+        public string Tags
+        {
+            get => string.Join(",", CopyOfTestFixture.Tags);
+            set
+            {
+                CopyOfTestFixture.Tags = value.Split(new char[] { ',' });
+                NotifyOfPropertyChange();
+            }
+        }
+
+
         public string Group
         {
             get => CopyOfTestFixture.Group;
@@ -47,7 +64,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 CopyOfTestFixture.Group = value;
                 ValidateProperty(nameof(Group));
-                NotifyOfPropertyChange(() => Group);
+                NotifyOfPropertyChange();
             }
         }
 
@@ -70,7 +87,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testFixtureVM.DisplayName = CopyOfTestFixture.DisplayName;
                 this.testFixtureVM.Description = CopyOfTestFixture.Description;
                 this.testFixtureVM.Group = CopyOfTestFixture.Group;
-                this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;             
+                this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;
+                this.testFixtureVM.Order = CopyOfTestFixture.Order;
+                this.testFixtureVM.Tags = CopyOfTestFixture.Tags;
                 await this.TryCloseAsync(true);
             }           
         }

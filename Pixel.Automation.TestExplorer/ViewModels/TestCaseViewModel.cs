@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Pixel.Automation.Core;
+﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
 using System;
 using System.Collections.Generic;
@@ -35,9 +34,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 TestCase.DisplayName = value;
                 OnPropertyChanged();
-
             }
         }
+
         public string Description
         {
             get => TestCase.Description;
@@ -59,12 +58,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 OnPropertyChanged();
             }
         }
+     
         public int Order
-
         {
             get => TestCase.Order;
-            set => TestCase.Order = value;
-
+            set
+            {
+                TestCase.Order = value;
+                OnPropertyChanged();
+            }
         }
 
         public Entity TestCaseEntity

@@ -33,6 +33,30 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        public bool IsMuted
+        {
+            get => CopyOfTestCase.IsMuted;
+            set => CopyOfTestCase.IsMuted = value;
+        }
+
+        public int Order
+        {
+            get => CopyOfTestCase.Order;
+            set => CopyOfTestCase.Order = value;
+        }
+
+        public string Tags
+        {
+            get => string.Join(",", CopyOfTestCase.Tags);
+            set
+            {
+                CopyOfTestCase.Tags = value.Trim(',').Split(new char[] { ',' });
+                NotifyOfPropertyChange();
+            }
+        }
+
+
+
         public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
         {
             this.testCase = testCaseVM;
@@ -54,6 +78,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testCase.DisplayName = CopyOfTestCase.DisplayName;
                 this.testCase.Description = CopyOfTestCase.Description;
                 this.testCase.IsMuted = CopyOfTestCase.IsMuted;
+                this.testCase.Order = CopyOfTestCase.Order;
+                this.testCase.Tags = CopyOfTestCase.Tags;
                 await this.TryCloseAsync(true);
             }            
         }
