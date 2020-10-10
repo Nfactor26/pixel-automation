@@ -20,31 +20,32 @@
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj">
+  <ItemGroup>    
+    <ProjectReference Include="..\..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
+    <ProjectReference Include="..\..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+    <ProjectReference Include="..\..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
+    <ProjectReference Include="..\..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
+    <ProjectReference Include="..\..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj">
+    <ProjectReference Include="..\..\Pixel.Automation.TestData.Repository\Pixel.Automation.TestData.Repository.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.TestData.Repository\Pixel.Automation.TestData.Repository.csproj">
+    <ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.TestExplorer\Pixel.Automation.TestExplorer.csproj">
+      <ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
-    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
+    <ProjectReference Include="..\..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
+    <ProjectReference Include="..\..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />  
+
   </ItemGroup>
 
 </Project>

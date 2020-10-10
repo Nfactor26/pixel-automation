@@ -1,5 +1,7 @@
-﻿using Pixel.Automation.Core;
+﻿using Caliburn.Micro;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Editor.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,23 +10,24 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class TestCaseViewModel : NotifyPropertyChanged
     {
+        private IEventAggregator eventAggregator;
+
         public TestCase TestCase { get; }    
 
-        public TestCaseViewModel(TestCase testCase)
+        public TestCaseViewModel(TestCase testCase, IEventAggregator eventAggregator)
         {
             this.TestCase = testCase;
+            this.eventAggregator = eventAggregator;
         }
 
         public string Id
         {
-            get => TestCase.Id;
-            set => TestCase.Id = value;
+            get => TestCase.Id;           
         }
 
         public string FixtureId
         {
-            get => TestCase.FixtureId;
-            set => TestCase.FixtureId = value;
+            get => TestCase.FixtureId;            
         }
 
         public string DisplayName
@@ -88,7 +91,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => TestCase.TestDataId;
             set
             {
-                TestCase.TestDataId = value;
+                TestCase.TestDataId = value;              
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanOpenForEdit));
             }
@@ -133,15 +136,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
-        [NonSerialized]
-        ObservableCollection<TestResult> testResults = new ObservableCollection<TestResult>();
-        public ObservableCollection<TestResult> TestResults
-        {
-            get => testResults;
-            set => testResults = value;
-        }
-
-
         bool isVisible = true;
         public bool IsVisible
         {
@@ -153,6 +147,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+
+        [NonSerialized]
+        ObservableCollection<TestResult> testResults = new ObservableCollection<TestResult>();
+        public ObservableCollection<TestResult> TestResults
+        {
+            get => testResults;
+            set => testResults = value;
+        }
+
+
+        public void SetTestDataSource(string testDataSourceId)
+        {
+            this.TestDataId = testDataSourceId;
+            this.eventAggregator.PublishOnBackgroundThreadAsync(new TestCaseUpdatedEventArgs(this.TestCase));
+        }
 
         public void UpdateVisibility(string filterText)
         {

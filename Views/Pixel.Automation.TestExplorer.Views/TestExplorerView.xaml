@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"     
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"  
-             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer"          
-             xmlns:localVM="clr-namespace:Pixel.Automation.TestExplorer.ViewModels"           
+             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer.Views"          
+             xmlns:localVM="clr-namespace:Pixel.Automation.TestExplorer.ViewModels;assembly=Pixel.Automation.TestExplorer.ViewModels"           
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:cal="http://www.caliburnproject.org"
@@ -19,7 +19,9 @@
         <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
         <converters:TrimmedTextConverter x:Key="trimmedTextConverter"/>
         <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
-        
+
+        <local:TestDataSourceDropHandler x:Key="dataSourceDropHandler"/>
+
         <HierarchicalDataTemplate DataType="{x:Type localVM:TestFixtureViewModel}" ItemsSource="{Binding Tests}">
 
         </HierarchicalDataTemplate>
@@ -85,7 +87,7 @@
                     <ControlTemplate TargetType="TreeViewItem">
                         <Border x:Name="TestCase" ToolTip="{Binding Description}" ToolTipService.Placement="Right">
                             <StackPanel Orientation="Vertical" dd:DragDrop.IsDropTarget="True"  
-                                        dd:DragDrop.DropHandler="{Binding DataContext.TestDataSourceDropHandler, ElementName=TestExplorerTreeView}">
+                                        dd:DragDrop.DropHandler="{StaticResource dataSourceDropHandler}">
                                 <StackPanel Orientation="Horizontal" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                         Background="{DynamicResource MahApps.Brushes.Control.Background}"
                                         Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}">

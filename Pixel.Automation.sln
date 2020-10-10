@@ -55,15 +55,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Prefabs.Ed
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xceed.Wpf.AvalonDock.Themes.MahApps", "Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj", "{A07DC816-C476-4EBA-BAFF-577B25BB009C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer", "Pixel.Automation.TestExplorer\Pixel.Automation.TestExplorer.csproj", "{C89B4340-499A-47F2-8008-D8CBB51918D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels", "ViewModels\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj", "{C89B4340-499A-47F2-8008-D8CBB51918D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels", "Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj", "{48BE3392-8962-469E-A878-E6729523882D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels", "ViewModels\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj", "{48BE3392-8962-469E-A878-E6729523882D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.ViewModels", "Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj", "{3C7CBE00-6736-4F56-BAD9-E967BAAFFC30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.ViewModels", "ViewModels\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj", "{3C7CBE00-6736-4F56-BAD9-E967BAAFFC30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.Views", "Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj", "{2DFBE5B9-BC50-41E9-A745-262966B61740}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.Views", "Views\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj", "{2DFBE5B9-BC50-41E9-A745-262966B61740}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.Views", "Pixel.Automation.Designer.Views\Pixel.Automation.Designer.Views.csproj", "{236A8EA6-96DD-496D-B65B-A5A35C66F6EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.Views", "Views\Pixel.Automation.Designer.Views\Pixel.Automation.Designer.Views.csproj", "{236A8EA6-96DD-496D-B65B-A5A35C66F6EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Script.Editor", "Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj", "{E68A9169-63D0-4913-BE05-54A9BCA38E82}"
 EndProject
@@ -138,6 +138,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chrome", "Chrome", "{B2D4CD
 		Extensions\Chrome\signalr.js = Extensions\Chrome\signalr.js
 		Extensions\Chrome\Web.Scrapper.js = Extensions\Chrome\Web.Scrapper.js
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.Views", "Views\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj", "{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.TestExplorer.ViewModels.Tests", "Unit.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests.csproj", "{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -309,6 +313,14 @@ Global
 		{DC616BF5-7555-4972-99DC-71E208FA3C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC616BF5-7555-4972-99DC-71E208FA3C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC616BF5-7555-4972-99DC-71E208FA3C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -334,7 +346,7 @@ Global
 		{48DB6FB2-9B53-41DE-B1A2-A0A15BB3A40C} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{B2108B80-53D0-4ADB-8982-1B4B9242CB6F} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{A07DC816-C476-4EBA-BAFF-577B25BB009C} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
-		{C89B4340-499A-47F2-8008-D8CBB51918D2} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
+		{C89B4340-499A-47F2-8008-D8CBB51918D2} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
 		{48BE3392-8962-469E-A878-E6729523882D} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
 		{3C7CBE00-6736-4F56-BAD9-E967BAAFFC30} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
 		{2DFBE5B9-BC50-41E9-A745-262966B61740} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
@@ -360,6 +372,8 @@ Global
 		{DC616BF5-7555-4972-99DC-71E208FA3C82} = {FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}
 		{31FC611F-42BE-4506-AEF5-89BB59963695} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
 		{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0} = {31FC611F-42BE-4506-AEF5-89BB59963695}
+		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
+		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

@@ -19,8 +19,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public string Id
         {
-            get => TestFixture.Id;
-            set => TestFixture.Id = value;
+            get => TestFixture.Id;           
         }       
 
         public string DisplayName
@@ -126,6 +125,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public void UpdateVisibility(string filterText)
         {
+            foreach (var test in this.Tests)
+            {
+                test.UpdateVisibility(filterText);
+            }
             IsVisible = string.IsNullOrEmpty(filterText) ? true : this.DisplayName.ToLower().Contains(filterText.ToLower());
         }
     }

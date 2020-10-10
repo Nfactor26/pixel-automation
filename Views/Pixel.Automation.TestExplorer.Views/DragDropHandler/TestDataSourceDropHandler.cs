@@ -1,23 +1,14 @@
-﻿using Caliburn.Micro;
-using GongSolutions.Wpf.DragDrop;
+﻿using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core.TestData;
-using Pixel.Automation.Editor.Core;
 using Pixel.Automation.TestExplorer.ViewModels;
 using Serilog;
 using System;
 using System.Windows;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.Views
 {
     public class TestDataSourceDropHandler : IDropTarget
     {
-        private readonly IEventAggregator eventAggregator;
-       
-        public TestDataSourceDropHandler(IEventAggregator eventAggregator)
-        {
-            this.eventAggregator = eventAggregator;
-        }
-
         public void DragOver(IDropInfo dropInfo)
         {
             if (dropInfo.Data != null)
@@ -42,8 +33,7 @@ namespace Pixel.Automation.TestExplorer
                 if (dropInfo.Data is TestDataSource testDataSource)
                 {
                     var testCase = (dropInfo.VisualTarget as FrameworkElement).DataContext as TestCaseViewModel;
-                    testCase.TestDataId = testDataSource.Id;
-                    this.eventAggregator.PublishOnUIThreadAsync(new TestCaseUpdatedEventArgs(testCase.TestCase));
+                    testCase.SetTestDataSource(testDataSource.Id);             
                 }
             }
             catch (Exception ex)

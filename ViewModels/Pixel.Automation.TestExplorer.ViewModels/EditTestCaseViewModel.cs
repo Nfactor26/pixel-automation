@@ -28,7 +28,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => CopyOfTestCase.Description;
             set
             {
-                CopyOfTestCase.Description = value;              
+                CopyOfTestCase.Description = value;
                 NotifyOfPropertyChange(() => TestCaseDescrpition);
             }
         }
@@ -55,15 +55,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
-
-
         public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
         {
             this.testCase = testCaseVM;
             this.existingTestCases = existingTestCases;
-            this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase);
+            this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase, null);
         }
-
 
         public bool CanSave
         {
@@ -73,7 +70,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public async void Save()
         {
-            if(Validate())
+            if (Validate())
             {
                 this.testCase.DisplayName = CopyOfTestCase.DisplayName;
                 this.testCase.Description = CopyOfTestCase.Description;
@@ -81,7 +78,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testCase.Order = CopyOfTestCase.Order;
                 this.testCase.Tags = CopyOfTestCase.Tags;
                 await this.TryCloseAsync(true);
-            }            
+            }
         }
 
         public async void Cancel()
@@ -91,26 +88,26 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public bool Validate()
         {
-            ValidateProperty(nameof(TestCaseDisplayName));         
+            ValidateProperty(nameof(TestCaseDisplayName));
             return !HasErrors;
         }
 
         private void ValidateProperty(string propertyName)
-        {          
+        {
             ClearErrors(propertyName);
             switch (propertyName)
             {
                 case nameof(TestCaseDisplayName):
-                    ValidateRequiredProperty(nameof(TestCaseDisplayName), TestCaseDisplayName);                     
-                    if(this.existingTestCases.Any(a => a.DisplayName.Equals(TestCaseDisplayName)))
+                    ValidateRequiredProperty(nameof(TestCaseDisplayName), TestCaseDisplayName);
+                    if (this.existingTestCases.Any(a => a.DisplayName.Equals(TestCaseDisplayName)))
                     {
-                       AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
+                        AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
                     }
-                    break;                   
-            }        
+                    break;
+            }
             NotifyOfPropertyChange(() => CanSave);
         }
 
-        
+
     }
 }

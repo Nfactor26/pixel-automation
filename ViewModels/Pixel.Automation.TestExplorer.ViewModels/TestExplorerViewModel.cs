@@ -1,5 +1,4 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Editor.Core;
 using System.Linq;
 
@@ -12,13 +11,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public TestRepositoryManager ActiveInstance { get; set; }
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
-
-        public TestDataSourceDropHandler TestDataSourceDropHandler { get; private set; }
-
-        public TestExplorerViewModel(IEventAggregator eventAggregator)
+     
+        public TestExplorerViewModel()
         {
-            this.DisplayName = "Test Explorer";
-            this.TestDataSourceDropHandler = new TestDataSourceDropHandler(eventAggregator);
+            this.DisplayName = "Test Explorer";           
         }
 
         public void SetActiveInstance(object instance)

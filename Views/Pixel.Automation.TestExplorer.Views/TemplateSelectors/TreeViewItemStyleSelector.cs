@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Pixel.Automation.TestExplorer
+namespace Pixel.Automation.TestExplorer.Views
 {
     public class TreeViewItemStyleSelector : StyleSelector
     {

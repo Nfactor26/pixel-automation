@@ -14,7 +14,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -89,7 +88,7 @@ namespace Pixel.Automation.TestExplorer
 
                 foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testFixtureDirectory))
                 {
-                    TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
+                    TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
                     testCases.Add(testCaseVM);
                 }
             }           
@@ -114,11 +113,7 @@ namespace Pixel.Automation.TestExplorer
             {
                 if (a is TestFixtureViewModel fixture)
                 {
-                    fixture.UpdateVisibility(filterText);
-                    foreach (var test in fixture.Tests)
-                    {
-                        test.UpdateVisibility(filterText);
-                    }
+                    fixture.UpdateVisibility(filterText);                  
                     return fixture.IsVisible;
                 }
                 return true;
@@ -380,11 +375,10 @@ namespace Pixel.Automation.TestExplorer
                     Order = testFixtureVM.Tests.Count() + 1,
                     TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testFixtureVM.Tests.Count() + 1}" }
                 };
-                TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
+                TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
              
-                var testCaseEditor = new EditTestCaseViewModel(testCaseVM, testFixtureVM.Tests);
-                IWindowManager windowManager = IoC.Get<IWindowManager>();
-                bool? result = await windowManager.ShowDialogAsync(testCaseEditor);
+                var testCaseEditor = new EditTestCaseViewModel(testCaseVM, testFixtureVM.Tests);               
+                bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);
                 if (result.HasValue && result.Value)
                 {
                     testFixtureVM.Tests.Add(testCaseVM);
