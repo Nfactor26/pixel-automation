@@ -156,7 +156,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
             //Replace the assemly name in the process and template file
             UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
-            UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
+            if(File.Exists(this.fileSystem.TemplateFile))
+            {
+                UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
+            }
 
         }
 

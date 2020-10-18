@@ -36,7 +36,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             try
             {               
-                using (var compilationResult = this.codeEditorFactory.CompileProject(this.prefabDescription.PrefabName.Trim().Replace(' ', '_'), $"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
+                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabDescription.PrefabId, $"{this.prefabDescription.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
                 {
                     logger.Information("Prefab assembly was successfuly compiled");
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
@@ -70,9 +70,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             if(string.IsNullOrEmpty(generatedCode?.ToString()))
             {
                 generatedCode = GetDataModelFileContent();
-            }           
-           
-            this.CodeEditor = codeEditorFactory.CreateMultiCodeEditorControl();
+            }
+          
+            this.codeEditorFactory.AddProject(prefabDescription.PrefabId, Array.Empty<string>());
+            this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
 
             foreach (var file in Directory.GetFiles(prefabFileSystem.DataModelDirectory, "*.cs"))
             {

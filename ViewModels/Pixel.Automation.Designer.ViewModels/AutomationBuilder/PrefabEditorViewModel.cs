@@ -10,6 +10,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -25,8 +26,8 @@ namespace Pixel.Automation.Designer.ViewModels
         #region constructor
 
         public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, ISerializer serializer,
-             IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
-            base(globalEventAggregator, serializer, entityManager, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
+             IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
+            base(globalEventAggregator, serializer, entityManager, scriptExtractor, tools, dropTarget, applicationSettings)
         {
             this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
