@@ -44,7 +44,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             var additionalMetaDataReferences = additionalProjectReferences.GetReferences(DocumentationProviderFactory);
        
             var otherProjectReferences = new List<ProjectReference>();
-            foreach(var reference in projectReferences)
+            foreach (var reference in projectReferences)
             {
                 var project = GetProjectByName(reference);
                 otherProjectReferences.Add(new ProjectReference(project.Id));
@@ -74,6 +74,10 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
 
             var project = GetProjectByName(addToProject);
+            if(project.Documents.Any())
+            {
+                throw new InvalidOperationException($"{project.Id} already has a document : {project.Documents.First().Name}. Scripting projects can contain only one document at a time.");
+            }
 
             var scriptDocumentInfo = DocumentInfo.Create(
             DocumentId.CreateNewId(project.Id), Path.GetFileName(targetDocument),
@@ -111,9 +115,15 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
         }
 
-        public void WithSearchPaths(params string[] searchPaths)
+        public void AddSearchPaths(params string[] searchPaths)
         {
-            this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
+            this.searchPaths = this.searchPaths.Union(searchPaths).ToList();
+            this.compilationOptions = CreateCompilationOptions();
+        }
+
+        public void RemoveSearchPaths(params string[] searchPaths)
+        {
+            this.searchPaths = this.searchPaths.Except(searchPaths).ToList();
             this.compilationOptions = CreateCompilationOptions();
         }
     }

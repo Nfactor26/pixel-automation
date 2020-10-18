@@ -1,6 +1,8 @@
 ﻿using Caliburn.Micro;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -50,8 +52,7 @@ namespace Pixel.Scripting.Script.Editor
             {
                this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
             }
-            this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
-            Dispose(true);
+            this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);           
         }
 
         protected void SaveDocument()
@@ -59,16 +60,41 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
         }
 
+        /// <summary>
+        /// Save and close document when Save button is clicked.
+        /// </summary>
         public async void Save()
         {          
             CloseDocument(true);
             await this.TryCloseAsync(true);
         }
 
+        /// <summary>
+        /// Close document when Cancel button is clicked
+        /// </summary>
         public async void Cancel()
         {          
             CloseDocument(false);
             await this.TryCloseAsync(false);
+        }
+
+        /// <summary>
+        /// Called when screen is closed using the X button on top right with close = true otherwise false.
+        /// </summary>
+        /// <param name="close"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
+        {
+            if(close)
+            {
+                CloseDocument(false);
+            }
+            else
+            {
+                this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
+            }
+            return base.OnDeactivateAsync(close, cancellationToken);
         }
 
         protected virtual void Dispose(bool isDisposing)

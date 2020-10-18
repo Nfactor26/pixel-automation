@@ -102,7 +102,9 @@ namespace Pixel.Scripting.Editor.Core.Contracts
     {
         void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType);
 
-        void WithSearchPaths(params string[] searchPaths);
+        void AddSearchPaths(params string[] searchPaths);
+
+        void RemoveSearchPaths(params string[] searchPaths);
     }
 
     public interface ICodeWorkspaceManager : IWorkspaceManager

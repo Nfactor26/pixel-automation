@@ -1,4 +1,5 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
+﻿using Dawn;
+using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Script.Editor.Script;
 using Serilog;
 using System;
@@ -115,6 +116,20 @@ namespace Pixel.Scripting.Script.Editor
                 return;
             }
             logger.Information($"Project {projectName} doesn't exists in workspace. Can't remove project.");
+        }
+
+        public void AddSearchPaths(params string[] searchPaths)
+        {
+            Guard.Argument(searchPaths).NotEmpty();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.AddSearchPaths(searchPaths);
+        }
+
+        public void RemoveSearchPaths(params string[] searchPaths)
+        {
+            Guard.Argument(searchPaths).NotEmpty();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.RemoveSearchPaths(searchPaths);
         }
     }
 }

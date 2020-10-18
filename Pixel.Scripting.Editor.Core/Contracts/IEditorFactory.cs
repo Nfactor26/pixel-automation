@@ -73,7 +73,20 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor();
-     
+
+
+        /// <summary>
+        /// Add additional locations from which #r assemblies can be resolved from.
+        /// </summary>
+        /// <param name="searchPaths"></param>
+        void AddSearchPaths(params string[] searchPaths);
+
+        /// <summary>
+        /// Remove specified locations from which #r assemblies can be resolved from.
+        /// </summary>
+        /// <param name="searchPaths"></param>
+        void RemoveSearchPaths(params string[] searchPaths);
+
     }
 
     public interface IREPLEditorFactory : IEditorFactory
