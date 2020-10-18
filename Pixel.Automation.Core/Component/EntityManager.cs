@@ -118,7 +118,7 @@ namespace Pixel.Automation.Core
 
             if (isPrimaryEntityManager)
             {
-                scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, fileSystem.ReferencesDirectory).
+                scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory).
                 WithAdditionalAssemblyReferences(fileSystem.GetAssemblyReferences()).
                 WithAdditionalAssemblyReferences(this.arguments.GetType().Assembly);
             }

@@ -48,9 +48,14 @@ namespace Pixel.Scripting.Engine.CSharp
             logger.Information($"{nameof(ScriptEngineFactory)} created and initialized.");
         }
 
+        /// <summary>
+        /// Configure lookup path for #r directives
+        /// searchPaths : An ordered set of fully qualified  paths which are searched when resolving assembly names.
+        /// baseDirectory : Directory used when resolving relative paths
+        /// </summary>
+        /// <returns></returns>
         private MetadataReferenceResolver CreateScriptMetaDataResolver()
-        {
-            //Configure lookup path for #r directives
+        {           
             scriptMetaDataResolver = ScriptMetadataResolver.Default;
             scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
             scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
@@ -81,7 +86,7 @@ namespace Pixel.Scripting.Engine.CSharp
         {
             if (string.IsNullOrEmpty(this.baseDirectory))
             {
-                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
+                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithAdditionalSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
             }
 
             lock (locker)
