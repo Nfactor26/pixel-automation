@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
 using System.Linq;
@@ -10,13 +11,14 @@ using System.Reflection;
 namespace Pixel.Automation.RunTime
 {
     /// <inheritdoc/>
-    public class PrefabLoader : IPrefabLoader
+    public class PrefabLoader : IPrefabLoader, IDisposable
     {
         private Entity prefabRoot;
         private Type dataModelType;
         private object dataModelInstance;
         private IPrefabFileSystem prefabFileSystem;
-        private IEntityManager prefabManager;      
+        private IEntityManager prefabManager;
+        private bool isDisposed;
 
         public PrefabLoader()
         {            
@@ -30,22 +32,24 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(entityManager).NotNull();
             Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.DataModelAssembly), p => { return "Assembly Name is not set on Prefab Version"; });
 
+            if(isDisposed)
+            {
+                throw new InvalidOperationException($"{nameof(PrefabLoader)} is disposed.");
+            }
 
             this.prefabManager = new EntityManager(entityManager);
 
             this.prefabFileSystem = this.prefabManager.GetServiceOfType<IPrefabFileSystem>();
             this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
+            this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);
 
             //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
             var scriptEngineFactory = entityManager.GetServiceOfType<IScriptEngineFactory>();
             scriptEngineFactory.WithAdditionalSearchPaths(this.prefabFileSystem.ReferencesDirectory);
+          
             //Similalry, Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
-            //var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-            //scriptEditorFactory.GetWorkspaceManager().WithSearchPaths(this.prefabFileSystem.ReferencesDirectory);
-
-
-            this.prefabManager.RegisterDefault<IFileSystem>(this.prefabFileSystem);
-            this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);         
+            var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+            scriptEditorFactory.AddSearchPaths(this.prefabFileSystem.ReferencesDirectory);                    
 
             string prefabAssembly = Path.Combine(this.prefabFileSystem.ReferencesDirectory, prefabVersion.DataModelAssembly);
             if(!prefabFileSystem.Exists(prefabAssembly))
@@ -73,5 +77,18 @@ namespace Pixel.Automation.RunTime
 
             return this.prefabRoot;
         }
+
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            this.prefabManager?.Dispose();
+            this.isDisposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
     }
 }

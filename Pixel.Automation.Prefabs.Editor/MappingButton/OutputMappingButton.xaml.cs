@@ -33,20 +33,30 @@ namespace Pixel.Automation.Prefabs.Editor
             if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
                 //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                editorFactory.AddProject(OwnerComponent.Id, new string[] { testCaseEntity.Tag }, EntityManager.Arguments.GetType());
+                AddProject(new string[] { testCaseEntity.Tag });
             }
             else if (OwnerComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
             {
                 //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                editorFactory.AddProject(OwnerComponent.Id, new string[] { testFixtureEntity.Tag }, OwnerComponent.EntityManager.Arguments.GetType());
+                AddProject(new string[] { testFixtureEntity.Tag });
             }          
             else
             {
-                editorFactory.AddProject(OwnerComponent.Id, Array.Empty<string>(), EntityManager.Arguments.GetType());
+                AddProject(Array.Empty<string>());
             }
-            editorFactory.AddDocument(ScriptFile, OwnerComponent.Id, generatedCode);
-            scriptEditor.OpenDocument(this.ScriptFile, OwnerComponent.Id, generatedCode);
+            editorFactory.AddDocument(this.ScriptFile, GetProjectName(), generatedCode);
+            scriptEditor.OpenDocument(this.ScriptFile, GetProjectName(), generatedCode);
             await windowManager.ShowDialogAsync(scriptEditor);
+
+            void AddProject(string[] projectReferences)
+            {
+                editorFactory.AddProject(GetProjectName(), projectReferences, EntityManager.Arguments.GetType());
+            }
+
+            string GetProjectName()
+            {
+                return $"Out_{OwnerComponent.Id}";
+            }
 
         }
 

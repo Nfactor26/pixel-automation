@@ -15,7 +15,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
     [Serializable]
     [Scriptable(nameof(InputMappingScript), nameof(OutputMappingScript))]
     [Initializer(typeof(ScriptFileInitializer))]
-    public class PrefabEntity : Entity
+    public class PrefabEntity : Entity, IDisposable
     {
         [DataMember]
         [Browsable(false)]
@@ -57,6 +57,9 @@ namespace Pixel.Automation.Core.Components.Prefabs
         }
 
         [NonSerialized]
+        private IPrefabLoader prefabLoader;
+
+        [NonSerialized]
         private object prefabDataModel;
 
         [NonSerialized]
@@ -89,7 +92,10 @@ namespace Pixel.Automation.Core.Components.Prefabs
 
         private void LoadPrefab()
         {
-            IPrefabLoader prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();        
+            if(this.prefabLoader == null)
+            {
+                this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();              
+            }
             this.prefabEntity = prefabLoader.LoadPrefab(this.ApplicationId, this.PrefabId, this.PrefabVersion, this.EntityManager);
             this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;
             this.components.Clear();
@@ -114,7 +120,21 @@ namespace Pixel.Automation.Core.Components.Prefabs
         {           
             return this;
         }
-        
+
         #endregion overridden methods
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if(this.prefabLoader != null)
+            {
+                (this.prefabLoader as IDisposable).Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
     }
 }
