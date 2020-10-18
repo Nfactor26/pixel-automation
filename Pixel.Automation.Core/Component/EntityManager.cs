@@ -71,9 +71,7 @@ namespace Pixel.Automation.Core
 
         public EntityManager(IServiceResolver serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-            this.serviceProvider.RegisterDefault<IEntityManager>(this);
-            this.serviceProvider.RegisterDefault<IServiceResolver>(serviceProvider);
+            this.serviceProvider = serviceProvider;          
         }
 
         /// <summary>
@@ -82,7 +80,7 @@ namespace Pixel.Automation.Core
         /// <param name="entityManager"></param>
         public EntityManager(IEntityManager parentEntityManager)
         {
-            this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>() as IServiceResolver;
+            this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>();
             this.RootEntity = parentEntityManager.RootEntity;
             this.isPrimaryEntityManager = false;
             this.SetCurrentFileSystem(parentEntityManager.GetCurrentFileSystem());
@@ -329,9 +327,8 @@ namespace Pixel.Automation.Core
                 matchingProperties.AddRange(this.argumentPropertiesInfo[propertyType.GetDisplayName()] ?? Enumerable.Empty<string>());
             }
 
-            //look in to script engine variables
-            IScriptEngine scriptEngine = GetServiceOfType<IScriptEngine>();
-            var declaredVariables = scriptEngine.GetScriptVariables()?.Where(v => v.PropertyType.Equals(propertyType))?.Select(a => a.PropertyName) ?? Enumerable.Empty<string>();
+            //look in to script engine variables          
+            var declaredVariables = this.scriptEngine.GetScriptVariables()?.Where(v => v.PropertyType.Equals(propertyType))?.Select(a => a.PropertyName) ?? Enumerable.Empty<string>();
             matchingProperties.AddRange(declaredVariables);
             return matchingProperties;
         }
@@ -363,9 +360,8 @@ namespace Pixel.Automation.Core
         }
 
         protected virtual void Dispose(bool isDisposing)
-        {
-            //TODO : We need to dispose components for non-primary Entity manager
-            if (isDisposing && this.isPrimaryEntityManager)
+        {         
+            if (isDisposing)
             {
                 foreach (var component in this.RootEntity.GetAllComponents())
                 {
@@ -375,14 +371,11 @@ namespace Pixel.Automation.Core
                     }
                 }
 
-                this.serviceProvider.Dispose();               
+                this.RootEntity = null;
+                this.arguments = null;
+                this.serviceProvider = null;
+                this.fileSystem = null;
             }
-
-            this.RootEntity = null;
-            this.arguments = null;
-            this.serviceProvider = null;
-            this.fileSystem = null;
-
         }
 
         #endregion IDisposable

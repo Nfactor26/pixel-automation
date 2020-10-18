@@ -11,11 +11,11 @@ using Pixel.Automation.Designer.ViewModels.VersionManager;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.TestData.Repository.ViewModels;
-using Pixel.Automation.TestExplorer;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -31,20 +31,27 @@ namespace Pixel.Automation.Designer.ViewModels
         #region data members        
 
         private readonly ILogger logger = Log.ForContext<AutomationEditorViewModel>();
+        private readonly IAutomationProjectManager projectManager;
         private readonly ITestExplorer testExplorerToolBox;
-        private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;     
- 
-        TestRepositoryManager testCaseManager = default;
+        private readonly ITestRepositoryManager testRepositoryManager;
+        private readonly IServiceResolver serviceResolver;
+
+        private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;          
         TestDataRepository testDataRepository = default;
 
         #endregion data members
 
         #region constructor
-        public AutomationEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
-            IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
-            globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
-        {        
-        
+        public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator,  ISerializer serializer, IEntityManager entityManager,
+            IAutomationProjectManager projectManager, ITestRepositoryManager testRepositoryManager,
+            IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
+            globalEventAggregator, serializer, entityManager, scriptExtractor, tools, dropTarget, applicationSettings)
+        {
+
+            this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;             
+            this.testRepositoryManager = Guard.Argument(testRepositoryManager, nameof(testRepositoryManager)).NotNull().Value; 
+
             foreach (var item in Tools)
             {               
                 if(item is ITestExplorer)
@@ -57,25 +64,22 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     testDataRepositoryViewModel = item as TestDataRepositoryViewModel;
                 }
-            }             
+            }
+
+         
         }
       
         #endregion constructor               
 
-        #region Automation Project
-      
-        AutomationProjectManager projectManager;
+        #region Automation Project 
+       
 
         public AutomationProject CurrentProject { get; private set; }
 
         public async Task DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
-            Guard.Argument(project, nameof(project)).NotNull();
-
-            //Getting AutomationProjectManager from EntityManager service resolver instead of injecting this as a constructor parameter since we want
-            //all dependencies of automation project manager to be resolved by entity manager's service resolver ( which uses child kernel to resolve this)
-            this.projectManager = this.EntityManager.GetServiceOfType<AutomationProjectManager>().WithEntityManager(this.EntityManager) as AutomationProjectManager;
-
+            Guard.Argument(project, nameof(project)).NotNull();    
+      
             this.CurrentProject = project;
             this.DisplayName = project.Name;
 
@@ -124,13 +128,12 @@ namespace Pixel.Automation.Designer.ViewModels
                 //closing fixture will also close test cases
                 var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
                 var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
-                Debug.Assert(testFixtures.Any(a => a == null), "Invalid setup. TestCaseEntity must have a TestFixtureEntity as it's parent");
                 foreach (var fixture in testFixtures)
                 {
-                    await this.testCaseManager.CloseTestFixtureAsync(fixture.Tag);
+                    await this.testRepositoryManager.CloseTestFixtureAsync(fixture.Tag);
                 }
 
-                this.projectManager.Refresh();
+                await this.projectManager.Refresh();
 
                 UpdateWorkFlowRoot();
 
@@ -138,7 +141,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
                 foreach (var testEntity in testCaseEntities)
                 {
-                    await this.testCaseManager.OpenTestCaseAsync(testEntity.Tag);
+                    await this.testRepositoryManager.OpenTestCaseAsync(testEntity.Tag);
                 }
             }
             catch (Exception ex)
@@ -148,16 +151,9 @@ namespace Pixel.Automation.Designer.ViewModels
         }       
 
         private void InitializeTestProcess()
-        {
-            if(this.testCaseManager == null)
-            {
-                ITestRunner testRunner = this.EntityManager.GetServiceOfType<ITestRunner>();
-                IEventAggregator eventAggregator = this.EntityManager.GetServiceOfType<IEventAggregator>();                          
-                IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-
-                this.testCaseManager = new TestRepositoryManager(eventAggregator, this.projectManager, this.projectManager.GetProjectFileSystem() as IProjectFileSystem, testRunner, windowManager);
-            }
-            this.testExplorerToolBox?.SetActiveInstance(this.testCaseManager);
+        {         
+            this.testRepositoryManager.Initialize();
+            this.testExplorerToolBox?.SetActiveInstance(this.testRepositoryManager);
 
             if(this.testDataRepository == null)
             {
@@ -200,7 +196,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
-                this.testCaseManager.SaveAll();
+                this.testRepositoryManager.SaveAll();
                 await projectManager.Save();
             }
             catch (Exception ex)
@@ -254,20 +250,23 @@ namespace Pixel.Automation.Designer.ViewModels
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
             foreach (var testEntity in testCaseEntities)
             {
-                this.testCaseManager.CloseTestCaseAsync(testEntity.Tag);
+                await this.testRepositoryManager.CloseTestCaseAsync(testEntity.Tag);
             }
 
             this.testDataRepositoryViewModel?.ClearActiveInstance();
             this.testDataRepository = null;
-            this.testCaseManager = null;
-            this.projectManager = null;                                                
-
+            
             this.Dispose();           
             await this.TryCloseAsync(true);            
         }
 
+
         #endregion Close Screen
 
-      
+        protected override void Dispose(bool isDisposing)
+        {
+            base.Dispose(isDisposing);
+            this.serviceResolver.Dispose();
+        }
     }
 }

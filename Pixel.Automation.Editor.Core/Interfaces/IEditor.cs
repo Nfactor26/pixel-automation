@@ -1,5 +1,4 @@
 ﻿using Caliburn.Micro;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -13,16 +12,10 @@ namespace Pixel.Automation.Editor.Core.Interfaces
             get;
         }
 
-
         /// <summary>
         /// Save the project state in the current workspace
         /// </summary>
         Task DoSave();      
-
-        /// <summary>
-        /// Unload the project
-        /// </summary>
-        void DoUnload();
 
         /// <summary>
         /// Manage different versions of project and their deployment

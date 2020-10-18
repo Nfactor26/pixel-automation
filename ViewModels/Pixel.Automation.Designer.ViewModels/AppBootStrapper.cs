@@ -117,7 +117,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 
                 LogManager.GetLog = type => new DebugLog(type);
 
-                kernel = new StandardKernel(new ViewModules(), new ToolBoxModules(), new ScrappersModules(), new ScriptingModules(),
+                kernel = new StandardKernel(new ViewModules(), new ToolBoxModules(), new ScrappersModules(), new ScriptingModules(), new DevicesModules(),
                     new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(),  new WindowsModules(), new SettingsModules());                
                 kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));             
 

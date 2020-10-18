@@ -29,7 +29,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         ISerializer serializer;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IEnumerable<IToolBox> tools, IEnumerable<IFlyOut> flyOuts,
+        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IToolBox> tools, IEnumerable<IFlyOut> flyOuts,
             IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
         {
             Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
@@ -177,27 +177,7 @@ namespace Pixel.Automation.Designer.ViewModels
             if (activeItem == null)
                 return;
             activeItem.EditDataModel();
-        }
-
-
-        public bool CanReloadAutomationProject
-        {
-            get
-            {
-                return this.ActiveItem is IAutomationEditor;
-            }
-
-        }
-        public void ReloadAutomationProject()
-        {
-            var activeItem = this.ActiveItem as IAutomationEditor;
-            if (activeItem != null)
-            {
-                activeItem.DoSave();
-                activeItem.DoUnload();
-                activeItem.DoLoad(activeItem.CurrentProject);
-            }
-        }
+        }     
 
         public bool CanManage
         {
@@ -232,8 +212,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanEditDataModel);
                 NotifyOfPropertyChange(() => CanSave);
                 NotifyOfPropertyChange(() => CanSaveAll);
-                NotifyOfPropertyChange(() => CanManage);
-                NotifyOfPropertyChange(() => CanReloadAutomationProject);
+                NotifyOfPropertyChange(() => CanManage);           
             }
             catch (Exception ex)
             {

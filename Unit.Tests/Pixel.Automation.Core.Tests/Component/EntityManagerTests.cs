@@ -68,17 +68,6 @@ namespace Pixel.Automation.Core.Tests.Component
         }
 
         /// <summary>
-        /// Verify that EntityManager can be initialized and it registers itself as default instance of EntityManager with the service resolver
-        /// </summary>
-        [Test]
-        [Order(10)]
-        public void VerifyThatEntityManagerCanBeInitialized()
-        { 
-            this.serviceResolver.Received(1).RegisterDefault<EntityManager>(entityManager);
-        }
-
-
-        /// <summary>
         /// Verify that entity manager can provide requested services
         /// </summary>
         [Test]
@@ -168,8 +157,7 @@ namespace Pixel.Automation.Core.Tests.Component
 
             entityManager.Dispose();
 
-            (disposableComponent as IDisposable).Received(1).Dispose();
-            serviceResolver.Received(1).Dispose();
+            (disposableComponent as IDisposable).Received(1).Dispose();           
             Assert.IsNull(entityManager.RootEntity);
             Assert.IsNull(entityManager.Arguments);
         }

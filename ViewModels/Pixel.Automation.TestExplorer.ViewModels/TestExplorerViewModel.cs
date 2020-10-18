@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Interfaces;
 using System.Linq;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
@@ -8,7 +9,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     {
         private readonly object locker = new object();
 
-        public TestRepositoryManager ActiveInstance { get; set; }
+        public ITestRepositoryManager ActiveInstance { get; set; }
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
      
@@ -17,7 +18,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             this.DisplayName = "Test Explorer";           
         }
 
-        public void SetActiveInstance(object instance)
+        public void SetActiveInstance(ITestRepositoryManager instance)
         {
             Guard.Argument(instance).NotNull().Compatible<TestRepositoryManager>();
             lock (locker)
@@ -43,12 +44,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             get => this.ActiveInstance != null;
         }
-
-        public bool HasTestCaseOpenForEdit()
-        {
-            return this.ActiveInstance?.TestFixtures.Any(f => f.IsOpenForEdit) ?? false;
-        }
-
 
         protected virtual void Dispose(bool isDisposing)
         {

@@ -19,7 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public ServiceResolver(IKernel parentKernel)
         {
-            this.kernel = new ChildKernel(parentKernel, new WorkspaceModules(), new ScopedModules(), new ScriptingModules(), new DevicesModules());            
+            this.kernel = new ChildKernel(parentKernel, new WorkspaceModules(), new ScriptingModules());            
         }        
 
         /// <summary>

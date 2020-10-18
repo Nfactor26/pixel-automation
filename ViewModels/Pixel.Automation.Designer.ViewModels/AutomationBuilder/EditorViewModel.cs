@@ -29,7 +29,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly IScriptExtactor scriptExtractor;
         protected readonly ApplicationSettings applicationSettings;
      
-        public EntityManager EntityManager { get; private set; }
+        public IEntityManager EntityManager { get; private set; }
 
         public IObservableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
    
@@ -42,22 +42,21 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region constructor
 
-        public EditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver,
-            ISerializer serializer, IScriptExtactor scriptExtractor,  IToolBox[] toolBoxes, IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
-        {
-            Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull();
-            Guard.Argument(toolBoxes, nameof(toolBoxes)).NotNull().NotEmpty();
+        public EditorViewModel(IEventAggregator globalEventAggregator, ISerializer serializer,
+            IEntityManager entityManager, IScriptExtactor scriptExtractor,  IReadOnlyCollection<IToolBox> tools, 
+            IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
+        {          
+            Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
 
             this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
             this.globalEventAggregator.SubscribeOnUIThread(this);
 
+            this.EntityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
             this.ComponentDropHandler = Guard.Argument(componentDropHandler, nameof(componentDropHandler)).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.Tools.AddRange(toolBoxes);
-          
-            this.EntityManager = new EntityManager(serviceResolver);
+            this.Tools.AddRange(tools);  
          
         }
 
@@ -228,12 +227,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public abstract Task EditDataModel();
 
-        public void DoUnload()
-        {
-            this.EntityManager?.Dispose();
-            this.EntityManager = null;
-        }
-
         protected void UpdateWorkFlowRoot()
         {
             this.WorkFlowRoot.Clear();
@@ -318,8 +311,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             if(isDisposing)
             {              
                 this.Tools.Clear();
-                this.WorkFlowRoot.Clear();
-                this.DoUnload();
+                this.WorkFlowRoot.Clear();               
             }
         }
 

@@ -15,10 +15,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IServiceResolver>().To<ServiceResolver>();
 
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>();
-            Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
-            Kernel.Bind<ITestCaseFileSystem>().To<TestCaseFileSystem>();
-
-            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>();
+            Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();           
         }
     }
 }

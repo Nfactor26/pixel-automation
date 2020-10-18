@@ -17,16 +17,15 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public class AutomationProjectManager : ProjectManager
+    public class AutomationProjectManager : ProjectManager, IAutomationProjectManager
     {
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IApplicationDataManager applicationDataManager;
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
-        public AutomationProjectManager(ISerializer serializer, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
-        ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) 
-        : base(serializer, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
+        public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) 
+        : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
@@ -40,8 +39,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.loadedVersion = versionToLoad;
             await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
-            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-     
+            this.entityManager.SetCurrentFileSystem(this.fileSystem);
+
             CreateDataModelFile();
             ConfigureCodeEditor();
 
@@ -49,7 +48,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
           
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            Initialize(entityManager, this.activeProject);
+            Initialize();
             return this.RootEntity;
         }   
 
@@ -66,7 +65,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }             
         }      
 
-        private void Initialize(EntityManager entityManager, AutomationProject automationProject)
+        private void Initialize()
         {
             logger.Information($"Loading project file for {this.GetProjectName()} now");
             if (!File.Exists(this.projectFileSystem.ProcessFile))
@@ -139,7 +138,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public void Refresh()
+        public override async Task Refresh()
         {           
             Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
 
@@ -159,6 +158,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }         
             this.RootEntity = rootEntity;
             RestoreParentChildRelation(this.RootEntity);
+            await Task.CompletedTask;
             logger.Information($"Reload completed for project {this.GetProjectName()}");
 
         }

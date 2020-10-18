@@ -7,22 +7,20 @@ using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public class PrefabProjectManager : ProjectManager
+    public class PrefabProjectManager : ProjectManager, IPrefabProjectManager
     {
         private readonly IPrefabFileSystem prefabFileSystem;      
     
         private PrefabDescription prefabDescription;       
         private Entity prefabbedEntity;       
 
-        public PrefabProjectManager(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
-            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
-            : base(serializer, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
+        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
+            : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
         }
@@ -33,20 +31,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             this.prefabDescription = prefabDescription;
             this.prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, versionInfo);
-            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-                
+            this.entityManager.SetCurrentFileSystem(this.fileSystem);
+
             ConfigureCodeEditor();
           
             this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
 
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            Initialize(this.entityManager, this.prefabDescription);           
+            Initialize();           
             return this.RootEntity;
         }
     
 
-        private void Initialize(EntityManager entityManager, PrefabDescription prefabDescription)
+        private void Initialize()
         {
             if (!File.Exists(this.prefabFileSystem.PrefabFile))
             {
@@ -110,14 +108,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public async Task<Entity> Refresh()
+        public override async Task Refresh()
         {
             await this.Save();
-            this.Initialize(this.entityManager, this.prefabDescription);
+            this.Initialize();
             this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
-            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            return this.RootEntity;
+            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
         }
 
 

@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
-
+      
         BindableCollection<AutomationProject> recentProjects = new BindableCollection<AutomationProject>();
         public BindableCollection<AutomationProject> RecentProjects
         {
@@ -40,7 +40,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             this.DisplayName = "Home";
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;       
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
             LoadRecentProjects();
         }
@@ -92,9 +92,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 logger.Information($"Trying to open project : {automationProject.Name}");
 
-                //we need a new instance of automationEditor everytime we open a project. Don't inject it as a constructor parameter.
-                //TODO : Create a factory for automation editor which should be injected as a constructor parameter.
-                var automationEditor = IoC.Get<IAutomationEditor>();
+                var editorFactory = IoC.Get<IEditorFactory>();
+                var automationEditor = editorFactory.CreateAutomationEditor();
                 await automationEditor.DoLoad(automationProject);   
                 if(this.Parent is IConductor conductor)
                 {

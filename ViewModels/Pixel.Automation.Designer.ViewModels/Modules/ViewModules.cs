@@ -4,6 +4,7 @@ using Ninject.Extensions.Factory;
 using Ninject.Modules;
 using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
+using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
@@ -21,7 +22,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope();
             Kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
             Kernel.Bind<INewProject>().To<NewProjectViewModel>();
-            Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>();
+            Kernel.Bind<IEditorFactory>().To<EditorFactory>();
+        
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>();
             Kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
 

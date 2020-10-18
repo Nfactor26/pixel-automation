@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pixel.Automation.Editor.Core
+namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface ITestExplorer : IDisposable
     {
@@ -8,7 +8,7 @@ namespace Pixel.Automation.Editor.Core
         /// Sets the TestRepositoryManager instance belonging to an Automation process.
         /// </summary>
         /// <param name="instance"></param>
-        void SetActiveInstance(object instance);
+        void SetActiveInstance(ITestRepositoryManager instance);
 
         /// <summary>
         /// Clear the TestRepositoryManager instance belong to an Automation process.
@@ -17,6 +17,5 @@ namespace Pixel.Automation.Editor.Core
         /// </summary>
         void ClearActiveInstance();
 
-        bool HasTestCaseOpenForEdit();
     }
 }

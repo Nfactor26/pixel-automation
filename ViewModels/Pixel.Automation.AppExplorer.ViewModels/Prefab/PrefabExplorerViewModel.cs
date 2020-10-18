@@ -102,7 +102,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             try
             {
-                IPrefabEditor prefabEditor = IoC.Get<IPrefabEditor>(); //TODO : Pass a factory for creating PrefabEditors and use that
+                var editorFactory = IoC.Get<Editor.Core.Interfaces.IEditorFactory>();
+                var prefabEditor = editorFactory.CreatePrefabEditor();              
                 prefabEditor.DoLoad(prefabToEdit);               
                 this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
                 prefabEditor.PrefabUpdated += OnPrefabUpdated;

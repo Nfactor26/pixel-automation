@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         private int compilationIteration = 0;
 
-        protected EntityManager entityManager;
+        protected IEntityManager entityManager;
         protected ISerializer serializer;
         protected IFileSystem fileSystem;
         protected ITypeProvider typeProvider;    
@@ -37,9 +37,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
 
-        public ProjectManager(ISerializer serializer, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
+        public ProjectManager(ISerializer serializer, IEntityManager entityManager, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.entityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
             this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value; 
             this.argumentTypeProvider = Guard.Argument(argumentTypeProvider, nameof(argumentTypeProvider)).NotNull().Value;
@@ -50,6 +51,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         ///<inheritdoc/>
         public abstract Task Save();
+
+        ///<inheritdoc/>
+        public abstract Task Refresh();
 
         ///<inheritdoc/>
         public IProjectManager WithEntityManager(EntityManager entityManager)

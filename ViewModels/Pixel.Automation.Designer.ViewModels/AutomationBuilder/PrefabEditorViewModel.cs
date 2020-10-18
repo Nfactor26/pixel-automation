@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
@@ -16,29 +17,31 @@ using System.Threading.Tasks;
 namespace Pixel.Automation.Designer.ViewModels
 {
     public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
-    {      
+    {
+        private readonly IServiceResolver serviceResolver;
+        private readonly IPrefabProjectManager projectManager;
+
+
         #region constructor
-     
-        public PrefabEditorViewModel(IEventAggregator globalEventAggregator, IServiceResolver serviceResolver, ISerializer serializer,
-             IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
-            base(globalEventAggregator, serviceResolver, serializer, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
+
+        public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, ISerializer serializer,
+             IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, IToolBox[] toolBoxes, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
+            base(globalEventAggregator, serializer, entityManager, scriptExtractor, toolBoxes, dropTarget, applicationSettings)
         {
+            this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
         }
 
         #endregion constructor
 
         #region Automation Project
-
-        PrefabProjectManager projectManager;
-
+       
         public PrefabDescription PrefabDescription { get; private set; }       
 
         public virtual void DoLoad(PrefabDescription prefabDescription, VersionInfo versionToLoad = null)
         {
             Debug.Assert(prefabDescription != null);
-
-            this.projectManager = this.EntityManager.GetServiceOfType<PrefabProjectManager>().WithEntityManager(this.EntityManager) as PrefabProjectManager;
-
+   
             this.PrefabDescription = prefabDescription;
             this.DisplayName = prefabDescription.PrefabName;
 
@@ -118,6 +121,12 @@ namespace Pixel.Automation.Designer.ViewModels
         protected virtual void OnEditorClosing()
         {
             this.EditorClosing(this, new EditorClosingEventArgs());
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            base.Dispose(isDisposing);
+            this.serviceResolver.Dispose();
         }
 
     }

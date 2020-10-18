@@ -27,7 +27,7 @@ namespace Pixel.Automation.TestExplorer
     /// <summary>
     /// TestCaseManager manages test cases for active Automation Project 
     /// </summary>
-    public class TestRepositoryManager : PropertyChangedBase, IHandle<TestCaseUpdatedEventArgs>
+    public class TestRepositoryManager : PropertyChangedBase, IHandle<TestCaseUpdatedEventArgs>, ITestRepositoryManager
     {
         #region Data members
     
@@ -37,6 +37,7 @@ namespace Pixel.Automation.TestExplorer
         private readonly IProjectManager projectManager;       
         private readonly IEventAggregator eventAggregator;      
         private readonly IWindowManager windowManager;
+        private bool isInitialized = false;
 
         public ITestRunner TestRunner { get; }
 
@@ -62,45 +63,47 @@ namespace Pixel.Automation.TestExplorer
 
         #region Constructor
 
-        public TestRepositoryManager(IEventAggregator eventAggregator, IProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, IWindowManager windowManager)
+        public TestRepositoryManager(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, IWindowManager windowManager)
         {
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.TestRunner = Guard.Argument(testRunner).NotNull().Value;        
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;            
             this.windowManager = Guard.Argument(windowManager).NotNull().Value;    
-
-            LoadExistingTests();
-            CreateDefaultView();
-
-            eventAggregator.SubscribeOnPublishedThread(this);
+            this.eventAggregator.SubscribeOnPublishedThread(this);
+           
+            CreateDefaultView();           
         }
 
-        private void LoadExistingTests()
+        public void Initialize()
         {
-            List<TestCaseViewModel> testCases = new List<TestCaseViewModel>();
-
-            foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+            if (!isInitialized)
             {
-                var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
-                TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
-                this.TestFixtures.Add(testFixtureVM);
+                List<TestCaseViewModel> testCases = new List<TestCaseViewModel>();
 
-                foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testFixtureDirectory))
+                foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
                 {
-                    TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
-                    testCases.Add(testCaseVM);
-                }
-            }           
+                    var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
+                    TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
+                    this.TestFixtures.Add(testFixtureVM);
 
-            foreach (var testCaseGroup in testCases.GroupBy(t => t.FixtureId))
-            {
-                var testFixtureVm = this.TestFixtures.FirstOrDefault(t => t.Id.Equals(testCaseGroup.Key));
-                foreach (var testCaseVM in testCaseGroup)
-                {
-                    testFixtureVm.Tests.Add(testCaseVM);
+                    foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testFixtureDirectory))
+                    {
+                        TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
+                        testCases.Add(testCaseVM);
+                    }
                 }
-            }
+
+                foreach (var testCaseGroup in testCases.GroupBy(t => t.FixtureId))
+                {
+                    var testFixtureVm = this.TestFixtures.FirstOrDefault(t => t.Id.Equals(testCaseGroup.Key));
+                    foreach (var testCaseVM in testCaseGroup)
+                    {
+                        testFixtureVm.Tests.Add(testCaseVM);
+                    }
+                }
+                isInitialized = true;
+            }            
         }
 
         private void CreateDefaultView()

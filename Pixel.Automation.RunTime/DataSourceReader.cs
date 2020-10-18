@@ -18,7 +18,7 @@ namespace Pixel.Automation.RunTime
         private readonly ISerializer serializer;
         private readonly IDataReader[] dataReaders;
         private readonly IScriptEngineFactory scriptEngineFactory;
-        private readonly IScriptEngine scriptEngine;
+        private IScriptEngine scriptEngine;
 
         public DataSourceReader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngineFactory scriptEngineFactory, IDataReader[] dataReaders)
         {
@@ -31,13 +31,18 @@ namespace Pixel.Automation.RunTime
             this.fileSystem = fileSystem;
             this.scriptEngineFactory = scriptEngineFactory;
             this.dataReaders = dataReaders;
-            this.scriptEngine = this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
+          
         }
 
         public IEnumerable<object> LoadData(string dataSourceId)
         {            
             Guard.Argument(dataSourceId).NotNull().NotEmpty();
-            
+
+            if(this.scriptEngine == null)
+            {
+                this.scriptEngine = this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
+            }
+
             string dataSourceFile = Path.Combine(this.fileSystem.TestDataRepository, $"{dataSourceId}.dat");
             if (!this.fileSystem.Exists(dataSourceFile))
             {

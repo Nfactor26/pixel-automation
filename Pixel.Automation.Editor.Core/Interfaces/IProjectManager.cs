@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Threading.Tasks;
@@ -28,5 +29,18 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <param name="fileName"></param>
         /// <returns></returns>
         T Load<T>(string fileName) where T : new();
+
+        Task Refresh();
+    }
+
+    public interface IAutomationProjectManager: IProjectManager
+    {
+        Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);       
+    }
+    
+
+    public interface IPrefabProjectManager : IProjectManager
+    {
+        Entity Load(PrefabDescription prefabDescription, VersionInfo versionInfo);
     }
 }

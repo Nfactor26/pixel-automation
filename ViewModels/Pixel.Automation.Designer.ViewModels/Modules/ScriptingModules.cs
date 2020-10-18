@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
+using Pixel.Automation.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
@@ -29,6 +30,11 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
            .StartsWith("Pixel.Scripting.Common.CSharp")).SelectAllClasses().InheritedFrom<IWorkspaceManagerFactory>()
            .BindAllInterfaces().Configure(s => s.InTransientScope()));
+
+            Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
+           .StartsWith("Pixel.Scripting.Engine.CSharp")).SelectAllClasses().InheritedFrom<IScriptEngineFactory>()
+           .BindAllInterfaces().Configure(s => s.InSingletonScope()));
+
         }
     }
 }

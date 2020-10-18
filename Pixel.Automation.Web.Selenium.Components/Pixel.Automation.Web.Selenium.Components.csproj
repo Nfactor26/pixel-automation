@@ -24,9 +24,7 @@
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0">
       <IncludeAssets>compile</IncludeAssets>      
     </PackageReference>
-    <PackageReference Include="System.Management" Version="4.7.0">
-      <IncludeAssets>compile</IncludeAssets>    
-    </PackageReference>
+    <PackageReference Include="System.Management" Version="4.7.0"/>   
   </ItemGroup>
 
   <ItemGroup>
