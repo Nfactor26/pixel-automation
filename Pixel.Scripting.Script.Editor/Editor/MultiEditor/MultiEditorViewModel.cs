@@ -194,18 +194,17 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         }
 
        /// <summary>
-       /// Close all document without saving unsaved changes
+       /// Close all document without saving any changes when Cancel button is clicked
        /// </summary>
         public async void Cancel()
         {
-            var openDocuments = new List<EditableDocumentViewModel>(this.OpenDocuments);
-            foreach (var document in openDocuments)
-            {
-                CloseDocument(document.DocumentName, document.ProjectName, false);
-            }
+            this.Close();
             await this.TryCloseAsync(false);
         }
 
+        /// <summary>
+        /// Close all documents without saving any change when X button is clicked
+        /// </summary>
         public void Close()
         {
             var openDocuments = new List<EditableDocumentViewModel>(this.OpenDocuments);

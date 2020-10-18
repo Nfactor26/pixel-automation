@@ -26,10 +26,11 @@
         <!--</ScrollViewer>-->
         <DockPanel Grid.Row="1" LastChildFill="False">
             <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}"/>
+            <Button x:Name="Save" Content="SAVE AND CLOSE" DockPanel.Dock="Right" Width="100" Margin="10"
+                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right" Margin="10"
                     Style="{DynamicResource MahApps.Styles.Button.Square}" />
-            <Button x:Name="Save" Content="Save" DockPanel.Dock="Right" Width="100" Margin="10"
-                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+         
         </DockPanel>
 
     </Grid>
