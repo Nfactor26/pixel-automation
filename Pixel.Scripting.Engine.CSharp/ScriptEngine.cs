@@ -21,19 +21,24 @@ namespace Pixel.Scripting.Engine.CSharp
       
         private string scriptsDirectory;
 
-        private ScriptOptions scriptOptions;
+        private Func<ScriptOptions> scriptOptionsGetter;
 
         private ScriptExecutor scriptExecutor;
 
         private object scriptGlobals = default;
 
+        ScriptOptions ScriptOptions
+        {
+            get => scriptOptionsGetter.Invoke();
+        }
+
         #endregion data members
 
         #region constructor       
 
-        internal ScriptEngine(ScriptOptions scriptOptions, ScriptExecutor scriptExecutor)
+        internal ScriptEngine(Func<ScriptOptions> scriptOptionsGetter, ScriptExecutor scriptExecutor)
         {
-            this.scriptOptions = Guard.Argument(scriptOptions).NotNull();
+            this.scriptOptionsGetter = Guard.Argument(scriptOptionsGetter).NotNull();
             this.scriptExecutor = Guard.Argument(scriptExecutor).NotNull();
         }
        
@@ -74,7 +79,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         public (bool,string) IsScriptValid(string code, object globals)
         {
-            var script = CSharpScript.Create(code, scriptOptions, globalsType: globals.GetType());
+            var script = CSharpScript.Create(code, ScriptOptions, globalsType: globals.GetType());
             var compilation = script.GetCompilation();
             compilation = compilation.WithOptions(compilation.Options.WithOutputKind(OutputKind.DynamicallyLinkedLibrary).WithOptimizationLevel(OptimizationLevel.Debug));
             using (var exeStream = new MemoryStream())
@@ -141,13 +146,13 @@ namespace Pixel.Scripting.Engine.CSharp
 
         public async Task<ScriptResult> ExecuteFileAsync(string scriptFile)
         {         
-            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(GetScriptLocation(scriptFile), this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+            lastExecutionResult = await this.scriptExecutor.ExecuteFileAsync(GetScriptLocation(scriptFile), this.ScriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
             return lastExecutionResult;
         }
 
         public async Task<ScriptResult> ExecuteScriptAsync(string scriptCode)
         {           
-            lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+            lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.ScriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
             return lastExecutionResult;
         }
 
@@ -164,7 +169,7 @@ namespace Pixel.Scripting.Engine.CSharp
             if(File.Exists(scriptLocation))
             {
                 var scriptCode = File.ReadAllText(scriptLocation);
-                lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.scriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+                lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.ScriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
                 if (lastExecutionResult.ReturnValue is T del)
                 {
                     return del;

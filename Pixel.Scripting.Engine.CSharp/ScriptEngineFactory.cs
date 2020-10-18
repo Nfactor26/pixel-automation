@@ -220,7 +220,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         public IScriptEngine CreateScriptEngine(string workingDirectory)
         {
-            IScriptEngine scriptEngine = new ScriptEngine(this.scriptOptions, new ScriptRunner());
+            IScriptEngine scriptEngine = new ScriptEngine(() => this.scriptOptions, new ScriptRunner());
             scriptEngine.SetWorkingDirectory(workingDirectory);
             this.createdScriptEngines.Add(new WeakReference<IScriptEngine>(scriptEngine));
             logger.Information($"Created a new instance of {nameof(ScriptEngine)}");
@@ -229,7 +229,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         public IScriptEngine CreateInteractiveScriptEngine()
         {
-            IScriptEngine scriptEngine = new ScriptEngine(this.scriptOptions, new ScriptRunner());
+            IScriptEngine scriptEngine = new ScriptEngine(() => this.scriptOptions, new ScriptRunner());
             this.createdScriptEngines.Add(new WeakReference<IScriptEngine>(scriptEngine));
             return scriptEngine;
         }
