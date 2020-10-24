@@ -14,8 +14,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
     public class SwitchToWindowActorComponent : SeleniumActorComponent
     {
         [DataMember(IsRequired = true)]
-        [Description("Index (1 based) of the tab/window to be switched to")]     
-        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 2 };
+        [Description("Index (0 based) of the tab/window to be switched to")]     
+        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 1 };
 
         public SwitchToWindowActorComponent():base("Switch To Window","SwitchToWindow")
         {
@@ -26,13 +26,13 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
             int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber);
-            if (webDriver.WindowHandles.Count() >= windowNumber)
+            if (webDriver.WindowHandles.Count() > windowNumber)
             {
-                webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber - 1]);
+                webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
                 return;
             }
 
-            throw new IndexOutOfRangeException($"Only {webDriver.WindowHandles.Count} windows / tabs are open. Can't switch to configured window with index : {this.WindowNumber}");
+            throw new IndexOutOfRangeException($"Only {webDriver.WindowHandles.Count} windows / tabs are open. Can't switch to configured window at index : {this.WindowNumber}");
         }
 
 

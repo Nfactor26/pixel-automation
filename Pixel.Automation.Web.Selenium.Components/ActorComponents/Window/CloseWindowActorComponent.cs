@@ -15,8 +15,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
     public class CloseWindowActorComponent : SeleniumActorComponent
     {
         [DataMember]
-        [Description("Index (1 based) of the tab/window to be closed.Default tab/window can't be closed")]
-        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 2 };
+        [Description("Index (0 based) of the tab/window to be closed.Default tab/window can't be closed")]
+        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 1 };
 
         public CloseWindowActorComponent() : base("Close Window", "CloseWindow")
         {           
@@ -26,14 +26,14 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
             int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber);
-            if (webDriver.WindowHandles.Count() >= windowNumber)
+            if (webDriver.WindowHandles.Count() > windowNumber)
             {
-                webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber-1]);
+                webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
                 webDriver.Close();
                 return;
             }
 
-            throw new IndexOutOfRangeException($"Only {webDriver.WindowHandles.Count} windows / tabs are open. Can't close configured window  with index : {this.WindowNumber}");
+            throw new IndexOutOfRangeException($"Only {webDriver.WindowHandles.Count} windows / tabs are open. Can't close configured window  at index : {this.WindowNumber}");
         }     
 
         public override string ToString()
