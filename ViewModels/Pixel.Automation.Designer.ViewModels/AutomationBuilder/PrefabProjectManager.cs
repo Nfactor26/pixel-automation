@@ -2,12 +2,14 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Processors;
+using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -68,7 +70,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 templateRoot.EntityManager = this.entityManager;
                 RestoreParentChildRelation(templateRoot);
-                Entity prefabPlaceHolder = templateRoot.GetFirstComponentOfType<SequentialEntityProcessor>();
+                Entity prefabPlaceHolder = templateRoot.GetComponentsOfType<SequentialEntityProcessor>(Core.Enums.SearchScope.Children).Last();
                 prefabPlaceHolder.AddComponent(this.prefabbedEntity);
                 RestoreParentChildRelation(prefabPlaceHolder);
             }
@@ -80,14 +82,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();
                 templateRoot.AddComponent(appPoolEntity);
 
-                SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "#Launch Applications" };
-                templateRoot.AddComponent(launchProcessor);
+                SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "Launch Applications" };
+                templateRoot.AddComponent(launchProcessor);            
 
-                SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "#Prefab Processor" };
+                SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "Shutdown Applications" };
+                templateRoot.AddComponent(shutDownProcessor);
+               
+                SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "Run Prefab" };                           
                 templateRoot.AddComponent(prefabProcessor);
-
-                SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "#Shutdown Applications" };
-                templateRoot.AddComponent(shutDownProcessor);              
+                var sequenceEntity = new SequenceEntity() { Name = "Initialize Data" };
+                prefabProcessor.AddComponent(sequenceEntity);
 
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);
 

@@ -14,7 +14,7 @@
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
-                      IsHitTestVisible="True">            
+                      IsHitTestVisible="True">
                 <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
                        HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
@@ -54,29 +54,26 @@
     <HierarchicalDataTemplate x:Key="EntityProcessor" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="200" dd:DragDrop.IsDragSource="True"
-                Background="{DynamicResource MahApps.Brushes.Control.Background}">           
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        IsHitTestVisible="True">
                 <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Run" 
-                            Content="{iconPacks:FontAwesome PlayCircleSolid}"/>                        
+                            Content="{iconPacks:FontAwesome PlayCircleSolid}"/>
                 <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                <StackPanel  x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
-                             HorizontalAlignment="Right" Orientation="Horizontal">
-                    
-                    <Button x:Name="ResetHierarchy" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
-                      cal:Message.Attach="[Event Click] = [Action ResetProcessorComponents($dataContext)]"
-                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Reset" 
-                            Content="{iconPacks:FontAwesome UndoSolid}"/>
-
-
-                    <Button x:Name="DeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                            Height="20" Width="20" ToolTip="Drill In"
+                            cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
+                            Style="{DynamicResource EditControlButtonStyle}"
+                            Content="{iconPacks:MaterialLight ArrangeBringForward}"/>                  
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"  Content="{iconPacks:Material CloseCircleOutline}"/>
-
-
                 </StackPanel>
+
             </DockPanel>
         </Border>
         <HierarchicalDataTemplate.Triggers>
@@ -208,11 +205,11 @@
                                                 AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
                                                 OwnerComponent="{Binding}"
                                                 EntityManager="{Binding EntityManager, Mode=OneWay}"
-                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>                 
+                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
-                            Content="{iconPacks:Material CloseCircleOutline}"/>                   
+                            Content="{iconPacks:Material CloseCircleOutline}"/>
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -273,7 +270,7 @@
             </DataTrigger>         
         </HierarchicalDataTemplate.Triggers>
     </HierarchicalDataTemplate>-->
-    
+
     <Style TargetType="TreeViewItem" x:Key="GroupedStyle">
         <Setter Property="IsExpanded" Value="True"/>
         <Setter Property="Template">
@@ -319,7 +316,7 @@
                                 <DockPanel Grid.Row="0" LastChildFill="True" Margin="4,4,4,0" MinWidth="165" HorizontalAlignment="Stretch"
                                         IsHitTestVisible="True">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
-                                            ToolTip="Control">                                      
+                                            ToolTip="Control">
                                         <iconPacks:PackIconSimpleIcons Kind="UIkit" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     </StackPanel>
                                     <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
@@ -402,5 +399,5 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
 </ResourceDictionary>
