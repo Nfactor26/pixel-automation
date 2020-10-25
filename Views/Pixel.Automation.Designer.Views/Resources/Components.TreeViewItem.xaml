@@ -16,11 +16,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
-                    <Grid>
-                        <ContentPresenter  ContentSource="Header" Margin="0,0,0,5"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-
-                    </Grid>                         
+                    <ContentPresenter  ContentSource="Header" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="0,2,0,2"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -414,12 +410,11 @@
 
                         <!--This can be dragged -->
                         <Border x:Name="ComponentControl" Tag="Component" dd:DragDrop.IsDragSource="True" Grid.Column="1" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
-                                Margin="0,4,0,12"
-                                MinWidth="200" Background="{DynamicResource MahApps.Brushes.Control.Background}">
-                            <DockPanel Grid.Row="1">                              
-                                <DockPanel Grid.Row="0" LastChildFill="True" Margin="4,4,4,0" MinWidth="165" HorizontalAlignment="Stretch"
+                                Margin="0,4,0,16" MinWidth="200" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                            <DockPanel>                              
+                                <DockPanel LastChildFill="True" Margin="4,4,4,4" MinWidth="165" HorizontalAlignment="Stretch"
                                         IsHitTestVisible="True" DockPanel.Dock="Top">
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2" ToolTip="Control">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control">
                                         <iconPacks:PackIconMaterial Kind="ViewSequential" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                                                     Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
                                     </StackPanel>
@@ -431,27 +426,29 @@
                                             cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
                                             Style="{DynamicResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight ArrangeBringForward}"/>
-                                        <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                                        <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"
                                           cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                                           ToolTip="Delete" Style="{DynamicResource EditControlButtonStyle}"
                                           Content="{iconPacks:Material CloseCircleOutline}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <Border BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}" DockPanel.Dock="Top" Margin="0,2,0,2"/>
-                                <Grid DockPanel.Dock="Top">
-                                    <ContentPresenter x:Name="ItemContent" Grid.Row="1" ContentSource="Header"  MinWidth="200"
-                                        Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+
+                                    <Border x:Name="Seperator" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}"
+                                            DockPanel.Dock="Top" Margin="0,0,0,2" Visibility="Collapsed"/>
                                     <Grid x:Name="ContentHost" DockPanel.Dock="Top" Margin="0" Visibility="Collapsed">
+                                       
                                         <Border x:Name="EmptyMessageBorder"  BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
-                                                        CornerRadius="2" Margin="2,4,2,4" HorizontalAlignment="Stretch" Visibility="Collapsed"
+                                                        CornerRadius="2" Margin="8" HorizontalAlignment="Stretch" Visibility="Collapsed"
                                                         VerticalAlignment="Center" Background="{DynamicResource MahApps.Brushes.Control.Background}">
                                             <Label x:Name="EmptyMessage" Content="Drop Components here" HorizontalAlignment="Center"
                                                         FontSize="12" VerticalAlignment="Center" Visibility="Collapsed"/>
                                         </Border>
+                                        
                                         <ItemsPresenter x:Name="ItemsHost" MinWidth="200" Margin="8" Visibility="Visible"                                               
-                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
                                     </Grid>
-                                </Grid>
+                                </StackPanel>
                             </DockPanel>
                         </Border>
                     </Grid>
@@ -461,7 +458,7 @@
                         </Trigger>
                         <Trigger Property="IsExpanded"  Value="True">
                             <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
-                            <Setter TargetName="ItemContent"   Property="Visibility"  Value="Collapsed"/>
+                            <Setter TargetName="Seperator"   Property="Visibility"  Value="Visible"/>
                         </Trigger>
                         <Trigger Property="HasItems"  Value="True">
                             <Setter TargetName="EmptyMessageBorder"   Property="Visibility"  Value="Collapsed"/>
