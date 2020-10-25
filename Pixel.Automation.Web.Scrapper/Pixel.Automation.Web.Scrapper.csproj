@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.105-alpha">
+    <PackageReference Include="Caliburn.Micro" Version="4.0.136-rc">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>   
     <PackageReference Include="Serilog" Version="2.9.0">

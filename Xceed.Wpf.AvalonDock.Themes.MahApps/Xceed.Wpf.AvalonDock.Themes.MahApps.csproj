@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>

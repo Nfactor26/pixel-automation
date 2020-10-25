@@ -31,8 +31,7 @@
     <ProjectReference Include="..\..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Prefabs.Editor\Pixel.Automation.Prefabs.Editor.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
-    <ProjectReference Include="..\..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />
-    <ProjectReference Include="..\..\Pixel.Automation.TestData.Repository\Pixel.Automation.TestData.Repository.csproj" />  
+    <ProjectReference Include="..\..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />  
     <ProjectReference Include="..\..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj" />
@@ -46,8 +45,10 @@
     <ProjectReference Include="..\..\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj" />
     <ProjectReference Include="..\..\ViewModels\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />
     <ProjectReference Include="..\..\ViewModels\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj" />
+    <ProjectReference Include="..\..\ViewModels\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />
     <ProjectReference Include="..\..\ViewModels\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />
     <ProjectReference Include="..\..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.TestData.Repository.Views\Pixel.Automation.TestData.Repository.Views.csproj" />
     <ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
     <ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
   </ItemGroup>

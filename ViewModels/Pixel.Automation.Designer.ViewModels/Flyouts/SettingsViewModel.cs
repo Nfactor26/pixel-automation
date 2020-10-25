@@ -1,4 +1,5 @@
-﻿using Dawn;
+﻿using ControlzEx.Theming;
+using Dawn;
 using MahApps.Metro;
 using Microsoft.Extensions.Configuration;
 using Pixel.Automation.Core;
@@ -86,15 +87,14 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
 
 
             // create accent color menu items for the demo
-            this.AccentColors = ThemeManager.ColorSchemes
-                                            .Select(a => new AccentColorMenuData { Name = a.Name, ColorBrush = a.ShowcaseBrush })
+            this.AccentColors = ThemeManager.Current.ColorSchemes.Select(a => new AccentColorMenuData { Name = a })
                                             .ToList();
 
             // create metro theme color menu items for the demo
-            this.AppThemes = ThemeManager.Themes
+            this.AppThemes = ThemeManager.Current.Themes
                                          .GroupBy(x => x.BaseColorScheme)
                                          .Select(x => x.First())
-                                         .Select(a => new AppThemeMenuData() { Name = a.BaseColorScheme, BorderColorBrush = a.Resources["MahApps.Brushes.ThemeForeground"] as Brush, ColorBrush = a.Resources["MahApps.Brushes.ThemeBackground"] as Brush })
+                                         .Select(a => new AppThemeMenuData() { Name = a.BaseColorScheme })
                                          .ToList();
 
             var userSettings = configurationManager.GetSection("userSettings").Get<UserSettings>();
@@ -138,9 +138,9 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
     {
         public string Name { get; set; }
 
-        public Brush BorderColorBrush { get; set; }
+        //public Brush BorderColorBrush { get; set; }
 
-        public Brush ColorBrush { get; set; }
+        //public Brush ColorBrush { get; set; }
 
         public AccentColorMenuData()
         {
@@ -149,7 +149,7 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
 
         public virtual void DoChangeTheme()
         {
-            ThemeManager.ChangeThemeColorScheme(Application.Current, this.Name);
+            ThemeManager.Current.ChangeThemeColorScheme(Application.Current, this.Name);
         }
     }
 
@@ -157,7 +157,7 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
     {
         public override void DoChangeTheme()
         {
-            ThemeManager.ChangeThemeBaseColor(Application.Current, this.Name);
+            ThemeManager.Current.ChangeThemeBaseColor(Application.Current, this.Name);
         }
     }
 }

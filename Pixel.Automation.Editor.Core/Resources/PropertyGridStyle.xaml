@@ -116,7 +116,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <metroControls:ToggleSwitch  IsChecked="{Binding Value}" Margin="0,2,0,2"/>
+                    <metroControls:ToggleSwitch  IsOn="{Binding Value}" Margin="0,2,0,2"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -720,32 +720,39 @@ namespace Pixel.Automation.TestExplorer
             CanAbort = true;
             Task runTestCasesTask = new Task(async() =>
             {
-                foreach (var testFixture in this.TestFixtures.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
+                try
                 {
-                    //open fixture if not already open
-                    bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
-                    if(!testFixture.IsOpenForEdit)
+                    foreach (var testFixture in this.TestFixtures.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
                     {
-                        await OpenTestFixtureAsync(testFixture);
-                    }
-
-                    await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
-                    foreach (var test in testFixture.Tests.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
-                    {
-                        if (!isCancellationRequested)
+                        //open fixture if not already open
+                        bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
+                        if (!testFixture.IsOpenForEdit)
                         {
-                          await TryRunTestCaseAsync(test);
-                        }                           
-                    }
-                    await this.TestRunner.OneTimeTearDown(testFixture.TestFixture);
+                            await OpenTestFixtureAsync(testFixture);
+                        }
 
-                    //close fixture if it was opened
-                    if (!isFixtureAlreadyOpenForEdit)
-                    {
-                        await CloseTestFixtureAsync(testFixture, false);
+                        await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
+                        foreach (var test in testFixture.Tests.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
+                        {
+                            if (!isCancellationRequested)
+                            {
+                                await TryRunTestCaseAsync(test);
+                            }
+                        }
+                        await this.TestRunner.OneTimeTearDown(testFixture.TestFixture);
+
+                        //close fixture if it was opened
+                        if (!isFixtureAlreadyOpenForEdit)
+                        {
+                            await CloseTestFixtureAsync(testFixture, false);
+                        }
                     }
+                    CanAbort = false;
                 }
-                CanAbort = false;
+                catch (Exception ex)
+                {
+                    logger.Error(ex, ex.Message);
+                }
             });           
             runTestCasesTask.Start();
         }

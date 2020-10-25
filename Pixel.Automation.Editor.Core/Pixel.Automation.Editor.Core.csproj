@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.105-alpha" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
-    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0660" />
+    <PackageReference Include="Caliburn.Micro" Version="4.0.136-rc" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
+    <PackageReference Include="MahApps.Metro" Version="2.3.1" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="3.3.0" />
   </ItemGroup>
 

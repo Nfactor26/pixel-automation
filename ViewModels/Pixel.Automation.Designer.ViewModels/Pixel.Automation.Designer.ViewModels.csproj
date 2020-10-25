@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Caliburn.Micro" Version="4.0.136-rc" />
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="MahApps.Metro" Version="2.3.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.6" />
     <PackageReference Include="Ninject" Version="3.3.4" />
@@ -34,9 +36,7 @@
     <ProjectReference Include="..\..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Pixel.Automation.TestData.Repository\Pixel.Automation.TestData.Repository.csproj">
-      <Private>false</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />
     <ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj">
       <Private>false</Private>
     </ProjectReference>

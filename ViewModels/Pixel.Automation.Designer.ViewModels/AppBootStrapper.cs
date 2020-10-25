@@ -93,10 +93,10 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     case ".\\Pixel.Automation.Arguments.Editor.dll":
                     case ".\\Pixel.Automation.Prefabs.Editor.dll":
-                    case ".\\Pixel.Automation.TestData.Repository.dll":
+                    case ".\\Pixel.Automation.TestData.Repository.Views.dll":
                     case ".\\Pixel.Automation.TestExplorer.Views.dll":
                     case ".\\Pixel.Scripting.Script.Editor.dll":
-                    case ".\\Pixel.Automation.AppExplorer.Views.dll":                 
+                    case ".\\Pixel.Automation.AppExplorer.Views.dll":                  
                         viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
                         break;
                 }
