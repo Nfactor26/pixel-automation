@@ -8,7 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />              
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />               
                 <ResourceDictionary Source="/Resources/Styles.xaml" />
                 <ResourceDictionary Source="/Resources/Components.TreeViewItem.xaml"/>
                 <ResourceDictionary Source="/Resources/Component.Templates.Common.xaml" />
@@ -22,6 +22,7 @@
                 <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/GlyphCollection.xaml" />
                 <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/CompletionList.xaml" />
                 <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/EditorIcons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Pixel.Automation.Editor.Controls;component/Resources/PropertyGridStyle.xaml"/>
                 <ResourceDictionary>
                     <VM:AppBootstrapper x:Key="bootstrapper" />
                 </ResourceDictionary>

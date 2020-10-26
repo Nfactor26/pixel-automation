@@ -1,5 +1,5 @@
-﻿using Pixel.Automation.Arguments.Editor;
-using Pixel.Automation.Editor.Core.Editors;
+﻿using Pixel.Automation.Editor.Controls.Arguments;
+using Pixel.Automation.Editor.Controls.HotKeys;
 using Serilog;
 using System;
 using System.Diagnostics;

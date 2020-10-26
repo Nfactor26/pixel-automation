@@ -6,7 +6,6 @@ using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
-using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 

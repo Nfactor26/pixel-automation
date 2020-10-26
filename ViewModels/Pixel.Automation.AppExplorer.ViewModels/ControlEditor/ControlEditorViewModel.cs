@@ -1,16 +1,16 @@
 ﻿using Caliburn.Micro;
+using Dawn;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
 using System.Drawing;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Pixel.Automation.Core.Enums;
-using Dawn;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
 {

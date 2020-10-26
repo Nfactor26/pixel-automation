@@ -12,9 +12,8 @@
     <PackageReference Include="gong-wpf-dragdrop" Version="2.2.0" />
   </ItemGroup>
 
-  <ItemGroup>    
-    <ProjectReference Include="..\..\Pixel.Automation.Arguments.Editor\Pixel.Automation.Arguments.Editor.csproj">    
-    </ProjectReference>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">     
     </ProjectReference>
   </ItemGroup>

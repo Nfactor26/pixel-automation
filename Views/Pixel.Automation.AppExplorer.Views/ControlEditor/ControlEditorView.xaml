@@ -12,9 +12,7 @@
     <Controls:MetroWindow.Resources>
 
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Pixel.Automation.Editor.Core;component/Resources/PropertyGridStyle.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
+         
             <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
 
             <Style  x:Key="LinkButton"  TargetType="Button">

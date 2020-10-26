@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using Serilog;
+using Pixel.Automation.Editor.Controls.TypeBrowser;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {

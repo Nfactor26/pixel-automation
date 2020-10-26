@@ -1,8 +1,8 @@
 ﻿using Caliburn.Micro;
 using Microsoft.Win32;
-using Pixel.Automation.Arguments.Editor;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Editor.Controls.TypeBrowser;
 using Pixel.Automation.Editor.Core;
 using System;
 using System.Collections.Generic;

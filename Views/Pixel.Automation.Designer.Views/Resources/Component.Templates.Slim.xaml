@@ -7,7 +7,7 @@
                     xmlns:cal="http://www.caliburnproject.org"                   
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:editors="clr-namespace:Pixel.Automation.Editor.Core.Editors;assembly=Pixel.Automation.Editor.Core"
-                    xmlns:prefabs="clr-namespace:Pixel.Automation.Prefabs.Editor;assembly=Pixel.Automation.Prefabs.Editor">
+                    xmlns:prefabs="clr-namespace:Pixel.Automation.Editor.Controls.Prefabs;assembly=Pixel.Automation.Editor.Controls">
 
     <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"

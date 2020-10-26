@@ -11,10 +11,6 @@
     <UserControl.Resources>
         <ResourceDictionary>
 
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Pixel.Automation.Editor.Core;component/Resources/PropertyGridStyle.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
             <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
 
             <!--<Thickness x:Key="ControlMargin">0 5 0 0</Thickness>-->

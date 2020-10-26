@@ -1,0 +1,110 @@
+﻿<controls:MetroWindow x:Class="Pixel.Automation.Editor.Controls.Prefabs.InputMappingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.Editor.Controls.Prefabs"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"         
+             xmlns:cal="http://www.caliburnproject.org"             
+             mc:Ignorable="d"  WindowStartupLocation="CenterOwner"
+             MinHeight="400" Height="400" Width="Auto" MaxWidth="800"
+             IsMinButtonEnabled="False" Title="Input Mapping" GlowBrush="{DynamicResource AccentColorBrush}">
+
+    <controls:MetroWindow.Resources>
+        <Style x:Key="InputMappingItemsStyle" TargetType="{x:Type HeaderedItemsControl}">
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Property Type" Grid.Column="0" Margin="5"></Label>
+                            <Label Content="Assign From" Grid.Column="1" Margin="5"></Label>
+                            <Label Content="Assign To" Grid.Column="2" Margin="5"></Label>
+                        </Grid>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Grid ShowGridLines="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="PropertyType" MinWidth="150" HorizontalAlignment="Stretch" VerticalAlignment="Center"                                 
+                                      Text="{Binding PropertyMap.PropertyType}" Grid.Column="0" Margin="5"></TextBlock>
+                            <ComboBox MinWidth="200" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEditable="True" Grid.Column="1"
+                                      ItemsSource="{Binding PossibleMaps}" SelectedItem="{Binding PropertyMap.AssignFrom, Mode=TwoWay}" Margin="5"/>
+                            <TextBlock x:Name="AssignTo" MinWidth="150" HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="2"
+                                       Text="{Binding PropertyMap.AssignTo}" Margin="5" />
+                        </Grid>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </controls:MetroWindow.Resources>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition MaxHeight="60"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <!--<HeaderedItemsControl Grid.Row="0" x:Name="Mappings" Style="{StaticResource InputMappingItemsStyle}"/>-->
+        <DataGrid x:Name="Mappings" ItemsSource="{Binding Mappings}" MaxHeight="600" Grid.Row="0"
+                  CanUserSortColumns="True" CanUserAddRows="False" CanUserResizeRows="False" CanUserResizeColumns="True"
+                  SelectionMode="Single" SelectionUnit="Cell"
+                  GridLinesVisibility="All" Margin="10" Padding="5"
+                  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled"            
+                  RowHeaderWidth="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <DataGrid.Columns>
+
+                <DataGridTemplateColumn Header="Property Type">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock x:Name="PropertyType" MinWidth="260" HorizontalAlignment="Stretch" VerticalAlignment="Center"                                 
+                                      Text="{Binding PropertyMap.PropertyType}" Margin="5,0,0,0"></TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!--SelectedItem binding doesn't work for some mysterious reason. Tried to do the same with a templated ItemsControl and working fine there.Using SelectionChanged as a workaround-->
+                <DataGridTemplateColumn Header="Assign From">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox MinWidth="280" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEditable="True" Margin="5,0,0,0"
+                                      ItemsSource="{Binding PossibleMaps}" SelectedItem="{Binding PropertyMap.AssignFrom}" SelectionChanged="OnSelectionChanged" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="Assign To">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock x:Name="AssignTo" MinWidth="280" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Text="{Binding PropertyMap.AssignTo}" Margin="5,0,0,0"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="1" LastChildFill="False">
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Button x:Name="Reload" Content="RELOAD" Width="100" DockPanel.Dock="Right" Margin="10"
+                    Style="{DynamicResource MahApps.Styles.Button.Square}" />
+            <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right" Margin="10"
+                    Style="{DynamicResource MahApps.Styles.Button.Square}" />
+            <Button x:Name="Save" Content="SAVE" DockPanel.Dock="Right" Width="100" Margin="10"
+                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+        </DockPanel>
+    </Grid>
+</controls:MetroWindow>

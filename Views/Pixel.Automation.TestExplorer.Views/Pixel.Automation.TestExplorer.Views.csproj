@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
     <ProjectReference Include="..\..\ViewModels\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />
   </ItemGroup>

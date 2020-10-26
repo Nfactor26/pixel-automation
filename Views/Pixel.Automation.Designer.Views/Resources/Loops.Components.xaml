@@ -7,7 +7,7 @@
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
                     xmlns:se="clr-namespace:Pixel.Scripting.Script.Editor.Script;assembly=Pixel.Scripting.Script.Editor"
-                    xmlns:ae="clr-namespace:Pixel.Automation.Arguments.Editor;assembly=Pixel.Automation.Arguments.Editor">
+                    xmlns:ae="clr-namespace:Pixel.Automation.Editor.Controls.Arguments;assembly=Pixel.Automation.Editor.Controls">
 
     <HierarchicalDataTemplate x:Key="ForLoopTemplate" ItemsSource="{Binding ComponentCollection}">
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,2,0,0">

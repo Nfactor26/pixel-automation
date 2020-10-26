@@ -1,6 +1,6 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 
-namespace Pixel.Automation.Editor.Core
+namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IControlEditor
     {
