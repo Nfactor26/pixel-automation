@@ -95,7 +95,7 @@
                  controls:TextBoxHelper.UseFloatingWatermark="True"                  
                  controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="5,5,5,0"
                                         ></TextBox>
-        <ListBox x:Name="Documents" SelectedItem="{Binding SelectedDocument}"
+        <ListBox x:Name="Documents" SelectedItem="{Binding SelectedDocument}" Margin="5,0,5,5"
                  ScrollViewer.CanContentScroll="False" Grid.Row="2" Style="{StaticResource DocumentCollectionStyle}"/>
     </Grid>
 

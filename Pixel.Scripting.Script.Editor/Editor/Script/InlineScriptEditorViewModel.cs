@@ -24,18 +24,30 @@ namespace Pixel.Scripting.Script.Editor.Script
             {
                 ShowLineNumbers = false,
                 Margin = new Thickness(2),
-                FontSize = 12,
+                FontSize = 14,
                 FontFamily = new FontFamily("Consolas"),
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Center,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
                 WordWrap = true
             };
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
             this.editorService.WorkspaceChanged += OnWorkspaceChanged;
         }
+
+        public void SetEditorOptions(EditorOptions editorOptions)
+        {
+            this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
+            this.Editor.FontSize = editorOptions.FontSize;
+            if (!string.IsNullOrEmpty(editorOptions.FontFamily))
+            {
+                this.Editor.FontFamily = new System.Windows.Media.FontFamily(editorOptions.FontFamily);
+            }
+        }
+
 
         private void OnWorkspaceChanged(object sender, WorkspaceChangedEventArgs e)
         {

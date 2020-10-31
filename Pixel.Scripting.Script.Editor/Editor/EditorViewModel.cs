@@ -78,6 +78,17 @@ namespace Pixel.Scripting.Script.Editor
             await this.TryCloseAsync(false);
         }
 
+
+        public void SetEditorOptions(EditorOptions editorOptions)
+        {           
+           this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
+           this.Editor.FontSize = editorOptions.FontSize;
+           if(!string.IsNullOrEmpty(editorOptions.FontFamily))
+            {
+                this.Editor.FontFamily = new System.Windows.Media.FontFamily(editorOptions.FontFamily);
+            }
+        }
+
         /// <summary>
         /// Called when screen is closed using the X button on top right with close = true otherwise false.
         /// </summary>

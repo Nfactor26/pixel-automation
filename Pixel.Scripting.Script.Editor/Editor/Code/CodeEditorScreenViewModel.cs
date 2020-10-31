@@ -14,7 +14,9 @@ namespace Pixel.Scripting.Script.Editor.Code
                 ShowLineNumbers = true,
                 Margin = new Thickness(5),
                 FontSize = 23,
-                FontFamily = new FontFamily("Consolas")
+                FontFamily = new FontFamily("Consolas"),
+                VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto
             };
         }    
 

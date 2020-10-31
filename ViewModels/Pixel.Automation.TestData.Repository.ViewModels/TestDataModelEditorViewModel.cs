@@ -20,11 +20,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly IScriptEditorFactory editorFactory;
        
         private TestDataSource testDataSource;
-   
+
         public TestDataModelEditorViewModel(IScriptEditorFactory editorFactory)
         {
             this.editorFactory = editorFactory;
-            this.ScriptEditor = editorFactory.CreateInlineScriptEditor();          
+            this.ScriptEditor = editorFactory.CreateInlineScriptEditor();
+            this.ScriptEditor.SetEditorOptions(new EditorOptions() { FontSize = 23 });
         }
 
         private bool TryGenerateDataModelCode(out string generatedCode, out string errorDescription)
@@ -111,7 +112,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {                
                 editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(Empty));
-                this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, testDataSource.Name, generatedCode.ToString()); //File is saved to disk as well               
+                this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, testDataSource.Name, generatedCode.ToString()); //File is saved to disk as well 
+                this.ScriptEditor.Activate();
             }
             if (!string.IsNullOrEmpty(errorDescription))
             {
@@ -125,7 +127,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            this.ScriptEditor.CloseDocument(false);
+            this.ScriptEditor.CloseDocument(false); //TODO : this should be disposed ... Need to add methods like OnCancel and OnBack() to stages screens where cleanup should happen.
             this.editorFactory.RemoveProject(testDataSource.Name);
             await base.OnDeactivateAsync(close, cancellationToken);
         }

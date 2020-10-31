@@ -9,8 +9,8 @@
                       xmlns:docking="clr-namespace:Pixel.Automation.Editor.Core.Docking;assembly=Pixel.Automation.Editor.Core"
                       xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
                       cal:Message.Attach="[Event Closing] = [Action Close()]"         
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+                      mc:Ignorable="d" WindowStartupLocation="CenterScreen"
+                      d:DesignHeight="450" d:DesignWidth="800">
     <controls:MetroWindow.Resources>
         <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
     </controls:MetroWindow.Resources>

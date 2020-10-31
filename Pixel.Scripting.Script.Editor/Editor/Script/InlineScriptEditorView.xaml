@@ -15,10 +15,8 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>      
     </UserControl.Resources>
-    <Border BorderBrush="Black" BorderThickness="1">
-        <ContentControl x:Name="InlineScriptEditor" Content="{Binding Editor}"
+    <ContentControl x:Name="InlineScriptEditor" Content="{Binding Editor}"
                         MinWidth="400" MinHeight="30" Height="Auto"
                         VerticalContentAlignment="Stretch" Margin="2" HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"/>
-    </Border>
 </UserControl>
