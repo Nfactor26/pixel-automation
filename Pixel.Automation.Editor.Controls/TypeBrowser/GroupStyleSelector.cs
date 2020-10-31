@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace Pixel.Automation.Editor.Controls.TypeBrowser
+namespace Pixel.Automation.Editor.TypeBrowser
 {
     public class GroupStyleSelector : StyleSelector
     {

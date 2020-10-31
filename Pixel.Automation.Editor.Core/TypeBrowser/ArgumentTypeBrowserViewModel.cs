@@ -1,5 +1,4 @@
 ﻿using Caliburn.Micro;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -8,15 +7,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace Pixel.Automation.Editor.Controls.TypeBrowser
+namespace Pixel.Automation.Editor.TypeBrowser
 {
-    public class ArgumentTypeBrowserViewModel : Screen
+    public class ArgumentTypeBrowserViewModel : Screen, IArgumentTypeBrowser
     {
-        public IArgumentTypeProvider ArgumentTypeProvider { get; } = default;
+        IArgumentTypeProvider argumentTypeProvider;
 
         /// <summary>
         /// Collection of Available TypeDefinition
@@ -31,7 +29,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
         /// <summary>
         /// Collection of  ArgumentTypePicker for each  Open Type argument for the currently selected type
         /// </summary>
-        public BindableCollection<ArgumentTypePicker> SelectedTypeGenericParameters { get; private set; } = new BindableCollection<ArgumentTypePicker>();      
+        public BindableCollection<ArgumentTypePicker> SelectedTypeGenericParameters { get; private set; } = new BindableCollection<ArgumentTypePicker>();
 
 
         TypeDefinition selectedType;
@@ -46,13 +44,13 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
                 if (value != null)  // we are using this value later. on closing window, this becomes null otherwise
                 {
                     selectedType = value;
-                    NotifyOfPropertyChange(() => SelectedType);    
-                    if(selectedType.IsGenericType)
+                    NotifyOfPropertyChange(() => SelectedType);
+                    if (selectedType.IsGenericType)
                     {
                         SelectedTypeGenericParameters.Clear();
-                        for(int i=0; i < selectedType.ActualType.GetGenericArguments().Count(); i++)
+                        for (int i = 0; i < selectedType.ActualType.GetGenericArguments().Count(); i++)
                         {
-                            SelectedTypeGenericParameters.Add(new ArgumentTypePicker(this.ArgumentTypeProvider));             
+                            SelectedTypeGenericParameters.Add(new ArgumentTypePicker(this.argumentTypeProvider));
                         }
                     }
                 }
@@ -64,7 +62,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
         /// Underlying Type for the selected TypeDefinition
         /// </summary>
         public Type ActualType { get; private set; }
-     
+
 
         string filterText = string.Empty;
         /// <summary>
@@ -78,7 +76,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
             }
             set
             {
-                filterText = value;          
+                filterText = value;
                 var view = CollectionViewSource.GetDefaultView(AvailableTypes);
                 view.Refresh();
                 NotifyOfPropertyChange(() => FilterText);
@@ -98,7 +96,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
                 NotifyOfPropertyChange(() => IsBrowseMode);
             }
         }
-       
+
         bool showAll;
         /// <summary>
         /// Toggle between common types and all available types for selection on UI
@@ -109,7 +107,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
             set
             {
                 this.showAll = value;
-                switch(value)
+                switch (value)
                 {
                     case true:
                         ShowAllAssemblies();
@@ -123,8 +121,8 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
 
         public ArgumentTypeBrowserViewModel(IArgumentTypeProvider argumentTypeProvider)
         {
-            this.ArgumentTypeProvider = argumentTypeProvider;
-            this.DisplayName = "Browse for .NET types";        
+            this.argumentTypeProvider = argumentTypeProvider;
+            this.DisplayName = "Browse for .NET types";
             ShowCommonTypes();
             AddGroupDefinition();
         }
@@ -134,7 +132,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
             TypeDefinition selectedType) : this(argumentTypeProvider)
         {
             this.SelectedType = selectedType;
-            this.IsBrowseMode = false;                 
+            this.IsBrowseMode = false;
         }
 
         private void AddGroupDefinition()
@@ -155,21 +153,21 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
         private void ShowCommonTypes()
         {
             this.AvailableTypes.Clear();
-            this.AvailableTypes.AddRange(ArgumentTypeProvider.GetCustomDefinedTypes());
-            this.AvailableTypes.AddRange(ArgumentTypeProvider.GetCommonTypes());          
+            this.AvailableTypes.AddRange(argumentTypeProvider.GetCustomDefinedTypes());
+            this.AvailableTypes.AddRange(argumentTypeProvider.GetCommonTypes());
         }
 
         private void ShowAllAssemblies()
-        {          
+        {
             this.AvailableTypes.Clear();
-            this.AvailableTypes.AddRange(ArgumentTypeProvider.GetCustomDefinedTypes());
-            this.AvailableTypes.AddRange(ArgumentTypeProvider.GetAllKnownTypes());         
+            this.AvailableTypes.AddRange(argumentTypeProvider.GetCustomDefinedTypes());
+            this.AvailableTypes.AddRange(argumentTypeProvider.GetAllKnownTypes());
         }
 
-         
+
         public override async Task TryCloseAsync(bool? dialogResult = null)
-        {         
-            AvailableTypes.Clear();            
+        {
+            AvailableTypes.Clear();
             await base.TryCloseAsync(dialogResult);
         }
 
@@ -200,7 +198,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
                     Type generic = selectedTypeDefinition.ActualType;
                     Type[] typeArgs = SelectedTypeGenericParameters.Select(p => p.ActualType).ToArray();
                     Type constructedType = generic.MakeGenericType(typeArgs);
-                    ActualType = constructedType;                   
+                    ActualType = constructedType;
                 }
                 else
                 {
@@ -210,13 +208,13 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
             }
             catch (Exception)
             {
-                return false;              
+                return false;
             }
         }
 
         public async void Ok()
         {
-            if(TryCreateDesiredType(this.selectedType))
+            if (TryCreateDesiredType(this.selectedType))
             {
                 await this.TryCloseAsync(true);
             }
@@ -224,7 +222,7 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
 
         public async void Cancel()
         {
-           await this.TryCloseAsync(false);
+            await this.TryCloseAsync(false);
         }
 
         [Conditional("DEBUG")]
@@ -234,96 +232,15 @@ namespace Pixel.Automation.Editor.Controls.TypeBrowser
                 return;
             if (string.IsNullOrEmpty(assembly.FullName))
                 Debug.WriteLine(false, "Assembly name can't be null or empty");
-            var groupedTypes = assembly.GetExportedTypes().Where(t => (!t.IsAbstract && t.IsClass) || t.IsValueType || t.IsEnum).GroupBy(t=>t.Namespace);
-            foreach(var group in groupedTypes)
+            var groupedTypes = assembly.GetExportedTypes().Where(t => (!t.IsAbstract && t.IsClass) || t.IsValueType || t.IsEnum).GroupBy(t => t.Namespace);
+            foreach (var group in groupedTypes)
             {
-                if(string.IsNullOrEmpty(group.Key))
+                if (string.IsNullOrEmpty(group.Key))
                     Debug.WriteLine(false, "Namespace can't be null or empty");
             }
 
-        }     
-    
+        }
+
     }
 
-    public class ArgumentTypePicker : NotifyPropertyChanged
-    {
-        IArgumentTypeProvider argumentTypeProvider;
-
-        bool isBrowsingForArguments = false;
-
-        object selectedType;
-        public object SelectedType
-        {
-            get => selectedType;
-            set
-            {
-                if (value != null && !isBrowsingForArguments) 
-                {
-                    isBrowsingForArguments = true;
-                    if (value is TypeDefinition selectedTypeDefintion)
-                    {
-                        if (selectedTypeDefintion.IsGenericType)
-                        {                          
-                            ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(argumentTypeProvider, selectedTypeDefintion);
-                            BrowserAndPickArgument(value, argumentTypeBrowser);
-                        }
-                        else
-                        {
-                            ActualType = selectedTypeDefintion.ActualType;
-                            selectedType = value;
-                        }
-                    }
-                    else if (value is string)
-                    {                     
-                        ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(argumentTypeProvider);                       
-                        BrowserAndPickArgument(value, argumentTypeBrowser);
-                    }
-                    isBrowsingForArguments = false;                   
-                    OnPropertyChanged();
-                }
-
-            }
-        }
-
-        private async void BrowserAndPickArgument(object selectedValue, ArgumentTypeBrowserViewModel argumentTypeBrowser)
-        {
-            IWindowManager windowManager = IoC.Get<IWindowManager>();           
-            var result = await windowManager.ShowDialogAsync(argumentTypeBrowser);
-            if (result.HasValue && result.Value)
-            {
-                ActualType = argumentTypeBrowser.ActualType;
-                if (!this.CommonTypes.Any(t => (t is TypeDefinition) && (t as TypeDefinition).ActualType.Equals(ActualType)))
-                {
-                    var createdTypeDefintion = new TypeDefinition(ActualType);
-                    this.CommonTypes.Add(createdTypeDefintion);
-                    selectedType = createdTypeDefintion;
-                }
-                else
-                {
-                    //TODO : without modifying commontypes , ui won't udpate .. check what's the problem
-                    this.CommonTypes.Clear();
-                    this.CommonTypes.AddRange(argumentTypeProvider.GetCommonTypes());
-                    this.CommonTypes.Add("Browser for more...");
-                    selectedType = this.CommonTypes.FirstOrDefault(t => (t as TypeDefinition)?.ActualType.Equals(ActualType) ?? false);
-                }
-            }
-            else
-            {
-                selectedType = null;
-                ActualType = null;
-            }
-        }
-
-        public BindableCollection<object> CommonTypes { get; }
-
-        public Type ActualType { get; private set; }
-
-        public ArgumentTypePicker(IArgumentTypeProvider argumentTypeProvider)
-        {
-            this.argumentTypeProvider = argumentTypeProvider;
-            this.CommonTypes = new BindableCollection<object>(argumentTypeProvider.GetCommonTypes());
-            this.CommonTypes.Add("Browser for more...");
-        }
-
-    }  
 }

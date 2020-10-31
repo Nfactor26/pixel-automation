@@ -1,4 +1,4 @@
-﻿namespace Pixel.Automation.Editor.Controls.TypeBrowser
+﻿namespace Pixel.Automation.Editor.TypeBrowser
 {
     /// <summary>
     /// Interaction logic for ArgumentTypeBrowserView.xaml

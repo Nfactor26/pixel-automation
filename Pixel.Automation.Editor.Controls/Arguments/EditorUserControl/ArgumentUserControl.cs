@@ -1,18 +1,16 @@
 ﻿using Caliburn.Micro;
-using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using Pixel.Automation.Core.Components.TestCase;
-using System.Collections.Generic;
-using Pixel.Automation.Editor.Controls.TypeBrowser;
 
 namespace Pixel.Automation.Editor.Controls.Arguments
 {
@@ -133,8 +131,8 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
             var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
-            IArgumentTypeProvider typeProvider = entityManager.GetServiceOfType<IArgumentTypeProvider>();
-            ArgumentTypeBrowserViewModel typeBrowserWindow = new ArgumentTypeBrowserViewModel(typeProvider);
+            var argumentBrowserFactory = entityManager.GetServiceOfType<IArgumentTypeBrowserFactory>();
+            var typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();
 
             var result = await windowManager.ShowDialogAsync(typeBrowserWindow);
 

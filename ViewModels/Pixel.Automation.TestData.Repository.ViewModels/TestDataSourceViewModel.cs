@@ -1,9 +1,10 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Microsoft.Win32;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
-using Pixel.Automation.Editor.Controls.TypeBrowser;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
     {
         private readonly IWindowManager windowManager;
         private readonly IProjectFileSystem fileSystem;
-        private readonly ArgumentTypeBrowserViewModel typeBrowserWindow;
+        private readonly IArgumentTypeBrowser typeBrowser;
         private readonly IEnumerable<string> existingDataSources;
        
         public bool IsInEditMode { get;}
@@ -115,34 +116,34 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public TypeDefinition TypeDefinition { get; private set; }
 
         public TestDataSourceViewModel(IWindowManager windowManager,IProjectFileSystem fileSystem, DataSource dataSource,
-           IEnumerable<string>  existingDataSources,
-            ArgumentTypeBrowserViewModel typeBrowserWindow)
+           IEnumerable<string>  existingDataSources, IArgumentTypeBrowser typeBrowser)
         {
-            this.windowManager = windowManager;
-            this.typeBrowserWindow = typeBrowserWindow;
-            this.fileSystem = fileSystem;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.typeBrowser = Guard.Argument(typeBrowser, nameof(typeBrowser)).NotNull().Value;
+            this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+       
             this.TestDataSource = new TestDataSource() { Id = Guid.NewGuid().ToString() };
             this.TestDataSource.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.Id}.csx"));
             this.DataSource = dataSource;
             this.existingDataSources = existingDataSources;
         }
 
-        public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, TestDataSource dataSource, ArgumentTypeBrowserViewModel typeBrowserWindow)
+        public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, TestDataSource dataSource, IArgumentTypeBrowser typeBrowser)
         {
-            this.windowManager = windowManager;
-            this.typeBrowserWindow = typeBrowserWindow;
-            this.fileSystem = fileSystem;          
-            this.TestDataSource = dataSource;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.typeBrowser = Guard.Argument(typeBrowser, nameof(typeBrowser)).NotNull().Value;
+            this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+            this.TestDataSource = Guard.Argument(dataSource, nameof(dataSource)).NotNull().Value;
             this.IsInEditMode = true;
         }
 
         public async void SelectTestDataType()
         {
-            var result  = await windowManager.ShowDialogAsync(typeBrowserWindow);
+            var result  = await windowManager.ShowDialogAsync(typeBrowser);
             if(result.HasValue && result.Value)
             {
-                this.TypeDefinition = typeBrowserWindow.SelectedType;
-                this.TestDataType = typeBrowserWindow.SelectedType.DisplayName;
+                this.TypeDefinition = typeBrowser.SelectedType;
+                this.TestDataType = typeBrowser.SelectedType.DisplayName;
             }
         }
 

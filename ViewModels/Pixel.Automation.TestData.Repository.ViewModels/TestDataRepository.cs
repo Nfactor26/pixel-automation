@@ -1,17 +1,16 @@
 ﻿using Caliburn.Micro;
-using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Automation.Arguments.Editor;
+using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
-using Serilog;
-using Pixel.Automation.Editor.Controls.TypeBrowser;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
@@ -22,7 +21,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly IProjectFileSystem projectFileSystem;     
         private readonly IScriptEditorFactory scriptEditorFactory;
         private readonly ISerializer serializer;
-        private readonly IArgumentTypeProvider argumentTypeProvider;
+        private readonly IArgumentTypeProvider typeProvider;
+        private readonly IArgumentTypeBrowserFactory typeBrowserFactory;
         private readonly IWindowManager windowManager;      
 
         public BindableCollection<TestDataSource> TestDataSourceCollection { get; set; } = new BindableCollection<TestDataSource>();
@@ -39,14 +39,15 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         }
 
         #region Constructor
-        public TestDataRepository(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory, IWindowManager windowManager, IArgumentTypeProvider argumentTypeProvider)
+        public TestDataRepository(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory, IWindowManager windowManager, IArgumentTypeProvider typeProvider, IArgumentTypeBrowserFactory typeBrowserFactory)
         {
-            this.projectFileSystem = projectFileSystem;           
-            this.serializer = serializer;
-        
-            this.scriptEditorFactory = scriptEditorFactory;
-            this.windowManager = windowManager;
-            this.argumentTypeProvider = argumentTypeProvider;
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
+            this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
+            this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
+
             CreateCollectionView();
             LoadDataSources();
         }
@@ -115,7 +116,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             try
             {
-                ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
+                var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser();
                 TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
 
                 TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(this.scriptEditorFactory);
@@ -168,7 +169,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
             string projectName = testDataSource.Id;
-            var globalsType = this.argumentTypeProvider.GetCustomDefinedTypes().First(a => a.DisplayName.Equals(testDataSource.MetaData.TargetTypeName)).ActualType;
+            var globalsType = this.typeProvider.GetCustomDefinedTypes().First(a => a.DisplayName.Equals(testDataSource.MetaData.TargetTypeName)).ActualType;
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), globalsType);
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
             {
@@ -181,7 +182,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         private async void EditCsvDataSource(TestDataSource testDataSource)
         {
-            ArgumentTypeBrowserViewModel argumentTypeBrowser = new ArgumentTypeBrowserViewModel(this.argumentTypeProvider);
+            var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser();
             TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource, argumentTypeBrowser);
             TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { dataSourceViewModel });
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);

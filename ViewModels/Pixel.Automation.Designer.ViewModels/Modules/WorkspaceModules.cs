@@ -8,6 +8,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.TypeBrowser;
 using Pixel.Automation.Native.Windows;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
@@ -32,6 +33,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
             Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
             Kernel.Bind<IArgumentTypeProvider>().To<ArgumentTypeProvider>().InSingletonScope();
+            Kernel.Bind<IArgumentTypeBrowserFactory>().To<ArgumentTypeBrowserFactory>().InSingletonScope();
             Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 
             Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();         
