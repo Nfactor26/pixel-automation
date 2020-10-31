@@ -90,7 +90,7 @@
                     HorizontalAlignment="Stretch"  BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                     Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}"/>
             <Button x:Name="Save" Content="SAVE AND CLOSE" Width="120" DockPanel.Dock="Right" Margin="10"
-                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" />
+                    Style="{DynamicResource MahApps.Styles.Button.Square.Accent}" />
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right" Margin="10"
                     Style="{DynamicResource MahApps.Styles.Button.Square}" />            
         </DockPanel>

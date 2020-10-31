@@ -50,7 +50,7 @@
         </StackPanel>
         <DockPanel LastChildFill="False" Margin="{StaticResource ControlMargin}">
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,4,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
-            <Button x:Name="Save" Content="Save" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+            <Button x:Name="Save" Content="Save" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
         </DockPanel>
     </StackPanel>
 </controls:MetroWindow>

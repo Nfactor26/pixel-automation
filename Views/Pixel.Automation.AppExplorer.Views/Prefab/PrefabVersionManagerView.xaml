@@ -56,7 +56,7 @@
             <Button x:Name="TryCloseAsync" Content="CLOSE" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
                     Style="{DynamicResource MahApps.Styles.Button.Square}"/>
             <Button x:Name="Deploy" Content="DEPLOY AND INCREMENT" ToolTip="Deploy selected version and create a incremented version from selected version" Width="Auto" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
-                    Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+                    Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
         </DockPanel>
         
     </Grid>

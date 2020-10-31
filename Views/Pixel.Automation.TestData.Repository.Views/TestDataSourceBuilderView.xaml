@@ -39,12 +39,12 @@
         <DockPanel Grid.Row="2" LastChildFill="False">
             <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                     Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" />
-            <Button x:Name="Cancel" Content="CANCEL" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"/>
+            <Button x:Name="Cancel" Content="CANCEL" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
             <Button x:Name="GoToPrevious" Content="BACK" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square}"
                     Visibility="{Binding CanGoToPrevious, Converter={StaticResource boolToVisibilityConverter}}"/>
-            <Button x:Name="GoToNext" IsEnabled="{Binding ActiveItem.IsValid, FallbackValue=false}" Content="NEXT" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
+            <Button x:Name="GoToNext" IsEnabled="{Binding ActiveItem.IsValid, FallbackValue=false}" Content="NEXT" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}" 
                     Visibility="{Binding HasNext,Converter={StaticResource boolToVisibilityConverter}}" />
-            <Button x:Name="Finish" Content="FINISH" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
+            <Button x:Name="Finish" Content="FINISH" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}" 
                     Visibility="{Binding CanFinish,Converter={StaticResource boolToVisibilityConverter}}" />
         </DockPanel>        
     </Grid>
