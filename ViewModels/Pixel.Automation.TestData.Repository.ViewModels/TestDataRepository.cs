@@ -168,9 +168,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
-            string projectName = testDataSource.Id;
-            var globalsType = this.typeProvider.GetCustomDefinedTypes().First(a => a.DisplayName.Equals(testDataSource.MetaData.TargetTypeName)).ActualType;
-            this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), globalsType);
+            string projectName = testDataSource.Id;          
+            this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(Empty));
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
             {
                 scriptEditor.OpenDocument(testDataSource.ScriptFile, projectName, string.Empty); //File contents will be fetched from disk         

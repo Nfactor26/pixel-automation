@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Pixel.Automation.Core.Extensions
 {
     public static class TypeExtensions
     {
+        private static readonly string referenceTemplate = "#r \"{0}\"";
+        private static readonly string usingTemplate = "using {0};";
+
         /// <summary>
         /// Get friendly display name for a given type
         /// </summary>
@@ -74,6 +80,97 @@ namespace Pixel.Automation.Core.Extensions
             }
 
             throw new Exception($"Data type : {typeof(T)} is not assignable to property {propertyName} on object");
+        }
+
+
+        public static string GetRequiredImportsForType(this Type type, IEnumerable<Assembly> withRequiredRefrences, IEnumerable<string> withRequiredDirectives)
+        {
+            StringBuilder result = new StringBuilder();
+            var dllReferences = type.GetDllReferences(withRequiredRefrences);
+            foreach (var reference in dllReferences)
+            {
+                result.Append(string.Format(referenceTemplate, reference));
+                result.Append(Environment.NewLine);
+            }
+
+            var usingDirectives = type.GetUsingDirectives(withRequiredDirectives);
+            foreach (var usingDirective in usingDirectives)
+            {
+                result.Append(string.Format(usingTemplate, usingDirective));
+                result.Append(Environment.NewLine);
+            }          
+            return result.ToString();
+        }
+
+
+
+        public static IEnumerable<string> GetDllReferences(this Type type, IEnumerable<Assembly> withRequiredRefrences)
+        {
+            List<string> distinctReferences = new List<string>();
+
+            foreach(var assembly in withRequiredRefrences.Distinct())
+            {
+                if (assembly.Location.StartsWith(Environment.CurrentDirectory) && !assembly.Location.Contains("Temp"))
+                {
+                    distinctReferences.Add(Path.GetFileName(assembly.Location));
+                }
+            }
+
+            if(!withRequiredRefrences.Contains(type.Assembly))
+            {
+                string containedInDll = type.Assembly.Location;
+                //include those in application directory but not in Temp folder i.e. dynamically compiled dll's by project.
+                if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp"))
+                {
+                    distinctReferences.Add(Path.GetFileName(containedInDll));
+                }
+            }
+           
+
+            if (type.IsGenericType)
+            {
+                foreach (var typeArgument in type.GenericTypeArguments)
+                {
+                    if (!withRequiredRefrences.Contains(typeArgument.Assembly))
+                    {
+                        string containedInDll = typeArgument.Assembly.Location;
+                        if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp") && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
+                        {
+                            distinctReferences.Add(Path.GetFileName(containedInDll));
+                        }
+                    }                   
+                }
+            }
+
+            return distinctReferences;
+
+        }
+
+        public static IEnumerable<string> GetUsingDirectives(this Type type, IEnumerable<string> withRequiredDirectives)
+        {
+            List<string> distinceDirectives = new List<string>();    
+            
+            foreach(var directive in withRequiredDirectives.Distinct())
+            {
+                distinceDirectives.Add(directive);
+            }
+
+            if(!distinceDirectives.Contains(type.Namespace))
+            {
+                distinceDirectives.Add(type.Namespace);
+            }
+
+            if (type.IsGenericType)
+            {
+                foreach (var typeArgument in type.GenericTypeArguments)
+                {
+                    if (!distinceDirectives.Contains(typeArgument.Namespace))
+                    {
+                        distinceDirectives.Add(typeArgument.Namespace);
+                    }
+                }
+            }
+            return distinceDirectives;
         }
     }
 }

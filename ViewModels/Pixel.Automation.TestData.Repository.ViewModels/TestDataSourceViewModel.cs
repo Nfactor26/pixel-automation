@@ -142,8 +142,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             var result  = await windowManager.ShowDialogAsync(typeBrowser);
             if(result.HasValue && result.Value)
             {
-                this.TypeDefinition = typeBrowser.SelectedType;
-                this.TestDataType = typeBrowser.SelectedType.DisplayName;
+                this.TypeDefinition = typeBrowser.GetCreatedType();
+                this.TestDataType = this.TypeDefinition.DisplayName;
             }
         }
 

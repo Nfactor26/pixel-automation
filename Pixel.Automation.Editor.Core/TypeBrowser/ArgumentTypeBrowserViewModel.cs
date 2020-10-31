@@ -43,16 +43,16 @@ namespace Pixel.Automation.Editor.TypeBrowser
             {
                 if (value != null)  // we are using this value later. on closing window, this becomes null otherwise
                 {
-                    selectedType = value;
-                    NotifyOfPropertyChange(() => SelectedType);
+                    selectedType = value;                 
+                    SelectedTypeGenericParameters.Clear();
                     if (selectedType.IsGenericType)
-                    {
-                        SelectedTypeGenericParameters.Clear();
+                    {                        
                         for (int i = 0; i < selectedType.ActualType.GetGenericArguments().Count(); i++)
                         {
                             SelectedTypeGenericParameters.Add(new ArgumentTypePicker(this.argumentTypeProvider));
                         }
                     }
+                    NotifyOfPropertyChange(() => SelectedType);
                 }
 
             }
@@ -170,6 +170,12 @@ namespace Pixel.Automation.Editor.TypeBrowser
             AvailableTypes.Clear();
             await base.TryCloseAsync(dialogResult);
         }
+
+        public TypeDefinition GetCreatedType()
+        {
+            return new TypeDefinition(this.ActualType);
+        }
+
 
         public Argument CreateInArgumentForSelectedType()
         {

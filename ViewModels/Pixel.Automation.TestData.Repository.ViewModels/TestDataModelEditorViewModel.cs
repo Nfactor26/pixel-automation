@@ -1,9 +1,12 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Automation.Core.Extensions;
+﻿using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,15 +61,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private string GenerateScriptForCodedDataSource(Type dataSourceType)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"using System;");
-            stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"using System.Collections.Generic;");
-            stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"using {dataSourceType.Namespace};");
+            stringBuilder.Append(dataSourceType.GetRequiredImportsForType(Enumerable.Empty<Assembly>(), new string[] { typeof(object).Namespace, typeof(IEnumerable<>).Namespace }));
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append($"IEnumerable<{dataSourceType.GetDisplayName()}> GetDataRows()");
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append("{");
+            stringBuilder.Append(Environment.NewLine);
+            stringBuilder.Append("\t");
+            stringBuilder.Append("yield break;");
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append("}");
             return stringBuilder.ToString();
@@ -75,26 +77,19 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private string GenerateScriptForCsvDataSource(Type dataSourceType)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"using System;");
-            stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"using System.Collections.Generic;");
-            stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"using {typeof(IDataReader).Namespace};");
-            stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"using {dataSourceType.Namespace};");
-            stringBuilder.Append(Environment.NewLine);
+            stringBuilder.Append(dataSourceType.GetRequiredImportsForType(Enumerable.Empty<Assembly>(), new string[] { typeof(object).Namespace, typeof(IEnumerable<>).Namespace, 
+            typeof(IDataReader).Namespace, typeof(TestDataSource).Name }));           
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append($"IEnumerable<{dataSourceType.GetDisplayName()}> GetDataRows(TestDataSource dataSource, IDataReader dataReader)");
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append("{");
             stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append("dataReader.Initialize(dataSource.MetaData);");
+            stringBuilder.Append("\t dataReader.Initialize(dataSource.MetaData);");
             stringBuilder.Append(Environment.NewLine);
-            stringBuilder.Append($"return dataReader.GetAllRowsAs<{dataSourceType.GetDisplayName()}>();");
+            stringBuilder.Append($"\t return dataReader.GetAllRowsAs<{dataSourceType.GetDisplayName()}>();");
             stringBuilder.Append("}");
             return stringBuilder.ToString();
-        }
-
+        }       
 
         public override bool IsValid => true;
 
@@ -115,7 +110,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {                
-                editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), (this.PreviousScreen as TestDataSourceViewModel).TypeDefinition.ActualType);
+                editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(Empty));
                 this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, testDataSource.Name, generatedCode.ToString()); //File is saved to disk as well               
             }
             if (!string.IsNullOrEmpty(errorDescription))

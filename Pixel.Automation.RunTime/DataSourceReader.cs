@@ -18,7 +18,8 @@ namespace Pixel.Automation.RunTime
         private readonly ISerializer serializer;
         private readonly IDataReader[] dataReaders;
         private readonly IScriptEngineFactory scriptEngineFactory;
-        private IScriptEngine scriptEngine;
+        private Lazy<IScriptEngine> codeScriptEngine;
+        private Lazy<IScriptEngine> csvScriptEngine;
 
         public DataSourceReader(ISerializer serializer, IProjectFileSystem fileSystem, IScriptEngineFactory scriptEngineFactory, IDataReader[] dataReaders)
         {
@@ -31,17 +32,15 @@ namespace Pixel.Automation.RunTime
             this.fileSystem = fileSystem;
             this.scriptEngineFactory = scriptEngineFactory;
             this.dataReaders = dataReaders;
-          
+
+            this.codeScriptEngine = new Lazy<IScriptEngine>(() => { return this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory); });
+            this.csvScriptEngine = new Lazy<IScriptEngine>(() => { return this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory); });
+
         }
 
         public IEnumerable<object> LoadData(string dataSourceId)
         {            
-            Guard.Argument(dataSourceId).NotNull().NotEmpty();
-
-            if(this.scriptEngine == null)
-            {
-                this.scriptEngine = this.scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
-            }
+            Guard.Argument(dataSourceId).NotNull().NotEmpty();          
 
             string dataSourceFile = Path.Combine(this.fileSystem.TestDataRepository, $"{dataSourceId}.dat");
             if (!this.fileSystem.Exists(dataSourceFile))
@@ -64,8 +63,8 @@ namespace Pixel.Automation.RunTime
 
         private async Task<IEnumerable<object>> GetCodedTestData(TestDataSource testDataSource)
         {
-            ScriptResult result = await scriptEngine.ExecuteFileAsync(testDataSource.ScriptFile);          
-            result = await scriptEngine.ExecuteScriptAsync("GetDataRows()");
+            ScriptResult result = await codeScriptEngine.Value.ExecuteFileAsync(testDataSource.ScriptFile);          
+            result = await codeScriptEngine.Value.ExecuteScriptAsync("GetDataRows()");
             return (result.ReturnValue as IEnumerable<object>) ?? throw new InvalidCastException("Data source should return IEnumerable data");
         }
 
@@ -79,9 +78,9 @@ namespace Pixel.Automation.RunTime
             }          
 
             object globals = new DataReaderScriptGlobal() { DataReaderArgument = csvDataReader, DataSourceArgument = testDataSource };
-            this.scriptEngine.SetGlobals(globals);
-            ScriptResult result = await scriptEngine.ExecuteFileAsync(testDataSource.ScriptFile);
-            result = await scriptEngine.ExecuteScriptAsync("GetDataRows(DataSourceArgument, DataReaderArgument)");
+            this.codeScriptEngine.Value.SetGlobals(globals);
+            ScriptResult result = await this.csvScriptEngine.Value.ExecuteFileAsync(testDataSource.ScriptFile);
+            result = await this.csvScriptEngine.Value.ExecuteScriptAsync("GetDataRows(DataSourceArgument, DataReaderArgument)");
             return (result.ReturnValue as IEnumerable<object>) ?? throw new InvalidCastException("Data source should return IEnumerable data");
         }
 
