@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Script.Editor.MultiEditor
 {
@@ -66,11 +67,14 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             }
         }
    
-        public void OpenDocument(EditableDocumentViewModel editableDocument)
+        public async Task OpenDocument(EditableDocumentViewModel editableDocument)
         {
             if(editableDocument != null)
             {
-                editor.OpenDocumentAsync(editableDocument.DocumentName, editableDocument.ProjectName);
+                //TODO : Opening a document doesn't activate it
+                await editor.OpenDocumentAsync(editableDocument.DocumentName, editableDocument.ProjectName);
+                this.selectedDocument = editableDocument;
+                NotifyOfPropertyChange(() => CanSave);             
             }
         }
 

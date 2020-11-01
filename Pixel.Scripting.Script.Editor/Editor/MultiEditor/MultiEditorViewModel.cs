@@ -173,11 +173,12 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             {
                 return;
             }
-            if(item is EditableDocumentViewModel document)
+            
+            if(item is EditableDocumentViewModel document && document.IsOpen)
             {
                 this.ActiveDocument = document; //This is what matters to avalon
+                await base.ActivateItemAsync(item, cancellationToken);
             }
-            await base.ActivateItemAsync(item, cancellationToken);           
         }
 
         /// <summary>
