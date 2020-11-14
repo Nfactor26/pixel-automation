@@ -42,8 +42,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public BindableCollection<ParameterUsage> ArgumentUsage { get; } = new BindableCollection<ParameterUsage>() { ParameterUsage.Input, ParameterUsage.Output, ParameterUsage.InOut };
                
         public PrefabDataModelBuilderViewModel(PrefabDescription prefabDescription, ICodeGenerator codeGenerator,
-            IPrefabFileSystem fileSystem, IScriptEngine scriptEngine,
-            ICompositeTypeExtractor compositeTypeExtractor, IArgumentExtractor argumentExtractor)
+            IPrefabFileSystem fileSystem, IScriptEngine scriptEngine, ICompositeTypeExtractor compositeTypeExtractor, IArgumentExtractor argumentExtractor)
         {
             Guard.Argument(prefabDescription).NotNull();
             Guard.Argument(codeGenerator).NotNull();
@@ -199,6 +198,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information("Identifying properties as Input/Output properties completed");
         }
 
+
+        public override void OnPreviousScreen()
+        {
+            ClearErrors("");
+            RequiredProperties.Clear();
+            arguments.Clear();
+            base.OnPreviousScreen();
+        }
 
     }
 }

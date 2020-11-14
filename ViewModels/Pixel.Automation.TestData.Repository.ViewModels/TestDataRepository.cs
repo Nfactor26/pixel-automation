@@ -14,6 +14,9 @@ using System.Windows.Data;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
+    /// <summary>
+    /// TestDataRepository allows creating different data sources which can be used in a test. TestDataRepository belongs to a workspace.
+    /// </summary>
     public class TestDataRepository : PropertyChangedBase
     {
         private readonly ILogger logger = Log.ForContext<TestDataRepository>();

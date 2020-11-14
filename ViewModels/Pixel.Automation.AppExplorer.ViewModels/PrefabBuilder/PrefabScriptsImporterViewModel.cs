@@ -137,7 +137,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             ClearErrors("");
             CopyScriptsToPrefabsDirectory();          
 
-            var dataModelAssembly = (this.PreviousScreen as IStagedScreen).GetProcessedResult() as Assembly;
+            var dataModelAssembly = this.PreviousScreen.GetProcessedResult() as Assembly;
             var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             object dataModelInstance = Activator.CreateInstance(dataModelType);
 
@@ -156,6 +156,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             if (RequiredScripts.Any(a => !a.IsValid))
             {
                 AddOrAppendErrors("", "Some of the scripts could not be compiled.");
+                logger.Error("Validating of script files failed");
+                return;
             }
 
             logger.Information("Validating of script files completed");

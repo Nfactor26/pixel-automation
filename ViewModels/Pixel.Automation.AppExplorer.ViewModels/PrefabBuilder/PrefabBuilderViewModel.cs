@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Pixel.Automation.Editor.Core.Helpers;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -87,9 +88,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             return this.prefabToolBoxItem;
         }        
        
-        public override async void Cancel()
+        public override async Task Cancel()
         {
-            string prefabsDirectory = prefabFileSystem.WorkingDirectory;
+            string prefabsDirectory = Directory.GetParent(prefabFileSystem.WorkingDirectory).FullName;
             try
             {
                 if (Directory.Exists(prefabsDirectory))
@@ -101,8 +102,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 //When cancelling at a later stage when assembly is generated and loaded , there will be exception deleting folder
             }
-            logger.Information($"Create prefab cancelled by user");
-            await this.TryCloseAsync(false);
+            await base.Cancel();
         }
 
     }

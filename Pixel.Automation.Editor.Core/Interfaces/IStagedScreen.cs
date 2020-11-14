@@ -15,5 +15,14 @@ namespace Pixel.Automation.Editor.Core
         object GetProcessedResult();
 
         bool Validate();
+
+        void OnNextScreen();
+
+        void OnPreviousScreen();
+
+        void OnCancelled();
+
+        void OnFinished();
+
     }
 }

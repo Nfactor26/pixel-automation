@@ -8,7 +8,7 @@ namespace Pixel.Automation.Editor.Core
 {
     public abstract class Wizard : Conductor<IScreen>.Collection.OneActive
     {
-        protected readonly List<IScreen> stagedScreens = new List<IScreen>();
+        protected readonly List<IStagedScreen> stagedScreens = new List<IStagedScreen>();
       
         public bool HasNext
         {
@@ -31,6 +31,7 @@ namespace Pixel.Automation.Editor.Core
             {
                 if (currentStage.NextScreen != null)
                 {
+                    currentStage.OnNextScreen();
                     ActivateItemAsync(currentStage.NextScreen, CancellationToken.None);
                     NotifyOfPropertyChange(() => HasNext);
                     NotifyOfPropertyChange(() => CanGoToPrevious);
@@ -53,6 +54,7 @@ namespace Pixel.Automation.Editor.Core
             var currentStage = ActiveItem as IStagedScreen;
             if (currentStage.PreviousScreen != null)
             {
+                currentStage.OnPreviousScreen();
                 ActivateItemAsync(currentStage.PreviousScreen, CancellationToken.None);
                 NotifyOfPropertyChange(() => HasNext);
                 NotifyOfPropertyChange(() => CanGoToPrevious);
@@ -79,18 +81,26 @@ namespace Pixel.Automation.Editor.Core
             }
         }
 
-        public virtual void Finish()
+        public virtual async Task Finish()
         {
             IStagedScreen screen = this.ActiveItem as IStagedScreen;
             if (screen.Validate() && screen.TryProcessStage(out string errorDescription))
             {
-                this.TryCloseAsync(true);
+                foreach(var stagedScreen in this.stagedScreens)
+                {
+                    stagedScreen.OnFinished();
+                }
+                await this.TryCloseAsync(true);
             }
         }
 
-        public virtual void Cancel()
+        public virtual async Task Cancel()
         {
-            this.TryCloseAsync(false);
+            foreach (var stagedScreen in this.stagedScreens)
+            {
+                stagedScreen.OnCancelled();
+            }
+            await this.TryCloseAsync(false);
         }
 
         public virtual void DismissErrorsPanel()

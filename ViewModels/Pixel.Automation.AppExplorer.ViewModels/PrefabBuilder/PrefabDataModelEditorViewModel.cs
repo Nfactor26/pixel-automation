@@ -72,8 +72,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 generatedCode = GetDataModelFileContent();
             }
           
-            this.codeEditorFactory.AddProject(prefabDescription.PrefabId, Array.Empty<string>());
-            this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
+            //Can go back to previous screen and come back here again in which case CodeEditor should be already available.
+            if(this.CodeEditor == null)
+            {
+                this.codeEditorFactory.AddProject(prefabDescription.PrefabId, Array.Empty<string>());
+                this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
+            }
+         
 
             foreach (var file in Directory.GetFiles(prefabFileSystem.DataModelDirectory, "*.cs"))
             {
@@ -90,11 +95,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
         }
 
-        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
+        public override void OnFinished()
+        {          
+            CleanUp();
+            base.OnPreviousScreen();
+        }
+
+        public override void OnCancelled()
+        {          
+            CleanUp();
+            base.OnCancelled();
+        }
+
+        private void CleanUp()
         {
             this.CodeEditor?.Dispose();
             this.CodeEditor = null;
-            await base.OnDeactivateAsync(close, cancellationToken);
+            this.codeEditorFactory.RemoveProject(prefabDescription.PrefabId);
         }
     }
 }

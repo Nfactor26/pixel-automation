@@ -6,7 +6,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataSourceBuilderViewModel : Wizard
     {     
-        public TestDataSourceBuilderViewModel(IEnumerable<IScreen> stagedScreens)
+        public TestDataSourceBuilderViewModel(IEnumerable<IStagedScreen> stagedScreens)
         {
             this.DisplayName = "Create new data source";
             this.stagedScreens.AddRange(stagedScreens);

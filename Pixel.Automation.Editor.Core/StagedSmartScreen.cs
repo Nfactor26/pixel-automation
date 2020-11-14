@@ -23,11 +23,33 @@
 
         public abstract object GetProcessedResult();
 
+        public virtual void OnCancelled()
+        {
+           
+        }
+
+        public virtual void OnFinished()
+        {
+           
+        }
+
+        public virtual void OnNextScreen()
+        {
+            
+        }
+
+        public virtual void OnPreviousScreen()
+        {
+          
+        }
+
         public abstract bool TryProcessStage(out string errorDescription);
        
         public virtual bool Validate()
         {
             return IsValid;
         }
+
+
     }
 }

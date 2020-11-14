@@ -19,6 +19,9 @@ using System.Windows.Input;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
+    /// <summary>
+    /// PrefabExplorer allows creating prefabs which are reusable components for a given application.
+    /// </summary>
     public class PrefabExplorerViewModel : Screen
     {
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
