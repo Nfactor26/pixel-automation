@@ -5,7 +5,6 @@ using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
@@ -57,7 +56,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
             if (!dataModelFiles.Any())
             {
-                var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", "Pixel.Automation.Project.DataModels", new[] { typeof(object).Namespace });
+                var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
                 string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs");
                 File.WriteAllText(dataModelFile, dataModelInitialContent);
@@ -193,7 +192,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected override string GetProjectName()
         {
-            return this.activeProject.Name;
+            return this.activeProject.GetProjectName();
         }
 
         #endregion overridden methods

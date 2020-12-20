@@ -23,6 +23,19 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void SwitchToDirectory(string directory);
 
         /// <summary>
+        /// Get a list of all projects available in workspace
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAvailableProjects();
+
+        /// <summary>
+        /// Get the default namespace for a given project
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        string GetDefaultNameSpace(string projectName);
+
+        /// <summary>
         /// Get a collection of all .cs or .csx file in current working directory
         /// </summary>
         /// <returns></returns>
@@ -57,6 +70,15 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="targetDocument">Relative path of the document to working directory</param>
         /// <param name="documentContent">Content of the document</param>
         void AddDocument(string targetDocument, string addToProject, string documentContent);
+
+        /// <summary>
+        /// Create the initialt document content given classname, namespace and imports
+        /// </summary>
+        /// <param name="documentName"></param>
+        /// <param name="addToProject"></param>
+        /// <param name="className"></param>
+        /// <param name="nameSpace"></param>
+        string CreateDocument(string className, string nameSpace, IEnumerable<string> imports);
 
         /// <summary>
         /// Remove document from underlying workspace

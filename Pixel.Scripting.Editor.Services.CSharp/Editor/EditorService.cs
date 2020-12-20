@@ -34,6 +34,7 @@ namespace Pixel.Script.Editor.Services.CSharp
     {
         private readonly ILogger logger = Log.ForContext<EditorService>();
 
+        private readonly ICodeGenerator codeGenerator;
         private WorkspaceOptions editorOptions;
         private AdhocWorkspaceManager workspaceManager;
         private IntellisenseService intelliSenseService;
@@ -51,9 +52,9 @@ namespace Pixel.Script.Editor.Services.CSharp
 
         public IObservable<DiagnosticResultEx> DiagnosticsUpdated { get; private set; }
 
-        public EditorService()
+        public EditorService(ICodeGenerator codeGenerator)
         {
-            
+            this.codeGenerator = codeGenerator;
         }
 
         public IWorkspaceManager GetWorkspaceManager()
@@ -153,14 +154,19 @@ namespace Pixel.Script.Editor.Services.CSharp
             {
                 workspaceManager.SetCurrentDirectory(null);
             }
-
-            //if(Path.IsPathRooted(directory))
-            //{
-            //    throw new ArgumentException("Can only switch to directories relative to workingDirectory");
-            //}
-
             workspaceManager.SetCurrentDirectory(directory);
-        }       
+        }
+
+        public IEnumerable<string> GetAvailableProjects()
+        {
+            return this.workspaceManager.GetAllProjects().ToList();
+        }
+       
+        public string GetDefaultNameSpace(string projectName)
+        {
+            return this.workspaceManager.GetDefaultNameSpace(projectName);
+        }
+
 
         public IEnumerable<string> GetAvailableDocuments()
         {
@@ -239,6 +245,14 @@ namespace Pixel.Script.Editor.Services.CSharp
         {
             this.workspaceManager.AddDocument(targetDocument, addToProject, documentContent);
         }
+
+
+        public string CreateDocument(string className, string nameSpace, IEnumerable<string> imports)
+        {
+            var classGenerator  = this.codeGenerator.CreateClassGenerator(className, nameSpace, imports);
+            return classGenerator.GetGeneratedCode();
+        }
+
 
         /// <inheritdoc/>
         public void RemoveDocument(string targetDocument, string removeFromProject)

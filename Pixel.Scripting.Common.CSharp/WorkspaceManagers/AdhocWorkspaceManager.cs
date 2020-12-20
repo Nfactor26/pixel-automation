@@ -96,6 +96,23 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             logger.Information($"Removed project {projectName}. Workspace has total {workspace.CurrentSolution.Projects.Count()} project now.");
         }
 
+
+        public string GetDefaultNameSpace(string projectName)
+        {
+            Guard.Argument(projectName).NotNull().NotEmpty();
+            var project = GetProjectByName(projectName);
+            return project.DefaultNamespace ?? string.Empty;
+        }
+
+        public IEnumerable<string> GetAllProjects()
+        {
+            foreach (var project in this.workspace.CurrentSolution.Projects)
+            {
+                yield return project.Name;
+            }
+            yield break;
+        }
+
         protected virtual Project GetProjectByName(string projectName)
         {
             foreach (var project in this.workspace.CurrentSolution.Projects)

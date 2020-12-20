@@ -20,8 +20,8 @@ namespace Pixel.Scripting.Editor.Core.Contracts
     }
 
     public interface ICodeEditorFactory : IEditorFactory
-    {
-        void AddProject(string projectName, string[] projectreferences);
+    {       
+        void AddProject(string projectName, string defaultNameSpace, string[] projectreferences);
 
         /// <summary>
         /// Create a  standalone code editor screen with ok and cancel buttons.

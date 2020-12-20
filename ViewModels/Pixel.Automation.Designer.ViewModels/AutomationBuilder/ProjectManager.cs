@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -144,7 +143,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected object CompileAndCreateDataModel(string dataModelName)
         {
             logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
-            this.codeEditorFactory.AddProject(this.GetProjectName(), Array.Empty<string>());
+            this.codeEditorFactory.AddProject(this.GetProjectName(), $"Pixel.Automation.{this.GetProjectName()}", Array.Empty<string>());
 
             string dataModelDirectory = this.fileSystem.DataModelDirectory;
             string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");

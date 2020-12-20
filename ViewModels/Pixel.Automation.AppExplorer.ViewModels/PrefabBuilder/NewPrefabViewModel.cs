@@ -21,7 +21,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             set
             {
                 prefabDescription.PrefabName = value.Trim();
-                prefabDescription.NameSpace = "Pixel.Automation.Prefabs." + value.Trim();
+                prefabDescription.NameSpace = "Pixel.Automation.Prefabs." + prefabDescription.GetPrefabName();
                 NotifyOfPropertyChange(PrefabName);           
                 ValidateProperty(nameof(PrefabName));
             }

@@ -20,9 +20,31 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         T GetService<T>();
 
+        /// <summary>
+        /// Check if specified project is available in workspace
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
         bool HasProject(string projectName);      
 
+        /// <summary>
+        /// Remove specified project from workspace
+        /// </summary>
+        /// <param name="projectName">Name of the project to remove</param>
         void RemoveProject(string projectName);
+
+        /// <summary>
+        /// Get the names of all projects available in workspace
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAllProjects();
+
+        /// <summary>
+        /// Get the defualt namespace for a given project
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        string GetDefaultNameSpace(string projectName);
 
         /// <summary>
         /// Add a new document to workspace
@@ -108,9 +130,22 @@ namespace Pixel.Scripting.Editor.Core.Contracts
     }
 
     public interface ICodeWorkspaceManager : IWorkspaceManager
-    {
-        void AddProject(string projectName, IEnumerable<string> projectReferences);
+    {        
+        /// <summary>
+        /// Add a new project to the workspace
+        /// </summary>
+        /// <param name="projectName">Name of project</param>
+        /// <param name="defaultNameSpace">Default namespace for project</param>
+        /// <param name="projectReferences">Other projects from workspace to be referenced</param>
+        void AddProject(string projectName, string defaultNameSpace, IEnumerable<string> projectReferences);
+    
 
+        /// <summary>
+        /// Compile the project
+        /// </summary>
+        /// <param name="projectName">Name of project</param>
+        /// <param name="outputAssemblyName">Name of output assembly</param>
+        /// <returns>CompilationResult</returns>
         CompilationResult CompileProject(string projectName, string outputAssemblyName);
 
     }

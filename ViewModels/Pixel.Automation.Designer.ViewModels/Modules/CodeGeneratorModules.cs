@@ -1,7 +1,7 @@
 ﻿using Caliburn.Micro;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
-using Pixel.Automation.Core.Interfaces.Scripting;
+using Pixel.Scripting.Editor.Core.Contracts;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {

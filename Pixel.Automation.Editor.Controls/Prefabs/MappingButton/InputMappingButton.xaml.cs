@@ -30,8 +30,8 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
             string generatedCode = GeneratedMappingCode(propertyMappings);
       
             IWindowManager windowManager = IoC.Get<IWindowManager>();
-            IScriptEditorFactory editorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-            IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
+            IScriptEditorFactory scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+            IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor();
             if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
                 //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
@@ -46,18 +46,18 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
             {
                 AddProject(Array.Empty<string>());               
             }
-            editorFactory.AddDocument(this.ScriptFile, GetProjectName(), generatedCode);
+            scriptEditorFactory.AddDocument(this.ScriptFile, GetProjectName(), generatedCode);
             scriptEditor.OpenDocument(this.ScriptFile, GetProjectName(), generatedCode);
             await windowManager.ShowDialogAsync(scriptEditor);       
             
             void AddProject(string[] projectReferences)
             {
-                editorFactory.AddProject(GetProjectName(), projectReferences, EntityManager.Arguments.GetType());
+                scriptEditorFactory.AddProject(GetProjectName(), projectReferences, EntityManager.Arguments.GetType());
             }
 
             string GetProjectName()
             {
-                return $"In_{OwnerComponent.Id}";
+                return $"In-{OwnerComponent.Id}";
             }
         }
 
@@ -120,7 +120,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
             mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.DataModelAssembly}\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
-            mappingBuilder.AppendLine($"using TestModel = Pixel.Automation.Project.DataModels;");
+            mappingBuilder.AppendLine($"using TestModel = ${this.AssignFrom.Namespace};");
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignTo.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapInput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");

@@ -25,11 +25,14 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         {
             Guard.Argument(workingDirectory).NotEmpty().NotNull();
             DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.Semantic);           
-        }
-               
-        public void AddProject(string projectName, IEnumerable<string> projectReferences)
+        }        
+        
+
+
+        public void AddProject(string projectName, string defaultNameSpace, IEnumerable<string> projectReferences)
         {
             Guard.Argument(projectName).NotNull().NotEmpty();
+            Guard.Argument(defaultNameSpace).NotNull().NotEmpty();
             Guard.Argument(projectReferences).NotNull();
 
             var compilationOptions = CreateCompilationOptions();
@@ -47,9 +50,10 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             }
 
             var projectInfo = ProjectInfo.Create(id, VersionStamp.Create(), projectName,
-                Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences:otherProjectReferences, isSubmission: false)
+                Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences: otherProjectReferences, isSubmission: false)
                .WithMetadataReferences(defaultMetaDataReferences.Concat(additionalMetaDataReferences))
                .WithCompilationOptions(compilationOptions);
+            projectInfo = projectInfo.WithDefaultNamespace(defaultNameSpace);
 
             workspace.AddProject(projectInfo);
 
@@ -64,13 +68,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
       
             var project = GetProjectByName(addToProject);          
 
-            var scriptDocumentInfo = DocumentInfo.Create(
+            var documentInfo = DocumentInfo.Create(
             DocumentId.CreateNewId(project.Id), Path.GetFileName(targetDocument),
             sourceCodeKind: SourceCodeKind.Regular,
             filePath: Path.Combine(this.GetWorkingDirectory(), targetDocument),
             loader: TextLoader.From(TextAndVersion.Create(SourceText.From(initialContent, encoding: System.Text.Encoding.UTF8), VersionStamp.Create())));
 
-            var updatedSolution = workspace.CurrentSolution.AddDocument(scriptDocumentInfo);
+            var updatedSolution = workspace.CurrentSolution.AddDocument(documentInfo);
             workspace.TryApplyChanges(updatedSolution);
 
             logger.Information($"Added document {targetDocument} to project {addToProject}");
@@ -96,9 +100,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                 }
             }
             return false;
-        }    
-      
-       
+        }         
+
         public CompilationResult CompileProject(string projectName, string outputAssemblyName)
         {
             Guard.Argument(projectName).NotNull().NotEmpty();

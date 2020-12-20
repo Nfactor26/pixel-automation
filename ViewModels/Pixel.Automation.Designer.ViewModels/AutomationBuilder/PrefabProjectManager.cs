@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -142,7 +141,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected override string GetProjectName()
         {
-            return this.prefabDescription.PrefabName;
+            return this.prefabDescription.GetPrefabName();
         }
 
         #endregion overridden methods

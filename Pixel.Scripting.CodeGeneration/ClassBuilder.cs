@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Options;
 using Pixel.Scripting.CodeGeneration.Generators;
-using Pixel.Automation.Core.Interfaces.Scripting;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

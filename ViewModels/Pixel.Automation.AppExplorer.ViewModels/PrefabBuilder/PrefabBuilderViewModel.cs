@@ -1,15 +1,14 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Automation.Core;
+﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
+using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Pixel.Automation.Editor.Core.Helpers;
-using Serilog;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder

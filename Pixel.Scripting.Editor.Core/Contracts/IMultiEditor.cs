@@ -40,6 +40,15 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         Task AddDocumentAsync(string documentName, string ownerProject, string initialContent, bool openAfterAdd);
 
         /// <summary>
+        /// Auto generate the default content for document and add to workspace
+        /// </summary>
+        /// <param name="documentName"></param>
+        /// <param name="ownerProject"></param>
+        /// <param name="openAfterAdd"></param>
+        /// <returns></returns>
+        Task AddNewDocumentAsync(string documentName, string ownerProject, bool openAfterAdd);
+
+        /// <summary>
         /// Delete document
         /// </summary>
         /// <param name="documentName"></param>

@@ -77,6 +77,12 @@ namespace Pixel.Automation.Core.Models
             this.PrefabRoot = prefabRoot;           
         }
 
+
+        public string GetPrefabName()
+        {
+            return this.PrefabName.Trim().Replace(' ', '_');
+        }
+
         public object Clone()
         {
             return new PrefabDescription()

@@ -129,7 +129,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
-            workspaceManager.AddProject(this.prefabDescription.PrefabName, Array.Empty<string>());
+            workspaceManager.AddProject(this.prefabDescription.GetPrefabName(), $"Pixel.Automation.{this.prefabDescription.GetPrefabName()}", Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())
             {
@@ -144,7 +144,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
             }
 
-            string assemblyName = this.prefabDescription.PrefabName.Trim().Replace(' ', '_');
+            string assemblyName = this.prefabDescription.GetPrefabName();
             using (var compilationResult = workspaceManager.CompileProject(this.prefabDescription.PrefabName, assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);

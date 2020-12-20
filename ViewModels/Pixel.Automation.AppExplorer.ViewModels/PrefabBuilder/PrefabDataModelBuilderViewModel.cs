@@ -6,10 +6,10 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Interfaces.Scripting;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -91,7 +91,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information("Start creating Prefab data model");
 
             var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace)?
-                .Distinct().Except(new[] { "Pixel.Automation.Project.DataModels" }) ?? new List<string>();
+                .Distinct().Except(new[] { prefabDescription.NameSpace }) ?? new List<string>();
             imports = imports.Append(typeof(ParameterUsage).Namespace); 
             imports = imports.Append(typeof(ParameterUsageAttribute).Namespace);
 

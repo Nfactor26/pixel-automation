@@ -66,7 +66,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             logger.Information($"Activate screen is {nameof(PrefabDataModelEditorViewModel)}");
           
-            var generatedCode = (this.PreviousScreen as IStagedScreen).GetProcessedResult();
+            var generatedCode = this.PreviousScreen.GetProcessedResult();
             if(string.IsNullOrEmpty(generatedCode?.ToString()))
             {
                 generatedCode = GetDataModelFileContent();
@@ -75,7 +75,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             //Can go back to previous screen and come back here again in which case CodeEditor should be already available.
             if(this.CodeEditor == null)
             {
-                this.codeEditorFactory.AddProject(prefabDescription.PrefabId, Array.Empty<string>());
+                this.codeEditorFactory.AddProject(prefabDescription.PrefabId, prefabDescription.NameSpace, Array.Empty<string>());
                 this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
             }
          

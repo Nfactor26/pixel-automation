@@ -11,9 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
-      <Private>false</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
   </ItemGroup>
 
 </Project>

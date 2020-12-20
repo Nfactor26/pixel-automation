@@ -37,11 +37,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         public MultiEditorViewModel(IEditorService editorService)
         {
             this.DisplayName = "Editor";
-            this.editorService = editorService;       
-            //foreach (var document in this.editorService.GetAvailableDocuments())
-            //{
-            //    Documents.Add(new EditableDocumentViewModel(document));
-            //}
+            this.editorService = editorService;         
             this.Tools.Add(new DocumentViewModel(this, Documents));
         }
       
@@ -97,6 +93,18 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
                 await OpenDocumentAsync(documentName, ownerProject);
             }         
 
+        }
+
+        public async Task AddNewDocumentAsync(string documentName, string ownerProject, bool openAfterAdd)
+        {
+            if (string.IsNullOrEmpty(ownerProject))
+            {
+                ownerProject = this.Documents.First().ProjectName;
+            }
+            string className = Path.GetFileNameWithoutExtension(documentName);
+            string nameSpace = this.editorService.GetDefaultNameSpace(ownerProject);
+            string initialContent = this.editorService.CreateDocument(className, nameSpace, new[] { "System" });
+            await AddDocumentAsync(documentName, ownerProject, initialContent, openAfterAdd);          
         }
 
         private void AddDocument(string documentName, string ownerProject, string initialContent)
@@ -194,7 +202,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             await this.TryCloseAsync(true);
         }
 
-       /// <summary>
+        /// <summary>
        /// Close all document without saving any changes when Cancel button is clicked
        /// </summary>
         public async void Cancel()
@@ -214,7 +222,6 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
                 CloseDocument(document.DocumentName, document.ProjectName, false);
             }
         }
-
 
         protected virtual void Dispose(bool isDisposing)
         { 

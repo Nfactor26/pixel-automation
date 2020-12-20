@@ -39,6 +39,11 @@ namespace Pixel.Automation.Core.Models
         public AutomationProject()
         {
            
-        }         
+        }
+
+        public string GetProjectName()
+        {
+            return this.Name.Trim().Replace(' ','_');
+        }
     }
 }

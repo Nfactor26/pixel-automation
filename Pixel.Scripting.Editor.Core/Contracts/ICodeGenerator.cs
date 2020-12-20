@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pixel.Automation.Core.Interfaces.Scripting
+namespace Pixel.Scripting.Editor.Core.Contracts
 {
     public interface  ICodeGenerator
     {

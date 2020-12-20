@@ -55,7 +55,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
 
             string GetProjectName()
             {
-                return $"Out_{OwnerComponent.Id}";
+                return $"Out-{OwnerComponent.Id}";
             }
 
         }
@@ -106,7 +106,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
             mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.DataModelAssembly}\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
-            mappingBuilder.AppendLine($"using TestModel = Pixel.Automation.Project.DataModels;");
+            mappingBuilder.AppendLine($"using TestModel = {this.AssignTo.Namespace};");
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignFrom.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapOutput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");
