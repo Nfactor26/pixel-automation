@@ -88,7 +88,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             try
             {
                 var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
-                targetApplication.AddPrefab(e);             
+                targetApplication.AddPrefab(e);
+                _ = SaveApplication(targetApplication);
                 logger.Information($"Added Prefab {e.PrefabName} to application : {targetApplication.ApplicationName}");
             }
             catch (Exception ex)
