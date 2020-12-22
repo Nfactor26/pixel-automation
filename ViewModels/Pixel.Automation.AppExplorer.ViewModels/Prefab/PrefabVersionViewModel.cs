@@ -112,24 +112,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Set IsDeployed to true and set the assembly name
         /// </summary>
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
-        {
-            //string prefabDirectory = Path.Combine("ApplicationsRepository", this.prefabDescription.ApplicationId, "Prefabs", this.prefabDescription.PrefabId, this.prefabVersion.Version.ToString());
-            //string tempDirectory = Path.Combine(prefabDirectory, "Temp");
-            //var assemblyFiles = Directory.GetFiles(tempDirectory, "*.dll").Select(f => new FileInfo(f));
-            //var targetFile = assemblyFiles.OrderBy(a => a.CreationTime).Last();
-
-            //string deployedAssemblyName = $"{this.prefabDescription.PrefabName}.dll";
-            //string referencesDirectory = Path.Combine(prefabDirectory, "References");
-            //File.Copy(targetFile.FullName, Path.Combine(referencesDirectory, deployedAssemblyName));
-
-            //prefabVersion.IsDeployed = true;
-            //prefabVersion.PrefabAssembly = Path.Combine(referencesDirectory, deployedAssemblyName);
+        {           
            
             this.fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, this.prefabVersion);
 
+            string prefabProjectName = this.prefabDescription.GetPrefabName();
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
-            workspaceManager.AddProject(this.prefabDescription.GetPrefabName(), $"Pixel.Automation.{this.prefabDescription.GetPrefabName()}", Array.Empty<string>());
+            workspaceManager.AddProject(prefabProjectName, $"Pixel.Automation.{this.prefabDescription.GetPrefabName()}", Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())
             {
@@ -137,22 +127,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 foreach (var dataModelFile in existingDataModelFiles)
                 {
                     string documentName = Path.GetFileName(dataModelFile);
-                    if (!workspaceManager.HasDocument(documentName, this.prefabDescription.PrefabName))
+                    if (!workspaceManager.HasDocument(documentName, prefabProjectName))
                     {
-                        workspaceManager.AddDocument(documentName, this.prefabDescription.PrefabName, File.ReadAllText(dataModelFile));
+                        workspaceManager.AddDocument(documentName, prefabProjectName, File.ReadAllText(dataModelFile));
                     }
                 }
             }
 
             string assemblyName = this.prefabDescription.GetPrefabName();
-            using (var compilationResult = workspaceManager.CompileProject(this.prefabDescription.PrefabName, assemblyName))
+            using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
             }
             this.IsDeployed = true;
             this.IsActive = false;
             this.PrefabAssembly = $"{assemblyName}.dll";
-
 
             //Replace the assemly name in the process and template file
             UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
