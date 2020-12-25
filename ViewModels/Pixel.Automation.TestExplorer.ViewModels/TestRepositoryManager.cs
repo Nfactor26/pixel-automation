@@ -79,8 +79,6 @@ namespace Pixel.Automation.TestExplorer
         {
             if (!isInitialized)
             {
-                List<TestCaseViewModel> testCases = new List<TestCaseViewModel>();
-
                 foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
                 {
                     var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
@@ -89,17 +87,8 @@ namespace Pixel.Automation.TestExplorer
 
                     foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testFixtureDirectory))
                     {
-                        TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
-                        testCases.Add(testCaseVM);
-                    }
-                }
-
-                foreach (var testCaseGroup in testCases.GroupBy(t => t.FixtureId))
-                {
-                    var testFixtureVm = this.TestFixtures.FirstOrDefault(t => t.Id.Equals(testCaseGroup.Key));
-                    foreach (var testCaseVM in testCaseGroup)
-                    {
-                        testFixtureVm.Tests.Add(testCaseVM);
+                        TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);                      
+                        testFixtureVM.Tests.Add(testCaseVM);
                     }
                 }
                 isInitialized = true;
