@@ -117,10 +117,10 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
         private string GeneratedMappingCode(IEnumerable<PropertyMap> mappings)
         {
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.DataModelAssembly}\"");
+            mappingBuilder.AppendLine($"#r \"{this.AssignTo.Assembly.GetName().Name}.dll\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
-            mappingBuilder.AppendLine($"using TestModel = ${this.AssignFrom.Namespace};");
+            mappingBuilder.AppendLine($"using TestModel = {this.AssignFrom.Namespace};");
             mappingBuilder.AppendLine($"using PrefabModel = {this.AssignTo.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapInput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");

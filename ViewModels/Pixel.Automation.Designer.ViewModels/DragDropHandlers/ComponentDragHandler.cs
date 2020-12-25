@@ -1,10 +1,12 @@
-﻿using GongSolutions.Wpf.DragDrop;
+﻿using Caliburn.Micro;
+using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.Sequences;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -341,18 +343,28 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             var prefabEntity = new PrefabEntity()
             {
                 PrefabId = sourceItem.PrefabId,
-                ApplicationId = sourceItem.ApplicationId,
-                PrefabVersion = sourceItem.DeployedVersions.OrderBy(a => a.Version).Last()
+                ApplicationId = sourceItem.ApplicationId
             };
 
-            var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
-            foreach (var intializer in initializers)
+          
+            targetItem.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
+            PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, sourceItem, prefabEntity.Id, testCaseEntity?.Id);
+            IWindowManager windowManager = targetItem.EntityManager.GetServiceOfType<IWindowManager>();
+            var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
+            result.ContinueWith(a =>
             {
-                IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
-                componentInitializer.IntializeComponent(prefabEntity, targetItem.EntityManager);
-            }
+                if(a.Result.HasValue && a.Result.Value)
+                {
+                    var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
+                    foreach (var intializer in initializers)
+                    {
+                        IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
+                        componentInitializer.IntializeComponent(prefabEntity, targetItem.EntityManager);
+                    }
+                    targetItem.AddComponent(prefabEntity);
+                }
+            });          
 
-            targetItem.AddComponent(prefabEntity);          
         }
 
         void HandleControlDrop(IDropInfo dropInfo)

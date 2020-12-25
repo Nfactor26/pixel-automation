@@ -41,7 +41,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
 
             Kernel.Bind<ITestRepositoryManager>().To<TestRepositoryManager>().InSingletonScope();
 
-            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>();
+            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InThreadScope();
 
 
             Kernel.Bind<TestDataRepository>().ToSelf();

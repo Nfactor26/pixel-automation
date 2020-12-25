@@ -4,6 +4,8 @@ using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -64,7 +66,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
-        public void DeleteComponent(IComponent component)
+        public virtual void DeleteComponent(IComponent component)
         {
             //TODO : Disable delete button on the root entity
             if (component.Tag.Equals("Root"))
@@ -116,8 +118,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                         logger.Error(ex.Message, ex);
                     }
                 }
-            }         
-
+            }            
 
             if (component.Parent != null)
             {
@@ -130,7 +131,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 return;
             }
 
-         
+             
           
         }
 

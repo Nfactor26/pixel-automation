@@ -16,8 +16,8 @@ namespace Pixel.Automation.Core.Components.Tests
         /// from PrefabProcess in the order they are supposed to be processed.
         /// </summary>
         [Test]
-        public void ValidateThatPrefabEntityCanLoadPrefabProcess()
-        {       
+        public void ValidateThatPrefabLoaderCanLoadPrefabProcess()
+        {
             var prefabEntityManager = Substitute.For<IEntityManager>();
             prefabEntityManager.Arguments.Returns(new Person());
             var prefabProcessRootEntity = new Entity() { EntityManager = prefabEntityManager };
@@ -26,10 +26,12 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var entityManager = Substitute.For<IEntityManager>();
             //setting argument of same type for prefab entity manager and entity manager. In a real proces, they will be usually different.
-            entityManager.Arguments.Returns(new Person());  
+            entityManager.Arguments.Returns(new Person());
             var prefabLoader = Substitute.For<IPrefabLoader>();
             entityManager.GetServiceOfType<IPrefabLoader>().Returns(prefabLoader);
-            prefabLoader.LoadPrefab(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<PrefabVersion>(), Arg.Any<IEntityManager>()).Returns(prefabProcessRootEntity);
+            prefabLoader.GetPrefabEntity(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IEntityManager>()).Returns(prefabProcessRootEntity);
+            prefabLoader.GetPrefabDataModelType(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IEntityManager>()).Returns(typeof(Person));
+
 
             var inputMappingAction = new Action<object>((a) => { });
             var scriptEngine = Substitute.For<IScriptEngine>();
@@ -38,11 +40,10 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var prefabEntity = new PrefabEntity()
             {
-                EntityManager = entityManager , 
-                ApplicationId = "MockId", 
+                EntityManager = entityManager,
+                ApplicationId = "MockId",
                 PrefabId = "PrefabId",
-                PrefabVersion = new PrefabVersion(),
-                InputMappingScript = "InputMappingScript.csx", 
+                InputMappingScript = "InputMappingScript.csx",
                 OutputMappingScript = "OutputMappingScript.csx"
             };
 
@@ -77,7 +78,6 @@ namespace Pixel.Automation.Core.Components.Tests
                 EntityManager = entityManager,
                 ApplicationId = "MockId",
                 PrefabId = "PrefabId",
-                PrefabVersion = new PrefabVersion(),
                 InputMappingScript = "InputMappingScript.csx",
                 OutputMappingScript = "OutputMappingScript.csx"
             };

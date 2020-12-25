@@ -1,0 +1,41 @@
+﻿<Controls:MetroWindow x:Class="Pixel.Automation.Designer.Views.PrefabVersionSelectorView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"  WindowStartupLocation="CenterOwner"
+        MaxHeight="175" Width="350"
+        IsMinButtonEnabled="False" Title="Select Prefab Version" GlowBrush="{DynamicResource AccentColorBrush}">
+    <Controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
+        </ResourceDictionary>
+    </Controls:MetroWindow.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="10px"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="10px"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="0">
+            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>        
+            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
+                         Text="{Binding PrefabName, Mode=OneWay}" IsReadOnly="True"
+                         Controls:TextBoxHelper.Watermark="Prefab Name"
+                         Controls:TextBoxHelper.UseFloatingWatermark="True"                                                   
+                         ToolTip="Name of Prefab" />
+        </DockPanel>
+        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">
+            <Label Content="Version" DockPanel.Dock="Left" MinWidth="80"></Label>
+            <ComboBox ItemsSource="{Binding AvailableVersions}" DockPanel.Dock="Right" IsEnabled="{Binding CanChangeVersion}"
+                  SelectedItem="{Binding SelectedVersion}" ToolTip="Prefab version to use"/>
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,5,0,0"  Grid.Row="4">
+            <Button x:Name="CloseScreen" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
+            <Button x:Name="ConfirmSelection" Content="OK" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
+        </DockPanel>
+    </Grid>
+</Controls:MetroWindow>

@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -26,10 +24,6 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public string PrefabId { get; set; }  
 
         [DataMember]
-        [Display(Name = "Prefab Version", Order = 20, GroupName = "Prefab Details")]
-        public PrefabVersion PrefabVersion { get; set; }
-
-        [DataMember]
         [Browsable(false)]
         public string InputMappingScript { get; set; }
 
@@ -48,11 +42,11 @@ namespace Pixel.Automation.Core.Components.Prefabs
         {
             get
             {
-                if (prefabDataModel == null)
+                if (this.prefabLoader == null)
                 {
-                    LoadPrefab();
+                    this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();
                 }
-                return prefabDataModel.GetType();
+                return this.prefabLoader.GetPrefabDataModelType(this.ApplicationId, this.PrefabId, this.EntityManager);
             }
         }
 
@@ -95,8 +89,8 @@ namespace Pixel.Automation.Core.Components.Prefabs
             if(this.prefabLoader == null)
             {
                 this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();              
-            }
-            this.prefabEntity = prefabLoader.LoadPrefab(this.ApplicationId, this.PrefabId, this.PrefabVersion, this.EntityManager);
+            }           
+            this.prefabEntity = prefabLoader.GetPrefabEntity(this.ApplicationId, this.PrefabId, this.EntityManager);
             this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;
             this.components.Clear();
             this.components.Add(this.prefabEntity);          

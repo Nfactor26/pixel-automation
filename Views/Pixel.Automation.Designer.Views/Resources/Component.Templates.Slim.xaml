@@ -196,12 +196,12 @@
                 <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
-                    <prefabs:InputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding InputMappingScript, Mode=OneWay}"
+                    <prefabs:InputMappingButton ScriptFile="{Binding InputMappingScript, Mode=OneWay}"
                                                 AssignFrom="{Binding DataModelType, Mode=OneWay}"
                                                 OwnerComponent="{Binding}"
                                                 EntityManager="{Binding EntityManager, Mode=OneWay}"
                                                 AssignTo="{Binding PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
-                    <prefabs:OutputMappingButton PrefabVersion="{Binding PrefabVersion, Mode=OneWay}" ScriptFile="{Binding OutputMappingScript, Mode=OneWay}" 
+                    <prefabs:OutputMappingButton ScriptFile="{Binding OutputMappingScript, Mode=OneWay}" 
                                                 AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
                                                 OwnerComponent="{Binding}"
                                                 EntityManager="{Binding EntityManager, Mode=OneWay}"

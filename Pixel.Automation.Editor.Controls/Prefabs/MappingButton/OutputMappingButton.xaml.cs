@@ -103,7 +103,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
         {
 
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{this.PrefabVersion.DataModelAssembly}\"");
+            mappingBuilder.AppendLine($"#r \"{this.AssignFrom.Assembly.GetName().Name}.dll\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = {this.AssignTo.Namespace};");

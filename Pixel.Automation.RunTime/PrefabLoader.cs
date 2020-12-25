@@ -1,94 +1,126 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Pixel.Automation.RunTime
 {
-    /// <inheritdoc/>
-    public class PrefabLoader : IPrefabLoader, IDisposable
+    /// <summary>
+    /// PrefabLoader is responsible for loading and configuring a prefab process.
+    /// This is registered in Thread Scope with DI container to enable parallel execution of same Prefab process.
+    /// </summary>
+    public class PrefabLoader : IPrefabLoader
     {
-        private Entity prefabRoot;
-        private Type dataModelType;
-        private object dataModelInstance;
-        private IPrefabFileSystem prefabFileSystem;
-        private IEntityManager prefabManager;
-        private bool isDisposed;
-
-        public PrefabLoader()
-        {            
+        private readonly ILogger logger = Log.ForContext<PrefabLoader>();
+        private readonly IProjectFileSystem projectFileSystem;
+        private readonly Dictionary<string, PrefabInstance> Prefabs = new Dictionary<string, PrefabInstance>();
+       
+        public PrefabLoader(IProjectFileSystem projectFileSystem)
+        {
+            this.projectFileSystem = projectFileSystem;
+            logger.Debug($"Created a new instance of {nameof(PrefabLoader)} for Thread with Id : {Thread.CurrentThread.ManagedThreadId}");
         }
 
+        public Entity GetPrefabEntity(string applicationId, string prefabId, IEntityManager parentEntityManager)
+        {
+            try
+            {
 
-        public Entity LoadPrefab(string applicationId, string prefabId, PrefabVersion prefabVersion, IEntityManager entityManager)
+                logger.Information($"{nameof(GetPrefabEntity)} request received for prefab with applicationId {applicationId} && prefabId : {prefabId}");
+                if (Prefabs.ContainsKey(prefabId))
+                {
+                    logger.Information($"Prefab with applicationId {applicationId} && prefabId : {prefabId} is available in cache.");
+                    var existingPrefabInstance = Prefabs[prefabId];
+                    return existingPrefabInstance.GetPrefabRootEntity();
+                }
+
+                var prefabInstance = LoadPrefab(applicationId, prefabId, parentEntityManager);
+                Prefabs.Add(prefabId, prefabInstance);
+                return prefabInstance.GetPrefabRootEntity();
+            }
+            finally
+            {
+                logger.Information($"{nameof(GetPrefabEntity)} request completed for prefab with applicationId {applicationId} && prefabId : {prefabId}");
+            }
+        }
+
+        public Type GetPrefabDataModelType(string applicationId, string prefabId, IEntityManager parentEntityManager)
+        {
+            try
+            {
+                logger.Information($"{nameof(GetPrefabDataModelType)} request received for prefab with applicationId {applicationId} && prefabId : {prefabId}");
+                if (Prefabs.ContainsKey(prefabId))
+                {
+                    logger.Information($"Prefab with applicationId {applicationId} && prefabId : {prefabId} is available in cache.");
+                    var existingPrefabInstance = Prefabs[prefabId];
+                    return existingPrefabInstance.GetDataModelType();
+                }
+
+                var prefabInstance = LoadPrefab(applicationId, prefabId, parentEntityManager);
+                Prefabs.Add(prefabId, prefabInstance);
+                return prefabInstance.GetDataModelType();
+            }
+            finally
+            {
+                logger.Information($"{nameof(GetPrefabDataModelType)} request completed for prefab with applicationId {applicationId} && prefabId : {prefabId}");
+            }
+        }
+
+        private PrefabInstance LoadPrefab(string applicationId, string prefabId, IEntityManager parentEntityManager)
         {
             Guard.Argument(applicationId).NotEmpty().NotNull();
             Guard.Argument(prefabId).NotEmpty().NotNull();
-            Guard.Argument(entityManager).NotNull();
-            Guard.Argument(prefabVersion).NotNull().Require(p => !string.IsNullOrEmpty(p.DataModelAssembly), p => { return "Assembly Name is not set on Prefab Version"; });
+            Guard.Argument(parentEntityManager).NotNull();
 
-            if(isDisposed)
-            {
-                throw new InvalidOperationException($"{nameof(PrefabLoader)} is disposed.");
-            }
 
-            this.prefabManager = new EntityManager(entityManager);
+            var prefabReferences = GetPrefabReferences();
+            PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(new PrefabDescription() { ApplicationId = applicationId, PrefabId = prefabId });
 
-            this.prefabFileSystem = this.prefabManager.GetServiceOfType<IPrefabFileSystem>();
-            this.prefabFileSystem.Initialize(applicationId, prefabId, prefabVersion);
-            this.prefabManager.SetCurrentFileSystem(this.prefabFileSystem);
+            IEntityManager prefabEntityManager = new EntityManager(parentEntityManager);
+            IPrefabFileSystem prefabFileSystem = prefabEntityManager.GetServiceOfType<IPrefabFileSystem>();
+            prefabFileSystem.Initialize(applicationId, prefabId, versionToLoad);
+            prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);
 
             //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
-            var scriptEngineFactory = entityManager.GetServiceOfType<IScriptEngineFactory>();
-            scriptEngineFactory.WithAdditionalSearchPaths(this.prefabFileSystem.ReferencesDirectory);
-          
-            //Similalry, Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
-            var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.AddSearchPaths(this.prefabFileSystem.ReferencesDirectory);                    
+            var scriptEngineFactory = parentEntityManager.GetServiceOfType<IScriptEngineFactory>();
+            scriptEngineFactory.WithAdditionalSearchPaths(prefabFileSystem.ReferencesDirectory);
 
-            string prefabAssembly = Path.Combine(this.prefabFileSystem.ReferencesDirectory, prefabVersion.DataModelAssembly);
-            if(!prefabFileSystem.Exists(prefabAssembly))
+            //Similalry, Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
+            var scriptEditorFactory = parentEntityManager.GetServiceOfType<IScriptEditorFactory>();
+            scriptEditorFactory.AddSearchPaths(prefabFileSystem.ReferencesDirectory);
+
+            string prefabAssembly = Path.Combine(prefabFileSystem.ReferencesDirectory, versionToLoad.DataModelAssembly);
+            if (!prefabFileSystem.Exists(prefabAssembly))
             {
                 throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");
             }
             Assembly prefabDataModelAssembly = Assembly.LoadFrom(prefabAssembly);
-                      
-            this.dataModelType = prefabDataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
-            if (this.dataModelType == null)
+
+            Type dataModelType = prefabDataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
+            if (dataModelType == null)
             {
                 throw new NullReferenceException($"Failed to find type {Constants.PrefabDataModelName} in prefab data model assembly for prefab with applicationId : {applicationId}" +
                     $"and preafbId : {prefabId}");
             }
-            this.dataModelInstance = Activator.CreateInstance(this.dataModelType);
-    
-            this.prefabManager.RootEntity = entityManager.RootEntity;
 
-            this.prefabRoot = this.prefabFileSystem.GetPrefabEntity(prefabDataModelAssembly);
-            this.prefabRoot.EntityManager = this.prefabManager;
-            this.prefabManager.RestoreParentChildRelation(this.prefabRoot, false);
-          
-            //Setting argument will initialize all the required services such as script engine, argument processor , etc.
-            this.prefabManager.Arguments = this.dataModelInstance;           
-
-            return this.prefabRoot;
+            PrefabInstance prefabInstance = new PrefabInstance(parentEntityManager, prefabEntityManager, prefabFileSystem, dataModelType);
+            return prefabInstance;
         }
 
-
-        protected virtual void Dispose(bool isDisposing)
+        protected virtual PrefabReferences GetPrefabReferences()
         {
-            this.prefabManager?.Dispose();
-            this.isDisposed = true;
+          //We load this each time since this can change at design time
+          return  this.projectFileSystem.LoadFile<PrefabReferences>(this.projectFileSystem.PrefabReferencesFile);
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
     }
+
 }

@@ -2,6 +2,7 @@
 using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -68,11 +69,32 @@ namespace Pixel.Automation.Designer.ViewModels
 
          
         }
-      
+
         #endregion constructor               
 
+        #region Manage components
+
+        public override void DeleteComponent(IComponent component)
+        {
+            //when deleting a PrefabEntity, we need to remove it from PrefabReferences mapping file
+            if (component is PrefabEntity prefabEntity)
+            {
+                component.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
+                base.DeleteComponent(component);
+                var fileSystem = projectManager.GetProjectFileSystem() as IProjectFileSystem;
+                var prefabReferences = fileSystem.LoadFile<PrefabReferences>(fileSystem.PrefabReferencesFile);
+                var prefabReference = prefabReferences.GetPrefabReference(prefabEntity.PrefabId);
+                prefabReference.RemoveReference(new ReferringEntityDetails() { EntityId = prefabEntity.Id, TestCaseId = testCaseEntity?.Id });
+                fileSystem.SaveToFile<PrefabReferences>(prefabReferences, fileSystem.WorkingDirectory, Path.GetFileName(fileSystem.PrefabReferencesFile));
+                return;
+            }
+            base.DeleteComponent(component);
+        }
+
+        #endregion Manage components
+
         #region Automation Project 
-       
+
 
         public AutomationProject CurrentProject { get; private set; }
 

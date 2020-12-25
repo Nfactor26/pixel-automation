@@ -7,15 +7,7 @@ using System.Windows.Controls;
 namespace Pixel.Automation.Editor.Controls.Prefabs
 {
     public abstract class MappingButton : UserControl
-    {
-
-        public static readonly DependencyProperty PrefabVersionProperty = DependencyProperty.Register("PrefabVersion", typeof(PrefabVersion), typeof(MappingButton),
-                                                                                    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
-        public PrefabVersion PrefabVersion
-        {
-            get { return (PrefabVersion)GetValue(PrefabVersionProperty); }
-            set { SetValue(ScriptFileProperty, value); }
-        }
+    {       
 
         public static readonly DependencyProperty OwnerComponentProperty = DependencyProperty.Register("OwnerComponent", typeof(Component), typeof(MappingButton),
                                                                                         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));

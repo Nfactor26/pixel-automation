@@ -98,6 +98,11 @@ namespace Pixel.Automation.Core
             serializer.Serialize<AssemblyReferences>(ReferencesFile, this.editorReferences);
         }       
 
+        public T LoadFile<T>(string fileName) where T: new()
+        {
+            return this.serializer.Deserialize<T>(fileName);
+        }
+
         public IEnumerable<T> LoadFiles<T>(string directory) where T : new()
         {
             var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;

@@ -39,8 +39,10 @@ namespace Pixel.Automation.Core.Interfaces
         /// <returns></returns>
         string GetRelativePath(string path);
 
-        string[] GetAssemblyReferences();      
-       
+        string[] GetAssemblyReferences();
+
+        T LoadFile<T>(string targetFile) where T : new();
+
         IEnumerable<T> LoadFiles<T>(string directory) where T : new();
 
         void SaveToFile<T>(T model, string directory) where T : new();
@@ -64,9 +66,13 @@ namespace Pixel.Automation.Core.Interfaces
 
     public interface IProjectFileSystem : IVersionedFileSystem
     {
+        string ProjectId { get; }
+
         string ProjectFile { get; }
 
         string ProcessFile { get; }
+
+        string PrefabReferencesFile { get; }
 
         string TestCaseRepository { get; }
 
