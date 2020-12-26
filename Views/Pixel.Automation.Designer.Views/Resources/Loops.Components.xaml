@@ -10,7 +10,7 @@
                     xmlns:ae="clr-namespace:Pixel.Automation.Editor.Controls.Arguments;assembly=Pixel.Automation.Editor.Controls">
 
     <HierarchicalDataTemplate x:Key="ForLoopTemplate" ItemsSource="{Binding ComponentCollection}">
-        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,2,0,0">
+        <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,2,0,0" dd:DragDrop.IsDragSource="False">
             <Label Content="Condition" Padding="4,0,4,0" FontSize="12" VerticalContentAlignment="Center"></Label>
             <se:InlineScriptEditorUserControl VerticalContentAlignment="Center" Margin="2"  
                     HorizontalAlignment="Stretch"       
@@ -44,7 +44,7 @@
     <HierarchicalDataTemplate x:Key="DoWhileLoopTemplate" ItemsSource="{Binding ComponentCollection}">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="0">
             <Label Content="Condition" Padding="4,0,4,0" FontSize="12" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"></Label>
-            <se:InlineScriptEditorUserControl VerticalContentAlignment="Center"  Margin="2"   HorizontalAlignment="Stretch"
+            <se:InlineScriptEditorUserControl VerticalContentAlignment="Center"  Margin="2,2,2,6"   HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"                                              
                     OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
         </StackPanel>
@@ -59,27 +59,24 @@
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Horizontal line to the left -->
-                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,30,0,0"
+                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,23,0,0"
                             Stroke="{DynamicResource MahApps.Brushes.Accent}" SnapsToDevicePixels="False" Visibility="Collapsed">
                             <Rectangle.Height>
-                                <Binding  Mode="OneWay" Converter="{StaticResource horzLineConv}"   ConverterParameter="left" 
-                                    RelativeSource="{RelativeSource AncestorLevel=1, AncestorType={x:Type TreeViewItem}}"/>
+                                <Binding  Mode="OneWay"  Converter="{StaticResource horzLineConv}" ConverterParameter="left"  RelativeSource="{RelativeSource
+                                     AncestorLevel=1,  AncestorType={x:Type TreeViewItem}}"/>
                             </Rectangle.Height>
                         </Rectangle>
 
                         <!-- Vertical line below node -->
-                        <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                            SnapsToDevicePixels="False" Margin="0,30,0,-30">
+                        <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" 
+                                   VerticalAlignment="Stretch" SnapsToDevicePixels="False" Margin="0,23,0,-23">
                             <Rectangle.Width>
-                                <Binding Mode="OneWay" 
-                                    Converter="{StaticResource vertLineConv}" 
-                                    ConverterParameter="bottom" 
-                                    RelativeSource="{RelativeSource  AncestorLevel=1,AncestorType={x:Type TreeViewItem}}"/>
+                                <Binding Mode="OneWay" Converter="{StaticResource vertLineConv}" ConverterParameter="bottom" RelativeSource="{RelativeSource  AncestorLevel=1, 
+                                        AncestorType={x:Type TreeViewItem}}"/>
                             </Rectangle.Width>
                         </Rectangle>
 
@@ -172,29 +169,27 @@
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>                          
                         </Grid.ColumnDefinitions>
-                     
+
                         <!-- Horizontal line to the left -->
-                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,30,0,0"
+                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,23,0,0"
                             Stroke="{DynamicResource MahApps.Brushes.Accent}" SnapsToDevicePixels="False" Visibility="Collapsed">
                             <Rectangle.Height>
-                                <Binding  Mode="OneWay" Converter="{StaticResource horzLineConv}"   ConverterParameter="left" 
-                                    RelativeSource="{RelativeSource AncestorLevel=1, AncestorType={x:Type TreeViewItem}}"/>
+                                <Binding  Mode="OneWay"  Converter="{StaticResource horzLineConv}" ConverterParameter="left"  RelativeSource="{RelativeSource
+                                     AncestorLevel=1,  AncestorType={x:Type TreeViewItem}}"/>
                             </Rectangle.Height>
                         </Rectangle>
 
                         <!-- Vertical line below node -->
-                        <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                            SnapsToDevicePixels="False" Margin="0,30,0,-30">
+                        <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" 
+                                   VerticalAlignment="Stretch" SnapsToDevicePixels="False" Margin="0,23,0,-23">
                             <Rectangle.Width>
-                                <Binding Mode="OneWay" 
-                                    Converter="{StaticResource vertLineConv}" 
-                                    ConverterParameter="bottom" 
-                                    RelativeSource="{RelativeSource  AncestorLevel=1,AncestorType={x:Type TreeViewItem}}"/>
+                                <Binding Mode="OneWay" Converter="{StaticResource vertLineConv}" ConverterParameter="bottom" RelativeSource="{RelativeSource  AncestorLevel=1, 
+                                        AncestorType={x:Type TreeViewItem}}"/>
                             </Rectangle.Width>
                         </Rectangle>
+
 
                         <!--This can be dragged -->                   
                         <Border x:Name="ComponentControl" Tag="Component" dd:DragDrop.IsDragSource="True" Grid.Column="1" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
@@ -297,7 +292,7 @@
                         <Label x:Name="Name" Content="{Binding Name}" Grid.Row="0" HorizontalAlignment="Stretch"/>
                         <Border x:Name="ComponentControl" Grid.Row="1" BorderThickness="1"
                                 BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
-                                CornerRadius="2" Margin="2,4,2,8" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                CornerRadius="2" Margin="4,4,4,8" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
 
                             <Grid x:Name="ContentHost" DockPanel.Dock="Top" Margin="0">
@@ -311,14 +306,7 @@
 
 
                     </Grid>
-                    <ControlTemplate.Triggers>
-                        <!--<Trigger Property="IsExpanded"  Value="True">
-                            <Setter TargetName="ContentSeperator"   Property="Visibility"  Value="Visible"/>
-                            <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
-                        </Trigger>-->                        
-                        <!--<Trigger Property="IsSelected" Value="False">
-                            <Setter Property="IsExpanded" Value="False"/>
-                        </Trigger>-->
+                    <ControlTemplate.Triggers>                      
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Visibility" Value="Visible" TargetName="ContentHost"/>
                             <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.AccentBase}" TargetName="Name"/>

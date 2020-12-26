@@ -236,7 +236,8 @@
     </DataTemplate>
 
     <HierarchicalDataTemplate x:Key="ParallelProcessorTemplate"  ItemsSource="{Binding ComponentCollection}">
-        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" Background="White" IsHitTestVisible="True">
+        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
+                   Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control">
                 <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                                                     cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
@@ -302,7 +303,8 @@
 
 
     <HierarchicalDataTemplate x:Key="SequenceTemplate"  ItemsSource="{Binding ComponentCollection}">
-        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" Background="White" IsHitTestVisible="True">
+        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
+                   Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">
                 <iconPacks:PackIconMaterial Kind="ViewSequential" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                                                   Background="{DynamicResource MahApps.Brushes.Control.Background}"/>

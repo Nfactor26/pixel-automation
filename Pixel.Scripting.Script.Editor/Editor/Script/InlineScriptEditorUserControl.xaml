@@ -3,14 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor.Script"
              xmlns:cal="http://www.caliburnproject.org" 
              mc:Ignorable="d" x:Name="InlineEditorUserControl"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <ContentControl cal:Bind.Model="{Binding}"   cal:View.Model ="{Binding Path=Editor, ElementName=InlineEditorUserControl}" 
-                        MinWidth="400" MinHeight="30" Height="Auto"
-                        VerticalContentAlignment="Center" Margin="2" HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"/>
+    <Grid>        
+        <Grid Margin="2">
+            <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1"  Margin="2,0,2,0">                    
+                    <ContentControl cal:Bind.Model="{Binding}"   cal:View.Model ="{Binding Path=Editor, ElementName=InlineEditorUserControl}" 
+                        MinWidth="300" MinHeight="30" Height="Auto"                              
+                        VerticalContentAlignment="Center"  HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"/>           
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
