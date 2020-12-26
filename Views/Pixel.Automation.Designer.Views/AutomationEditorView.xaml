@@ -8,16 +8,7 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" x:Name="AutomationBuilder"
-             d:DesignHeight="300" d:DesignWidth="300" >
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/Styles.xaml"/>
-                <ResourceDictionary Source="../Resources/Component.Templates.Common.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
-
+             d:DesignHeight="300" d:DesignWidth="300" >  
     <Grid Background="{DynamicResource MahApps.Brushes.Control.Background}">
 
         <DockPanel LastChildFill="True">
@@ -27,10 +18,11 @@
 
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1">
 
-                <Grid  IsHitTestVisible="True" Mouse.PreviewMouseWheel="OnScroll" Mouse.MouseDown="OnMouseDown"                       
+                <Grid  IsHitTestVisible="True" Mouse.PreviewMouseWheel="OnScroll" Mouse.MouseDown="OnMouseDown" Background="{DynamicResource MahApps.Brushes.Control.Background}"   
+                       ScrollViewer.PanningMode="Both" ScrollViewer.PanningDeceleration="5" 
                        Mouse.MouseMove="OnMouseMove" Mouse.MouseUp="OnMouseUp"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0">
 
-                    <Canvas x:Name="DesignerRoot" >
+                    <Canvas x:Name="DesignerRoot"  Background="{DynamicResource MahApps.Brushes.Control.Background}"   IsHitTestVisible="True">
 
                         <Canvas.LayoutTransform>
                             <ScaleTransform ScaleX="{Binding ElementName=AutomationBuilder, Path=ScaleX}" ScaleY="{Binding ElementName=AutomationBuilder, Path=ScaleY}" />
@@ -40,7 +32,6 @@
                                   Canvas.Left="{Binding ElementName=AutomationBuilder, Path=TransformX}"
                                   Canvas.Top="{Binding ElementName=AutomationBuilder, Path=TransformY}"
                                   ItemTemplateSelector="{DynamicResource ComponentTemplateSelector}" ItemContainerStyleSelector="{DynamicResource ComponentStyleSelector}" 
-                                  ScrollViewer.PanningMode="Both" ScrollViewer.PanningDeceleration="5" 
                                   dd:DragDrop.IsDropTarget="True"  dd:DragDrop.DropHandler="{Binding ComponentDropHandler}" Grid.Row="2" 
 			                      cal:Message.Attach="[Event SelectedItemChanged] = [Action SetSelectedItem($this.SelectedItem)]" SnapsToDevicePixels="True">
 
