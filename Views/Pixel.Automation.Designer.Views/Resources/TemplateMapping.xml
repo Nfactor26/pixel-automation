@@ -9,24 +9,24 @@
   <!--Sequences-->
   <ComponentTemplate>
     <Name>SequenceEntity</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleWithDelete</StyleKey>
+    <DataTemplateKey>SequenceTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
   </ComponentTemplate>
   <ComponentTemplate>
     <Name>RetrySequence</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleWithDelete</StyleKey>
+    <DataTemplateKey>SequenceTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
   </ComponentTemplate>
   <ComponentTemplate>
     <Name>TryCatchSequence</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleWithDelete</StyleKey>
+    <DataTemplateKey>SequenceTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
   </ComponentTemplate>
   
   <ComponentTemplate>
     <Name>ApplicationEntity</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleWithDelete</StyleKey>
+    <DataTemplateKey>SequenceTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
   </ComponentTemplate>
   <ComponentTemplate>
     <Name>PrefabEntity</Name>
@@ -100,4 +100,15 @@
     <DataTemplateKey>ExecuteScriptTemplate</DataTemplateKey>
     <StyleKey>SlimStyle</StyleKey>
   </ComponentTemplate> 
+  <!--Processor template -->
+  <ComponentTemplate>
+    <Name>SequentialEntityProcessor</Name>
+    <DataTemplateKey>SequentialProcessorTemplate</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>ParallelEntityProcessor</Name>
+    <DataTemplateKey>ParallelProcessorTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
+  </ComponentTemplate>
 </ArrayOfComponentTemplate>

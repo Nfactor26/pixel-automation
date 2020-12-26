@@ -4,14 +4,13 @@
                     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                     xmlns:cal="http://www.caliburnproject.org"
                     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-                    xmlns:converters="clr-namespace:Pixel.Automation.Designer.Views.Converters"     
-                    xmlns:editors="clr-namespace:Pixel.Automation.Editor.Core.Editors;assembly=Pixel.Automation.Editor.Core"
+                    xmlns:converters="clr-namespace:Pixel.Automation.Designer.Views.Converters"                       
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
 
     <converters:BitmapConverter x:Key="bitMapConverter"/>
    
     <HierarchicalDataTemplate x:Key="ControlTemplate" ItemsSource="{Binding ComponentCollection}">        
-                <DockPanel LastChildFill="True" MinWidth="200" MaxWidth="400" Grid.Row="2"
+                <DockPanel LastChildFill="True" MinWidth="220" Width="220" Grid.Row="2"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="True">
             <Image DockPanel.Dock="Left" Margin="10" Source="{Binding ControlDetails.ControlImage, Converter={StaticResource bitMapConverter}}"
                         HorizontalAlignment="Center" Stretch="Uniform" 
@@ -64,8 +63,7 @@
                                     <ItemsPresenter x:Name="ItemsHost" Grid.Row="1"  Visibility="Collapsed" MinWidth="200"
                                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                                 </Grid>
-                            </Grid>                           
-                       
+                            </Grid>                     
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>

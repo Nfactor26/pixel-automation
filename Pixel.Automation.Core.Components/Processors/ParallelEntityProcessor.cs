@@ -1,7 +1,10 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components.Sequences;
+using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -14,7 +17,7 @@ namespace Pixel.Automation.Core.Components.Processors
     {
         private readonly ILogger logger = Log.ForContext<ParallelEntityProcessor>();
 
-        public ParallelEntityProcessor():base("Parallel Processor", "Processor")
+        public ParallelEntityProcessor() : base("Parallel Processor", "Processor")
         {
 
         }
@@ -36,14 +39,35 @@ namespace Pixel.Automation.Core.Components.Processors
                     exceptions.Enqueue(ex);
                 }
             });
-           
-            if(exceptions.Count > 0)
+
+            if (exceptions.Count > 0)
             {
                 throw new AggregateException(exceptions);
             }
 
             await Task.CompletedTask;
-        }    
+        }
+
+        public void AddParallelBlock()
+        {
+            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+        }
+
+        public override void ResolveDependencies()
+        {
+            if (this.Components.Count() > 0)
+            {
+                return;
+            }
+
+            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+        }
+
+        public override Entity AddComponent(IComponent component)
+        {
+            return this;
+        }
 
     }
 }

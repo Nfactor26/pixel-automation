@@ -16,7 +16,7 @@
                 <!--<ResourceDictionary Source="/Resources/Component.Templates.Fat.xaml" />-->
                 <ResourceDictionary Source="/Resources/Control.Components.xaml" />
                 <ResourceDictionary Source="/Resources/Scripting.Components.xaml" />
-                <ResourceDictionary Source="/Resources/Loops.Components.xaml" />
+                <ResourceDictionary Source="/Resources/Loops.Components.xaml" />           
                 <ResourceDictionary Source="/Resources/Decisions.Components.xaml" />               
                 <ResourceDictionary Source="/Resources/Argument.Editors.xaml"/>
                 <ResourceDictionary  Source="pack://application:,,,/Pixel.Scripting.Script.Editor;component/resources/GlyphCollection.xaml" />
