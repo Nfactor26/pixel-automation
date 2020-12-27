@@ -109,12 +109,15 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
                 //Handle dragging of prefab
                 if (dropInfo.Data is PrefabDescription prefabDescription && dropInfo.TargetItem is Entity)
-                {
-                    if (prefabDescription.DeployedVersions.Any())
+                {   
+                    if(dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
                     {
-                        dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-                        dropInfo.Effects = DragDropEffects.Copy;
-                    }                   
+                        if (prefabDescription.DeployedVersions.Any())
+                        {
+                            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+                            dropInfo.Effects = DragDropEffects.Copy;
+                        }
+                    }                            
                     return;
                 }
 
