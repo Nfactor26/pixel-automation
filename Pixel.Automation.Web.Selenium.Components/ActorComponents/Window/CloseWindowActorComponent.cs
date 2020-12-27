@@ -15,8 +15,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
     public class CloseWindowActorComponent : SeleniumActorComponent
     {
         [DataMember]
-        [Description("Index (0 based) of the tab/window to be closed.Default tab/window can't be closed")]
-        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 1 };
+        [Description("Index (1 based) of the tab/window to be closed. Default tab/window can't be closed")]
+        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 2 };
 
         public CloseWindowActorComponent() : base("Close Window", "CloseWindow")
         {           
@@ -25,9 +25,9 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         public override void Act()
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
-            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber);
+            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber) - 1;
             if (webDriver.WindowHandles.Count() > windowNumber)
-            {
+            {               
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
                 webDriver.Close();
                 return;

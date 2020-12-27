@@ -16,10 +16,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         [Test]
         public void ValidateThatCloseWindowActorCanCloseSpecifiedWindowOrTab()
         {
+            int tabToClose = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(2);
+            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(tabToClose);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -33,7 +34,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             var closeWindowActor = new CloseWindowActorComponent()
             {
-                EntityManager = entityManager
+                EntityManager = entityManager,
+                WindowNumber = new InArgument<int>() { DefaultValue = tabToClose, Mode = ArgumentMode.Default }
             };
             closeWindowActor.Act();
 
@@ -48,10 +50,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         [Test]
         public void ValidateThatCloseWindowActorThrowsExceptionIfFewerWindowsAreAvailableThenConfiguredIndex()
         {
+            int tabToClose = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(2);
+            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(tabToClose);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -65,7 +68,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             var closeWindowActor = new CloseWindowActorComponent()
             {
-                EntityManager = entityManager
+                EntityManager = entityManager,
+                WindowNumber = new InArgument<int>() { DefaultValue = tabToClose, Mode = ArgumentMode.Default }
             };           
             Assert.Throws<IndexOutOfRangeException>(() => { closeWindowActor.Act(); });
         }

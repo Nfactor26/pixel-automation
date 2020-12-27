@@ -14,8 +14,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
     public class SwitchToWindowActorComponent : SeleniumActorComponent
     {
         [DataMember(IsRequired = true)]
-        [Description("Index (0 based) of the tab/window to be switched to")]     
-        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 1 };
+        [Description("Index (1 based) of the tab/window to be switched to")]     
+        public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 2 };
 
         public SwitchToWindowActorComponent():base("Switch To Window","SwitchToWindow")
         {
@@ -25,7 +25,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         public override void Act()
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
-            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber);
+            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber) - 1;
             if (webDriver.WindowHandles.Count() > windowNumber)
             {
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);

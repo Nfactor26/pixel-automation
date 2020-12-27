@@ -16,10 +16,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         [Test]
         public void ValidateThatSwitchToWindowActorCanActiviateSpecifiedWindowOrTab()
         {
+            int switchToWindow = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(2);
+            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(switchToWindow);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -33,7 +34,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             var switchToActor = new SwitchToWindowActorComponent()
             {
-                EntityManager = entityManager
+                EntityManager = entityManager,
+                WindowNumber = new InArgument<int>() { DefaultValue = switchToWindow, Mode = ArgumentMode.Default }
             };
             switchToActor.Act();
 
@@ -47,10 +49,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         [Test]
         public void ValidateThatSwitchToWindowActorThrowsExceptionIfFewerWindowsAreAvailableThenConfiguredIndex()
         {
+            int switchToWindow = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(2);
+            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(switchToWindow);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -64,7 +67,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             var navigateActor = new SwitchToWindowActorComponent()
             {
-                EntityManager = entityManager
+                EntityManager = entityManager,
+                WindowNumber = new InArgument<int>() { DefaultValue = switchToWindow, Mode = ArgumentMode.Default }
             };
             Assert.Throws<IndexOutOfRangeException>(() => { navigateActor.Act(); });           
         }
