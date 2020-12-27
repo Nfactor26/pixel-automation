@@ -31,12 +31,6 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public ProjectType ProjectType
-        {
-            get => this.NewProject.ProjectType;
-            set => this.ProjectType = value;
-        }
-
         public NewProjectViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager)
         {           
             this.DisplayName = "Create New Project";
@@ -48,8 +42,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.NewProject = new AutomationProject()
             {
                 ProjectId = Guid.NewGuid().ToString(), 
-                LastOpened = DateTime.Now,
-                ProjectType = ProjectType.TestAutomation
+                LastOpened = DateTime.Now
             };
             this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
         
@@ -73,7 +66,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 string projectFile = this.applicationDataManager.GetProjectFile(this.NewProject);
                 serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
                 await this.applicationDataManager.AddOrUpdateProjectAsync(this.NewProject, null);
-                logger.Information($"Created new project : {this.Name} of type : {this.ProjectType}");
+                logger.Information($"Created new project : {this.Name}");
 
                 await this.TryCloseAsync(true);
             }

@@ -14,11 +14,8 @@ namespace Pixel.Automation.Core.Models
 
        
         [DataMember(IsRequired = true, Order = 20)]
-        public string Name { get; set; }
-       
+        public string Name { get; set; }      
 
-        [DataMember(Order = 30)]
-        public ProjectType ProjectType { get; set; }
 
         [DataMember(IsRequired = true, Order = 40)]
         public DateTime LastOpened { get; set; }

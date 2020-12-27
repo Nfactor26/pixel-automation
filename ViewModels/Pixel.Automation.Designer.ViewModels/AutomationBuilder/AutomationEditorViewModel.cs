@@ -189,15 +189,8 @@ namespace Pixel.Automation.Designer.ViewModels
         #region OnLoad
 
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
-        { 
-            switch (this.CurrentProject.ProjectType)
-            {
-                case ProjectType.TestAutomation:                 
-                    InitializeTestProcess();
-                    break;
-                default:
-                    break;
-            }                  
+        {
+            InitializeTestProcess();
             await base.OnActivateAsync(cancellationToken);
             logger.Information($"Automation Project : {this.CurrentProject.Name} was activated");
         }

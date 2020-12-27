@@ -89,41 +89,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         private void AddDefaultEntities()
         {
-            switch (this.activeProject.ProjectType)
+            if (this.RootEntity.Components.Count() == 0)
             {
-                case ProjectType.ProcessAutomation:
-                    if (this.RootEntity.Components.Count() == 0)
-                    {
-                        var appPoolEntity = new ApplicationPoolEntity();
-                        this.RootEntity.AddComponent(appPoolEntity);
-
-                        SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "#Launch Applications" };
-                        this.RootEntity.AddComponent(launchProcessor);
-
-                        SequentialEntityProcessor searchProcessor = new SequentialEntityProcessor() { Name = "#Run Automation" };
-                        this.RootEntity.AddComponent(searchProcessor);
-
-                        SequentialEntityProcessor resetProcessor = new SequentialEntityProcessor() { Name = "#Reset Applications" };
-                        this.RootEntity.AddComponent(resetProcessor);
-
-                        SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "#Shutdown Applications" };
-                        this.RootEntity.AddComponent(shutDownProcessor);
-                    }
-                    break;
-
-                case ProjectType.TestAutomation:
-                    if (this.RootEntity.Components.Count() == 0)
-                    {                      
-                        this.RootEntity.AddComponent(new ApplicationPoolEntity());
-                        this.RootEntity.AddComponent(new OneTimeSetUpEntity() { Name = "Environment Setup" });
-                        this.RootEntity.AddComponent(new OneTimeTearDownEntity() { Name = "Environment Teardown" });
-                    }
-                    break;
-
-                default:
-                    break;
+                this.RootEntity.AddComponent(new ApplicationPoolEntity());
+                this.RootEntity.AddComponent(new OneTimeSetUpEntity() { Name = "Environment Setup" });
+                this.RootEntity.AddComponent(new OneTimeTearDownEntity() { Name = "Environment Teardown" });
             }
-
             RestoreParentChildRelation(this.RootEntity);
         }
 

@@ -32,12 +32,7 @@
                          Controls:TextBoxHelper.UseFloatingWatermark="True"
                          Controls:TextBoxHelper.IsWaitingForData="True"                                   
                          ToolTip="Project Name" />
-        </DockPanel>
-        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">           
-            <Label Content="Type" DockPanel.Dock="Left" MinWidth="80"></Label>
-            <ComboBox ItemsSource="{Binding Source={editorCore:EnumBindingSource {x:Type models:ProjectType}}}" DockPanel.Dock="Right"
-                  SelectedItem="{Binding Path=ProjectType}" ToolTip="Project Type"/>
-        </DockPanel>
+        </DockPanel>        
         <DockPanel LastChildFill="False" Margin="0,5,0,0"  Grid.Row="4">
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
             <Button x:Name="CreateNewProject" Content="CREATE" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
