@@ -27,13 +27,20 @@ namespace Pixel.Automation.Core.Components.Tests
         
 
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
-            processor.EntityManager = entityManager;       
-            
-            processor.AddComponent(entityOne);
+            processor.EntityManager = entityManager;
+            processor.AddParallelBlock();
+            processor.AddParallelBlock();
+        
+                     
+            Assert.AreEqual(2, processor.Components.Count);
+
+            var parallelBlockOne = processor.Components[0] as Entity;
+            parallelBlockOne.AddComponent(entityOne);
             entityOne.AddComponent(actorOne);
 
-            processor.AddComponent(entityTwo);
-            entityOne.AddComponent(actorTwo);
+            var parallelBlockTwo = processor.Components[1] as Entity;
+            parallelBlockTwo.AddComponent(entityTwo);
+            entityTwo.AddComponent(actorTwo);
 
             await processor.BeginProcess();
 
@@ -66,19 +73,35 @@ namespace Pixel.Automation.Core.Components.Tests
             var actorTwo = Substitute.For<ActorComponent>();
             actorTwo.When(a => a.Act()).Do(a => { throw new InvalidOperationException(); });
 
-
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
             processor.EntityManager = entityManager;
+            processor.AddParallelBlock();
+            processor.AddParallelBlock();
+          
+            Assert.AreEqual(2, processor.Components.Count);
 
-            processor.AddComponent(entityOne);
+
+            var parallelBlockOne = processor.Components[0] as Entity;
+            parallelBlockOne.AddComponent(entityOne);
             entityOne.AddComponent(actorOne);
-
-            processor.AddComponent(entityTwo);
+          
+            var parallelBlockTwo = processor.Components[1] as Entity;
+            parallelBlockTwo.AddComponent(entityTwo);
             entityOne.AddComponent(actorTwo);
 
             Assert.ThrowsAsync<AggregateException>(async () => { await processor.BeginProcess(); });
 
             await Task.CompletedTask;
+        }
+
+        [Test]
+        public void AssertThatComponentsCanNotBeAddedToParallelProcessor()
+        {
+            ParallelEntityProcessor processor = new ParallelEntityProcessor();
+            Assert.AreEqual(0, processor.Components.Count, "There should be no components in a ParallelEntityProcessor by default");
+
+            processor.AddComponent(new Entity());
+            Assert.AreEqual(0, processor.Components.Count, "ParallelEntityProcessor should not allow components to be added externally");
         }
     }
 }

@@ -51,11 +51,10 @@ namespace Pixel.Automation.Core.Components.Processors
 
             throw new ArgumentException($"Only Entities can be added to a Entity Processor");
         }
-       
-        [NonSerialized]
-        protected Stack<Entity> entitiesBeingProcessed = new Stack<Entity>();
+          
         protected virtual async Task<bool> ProcessEntity(Entity targetEntity)
         {
+            Stack<Entity> entitiesBeingProcessed = new Stack<Entity>();
             IComponent actorBeingProcessed = null;
             try
             {
@@ -127,15 +126,15 @@ namespace Pixel.Automation.Core.Components.Processors
 
                             case Entity entity:
                                 //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
-                                if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(component as Entity))
+                                if (entitiesBeingProcessed.Count() > 0 && entitiesBeingProcessed.Peek().Equals(component as Entity))
                                 {
-                                    var processedEntity = this.entitiesBeingProcessed.Pop();
+                                    var processedEntity = entitiesBeingProcessed.Pop();
                                     processedEntity.OnCompletion();
                                 }
                                 else
                                 {
                                     component.BeforeProcess();
-                                    this.entitiesBeingProcessed.Push(component as Entity);
+                                    entitiesBeingProcessed.Push(component as Entity);
                                 }
                                 break;
                         }
@@ -156,11 +155,11 @@ namespace Pixel.Automation.Core.Components.Processors
                     currentActor.IsFaulted = true;
                 }
 
-                while (this.entitiesBeingProcessed.Count() > 0)
+                while (entitiesBeingProcessed.Count() > 0)
                 {
                     try
                     {
-                        var entity = this.entitiesBeingProcessed.Pop();
+                        var entity = entitiesBeingProcessed.Pop();
                         entity.OnFault(actorBeingProcessed);
                     }
                     catch (Exception faultHandlingExcpetion)
