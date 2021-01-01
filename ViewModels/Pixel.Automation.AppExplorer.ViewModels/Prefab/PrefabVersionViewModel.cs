@@ -26,7 +26,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => prefabVersion.IsDeployed;
             set
             {
-                //can be only set to true when version is deployed
+                //can be only set to true when version is not already deployed
                 if (!prefabVersion.IsDeployed && value)
                 {
                     prefabVersion.IsDeployed = value;
@@ -43,7 +43,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => prefabVersion.IsActive;
             set
             {
-                //can be only set to false when version is deployed
+                //can be only set to false when version is active
                 if (prefabVersion.IsActive && !value)
                 {
                     prefabVersion.IsActive = value;

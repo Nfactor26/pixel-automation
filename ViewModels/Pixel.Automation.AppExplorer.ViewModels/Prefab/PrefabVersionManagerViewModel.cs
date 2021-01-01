@@ -55,8 +55,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     PrefabVersion newVersion = prefabVersionViewModel.Clone();
 
                     IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                    fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, newVersion);
-                    AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, newVersion, fileSystem));
+                    fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, newVersion);                  
 
                     //Deploy the selected version
                     prefabVersionViewModel.Deploy(this.workspaceManagerFactory);
@@ -67,6 +66,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
                     await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
                     await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, newVersion);
+                   
+                    AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, newVersion, fileSystem));
                 }
 
             }

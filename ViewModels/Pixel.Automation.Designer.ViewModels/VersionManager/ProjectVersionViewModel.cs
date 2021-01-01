@@ -31,6 +31,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             get => ProjectVersion.IsDeployed;
             set
             {
+                //can be only set to true when version is not already deployed
                 if (!ProjectVersion.IsDeployed && value)
                 {
                     ProjectVersion.IsDeployed = value;
@@ -38,6 +39,24 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 NotifyOfPropertyChange(() => IsDeployed);
             }
         }
+
+        /// <summary>
+        /// Indicates if this version is the active version. Active version open for edit by default.
+        /// </summary>
+        public bool IsActive
+        {
+            get => ProjectVersion.IsActive;
+            set
+            {
+                //can be only set to false when version is active
+                if (ProjectVersion.IsActive && !value)
+                {
+                    ProjectVersion.IsActive = value;
+                }
+                NotifyOfPropertyChange(() => IsActive);
+            }
+        }
+
 
         public string DataModelAssembly
         {
@@ -52,19 +71,6 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
         }
 
-        /// <summary>
-        /// Indicates if this version is the active version. Active version open for edit by default.
-        /// </summary>
-        public bool IsActive
-        {
-            get => ProjectVersion.IsActive;
-            set
-            {
-                ProjectVersion.IsActive = value;
-                NotifyOfPropertyChange(() => IsActive);
-            }
-        }
-   
 
         public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem)
         {

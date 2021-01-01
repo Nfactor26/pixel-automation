@@ -23,17 +23,6 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly ApplicationSettings applicationSettings;
 
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
-
-        private ProjectVersionViewModel selectedVersion;
-        public ProjectVersionViewModel SelectedVersion
-        {
-            get => this.selectedVersion;
-            set
-            {
-                this.selectedVersion = value;
-                NotifyOfPropertyChange(() => CanDeploy);
-            }
-        }
        
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
              ISerializer serializer, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
@@ -51,46 +40,36 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
         }
 
-        public bool CanDeploy
-        {
-            get
-            {
-                return this.SelectedVersion?.IsActive ?? false;
-            }
-
-        }
-
         /// <summary>
         /// Create a copy of selected version and deploy the selected version.
         /// </summary>
         /// <returns></returns>
-        public async Task Deploy()
+        public async Task Deploy(ProjectVersionViewModel projectVersionViewModel)
         {
             try
             {               
-                if (this.SelectedVersion.IsActive == true)
+                if (projectVersionViewModel?.IsActive == true)
                 {
-                    logger.Information($"Trying to deploy version {this.SelectedVersion} for project : {this.automationProject.Name}");
+                    logger.Information($"Trying to deploy version {projectVersionViewModel} for project : {this.automationProject.Name}");
                   
                     //Create a new active version from selected version
-                    ProjectVersion newVersion = this.SelectedVersion.Clone();
+                    ProjectVersion newVersion = projectVersionViewModel.Clone();
                     IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
-                    projectFileSystem.Initialize(this.automationProject.Name, newVersion);                   
+                    projectFileSystem.Initialize(this.automationProject.Name, newVersion);
 
                     //Deploy the selected version
-                    this.SelectedVersion.Deploy(this.workspaceManagerFactory);                   
+                    projectVersionViewModel.Deploy(this.workspaceManagerFactory);                   
 
                     this.automationProject.AvailableVersions.Add(newVersion);
                     serializer.Serialize<AutomationProject>(projectFileSystem.ProjectFile, this.automationProject);
 
-                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, this.SelectedVersion.ProjectVersion);
+                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
                     await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
                    
                     AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem));
-                    logger.Information($"Completed deployment of version : {this.SelectedVersion} for project : {this.automationProject.Name}");
+                    logger.Information($"Completed deployment of version : {projectVersionViewModel} for project : {this.automationProject.Name}");
                     return;
-                }
-                logger.Warning($"Can't deploye selected version : {this.selectedVersion.ToString()} of project : {this.automationProject.Name} since it is not active version");
+                }              
             }
             catch (Exception ex)
             {

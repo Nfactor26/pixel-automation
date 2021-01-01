@@ -11,11 +11,13 @@
              mc:Ignorable="d"  WindowStartupLocation="CenterScreen"  GlowBrush="{DynamicResource AccentColorBrush}"
              MinHeight="400" MinWidth="600"
              d:DesignHeight="600" d:DesignWidth="800">
-  
+
     <controls:MetroWindow.Resources>
         <converters:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+        <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
     </controls:MetroWindow.Resources>
-   
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -39,10 +41,20 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Deployed">
+                    <DataGridTemplateColumn Header="Is Deployed">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=TwoWay}" IsEnabled="False" Margin="15,0,0,0"  />
+                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=OneWay}" IsEnabled="False" Margin="5,2,5,2" HorizontalAlignment="Center"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Deploy">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Visibility="{Binding IsActive, Converter={StaticResource boolToVisConverter}}">
+                                    <Button x:Name="Deploy" Content="DEPLOY" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        cal:Message.Attach="[Event Click] = [Action Deploy($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" ToolTip="Deploy this version and create an incremented cloned version"  />
+                                </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
