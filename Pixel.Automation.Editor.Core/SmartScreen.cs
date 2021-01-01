@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Editor.Core
 {
@@ -78,6 +79,15 @@ namespace Pixel.Automation.Editor.Core
             if (string.IsNullOrEmpty(propertyValue))
             {
                 AddOrAppendErrors(propertyName, "Field is required");
+            }
+        }
+
+        protected virtual void ValidatePattern(string regExPattern, string propertyName, string propertyValue, string errorMessage)
+        {
+            Regex regex = new Regex(regExPattern);
+            if(!regex.IsMatch(propertyValue))
+            {
+                AddOrAppendErrors(propertyName, errorMessage);
             }
         }
 

@@ -3,39 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
-             xmlns:editorCore="clr-namespace:Pixel.Automation.Editor.Core;assembly=Pixel.Automation.Editor.Core"              
-             xmlns:cal="http://www.caliburnproject.org"
-             xmlns:models="clr-namespace:Pixel.Automation.Core.Models;assembly=Pixel.Automation.Core"          
-             mc:Ignorable="d"  WindowStartupLocation="CenterOwner"
-             MaxHeight="175" Width="350"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"               
+             mc:Ignorable="d"  ResizeMode="NoResize" SizeToContent="WidthAndHeight"
+             WindowStartupLocation="CenterScreen"  ShowCloseButton="False"
              IsMinButtonEnabled="False" Title="New Project" GlowBrush="{DynamicResource AccentColorBrush}">
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
-            <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
+            <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
         </ResourceDictionary>
     </Controls:MetroWindow.Resources>
-    <Grid Margin="10">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="10px"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="10px"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>        
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="0">
-            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
-            <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
+        <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="0" Margin="10,20,10,20">
+            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" VerticalAlignment="Center" ></Label>
+            <TextBox DockPanel.Dock="Right" VerticalAlignment="Center"
                          Text="{Binding Name,ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                          Controls:TextBoxHelper.Watermark="Project Name"
                          Controls:TextBoxHelper.UseFloatingWatermark="True"
                          Controls:TextBoxHelper.IsWaitingForData="True"                                   
                          ToolTip="Project Name" />
         </DockPanel>        
-        <DockPanel LastChildFill="False" Margin="0,5,0,0"  Grid.Row="4">
-            <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
-            <Button x:Name="CreateNewProject" Content="CREATE" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
+        <DockPanel LastChildFill="False"  Grid.Row="1">
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" 
+                    Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
+            <Button x:Name="CreateNewProject" Content="CREATE" DockPanel.Dock="Right" Width="100" Margin="0,10,0,10"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
         </DockPanel>
     </Grid>
 </Controls:MetroWindow>

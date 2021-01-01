@@ -25,7 +25,7 @@ namespace Pixel.Automation.Designer.ViewModels
             set
             {
                 this.NewProject.Name = value;
-                ValidateRequiredProperty(nameof(Name), value);
+                ValidateProjectName(value);
                 NotifyOfPropertyChange(() => Name);
                 NotifyOfPropertyChange(() => CanCreateNewProject);
             }
@@ -85,6 +85,13 @@ namespace Pixel.Automation.Designer.ViewModels
                 return !this.HasErrors && !string.IsNullOrEmpty(this.Name);
             }
 
+        }
+
+        public void ValidateProjectName(string projectName)
+        {
+            ClearErrors(nameof(Name));
+            ValidateRequiredProperty(nameof(Name), projectName);
+            ValidatePattern("^([A-Za-z]|[_]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or '_' and should be atleast 4 characters in length.");
         }
 
         public async void Cancel()
