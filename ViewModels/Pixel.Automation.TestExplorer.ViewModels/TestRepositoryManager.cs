@@ -635,14 +635,17 @@ namespace Pixel.Automation.TestExplorer
             {
                 try
                 {
-                    SaveTestFixture(fixture, true);
-                    foreach(var testCase in fixture.Tests)
+                    if(fixture.IsOpenForEdit)
                     {
-                        if(testCase.IsOpenForEdit)
+                        SaveTestFixture(fixture, true);
+                        foreach (var testCase in fixture.Tests)
                         {
-                            SaveTestCase(testCase, true);
+                            if (testCase.IsOpenForEdit)
+                            {
+                                SaveTestCase(testCase, true);
+                            }
                         }
-                    }
+                    }                    
                 }
                 catch (Exception ex)
                 {
