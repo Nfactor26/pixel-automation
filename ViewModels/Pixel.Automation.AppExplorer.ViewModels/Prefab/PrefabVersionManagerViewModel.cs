@@ -22,18 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ApplicationSettings applicationSettings;
 
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
-
-        private PrefabVersionViewModel selectedVersion;
-        public PrefabVersionViewModel SelectedVersion
-        {
-            get => this.selectedVersion;
-            set
-            {
-                this.selectedVersion = value;
-                NotifyOfPropertyChange(() => CanDeploy);
-            }
-        }
-
+       
 
         public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, 
             ISerializer serializer, IApplicationDataManager applicationDataManager,
@@ -52,40 +41,31 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public bool CanDeploy
-        {
-            get
-            {
-                return this.SelectedVersion?.IsActive ?? false;
-            }
-
-        }
-
         /// <summary>
         /// Create a copy of selected version and deploy the selected version.
         /// </summary>
         /// <returns></returns>
-        public async Task Deploy()
+        public async Task Deploy(PrefabVersionViewModel prefabVersionViewModel)
         {
             try
             {
-                if (this.SelectedVersion?.IsActive == true)
+                if (prefabVersionViewModel?.IsActive == true)
                 {
                     //Create a new active version from selected version
-                    PrefabVersion newVersion = this.SelectedVersion.Clone();
+                    PrefabVersion newVersion = prefabVersionViewModel.Clone();
 
                     IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
                     fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, newVersion);
                     AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, newVersion, fileSystem));
 
                     //Deploy the selected version
-                    this.SelectedVersion.Deploy(this.workspaceManagerFactory);
+                    prefabVersionViewModel.Deploy(this.workspaceManagerFactory);
 
                     this.prefabDescription.AvailableVersions.Add(newVersion);
                     serializer.Serialize<PrefabDescription>(fileSystem.PrefabDescriptionFile, this.prefabDescription);
 
-                    await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, new PrefabVersion(this.SelectedVersion.Version));
-                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, new PrefabVersion(this.SelectedVersion.Version));
+                    await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
                     await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, newVersion);
                 }
 

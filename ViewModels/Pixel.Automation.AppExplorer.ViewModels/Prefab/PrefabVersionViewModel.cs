@@ -26,6 +26,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => prefabVersion.IsDeployed;
             set
             {
+                //can be only set to true when version is deployed
                 if (!prefabVersion.IsDeployed && value)
                 {
                     prefabVersion.IsDeployed = value;
@@ -33,6 +34,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 NotifyOfPropertyChange(() => IsDeployed);
             }
         }
+
+        /// <summary>
+        /// Indicates if this version is the active version. Active version open for edit by default.
+        /// </summary>
+        public bool IsActive
+        {
+            get => prefabVersion.IsActive;
+            set
+            {
+                //can be only set to false when version is deployed
+                if (prefabVersion.IsActive && !value)
+                {
+                    prefabVersion.IsActive = value;
+                }
+                NotifyOfPropertyChange(() => IsActive);
+            }
+        }
+
 
         public string PrefabAssembly
         {
@@ -47,21 +66,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        /// <summary>
-        /// Indicates if this version is the active version. Active version open for edit by default.
-        /// </summary>
-        public bool IsActive
-        {
-            get => prefabVersion.IsActive;
-            set
-            {
-                if (!prefabVersion.IsDeployed)
-                {
-                    prefabVersion.IsActive = value;
-                }
-                NotifyOfPropertyChange(() => IsActive);
-            }
-        }
 
         public PrefabVersionViewModel(PrefabDescription prefabDescription, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem)
         {

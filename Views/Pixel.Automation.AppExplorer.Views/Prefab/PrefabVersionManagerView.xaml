@@ -14,6 +14,8 @@
 
     <controls:MetroWindow.Resources>
         <converters:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+        <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
     </controls:MetroWindow.Resources>
     <Grid>        
         <Grid.RowDefinitions>
@@ -23,7 +25,7 @@
 
         <Grid x:Name="VersionGrid" Grid.Row="0">
 
-            <DataGrid x:Name="AvailableVersions" ItemsSource="{Binding AvailableVersions}" SelectedItem="{Binding SelectedVersion}"  MaxHeight="600"
+            <DataGrid x:Name="AvailableVersions" ItemsSource="{Binding AvailableVersions}" MaxHeight="600"
                   CanUserSortColumns="True" CanUserAddRows="False" CanUserResizeRows="False" CanUserResizeColumns="True"                 
                   Grid.Column="1" GridLinesVisibility="All"
                   Margin="10" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled"    
@@ -38,10 +40,20 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Is Deployed">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=OneWay}" IsEnabled="False" Margin="5,2,5,2" HorizontalAlignment="Center"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Deploy">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=TwoWay}" IsEnabled="False" Margin="15,0,0,0"  />
+                                <StackPanel Visibility="{Binding IsActive, Converter={StaticResource boolToVisConverter}}">
+                                    <Button x:Name="Deploy" Content="DEPLOY" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        cal:Message.Attach="[Event Click] = [Action Deploy($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" ToolTip="Deploy this version and create an incremented cloned version"  />
+                                </StackPanel>                                
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -51,12 +63,9 @@
         </Grid>
 
         <DockPanel Grid.Row="1" LastChildFill="False">
-            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch"
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" 
                     Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-            <Button x:Name="TryCloseAsync" Content="CLOSE" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
-                    Style="{DynamicResource MahApps.Styles.Button.Square}"/>
-            <Button x:Name="Deploy" Content="DEPLOY AND INCREMENT" ToolTip="Deploy selected version and create a incremented version from selected version" Width="Auto" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}"
-                    Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
+            <Button x:Name="TryCloseAsync" Content="CLOSE" Width="100" DockPanel.Dock="Right"   Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square}"/>            
         </DockPanel>
         
     </Grid>
