@@ -24,6 +24,7 @@ namespace Pixel.Persistence.Services.Client
         private readonly IApplicationRepositoryClient appRepositoryClient;
         private readonly IControlRepositoryClient controlRepositoryClient;
         private readonly IProjectRepositoryClient projectRepositoryClient;
+        private readonly IPrefabRepositoryClient prefabRepositoryClient;
         private readonly IMetaDataClient metaDataClient;
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
@@ -36,7 +37,7 @@ namespace Pixel.Persistence.Services.Client
 
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
             IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
-            IProjectRepositoryClient projectRepositoryClient, ApplicationSettings applicationSettings)
+            IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, ApplicationSettings applicationSettings)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
@@ -44,6 +45,8 @@ namespace Pixel.Persistence.Services.Client
             this.appRepositoryClient = Guard.Argument(appRepositoryClient, nameof(appRepositoryClient)).NotNull().Value;
             this.controlRepositoryClient = Guard.Argument(controlRepositoryClient, nameof(controlRepositoryClient)).NotNull().Value;
             this.projectRepositoryClient = Guard.Argument(projectRepositoryClient, nameof(projectRepositoryClient)).NotNull().Value;
+            this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient, nameof(prefabRepositoryClient)).NotNull().Value;
+
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(ApplicationSettings)).NotNull();
 
             if (!Directory.Exists(applicationSettings.ApplicationDirectory))
@@ -79,7 +82,8 @@ namespace Pixel.Persistence.Services.Client
         }
 
         /// <summary>
-        /// Download application data from database which are not already available on disk along with their control data
+        /// Download application data from database which are not already available on disk.
+        /// Application data includes controls and prefabs belonging to an application.
         /// </summary>
         /// <returns></returns>
         public async Task DownloadApplicationsDataAsync()
@@ -88,18 +92,21 @@ namespace Pixel.Persistence.Services.Client
             {
                 var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
                 var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
-                foreach (var applicationMetaData in serverApplicationMetaDataCollection)
+                foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
                 {
-                    if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId) && a.LastUpdated < applicationMetaData.LastUpdated)
-                             || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId)))
+                    //download application file if there is a newer version available or data doesn't already exist locally
+                    if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && a.LastUpdated < serverApplicationMetaData.LastUpdated)
+                             || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId)))
                     {
-                        var applicationDescription = await this.appRepositoryClient.GetApplication(applicationMetaData.ApplicationId);
+                        var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
                         SaveApplicationToDisk(applicationDescription);
                     }
 
-                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(applicationMetaData.ApplicationId));
+                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
+
+                    //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
                     List<string> controlsToDownload = new List<string>();
-                    foreach (var controlMetaData in applicationMetaData.ControlsMeta)
+                    foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
                     {
                         if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
                         {
@@ -112,7 +119,7 @@ namespace Pixel.Persistence.Services.Client
                     {
                         GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
                         {
-                            ApplicationId = applicationMetaData.ApplicationId,
+                            ApplicationId = serverApplicationMetaData.ApplicationId,
                             ControlIdCollection = new List<string>(controlsToDownload)
                         };
                         var zippedContent = await this.controlRepositoryClient.GetControls(request);
@@ -122,17 +129,35 @@ namespace Pixel.Persistence.Services.Client
                             var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
                             foreach (var entry in zipArchive.Entries)
                             {
-                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
+                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
                                 if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
                                 {
                                     Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
                                 }
-                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, applicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
+                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
                             }
                         }
                     }
+
+                    //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
+                    foreach(var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
+                    {
+                        var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
+                        if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
+                        {
+                            await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
+                        }
+                        foreach(var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
+                        {
+                            var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
+                            if(!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
+                            {
+                                await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
+                            }
+                        }
+                    }
+                    CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
                 }
-                CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
             }
         }
 
@@ -313,6 +338,7 @@ namespace Pixel.Persistence.Services.Client
                     }
                     ZipFile.CreateFromDirectory(versionDirectory, zipLocation);
                     await this.projectRepositoryClient.AddOrUpdateProjectDataFiles(automationProject, projectVersion, zipLocation);
+                    File.Delete(zipLocation);
                 }
             }         
         }
@@ -331,8 +357,8 @@ namespace Pixel.Persistence.Services.Client
                         var projectFile = await this.projectRepositoryClient.GetProjectFile(projectMetaData.ProjectId);
                         SaveProjectToDisk(projectFile);
                     }
+                    CreateOrUpdateProjectsMetaData(serverProjectsMetaDataCollection);
                 }
-                CreateOrUpdateProjectsMetaData(serverProjectsMetaDataCollection);
             }           
         }
 
@@ -372,14 +398,87 @@ namespace Pixel.Persistence.Services.Client
                     using (var memoryStream = new MemoryStream(zippedContent, false))
                     {
                         var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                        zipArchive.ExtractToDirectory(versionDirectory);
+                        zipArchive.ExtractToDirectory(versionDirectory, true);
                     }
+                    CreateOrUpdateProjectVersionMetaData(automationProject.Name, serverProjectMetaDataCollection);
                 }
-                CreateOrUpdateProjectVersionMetaData(automationProject.Name, serverProjectMetaDataCollection);
             }          
         }
 
         #endregion Project
+
+
+        #region Prefabs
+
+        public async Task AddOrUpdatePrefabDescriptionAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion)
+        {
+            if (IsOnlineMode)
+            {
+                var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
+                prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, prefabVersion);           
+                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabDescription, prefabFileSystem.PrefabDescriptionFile);
+                var applicationMetaData = GetLocalApplicationMetaData().FirstOrDefault(a => a.ApplicationId.Equals(prefabDescription.ApplicationId));
+                applicationMetaData.AddOrUpdatePrefabMetaData(prefabDescription.PrefabId, prefabVersion.ToString(), prefabVersion.IsDeployed);
+
+            }
+        }
+
+        public async Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion)
+        {
+            if(IsOnlineMode)
+            {
+                if (prefabVersion != null)
+                {
+                    var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
+                    prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, prefabVersion);
+                    if (!Directory.Exists(prefabFileSystem.WorkingDirectory))
+                    {
+                        throw new ArgumentException($"Version {prefabVersion.ToString()} data directory doesn't exist for prefab : {prefabDescription.PrefabName}");
+                    }
+                    string prefabsDirectory = Path.GetDirectoryName(prefabFileSystem.PrefabDescriptionFile);
+                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabDescription.PrefabName}.zip");
+                    if (File.Exists(zipLocation))
+                    {
+                        File.Delete(zipLocation);
+                    }
+                    ZipFile.CreateFromDirectory(prefabFileSystem.WorkingDirectory, zipLocation);
+                    await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabDescription, prefabVersion, zipLocation);
+                    File.Delete(zipLocation);
+                }
+            }
+        }
+
+        public async Task DownloadPrefabDescriptionFileAsync(string applicationId, string prefabId)
+        {
+            if (IsOnlineMode)
+            {
+                var prefabDescription = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
+                var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId);
+                var prefabDescriptionFile = Path.Combine(prefabDirectory, "PrefabDescription.dat");
+                if(!Directory.Exists(prefabDirectory))
+                {
+                    Directory.CreateDirectory(prefabDirectory);
+                }
+                this.serializer.Serialize<PrefabDescription>(prefabDescriptionFile, prefabDescription);
+            }         
+        }
+       
+        public async Task DownloadPrefabDataAsync(string applicationId, string prefabId, string version)
+        {
+            if (IsOnlineMode)
+            {
+                var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
+                prefabFileSystem.Initialize(applicationId, prefabId, new PrefabVersion(version));
+                var zippedContent = await this.prefabRepositoryClient.GetPrefabDataFilesAsync(prefabId, version);               
+                using (var memoryStream = new MemoryStream(zippedContent, false))
+                {
+                    var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                    zipArchive.ExtractToDirectory(prefabFileSystem.WorkingDirectory, true);
+                }               
+            }
+        }
+
+        #endregion Prefabs
 
         private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
         {

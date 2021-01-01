@@ -34,6 +34,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<IApplicationRepository, ApplicationRepository>();
             services.AddTransient<IControlRepository, ControlRepository>();
             services.AddTransient<IProjectRepository, ProjectRepository>();
+            services.AddTransient<IPrefabRepository, PrefabRepository>();
             services.AddControllers();
 
             services.AddSwaggerGen();

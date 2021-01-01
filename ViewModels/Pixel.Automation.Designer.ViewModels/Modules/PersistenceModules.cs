@@ -11,6 +11,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();
             Kernel.Bind<IProjectRepositoryClient>().To<ProjectRepositoryClient>();
+            Kernel.Bind<IPrefabRepositoryClient>().To<PrefabRepositoryClient>();
             Kernel.Bind<ITestSessionClient>().To<TestSessionClient>();
             Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
         }

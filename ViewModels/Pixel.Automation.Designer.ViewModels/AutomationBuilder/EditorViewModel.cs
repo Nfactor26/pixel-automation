@@ -4,8 +4,6 @@ using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Components;
-using Pixel.Automation.Core.Components.Prefabs;
-using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -30,7 +28,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly ISerializer serializer;
         protected readonly IScriptExtactor scriptExtractor;
         protected readonly ApplicationSettings applicationSettings;
-     
+        protected readonly IVersionManagerFactory versionManagerFactory;
+        protected readonly IWindowManager windowManager;
+
         public IEntityManager EntityManager { get; private set; }
 
         public IObservableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
@@ -44,8 +44,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region constructor
 
-        public EditorViewModel(IEventAggregator globalEventAggregator, ISerializer serializer,
-            IEntityManager entityManager, IScriptExtactor scriptExtractor,  IReadOnlyCollection<IToolBox> tools, 
+        public EditorViewModel(IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
+            IEntityManager entityManager, IScriptExtactor scriptExtractor,  IReadOnlyCollection<IToolBox> tools,
+            IVersionManagerFactory versionManagerFactory,
             IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
         {          
             Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
@@ -53,9 +54,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
             this.globalEventAggregator.SubscribeOnUIThread(this);
 
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.EntityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).Value;
             this.ComponentDropHandler = Guard.Argument(componentDropHandler, nameof(componentDropHandler)).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             this.Tools.AddRange(tools);  

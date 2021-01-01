@@ -2,6 +2,8 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -9,12 +11,13 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
-    public class PrefabVersionManagerViewModel : Screen
+    public class PrefabVersionManagerViewModel : Screen , IVersionManager
     {
         private readonly ILogger logger = Log.ForContext<PrefabVersionManagerViewModel>();
 
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private readonly ISerializer serializer;
+        private readonly IApplicationDataManager applicationDataManager;
         private readonly PrefabDescription prefabDescription;
         private readonly ApplicationSettings applicationSettings;
 
@@ -32,11 +35,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
 
-        public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, ISerializer serializer, ApplicationSettings applicationSettings)
+        public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, 
+            ISerializer serializer, IApplicationDataManager applicationDataManager,
+            ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = workspaceManagerFactory;
             this.serializer = serializer;
+            this.applicationDataManager = applicationDataManager;
             this.prefabDescription = prefabDescription;
             this.applicationSettings = applicationSettings;
             foreach (var version in this.prefabDescription.AvailableVersions)
@@ -59,7 +65,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Create a copy of selected version and deploy the selected version.
         /// </summary>
         /// <returns></returns>
-        public Task Deploy()
+        public async Task Deploy()
         {
             try
             {
@@ -77,6 +83,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
                     this.prefabDescription.AvailableVersions.Add(newVersion);
                     serializer.Serialize<PrefabDescription>(fileSystem.PrefabDescriptionFile, this.prefabDescription);
+
+                    await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, new PrefabVersion(this.SelectedVersion.Version));
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, new PrefabVersion(this.SelectedVersion.Version));
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, newVersion);
                 }
 
             }
@@ -84,8 +94,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 logger.Error(ex, ex.Message);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

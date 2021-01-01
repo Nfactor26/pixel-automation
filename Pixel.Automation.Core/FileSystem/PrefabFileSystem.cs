@@ -36,7 +36,7 @@ namespace Pixel.Automation.Core
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, version.ToString());    
             this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
             this.PrefabFile = Path.Combine(this.WorkingDirectory, "Prefab.dat");
-            this.TemplateFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "Template.dat");
+            this.TemplateFile = Path.Combine(this.WorkingDirectory, "Template.dat");
 
             base.Initialize();
         }

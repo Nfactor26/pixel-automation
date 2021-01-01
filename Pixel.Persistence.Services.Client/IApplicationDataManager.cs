@@ -99,8 +99,15 @@ namespace Pixel.Persistence.Services.Client
         /// </summary>
         /// <returns></returns>
         Task DownloadProjectsAsync();
-       
-     
+
+
+        Task AddOrUpdatePrefabDescriptionAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion);
+
+        Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion);
+
+        Task DownloadPrefabDescriptionFileAsync(string applicationId, string prefabId);
+
+        Task DownloadPrefabDataAsync(string applicationId, string prefabId, string version);
     }
 
 }

@@ -7,7 +7,6 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -15,7 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using System.Windows.Input;
+using IPrefabEditorFactory = Pixel.Automation.Editor.Core.Interfaces.IEditorFactory;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -28,11 +27,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;
-        private readonly IWorkspaceManagerFactory workspaceManagerFactory;
+        private readonly IPrefabEditorFactory editorFactory;
+        private readonly IVersionManagerFactory versionManagerFactory;
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
-        private readonly ApplicationSettings applicationSettings;
-
+       
         public BindableCollection<PrefabDescription> Prefabs { get; set; } = new BindableCollection<PrefabDescription>();
       
         public PrefabDescription SelectedPrefab { get; set; }
@@ -40,15 +39,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IWorkspaceManagerFactory workspaceManagerFactory,
-            IPrefabBuilderViewModelFactory prefabBuilderFactory, ApplicationSettings applicationSettings)
+            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IPrefabEditorFactory editorFactory,
+            IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
             this.eventAggregator = eventAggregator;
             this.prefabBuilderFactory = prefabBuilderFactory;
             this.windowManager = windowManager;
             this.serializer = serializer;
-            this.workspaceManagerFactory = workspaceManagerFactory;
-            this.applicationSettings = applicationSettings;
+            this.editorFactory = editorFactory;
+            this.versionManagerFactory = versionManagerFactory;          
             CreateCollectionView();
         }
 
@@ -90,8 +89,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             var result = await windowManager.ShowDialogAsync(prefabBuilder);
             if (result.HasValue && result.Value)
             {
-                var createdPrefab = prefabBuilder.SavePrefab();                 
-                this.Prefabs.Add(createdPrefab);
+                var createdPrefab = await prefabBuilder.SavePrefabAsync();                 
+                this.Prefabs.Add(createdPrefab);           
                 OnPrefabCreated(createdPrefab);
             }           
         }
@@ -104,13 +103,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void EditPrefab(PrefabDescription prefabToEdit)
         {
             try
-            {
-                var editorFactory = IoC.Get<Editor.Core.Interfaces.IEditorFactory>();
-                var prefabEditor = editorFactory.CreatePrefabEditor();              
+            {            
+                var prefabEditor = this.editorFactory.CreatePrefabEditor();              
                 prefabEditor.DoLoad(prefabToEdit);               
-                this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
-                prefabEditor.PrefabUpdated += OnPrefabUpdated;
-                prefabEditor.EditorClosing += OnPrefabEditorClosing;
+                this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });               
             }
             catch (Exception ex)
             {
@@ -121,99 +117,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task ManagePrefab(PrefabDescription targetPrefab)
         {
             try
-            {               
-                PrefabVersionManagerViewModel deployPrefabViewModel = new PrefabVersionManagerViewModel(targetPrefab, this.workspaceManagerFactory, this.serializer, this.applicationSettings);
-                var result = await windowManager.ShowDialogAsync(deployPrefabViewModel);
-                if (result.GetValueOrDefault())
-                {
-                    SavePrefabDescription(targetPrefab);
-                }
-
+            {
+                var deployPrefabViewModel = versionManagerFactory.CreatePrefabVersionManager(targetPrefab);                  
+                await windowManager.ShowDialogAsync(deployPrefabViewModel);
             }
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
             }
         }
-
-        internal void SavePrefabDescription(PrefabDescription prefabToSave)
-        {
-            Guard.Argument(prefabToSave).NotNull();
-
-            string prefabDescriptionFile = Path.Combine("Applications", prefabToSave.ApplicationId, "Prefabs", prefabToSave.PrefabId, "PrefabDescription.dat");
-            serializer.Serialize<PrefabDescription>(prefabDescriptionFile, prefabToSave);
-            if(!this.Prefabs.Contains(prefabToSave))
-            {
-                this.Prefabs.Add(prefabToSave);               
-            }            
-        }
-
-        private void OnPrefabEditorClosing(object sender, EditorClosingEventArgs e)
-        {
-            IPrefabEditor prefabEditor = sender as IPrefabEditor;
-            prefabEditor.PrefabUpdated -= OnPrefabUpdated;
-            prefabEditor.EditorClosing -= OnPrefabEditorClosing;
-        }
-
-        private void OnPrefabUpdated(object sender, PrefabUpdatedEventArgs e)
-        {
-            SavePrefabDescription(e.TargetPrefab);           
-        }
-
-        #region Edit ControlToolBoxItem
-
-
-        bool canEdit;
-        public bool CanEdit
-        {
-            get
-            {
-                return canEdit;
-            }
-            set
-            {
-                canEdit = value;
-                NotifyOfPropertyChange(() => CanEdit);
-            }
-        }
-
-        public void ToggleRename(PrefabDescription prefabItem)
-        {
-            if (SelectedPrefab == prefabItem)
-            {
-                CanEdit = !CanEdit;
-            }
-        }
-
-        /// <summary>
-        /// Update the name of ControlToolBoxItem
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="controlToRename"></param>
-        public void RenameControl(ActionExecutionContext context, PrefabDescription prefabItem)
-        {
-            try
-            {
-                var keyArgs = context.EventArgs as KeyEventArgs;
-                if (keyArgs != null && keyArgs.Key == Key.Enter)
-                {
-                    string previousName = prefabItem.PrefabName;
-                    string newName = (context.Source as System.Windows.Controls.TextBox).Text;
-                    prefabItem.PrefabName = newName;
-                    CanEdit = false;
-                    SavePrefabDescription(prefabItem);
-                    logger.Information($"Prefab : {previousName} renamed to : {newName}");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-                CanEdit = false;
-            }
-        }
-
-
-        #endregion Edit ControlToolBoxItem
 
         #region Filter 
 

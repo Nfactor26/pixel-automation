@@ -3,6 +3,7 @@ using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
-    public class ProjectVersionManagerViewModel: Screen
+    public class ProjectVersionManagerViewModel: Screen, IVersionManager
     {
         private readonly ILogger logger = Log.ForContext<ProjectVersionManagerViewModel>();
 
@@ -34,8 +35,8 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
         }
        
-        public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory, 
-            IApplicationDataManager applicationDataManager, ISerializer serializer, ApplicationSettings applicationSettings)
+        public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
+             ISerializer serializer, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;

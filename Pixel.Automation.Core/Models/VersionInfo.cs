@@ -49,6 +49,11 @@ namespace Pixel.Automation.Core.Models
         {
             this.Version = version;
         }
+
+        public ProjectVersion(string version) : this(new Version(version))
+        {
+
+        }
     }
 
     [DataContract]
@@ -62,6 +67,11 @@ namespace Pixel.Automation.Core.Models
         public PrefabVersion(Version version)
         {
             this.Version = version;
-        }       
+        }
+
+        public PrefabVersion(string version) : this(new Version(version))
+        {
+
+        }
     }
 }

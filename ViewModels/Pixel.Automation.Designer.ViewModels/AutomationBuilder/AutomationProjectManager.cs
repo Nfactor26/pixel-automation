@@ -18,13 +18,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public class AutomationProjectManager : ProjectManager, IAutomationProjectManager
     {
-        private readonly IProjectFileSystem projectFileSystem;
-        private readonly IApplicationDataManager applicationDataManager;
+        private readonly IProjectFileSystem projectFileSystem;    
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
         public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) 
-        : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
+        : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator, applicationDataManager)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;

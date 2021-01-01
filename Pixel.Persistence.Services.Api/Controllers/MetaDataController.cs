@@ -14,12 +14,15 @@ namespace Pixel.Persistence.Services.Api.Controllers
         private readonly IApplicationRepository applicationRepository;
         private readonly IControlRepository controlRepository;
         private readonly IProjectRepository projectRepository;
+        private readonly IPrefabRepository prefabRepository;
 
-        public MetaDataController(IApplicationRepository applicationRepository, IControlRepository controlRepository, IProjectRepository projectRepository)
+        public MetaDataController(IApplicationRepository applicationRepository, IControlRepository controlRepository,
+            IProjectRepository projectRepository, IPrefabRepository prefabRepository)
         {
             this.applicationRepository = applicationRepository;
             this.controlRepository = controlRepository;
             this.projectRepository = projectRepository;
+            this.prefabRepository = prefabRepository;
         }
 
 
@@ -31,12 +34,22 @@ namespace Pixel.Persistence.Services.Api.Controllers
             await foreach (var applicationMetadata in applicationRepository.GetMetadataAsync())
             {
                 applications.Add(applicationMetadata);
-                List<ControlMetaData> controlMetaDatas = new List<ControlMetaData>();
+                
+                //Get the metadata for controls belonging to application
+                List<ControlMetaData> controlsMetaData = new List<ControlMetaData>();
                 await foreach (var controlMetaData in this.controlRepository.GetMetadataAsync(applicationMetadata.ApplicationId))
                 {
-                    controlMetaDatas.Add(controlMetaData);
+                    controlsMetaData.Add(controlMetaData);
                 }
-                applicationMetadata.ControlsMeta = controlMetaDatas;
+                applicationMetadata.ControlsMeta = controlsMetaData;
+
+                //Get the metadata for prefabs belonging to application
+                List<PrefabMetaDataCompact> prefabsMetaData = new List<PrefabMetaDataCompact>();
+                await foreach (var prefabMetaData in this.prefabRepository.GetPrefabsMetadataForApplicationAsync(applicationMetadata.ApplicationId))
+                {
+                    prefabsMetaData.Add(prefabMetaData);
+                }
+                applicationMetadata.PrefabsMeta = prefabsMetaData;
             }
             return applications;
         }

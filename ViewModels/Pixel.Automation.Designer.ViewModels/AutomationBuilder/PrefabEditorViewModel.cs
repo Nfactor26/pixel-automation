@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using GongSolutions.Wpf.DragDrop;
-using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -20,14 +19,13 @@ namespace Pixel.Automation.Designer.ViewModels
     public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
     {
         private readonly IServiceResolver serviceResolver;
-        private readonly IPrefabProjectManager projectManager;
-
-
+        private readonly IPrefabProjectManager projectManager;    
         #region constructor
 
-        public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, ISerializer serializer,
-             IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
-            base(globalEventAggregator, serializer, entityManager, scriptExtractor, tools, dropTarget, applicationSettings)
+        public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
+             IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, 
+             IReadOnlyCollection<IToolBox> tools, IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings) :
+            base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, tools, versionManagerFactory, dropTarget, applicationSettings)
         {
             this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
@@ -69,10 +67,9 @@ namespace Pixel.Automation.Designer.ViewModels
                     await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabDescription.PrefabName, File.ReadAllText(file), false);
                 }
                 await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName, string.Empty, false);
-                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName);
-                            
-                IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-                await windowManager.ShowDialogAsync(editor);               
+                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName);                            
+             
+                await this.windowManager.ShowDialogAsync(editor);               
             }
             await this.projectManager.Refresh();
 
@@ -85,17 +82,15 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            await projectManager.Save();          
+            await projectManager.Save();           
         }
 
         public async override Task Manage()
         {
             await DoSave();
 
-            var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
-            PrefabVersionManagerViewModel versionManager = new PrefabVersionManagerViewModel(this.PrefabDescription, workspaceManagerFactory, this.serializer, this.applicationSettings);
-            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            await windowManager.ShowDialogAsync(versionManager);
+            var versionManager = this.versionManagerFactory.CreatePrefabVersionManager(this.PrefabDescription);          
+            await this.windowManager.ShowDialogAsync(versionManager);
 
             var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
             fileSystem.SwitchToVersion(this.PrefabDescription.ActiveVersion);

@@ -89,7 +89,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             {
                 var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
                 targetApplication.AddPrefab(e);
-                _ = SaveApplication(targetApplication);
+                _ = SaveApplicationAsync(targetApplication);
                 logger.Information($"Added Prefab {e.PrefabName} to application : {targetApplication.ApplicationName}");
             }
             catch (Exception ex)
@@ -163,13 +163,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         
             this.Applications.Add(newApplication);
             this.SelectedApplication = newApplication;
-            await SaveApplication(newApplication);
+            await SaveApplicationAsync(newApplication);
             NotifyOfPropertyChange(() => Applications);
            
             logger.Information($"New application of type {application.ToString()} has been added to the application repository");
         }
 
-        public async Task SaveApplication(ApplicationDescription application)
+        public async Task SaveApplicationAsync(ApplicationDescription application)
         {
             Guard.Argument(application).NotNull();
             await this.applicationDataManager.AddOrUpdateApplicationAsync(application);          
@@ -227,7 +227,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         var previousName = application.ApplicationName;
                         application.ApplicationName = newName;
                         application.ApplicationDetails.ApplicationName = newName;
-                        await SaveApplication(application);
+                        await SaveApplicationAsync(application);
                         CanEdit = false;
                         logger.Information($"Application : {previousName} renamed to : {application.ApplicationName}");
                     }

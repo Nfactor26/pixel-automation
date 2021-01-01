@@ -8,16 +8,13 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
-using Pixel.Automation.Designer.ViewModels.VersionManager;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.TestData.Repository.ViewModels;
-using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -35,7 +32,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly IAutomationProjectManager projectManager;
         private readonly ITestExplorer testExplorerToolBox;
         private readonly ITestRepositoryManager testRepositoryManager;
-        private readonly IServiceResolver serviceResolver;
+        private readonly IServiceResolver serviceResolver;        
 
         private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;          
         TestDataRepository testDataRepository = default;
@@ -43,10 +40,10 @@ namespace Pixel.Automation.Designer.ViewModels
         #endregion data members
 
         #region constructor
-        public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator,  ISerializer serializer, IEntityManager entityManager,
+        public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager,  ISerializer serializer, IEntityManager entityManager,
             IAutomationProjectManager projectManager, ITestRepositoryManager testRepositoryManager,
-            IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
-            globalEventAggregator, serializer, entityManager, scriptExtractor, tools, dropTarget, applicationSettings)
+            IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
+            globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, tools, versionManagerFactory, dropTarget, applicationSettings)
         {
 
             this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
@@ -134,10 +131,9 @@ namespace Pixel.Automation.Designer.ViewModels
                     }
 
                     await editor.AddDocumentAsync("DataModel.cs", this.CurrentProject.Name, string.Empty, false);
-                    await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);
-
-                    IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-                    bool? hasChanges = await windowManager.ShowDialogAsync(editor);
+                    await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);                 
+              
+                    bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
                     if (hasChanges.HasValue && !hasChanges.Value)
                     {
                         return;
@@ -223,12 +219,8 @@ namespace Pixel.Automation.Designer.ViewModels
         public async override Task Manage()
         {
             await DoSave();
-
-            var workspaceManagerFactory = this.EntityManager.GetServiceOfType<IWorkspaceManagerFactory>();
-            var applicationDataManager = this.EntityManager.GetServiceOfType<IApplicationDataManager>();
-            ProjectVersionManagerViewModel versionManager = new ProjectVersionManagerViewModel(this.CurrentProject, workspaceManagerFactory, applicationDataManager, this.serializer, this.applicationSettings);
-            IWindowManager windowManager = this.EntityManager.GetServiceOfType<IWindowManager>();
-            await windowManager.ShowDialogAsync(versionManager);
+            var versionManager = this.versionManagerFactory.CreateProjectVersionManager(this.CurrentProject);        
+            await this.windowManager.ShowDialogAsync(versionManager);
 
             var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
             fileSystem.SwitchToVersion(this.CurrentProject.ActiveVersion);

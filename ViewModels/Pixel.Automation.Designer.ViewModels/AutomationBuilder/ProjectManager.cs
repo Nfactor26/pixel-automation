@@ -2,6 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -28,6 +29,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected IScriptEditorFactory scriptEditorFactory;
         protected readonly ICodeGenerator codeGenerator;
         protected IArgumentTypeProvider argumentTypeProvider;
+        protected IApplicationDataManager applicationDataManager;
 
         protected Entity RootEntity
         {
@@ -36,7 +38,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
 
-        public ProjectManager(ISerializer serializer, IEntityManager entityManager, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
+        public ProjectManager(ISerializer serializer, IEntityManager entityManager, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
+            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.entityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
@@ -46,6 +49,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
             this.codeGenerator = Guard.Argument(codeGenerator, nameof(codeGenerator)).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
         }
 
         ///<inheritdoc/>

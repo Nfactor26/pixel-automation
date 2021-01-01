@@ -6,6 +6,7 @@ using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
+using Pixel.Automation.Designer.ViewModels.Factory;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 
@@ -32,6 +33,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IScriptExtactor>().To<ScriptExtractor>().InSingletonScope();
 
             Kernel.Bind<IDropTarget>().To<ComponentDropHandler>().InTransientScope();
+
+            Kernel.Bind<IVersionManagerFactory>().To<VersionManagerFactory>();
         }
     }
 }

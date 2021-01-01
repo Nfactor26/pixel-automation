@@ -11,23 +11,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
-{
-    public class ProjectRepositoryClient : IProjectRepositoryClient
+{    
+    public class PrefabRepositoryClient : IPrefabRepositoryClient
     {
         private readonly string baseUrl;
         private readonly ISerializer serializer;
 
-        public ProjectRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
+        public PrefabRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
         {
             Guard.Argument(serializer, nameof(serializer)).NotNull();
             Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             this.serializer = serializer;
-            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Project";
+            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Prefab";
         }
 
-        public async Task<AutomationProject> GetProjectFile(string projectId)
+        public async Task<PrefabDescription> GetPrefabFileAsync(string prefabId)
         {
-            RestRequest restRequest = new RestRequest($"{projectId}");
+            RestRequest restRequest = new RestRequest($"{prefabId}");
             var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
@@ -36,16 +36,16 @@ namespace Pixel.Persistence.Services.Client
                 {
                     using (var reader = new StreamReader(stream, Encoding.UTF8))
                     {
-                        return serializer.DeserializeContent<AutomationProject>(reader.ReadToEnd());
+                        return serializer.DeserializeContent<PrefabDescription>(reader.ReadToEnd());
                     }
                 }
             }
             throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
         }
 
-        public async Task<byte[]> GetProjectDataFiles(string projectId, string version)
+        public async Task<byte[]> GetPrefabDataFilesAsync(string prefabId, string version)
         {
-            RestRequest restRequest = new RestRequest($"{projectId}/{version}");
+            RestRequest restRequest = new RestRequest($"{prefabId}/{version}");
             var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
             if (response.StatusCode.Equals(HttpStatusCode.OK))
@@ -55,34 +55,36 @@ namespace Pixel.Persistence.Services.Client
             throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
         }
 
-        public async Task<string> AddOrUpdateProject(AutomationProject automationProject, string projectFile)
+        public async Task<string> AddOrUpdatePrefabAsync(PrefabDescription prefabDescription, string prefabDescriptionFile)
         {
             RestRequest restRequest = new RestRequest() { Method = Method.POST };
-            var projectMetaData = new ProjectMetaData()
+            var projectMetaData = new PrefabMetaData()
             {
-                ProjectId = automationProject.ProjectId,
-                Type = "ProjectFile"
+                PrefabId = prefabDescription.PrefabId,
+                ApplicationId = prefabDescription.ApplicationId,
+                Type = "PrefabFile"
             };
-            restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
-            restRequest.AddFile("file", projectFile);
+            restRequest.AddParameter(nameof(PrefabMetaData), serializer.Serialize<PrefabMetaData>(projectMetaData), ParameterType.RequestBody);
+            restRequest.AddFile("file", prefabDescriptionFile);
             var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);
             return result;
         }
 
 
-        public async Task<string> AddOrUpdateProjectDataFiles(AutomationProject automationProject, VersionInfo version, string zippedDataFile)
+        public async Task<string> AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo version, string zippedDataFile)
         {
             RestRequest restRequest = new RestRequest() { Method = Method.POST };
-            var projectMetaData = new ProjectMetaData()
+            var prefabMetaData = new PrefabMetaData()
             {
-                ProjectId = automationProject.ProjectId,
-                Type = "ProjectDataFiles",
+                PrefabId = prefabDescription.PrefabId,
+                ApplicationId = prefabDescription.ApplicationId,
+                Type = "PrefabDataFiles",
                 Version = version.ToString(),
                 IsActive = version.IsActive,
                 IsDeployed = version.IsDeployed
             };
-            restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
+            restRequest.AddParameter(nameof(PrefabMetaData), serializer.Serialize<PrefabMetaData>(prefabMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", zippedDataFile);
             var client = new RestClient(baseUrl);
             var result = await client.PostAsync<string>(restRequest);

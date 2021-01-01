@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private PrefabDescription prefabDescription;       
         private Entity prefabbedEntity;       
 
-        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator)
-            : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator)
+        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
+            : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator, applicationDataManager)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
         }
@@ -135,7 +136,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             prefabParent.RemoveComponent(this.prefabbedEntity);
             this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
             prefabParent.AddComponent(this.prefabbedEntity);
-            await Task.CompletedTask;
+
+            //push the changes to database
+            await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, this.prefabDescription.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, this.prefabDescription.ActiveVersion);
         }
 
 

@@ -15,6 +15,7 @@ namespace Pixel.Persistence.Respository
         string ControlsBucketName { get; set; }
         string ImagesBucketName { get; set; }
         string ProjectsBucketName { get; set; }
+        string PrefabsBucketName { get; set; }
 
     }
 
@@ -29,6 +30,7 @@ namespace Pixel.Persistence.Respository
         public string ControlsBucketName { get; set; }
         public string ImagesBucketName { get; set; }
         public string ProjectsBucketName { get; set; }
+        public string PrefabsBucketName { get; set; }
     }
 
 }

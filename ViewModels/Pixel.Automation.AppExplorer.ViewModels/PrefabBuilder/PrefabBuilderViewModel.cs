@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
+using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -21,11 +22,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly ICodeGenerator codeGenerator;
         private readonly ICodeEditorFactory codeEditorFactory;
         private readonly IScriptEngineFactory scriptEngineFactory;
-        private readonly ISerializer serializer;  
+        private readonly ISerializer serializer;
+        private readonly IApplicationDataManager applicationDataManager;
 
         private PrefabDescription prefabToolBoxItem;
 
-        public PrefabBuilderViewModel(ISerializer serializer, IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory, IScriptEngineFactory scriptEngineFactory)
+        public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager,
+            IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory, IScriptEngineFactory scriptEngineFactory)
         {
             this.DisplayName = "Prefab Builder";
             this.prefabFileSystem = prefabFileSystem;
@@ -33,6 +36,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.codeEditorFactory = codeEditorFactory;
             this.scriptEngineFactory = scriptEngineFactory;
             this.serializer = serializer;
+            this.applicationDataManager = applicationDataManager;
         }
 
         public void Initialize(ApplicationDescription applicationItem, Entity rootEntity)
@@ -79,11 +83,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         }
 
-        public PrefabDescription SavePrefab()
+        public async Task<PrefabDescription> SavePrefabAsync()
         {
             serializer.Serialize<PrefabDescription>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
             logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
+           
+            await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);           
             return this.prefabToolBoxItem;
         }        
        
@@ -102,6 +109,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 //When cancelling at a later stage when assembly is generated and loaded , there will be exception deleting folder
             }
             await base.Cancel();
+            logger.Information($"Created new prefab operation was cancelled");
         }
 
     }
