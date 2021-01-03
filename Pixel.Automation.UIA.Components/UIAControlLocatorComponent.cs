@@ -1,6 +1,4 @@
 ﻿extern alias uiaComWrapper;
-using System.Collections.Generic;
-using uiaComWrapper::System.Windows.Automation;
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
@@ -8,16 +6,17 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Components;
 using Polly;
 using Polly.Retry;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using uiaComWrapper::System.Windows.Automation;
 
 
 namespace Pixel.Automation.UIA.Components
@@ -27,6 +26,8 @@ namespace Pixel.Automation.UIA.Components
     public class UIAControlLocatorComponent : ServiceComponent, IControlLocator<AutomationElement, AutomationElement>, ICoordinateProvider
     {
         #region Data Members
+
+        private readonly ILogger logger = Log.ForContext<UIAControlLocatorComponent>();
 
         [NonSerialized]
         bool showBoundingBox;
@@ -124,7 +125,7 @@ namespace Pixel.Automation.UIA.Components
                Log.Error(exception, exception.Message); ;
                if(retryCount < retrySequence.Count)
                {
-                   Log.Information("Control lookup  will be attempated again.");
+                   logger.Information("Control lookup  will be attempated again.");
                }
            });          
         }
@@ -139,7 +140,7 @@ namespace Pixel.Automation.UIA.Components
         public AutomationElement FindControl(IControlIdentity controlIdentity, AutomationElement searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<WinControlIdentity>();
-
+            logger.Debug("Start control lookup.");
           
             AutomationElement currentSearchRoot = searchRoot ?? AutomationElement.RootElement;
             IControlIdentity currentControl = controlIdentity;          
@@ -148,13 +149,14 @@ namespace Pixel.Automation.UIA.Components
             {
                 WinControlIdentity winControlIdentity = currentControl as WinControlIdentity;
                 var foundElement = FindSingleControl(winControlIdentity, currentSearchRoot);
+                logger.Debug($"Located control {winControlIdentity}");
                 if (winControlIdentity.Next != null)
                 {
                     currentControl = winControlIdentity.Next;
                     currentSearchRoot = foundElement;
                     continue;
                 }
-               
+                logger.Debug("Control lookup completed.");
                 return foundElement ??  throw new ElementNotFoundException("No control could be located using specified search criteria");
             }
         }
@@ -162,6 +164,7 @@ namespace Pixel.Automation.UIA.Components
         public IEnumerable<AutomationElement> FindAllControls(IControlIdentity controlIdentity, AutomationElement searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<WinControlIdentity>();
+            logger.Debug("Start control lookup.");
             AutomationElement currentSearchRoot = searchRoot ?? AutomationElement.RootElement;
             IControlIdentity currentControl = controlIdentity;
             while (true)
@@ -170,23 +173,35 @@ namespace Pixel.Automation.UIA.Components
                 if (winControlIdentity.Next != null)
                 {
                     currentSearchRoot = FindSingleControl(winControlIdentity, currentSearchRoot);
+                    logger.Debug($"Located control {winControlIdentity}");
                     currentControl = winControlIdentity.Next;
                     continue;
                 }
-
-                switch (winControlIdentity.SearchScope)
+         
+                try
                 {
-                    case SearchScope.Children:
-                        var childControls = FindAllChildControls(winControlIdentity, currentSearchRoot);
-                        return childControls;
-                    case SearchScope.Descendants:
-                        var descendantControls = FindAllDescendantControls(winControlIdentity, currentSearchRoot);
-                        return descendantControls;
-                    case SearchScope.Sibling:
-                        var siblingControls = FindAllSiblingControls(winControlIdentity, currentSearchRoot);
-                        return siblingControls;
-                    case SearchScope.Ancestor:
-                        throw new InvalidOperationException("There can be only one ancestor for a given control");
+
+                    switch (winControlIdentity.SearchScope)
+                    {
+                        case SearchScope.Children:
+                            var childControls = FindAllChildControls(winControlIdentity, currentSearchRoot);
+                            logger.Debug($"Located {childControls.Count()} matching control for {winControlIdentity}");
+                            return childControls;
+                        case SearchScope.Descendants:
+                            var descendantControls = FindAllDescendantControls(winControlIdentity, currentSearchRoot);
+                            logger.Debug($"Located {descendantControls.Count()} matching control for {winControlIdentity}");
+                            return descendantControls;
+                        case SearchScope.Sibling:
+                            var siblingControls = FindAllSiblingControls(winControlIdentity, currentSearchRoot);
+                            logger.Debug($"Located {siblingControls.Count()} matching control for {winControlIdentity}");
+                            return siblingControls;
+                        case SearchScope.Ancestor:
+                            throw new InvalidOperationException("There can be only one ancestor for a given control");
+                    }
+                }
+                finally
+                {
+                    logger.Debug("Control lookup completed.");
                 }
 
             }
@@ -236,7 +251,9 @@ namespace Pixel.Automation.UIA.Components
                     int index = winControlIdentity.Index.Value;
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
+                    {
                         throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
@@ -266,7 +283,9 @@ namespace Pixel.Automation.UIA.Components
             {                
                 var matchingChildren = currentSearchRoot.FindAll(TreeScope.Children, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
+                {
                     throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                }
                 return matchingChildren.ToList();
             });
             return foundControls;
@@ -293,7 +312,9 @@ namespace Pixel.Automation.UIA.Components
                     int index = winControlIdentity.Index.Value;
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
+                    {
                         throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
@@ -322,7 +343,9 @@ namespace Pixel.Automation.UIA.Components
             {                       
                 var matchingChildren = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
+                {
                     throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                }
                 return matchingChildren.ToList();
             });
             return foundControls;
@@ -374,7 +397,9 @@ namespace Pixel.Automation.UIA.Components
                     int index = winControlIdentity.Index.Value;
                     var foundControls = parentElement.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
-                        throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");               
+                    {
+                        throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
@@ -403,7 +428,9 @@ namespace Pixel.Automation.UIA.Components
             {            
                 var matchingChildren = parentElement.FindAll(TreeScope.Children, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
+                {
                     throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                }
                 return matchingChildren.ToList();
             });
             return foundControls;

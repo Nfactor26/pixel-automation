@@ -148,6 +148,11 @@ namespace Pixel.Automation.UIA.Components
             };
             return clone;
         }
+
+        public override string ToString()
+        {
+            return $"{this.Name} -> Name:{this.NameProperty}|AutomationId:{this.AutomationId}|ClassName:{this.ClassName}|ControlType:{this.ProgrammaticName}|LookUpType:{this.ControlType}|SearchScope:{this.SearchScope}";
+        }
     }
 }
 
