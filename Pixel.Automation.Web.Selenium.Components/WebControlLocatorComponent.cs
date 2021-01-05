@@ -25,6 +25,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     [Serializable]
     public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement, ISearchContext>, ICoordinateProvider
     {
+        private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
 
         [RequiredComponent]
         [IgnoreDataMember]
@@ -145,10 +146,10 @@ namespace Pixel.Automation.Web.Selenium.Components
             .Or<NoSuchElementException>().Or<ElementNotFoundException>()
             .WaitAndRetry(retrySequence, (exception, timeSpan, retryCount, context) =>
             {
-                Log.Error(exception, exception.Message); ;
+                logger.Error(exception, exception.Message); ;
                 if (retryCount < retrySequence.Count)
                 {
-                    Log.Information("Control lookup  will be attempated again.");
+                    logger.Information("Control lookup  will be attempated again.");
                 }
             });
         }
@@ -160,8 +161,8 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override void ResetComponent()
         {
-            //this.searchRoots.Clear();
             this.lastControlInteracted = null;
+            SwitchToWindow(0);
             base.ResetComponent();
         }
 
@@ -263,7 +264,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 {
                     WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
                     foundControl = FindElement(webControlIdentity, searchRoot);
-                    Log.Information($"{webControlIdentity.ToString()} has been located");
+                    logger.Information($"{webControlIdentity} has been located");
                     return foundControl;
                 }
                 finally
@@ -329,7 +330,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                         throw new InvalidOperationException($"SearchScope : Ancestor is not supported for FindBy modes [LinkText,PartialLinkText]");
                 }
 
-                Log.Information($"{webControlIdentity.ToString()} has been located");
+                logger.Information($"{webControlIdentity} has been located");
             }
             finally
             {
@@ -577,7 +578,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 default:
                     throw new ArgumentException($"Find by strategy {findBy} is not supported for frames");
             }
-            Log.Information($"Web driver has been switched to frame : {frame}");
+            logger.Information($"Web driver has been switched to frame : {frame}");
         }
 
         #endregion Swith To

@@ -64,6 +64,11 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         }
 
+        public override string ToString()
+        {
+            return $"Frame -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}";
+        }
+
     }
 
     public class FrameEqualityComparer : IEqualityComparer<FrameIdentity>

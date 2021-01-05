@@ -1,8 +1,7 @@
-﻿using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Core.Components;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -135,8 +134,8 @@ namespace Pixel.Automation.Web.Selenium.Components
         }
      
         public override string ToString()
-        {           
-            return $"Web Control Identity - [FindBy : {this.findByStrategy}] | [Identifier : {this.Identifier}]";
+        {
+            return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.ControlType}|SearchScope:{this.SearchScope}";
         }
       
     }

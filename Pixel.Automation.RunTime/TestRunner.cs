@@ -425,7 +425,7 @@ namespace Pixel.Automation.RunTime
                                     else
                                     {
                                         actor.IsFaulted = true;
-                                        Log.Warning(ex, ex.Message);
+                                        logger.Warning(ex, ex.Message);
                                     }
                                 }
 
@@ -451,7 +451,7 @@ namespace Pixel.Automation.RunTime
                                     else
                                     {
                                         actor.IsFaulted = true;
-                                        Log.Warning(ex, ex.Message);
+                                        logger.Warning(ex, ex.Message);
                                     }
                                 }
 
