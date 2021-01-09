@@ -159,13 +159,6 @@ namespace Pixel.Automation.Web.Selenium.Components
             return controlIdentity is WebControlIdentity;
         }
 
-        public override void ResetComponent()
-        {
-            this.lastControlInteracted = null;
-            SwitchToWindow(0);
-            base.ResetComponent();
-        }
-
         #region IControlLocator
 
         public IWebElement FindControl(IControlIdentity controlIdentity, ISearchContext searchRoot = null)

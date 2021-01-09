@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
     [ToolBoxItem("Switch To Window", "Selenium","Browser", iconSource: null, description: "Switch to desired window using its index", tags: new string[] { "Switch Window", "Web" })]
     public class SwitchToWindowActorComponent : SeleniumActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<SwitchToWindowActorComponent>();
+
         [DataMember(IsRequired = true)]
         [Description("Index (1 based) of the tab/window to be switched to")]     
         public Argument WindowNumber { get; set; } = new InArgument<int>() { DefaultValue = 2 };
@@ -29,6 +32,8 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
             if (webDriver.WindowHandles.Count() > windowNumber)
             {
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
+                webDriver.SwitchTo().DefaultContent();
+                logger.Information($"WebDriver switched to window/tab number : {windowNumber}");
                 return;
             }
 

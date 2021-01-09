@@ -56,10 +56,10 @@ namespace Pixel.Automation.RunTime
         {
             try
             {
-                logger.Information("Performing environment setup");
-
-                var oneTimeSetUp = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Descendants);
-                await ProcessEntity(oneTimeSetUp);
+                logger.Information("Performing environment setup");               
+                var oneTimeSetUpEntity = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Descendants);
+                oneTimeSetUpEntity.ResetHierarchy();
+                await ProcessEntity(oneTimeSetUpEntity);
                 IsSetupComplete = true;
 
                 logger.Information("Environment setup completed");
@@ -83,8 +83,9 @@ namespace Pixel.Automation.RunTime
 
                 logger.Information("Performing environment teardown");
 
-                var oneTimeTearDown = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Descendants);
-                await ProcessEntity(oneTimeTearDown);
+                var oneTimeTearDownEntity = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Descendants);
+                oneTimeTearDownEntity.ResetHierarchy();
+                await ProcessEntity(oneTimeTearDownEntity);
 
                 logger.Information("Environment teardown completed");
 
@@ -110,7 +111,9 @@ namespace Pixel.Automation.RunTime
                 scriptEngine.ClearState();
                 await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
 
-                await ProcessEntity(fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Children));
+                var oneTimeSetupEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Children);
+                oneTimeSetupEntity.ResetHierarchy();
+                await ProcessEntity(oneTimeSetupEntity);
               
                 Log.Information("One time setup completed for fixture : {0}", fixture);
 
@@ -128,7 +131,10 @@ namespace Pixel.Automation.RunTime
             {
                 logger.Information("Performing one time teardown for fixture : {0}", fixture);
 
-                await ProcessEntity(fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Children));
+                var oneTimeTearDownEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Children);
+                oneTimeTearDownEntity.ResetHierarchy();
+                await ProcessEntity(oneTimeTearDownEntity);
+             
                 IScriptEngine scriptEngine = fixture.TestFixtureEntity.EntityManager.GetScriptEngine();
                 scriptEngine.ClearState();
              
@@ -185,6 +191,7 @@ namespace Pixel.Automation.RunTime
                                 await testScriptEngine.ExecuteFileAsync(testCase.ScriptFile);
 
                                 var setupEntity = fixtureEntity.GetFirstComponentOfType<SetUpEntity>(Core.Enums.SearchScope.Children);
+                                setupEntity.ResetHierarchy();
                                 await ProcessEntity(setupEntity);
                             }
                             catch
@@ -194,7 +201,8 @@ namespace Pixel.Automation.RunTime
                             }
 
                             try
-                            {                                
+                            {
+                               testCaseEntity.ResetHierarchy();
                                await ProcessEntity(testCaseEntity);
                             }
                             catch
@@ -208,6 +216,7 @@ namespace Pixel.Automation.RunTime
                             try
                             {
                                 var teartDownEntity = fixtureEntity.GetFirstComponentOfType<TearDownEntity>(Core.Enums.SearchScope.Children);
+                                teartDownEntity.ResetHierarchy();
                                 await ProcessEntity(teartDownEntity);
 
                                 //copy the fixture variable values back to fixture script engine so that following tests see modified values of these variable
