@@ -8,45 +8,44 @@ using System.Drawing;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
-    class FindWindowFromProcessIdActorComponentTests
+    class GetForegroundWindowActorComponentFixture
     {
+
         [Test]
-        public void ValidThatFindWindowFromProcessIdActorCanBeInitialized()
+        public void ValidThatGetForegroundWindowActorCanBeInitialized()
         {
-            var actor = new FindWindowFromProcessIdActorComponent();
+            var actor = new GetForegroundWindowActorComponent();
 
-            Assert.IsNotNull(actor.ProcessId);
-            Assert.IsFalse(actor.ProcessId.CanChangeType);
-            Assert.IsNotNull(actor.FoundWindow);
-
+            Assert.IsNotNull(actor.ForeGroundWindow);
         }
 
         [Test]
-        public void ValidateThatFindWindowFromProcessIdActorCanLocateWindow()
+        public void ValidThatGetForegroundWindowActorCanLocateForegroundWindow()
         {
+
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 
             var windowManager = Substitute.For<IApplicationWindowManager>();
-            windowManager.FromProcessId(Arg.Any<int>()).Returns(window);
-
-            var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<InArgument<int>>()).Returns(0);
+            windowManager.GetForeGroundWindow().Returns(window);
+        
+            var argumentProcessor = Substitute.For<IArgumentProcessor>();         
 
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            var actor = new FindWindowFromProcessIdActorComponent()
+            var actor = new GetForegroundWindowActorComponent()
             {
                 EntityManager = entityManager
             };
 
             actor.Act();
 
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
-            windowManager.Received(1).FromProcessId(0);
+            windowManager.Received(1).GetForeGroundWindow();
             argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
+
         }
+
     }
 }

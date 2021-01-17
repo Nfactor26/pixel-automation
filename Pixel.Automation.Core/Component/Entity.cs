@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core
     [Serializable]
     public class Entity : Component
     {
-        protected List<IComponent> components;
+        protected List<IComponent> components = new List<IComponent>();
        
         /// <summary>
         /// List of all components added to Entity
@@ -71,12 +71,12 @@ namespace Pixel.Automation.Core
       
         public Entity() : base(string.Empty, string.Empty)
         {
-            this.components = new List<IComponent>();
+          
         }
 
         public Entity(string name="", string tag="") : base(name:name, tag:tag)
         {
-            this.components = new List<IComponent>();
+           
         }
 
         #endregion Constructoe  
@@ -90,12 +90,7 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="component"></param>
         public virtual Entity AddComponent(IComponent component)
-        {
-            if (component == null)
-            {
-                throw new ArgumentException("component is required parameter for AddComponent(IComponent) method.");
-            }
-          
+        {          
             try
             {
                 if (!this.components.Contains(component))
@@ -145,7 +140,7 @@ namespace Pixel.Automation.Core
         /// <param name="component"></param>
         public virtual void RemoveComponent(IComponent component,bool dispose=true)
         {           
-            if (component!=null && this.components.Contains(component))
+            if (component != null && this.components.Contains(component))
             {                
                 this.components.Remove(component);
                 component.Parent = null;

@@ -7,9 +7,9 @@ using Pixel.Automation.Test.Helpers;
 using System;
 using System.Linq;
 
-namespace Pixel.Automation.Core.Tests.Component
+namespace Pixel.Automation.Core.Tests
 {
-    public class EntityHelperTests
+    public class EntityHelperFixture
     {
         private  Entity rootEntity;
 
@@ -230,21 +230,58 @@ namespace Pixel.Automation.Core.Tests.Component
         }
 
 
+        /// <summary>
+        /// Validate that ancestor component of a requested type can be retreived
+        /// </summary>
         [Test]
         public void ValidateThatAncestorComponentOfGivenTypeCanBeRetrieved()
         {
-            var entityProcessor = rootEntity.GetFirstComponentOfType<MockEntityProcessor>(Enums.SearchScope.Descendants);
-            var ancestorEntity = rootEntity.GetComponentsByName("E3", Enums.SearchScope.Descendants).Single();
+            var actorComponent = rootEntity.GetComponentsByName("E3-P1-A1", Enums.SearchScope.Descendants).Single();
+            var ancestorEntity = rootEntity.GetComponentsByName("E3-P1", Enums.SearchScope.Descendants).Single();
 
-            var foundAncestorOfTypeEntity = entityProcessor.GetAnsecstorOfType<Entity>();
+            var foundAncestorOfTypeEntity = actorComponent.GetAnsecstorOfType<Entity>();
 
             Assert.AreSame(ancestorEntity, foundAncestorOfTypeEntity);
         }
 
+
+        /// <summary>
+        /// Validate that MissingComponentException is thrown if Ancestor component of requested type can't be located
+        /// </summary>
         [Test]
         public void ValidateThatExcpetionIsRaisedWhenAncestorComponentOfGivenTypeCanNotBeRetrieved()
         {
-            Assert.Throws<MissingComponentException>(() => { rootEntity.GetAnsecstorOfType<Entity>(); }) ;          
+            var actorComponent = rootEntity.GetComponentsByName("E3-P1-A1", Enums.SearchScope.Descendants).Single();
+            Assert.Throws<MissingComponentException>(() => { actorComponent.GetAnsecstorOfType<ServiceComponent>(); }) ;          
+        }
+
+        /// <summary>
+        /// Validate that TryGetAncestoryOfType can locate ancestor of requested type when present
+        /// </summary>
+        [Test]
+        public void ValidateThatTryGetAncestorOfTypeCanLocateAncestorOfGivenType()
+        {
+            var actorComponent = rootEntity.GetComponentsByName("E3-P1-A1", Enums.SearchScope.Descendants).Single();
+            var ancestorEntity = rootEntity.GetComponentsByName("E3-P1", Enums.SearchScope.Descendants).Single();
+            
+            bool found = actorComponent.TryGetAnsecstorOfType<Entity>(out Entity foundAncestorOfType);
+
+            Assert.IsTrue(found);
+            Assert.AreSame(ancestorEntity, foundAncestorOfType);
+        }
+
+        /// <summary>
+        /// Validate that TryGetAncestoryOfType does not throw exception if ancestor can not be located
+        /// </summary>
+        [Test]
+        public void ValidateThatTryGetAncestorOfTypeDoesNotThrowExceptionIfAncestorCanNotBeLocated()
+        {
+            var actorComponent = rootEntity.GetComponentsByName("E3-P1-A1", Enums.SearchScope.Descendants).Single();
+
+            bool found = actorComponent.TryGetAnsecstorOfType<ServiceComponent>(out ServiceComponent foundComponent);
+
+            Assert.IsFalse(found);
+            Assert.IsNull(foundComponent);
         }
     }
 }

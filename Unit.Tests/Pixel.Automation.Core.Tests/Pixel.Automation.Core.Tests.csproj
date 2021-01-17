@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Pixel.Automation.Test.Helpers\Pixel.Automation.Test.Helpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+
 </Project>

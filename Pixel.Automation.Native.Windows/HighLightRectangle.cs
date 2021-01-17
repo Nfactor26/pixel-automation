@@ -1,5 +1,4 @@
 using Pixel.Automation.Core.Interfaces;
-using System;
 ///*******************************************************************************
 // * File: HighlightRectangle.cs
 // *
@@ -27,7 +26,6 @@ using System;
 
 using System.Drawing;
 using System.Windows.Forms;
-using System.Windows.Threading;
 
 namespace Pixel.Automation.Native.Windows
 {
@@ -90,6 +88,7 @@ namespace Pixel.Automation.Native.Windows
         #endregion
 
         #region Public 
+      
         Color lastColor = Color.Red;
         public Color BorderColor
         {

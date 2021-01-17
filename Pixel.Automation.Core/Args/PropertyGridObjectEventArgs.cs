@@ -8,9 +8,9 @@ namespace Pixel.Automation.Core.Args
 
         public bool IsReadOnly { get; set; }
 
-        public PropertyGridObjectEventArgs(Object objectToDisplay):base()
+        public PropertyGridObjectEventArgs(Object objectToDisplay) : this(objectToDisplay, false)
         {
-            this.ObjectToDisplay = objectToDisplay;
+         
         }
 
         public PropertyGridObjectEventArgs(Object objectToDisplay, bool isReadOnly) : base()

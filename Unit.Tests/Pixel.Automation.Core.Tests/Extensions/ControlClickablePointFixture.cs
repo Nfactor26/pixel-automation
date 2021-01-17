@@ -6,7 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 
 namespace Pixel.Automation.Core.Tests
 {
-    public class ControlClickablePointTests
+    public class ControlClickablePointFixture
     {
 
         [TestCase(Pivots.BottomLeft, 10, 110)]

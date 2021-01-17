@@ -18,6 +18,11 @@ namespace Pixel.Automation.Native.Windows.Device
             this.keyboardSimulator = new KeyboardSimulator() ;
         }
 
+        internal SyntheticKeyboard(IKeyboardSimulator keyboardSimulator)
+        {
+            this.keyboardSimulator = keyboardSimulator;
+        }
+
         public bool IsCriticalResource => true;
 
         public ISyntheticKeyboard KeyDown(SyntheticKeyCode keyCode)
@@ -113,10 +118,16 @@ namespace Pixel.Automation.Native.Windows.Device
             }
         }
      
-        Regex keysMatcher = new Regex("([a-zA-Z]+)", RegexOptions.Compiled);
+        Regex keysMatcher = new Regex(@"(([^+])+|([\+\s]){2})|(\+)", RegexOptions.Compiled);
         public IEnumerable<SyntheticKeyCode> GetSynthethicKeyCodes(string keyCode)
         {
             Guard.Argument<string>(keyCode).NotNull().NotEmpty().NotWhiteSpace();
+
+            //Can't handle Num + since + is a seperator. Replace this with assumed alias.
+            if(keyCode.Contains("Num +"))
+            {
+                keyCode = keyCode.Replace("Num +", "NumPadPlus");
+            }
 
             var matches = keysMatcher.Matches(keyCode);
             if(matches.Count < 1)
@@ -125,9 +136,14 @@ namespace Pixel.Automation.Native.Windows.Device
             }
           
             var synthethicKeyCodes = new List<SyntheticKeyCode>();
+            bool skip = false;
             foreach (Match match in matches)
             {
-                synthethicKeyCodes.Add(ToSyntheticKeyCode(match.Value));
+                if(!skip)
+                {
+                    synthethicKeyCodes.Add(ToSyntheticKeyCode(match.Value.Trim()));
+                }
+                skip = !skip;
             }
             return synthethicKeyCodes;
 
@@ -230,6 +246,7 @@ namespace Pixel.Automation.Native.Windows.Device
 
                     case "+":
                     case "Num +":
+                    case "NumPadPlus":
                         return SyntheticKeyCode.ADD;
                     case "-":
                     case "Num -":
@@ -260,6 +277,15 @@ namespace Pixel.Automation.Native.Windows.Device
                         return SyntheticKeyCode.PRIOR;
                     case "Page Down":
                         return SyntheticKeyCode.NEXT;
+                    case "Insert":
+                        return SyntheticKeyCode.INSERT;
+                    case "Delete":
+                        return SyntheticKeyCode.DELETE;
+                    case "Home":
+                        return SyntheticKeyCode.HOME;
+                    case "End":
+                        return SyntheticKeyCode.END;
+
 
                     case "VolumeDown":
                         return SyntheticKeyCode.VOLUME_DOWN;

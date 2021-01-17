@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Core.Enums
+namespace Pixel.Automation.Core.Devices
 {
     [DataContract]
     [Serializable]

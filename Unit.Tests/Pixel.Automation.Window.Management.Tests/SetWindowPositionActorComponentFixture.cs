@@ -9,19 +9,19 @@ using System.Drawing;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
-    class ResizeWindowActorComponentTests
+    class SetWindowPositionActorComponentFixture
     {
         [Test]
-        public void ValidThatResizeWindowActorCanBeInitialized()
+        public void ValidThatSetWindwPositionActorCanBeInitialized()
         {
-            var actor = new ResizeWindowActorComponent();
+            var actor = new SetWindowPositionActorComponent();
 
             Assert.IsNotNull(actor.ApplicationWindow);
-            Assert.IsNotNull(actor.Dimension);
+            Assert.IsNotNull(actor.Position);
         }
 
         [Test]
-        public void ValidThatResizeWindowActorCanResizeWindow()
+        public void ValidThatSetForegroundWindowActorCanSetWindowToForeground()
         {
 
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -29,15 +29,16 @@ namespace Pixel.Automation.Window.Management.Tests
             var entityManager = Substitute.For<IEntityManager>();
 
             var windowManager = Substitute.For<IApplicationWindowManager>();
-          
+
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);
-            argumentProcessor.GetValue<Dimension>(Arg.Any<InArgument<Dimension>>()).Returns(Dimension.ZeroExtents);
+            var newWindowPosition = new ScreenCoordinate(100, 100);
+            argumentProcessor.GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(newWindowPosition);
 
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            var actor = new ResizeWindowActorComponent()
+            var actor = new SetWindowPositionActorComponent()
             {
                 EntityManager = entityManager
             };
@@ -45,8 +46,7 @@ namespace Pixel.Automation.Window.Management.Tests
             actor.Act();
 
             argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
-            argumentProcessor.Received(1).GetValue<Dimension>(Arg.Any<InArgument<Dimension>>());
-            windowManager.Received(1).SetWindowSize(window, 0, 0);
+            windowManager.Received(1).SetWindowPosition(window, newWindowPosition);
 
         }
     }

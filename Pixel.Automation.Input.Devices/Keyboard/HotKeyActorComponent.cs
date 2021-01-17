@@ -42,7 +42,7 @@ namespace Pixel.Automation.Input.Devices
 
         public override bool ValidateComponent()
         {
-            if (string.IsNullOrEmpty(keySequence))
+            if (string.IsNullOrEmpty(this.keySequence))
             {
                 IsValid = false;
             }

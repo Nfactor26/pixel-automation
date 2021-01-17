@@ -26,6 +26,11 @@ namespace Pixel.Automation.Native.Windows.Device
             this.mouseSimulator = new MouseSimulator();
         }
 
+        internal SyntheticMouse(IMouseSimulator mouseSimulator)
+        {
+            this.mouseSimulator = mouseSimulator;
+        }
+
         public bool IsCriticalResource => true;
 
         public int MouseWheelClickSize

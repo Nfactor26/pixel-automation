@@ -4,14 +4,13 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Input.Devices;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
 
-namespace Nish26.Automation.Input.Devices
+namespace Pixel.Automation.Input.Devices
 {
     [DataContract]
     [Serializable]
@@ -112,26 +111,12 @@ namespace Nish26.Automation.Input.Devices
         public override void Act()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-
+          
             ScreenCoordinate screenCoordinate = default;
             switch (this.Target)
             {
                 case Target.Control:
-                    UIControl targetControl = default;
-                    if (this.TargetControl.IsConfigured())
-                    {
-                        targetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
-                    }
-                    else
-                    {
-                        ThrowIfMissingControlEntity();
-                        targetControl = this.ControlEntity.GetControl();
-                    }
-                    if (targetControl != null)
-                    {                      
-                        targetControl.GetClickablePoint(out double x, out double y);
-                        screenCoordinate = new ScreenCoordinate(x, y);
-                    }
+                    screenCoordinate = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
                     break;
                 case Target.Empty:
                     screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.DragPoint);
@@ -157,9 +142,14 @@ namespace Nish26.Automation.Input.Devices
 
         public override bool ValidateComponent()
         {
-            if (!this.TargetControl.IsConfigured() && this.ControlEntity == null)
+            switch (this.Target)
             {
-                IsValid = false;
+                case Target.Empty:
+                    IsValid = this.DragPoint?.IsConfigured() ?? false;
+                    break;
+                case Target.Control:
+                    IsValid = (this.TargetControl?.IsConfigured() ?? false) || this.ControlEntity != null;
+                    break;
             }
             return IsValid && base.ValidateComponent();
         }

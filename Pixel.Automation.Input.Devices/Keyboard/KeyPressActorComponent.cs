@@ -51,8 +51,8 @@ namespace Pixel.Automation.Input.Devices
         public override void Act()
         {
             var syntheticKeyboard = GetKeyboard();
-            var keysToPress = syntheticKeyboard.GetSynthethicKeyCodes(this.keySequence);
-            switch (this.pressMode)
+            var keysToPress = syntheticKeyboard.GetSynthethicKeyCodes(this.KeySequence);
+            switch (this.KeyPressMode)
             {
                 case PressMode.KeyPress:
                     foreach (var key in keysToPress)
@@ -74,6 +74,15 @@ namespace Pixel.Automation.Input.Devices
                     break;
             }
 
-        }        
+        }
+
+        public override bool ValidateComponent()
+        {
+            if (string.IsNullOrEmpty(this.keySequence))
+            {
+                IsValid = false;
+            }
+            return IsValid && base.ValidateComponent();
+        }
     }
 }

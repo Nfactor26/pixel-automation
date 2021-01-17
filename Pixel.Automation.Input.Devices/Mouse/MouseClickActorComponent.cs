@@ -138,12 +138,17 @@ namespace Pixel.Automation.Input.Devices
         }
         
         public override bool ValidateComponent()
-        {          
-            if(!this.TargetControl.IsConfigured() && this.ControlEntity == null)
+        {
+            switch (this.Target)
             {
-                IsValid = false;
+                case Target.Empty:
+                    IsValid = this.ClickAt?.IsConfigured() ?? false;
+                    break;
+                case Target.Control:
+                    IsValid = (this.TargetControl?.IsConfigured() ?? false) || this.ControlEntity != null;
+                    break;
             }
-            return IsValid && base.ValidateComponent();            
+            return IsValid && base.ValidateComponent();
         }
     }   
 }

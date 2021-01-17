@@ -1,7 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
@@ -9,15 +8,14 @@ using System.Drawing;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
-    class SetWindowStateActorComponentTests
+    class SetForegroundWindowActorComponentFixture
     {
         [Test]
-        public void ValidThatSetWindwStateActorCanBeInitialized()
+        public void ValidThatSetForegroundWindowActorCanBeInitialized()
         {
-            var actor = new SetWindowStateActorComponent();
+            var actor = new SetForegroundWindowActorComponent();
 
-            Assert.IsNotNull(actor.ApplicationWindow);
-            Assert.AreEqual(WindowState.Maximize, actor.DesiredState);
+            Assert.IsNotNull(actor.ApplicationWindow);          
         }
 
         [Test]
@@ -31,20 +29,20 @@ namespace Pixel.Automation.Window.Management.Tests
             var windowManager = Substitute.For<IApplicationWindowManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);
-         
+            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);      
+
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            var actor = new SetWindowStateActorComponent()
+            var actor = new SetForegroundWindowActorComponent()
             {
                 EntityManager = entityManager
             };
 
             actor.Act();
 
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
-            windowManager.Received(1).SetWindowState(window, WindowState.Maximize, false);
+            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());        
+            windowManager.Received(1).SetForeGroundWindow(window);
 
         }
     }

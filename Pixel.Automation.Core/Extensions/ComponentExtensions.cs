@@ -10,12 +10,6 @@ namespace Pixel.Automation.Core
 {
     public static class ComponentExtensions
     {
-        public static void SetBrowsableAttribute(this object component,string propertyName,bool value)
-        {
-            var attr = TypeDescriptor.GetProperties(component.GetType())[propertyName]?.Attributes[typeof(BrowsableAttribute)] as BrowsableAttribute;
-            attr?.GetType().GetField("Browsable", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(attr, value);
-        }
-
         public static void SetDispalyAttribute(this object component, string propertyName, bool value)
         {
             var displayAttr = TypeDescriptor.GetProperties(component.GetType())[propertyName]?.Attributes[typeof(DisplayAttribute)] as DisplayAttribute;
@@ -24,12 +18,6 @@ namespace Pixel.Automation.Core
                 displayAttr.AutoGenerateField = value;
                 return;
             }
-        }
-
-        public static void SetReadOnlyAttribute(this object component, string propertyName, bool value)
-        {
-            var attr = System.ComponentModel.TypeDescriptor.GetProperties(component.GetType())[propertyName]?.Attributes[typeof(System.ComponentModel.ReadOnlyAttribute)] as System.ComponentModel.ReadOnlyAttribute;
-            attr?.GetType().GetField("IsReadOnly", BindingFlags.IgnoreCase | BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(attr, value);
         }
 
         public static T CreateCopy<T>(this IComponent component) where T : IComponent

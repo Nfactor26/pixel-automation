@@ -9,7 +9,9 @@ namespace Pixel.Automation.Input.Devices.Tests
 {
     public class HotKeyActorComponentTests
     {       
-
+        /// <summary>
+        /// Validate that HotKeyActor can press configured keys properly
+        /// </summary>
         [Test]
         public void ValidateThatHotKeyActorCanPressConfiguredHotKeys()
         {
@@ -42,6 +44,25 @@ namespace Pixel.Automation.Input.Devices.Tests
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>("Ctrl + C"));
             syntheticKeyboard.Received(4).IsModifierKey(Arg.Any<SyntheticKeyCode>()); // twice to take and twice to skip
             syntheticKeyboard.Received(1).ModifiedKeyStroke(Arg.Any<IEnumerable<SyntheticKeyCode>>(), Arg.Any<IEnumerable<SyntheticKeyCode>>());
+        }
+
+
+        /// <summary>
+        /// Validate that HotKeyActor ValidateComponent() can correctly report if KeySequence is configured.
+        /// </summary>
+        /// <param name="keySequence"></param>
+        /// <param name="expectedResult"></param>
+        [TestCase("Ctrl + C", true)]
+        [TestCase("", false)]
+        [TestCase(null, false)]
+        public void ValidateThatHotKeyActorCanReportIfConfiguredCorrectly(string keySequence, bool expectedResult)
+        {
+            var hotKeyActor = new HotKeyActorComponent()
+            {
+                KeySequence =  keySequence
+            };
+            bool isValid = hotKeyActor.ValidateComponent();
+            Assert.AreEqual(expectedResult, isValid);
         }
     }
 }

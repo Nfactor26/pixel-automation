@@ -26,7 +26,7 @@ namespace Pixel.Automation.Input.Devices
         [Description("Represents the coordinates to which cursor is moved.This is auto calculated if Control and CoordinateProvider are configured.")]            
         public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>()
         {
-            DefaultValue = new ScreenCoordinate(),
+            DefaultValue = new ScreenCoordinate() { XCoordinate = 100, YCoordinate = 100 },
             CanChangeType = false
         };
 
@@ -89,10 +89,15 @@ namespace Pixel.Automation.Input.Devices
 
         public override bool ValidateComponent()
         {
-            if (!this.TargetControl.IsConfigured() && this.ControlEntity == null)
+            switch(this.Target)
             {
-                IsValid = false;
-            }
+                case Target.Empty:
+                    IsValid = this.MoveTo?.IsConfigured() ?? false;
+                    break;
+                case Target.Control:
+                    IsValid = (this.TargetControl?.IsConfigured() ?? false) || this.ControlEntity != null;
+                    break;
+            }         
             return IsValid && base.ValidateComponent();
         }
     }

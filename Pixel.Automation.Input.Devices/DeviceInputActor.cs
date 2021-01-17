@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
@@ -76,7 +77,7 @@ namespace Pixel.Automation.Input.Devices
             try
             {
                 var syntheticKeySequence = syntheticKeyboard.GetSynthethicKeyCodes(keyCode);
-                return true;
+                return syntheticKeySequence.Any();
             }
             catch
             {

@@ -56,7 +56,7 @@ namespace Pixel.Automation.Core.Extensions
                 T targetPropertyValue = (T)sourceProperty.GetValue(instance);
                 return targetPropertyValue;
             }
-            throw new Exception($"Data type : {typeof(T)} is not assignable from property {propertyName} on object");
+            throw new InvalidCastException($"Data type : {typeof(T)} is not assignable from property {propertyName} on object");
         }
 
         /// <summary>

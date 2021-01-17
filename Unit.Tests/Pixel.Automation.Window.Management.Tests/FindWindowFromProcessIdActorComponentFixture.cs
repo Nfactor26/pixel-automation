@@ -8,45 +8,44 @@ using System.Drawing;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
-    class FindWindowFromHandleActorComponentTests
+    class FindWindowFromProcessIdActorComponentFixture
     {
-
         [Test]
-        public void ValidThatFindWindowFromHandleActorCanBeInitialized()
+        public void ValidThatFindWindowFromProcessIdActorCanBeInitialized()
         {
-            var actor = new FindWindowFromHandleActorComponent();
+            var actor = new FindWindowFromProcessIdActorComponent();
 
-            Assert.IsNotNull(actor.WindowHandle);
-            Assert.IsFalse(actor.WindowHandle.CanChangeType);
+            Assert.IsNotNull(actor.ProcessId);
+            Assert.IsFalse(actor.ProcessId.CanChangeType);
             Assert.IsNotNull(actor.FoundWindow);
-        
+
         }
 
         [Test]
-        public void ValidateThatFindWindowFromHandleActorCanLocateWindowWithAGivenHandle()
+        public void ValidateThatFindWindowFromProcessIdActorCanLocateWindow()
         {
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
-         
+
             var entityManager = Substitute.For<IEntityManager>();
 
             var windowManager = Substitute.For<IApplicationWindowManager>();
-            windowManager.FromHwnd(Arg.Any<IntPtr>()).Returns(window);
+            windowManager.FromProcessId(Arg.Any<int>()).Returns(window);
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<IntPtr>(Arg.Any<InArgument<IntPtr>>()).Returns(IntPtr.Zero);
+            argumentProcessor.GetValue<int>(Arg.Any<InArgument<int>>()).Returns(0);
 
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            var actor = new FindWindowFromHandleActorComponent()
+            var actor = new FindWindowFromProcessIdActorComponent()
             {
                 EntityManager = entityManager
             };
 
             actor.Act();
 
-            argumentProcessor.Received(1).GetValue<IntPtr>(Arg.Any<InArgument<IntPtr>>());
-            windowManager.Received(1).FromHwnd(IntPtr.Zero);
+            argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
+            windowManager.Received(1).FromProcessId(0);
             argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
         }
     }

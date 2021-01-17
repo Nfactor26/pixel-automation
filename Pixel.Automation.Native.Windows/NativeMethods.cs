@@ -23,12 +23,14 @@
  * 
  ******************************************************************************/
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Pixel.Automation.Native.Windows
 {
+    [ExcludeFromCodeCoverage]
     public static class NativeMethods
     {
         [System.Runtime.InteropServices.DllImport("user32.dll")]

@@ -173,11 +173,14 @@ namespace Pixel.Automation.Core
         {
             this.Id = Guid.NewGuid().ToString();
             this.IsEnabled = true;
+            this.Name = GetType().Name;
+            this.Tag = GetType().Name;
         }
 
-        public Component(string name="",string tag="") : this()
+        public Component(string name="", string tag="")
         {
-          
+            this.Id = Guid.NewGuid().ToString();
+            this.IsEnabled = true;
             this.Name = string.IsNullOrEmpty(name)? GetType().Name : name;
             this.Tag =  string.IsNullOrEmpty(tag) ? GetType().Name : tag;
             
@@ -205,12 +208,12 @@ namespace Pixel.Automation.Core
         {           
             try
             {
-                isValid = true;
-                if(string.IsNullOrEmpty(name)|| string.IsNullOrEmpty(tag))
+                IsValid = true;
+                if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(tag))
                 {
-                    isValid = false;
+                    IsValid = false;
                 }              
-                return isValid;
+                return IsValid;
             }
             finally
             {
@@ -231,7 +234,7 @@ namespace Pixel.Automation.Core
 
         public override string ToString()
         {
-            return $"Component - [Name : {Name}] | [Tag : {Tag}] | [IsEnabled :{IsEnabled}]";
+            return $"Component -> Name:{Name}|Tag:{Tag}|IsEnabled:{IsEnabled}";
         }
     }
 
@@ -323,12 +326,7 @@ namespace Pixel.Automation.Core
             get
             {
                 return errorMessages;
-            }
-            set
-            {
-                errorMessages = value;
-                OnPropertyChanged("ErrorMessages");
-            }
+            }           
         }
        
         public  ActorComponent() : base()
@@ -336,7 +334,7 @@ namespace Pixel.Automation.Core
 
         }
 
-        public ActorComponent(string name = "", string tag = ""):base(name,tag)
+        public ActorComponent(string name = "", string tag = "") : base(name,tag)
         {
 
         }
@@ -428,12 +426,7 @@ namespace Pixel.Automation.Core
             get
             {
                 return errorMessages;
-            }
-            set
-            {
-                errorMessages = value;
-                OnPropertyChanged("ErrorMessages");
-            }
+            }           
         }
                 
 

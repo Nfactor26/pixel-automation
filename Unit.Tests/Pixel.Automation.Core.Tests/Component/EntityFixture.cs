@@ -2,11 +2,12 @@
 using NUnit.Framework;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Test.Helpers;
+using System;
 using System.Linq;
 
-namespace Pixel.Automation.Core.Tests.Component
+namespace Pixel.Automation.Core.Tests
 {
-    public class EntityTests
+    public class EntityFixture
     {
 
         [Test]
@@ -44,12 +45,15 @@ namespace Pixel.Automation.Core.Tests.Component
 
         }
 
+        /// <summary>
+        /// Validate that components can be deleted and component is Disposed if it implements IDisposable on Delete
+        /// </summary>
         [Test]
         public void VerifyThatComponentsCanBeDeleted()
         {
             IEntityManager entityManager = Substitute.For<IEntityManager>();
 
-            IComponent component = Substitute.For<IComponent>();
+            IComponent component = Substitute.For<IComponent, IDisposable>();
             component.EntityManager.Returns(entityManager);
            
             Entity entity = new Entity();
@@ -62,6 +66,51 @@ namespace Pixel.Automation.Core.Tests.Component
             Assert.AreEqual(0, entity.Components.Count);
             Assert.IsNull(component.Parent);
             Assert.IsNull(component.EntityManager);
+
+            (component as IDisposable).Received(1).Dispose();
+        }
+
+
+        /// <summary>
+        /// Validate that ActorComponents property returns only components of type ActorComponent
+        /// </summary>
+        [Test]
+        public void ValidateThatActorOnlyComponentsCanBeRetrievedUsingActorComponentsProperties()
+        {
+            IEntityManager entityManager = Substitute.For<IEntityManager>();
+            var actorComponent = Substitute.For<ActorComponent>();
+            var dataComponent = Substitute.For<DataComponent>();
+            var entityComponent = new Entity("ChildEntity", "Entity");
+
+            Entity entity = new Entity("EntityName", "EntityTag") { EntityManager = entityManager };
+            Assert.AreEqual(0, entity.ActorComponents.Count());
+
+            entity.AddComponent(actorComponent);
+            entity.AddComponent(dataComponent);
+            entity.AddComponent(entityComponent);
+
+            Assert.AreEqual(1, entity.ActorComponents.Count());
+        }
+
+        /// <summary>
+        /// Validate that Entities property returns only components of type Entity 
+        /// </summary>
+        [Test]
+        public void ValidateThatEntityOnlyComponentsCanBeRetrievedUsingEntitiesProperty()
+        {
+            IEntityManager entityManager = Substitute.For<IEntityManager>();
+            var actorComponent = Substitute.For<ActorComponent>();
+            var dataComponent = Substitute.For<DataComponent>();
+            var entityComponent = new Entity("ChildEntity", "Entity");
+
+            Entity entity = new Entity("EntityName", "EntityTag") { EntityManager = entityManager };
+            Assert.AreEqual(0, entity.Entities.Count());
+
+            entity.AddComponent(actorComponent);
+            entity.AddComponent(dataComponent);
+            entity.AddComponent(entityComponent);
+
+            Assert.AreEqual(1, entity.Entities.Count());
         }
 
         /// <summary>

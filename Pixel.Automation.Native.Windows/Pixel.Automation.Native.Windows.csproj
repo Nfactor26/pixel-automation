@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="InputSimulatorStandard" Version="1.0.0">
       <Private>false</Private>
