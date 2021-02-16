@@ -39,11 +39,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
 
             Version defaultVersion = new Version(1, 0, 0, 0);
-            this.NewProject = new AutomationProject()
-            {
-                ProjectId = Guid.NewGuid().ToString(), 
-                LastOpened = DateTime.Now
-            };
+            this.NewProject = new AutomationProject();
             this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
         
         }    

@@ -54,22 +54,20 @@ namespace Pixel.Automation.Core.Models
         }
 
         public ControlDescription(IControlIdentity controlDetails)
-        {
+        {          
             this.ApplicationId = controlDetails.ApplicationId;
-            this.ControlId = (controlDetails as Interfaces.IComponent).Id;           
+            this.ControlId = Guid.NewGuid().ToString();           
             this.ControlDetails = controlDetails;
         }
 
         public object Clone()
         {
-            return new ControlDescription()
+            return new ControlDescription(ControlDetails.Clone() as IControlIdentity)
             {
-                ControlName = this.ControlName,
-                ControlImage = this.ControlImage,
-                ControlId = Guid.NewGuid().ToString(),              
+                ControlName = this.ControlName,              
+                ControlImage = this.ControlImage,                         
                 GroupName = this.GroupName,
-                ApplicationId = this.ApplicationId,
-                ControlDetails = ControlDetails.Clone() as IControlIdentity
+                ApplicationId = this.ApplicationId               
             };
         }    
     }

@@ -32,9 +32,9 @@ namespace Pixel.Automation.Core.TestData
         public string Group { get; set; } = "Default";
 
         [DataMember]
-        public IEnumerable<string> Tags { get; set; } = new List<string>();
+        public List<string> Tags { get; private set; } = new List<string>();
 
-        public List<TestCase> Tests { get; set; } = new List<TestCase>();
+        public List<TestCase> Tests { get; private set; } = new List<TestCase>();
 
         public Entity TestFixtureEntity { get; set; }   
 

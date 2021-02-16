@@ -91,6 +91,7 @@ namespace Pixel.Automation.Core.Models
                 PrefabId = Guid.NewGuid().ToString(),             
                 GroupName = this.GroupName,
                 ApplicationId = this.ApplicationId,
+                Description = this.Description,
                 PrefabRoot = (PrefabRoot as ICloneable).Clone() as Interfaces.IComponent
             };
         }

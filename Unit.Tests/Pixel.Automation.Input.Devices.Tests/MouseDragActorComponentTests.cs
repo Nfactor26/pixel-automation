@@ -83,8 +83,9 @@ namespace Pixel.Automation.Input.Devices.Tests
             Assert.AreEqual(true, mouseDragActor.ValidateComponent());
 
             //We are initializing MoveTo again but leaivng out the default value of screen coordinate.
+            //Default instance of ScreenCoordinate is automatically created as the default value
             mouseDragActor.DragPoint = new InArgument<ScreenCoordinate>();
-            Assert.AreEqual(false, mouseDragActor.ValidateComponent());
+            Assert.AreEqual(true, mouseDragActor.ValidateComponent());
         }
 
         [Test]

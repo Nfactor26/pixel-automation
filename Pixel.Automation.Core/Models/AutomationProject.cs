@@ -10,18 +10,18 @@ namespace Pixel.Automation.Core.Models
     public class AutomationProject
     {
         [DataMember(IsRequired = true, Order = 10)]
-        public string ProjectId { get; set; }
+        public string ProjectId { get; set; } = Guid.NewGuid().ToString();
 
-       
+
         [DataMember(IsRequired = true, Order = 20)]
-        public string Name { get; set; }      
+        public string Name { get; set; } = string.Empty;
 
 
         [DataMember(IsRequired = true, Order = 40)]
-        public DateTime LastOpened { get; set; }
+        public DateTime LastOpened { get; set; } = DateTime.Now;
 
         [DataMember(IsRequired = true)]
-        public List<ProjectVersion> AvailableVersions { get; set; } = new List<ProjectVersion>();
+        public List<ProjectVersion> AvailableVersions { get; } = new List<ProjectVersion>();
 
         /// <summary>
         /// Get all the versions that are deployed.

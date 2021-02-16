@@ -31,20 +31,15 @@ namespace Pixel.Automation.Core.Arguments
 
                     if (type == typeof(string))
                     {
-                        defaultValue = (T)((object)(string.Empty));
+                        this.defaultValue = (T)((object)(string.Empty));
                     }
 
-                    if (!type.IsValueType)
-                    {
-                        var constructor = type.TypeInitializer;
-                        object defaultValue = null;
-                        if (constructor != null)
-                        {
-                            defaultValue = Activator.CreateInstance(type);
-                        }
+                    if ((!type.IsValueType) && (type.GetConstructor(Type.EmptyTypes) != null))
+                    {                      
+                        this.defaultValue = (T)Activator.CreateInstance(type);                       
                     }
                 }
-                return defaultValue;
+                return this.defaultValue;
             }
             set
             {
@@ -97,18 +92,13 @@ namespace Pixel.Automation.Core.Arguments
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
         public override object Clone()
         {
             InArgument<T> clone = new InArgument<T>()
             {
                Mode = this.Mode,
+               DefaultValue = this.DefaultValue,
                PropertyPath = this.PropertyPath,
-               ScriptFile = this.ScriptFile,
                CanChangeMode = this.CanChangeMode,
                CanChangeType = this.CanChangeType
             };

@@ -10,12 +10,12 @@ namespace Pixel.Automation.Core
 {
     public static class ArgumentExtensions
     {       
-        private static readonly string setValueTemplate = "void SetValue({0} argumentValue){1}{{{1}}}{}";
+        private static readonly string setValueTemplate = "void SetValue({0} argumentValue){1}{{{1}}}";
         private static readonly string setValueAction = "return ((Action<{0}>)SetValue);";
         private static readonly string getValueTemplate = "{0} GetValue(){1}{{{1}    return default;{1}}}";
         private static readonly string getValueDelegate = "return ((Func<{0}>)GetValue);";
         private static readonly string predicateScriptTemplate = "bool IsMatch(IComponent current, {0} argument){1}{{{1}    return false;{1}}}";
-        private static readonly string predicateDelegate = "return ((Func<IComponent,{0},bool>)IsMatch);";
+        private static readonly string predicateDelegate = "return ((Func<IComponent, {0}, bool>)IsMatch);";
 
         public static object GetValue(this Argument argument, IArgumentProcessor argumentProcessor)
         {
@@ -57,9 +57,9 @@ namespace Pixel.Automation.Core
 
         private static string GenerateSetValueScript(Argument argument)
         {
-            var setValueParseScript = string.Format(setValueTemplate, argument.ArgumentType, Environment.NewLine);
+            var setValueParsedScript = string.Format(setValueTemplate, argument.ArgumentType, Environment.NewLine);
             var setValueParsedAction = string.Format(setValueAction, argument.ArgumentType);
-            return $"{setValueParseScript}{Environment.NewLine}{setValueParsedAction}";
+            return $"{setValueParsedScript}{Environment.NewLine}{setValueParsedAction}";
         }
 
         private static string GenerateGetValueScript(Argument argument)

@@ -36,7 +36,7 @@ namespace Pixel.Automation.Core.Tests.Extensions
         /// <param name="propertyName"></param>
         /// <param name="expectedValue"></param>
         [Test]
-        public void ValidateThatPropertyValueCanBeRetrievedByNameFromAnObject<T>(string propertyName, T expectedValue)
+        public void ValidateThatPropertyValueCanBeRetrievedByNameFromAnObject()
         {
             Person person = new Person()
             {
@@ -50,7 +50,7 @@ namespace Pixel.Automation.Core.Tests.Extensions
             };
             Assert.AreEqual(person.GetPropertyValue<string>("Name"), "Naruto");
             Assert.AreEqual(person.GetPropertyValue<int>("Age"), 16);
-            Assert.AreEqual(person.GetPropertyValue<string>("Age"), "16"); //integer is assignable to string
+            Assert.AreEqual(person.GetPropertyValue<object>("Age"), 16); //integer is assignable to object
             Assert.IsTrue(person.GetPropertyValue<Address>("Address").City.Equals("Konoha"));
         }
 

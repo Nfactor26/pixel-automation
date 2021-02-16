@@ -43,9 +43,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 Description = "Test case description",
                 TestCaseEntity = testCaseEntity,
                 FixtureId = "Fixture#1",
-                ScriptFile = "Script.csx",            
-                Tags = tags
+                ScriptFile = "Script.csx"
             };
+            testCase.Tags.AddRange(tags);
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
@@ -78,17 +78,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tags.Add("Tag1");
             tags.Add("Tag2");
             TestCase testCase = new TestCase();
-            _ = new TestCaseViewModel(testCase, eventAggregator)
+            var testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator)
             {
                 DisplayName = "TestCase#1",
                 Order = 1,
                 Description = "Test case description",
                 TestCaseEntity = testCaseEntity,               
                 ScriptFile = "Script.csx",
-                IsMuted = true,
-                Tags = tags
+                IsMuted = true
             };
-
+            testCaseViewModel.Tags.AddRange(tags);
+          
             Assert.AreEqual("TestCase#1", testCase.DisplayName);
             Assert.AreEqual(1, testCase.Order);
             Assert.AreEqual("Test case description", testCase.Description);         

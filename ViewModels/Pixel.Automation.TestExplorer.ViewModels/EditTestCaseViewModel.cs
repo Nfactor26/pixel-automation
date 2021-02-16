@@ -50,7 +50,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => string.Join(",", CopyOfTestCase.Tags);
             set
             {
-                CopyOfTestCase.Tags = value.Trim(',').Split(new char[] { ',' });
+                CopyOfTestCase.Tags.Clear();
+                CopyOfTestCase.Tags.AddRange(value.Trim(',').Split(new char[] { ',' }));
                 NotifyOfPropertyChange();
             }
         }
@@ -76,7 +77,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testCase.Description = CopyOfTestCase.Description;
                 this.testCase.IsMuted = CopyOfTestCase.IsMuted;
                 this.testCase.Order = CopyOfTestCase.Order;
-                this.testCase.Tags = CopyOfTestCase.Tags;
+                this.testCase.Tags.Clear();
+                this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
                 await this.TryCloseAsync(true);
             }
         }

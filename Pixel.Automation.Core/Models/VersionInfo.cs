@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public class ProjectVersion : VersionInfo
     {
-        public ProjectVersion()
+        public ProjectVersion() : this(new Version(1, 0))
         {
         }
 
@@ -60,7 +60,7 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public class PrefabVersion : VersionInfo
     {
-        public PrefabVersion()
+        public PrefabVersion() : this(new Version(1, 0))
         {
         }
 

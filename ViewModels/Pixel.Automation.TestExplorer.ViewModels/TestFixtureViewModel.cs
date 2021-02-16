@@ -59,10 +59,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
-        public IEnumerable<string> Tags
+        public List<string> Tags
         {
-            get => TestFixture.Tags;
-            set => TestFixture.Tags = value;
+            get => TestFixture.Tags;         
         }
 
         public string Group

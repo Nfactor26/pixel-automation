@@ -51,7 +51,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => string.Join(",", CopyOfTestFixture.Tags);
             set
             {
-                CopyOfTestFixture.Tags = value.Split(new char[] { ',' });
+                CopyOfTestFixture.Tags.Clear();
+                CopyOfTestFixture.Tags.AddRange(value.Split(new char[] { ',' }));
                 NotifyOfPropertyChange();
             }
         }
@@ -89,7 +90,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testFixtureVM.Group = CopyOfTestFixture.Group;
                 this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;
                 this.testFixtureVM.Order = CopyOfTestFixture.Order;
-                this.testFixtureVM.Tags = CopyOfTestFixture.Tags;
+                this.testFixtureVM.Tags.Clear();
+                this.testFixtureVM.Tags.AddRange(CopyOfTestFixture.Tags);
                 await this.TryCloseAsync(true);
             }           
         }

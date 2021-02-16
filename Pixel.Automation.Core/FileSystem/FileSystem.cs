@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Attributes;
+﻿using Dawn;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
@@ -28,8 +29,8 @@ namespace Pixel.Automation.Core
 
         public FileSystem(ISerializer serializer, ApplicationSettings applicationSettings)
         {
-            this.serializer = serializer;
-            this.applicationSettings = applicationSettings;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
         }
 
         protected void Initialize()

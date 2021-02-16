@@ -46,10 +46,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => TestCase.Description = value;
         }
 
-        public IEnumerable<string> Tags
+        public List<string> Tags
         {
-            get => TestCase.Tags;
-            set => TestCase.Tags = value;
+            get => TestCase.Tags;           
         }
 
         public bool IsMuted

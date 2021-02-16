@@ -37,7 +37,7 @@ namespace Pixel.Automation.Core.TestData
         public string Description { get; set; }
 
         [DataMember]
-        public IEnumerable<string> Tags { get; set; } = new List<string>();     
+        public List<string> Tags { get;  private set; } = new List<string>();     
      
      
         public Entity TestCaseEntity { get; set; }  

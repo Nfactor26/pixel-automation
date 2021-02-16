@@ -42,19 +42,13 @@ namespace Pixel.Automation.Core.Arguments
             }
             return false;
         }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
+     
         public override object Clone()
         {
             OutArgument<T> clone = new OutArgument<T>()
             {
                 Mode = this.Mode,
-                PropertyPath = this.PropertyPath,
-                ScriptFile = this.ScriptFile,
+                PropertyPath = this.PropertyPath,              
                 CanChangeMode = this.CanChangeMode,
                 CanChangeType = this.CanChangeType
             };

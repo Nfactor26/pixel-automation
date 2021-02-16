@@ -8,6 +8,7 @@ namespace Pixel.Automation.Core.Attributes
     /// DataModels can be decorated with this attribute to denote the file extension that will be used while persisting them on disk.
     /// This information is also used by FileSystem when Loading DataModels from a given directory.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class FileDescriptionAttribute : Attribute
     {       
         /// <summary>

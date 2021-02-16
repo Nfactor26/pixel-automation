@@ -25,9 +25,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 Order = 1,
                 Description = "Test fixture description",                          
                 ScriptFile = "Script.csx",
-                Tags = tags,
                 TestFixtureEntity = fixtureEntity
             };
+            testFixture.Tags.AddRange(tags);
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.Id));
@@ -56,16 +56,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tags.Add("Tag1");
             tags.Add("Tag2");
             TestFixture testFixture = new TestFixture();
-            _ = new TestFixtureViewModel(testFixture)
+            var testCaseViewModel = new TestFixtureViewModel(testFixture)
             {
                 DisplayName = "TestFixture#1",
                 Order = 1,
                 Description = "Test fixture description",
                 TestFixtureEntity = fixtureEntity,
                 ScriptFile = "Script.csx",
-                IsMuted = true,
-                Tags = tags
+                IsMuted = true
             };
+            testCaseViewModel.Tags.AddRange(tags);
 
             Assert.AreEqual("TestFixture#1", testFixture.DisplayName);
             Assert.AreEqual(1, testFixture.Order);

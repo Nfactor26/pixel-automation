@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.TestData
 
         public static TestResult EmptyResult { get; } = new TestResult() { Result = TestState.None };
 
-        TestState result;
+        TestState result = TestState.None;
         public TestState Result
         {
             get => result;
@@ -27,7 +27,7 @@ namespace Pixel.Automation.Core.TestData
             }
         }
 
-        TimeSpan executionTime;
+        TimeSpan executionTime = TimeSpan.Zero;
         public TimeSpan ExecutionTime
         {
             get => executionTime;

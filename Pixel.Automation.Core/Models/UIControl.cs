@@ -10,9 +10,9 @@ namespace Pixel.Automation.Core.Models
     {
         protected object TargetControl { get; set; }
 
-        public Rectangle BoundingBox { get; set; }
+        //public Rectangle BoundingBox { get; set; }
 
-        public Point ClickablPoint { get; set; }
+        //public Point ClickablPoint { get; set; }
 
         public virtual T GetApiControl<T>()
         {

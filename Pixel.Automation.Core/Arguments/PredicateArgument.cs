@@ -27,18 +27,12 @@ namespace Pixel.Automation.Core.Arguments
         {           
             return false;
         }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+       
         public override object Clone()
         {
             PredicateArgument<T> clone = new PredicateArgument<T>()
             {
-                Mode = this.Mode,
-                PropertyPath = this.PropertyPath,
-                ScriptFile = this.ScriptFile,
+                Mode = this.Mode,            
                 CanChangeMode = this.CanChangeMode,
                 CanChangeType = this.CanChangeType
             };

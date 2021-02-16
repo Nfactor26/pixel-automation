@@ -112,8 +112,9 @@ namespace Pixel.Automation.Input.Devices.Tests
             Assert.AreEqual(true, mouseClickActor.ValidateComponent());
 
             //We are initializing MoveTo again but leaivng out the default value of screen coordinate.
+            //Default instance of ScreenCoordinate is automatically created as the default value
             mouseClickActor.ClickAt = new InArgument<ScreenCoordinate>();
-            Assert.AreEqual(false, mouseClickActor.ValidateComponent());
+            Assert.AreEqual(true, mouseClickActor.ValidateComponent());
         }
 
         [Test]
