@@ -35,6 +35,8 @@ namespace Pixel.Persistence.Services.Client
             get => !this.applicationSettings.IsOfflineMode;
         }
 
+        #region Constructor
+
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
             IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
             IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, ApplicationSettings applicationSettings)
@@ -58,9 +60,29 @@ namespace Pixel.Persistence.Services.Client
             {
                 Directory.CreateDirectory(applicationSettings.AutomationDirectory);
             }
+
         }
 
+        #endregion Constructor
+
         #region Applications 
+
+
+        /// <summary>
+        /// Get all the applications available on disk
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<ApplicationDescription> GetAllApplications()
+        {
+            foreach (var app in Directory.GetDirectories(this.applicationSettings.ApplicationDirectory))
+            {
+                string appFile = Directory.GetFiles(Path.Combine(this.applicationSettings.ApplicationDirectory, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
+                yield return application;
+            }
+            yield break;
+        }
+
 
         /// <summary>
         /// Saves a new application to database
@@ -90,92 +112,87 @@ namespace Pixel.Persistence.Services.Client
         {
             if (IsOnlineMode)
             {
-                var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
-                var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
-                foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
+                try
                 {
-                    //download application file if there is a newer version available or data doesn't already exist locally
-                    if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && a.LastUpdated < serverApplicationMetaData.LastUpdated)
-                             || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId)))
+                    var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
+                    var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
+                    foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
                     {
-                        var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
-                        SaveApplicationToDisk(applicationDescription);
-                    }
-
-                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
-
-                    //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
-                    List<string> controlsToDownload = new List<string>();
-                    foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
-                    {
-                        if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
+                        //download application file if there is a newer version available or data doesn't already exist locally
+                        if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && a.LastUpdated < serverApplicationMetaData.LastUpdated)
+                                 || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId)))
                         {
-                            continue;
+                            var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
+                            SaveApplicationToDisk(applicationDescription);
+                            logger.Information($"Application : {applicationDescription.ApplicationId} has been updated.");
                         }
-                        controlsToDownload.Add(controlMetaData.ControlId);
-                    }
 
-                    if (controlsToDownload.Any())
-                    {
-                        GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
-                        {
-                            ApplicationId = serverApplicationMetaData.ApplicationId,
-                            ControlIdCollection = new List<string>(controlsToDownload)
-                        };
-                        var zippedContent = await this.controlRepositoryClient.GetControls(request);
+                        var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
 
-                        using (var memoryStream = new MemoryStream(zippedContent, false))
+                        //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
+                        List<string> controlsToDownload = new List<string>();
+                        foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
                         {
-                            var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                            foreach (var entry in zipArchive.Entries)
+                            if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
                             {
-                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
-                                if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
+                                continue;
+                            }
+                            controlsToDownload.Add(controlMetaData.ControlId);
+                        }
+
+                        if (controlsToDownload.Any())
+                        {
+                            GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
+                            {
+                                ApplicationId = serverApplicationMetaData.ApplicationId,
+                                ControlIdCollection = new List<string>(controlsToDownload)
+                            };
+                            var zippedContent = await this.controlRepositoryClient.GetControls(request);
+
+                            using (var memoryStream = new MemoryStream(zippedContent, false))
+                            {
+                                var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                                foreach (var entry in zipArchive.Entries)
                                 {
-                                    Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                                    var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
+                                    if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
+                                    {
+                                        Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                                    }
+                                    entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
                                 }
-                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
                             }
+                            logger.Information($"{controlsToDownload.Count()} controls for application {serverApplicationMetaData.ApplicationId} have been updated.");
                         }
-                    }
 
-                    //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
-                    foreach(var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
-                    {
-                        var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
-                        if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
+                        //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
+                        foreach (var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
                         {
-                            await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
-                        }
-                        foreach(var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
-                        {
-                            var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
-                            if(!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
+                            var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
+                            if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
                             {
-                                await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
+                                await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
+                                logger.Information($"PrefabDescription file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
+                            }
+                            foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
+                            {
+                                var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
+                                if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
+                                {
+                                    await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
+                                    logger.Information($"Prefab data files for version {serverPrefabVersionMetaData.Version} of prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} have been updated.");
+                                }
                             }
                         }
+                        CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
                     }
-                    CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
+                }
+                catch (Exception ex)
+                {                   
+                    logger.Error(ex, $"There was an error while updating application data. {ex.Message}");                    
                 }
             }
         }
-
-        /// <summary>
-        /// Get all the applications available on disk
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<ApplicationDescription> GetAllApplications()
-        {
-            foreach (var app in Directory.GetDirectories(this.applicationSettings.ApplicationDirectory))
-            {
-                string appFile = Directory.GetFiles(Path.Combine(this.applicationSettings.ApplicationDirectory, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
-                yield return application;
-            }
-            yield break;
-        }
-
 
         /// <summary>
         /// Save the ApplicationDetails of ApplicationToolBoxItem to File
@@ -407,7 +424,6 @@ namespace Pixel.Persistence.Services.Client
 
         #endregion Project
 
-
         #region Prefabs
 
         public async Task AddOrUpdatePrefabDescriptionAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion)
@@ -480,6 +496,8 @@ namespace Pixel.Persistence.Services.Client
 
         #endregion Prefabs
 
+        #region Metadata
+
         private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
         {
             string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, "Applications.meta");
@@ -538,6 +556,9 @@ namespace Pixel.Persistence.Services.Client
                 File.Delete(metaDataFile);
             }
             this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
+            logger.Information("Local application metadata has been updated.");
         }
+
+        #endregion Metadata
     }
 }

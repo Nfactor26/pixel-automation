@@ -1,77 +1,56 @@
-﻿using Pixel.Automation.Core.TestData;
+﻿using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.TestData;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
 {
     public interface ITestSelector
     {
-        bool CanRunCategory(TestFixture testCategory);
+        bool CanRunTest(TestFixture fixture, TestCase testCase);
 
-        bool CanRunTest(TestCase testCase);
+        Task Initialize(string selector);
     }
 
     public class TestSelector : ITestSelector
     {
-        private List<string> includedCategories = new List<string>();
-        private List<string> excludedCategories = new List<string>();
-        private List<string> includedTags = new List<string>();
-        private List<string> excludedTags = new List<string>();
 
-        public TestSelector()
+        private readonly IScriptEngine scriptEngine;
+        private Func<TestFixture, TestCase, bool> testSelector;
+
+        public TestSelector(IScriptEngineFactory scriptEngineFactory)
         {
-           
+            Guard.Argument(scriptEngineFactory).NotNull();
+            scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory);
+            this.scriptEngine = scriptEngineFactory.CreateScriptEngine(Environment.CurrentDirectory);
         }
 
-        public TestSelector WithCategories(string categories)
+        public async Task Initialize(string selector)
         {
-            includedCategories.AddRange(ParseArgument(categories));
-            return this;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using System.Linq;");
+            sb.AppendLine($"using {typeof(Priority).Namespace};");
+            sb.AppendLine($"using {typeof(TestFixture).Namespace};");
+            sb.AppendLine("bool IsMatch(TestFixture fixture, TestCase testCase)");
+            sb.AppendLine("{");
+            sb.AppendLine($"    return {selector};");
+            sb.AppendLine("}");
+            sb.AppendLine("return ((Func<TestFixture, TestCase, bool>)IsMatch);");
+            File.WriteAllText("Selector.csx", sb.ToString());
+            this.testSelector = await scriptEngine.CreateDelegateAsync<Func<TestFixture, TestCase, bool>>("Selector.csx");
         }
 
-        public TestSelector WithExcludedCategories(string categories)
-        {
-            excludedCategories.AddRange(ParseArgument(categories));
-            return this;
-        }
-
-        public TestSelector WithTags(string tags)
-        {
-            includedTags.AddRange(ParseArgument(tags));
-            return this;
-        }
-
-        public TestSelector WithExcludedTags(string tags)
-        {
-            excludedTags.AddRange(ParseArgument(tags));
-            return this;
-        }
-
-        public bool CanRunCategory(TestFixture category)
-        {
-            bool canRun = !includedCategories.Any() || includedCategories.Contains(category.DisplayName);
-            canRun = canRun && excludedCategories.Any() && !excludedCategories.Contains(category.DisplayName);
-            return canRun;
-        }
-
-        public bool CanRunTest(TestCase testCase)
+        public bool CanRunTest(TestFixture fixture, TestCase testCase)
         {
             bool canRun = !testCase.IsMuted;
-            canRun = canRun && (!includedTags.Any() || includedTags.Contains(testCase.DisplayName));
-            canRun =  canRun && (excludedTags.Any() && !excludedTags.Contains(testCase.DisplayName));
+            canRun = this.testSelector.Invoke(fixture, testCase);
             return canRun;
-        }
-
-        private string[]  ParseArgument(string argument)
-        {
-            if(string.IsNullOrEmpty(argument))
-            {
-                return Array.Empty<string>();
-            }
-            string[] values = argument.Split(new char[] { '|' });
-            return values;
         }
     }
 }

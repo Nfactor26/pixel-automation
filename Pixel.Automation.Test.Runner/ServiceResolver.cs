@@ -14,7 +14,7 @@ namespace Pixel.Automation.Test.Runner
         public ServiceResolver(IKernel parentKernel)
         {
             //we want these dependencies retrieved from child kernel each time so that prefabs get their own instance.
-            this.kernel = new ChildKernel(parentKernel, new ScopedModules(), new ScriptingModule());
+            this.kernel = new ChildKernel(parentKernel, new ScopedModules());
         }
 
         /// <summary>

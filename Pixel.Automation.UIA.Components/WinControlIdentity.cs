@@ -1,10 +1,11 @@
-﻿using Pixel.Automation.Core.Arguments;
+﻿extern alias uiaComWrapper;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -55,7 +56,7 @@ namespace Pixel.Automation.UIA.Components
         {
             get
             {
-                return System.Windows.Automation.ControlType.LookupById(this.ControlTypeId).ProgrammaticName;
+                return uiaComWrapper::System.Windows.Automation.ControlType.LookupById(this.ControlTypeId).ProgrammaticName;
             }           
         }
 

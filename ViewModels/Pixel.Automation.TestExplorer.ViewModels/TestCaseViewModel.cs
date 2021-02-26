@@ -1,9 +1,9 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
@@ -46,9 +46,20 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => TestCase.Description = value;
         }
 
-        public List<string> Tags
+        public TagCollection Tags
         {
             get => TestCase.Tags;           
+        }
+
+
+        public int Order
+        {
+            get => TestCase.Order;
+            set
+            {
+                TestCase.Order = value;
+                OnPropertyChanged();
+            }
         }
 
         public bool IsMuted
@@ -61,12 +72,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
      
-        public int Order
+        public Priority Priority
         {
-            get => TestCase.Order;
+            get => TestCase.Priority;
             set
             {
-                TestCase.Order = value;
+                TestCase.Priority = value;
                 OnPropertyChanged();
             }
         }

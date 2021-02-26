@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.TestData;
+﻿using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,16 +46,22 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestCase.Order = value;
         }
 
-        public string Tags
+        public Priority Priority
         {
-            get => string.Join(",", CopyOfTestCase.Tags);
-            set
-            {
-                CopyOfTestCase.Tags.Clear();
-                CopyOfTestCase.Tags.AddRange(value.Trim(',').Split(new char[] { ',' }));
-                NotifyOfPropertyChange();
-            }
+            get => CopyOfTestCase.Priority;
+            set => CopyOfTestCase.Priority = value;
         }
+
+        //public string Tags
+        //{
+        //    get => string.Join(",", CopyOfTestCase.Tags);
+        //    set
+        //    {
+        //        CopyOfTestCase.Tags.Clear();
+        //        CopyOfTestCase.Tags.AddRange(value.Trim(',').Split(new char[] { ',' }));
+        //        NotifyOfPropertyChange();
+        //    }
+        //}
 
         public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
         {
@@ -77,8 +84,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testCase.Description = CopyOfTestCase.Description;
                 this.testCase.IsMuted = CopyOfTestCase.IsMuted;
                 this.testCase.Order = CopyOfTestCase.Order;
-                this.testCase.Tags.Clear();
-                this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
+                //this.testCase.Tags.Clear();
+                //this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
                 await this.TryCloseAsync(true);
             }
         }

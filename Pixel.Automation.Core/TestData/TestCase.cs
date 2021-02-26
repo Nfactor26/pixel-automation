@@ -1,6 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Enums;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.TestData
@@ -27,6 +27,9 @@ namespace Pixel.Automation.Core.TestData
         public bool IsMuted { get; set; }
 
         [DataMember]
+        public Priority Priority { get; set; }
+
+        [DataMember]
         public string ScriptFile { get; set; }
 
 
@@ -37,7 +40,7 @@ namespace Pixel.Automation.Core.TestData
         public string Description { get; set; }
 
         [DataMember]
-        public List<string> Tags { get;  private set; } = new List<string>();     
+        public TagCollection Tags { get;  private set; } = new TagCollection();     
      
      
         public Entity TestCaseEntity { get; set; }  
@@ -49,7 +52,7 @@ namespace Pixel.Automation.Core.TestData
             {              
                 DisplayName = this.DisplayName,
                 Description = this.Description,   
-                Tags = this.Tags,
+                Tags = new TagCollection(this.Tags.Tags),
                 IsMuted = this.IsMuted,               
                 Order = this.Order            
             };

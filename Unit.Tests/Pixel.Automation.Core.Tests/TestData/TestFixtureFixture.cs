@@ -1,9 +1,7 @@
 ﻿using NUnit.Framework;
 using Pixel.Automation.Core.TestData;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Pixel.Automation.Core.Tests.TestData
 {
@@ -21,7 +19,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.IsNull(testFixture.ScriptFile);
             Assert.IsNull(testFixture.Description);
             Assert.IsNotNull(testFixture.Tags);
-            Assert.AreEqual("Default", testFixture.Group);
+            Assert.AreEqual("Default", testFixture.Category);
             Assert.IsNotNull(testFixture.Tests);
             Assert.IsNull(testFixture.TestFixtureEntity);
             Assert.AreEqual(testFixture.Id, testFixture.ToString());
@@ -30,8 +28,8 @@ namespace Pixel.Automation.Core.Tests.TestData
             testFixture.Order = 10;
             testFixture.IsMuted = true;
             testFixture.ScriptFile = "TestFixture.csx";
-            testFixture.Description = "Description";         
-            testFixture.Tags.Add("Tag1");
+            testFixture.Description = "Description";
+            testFixture.Tags.AddTag("color", "red");
             testFixture.Tests.Add(new TestCase());
             testFixture.TestFixtureEntity = new Entity();
 
@@ -41,7 +39,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.IsTrue(testFixture.IsMuted);
             Assert.AreEqual("TestFixture.csx", testFixture.ScriptFile);
             Assert.AreEqual("Description", testFixture.Description);
-            Assert.IsTrue(testFixture.Tags.Any());
+            Assert.AreEqual(testFixture.Tags["color"], "red");
             Assert.IsTrue(testFixture.Tests.Any());
             Assert.IsNotNull(testFixture.TestFixtureEntity);
         }
@@ -50,8 +48,8 @@ namespace Pixel.Automation.Core.Tests.TestData
         public void ValidateThatTestFixtureCanBeCloned()
         {
             var testFixture = new TestFixture() { DisplayName = "TestCase", Order = 10, IsMuted = true, ScriptFile = "ScriptFile.csx", 
-                Description = "Description", Group = "GroupOne", TestFixtureEntity = new Entity() };
-            testFixture.Tags.Add("Tag1");
+                Description = "Description", Category = "GroupOne", TestFixtureEntity = new Entity() };
+            testFixture.Tags.AddTag("color", "red");
             testFixture.Tests.Add(new TestCase());
             var copyOftestFixture = testFixture.Clone() as TestFixture;
 
@@ -59,8 +57,8 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.AreEqual(testFixture.Order, copyOftestFixture.Order);
             Assert.AreEqual(testFixture.Description, copyOftestFixture.Description);
             Assert.AreEqual(testFixture.IsMuted, copyOftestFixture.IsMuted);
-            Assert.IsTrue(testFixture.Tags.SequenceEqual(copyOftestFixture.Tags));
-            Assert.AreEqual(testFixture.Group, copyOftestFixture.Group);          
+            Assert.AreEqual(copyOftestFixture.Tags["color"], "red");
+            Assert.AreEqual(testFixture.Category, copyOftestFixture.Category);          
             Assert.AreNotEqual(testFixture.ScriptFile, copyOftestFixture.ScriptFile);      
             Assert.AreNotEqual(testFixture.TestFixtureEntity, copyOftestFixture.TestFixtureEntity);
             Assert.IsFalse(testFixture.Tests.SequenceEqual(copyOftestFixture.Tests));

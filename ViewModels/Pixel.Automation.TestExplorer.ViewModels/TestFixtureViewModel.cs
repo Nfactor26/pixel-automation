@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -59,15 +58,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
-        public List<string> Tags
+        public TagCollection Tags
         {
             get => TestFixture.Tags;         
         }
 
-        public string Group
+        public string Category
         {
-            get => TestFixture.Group;
-            set => TestFixture.Group = value;
+            get => TestFixture.Category;
+            set => TestFixture.Category = value;
         }
         
         public Entity TestFixtureEntity

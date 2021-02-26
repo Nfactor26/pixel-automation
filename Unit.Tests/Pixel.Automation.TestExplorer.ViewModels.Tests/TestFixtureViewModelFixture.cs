@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
@@ -15,10 +12,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatTestCaseViewModelReturnsCorrectValues()
         {
-            var fixtureEntity = new Entity();
-            var tags = new List<string>();
-            tags.Add("Tag1");
-            tags.Add("Tag2");
+            var fixtureEntity = new Entity();          
             TestFixture testFixture = new TestFixture()
             {
                 DisplayName = "TestFixture#1",
@@ -27,14 +21,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 TestFixtureEntity = fixtureEntity
             };
-            testFixture.Tags.AddRange(tags);
+            testFixture.Tags.AddTag("color", "red");
+            testFixture.Tags.AddTag("priority", "low");
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.Id));
             Assert.AreEqual("TestFixture#1", testFixtureviewModel.DisplayName);
             Assert.AreEqual(1, testFixtureviewModel.Order);
             Assert.AreEqual("Test fixture description", testFixtureviewModel.Description);          
-            Assert.AreEqual(tags, testFixtureviewModel.Tags);
+            Assert.IsTrue(testFixtureviewModel.Tags.HasTag("color"));
+            Assert.IsTrue(testFixtureviewModel.Tags.HasTag("priority"));
             Assert.AreEqual("Script.csx", testFixtureviewModel.ScriptFile);
             Assert.AreEqual(fixtureEntity, testFixtureviewModel.TestFixtureEntity);
             Assert.IsFalse(testFixtureviewModel.IsMuted);
@@ -51,10 +47,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatTestFixtureValuesCanBeUpdatedByUpdatingWrapperPropertiesOnViewModel()
         {
-            var fixtureEntity = new Entity();
-            var tags = new List<string>();
-            tags.Add("Tag1");
-            tags.Add("Tag2");
+            var fixtureEntity = new Entity();          
             TestFixture testFixture = new TestFixture();
             var testCaseViewModel = new TestFixtureViewModel(testFixture)
             {
@@ -65,13 +58,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCaseViewModel.Tags.AddRange(tags);
+            testCaseViewModel.Tags.AddTag("color", "red");
+            testCaseViewModel.Tags.AddTag("priority", "high");
 
             Assert.AreEqual("TestFixture#1", testFixture.DisplayName);
             Assert.AreEqual(1, testFixture.Order);
             Assert.AreEqual("Test fixture description", testFixture.Description);
             Assert.AreEqual(fixtureEntity, testFixture.TestFixtureEntity);
-            Assert.AreEqual(tags, testFixture.Tags);
+            Assert.IsTrue(testCaseViewModel.Tags.HasTag("color"));
+            Assert.IsTrue(testCaseViewModel.Tags.HasTag("priority"));
             Assert.AreEqual("Script.csx", testFixture.ScriptFile);
             Assert.IsTrue(testFixture.IsMuted);
         }

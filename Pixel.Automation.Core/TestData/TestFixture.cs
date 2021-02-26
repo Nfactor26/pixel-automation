@@ -29,10 +29,10 @@ namespace Pixel.Automation.Core.TestData
         public string Description { get; set; }
 
         [DataMember]
-        public string Group { get; set; } = "Default";
+        public string Category { get; set; } = "Default";
 
         [DataMember]
-        public List<string> Tags { get; private set; } = new List<string>();
+        public TagCollection Tags { get; private set; } = new TagCollection();
 
         public List<TestCase> Tests { get; private set; } = new List<TestCase>();
 
@@ -46,7 +46,7 @@ namespace Pixel.Automation.Core.TestData
                 Order = this.Order,
                 IsMuted = this.IsMuted,             
                 Description = this.Description,
-                Group = this.Group,
+                Category = this.Category,
                 Tags = this.Tags               
             };
             return copy;

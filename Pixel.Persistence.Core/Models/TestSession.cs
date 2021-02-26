@@ -19,14 +19,17 @@ namespace Pixel.Persistence.Core.Models
         
         public string ProjectName { get; set; }
 
+        public string ProjectVersion { get; set; }
+
         public TestSession()
         {
            
         }
 
-        public TestSession(string projectName)
+        public TestSession(string projectName, string projectVersion)
         {
-            this.ProjectName = projectName;        
+            this.ProjectName = projectName;
+            this.ProjectVersion = projectVersion;
         }
       
 

@@ -32,10 +32,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatTestCaseViewModelReturnsCorrectValues()
         {
-            var testCaseEntity = new Entity();
-            var tags = new List<string>();
-            tags.Add("Tag1");
-            tags.Add("Tag2");
+            var testCaseEntity = new Entity();        
             TestCase testCase = new TestCase()
             {
                 DisplayName = "TestCase#1",
@@ -45,7 +42,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 FixtureId = "Fixture#1",
                 ScriptFile = "Script.csx"
             };
-            testCase.Tags.AddRange(tags);
+            testCase.Tags.AddTag("color", "red");
+            testCase.Tags.AddTag("priority", "high");
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
@@ -54,7 +52,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             Assert.AreEqual("Test case description", testCaseViewModel.Description);
             Assert.AreEqual("Fixture#1", testCaseViewModel.FixtureId);
             Assert.AreEqual(testCaseEntity, testCaseViewModel.TestCaseEntity);
-            Assert.AreEqual(tags, testCaseViewModel.Tags);
+            Assert.IsTrue(testCaseViewModel.Tags.HasTag("color"));
+            Assert.IsTrue(testCaseViewModel.Tags.HasTag("priority"));
             Assert.AreEqual("Script.csx", testCaseViewModel.ScriptFile);
             Assert.IsNull(testCaseViewModel.TestDataId);
             Assert.IsFalse(testCaseViewModel.IsMuted);
@@ -73,10 +72,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatTestCaseValuesCanBeUpdatedByUpdatingWrapperPropertiesOnViewModel()
         {
-            var testCaseEntity = new Entity();
-            var tags = new List<string>();
-            tags.Add("Tag1");
-            tags.Add("Tag2");
+            var testCaseEntity = new Entity();          
             TestCase testCase = new TestCase();
             var testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator)
             {
@@ -87,13 +83,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCaseViewModel.Tags.AddRange(tags);
-          
+            testCase.Tags.AddTag("color", "red");       
             Assert.AreEqual("TestCase#1", testCase.DisplayName);
             Assert.AreEqual(1, testCase.Order);
             Assert.AreEqual("Test case description", testCase.Description);         
             Assert.AreEqual(testCaseEntity, testCase.TestCaseEntity);
-            Assert.AreEqual(tags, testCase.Tags);
+            Assert.AreEqual(testCase.Tags["color"], "red");
             Assert.AreEqual("Script.csx", testCase.ScriptFile);
             Assert.IsTrue(testCase.IsMuted);
         }

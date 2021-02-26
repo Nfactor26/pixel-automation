@@ -23,6 +23,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        public string TestFixtureCategory
+        {
+            get => CopyOfTestFixture.Category;
+            set
+            {
+                CopyOfTestFixture.Category = value;
+                ValidateProperty(nameof(TestFixtureCategory));
+                NotifyOfPropertyChange();
+            }
+        }
+
         public string TestFixtureDescription
         {
             get => CopyOfTestFixture.Description;
@@ -46,28 +57,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestFixture.Order = value;
         }
 
-        public string Tags
-        {
-            get => string.Join(",", CopyOfTestFixture.Tags);
-            set
-            {
-                CopyOfTestFixture.Tags.Clear();
-                CopyOfTestFixture.Tags.AddRange(value.Split(new char[] { ',' }));
-                NotifyOfPropertyChange();
-            }
-        }
-
-
-        public string Group
-        {
-            get => CopyOfTestFixture.Group;
-            set
-            {
-                CopyOfTestFixture.Group = value;
-                ValidateProperty(nameof(Group));
-                NotifyOfPropertyChange();
-            }
-        }
+        //public string Tags
+        //{
+        //    get => string.Join(",", CopyOfTestFixture.Tags);
+        //    set
+        //    {
+        //        CopyOfTestFixture.Tags.Clear();
+        //        CopyOfTestFixture.Tags.AddRange(value.Split(new char[] { ',' }));
+        //        NotifyOfPropertyChange();
+        //    }
+        //}
+       
 
         public EditTestFixtureViewModel(TestFixtureViewModel testFixtureVM, IEnumerable<TestFixtureViewModel> existingFixtures)
         {
@@ -87,11 +87,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 this.testFixtureVM.DisplayName = CopyOfTestFixture.DisplayName;
                 this.testFixtureVM.Description = CopyOfTestFixture.Description;
-                this.testFixtureVM.Group = CopyOfTestFixture.Group;
+                this.testFixtureVM.Category = CopyOfTestFixture.Category;
                 this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;
                 this.testFixtureVM.Order = CopyOfTestFixture.Order;
-                this.testFixtureVM.Tags.Clear();
-                this.testFixtureVM.Tags.AddRange(CopyOfTestFixture.Tags);
+                //this.testFixtureVM.Tags.Clear();
+                //this.testFixtureVM.Tags.AddRange(CopyOfTestFixture.Tags);
                 await this.TryCloseAsync(true);
             }           
         }
@@ -119,8 +119,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         AddOrAppendErrors(nameof(TestFixtureDisplayName), "Name must be unique.");
                     }
                     break;
-                case nameof(Group):
-                    ValidateRequiredProperty(nameof(Group), Group);
+                case nameof(TestFixtureCategory):
+                    ValidateRequiredProperty(nameof(TestFixtureCategory), TestFixtureCategory);
                     break;
             }        
             NotifyOfPropertyChange(() => CanSave);

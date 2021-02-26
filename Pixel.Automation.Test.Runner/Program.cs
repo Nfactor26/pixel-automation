@@ -1,8 +1,10 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Ninject;
 using Pixel.Automation.Test.Runner.Modules;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
@@ -15,10 +17,9 @@ namespace Pixel.Automation.Test.Runner
             app.HelpOption("-h|--help");
             var project = app.Option("-p | --project", "Target project containing tests", CommandOptionType.SingleValue);
             var version = app.Option("-v | --version", "Deployed version of target project to use", CommandOptionType.SingleValue);
-            var includedCategories = app.Option("-ic | --include-categories", "| seperated test categories to execute e.g. Category1|Category2. Run all categories if no value specified", CommandOptionType.SingleOrNoValue);
-            var includedTags = app.Option("-it | --include-tags", "| seperated tags values. Only tests tagged with any of these values will be executed. Run all tests from eligible categories if not value specified", CommandOptionType.SingleOrNoValue);
-            var excludedCategories = app.Option("-ec | --exclude-categories", "| seperated test categories to exclude for execution e.g. Category1|Category2.", CommandOptionType.SingleOrNoValue);
-            var excludedTags = app.Option("-et | --exclude-tags", "| seperated tags values. Tests tagged with any of these values will not be executed.", CommandOptionType.SingleOrNoValue);
+            var run = app.Option("-r || --run", "Indicates that test should be executed", CommandOptionType.NoValue);
+            var list = app.Option("-l | --list", "List all the tests that matches selection criteria", CommandOptionType.NoValue);
+            var where = app.Option("-w | --where", "Test selector function e.g. fixture.Category == \"SomeCategory\" && (test.Priority == Priority.Medium || test.Tags[\"key\"] != \"value\")" ,CommandOptionType.SingleValue);          
 
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -26,25 +27,39 @@ namespace Pixel.Automation.Test.Runner
             .WriteTo.RollingFile("logs\\Pixel-Automation-{Date}.txt")
             .CreateLogger();
 
+            var kernel = new StandardKernel(new CommonModule(), new DevicesModule(), new ScopedModules(), new ScriptingModule(), new WindowsModule(), new SettingsModule(), new PersistenceModules());
+            var applicationDataManager = kernel.Get<IApplicationDataManager>();
+            Log.Information("Downloading application data now");
+            _ = applicationDataManager.DownloadApplicationsDataAsync();
+            Log.Information("Download of application data completed");
+            Log.Information("Downloading project information now");
+            _ = applicationDataManager.DownloadProjectsAsync();
+            Log.Information("Download of project information completed");
+
+            //Debugger.Launch();
+
             app.OnExecuteAsync(async c =>
             {
-                if (project.HasValue() && version.HasValue())
+                if (project.HasValue() && version.HasValue() && where.HasValue())
                 {
-                    var testSelector = new TestSelector();
-                    testSelector.WithCategories(includedCategories.Value()).WithExcludedCategories(excludedCategories.Value())
-                        .WithTags(includedTags.Value()).WithExcludedCategories(excludedCategories.Value());
-
-                    var kernel = new StandardKernel(new CommonModule(), new DevicesModule(), new WindowsModule());
-
                     var projectManager = kernel.Get<ProjectManager>();
                     projectManager.LoadProject(project.Value(), version.Value());
                     projectManager.LoadTestCases();
-                    await projectManager.RunAll(testSelector);
+
+                    if(run.HasValue())
+                    {
+                        await projectManager.RunAll(where.Value());
+                    }
+                    if(list.HasValue())
+                    {
+
+                    }
                     return await Task.FromResult<int>(0);
+
                 }
                 else
                 {
-                    Log.Error("No arguments provided.");
+                    Log.Error("Required arguments are missing. Specify --run to run tests or --list to list down tests matching selection criteria along with project, version and where clause");
                     app.ShowHelp();
                     Console.WriteLine("Press any key to exit");
                     Console.ReadLine();

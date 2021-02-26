@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using Pixel.Automation.Core.TestData;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Pixel.Automation.Core.Tests.TestData
 {
@@ -32,7 +29,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             testCase.IsMuted = true;
             testCase.ScriptFile = "TestCase.csx";
             testCase.TestDataId = Guid.NewGuid().ToString();
-            testCase.Tags.Add("Tag1");
+            testCase.Tags.AddTag("color", "red");
             testCase.Description = "Description";
             testCase.TestCaseEntity = new Entity();
 
@@ -42,7 +39,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.IsTrue(testCase.IsMuted);
             Assert.AreEqual("TestCase.csx", testCase.ScriptFile);
             Assert.IsFalse(string.IsNullOrEmpty(testCase.TestDataId));
-            Assert.IsTrue(testCase.Tags.Any());
+            Assert.AreEqual(testCase.Tags["color"], "red");
             Assert.AreEqual("Description", testCase.Description);
             Assert.IsNotNull(testCase.TestCaseEntity);
         }
@@ -51,14 +48,14 @@ namespace Pixel.Automation.Core.Tests.TestData
         public void ValidateThatTestCaseCanBeCloned()
         {
             var testCase = new TestCase() { DisplayName = "TestCase", FixtureId = "FixtureId", Order = 10, IsMuted = true, ScriptFile = "ScriptFile.csx", TestDataId = "TestDataId", Description = "Description", TestCaseEntity = new Entity() };
-            testCase.Tags.Add("Tag1");
+            testCase.Tags.AddTag("color", "red");
             var copyOfTestCase = testCase.Clone() as TestCase;
 
             Assert.AreEqual(testCase.DisplayName, copyOfTestCase.DisplayName);
             Assert.AreEqual(testCase.Order, copyOfTestCase.Order);
             Assert.AreEqual(testCase.Description, copyOfTestCase.Description);
             Assert.AreEqual(testCase.IsMuted, copyOfTestCase.IsMuted);
-            Assert.IsTrue(testCase.Tags.SequenceEqual(copyOfTestCase.Tags));
+            Assert.AreEqual(copyOfTestCase.Tags["color"], "red");
             Assert.AreNotEqual(testCase.FixtureId, copyOfTestCase.FixtureId);
             Assert.AreNotEqual(testCase.ScriptFile, copyOfTestCase.ScriptFile);
             Assert.AreNotEqual(testCase.TestDataId, copyOfTestCase.TestDataId);

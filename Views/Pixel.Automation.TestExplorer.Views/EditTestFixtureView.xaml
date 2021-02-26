@@ -18,25 +18,32 @@
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Name" VerticalAlignment="Center"/>
-                <TextBox x:Name="DisplayName" Text="{Binding TestFixtureDisplayName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                <TextBox x:Name="DisplayName" Text="{Binding TestFixtureDisplayName, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                      controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                      controls:TextBoxHelper.Watermark="Name"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
+                <Label Content="Category" VerticalAlignment="Center"/>
+                <TextBox x:Name="Category" Text="{Binding TestFixtureCategory, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                     controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
+                     controls:TextBoxHelper.Watermark="Category"  HorizontalAlignment="Stretch"
+                     VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Description"/>
-                <TextBox x:Name="Description" Text="{Binding TestFixtureDescription, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                <TextBox x:Name="Description" Text="{Binding TestFixtureDescription, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                      controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                      controls:TextBoxHelper.Watermark="Description"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
+            <!--<StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Tags"/>
                 <TextBox x:Name="Tags" Text="{Binding Tags, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                      controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                      controls:TextBoxHelper.Watermark="Tags (comma seperate e.g. tag1,tag2)"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
-            </StackPanel>
+            </StackPanel>-->
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlMargin}">
                 <StackPanel Orientation="Horizontal" Margin="4 0 0 0">
                     <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Tests belonging to a muted fixture are not executed"/>
