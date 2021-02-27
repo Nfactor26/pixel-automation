@@ -176,6 +176,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 controlToEdit.ControlDetails = copyOfControlToEdit;
                 await SaveControlDetails(controlToEdit, false);
+                await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
             }
         }
 

@@ -10,13 +10,16 @@ namespace Pixel.Automation.Core.Components
 {
     [DataContract]
     [Serializable]
-    public abstract class ControlIdentity : DataComponent, IControlIdentity , ICloneable
+    public abstract class ControlIdentity : NotifyPropertyChanged, IControlIdentity , ICloneable
     {
         #region  General 
 
         [DataMember]
         [Browsable(false)]
         public string ApplicationId { get; set; }
+  
+        [DataMember]
+        public string Name { get; set; }
 
         [DataMember]        
         [Description("Name of the source image")]      
@@ -132,7 +135,7 @@ namespace Pixel.Automation.Core.Components
 
         protected ControlIdentity()
         {
-                                  
+                     
         }
 
         public string GetControlName()

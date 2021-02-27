@@ -80,7 +80,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         List<FrameIdentity> frameHierarchy = new List<FrameIdentity>();
         /// <summary>
-        /// Indicates the index of the frame inside a window/tab where the target control can be located.        /// 
+        /// Indicates the index of the frame inside a window/tab where the target control can be located. 
         /// </summary>
         [DataMember(IsRequired = true)]
         [Description("Details of frame hierarchy in web page  which contains the element")]
@@ -88,8 +88,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         public List<FrameIdentity> FrameHierarchy
         {
             get
-            {
-                frameHierarchy?.ForEach(f => f.EntityManager = this.EntityManager);
+            {             
                 return frameHierarchy;
             }    
             set
@@ -100,7 +99,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         #endregion Frame Details
 
-        public WebControlIdentity()
+        public WebControlIdentity() : base()
         {
                          
         }
@@ -110,9 +109,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             WebControlIdentity clone = new WebControlIdentity()
             {
-                Name = this.Name,
-                Id = Guid.NewGuid().ToString(),
-                EntityManager = this.EntityManager,
+                Name = this.Name,                          
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,              

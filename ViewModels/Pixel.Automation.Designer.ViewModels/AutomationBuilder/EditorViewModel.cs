@@ -13,12 +13,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable
+    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>
     {
         #region data members
 
@@ -52,7 +53,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
 
             this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
-            this.globalEventAggregator.SubscribeOnUIThread(this);
+            this.globalEventAggregator.SubscribeOnPublishedThread(this);
 
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.EntityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
@@ -303,6 +304,19 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #endregion property grid
 
+
+        public async Task HandleAsync(ControlUpdatedEventArgs updatedControl, CancellationToken cancellationToken)
+        {
+            var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+            var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
+            foreach(var control in controlsToBeReloaded)
+            {
+                control.Reload();
+                logger.Information($"Control : {control.Name} with Id : {control.ControlId} has been reloaded");
+                await Task.CompletedTask;
+            }
+        }
+
         #region IDisposable
 
         public  void Dispose()
@@ -317,7 +331,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.Tools.Clear();
                 this.WorkFlowRoot.Clear();               
             }
-        }
+        }     
 
         #endregion IDisposable
     }

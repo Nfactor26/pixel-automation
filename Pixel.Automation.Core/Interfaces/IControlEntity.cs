@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.Core.Interfaces
 {
     public interface IControlEntity : IComponent
     {
+        /// <summary>
+        /// Identifier of the control
+        /// </summary>
+        string ControlId { get; set; }
+
         /// <summary>
         /// Target file where control identification details are saved
         /// </summary>
@@ -62,7 +66,13 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T GetTargetControl<T>();       
+        T GetTargetControl<T>();
+
+        /// <summary>
+        /// Reload the control details from control file.
+        /// This can be used to reload control data on editor whenever control is edited from explorer.
+        /// </summary>
+        void Reload();
  
     }
 }

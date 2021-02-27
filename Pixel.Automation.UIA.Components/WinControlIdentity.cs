@@ -110,7 +110,7 @@ namespace Pixel.Automation.UIA.Components
 
         #endregion required during scraping
 
-        public WinControlIdentity()
+        public WinControlIdentity() : base()
         {
             this.SupportedPatterns = new List<string>();
         }
@@ -120,9 +120,7 @@ namespace Pixel.Automation.UIA.Components
         {
             WinControlIdentity clone = new WinControlIdentity()
             {
-                Name = this.Name,
-                Id = Guid.NewGuid().ToString(),
-                EntityManager = this.EntityManager,
+                Name = this.Name,              
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,
@@ -142,8 +140,7 @@ namespace Pixel.Automation.UIA.Components
                 IsControlElement = this.IsControlElement,
                 NameProperty = this.NameProperty,
                 OwnerApplication = this.OwnerApplication,
-                SearchScope = this.SearchScope,
-                tag = this.tag,            
+                SearchScope = this.SearchScope,                     
                 Next = this.Next?.Clone() as WinControlIdentity
 
             };

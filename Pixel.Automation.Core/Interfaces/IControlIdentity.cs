@@ -13,6 +13,12 @@ namespace Pixel.Automation.Core.Interfaces
             set;
         }
 
+        string Name
+        {
+            get;
+            set;
+        }
+
         string ControlImage
         {
             get;

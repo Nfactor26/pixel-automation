@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]
-    public class FrameIdentity : DataComponent
+    public class FrameIdentity : NotifyPropertyChanged
     {
 
         string findByStrategy;

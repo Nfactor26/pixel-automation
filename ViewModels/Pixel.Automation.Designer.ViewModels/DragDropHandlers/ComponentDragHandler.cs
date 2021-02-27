@@ -382,6 +382,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 {
                     ControlEntity controlEntity = Activator.CreateInstance(containerEntityAttribute.ContainerEntityType)
                         as ControlEntity;
+                    controlEntity.ControlId = controlItem.ControlId;
                     controlEntity.Name = controlItem.ControlName;
                     controlEntity.ControlFile = Path.Combine(applicationSettings.ApplicationDirectory, controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
                     targetEntity.AddComponent(controlEntity);
