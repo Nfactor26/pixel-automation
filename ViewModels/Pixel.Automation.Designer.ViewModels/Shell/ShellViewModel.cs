@@ -248,8 +248,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task HandleAsync(PropertyGridObjectEventArgs message, CancellationToken cancellationToken)
         {
-            propertyGrid.SelectedObject = message.ObjectToDisplay;
-            propertyGrid.IsReadOnly = message.IsReadOnly;
+            propertyGrid.SetState(message.ObjectToDisplay, message.IsReadOnly, message.SaveCommand, message.CanSaveCommand);          
             await Task.CompletedTask;
         }
 

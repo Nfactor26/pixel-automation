@@ -48,7 +48,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     //one of the application is selected.
                     this.IsActiveItem = true;
                     //Notification for property grid to display selected application details
-                    this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails));
+                    this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails, true));
                 }
 
             }
@@ -164,9 +164,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.Applications.Add(newApplication);
             this.SelectedApplication = newApplication;
             await SaveApplicationAsync(newApplication);
+            await EditApplicationAsync(newApplication);
             NotifyOfPropertyChange(() => Applications);
-           
             logger.Information($"New application of type {application.ToString()} has been added to the application repository");
+        }
+
+        public async Task EditApplicationAsync(ApplicationDescription application)
+        {
+           await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(application.ApplicationDetails, () => { _ = SaveApplicationAsync(application); } , () => { return true; } ) );
         }
 
         public async Task SaveApplicationAsync(ApplicationDescription application)

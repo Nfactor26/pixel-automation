@@ -4,9 +4,13 @@ namespace Pixel.Automation.Core.Args
 {
     public class PropertyGridObjectEventArgs : EventArgs
     {
-        public object ObjectToDisplay { get; set; }
+        public object ObjectToDisplay { get; private set; }
 
-        public bool IsReadOnly { get; set; }
+        public bool IsReadOnly { get; private set; }
+
+        public Action SaveCommand { get; private set; }
+
+        public Func<bool> CanSaveCommand { get; private set; }
 
         public PropertyGridObjectEventArgs(Object objectToDisplay) : this(objectToDisplay, false)
         {
@@ -18,5 +22,12 @@ namespace Pixel.Automation.Core.Args
             this.ObjectToDisplay = objectToDisplay;
             this.IsReadOnly = isReadOnly;
         }
+
+        public PropertyGridObjectEventArgs(Object objectToDisplay, Action saveCommand, Func<bool> canSaveCommand) : this(objectToDisplay, false)
+        {
+            this.SaveCommand = saveCommand;
+            this.CanSaveCommand = canSaveCommand;
+        }
+
     }
 }

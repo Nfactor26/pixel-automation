@@ -9,7 +9,7 @@
         xmlns:cal="http://www.caliburnproject.org" 
         xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
         mc:Ignorable="d" ShowActivated="True" WindowState="Maximized"
-        Title="Shell" ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}"
+        ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}"
                        
          >
     <Controls:MetroWindow.Resources>

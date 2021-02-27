@@ -218,7 +218,7 @@
             <Setter.Value>
               <ControlTemplate TargetType="{x:Type TabItem}">
                 <Grid SnapsToDevicePixels="true"
-                      Margin="0,4,4,4">
+                      Margin="0,1,4,4">
                   <Border x:Name="Bd"
                           BorderBrush="{TemplateBinding BorderBrush}"
                           BorderThickness="0,3,0,0"
@@ -237,7 +237,7 @@
                   <Trigger Property="Selector.IsSelected"
                            Value="true">
                     <Setter Property="BorderBrush"
-                            Value="{DynamicResource MahApps.Brushes.Gray3}" />
+                            Value="{DynamicResource MahApps.Brushes.Accent2}" />
                     <Setter Property="Panel.ZIndex"
                             Value="1" />
                   </Trigger>
@@ -245,7 +245,7 @@
                   <DataTrigger Binding="{Binding IsActive}"
                                Value="True">
                     <Setter Property="BorderBrush"
-                            Value="{DynamicResource MahApps.Brushes.Highlight}" />
+                            Value="{DynamicResource MahApps.Brushes.Accent2}" />
                     <Setter Property="Foreground"
                             Value="{DynamicResource MahApps.Brushes.Gray3}" />
                     <Setter Property="Panel.ZIndex"
@@ -260,7 +260,7 @@
                                  Value="false" />
                     </MultiTrigger.Conditions>
                     <Setter Property="BorderBrush"
-                            Value="{DynamicResource MahApps.Brushes.Accent}" />
+                            Value="{DynamicResource MahApps.Brushes.Accent4}" />
                     <Setter Property="Foreground"
                             Value="{DynamicResource MahApps.Brushes.Gray3}" />
                     <Setter Property="Panel.ZIndex"
@@ -460,7 +460,9 @@
   <Style TargetType="avalonDockControls:AnchorablePaneTitle">
     <Setter Property="BorderThickness"
             Value="0,3,0,0"/>
-    <Setter Property="Template">
+        <Setter Property="BorderBrush"
+                      Value="{DynamicResource MahApps.Brushes.Accent4}" />
+        <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <Border Background="{TemplateBinding Background}"
@@ -550,7 +552,7 @@
             <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}"
                          Value="True">
               <Setter Property="BorderBrush"
-                      Value="{DynamicResource MahApps.Brushes.Highlight}" />
+                      Value="{DynamicResource MahApps.Brushes.Accent2}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}"
                          Value="True">

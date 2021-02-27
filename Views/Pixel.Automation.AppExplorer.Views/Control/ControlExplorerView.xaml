@@ -88,14 +88,15 @@
                             <ControlTemplate>
                                 <StackPanel>
                                     <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditControl($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action SaveControlDetails($dataContext, false)]" ></MenuItem>
+                                    <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>
+                                    <!--<MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action SaveControlDetails($dataContext, false)]" ></MenuItem>-->
                                     <MenuItem x:Name="Clone" Header="Clone" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CloneControl($dataContext)]" ></MenuItem>
                                 </StackPanel>
                             </ControlTemplate>
                         </ContextMenu.Template>
                     </ContextMenu>
                 </StackPanel.ContextMenu>
-                <Border x:Name="ControlBorder" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" Background="Transparent" BorderThickness="2" CornerRadius="4">
+                <Border x:Name="ControlBorder" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}" Background="Transparent" BorderThickness="2" CornerRadius="4">
                     <Image x:Name="ControlImage" Source="{Binding ImageSource}" Stretch="Uniform" Margin="5" Width="148" Height="80"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -107,7 +108,7 @@
             </StackPanel>
             <DataTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" TargetName="ControlBorder" Value="{DynamicResource MahApps.Brushes.Highlight}"/>
+                    <Setter Property="BorderBrush" TargetName="ControlBorder" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
                     <Setter Property="BorderThickness" TargetName="ControlBorder" Value="3"/>
                     <Setter Property="Background" TargetName="ControlRoot" Value="Transparent"/>
                     <Setter Property="Background" TargetName="ControlBorder" Value="Transparent"/>

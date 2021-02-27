@@ -52,7 +52,7 @@
         <Style x:Key="AddApplicationButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Template">
@@ -63,7 +63,7 @@
                                         Height="{TemplateBinding Height}" IsHitTestVisible="False"
                                         Margin="2"
                                         Padding="4"
-                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent2}"
                                         Kind="PlusCircleOutline" />
                             </Border>                    
                         <ControlTemplate.Triggers>
@@ -145,6 +145,7 @@
         </Style>
 
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ApplicationListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent3}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -180,7 +181,8 @@
                                         <ControlTemplate>
                                             <StackPanel>
                                                 <MenuItem x:Name="Open" Header="Open" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action OpenApplication($dataContext)]" ></MenuItem>
-                                                <MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action SaveApplicationAsync($dataContext)]" ></MenuItem>
+                                                <!--<MenuItem x:Name="Save" Header="Save" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action SaveApplicationAsync($dataContext)]" ></MenuItem>-->
+                                                <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action EditApplicationAsync($dataContext)]" ></MenuItem>
                                                 <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>                                                
                                             </StackPanel>
                                         </ControlTemplate>

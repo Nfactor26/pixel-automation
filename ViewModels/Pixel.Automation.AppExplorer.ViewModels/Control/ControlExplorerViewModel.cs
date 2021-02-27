@@ -42,7 +42,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 selectedControl = value;
                 CanEdit = false;
                 //Notification for property grid to display selected application details
-                this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value));
+                this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value, true));
             }
         }
 

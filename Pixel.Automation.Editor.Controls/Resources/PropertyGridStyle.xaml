@@ -591,8 +591,8 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <StackPanel x:Name="selectObjectNamePanel"  Orientation="Horizontal">
-                                <Border Background="White"  BorderBrush="Black" Visibility="{Binding ShowPreview, 
+                            <DockPanel x:Name="selectObjectNamePanel" LastChildFill="False">
+                                <Border DockPanel.Dock="Left" Background="White"  BorderBrush="Black" Visibility="{Binding ShowPreview, 
                                     RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     BorderThickness="1" Width="44" Margin="6,4,0,4" Padding="2">
                                     <Rectangle>
@@ -602,7 +602,7 @@
                                         </Rectangle.Fill>
                                     </Rectangle>
                                 </Border>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,2,6,4" Visibility="{Binding ShowTitle, 
+                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,2,6,4" Visibility="{Binding ShowTitle, 
                                     RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource HalfConverter},
                                         ConverterParameter=17}">
@@ -617,7 +617,12 @@
                                         </xctk:TrimmedTextBlock>
                                     </Grid>
                                 </StackPanel>
-                            </StackPanel>
+                                <Button x:Name="Save" DockPanel.Dock="Right" Margin="0,2,5,2" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Save changes" Visibility="{Binding ShowSaveButton, Converter={StaticResource BooleanToVisibilityConverter}}"                                     
+                                            Command= "{Binding SaveCommand}"           
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ContentSaveAll}"/>
+                            </DockPanel>
 
                             <Grid x:Name="toolsContainer" Grid.Row="1"  Margin="4,0,4,4">
                                 <Grid.ColumnDefinitions>

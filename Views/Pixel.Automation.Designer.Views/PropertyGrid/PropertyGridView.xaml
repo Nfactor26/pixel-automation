@@ -26,7 +26,7 @@
             </Style>-->
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="5,0,0,0">
+    <Grid>
         <!--We also have IsReadOnly property. However, we need to make custom used control/styles on property grid support isreadonly as well-->
         <xctk:PropertyGrid x:Name="propertyGrid" SelectedObject="{Binding SelectedObject}"  ShowSortOptions="True" IsCategorized="True"
           IsEnabled="{Binding IsReadOnly, Converter={StaticResource inverseBoolConverter}}"                          
