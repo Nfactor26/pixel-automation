@@ -172,8 +172,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public async Task SaveApplicationAsync(ApplicationDescription application)
         {
             Guard.Argument(application).NotNull();
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);          
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);
             logger.Information($"Saved application data for : {application.ApplicationName}");
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(new ApplicationUpdatedEventArgs(application.ApplicationId));           
         }
 
         private void InitializeKnownApplications()

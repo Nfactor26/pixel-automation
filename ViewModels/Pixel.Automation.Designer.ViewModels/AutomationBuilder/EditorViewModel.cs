@@ -19,7 +19,7 @@ using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>
+    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>
     {
         #region data members
 
@@ -317,9 +317,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        public async Task HandleAsync(ApplicationUpdatedEventArgs updatedApplication, CancellationToken cancellationToken)
+        {
+
+            var applicationEntities = this.EntityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(Core.Enums.SearchScope.Descendants);
+            var applicationsToReload = applicationEntities.Where(a => a.ApplicationId.Equals(updatedApplication.ApplicationId));
+            foreach (var application in applicationsToReload)
+            {
+                application.Reload();
+                logger.Information($"Application : {application.Name} with Id : {application.ApplicationId} has been reloaded");
+                await Task.CompletedTask;
+            }
+        }
+
+
         #region IDisposable
 
-        public  void Dispose()
+        public void Dispose()
         {
             Dispose(true);
         }
@@ -331,8 +345,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.Tools.Clear();
                 this.WorkFlowRoot.Clear();               
             }
-        }     
-
+        }
+       
         #endregion IDisposable
     }
 }

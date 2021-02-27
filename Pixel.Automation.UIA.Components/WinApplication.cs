@@ -15,7 +15,7 @@ namespace Pixel.Automation.UIA.Components
     [DisplayName("Windows App")]
     [Description("WPF or Win32 based applications using UIA")]
     [ControlLocator(typeof(UIAControlLocatorComponent))]
-    public class WinApplication : Entity, IApplication, IDisposable
+    public class WinApplication : NotifyPropertyChanged, IApplication, IDisposable
     {
 
         string executablePath;
@@ -159,27 +159,10 @@ namespace Pixel.Automation.UIA.Components
 
         #endregion IApplication
 
-        public WinApplication() : base("Executable Details", "WinApplicationDetails")
+        public WinApplication()
         {
 
-        }
-
-        public override bool ValidateComponent()
-        {
-            base.ValidateComponent();
-            if (Path.GetExtension(this.executablePath) != ".exe")
-            {
-                isValid = false;
-            }
-            OnPropertyChanged("IsValid");
-            return isValid;
-        }
-
-        public override void ResolveDependencies()
-        {
-            if (this.Parent.GetComponentsOfType<UIAControlLocatorComponent>().Count() == 0)
-                this.Parent.AddComponent(new UIAControlLocatorComponent());
-        }
+        }      
 
         public void Dispose()
         {

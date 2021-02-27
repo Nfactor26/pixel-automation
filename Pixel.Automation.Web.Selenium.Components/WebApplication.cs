@@ -14,7 +14,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     [DisplayName("Browser App")]
     [Description("Browser based web applications using Selenium")]
     [ControlLocator(typeof(WebControlLocatorComponent))]
-    public class WebApplication : Entity,  IApplication, IDisposable
+    public class WebApplication : NotifyPropertyChanged,  IApplication, IDisposable
     {
         #region IApplication
 

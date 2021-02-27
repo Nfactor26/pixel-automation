@@ -65,9 +65,7 @@ namespace Pixel.Automation.Core.Components
                 {
                     ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
                     var masterApplicationDetails = serializer.Deserialize<ApplicationDescription>(this.ApplicationFile);
-                    this.applicationDetails = masterApplicationDetails.ApplicationDetails;
-                    (this.applicationDetails as Interfaces.IComponent).Parent = this;
-                    (this.applicationDetails as Interfaces.IComponent).EntityManager = this.EntityManager;
+                    this.applicationDetails = masterApplicationDetails.ApplicationDetails;               
                     this.Name = this.applicationDetails.ApplicationName;
                     logger.Information("Loaded application details for Application Entity with Id: {0}", this.Id);
                     return;
@@ -94,6 +92,12 @@ namespace Pixel.Automation.Core.Components
                     }
                 }
             }
+        }
+
+        public void Reload()
+        {
+            this.applicationDetails = null;
+            LoadApplicationDetails();
         }
 
     }
