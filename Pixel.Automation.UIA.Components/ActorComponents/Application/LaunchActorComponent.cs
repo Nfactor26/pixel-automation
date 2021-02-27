@@ -40,6 +40,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                 ProcessStartInfo procInfo = new ProcessStartInfo(executablePath);
                 procInfo.WindowStyle = appDetails.WindowStyle;
                 procInfo.UseShellExecute = appDetails.UseShellExecute;
+                procInfo.WorkingDirectory = appDetails.WorkingDirectory;
                 procInfo.Arguments = appDetails.LaunchArguments;
 
                 Application targetApp = Application.Launch(procInfo);

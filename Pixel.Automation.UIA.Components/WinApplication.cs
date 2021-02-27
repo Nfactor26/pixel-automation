@@ -4,8 +4,6 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.UIA.Components
@@ -26,16 +24,23 @@ namespace Pixel.Automation.UIA.Components
         [Description("Path of the executable file")]
         public string ExecutablePath
         {
-            get
-            {
-                return executablePath;
-            }
-
-            set
-            {
-                executablePath = value;
-            }
+            get => executablePath;
+            set => executablePath = value;
+            
         }
+
+        string workingDirectory;
+        /// <summary>
+        /// Working directory of the application. Defaults to executable path if not specified.
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 15)]
+        [Description("Working directory of the application")]
+        public string WorkingDirectory
+        {
+            get => workingDirectory ?? executablePath;
+            set => workingDirectory = value;
+        }
+
 
 
         ProcessWindowStyle windowStyle;
@@ -46,14 +51,9 @@ namespace Pixel.Automation.UIA.Components
         [Description("Configure if the applcation in started in hidden/minimized/maximized/normal state")]
         public ProcessWindowStyle WindowStyle
         {
-            get
-            {
-                return windowStyle;
-            }
-            set
-            {
-                windowStyle = value;
-            }
+            get => windowStyle;
+            set => windowStyle = value;
+            
         }
 
         bool useShellExecute = false;
@@ -65,14 +65,8 @@ namespace Pixel.Automation.UIA.Components
         [Description("Gets or sets a value indicating whether to use the operating system shell to start the process. see https://msdn.microsoft.com/en-us/library/system.diagnostics.processstartinfo.useshellexecute(v=vs.110).aspx")]
         public bool UseShellExecute
         {
-            get
-            {
-                return useShellExecute;
-            }
-            set
-            {
-                useShellExecute = value;
-            }
+            get => useShellExecute;
+            set => useShellExecute = value;
         }
 
 
@@ -84,14 +78,8 @@ namespace Pixel.Automation.UIA.Components
         [Description("Arugments for starting the process if any")]
         public string LaunchArguments
         {
-            get
-            {
-                return launchArguments;
-            }
-            set
-            {
-                launchArguments = value;
-            }
+            get => launchArguments;
+            set => launchArguments = value;          
         }
 
         [NonSerialized]
@@ -99,15 +87,8 @@ namespace Pixel.Automation.UIA.Components
         [Browsable(false)]
         public Application TargetApplication
         {
-            get
-            {
-                return targetApplication;
-            }
-
-            set
-            {
-                targetApplication = value;
-            }
+            get => targetApplication;
+            set => targetApplication = value;
         }
     
         #region IApplication
@@ -182,18 +163,5 @@ namespace Pixel.Automation.UIA.Components
                 }
             }            
         }
-
-        //public override bool Equals(object obj)
-        //{
-        //    if(obj is WinApplication other)
-        //    {
-        //        if(this.ExecutablePath.Equals(other.executablePath) && this.launchArguments.Equals(other.launchArguments) && this.useShellExecute.Equals(
-        //            other.useShellExecute) && this.windowStyle.Equals(other.windowStyle))
-        //        {
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
     }
 }
