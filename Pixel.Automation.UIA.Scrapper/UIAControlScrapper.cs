@@ -72,7 +72,7 @@ namespace Pixel.Automation.UIA.Scrapper
             }
         }
 
-        public UIAControlScrapperComponent(IEventAggregator eventAggregator,IHighlightRectangleFactory highlightRectangleFactory, IScreenCapture screenCapture)
+        public UIAControlScrapperComponent(IEventAggregator eventAggregator, IHighlightRectangleFactory highlightRectangleFactory, IScreenCapture screenCapture)
         {
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnUIThread(this);

@@ -11,7 +11,7 @@ namespace Pixel.Automation.Core.Tests.Models
         {
             var assemblyReferences = new AssemblyReferences();         
             var defaultReferences = assemblyReferences.GetReferencesOrDefault();
-            Assert.AreEqual(8, defaultReferences.Count());
+            Assert.AreEqual(9, defaultReferences.Count());
         }
 
         [Test]

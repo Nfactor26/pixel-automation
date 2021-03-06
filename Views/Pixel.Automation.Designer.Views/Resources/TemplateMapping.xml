@@ -49,6 +49,11 @@
     <StyleKey>ControlComponentStyle</StyleKey>
   </ComponentTemplate>
   <ComponentTemplate>
+    <Name>JavaControlEntity</Name>
+    <DataTemplateKey>ControlTemplate</DataTemplateKey>
+    <StyleKey>ControlComponentStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
     <Name>GroupEntity</Name>
     <DataTemplateKey>EmptyTemplate</DataTemplateKey>
     <StyleKey>GroupedStyle</StyleKey>

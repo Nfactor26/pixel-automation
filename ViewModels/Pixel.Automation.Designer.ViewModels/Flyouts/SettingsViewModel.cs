@@ -149,7 +149,7 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
 
         public virtual void DoChangeTheme()
         {
-            ThemeManager.Current.ChangeThemeColorScheme(Application.Current, this.Name);
+            ThemeManager.Current.ChangeThemeColorScheme(System.Windows.Application.Current, this.Name);
         }
     }
 
@@ -157,7 +157,7 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
     {
         public override void DoChangeTheme()
         {
-            ThemeManager.Current.ChangeThemeBaseColor(Application.Current, this.Name);
+            ThemeManager.Current.ChangeThemeBaseColor(System.Windows.Application.Current, this.Name);
         }
     }
 }

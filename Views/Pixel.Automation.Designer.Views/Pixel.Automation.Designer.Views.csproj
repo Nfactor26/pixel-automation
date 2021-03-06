@@ -29,6 +29,8 @@
     <ProjectReference Include="..\..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />   
     <ProjectReference Include="..\..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />
+    <ProjectReference Include="..\..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj" />
+    <ProjectReference Include="..\..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />  
     <ProjectReference Include="..\..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />

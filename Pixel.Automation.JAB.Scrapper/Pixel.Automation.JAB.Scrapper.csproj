@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Caliburn.Micro" Version="4.0.136-rc" />
+    <PackageReference Include="MouseKeyHook" Version="5.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.UIAutomationClient">
+      <HintPath>..\Libs\Interop.UIAutomationClient.dll</HintPath>
+      <Aliases>uiaAutomationClient</Aliases>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UIAComWrapper">
+      <HintPath>..\Libs\UIAComWrapper.dll</HintPath>
+      <Aliases>uiaComWrapper</Aliases>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="WindowsAccessBridgeInterop">
+      <HintPath>..\Libs\WindowsAccessBridgeInterop.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

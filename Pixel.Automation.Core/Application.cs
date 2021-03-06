@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 
-namespace Pixel.Automation.UIA.Components
+namespace Pixel.Automation.Core
 {
     public class Application
     {
@@ -187,11 +187,10 @@ namespace Pixel.Automation.UIA.Components
                 Process.Dispose();
                 return;
             }
-            foreach (var window in NativeWindow.GetProcessWindows(Process.Id))
+            if(Process.CloseMainWindow())
             {
-                window.PostCloseMessage();
+                Process.WaitForExit(5000);
             }
-            Process.WaitForExit(5000);
             if (!Process.HasExited)
             {
                 Process.Kill();
