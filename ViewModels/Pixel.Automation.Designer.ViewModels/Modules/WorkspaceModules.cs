@@ -1,12 +1,8 @@
-﻿using Caliburn.Micro;
-using Ninject;
-using Ninject.Extensions.Conventions;
-using Ninject.Modules;
+﻿using Ninject.Modules;
 using Pixel.Automation.Arguments.Editor;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
-using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.TypeBrowser;
 using Pixel.Automation.Native.Windows;
@@ -41,7 +37,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
 
             Kernel.Bind<ITestRepositoryManager>().To<TestRepositoryManager>().InSingletonScope();
 
-            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InThreadScope();
+            Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InThreadScope();
 
 
             Kernel.Bind<TestDataRepository>().ToSelf();
