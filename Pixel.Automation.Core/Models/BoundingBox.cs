@@ -29,6 +29,14 @@ namespace Pixel.Automation.Core.Models
             this.Height = height;
         }
 
+        public BoundingBox(Rectangle rectangle)
+        {
+            this.X = rectangle.X;
+            this.Y = rectangle.Y;
+            this.Width = rectangle.Width;
+            this.Height = rectangle.Height;
+        }
+
         public Rectangle GetBoundingBoxAsRectangle()
         {
             return new Rectangle(X, Y, Width, Height);

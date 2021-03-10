@@ -106,7 +106,7 @@ namespace Pixel.Automation.UIA.Scrapper
         int[] lastCapturedControlRunTimeId = new int[2] { 0, 0 };
         int[] lastHoveredControlRunTimeId = new int[2] { 0, 0 };
 
-        public void StartCapture()
+        public async Task StartCapture()
         {
             capturedControls = new ConcurrentQueue<ScrapedControl>();
 
@@ -124,6 +124,7 @@ namespace Pixel.Automation.UIA.Scrapper
 
 
             Log.Information("Win Scrapper has been activated.");
+            await Task.CompletedTask;
 
         }
 
@@ -482,13 +483,13 @@ namespace Pixel.Automation.UIA.Scrapper
 
         }
 
-        public void StopCapture()
+        public async Task StopCapture()
         {
             m_GlobalHook.MouseDownExt -= GlobalHookMouseDownExt;
             m_GlobalHook.Dispose();
             m_GlobalHook = null;
             captureTimer.Stop();
-            eventAggregator.PublishOnUIThreadAsync(capturedControls.ToList<ScrapedControl>());
+            await eventAggregator.PublishOnUIThreadAsync(capturedControls.ToList<ScrapedControl>());
             controlHighlight.Dispose();
             containerHighlight.Dispose();
             capturedControls = null;

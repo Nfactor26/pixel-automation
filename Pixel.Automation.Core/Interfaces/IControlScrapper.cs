@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -24,12 +25,12 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Start monitoring controls in order to capture them 
         /// </summary>
-        void StartCapture();      
+        Task StartCapture();      
 
         /// <summary>
         /// Stop monitoring controls 
         /// </summary>
-        void StopCapture();
+        Task StopCapture();
 
         /// <summary>
         /// Get all the controls that have been captured 

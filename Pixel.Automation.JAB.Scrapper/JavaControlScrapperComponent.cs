@@ -18,7 +18,7 @@ using uiaComWrapper::System.Windows.Automation;
 using WindowsAccessBridgeInterop;
 
 
-namespace Nish26.JavaAutomation.JAB.Components
+namespace Pixel.Automation.JAB.Scrapper
 {
     public class JABControlScrapperComponent : PropertyChangedBase, IControlScrapper, IHandle<RepositoryApplicationOpenedEventArgs>
     {
@@ -93,7 +93,7 @@ namespace Nish26.JavaAutomation.JAB.Components
         /// <summary>
         /// Start highligting controls on hover and watch for control + click to capture control details
         /// </summary>
-        public void StartCapture()
+        public async Task StartCapture()
         {
             accessBridge = new AccessBridge();
             accessBridge.Initialize();
@@ -115,6 +115,7 @@ namespace Nish26.JavaAutomation.JAB.Components
             m_GlobalHook.MouseDownExt -= GlobalHookMouseDownExt;
             m_GlobalHook.MouseDownExt += GlobalHookMouseDownExt;           
             logger.Information("Java Scrapper has been activated.");
+            await Task.CompletedTask;
         }
               
         private void CaptureTimer_Tick(object sender, EventArgs e)
@@ -377,7 +378,7 @@ namespace Nish26.JavaAutomation.JAB.Components
         }
        
         ///<inheritdoc>
-        public void StopCapture()
+        public async Task StopCapture()
         {
             accessBridge.Dispose();
             accessBridge = null;
@@ -385,11 +386,11 @@ namespace Nish26.JavaAutomation.JAB.Components
             m_GlobalHook.Dispose();
             m_GlobalHook = null;
             captureTimer.Stop();
-            eventAggregator.PublishOnUIThreadAsync(capturedControls.ToList<ScrapedControl>());
+            await eventAggregator.PublishOnUIThreadAsync(capturedControls.ToList<ScrapedControl>());
             controlHighlight.Dispose();
             containerHighlight.Dispose();
             capturedControls = null;
-            Log.Information("Java Scrapper has been stopped.");
+            logger.Information("Java Scrapper has been stopped.");
         }
 
         public IEnumerable<Object> GetCapturedControls()

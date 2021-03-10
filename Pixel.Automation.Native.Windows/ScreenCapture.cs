@@ -40,10 +40,8 @@ namespace Pixel.Automation.Native.Windows
 
 
         public virtual Bitmap CaptureDesktop()
-        {
-            //TODO : Size is hard coded. How to get it without windows.Forms?
-            //var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
-            var bounds = new Rectangle(0, 0, 1920, 1080);
+        {            
+            var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;          
             var sz = bounds.Size;
             var hDesk = GetDesktopWindow();
             var hSrce = GetWindowDC(hDesk);

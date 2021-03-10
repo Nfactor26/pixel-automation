@@ -58,12 +58,12 @@ namespace Pixel.Automation.Web.Scrapper
             throw new NotImplementedException();
         }
 
-        public void StartCapture()
+        public async Task StartCapture()
         {
             try
             {
                 host = CreateHostBuilder(null).Build();
-                host.RunAsync();
+                await host.RunAsync();
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ namespace Pixel.Automation.Web.Scrapper
                  .UseStartup<Startup>();
              });
 
-        public void StopCapture()
+        public async Task StopCapture()
         {
             //stop server after a while so that message is sent
             Task stopServerTask = new Task(() =>
@@ -93,7 +93,7 @@ namespace Pixel.Automation.Web.Scrapper
             });
             stopServerTask.Start();
              
-            eventAggregator.PublishOnUIThreadAsync(ScrapperHub.GetCapturedControls());
+            await eventAggregator.PublishOnUIThreadAsync(ScrapperHub.GetCapturedControls());
         }
 
         public bool CanToggleScrapper

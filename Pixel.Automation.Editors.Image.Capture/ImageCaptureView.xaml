@@ -1,0 +1,165 @@
+﻿<Window x:Class="Pixel.Automation.Editors.Image.Capture.ImageCaptureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"            
+             xmlns:cal="http://www.caliburnproject.org" 
+             WindowStyle="None"  ResizeMode="NoResize"   WindowState="Maximized"
+             WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown"
+             Width="{Binding ScreenWidth}" Height="{Binding ScreenHeight}"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Pixel.Automation.Editors.Image.Capture;component/Resources/DesignerItem.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BoolToVisConverter"></BooleanToVisibilityConverter>
+            
+            <!--<Style x:Key="RegionOfInterestStyle" TargetType="ContentControl" BasedOn="{StaticResource DesignerItemStyle}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding HasRegionOfInterest}" Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Setter Property="Selector.IsSelected" Value="True"></Setter>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding HasRegionOfInterest}" Value="False">                       
+                        <Setter Property="Selector.IsSelected" Value="False"></Setter>
+                    </DataTrigger>
+                    <Trigger Property="IsMouseOver" Value="False">
+                        <Setter Property="Selector.IsSelected" Value="False"></Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>-->
+
+            <Style x:Key="OffsetStyle" TargetType="ContentControl" BasedOn="{StaticResource DesignerItemStyle}">
+                <Setter Property="Selector.IsSelected" Value="False"></Setter>
+                <!--<Style.Triggers>
+                    --><!--<DataTrigger Binding="{Binding HasRegionOfInterest}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Selector.IsSelected" Value="False"></Setter>
+                    </DataTrigger>--><!--
+                    <Trigger Property="IsMouseOver" Value="False">
+                        <Setter Property="Selector.IsSelected" Value="False"></Setter>
+                    </Trigger>
+                </Style.Triggers>-->
+            </Style>
+
+            <!--<Style x:Key="RoiDataViewerStyle" TargetType="StackPanel">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding HasRegionOfInterest}" Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>               
+                </Style.Triggers>
+            </Style>-->
+
+        
+    </ResourceDictionary>
+
+       
+    </Window.Resources>
+    
+    <Grid>
+        <Canvas x:Name="DesignerCanvas" DataContext="{Binding}"
+            ClipToBounds="True" Tag="{Binding Path=DataContext,RelativeSource={RelativeSource Self}}"
+            SnapsToDevicePixels="True">          
+            
+            <Canvas.ContextMenu>
+                <ContextMenu x:Name="CanvasMenu" cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                       
+                    <!--<MenuItem x:Name="addRegionOfInterest" Header="Add Region of Interest"
+                              cal:Message.Attach="AddRegionOfInterest()"></MenuItem>-->
+
+                    <MenuItem x:Name="changePivot" Header="Change Pivot">
+                        <MenuItem x:Name="Center" Header="Center"
+                              cal:Message.Attach="ChangePivotPoint('Center')"></MenuItem>
+                        <MenuItem x:Name="TopLeft" Header="TopLeft"
+                              cal:Message.Attach="ChangePivotPoint('TopLeft')"></MenuItem>
+                        <MenuItem x:Name="TopRight" Header="TopRight"
+                              cal:Message.Attach="ChangePivotPoint('TopRight')"></MenuItem>
+                        <MenuItem x:Name="BottomLeft" Header="BottomLeft"
+                              cal:Message.Attach="ChangePivotPoint('BottomLeft')"></MenuItem>
+                        <MenuItem x:Name="BottomRight" Header="BottomRight"
+                              cal:Message.Attach="ChangePivotPoint('BottomRight')"></MenuItem>
+                    </MenuItem>
+                    
+                    <MenuItem x:Name="closeView" Header="Exit"
+                              cal:Message.Attach="CloseView()"></MenuItem>
+                </ContextMenu>
+            </Canvas.ContextMenu>
+
+            <Image x:Name="ScreenShot"  Width="{Binding ScreenWidth}" Height="{Binding ScreenHeight}"
+                  Source="{Binding ImageSource}" ></Image>
+
+            
+            <ContentControl x:Name="DataPresenter" Style="{StaticResource DesignerItemStyle}" Canvas.Left="10" Canvas.Top="20"  
+                            Padding="0" ToolTip="Coordinate view"  Background="White" Panel.ZIndex="1000" IsHitTestVisible="True" >
+                <Border BorderBrush="DarkRed" BorderThickness="2" IsHitTestVisible="False" Background="White" Padding="10">
+                    <StackPanel Orientation="Vertical" Background="White" >
+                        <Label Content="Template Bounds :"></Label>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding TemplateBoundingBox.X}"></Label>
+                            <Label Content="{Binding TemplateBoundingBox.Y}"></Label>
+                            <Label Content="{Binding TemplateBoundingBox.Width}"></Label>
+                            <Label Content="{Binding TemplateBoundingBox.Height}"></Label>
+                        </StackPanel>
+                        <Label Content="Offset Position :"></Label>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding Offset.X}"></Label>
+                            <Label Content="{Binding Offset.Y}"></Label>
+                        </StackPanel>
+                        <!--<StackPanel Orientation="Vertical" Visibility="{Binding Path=HasRegionOfInterest,Converter={StaticResource BoolToVisConverter}}">
+                            <Label Content="Region Of Interest Bounds :"></Label>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding RegionOfInterest.X}"></Label>
+                                <Label Content="{Binding RegionOfInterest.Y}"></Label>
+                                <Label Content="{Binding RegionOfInterest.Width}"></Label>
+                                <Label Content="{Binding RegionOfInterest.Height}"></Label>
+                            </StackPanel>
+                        </StackPanel>-->
+                    </StackPanel>
+                </Border>
+               
+            </ContentControl>
+                    
+    
+            <!--Template Rectangle-->         
+            <ContentControl x:Name="Template" Width="{Binding TemplateBoundingBox.Width}" Panel.ZIndex="1000"
+                      Height="{Binding TemplateBoundingBox.Height}" IsHitTestVisible="True"                   
+                      Canvas.Left="{Binding TemplateBoundingBox.X}"
+                      Canvas.Top="{Binding TemplateBoundingBox.Y}"
+                      Padding="0" ToolTip="Template Image" cal:Message.Attach="[Event MouseLeave] = [Action UpdateBoundingBox($source)]"
+                      Style="{StaticResource DesignerItemStyle}">
+                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
+                        BorderBrush="DarkRed" BorderThickness="2">                   
+                </Border>             
+            </ContentControl>
+
+            <ContentControl x:Name="OffsetPointer" Width="32" MaxWidth="32" Panel.ZIndex="1000"
+                      Height="32"  MaxHeight="32"  Visibility="{Binding Path=IsOffsetVisible,Converter={StaticResource BoolToVisConverter}}" 
+                      Canvas.Left="{Binding Offset.X}"
+                      Canvas.Top="{Binding Offset.Y}"
+                      Padding="0" ToolTip="Offset" cal:Message.Attach="[Event MouseLeave] = [Action UpdateBoundingBox($source)]"
+                      Style="{StaticResource OffsetStyle}">
+                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
+                        BorderBrush="Transparent" BorderThickness="2">
+                    <Image IsHitTestVisible="False"  Source="/Pixel.Automation.Designer.Views;component/Images/OffsetPicker.Png" />
+                </Border>
+            </ContentControl>
+
+            <!--Region of Interest for OCR-->
+            <!--<ContentControl x:Name="RegionOfInterest" Width="{Binding RegionOfInterest.Width}" Panel.ZIndex="1000"
+                      Height="{Binding RegionOfInterest.Height}"      IsHitTestVisible="True"  Visibility="{Binding Path=HasRegionOfInterest,Converter={StaticResource BoolToVisConverter}}"          
+                      Canvas.Left="{Binding RegionOfInterest.X}"
+                      Canvas.Top="{Binding RegionOfInterest.Y}"
+                      Padding="1" ToolTip="Region of Interest"  cal:Message.Attach="[Event MouseLeave] = [Action UpdateBoundingBox($source)]"
+                      Style="{StaticResource DesignerItemStyle}">
+                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"
+                        BorderBrush="DarkBlue" BorderThickness="2">                   
+                </Border>              
+            </ContentControl>-->           
+            
+        </Canvas>
+    </Grid>
+</Window>

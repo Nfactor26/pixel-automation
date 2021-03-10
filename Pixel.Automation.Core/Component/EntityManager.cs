@@ -190,6 +190,35 @@ namespace Pixel.Automation.Core
 
         #region Get Component Helpers
 
+        public bool TryGetOwnerApplication(IComponent component, out IApplication application)
+        {
+            try
+            {
+                application = GetOwnerApplication(component);
+                return true;
+            }
+            catch
+            {
+                application = null;
+            }
+            return false;
+        }
+
+        public bool TryGetOwnerApplication<T>(IComponent component, out T application) where T : class, IApplication
+        {
+            try
+            {
+                application = GetOwnerApplication<T>(component);
+                return true;
+            }
+            catch
+            {
+                application = default(T);
+            }
+            return false;
+        }
+
+
         /// <summary>
         /// Get the owner application for a given component
         /// </summary>
@@ -264,9 +293,13 @@ namespace Pixel.Automation.Core
                 }
                 current = current.Parent;
             }
-            string targetAppId = (current as IApplicationContext).GetAppContext();
+            if(current is IApplicationContext applicationContext)
+            {
+                string targetAppId = applicationContext.GetAppContext();
+                return GetApplicationEntity(targetAppId);
+            }
+            throw new ConfigurationException($"{component} doesn't have an Application Context");
 
-            return GetApplicationEntity(targetAppId);
         }
 
         /// <summary>
@@ -276,7 +309,8 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         private IApplicationEntity GetApplicationEntity(string applicationId)
         {
-            var applicationsInPool = this.RootEntity.GetComponentsOfType<IApplicationEntity>(Enums.SearchScope.Descendants);
+            var applicationPoolEntity = this.RootEntity.GetComponentsByTag("ApplicationPoolEntity", Enums.SearchScope.Children).FirstOrDefault() as Entity;
+            var applicationsInPool = applicationPoolEntity.GetComponentsOfType<IApplicationEntity>(Enums.SearchScope.Descendants);
             if (applicationsInPool != null)
             {
                 var targetApp = applicationsInPool.FirstOrDefault(a => a.ApplicationId.Equals(applicationId));
@@ -285,8 +319,7 @@ namespace Pixel.Automation.Core
                     return targetApp;
                 }
             }
-
-            throw new ConfigurationException($"ApplicationEntity for application with id : {applicationId} is missing from ApplicationPoolentity");
+            throw new ArgumentException($"ApplicationEntity for application with id : {applicationId} is missing from ApplicationPoolentity");
         }
 
         #endregion  Get Component Helpers

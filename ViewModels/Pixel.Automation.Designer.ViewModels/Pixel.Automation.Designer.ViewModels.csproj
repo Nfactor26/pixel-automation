@@ -32,6 +32,7 @@
     <ProjectReference Include="..\..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Pixel.Automation.Editors.Image.Capture\Pixel.Automation.Editors.Image.Capture.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
     <ProjectReference Include="..\..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj">
       <Private>false</Private>

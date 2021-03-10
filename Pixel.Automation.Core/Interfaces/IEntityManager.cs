@@ -23,6 +23,10 @@ namespace Pixel.Automation.Core.Interfaces
 
         void RegisterDefault<T>(T instance) where T : class;
 
+        bool TryGetOwnerApplication(IComponent component, out IApplication application);
+
+        bool TryGetOwnerApplication<T>(IComponent component, out T application) where T : class, IApplication;
+
         IApplication GetOwnerApplication(IComponent component);
 
         T GetOwnerApplication<T>(IComponent component) where T : class, IApplication;
