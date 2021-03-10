@@ -28,17 +28,10 @@ namespace Nish26.TestSuite.Image.Scrapper
             set
             {
                 isCapturing = value;
-                if (isCapturing)
-                {
-                    StartCapture();
-                }
-                else
-                {
-                    StopCapture();
-                }
+                NotifyOfPropertyChange(() => IsCapturing);
             }
         }
-
+      
         public string DisplayName => "Image Capture";
 
         string targetApplicationId = string.Empty;
@@ -57,6 +50,20 @@ namespace Nish26.TestSuite.Image.Scrapper
         {
             throw new NotImplementedException();
         }
+
+
+        public async Task ToggleCapture()
+        {         
+            if (IsCapturing)
+            {
+                await StartCapture();
+            }
+            else
+            {
+                await StopCapture();
+            }
+        }
+
 
         public async Task StartCapture()
         {           
@@ -80,8 +87,7 @@ namespace Nish26.TestSuite.Image.Scrapper
             System.Windows.Application.Current.MainWindow.Show();
             Thread.Sleep(200);
 
-            IsCapturing = false;
-           
+            await StopCapture();
         }
 
         Bitmap CropImage(Bitmap source, Rectangle section)
@@ -96,6 +102,7 @@ namespace Nish26.TestSuite.Image.Scrapper
 
         public async Task StopCapture()
         {
+            IsCapturing = false;
             NotifyOfPropertyChange(() => IsCapturing);
             await Task.CompletedTask;
         }

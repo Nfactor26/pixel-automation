@@ -33,7 +33,7 @@ namespace Pixel.Automation.JAB.Scrapper
         public string DisplayName { get; } = "JAB Scrapper";
 
         string targetApplicationId = string.Empty;
-     
+
         bool isCapturing;
         public bool IsCapturing
         {
@@ -41,17 +41,9 @@ namespace Pixel.Automation.JAB.Scrapper
             set
             {
                 isCapturing = value;
-                if (isCapturing)
-                {
-                    StartCapture();
-                }
-                else
-                {
-                    StopCapture();
-                }
+                NotifyOfPropertyChange(() => IsCapturing);
             }
         }
-
 
         public JABControlScrapperComponent(IEventAggregator eventAggregator, IHighlightRectangleFactory highlightRectangleFactory, IScreenCapture screenCapture)
         {
@@ -89,6 +81,20 @@ namespace Pixel.Automation.JAB.Scrapper
         ConcurrentQueue<ScrapedControl> capturedControls;
 
         System.Windows.Forms.Timer captureTimer = new System.Windows.Forms.Timer();
+
+
+
+        public async Task ToggleCapture()
+        {
+            if (IsCapturing)
+            {
+                await StartCapture();
+            }
+            else
+            {
+                await StopCapture();
+            }
+        }
 
         /// <summary>
         /// Start highligting controls on hover and watch for control + click to capture control details

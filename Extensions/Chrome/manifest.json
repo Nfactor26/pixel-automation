@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Web.Scrapper",
-  "description": "Extracts the details of html control for use in Nish26.TestSuite application",
+  "description": "Extracts the details of html control for use in Pixel Automation application",
   "version": "1.0",
 
   "browser_action": {

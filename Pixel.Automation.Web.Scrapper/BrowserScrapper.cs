@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 namespace Pixel.Automation.Web.Scrapper
 {
     public class BrowserScrapper : PropertyChangedBase, IControlScrapper, IHandle<RepositoryApplicationOpenedEventArgs>
-    {        
+    {
         public string DisplayName
         {
             get
@@ -28,17 +28,10 @@ namespace Pixel.Automation.Web.Scrapper
             set
             {
                 isCapturing = value;
-                if (isCapturing)
-                {
-                    StartCapture();
-                }
-                else
-                {
-                    StopCapture();
-                }
-
+                NotifyOfPropertyChange(() => IsCapturing);
             }
         }
+
 
         string targetApplicationId = string.Empty;
 
@@ -58,6 +51,18 @@ namespace Pixel.Automation.Web.Scrapper
             throw new NotImplementedException();
         }
 
+        public async Task ToggleCapture()
+        {
+            if (IsCapturing)
+            {
+                await StartCapture();
+            }
+            else
+            {
+                await StopCapture();
+            }
+        }
+
         public async Task StartCapture()
         {
             try
@@ -67,15 +72,15 @@ namespace Pixel.Automation.Web.Scrapper
             }
             catch (Exception ex)
             {
-               Log.Error(ex, ex.Message);                
-            }           
+                Log.Error(ex, ex.Message);
+            }
         }
 
         IHostBuilder CreateHostBuilder(string[] args) =>
            Host.CreateDefaultBuilder(args)
              .ConfigureWebHostDefaults(webBuilder =>
              {
-                 webBuilder.ConfigureServices(a => a.Add( new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IScreenCapture), this.screenCapture)))
+                 webBuilder.ConfigureServices(a => a.Add(new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IScreenCapture), this.screenCapture)))
                  .ConfigureKestrel(serverOptions =>
                  {
                      serverOptions.ListenLocalhost(9143);
@@ -92,7 +97,7 @@ namespace Pixel.Automation.Web.Scrapper
                 host?.StopAsync();
             });
             stopServerTask.Start();
-             
+
             await eventAggregator.PublishOnUIThreadAsync(ScrapperHub.GetCapturedControls());
         }
 
@@ -104,7 +109,7 @@ namespace Pixel.Automation.Web.Scrapper
             }
 
         }
-     
+
         public async Task HandleAsync(RepositoryApplicationOpenedEventArgs message, CancellationToken cancellationToken)
         {
             targetApplicationId = message.ApplicationId;

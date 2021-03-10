@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Pixel.Automation.Core.Interfaces
 {
     public interface IControlScrapper
-    {
+    {     
         /// <summary>
         /// True if monitoring controls otherwise false
         /// </summary>
@@ -21,6 +21,12 @@ namespace Pixel.Automation.Core.Interfaces
         {
             get;
         }
+
+        /// <summary>
+        /// Toggle between StartCapture and StopCapture
+        /// </summary>
+        /// <returns></returns>
+        Task ToggleCapture();
 
         /// <summary>
         /// Start monitoring controls in order to capture them 

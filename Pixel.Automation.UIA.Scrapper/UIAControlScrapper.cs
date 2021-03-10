@@ -40,20 +40,6 @@ namespace Pixel.Automation.UIA.Scrapper
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
-        private string GetActiveWindowTitle()
-        {
-            const int nChars = 256;
-            StringBuilder Buff = new StringBuilder(nChars);
-            IntPtr handle = GetForegroundWindow();
-
-            if (GetWindowText(handle, Buff, nChars) > 0)
-            {
-                return Buff.ToString();
-            }
-            return null;
-        }
-
-
         bool isCapturing;
         public bool IsCapturing
         {
@@ -61,14 +47,7 @@ namespace Pixel.Automation.UIA.Scrapper
             set
             {
                 isCapturing = value;
-                if (isCapturing)
-                {
-                    StartCapture();
-                }
-                else
-                {
-                    StopCapture();
-                }
+                NotifyOfPropertyChange(() => IsCapturing);
             }
         }
 
@@ -105,6 +84,18 @@ namespace Pixel.Automation.UIA.Scrapper
 
         int[] lastCapturedControlRunTimeId = new int[2] { 0, 0 };
         int[] lastHoveredControlRunTimeId = new int[2] { 0, 0 };
+
+        public async Task ToggleCapture()
+        {
+            if (IsCapturing)
+            {
+                await StartCapture();
+            }
+            else
+            {
+                await StopCapture();
+            }
+        }
 
         public async Task StartCapture()
         {
