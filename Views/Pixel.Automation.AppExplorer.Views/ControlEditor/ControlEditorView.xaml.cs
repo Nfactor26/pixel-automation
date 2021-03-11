@@ -42,10 +42,9 @@ namespace Pixel.Automation.AppExplorer.Views.ControlEditor
 
         private void SetEditorForProperty(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemEventArgs e)
         {
+            //Note : Any change here should also be made in PropertyGridView.xaml.cs used on main editor
             try
-            {
-                (sender as PropertyGrid).GetScrollPosition();
-
+            {             
                 PropertyItem targetPropertyItem = e.Item as PropertyItem;
                 if (targetPropertyItem.Value == null)
                 {
@@ -66,11 +65,11 @@ namespace Pixel.Automation.AppExplorer.Views.ControlEditor
                     targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.Name.Equals("KeySequence"))
+                if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
                 {
                     targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
                     return;
-                }
+                }            
             }
             catch (Exception ex)
             {
