@@ -38,7 +38,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         [Description("Working directory of the application")]
         public string WorkingDirectory
         {
-            get => workingDirectory ?? Path.GetDirectoryName(executablePath);
+            get => workingDirectory ?? (Path.IsPathRooted(executablePath) ? Path.GetDirectoryName(executablePath) : "");
             set => workingDirectory = value;
         }
 
@@ -163,6 +163,11 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     }
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Java Application -> Application Name : {this.applicationName} | ProcessId : {this.ProcessId}";
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -12,6 +13,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
 
     public class CloseApplicationActorComponent : ActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<CloseApplicationActorComponent>();
+
+
         [RequiredComponent]
         [Browsable(false)]
         public JavaApplication ApplicationDetails
@@ -30,7 +34,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
 
         public override void Act()
         {
+            logger.Information($"Trying to close application : {ApplicationDetails}");
             ApplicationDetails.TargetApplication.Close();
+            logger.Information("Application is closed now");
         }
 
     }

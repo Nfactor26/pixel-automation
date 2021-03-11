@@ -13,8 +13,11 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [Serializable]
     [ToolBoxItem("Launch", "UIA", "Application", iconSource: null, description: "Launch target application", tags: new string[] { "Launch", "UIA" })]
 
-    public class WinApplicationLauncherComponent : ActorComponent
+    public class LaunchApplicationActorComponent : ActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<LaunchApplicationActorComponent>();
+
+
         [RequiredComponent]
         [Browsable(false)]
         public WinApplication ApplicationDetails
@@ -25,7 +28,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             }
         }
 
-        public WinApplicationLauncherComponent() : base("Launch", "WinApplicationLauncher")
+        public LaunchApplicationActorComponent() : base("Launch", "WinApplicationLauncher")
         {       
            
         }
@@ -45,11 +48,12 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
 
                 Application targetApp = Application.Launch(procInfo);
                 appDetails.TargetApplication = targetApp;
-                Log.Information("Launch completed for application : {$executablePath}",appDetails.ExecutablePath);
-                Log.Information("Process details are : {appDetails}", appDetails);
+                logger.Information($"Launch completed for application : {executablePath} with processId : {targetApp.Process.Id}");
+                logger.Information($"Working directory of application is : {procInfo.WorkingDirectory}");
+                logger.Information("Process details are : {appDetails}", appDetails);
                 return;
             }
-            Log.Information("Launch failed for application : {$executablePath}", appDetails.ExecutablePath);
+            logger.Error($"Launch failed for application : {appDetails.ExecutablePath}");
             throw new ArgumentException($"Please verify configured application path : {executablePath}");
         }
       

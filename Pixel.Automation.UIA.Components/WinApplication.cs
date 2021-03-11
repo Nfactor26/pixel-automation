@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.UIA.Components
@@ -37,7 +38,7 @@ namespace Pixel.Automation.UIA.Components
         [Description("Working directory of the application")]
         public string WorkingDirectory
         {
-            get => workingDirectory ?? executablePath;
+            get => workingDirectory ?? (Path.IsPathRooted(executablePath) ? Path.GetDirectoryName(executablePath) : "");
             set => workingDirectory = value;
         }
 
@@ -162,6 +163,11 @@ namespace Pixel.Automation.UIA.Components
                     }
                 }
             }            
+        }
+
+        public override string ToString()
+        {
+            return $"Win Application -> Application Name : {this.applicationName} | ProcessId : {this.ProcessId}";
         }
     }
 }

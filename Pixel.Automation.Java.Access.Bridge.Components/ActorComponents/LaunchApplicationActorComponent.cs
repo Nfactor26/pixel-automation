@@ -47,7 +47,8 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
                 Application targetApp = Application.Launch(procInfo);
                 appDetails.TargetApplication = targetApp;
-                logger.Information("Launch completed for application : {$executablePath}", executablePath);
+                logger.Information($"Launch completed for application : {executablePath} with processId : {targetApp.Process.Id}");
+                logger.Information($"Working directory of application is : {procInfo.WorkingDirectory}");
                 logger.Information("Process details are : {appDetails}", appDetails);
                 return;
             }          

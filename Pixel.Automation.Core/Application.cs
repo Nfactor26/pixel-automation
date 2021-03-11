@@ -77,8 +77,7 @@ namespace Pixel.Automation.Core
         /// Runs the process identified by the executable and creates Application object for this executable
         /// </summary>
         /// <param name="executable">Path to the executable</param>
-        /// <exception cref="ArgumentNullException">No process info passed</exception>
-        /// <exception cref="WhiteException">White Failed to Launch or Attached to process</exception>
+        /// <exception cref="ArgumentNullException">No process info passed</exception>      
         public static Application Launch(string executable)
         {
             var processStartInfo = new ProcessStartInfo(executable);
@@ -91,8 +90,7 @@ namespace Pixel.Automation.Core
         /// <exception cref="ArgumentNullException">No process info passed</exception>
         /// <exception cref="WhiteException">White Failed to Launch or Attached to process</exception>
         public static Application Launch(ProcessStartInfo processStartInfo)
-        {
-            if (string.IsNullOrEmpty(processStartInfo.WorkingDirectory)) processStartInfo.WorkingDirectory = ".";
+        {          
             Process process;
             try
             {
@@ -115,20 +113,10 @@ namespace Pixel.Automation.Core
 
         /// <summary>
         /// Attaches White to an existing process by process id 
-        /// </summary>
-        /// <exception cref="WhiteException">White Failed to Attach to process</exception>
+        /// </summary>      
         public static Application Attach(int processId)
         {
-            Process process;
-            try
-            {
-                process = Process.GetProcessById(processId);
-            }
-            catch (ArgumentException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                throw;
-            }
+            Process process = Process.GetProcessById(processId);     
             return new Application(process);
         }
 
