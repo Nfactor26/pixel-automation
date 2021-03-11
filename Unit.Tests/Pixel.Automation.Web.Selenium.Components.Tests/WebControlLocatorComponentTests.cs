@@ -346,10 +346,10 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         }
 
 
-        [TestCase(Core.Enums.SearchScope.Descendants, 1)]
+        [TestCase(Core.Enums.SearchScope.Descendants, 2)]
         [TestCase(Core.Enums.SearchScope.Children, 1)]
-        [TestCase(Core.Enums.SearchScope.Sibling, 1)]
-        [TestCase(Core.Enums.SearchScope.Ancestor, 1)]
+        [TestCase(Core.Enums.SearchScope.Sibling, 2)]
+        [TestCase(Core.Enums.SearchScope.Ancestor, 2)]
         public void ValidateThatControlLocatorCanFindControlAtConfiguredIndex(Core.Enums.SearchScope searchScope, int index)
         {
             var controlIdentity = new WebControlIdentity()

@@ -293,7 +293,7 @@ namespace Pixel.Automation.Core.Tests
             var rootEntity = new Entity() { EntityManager = entityManager };
             entityManager.RootEntity = rootEntity;
 
-            var applicationPoolEntity = new Entity();
+            var applicationPoolEntity = new Entity("Application Pool", "ApplicationPoolEntity");
             rootEntity.AddComponent(applicationPoolEntity);
 
             var applicationDetails = Substitute.For<IApplication>();
@@ -340,7 +340,7 @@ namespace Pixel.Automation.Core.Tests
             var rootEntity = new Entity() { EntityManager = entityManager };
             entityManager.RootEntity = rootEntity;
 
-            var applicationPoolEntity = new Entity();
+            var applicationPoolEntity = new Entity("Application Pool", "ApplicationPoolEntity");
             rootEntity.AddComponent(applicationPoolEntity);
 
             var controlLocator = Substitute.For<IControlLocator, IComponent>();
