@@ -126,7 +126,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 ControlName = this.ControlName,
                 Description = this.Description,
                 Role = this.Role,              
-                Depth = this.Depth,                
+                Depth = this.Depth, 
+                Index = this.Index,
+                ControlType = this.ControlType,
                 OwnerApplication = this.OwnerApplication,
                 Next = this.Next?.Clone() as JavaControlIdentity
             };
@@ -137,7 +139,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public override string ToString()
         {
             return $"{this.Name} -> ControlName:{this.controlName}|Role:{this.Role}|Description:{this.Description}|Depth:{this.Depth}|" +
-                $"SearchScope:{this.SearchScope}|Index:{this.Index??-1}";
+                $"SearchScope:{this.SearchScope}|Index:{this.Index}";
         }
 
     }

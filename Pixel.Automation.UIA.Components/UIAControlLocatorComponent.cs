@@ -246,9 +246,8 @@ namespace Pixel.Automation.UIA.Components
 
             var foundControl = policy.Execute(() =>
             {
-                if (winControlIdentity.Index.HasValue)
-                {
-                    int index = winControlIdentity.Index.Value;
+                if (winControlIdentity.Index > 1)
+                {                 
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
@@ -307,9 +306,8 @@ namespace Pixel.Automation.UIA.Components
 
             var foundControl = policy.Execute(() =>
             {
-                if (winControlIdentity.Index.HasValue)
-                {
-                    int index = winControlIdentity.Index.Value;
+                if (winControlIdentity.Index > 1)
+                {                   
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
@@ -392,9 +390,8 @@ namespace Pixel.Automation.UIA.Components
 
             var foundControl = policy.Execute(() =>
             {
-                if(winControlIdentity.Index.HasValue)
-                {
-                    int index = winControlIdentity.Index.Value;
+                if(winControlIdentity.Index > 1)
+                {                   
                     var foundControls = parentElement.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
@@ -442,9 +439,9 @@ namespace Pixel.Automation.UIA.Components
 
         protected AutomationElement GetElementAtConfiguredIndex(IEnumerable<AutomationElement> foundControls, WinControlIdentity winControlIdentity)
         {
-            if (winControlIdentity.Index.HasValue)
+            if (winControlIdentity.Index > 0)
             {
-                int index = winControlIdentity.Index.Value;
+                int index = winControlIdentity.Index - 1;
                 if (foundControls.Count() > index)
                 {
                     var foundControl = foundControls.ElementAt(index);

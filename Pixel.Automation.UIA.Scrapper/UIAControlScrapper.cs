@@ -24,10 +24,9 @@ namespace Pixel.Automation.UIA.Scrapper
 {
     public class UIAControlScrapperComponent : PropertyChangedBase, IControlScrapper, IHandle<RepositoryApplicationOpenedEventArgs>
     {
+        private readonly ILogger logger = Log.ForContext<UIAControlLocatorComponent>();
         private readonly IEventAggregator eventAggregator;
-
         private IKeyboardMouseEvents m_GlobalHook;
-
         private readonly IScreenCapture screenCapture;
 
         public string DisplayName { get; } = "UIA Scrapper";
@@ -195,44 +194,96 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     Log.Information("Processing AutomationElement @ coordiante : {@Point}.", point);
 
-                    controlHighlight.BorderColor = Color.Yellow;
+                    List<AutomationElement> controlPath = new List<AutomationElement>();
+                    AutomationElement current = trackedElement;
+                    while(current != AutomationElement.RootElement && !(containerNode?.GetRuntimeId().SequenceEqual(current.GetRuntimeId()) ?? false))
+                    {
+                        LogElementDetails("Parent", current);
+                        controlPath.Add(current);
+                        current = TreeWalker.RawViewWalker.GetParent(current);
+                    }
+                    controlPath.Reverse();
+                    logger.Information($"Identified {controlPath.Count} elements in control path");
 
-                    WinControlIdentity capturedControl = null;
-                    BuildNodeHierarchy(trackedElement, ref capturedControl);
-                    WinControlIdentity current = capturedControl;
+                    //user clicked element which is not relative to container node. Clear the container node and remove container highlight
+                    if(containerNode != null && current == AutomationElement.RootElement)
+                    {
+                        containerNode = null;
+                        containerHighlight.Visible = false;
+                        logger.Information("Removing container node since user clicked an element which is not relative to container node");
+                    }
+                                    
+
+                    current = controlPath.ElementAt(0);
+                    WinControlIdentity rootNodeIdentity = CreateControlComponent(current, 1);
+                    rootNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
+                    WinControlIdentity currentNodeIdentity = rootNodeIdentity;
+                    AutomationElement lastCapturedAncestorNode = current;
+                    int pathLength = controlPath.Count;
+
+                    for (int i = 1; i < pathLength - 1; i++)
+                    {
+                        var currentNode = controlPath.ElementAt(i) as AutomationElement;
+                        var nextNode = controlPath.ElementAt(i + 1) as AutomationElement;
+
+                        if (ShouldCaptureNode(currentNode, nextNode))
+                        {
+                            var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i), i + 1);
+                            nextNodeIdentity.Index = GetIndexInParent(currentNode, lastCapturedAncestorNode);
+                            lastCapturedAncestorNode = currentNode;
+                            if (nextNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
+                            {
+                                nextNodeIdentity.SearchScope = Core.Enums.SearchScope.Descendants;
+                            }
+                            else
+                            {
+                                nextNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
+                            }
+                            currentNodeIdentity.Next = nextNodeIdentity;
+                            currentNodeIdentity = nextNodeIdentity;
+                        }
+
+                    }
+
+                    if(pathLength > 1)
+                    {
+                        var leafNodeIdentity = CreateControlComponent(trackedElement, pathLength);
+                        leafNodeIdentity.Index = GetIndexInParent(trackedElement, lastCapturedAncestorNode);
+                        if (leafNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
+                        {
+                            leafNodeIdentity.SearchScope = Core.Enums.SearchScope.Descendants;
+                        }
+                        else
+                        {
+                            leafNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
+                        }
+                        currentNodeIdentity.Next = leafNodeIdentity;
+                        currentNodeIdentity = leafNodeIdentity;
+                    }                  
+               
                     switch (e.Button)
                     {
                         case MouseButtons.Left:
-                            //everything taken care of already
+                            if (containerNode != null)
+                            {
+                                rootNodeIdentity.ControlType = Core.Enums.ControlType.Relative;
+                            }
                             break;
 
                         case MouseButtons.Right:
                             containerNode = trackedElement;
-                            current.ControlType = Core.Enums.ControlType.Default;
-                            controlHighlight.Visible = false;
-                            containerHighlight.Visible = true;
-                            containerHighlight.BorderColor = Color.Purple;
-                            containerHighlight.Location = new Rectangle((int)focusedRect.Left, (int)focusedRect.Top,
-                            (int)focusedRect.Width, (int)focusedRect.Height);
-
+                            rootNodeIdentity.ControlType = Core.Enums.ControlType.Default;
+                            ShowContainerHighlightRectangle(containerNode.Current.BoundingRectangle, Color.Purple);
                             break;
                     }
-                   
-                    int currentDepth = 0;
-                    while (current.Next != null)
-                    {
-                        current.Name = $"{currentDepth}";
-                        currentDepth++;
-                        current = current.Next as WinControlIdentity;                       
-                    }
-                    current.Name = $"{currentDepth}";
+                                      
                  
-                    ScrapedControl scrapedControl = new ScrapedControl() { ControlData = capturedControl, ControlImage = controlScreenShot };
+                    ScrapedControl scrapedControl = new ScrapedControl() { ControlData = rootNodeIdentity, ControlImage = controlScreenShot };
                     capturedControls.Enqueue(scrapedControl);
 
                     controlHighlight.BorderColor = Color.Green;
 
-                    Log.Information("Captured control : {$capturedControl} as {$controlType}", current, current.ControlType);
+                    Log.Information("Captured control : {$capturedControl} as {$controlType}", current, rootNodeIdentity.ControlType);
 
                 }
                 catch (Exception ex)
@@ -248,125 +299,47 @@ namespace Pixel.Automation.UIA.Scrapper
             });
             captureControlThread.IsBackground = true;
             captureControlThread.Start();
-
         }
 
-        private void BuildNodeHierarchy(AutomationElement currentNode, ref WinControlIdentity controlComponent)
+        private void LogElementDetails(string purpose , AutomationElement automationElement)
         {
-            if (currentNode == AutomationElement.RootElement)
-            {
-                //since we reached the root and we did not encounter containerNode, it would mean user is trying to scrap a control that is not a descendant 
-                //of containerNode. Hence, clear it out.
-                if (containerNode != null)
-                {
-                    containerHighlight.Visible = false;
-                }
-                controlComponent.ControlType = Core.Enums.ControlType.Default;
-                controlComponent.SearchScope = Core.Enums.SearchScope.Children;
-                return;
-            }
-
-            //if containerNode is not null and currentNode is same as containerNode , no need to look up any further in ancestors
-            if (containerNode != null && currentNode.GetRuntimeId().SequenceEqual(containerNode.GetRuntimeId()))
-            {
-                controlComponent.ControlType = Core.Enums.ControlType.Relative;
-                controlComponent.SearchScope = Core.Enums.SearchScope.Children;
-                return;
-            }
-
-            lastCapturedControlRunTimeId = currentNode.GetRuntimeId();
-            AutomationElement parent = TreeWalker.RawViewWalker.GetParent(currentNode);
-
-            //checking for controlComponent!=null  ensures that target control is always captured..
-            if (controlComponent != null)
-            {
-                //TODO : Revisit this when you have find scenario when some control has a different process id then one of its descendant control
-
-                //if the parent control process id changes at any point of time from its child, set IsContainedInChildWindow property to true for all child.
-                //At runtime, if IsContainedInChildWindow property is true, process id check is skipped while looking for control
-                //if (parent.Current.ProcessId != currentNode.Current.ProcessId)
-                //{
-                //    var currentRoot = controlComponent;
-                //    while (currentRoot.Next != null)
-                //    {
-                //        //currentRoot.IsContainedInChildWindow = true;
-                //        currentRoot = currentRoot.Next as WinControlIdentity;
-                //    }
-                //}
-
-                //Whether to capture control or not up in hierachy will be decided by ShouldCaptureNode
-                //Also, if the last captured control has no name and automationid , capture the parent as well to calculate it's index in parent
-                if (!ShouldCaptureNode(currentNode, parent) && (!string.IsNullOrEmpty(controlComponent.NameProperty) && !string.IsNullOrEmpty(controlComponent.AutomationId)))
-                {
-                    controlComponent.SearchScope = Core.Enums.SearchScope.Descendants;
-                    BuildNodeHierarchy(parent, ref controlComponent);
-                    return;
-                }
-                else
-                {
-                    controlComponent.SearchScope = Core.Enums.SearchScope.Children;
-                    TryCalculateRelativeIndex(controlComponent, parent);
-                }
-
-            }
-
-            //process current node details
-            WinControlIdentity currentNodeDetails = CreateControlComponent(currentNode);
-            if (controlComponent == null)
-            {
-                controlComponent = currentNodeDetails;
-            }
-            else
-            {
-                currentNodeDetails.Next = controlComponent;
-                controlComponent = currentNodeDetails;
-            }
-
-
-
-            //On windows 7 , parent is obtained using TreeWalker , however, on trying to lookup control inside parent it is not located. Skip current in that case and try 
-            //to lookup inside parent instead .
-
-            //if (currentNodeDetails.SearchScope == Core.Enums.SearchScope.Children)
-            //{
-            //    if (TryCalculateRelativeIndex(currentNodeDetails, parent))
-            //    {
-            //        controlComponent = currentNodeDetails;
-            //        BuildNodeHierarchy(parent, ref controlComponent);
-            //        return;
-            //    }
-            //    Log.Warning("AutomationElement node was not located in its parent.Parent Element will be skipped from hierarchy.");
-            //}
-
-
-            //while (true)
-            //{
-            //    lastCapturedControlRunTimeId = parent.GetRuntimeId();
-            //    if (TryCalculateRelativeIndex(controlComponent, parent))
-            //    {
-            //        break;
-            //    }
-            //    parent = TreeWalker.RawViewWalker.GetParent(parent);
-            //    if (parent == AutomationElement.RootElement)
-            //    {
-            //        throw new NullReferenceException("AutomationElement could not be located in any of it's parent. Reached AutomationElement.RootElement during lookup");
-            //    }
-
-            //}
-            BuildNodeHierarchy(parent, ref controlComponent);
+            logger.Debug($"{purpose} -> AutomationId : {automationElement.Current.AutomationId}|Name : {automationElement.Current.Name} | ControlType : {automationElement.Current.ControlType}|ProcessId : {automationElement.Current.ProcessId}");
         }
-
-        private bool ShouldCaptureNode(AutomationElement currentNode, AutomationElement parentNode)
+   
+        private bool ShouldCaptureNode(AutomationElement currentNode, AutomationElement nextNode)
         {
-            //Current node is application window.We should capture this
-            if (parentNode == AutomationElement.RootElement)
+            //this is the desired leaf element and must be captured
+            //Note : Sometimes although this is not the leaf element Access bridge provides details upto this element only directly using GetNodePathAt(x,y) api
+            if (nextNode == null || currentNode.FindAll(TreeScope.Children, Condition.TrueCondition).Count == 0)
+            {
                 return true;
-
-            var siblingsOfCurrentNode = parentNode.FindAll(TreeScope.Children, Condition.TrueCondition);  //this includes current node as well 
+            }
 
             //if currentNode is single child , no need to capture this. During search we have exactly one path to follow
+            AutomationElement parentNode = TreeWalker.RawViewWalker.GetParent(currentNode);
+            var siblingsOfCurrentNode = parentNode.FindAll(TreeScope.Children, Condition.TrueCondition).ToList();
             if (siblingsOfCurrentNode.Count == 1)
+            {
                 return false;
+            }
+
+            //if the parent node has more than 3 children, we should capture node detail
+            if (siblingsOfCurrentNode.Count > 3)
+            {
+                return true;
+            }
+
+            //if there are less than 4 sibling , however for any of the sibling node if number of descendant nodes is greater then 50, we should capture node detail
+            if (siblingsOfCurrentNode.Any(a => a.GetDescendantsCount() > 50))
+            {
+                return true;
+            }
+
+            //if next node doesn't have unique identification properties, capture the current node
+            if(string.IsNullOrEmpty(nextNode.Current.Name) && string.IsNullOrEmpty(nextNode.Current.AutomationId) && string.IsNullOrEmpty(nextNode.Current.HelpText))
+            {
+                return true;
+            }
 
             return true;
         }
@@ -376,9 +349,11 @@ namespace Pixel.Automation.UIA.Scrapper
         /// </summary>
         /// <param name="trackedElement"></param>
         /// <returns></returns>
-        private WinControlIdentity CreateControlComponent(AutomationElement trackedElement)
+        private WinControlIdentity CreateControlComponent(AutomationElement trackedElement, int depth)
         {
             WinControlIdentity capturedControl = new WinControlIdentity();
+            capturedControl.Name = depth.ToString();
+            capturedControl.Depth = depth;
             capturedControl.ProcessId = trackedElement.Current.ProcessId;
             string executable = Process.GetProcessById(capturedControl.ProcessId).MainModule.FileName;
             FileInfo executableInfo = new FileInfo(executable);
@@ -411,53 +386,57 @@ namespace Pixel.Automation.UIA.Scrapper
         /// Calculate the index of WinControlIdentity within parent AutomationElement
         /// </summary>
         /// <param name="winControl"></param>
-        /// <param name="parent"></param>
-        private bool TryCalculateRelativeIndex(WinControlIdentity winControl, AutomationElement parent)
-        {
-            //Note : On windows 7 , properties like name,automationid and classname can be null. Trying to build a search condition with a null value will result in exception           
-            //Note : For Internet explorer, if name is null or empty , no match is found
-
-            Condition searchCondition = ConditionFactory.FromControlType(ControlType.LookupById(winControl.ControlTypeId));
-            searchCondition = searchCondition.AndPropertyCondition(new PropertyCondition(AutomationElement.IsContentElementProperty, winControl.IsContentElement));
-            searchCondition = searchCondition.AndPropertyCondition(new PropertyCondition(AutomationElement.IsControlElementProperty, winControl.IsControlElement));
+        /// <param name="lastCapturedAncestorNode"></param>
+        private int GetIndexInParent(AutomationElement currentNode, AutomationElement lastCapturedAncestorNode)
+        {           
+            Condition searchCondition = ConditionFactory.FromControlType(currentNode.Current.ControlType);
+            searchCondition = searchCondition.AndPropertyCondition(new PropertyCondition(AutomationElement.IsContentElementProperty, currentNode.Current.IsContentElement));
+            searchCondition = searchCondition.AndPropertyCondition(new PropertyCondition(AutomationElement.IsControlElementProperty, currentNode.Current.IsControlElement));
 
 
-            if (!string.IsNullOrEmpty(winControl.NameProperty))
-                searchCondition = searchCondition.AndName(winControl.NameProperty);
-
-            if (winControl.AutomationId != null)
-                searchCondition = searchCondition.AndAutomationId(winControl.AutomationId);
-
-            if (winControl.ClassName != null)
-                searchCondition = searchCondition.AndClassName(winControl.ClassName);
-
-            if (!string.IsNullOrEmpty(winControl.AccessKey))
+            if (!string.IsNullOrEmpty(currentNode.Current.Name))
             {
-                searchCondition = searchCondition.AndAccessKey(winControl.AccessKey);
-            }
-            if (!string.IsNullOrEmpty(winControl.HelpText))
-            {
-                searchCondition = searchCondition.AndHelpText(winControl.HelpText);
-            }
-            if (!string.IsNullOrEmpty(winControl.AcceleratorKey))
-            {
-                searchCondition = searchCondition.AndAccessKey(winControl.AcceleratorKey);
+                searchCondition = searchCondition.AndName(currentNode.Current.Name);
             }
 
-            var foundElements = parent.FindAll(TreeScope.Children, searchCondition);
-            bool found = false;
+            if (!string.IsNullOrEmpty(currentNode.Current.AutomationId))
+            {
+                searchCondition = searchCondition.AndAutomationId(currentNode.Current.AutomationId);
+            }
+
+            if (!string.IsNullOrEmpty(currentNode.Current.ClassName))
+            {
+                searchCondition = searchCondition.AndClassName(currentNode.Current.ClassName);
+            }
+
+            if (!string.IsNullOrEmpty(currentNode.Current.AccessKey))
+            {
+                searchCondition = searchCondition.AndAccessKey(currentNode.Current.AccessKey);
+            }
+
+            if (!string.IsNullOrEmpty(currentNode.Current.HelpText))
+            {
+                searchCondition = searchCondition.AndHelpText(currentNode.Current.HelpText);
+            }
+
+            if (!string.IsNullOrEmpty(currentNode.Current.AcceleratorKey))
+            {
+                searchCondition = searchCondition.AndAccessKey(currentNode.Current.AcceleratorKey);
+            }
+
+            var foundElements = lastCapturedAncestorNode.FindAllDescendants(searchCondition);
+          
             int index = 0;
             foreach (AutomationElement elem in foundElements)
             {
                 index++;
-                if (lastCapturedControlRunTimeId.SequenceEqual(elem.GetRuntimeId()))
+                if (currentNode.GetRuntimeId().SequenceEqual(elem.GetRuntimeId()))
                 {
-                    winControl.Index = index;                 
-                    found = true;
-                    break;
+                    return index;                        
                 }
-            }          
-            return found;
+            }
+            logger.Warning($"Failed to uniquely identify control.");
+            return 1;
         }
 
         private void ShowControlHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
@@ -474,6 +453,20 @@ namespace Pixel.Automation.UIA.Scrapper
 
         }
 
+        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        {
+            // Hide old rectangle.
+            containerHighlight.Visible = false;
+
+            // Show new rectangle.
+            containerHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            (int)boundingBox.Width, (int)boundingBox.Height);
+
+            containerHighlight.BorderColor = borderColor;
+            containerHighlight.Visible = true;
+
+        }
+
         public async Task StopCapture()
         {
             m_GlobalHook.MouseDownExt -= GlobalHookMouseDownExt;
@@ -485,7 +478,7 @@ namespace Pixel.Automation.UIA.Scrapper
             containerHighlight.Dispose();
             capturedControls = null;
 
-            Log.Information("Win Scrapper has been stopped.");
+            logger.Information("Win Scrapper has been stopped.");
 
         }
 

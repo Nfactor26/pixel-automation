@@ -83,6 +83,12 @@ namespace Pixel.Automation.UIA.Components
             set { boundingRectangle = value; }
         }
 
+        
+        [DataMember]
+        [Browsable(false)]
+        public int Depth { get; set; }
+        
+
         [DataMember]
         [Category("Supported Patterns")]
         public List<string> SupportedPatterns { get; set; }
@@ -120,7 +126,10 @@ namespace Pixel.Automation.UIA.Components
         {
             WinControlIdentity clone = new WinControlIdentity()
             {
-                Name = this.Name,              
+                Name = this.Name,     
+                Index = this.Index,
+                Depth = this.Depth,
+                ControlType = this.ControlType,
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,

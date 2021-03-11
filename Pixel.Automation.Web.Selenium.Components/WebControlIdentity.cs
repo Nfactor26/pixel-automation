@@ -109,7 +109,9 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             WebControlIdentity clone = new WebControlIdentity()
             {
-                Name = this.Name,                          
+                Name = this.Name,     
+                Index = this.Index,
+                ControlType = this.ControlType,
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,              

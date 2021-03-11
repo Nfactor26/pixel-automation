@@ -138,5 +138,38 @@ namespace Pixel.Automation.UIA.Components
             return automationElements;
         }
 
+
+        public static int GetDescendantsCount(this AutomationElement automationElement)
+        {
+            var allElements = automationElement.FindAll(TreeScope.Descendants, Condition.TrueCondition);
+            return allElements.Count;
+        }
+
+        /// <summary>
+        /// Find all descendants control of a root node matching specified search criteria. This is a BFS search and looks one element at a time unlike FindAll()
+        /// This is used during scraping to find the index of target node without having to find all descendants control of root node.
+        /// </summary>
+        /// <param name="rootNode"></param>
+        /// <param name="matchCondition"></param>
+        /// <returns></returns>
+        public static IEnumerable<AutomationElement> FindAllDescendants(this AutomationElement rootNode, Condition matchCondition)
+        {
+            Queue<AutomationElement> queue = new Queue<AutomationElement>();
+            queue.Enqueue(rootNode);
+            while (queue.Count > 0)
+            {
+                AutomationElement node = queue.Dequeue();
+                foreach (AutomationElement childNode in node.FindAll(TreeScope.Children, Condition.TrueCondition))
+                {
+                    //if the element matches search condition, return this match
+                    if(childNode.FindFirst(TreeScope.Element, matchCondition) != null)
+                    {
+                        yield return childNode;
+                    }
+                    queue.Enqueue(childNode);
+                }
+            }
+            yield break;
+        }
     }
 }

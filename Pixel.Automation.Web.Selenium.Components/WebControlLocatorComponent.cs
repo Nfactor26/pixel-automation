@@ -176,7 +176,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     case SearchScope.Children:
                         throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
                     case SearchScope.Descendants:
-                        if (webControlIdentity.Index.HasValue)
+                        if (webControlIdentity.Index > 1)
                         {
                             var descendantControls = FindAllDescendantControls(webControlIdentity, currentRoot);
                             currentRoot = GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);
@@ -187,7 +187,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                         }
                         break;
                     case SearchScope.Sibling:
-                        if (webControlIdentity.Index.HasValue)
+                        if (webControlIdentity.Index > 1)
                         {
                             var siblingControls = FindAllSiblingControls(webControlIdentity, currentRoot);
                             currentRoot = GetWebElementAtConfiguredIndex(siblingControls, webControlIdentity);
@@ -198,7 +198,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                         }
                         break;
                     case SearchScope.Ancestor:
-                        if (webControlIdentity.Index.HasValue)
+                        if (webControlIdentity.Index > 1)
                         {
                             throw new NotSupportedException("There can be only one ancestor for a given control. Index based lookup is invalid in this context");
                         }
@@ -580,18 +580,18 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         protected IWebElement GetWebElementAtConfiguredIndex(IReadOnlyCollection<IWebElement> foundControls, WebControlIdentity webControlIdentity)
         {
-            if (webControlIdentity.Index.HasValue)
+            if (webControlIdentity.Index > 0)
             {
-                int index = webControlIdentity.Index.Value; ;
+                int index = webControlIdentity.Index - 1;
                 if (foundControls.Count() > index)
                 {
                     var foundControl = foundControls.ElementAt(index);
                     HighlightElement(foundControl);
                     return foundControl;
                 }
-                throw new IndexOutOfRangeException($"Found {foundControls.Count()} controls.Desired index : {index} is greater than number of found controls");
+                throw new IndexOutOfRangeException($"Found {foundControls.Count()} controls. Desired index : {index} is greater than number of found controls");
             }
-            throw new InvalidOperationException($"Index doesn't have value.");
+            throw new InvalidOperationException($"Index doesn't have a valid value.");
         }
 
         #endregion Filter

@@ -1,5 +1,8 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using OpenCvSharp;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Exceptions;
+using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Polly;
@@ -8,15 +11,11 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
-using OpenCvSharp;
-using Dawn;
-using Pixel.Automation.Core.Extensions;
 
 namespace Pixel.Automation.Image.Matching.Components
 {
@@ -201,12 +200,12 @@ namespace Pixel.Automation.Image.Matching.Components
                         //resultImg.Normalize(0, 1, OpenCvSharp.NormTypes.MinMax);
                         Cv2.Threshold(resultImg, resultImg, controlDetails.ThreshHold, 1.0, ThresholdTypes.Tozero);
 
-                        if (controlDetails.Index.HasValue)
+                        if (controlDetails.Index > 1)
                         {
                             List<OpenCvSharp.Point> matchingPoints = GetAllMatchingPoints(resultImg, controlDetails.MatchStrategy, controlDetails.ThreshHold);
                             if (matchingPoints.Count >= controlDetails.Index)
                             {
-                                matchingPoint = matchingPoints[controlDetails.Index.GetValueOrDefault() - 1];
+                                matchingPoint = matchingPoints[controlDetails.Index - 1];
                                 return new BoundingBox(matchingPoint.X, matchingPoint.Y, templateImg.Width, templateImg.Height);
                             }
 

@@ -116,7 +116,7 @@ namespace Pixel.Automation.Core.Components
         [Browsable(false)]
         [Display(Name = "Index", GroupName = "Search Mode", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
-        public int? Index { get; set; }
+        public int Index { get; set; } = 1;
 
         #endregion Search Strategy
 

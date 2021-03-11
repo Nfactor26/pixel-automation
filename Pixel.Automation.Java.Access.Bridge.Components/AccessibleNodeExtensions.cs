@@ -111,24 +111,20 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <param name="currentNode"></param>
         /// <param name="ancestorNode"></param>
         /// <returns></returns>
-        public static int? FindIndexOfControl(this AccessibleContextNode currentNode, AccessibleContextNode ancestorNode)
+        public static int FindIndexOfControl(this AccessibleContextNode currentNode, AccessibleContextNode ancestorNode)
         {
             var currentNodeInfo = currentNode.GetInfo();
             var controlIdentity = new JavaControlIdentity() { ControlName = currentNodeInfo.name, Description = currentNodeInfo.description, Role = currentNodeInfo.role };
             int index = 1;
-            foreach(var matchingNode in ancestorNode.FindAll(TreeScope.Descendants, controlIdentity))
+            foreach(var matchingNode in FindAllDescendantNodes(ancestorNode, controlIdentity))
             {
                 if(matchingNode.Equals(currentNode))
                 {
                     break;
                 }
                 index++;
-            }
-            if(index > 1)
-            {
-                return index;
-            }
-            return null;
+            }         
+            return index;
         }
 
         /// <summary>
@@ -220,7 +216,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         /// <summary>
-        /// Find the first descendant node that match the specified control details in a given root node 
+        /// Find the first descendant node that match the specified control details in a given root node (Breadth Fi
         /// </summary>
         /// <param name="rootNode"></param>
         /// <param name="controlDetails"></param>

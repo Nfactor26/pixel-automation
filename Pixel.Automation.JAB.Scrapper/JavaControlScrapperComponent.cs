@@ -208,8 +208,8 @@ namespace Pixel.Automation.JAB.Scrapper
                    
                     using (var accessibleWindow = accessBridge.CreateAccessibleWindow(new IntPtr(trackedElement.Current.NativeWindowHandle)))
                     {                        
-                        var controlPath = accessibleWindow.GetNodePathAt(new Point(Convert.ToInt32(point.X), Convert.ToInt32(point.Y)));
-                        using (AccessibleContextNode leafNode = controlPath.Last() as AccessibleContextNode)
+                        var nodesInPath = accessibleWindow.GetNodePathAt(new Point(Convert.ToInt32(point.X), Convert.ToInt32(point.Y)));                       
+                        using (AccessibleContextNode leafNode = nodesInPath.Last() as AccessibleContextNode)
                         {
                             var boundingBox = leafNode.GetScreenRectangle();
                             focusedRect = new System.Windows.Rect() { X = boundingBox.Value.X, Y = boundingBox.Value.Y, Width = boundingBox.Value.Width, Height = boundingBox.Value.Height };
@@ -219,11 +219,34 @@ namespace Pixel.Automation.JAB.Scrapper
 
                             logger.Information("Processing control @ coordiante : {@Point}.", point);
 
-                            JavaControlIdentity rootNodeIdentity = CreateControlComponent(accessibleWindow, 0, executable);
-                            rootNodeIdentity.SearchScope = Pixel.Automation.Core.Enums.SearchScope.Children;
+                            bool isRelativeScraping = false;
+                            List<AccessibleNode> controlPath = new List<AccessibleNode>();
+                            foreach (var node in nodesInPath)
+                            {
+                                controlPath.Add(node);
+                                //if any node in path matches contaier node, discard all the nodes until container node as we want to capture this control relative to container node
+                                if (containerNode != null && containerNode.Equals(node))
+                                {
+                                    controlPath.Clear();
+                                    isRelativeScraping = true;
+                                }
+                            }
+
+                            //user clicked an element not relative to containerNode. Clear out the container and remove highlight
+                            if(!isRelativeScraping && containerNode != null)
+                            {
+                                containerNode = null;
+                                containerHighlight.Visible = false;
+                            }
+
+                            var startingNode = (isRelativeScraping ? controlPath.ElementAt(0) : accessibleWindow);
+                            JavaControlIdentity rootNodeIdentity = CreateControlComponent(startingNode as AccessibleContextNode, 1, executable);
+                            rootNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
+                            rootNodeIdentity.ControlType = (isRelativeScraping ? Core.Enums.ControlType.Relative : Core.Enums.ControlType.Default);
                             JavaControlIdentity currentNodeIdentity = rootNodeIdentity;
                             int pathLength = controlPath.Count;
                             AccessibleContextNode lastCapturedAncestorNode = accessibleWindow;
+
                             for (int i = 1; i < pathLength - 1; i++)
                             {
                                 var currentNode = controlPath.ElementAt(i) as AccessibleContextNode;
@@ -231,34 +254,38 @@ namespace Pixel.Automation.JAB.Scrapper
 
                                 if (ShouldCaptureNode(currentNode, nextNode))
                                 {                                  
-                                    var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i) as AccessibleContextNode, i, executable);
+                                    var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i) as AccessibleContextNode, i + 1, executable);
                                     nextNodeIdentity.Index = GetIndexInParent(currentNode, lastCapturedAncestorNode);
                                     lastCapturedAncestorNode = currentNode;
                                     if (nextNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
                                     {
-                                        nextNodeIdentity.SearchScope = Pixel.Automation.Core.Enums.SearchScope.Descendants;
+                                        nextNodeIdentity.SearchScope = Core.Enums.SearchScope.Descendants;
                                     }
                                     else
                                     {
-                                        nextNodeIdentity.SearchScope = Pixel.Automation.Core.Enums.SearchScope.Children;
+                                        nextNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
                                     }
                                     currentNodeIdentity.Next = nextNodeIdentity;
                                     currentNodeIdentity = nextNodeIdentity;
                                 }
 
                             }
-                            var leafNodeIdentity = CreateControlComponent(leafNode, pathLength - 1, executable);
-                            leafNodeIdentity.Index = GetIndexInParent(leafNode, lastCapturedAncestorNode);
-                            if (leafNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
+
+                            if(pathLength > 1)
                             {
-                                leafNodeIdentity.SearchScope = Pixel.Automation.Core.Enums.SearchScope.Descendants;
-                            }
-                            else
-                            {
-                                leafNodeIdentity.SearchScope = Pixel.Automation.Core.Enums.SearchScope.Children;
-                            }
-                            currentNodeIdentity.Next = leafNodeIdentity;
-                            currentNodeIdentity = leafNodeIdentity;
+                                var leafNodeIdentity = CreateControlComponent(leafNode, pathLength, executable);
+                                leafNodeIdentity.Index = GetIndexInParent(leafNode, lastCapturedAncestorNode);
+                                if (leafNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
+                                {
+                                    leafNodeIdentity.SearchScope = Core.Enums.SearchScope.Descendants;
+                                }
+                                else
+                                {
+                                    leafNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
+                                }
+                                currentNodeIdentity.Next = leafNodeIdentity;
+                                currentNodeIdentity = leafNodeIdentity;
+                            }                          
 
                             switch (e.Button)
                             {
@@ -268,7 +295,7 @@ namespace Pixel.Automation.JAB.Scrapper
 
                                 case MouseButtons.Right:
                                     containerNode = leafNode;
-                                    ShowControlHighlightRectangle(focusedRect, Color.Purple);
+                                    ShowContainerHighlightRectangle(focusedRect, Color.Purple);
                                     break;
                             }
 
@@ -303,7 +330,7 @@ namespace Pixel.Automation.JAB.Scrapper
         /// </summary>
         /// <param name="targetNode"></param>
         /// <returns></returns>
-        private int? GetIndexInParent(AccessibleContextNode targetNode, AccessibleContextNode lastCapturedAncestorNode)
+        private int GetIndexInParent(AccessibleContextNode targetNode, AccessibleContextNode lastCapturedAncestorNode)
         {
             return targetNode.FindIndexOfControl(lastCapturedAncestorNode);           
         }
@@ -355,7 +382,7 @@ namespace Pixel.Automation.JAB.Scrapper
                 return true;
 
             //if there are less than 4 sibling , however for any of the sibling node if number of descendant nodes is greater then 50, we should capture node detail
-            if(parentNode.GetChildren().Any(a=>a.GetDescendantsCount()>50))
+            if(parentNode.GetChildren().Any(a => a.GetDescendantsCount()>50))
             {
                 return true;
             }
@@ -382,7 +409,22 @@ namespace Pixel.Automation.JAB.Scrapper
             controlHighlight.Visible = true;
 
         }
-       
+
+        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        {
+            // Hide old rectangle.
+            containerHighlight.Visible = false;
+
+            // Show new rectangle.
+            containerHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            (int)boundingBox.Width, (int)boundingBox.Height);
+
+            containerHighlight.BorderColor = borderColor;
+            containerHighlight.Visible = true;
+
+        }
+
+
         ///<inheritdoc>
         public async Task StopCapture()
         {

@@ -140,7 +140,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public AccessibleContextNode FindControl(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
-            logger.Debug("Start control lookup.");
+            logger.Information("Start control lookup.");
 
             IControlIdentity currentControl = controlIdentity;
             ConfigureRetryPolicy(currentControl);
@@ -148,14 +148,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             while (true)
             {               
                 var foundElement = FindSingleControl(currentControl, currentSearchRoot);
-                logger.Debug($"Located control {currentControl}");
+                logger.Information($"Located control {currentControl}");
                 if (currentControl.Next != null)
                 {
                     currentControl = currentControl.Next;
                     currentSearchRoot = foundElement;
                     continue;
                 }
-                logger.Debug("Control lookup completed.");
+                logger.Information("Control lookup completed.");
                 return foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria");
             }
         }
@@ -163,7 +163,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public IEnumerable<AccessibleContextNode> FindAllControls(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
-            logger.Debug("Start control lookup.");
+            logger.Information("Start control lookup.");
             
             IControlIdentity currentControl = controlIdentity;
             ConfigureRetryPolicy(currentControl);
@@ -175,7 +175,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 if (javaControlIdentity.Next != null)
                 {
                     currentSearchRoot = FindSingleControl(javaControlIdentity, currentSearchRoot);
-                    logger.Debug($"Located control {javaControlIdentity}");
+                    logger.Information($"Located control {javaControlIdentity}");
                     currentControl = javaControlIdentity.Next;
                     continue;
                 }
@@ -186,15 +186,15 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     {
                         case SearchScope.Children:
                             var childControls = FindAllChildControls(javaControlIdentity, currentSearchRoot);
-                            logger.Debug($"Located {childControls.Count()} matching control for {javaControlIdentity}");
+                            logger.Information($"Located {childControls.Count()} matching control for {javaControlIdentity}");
                             return childControls;
                         case SearchScope.Descendants:
                             var descendantControls = FindAllDescendantControls(javaControlIdentity, currentSearchRoot);
-                            logger.Debug($"Located {descendantControls.Count()} matching control for {javaControlIdentity}");
+                            logger.Information($"Located {descendantControls.Count()} matching control for {javaControlIdentity}");
                             return descendantControls;
                         case SearchScope.Sibling:
                             var siblingControls = FindAllSiblingControls(javaControlIdentity, currentSearchRoot);
-                            logger.Debug($"Located {siblingControls.Count()} matching control for {javaControlIdentity}");
+                            logger.Information($"Located {siblingControls.Count()} matching control for {javaControlIdentity}");
                             return siblingControls;
                         case SearchScope.Ancestor:
                             throw new InvalidOperationException("There can be only one ancestor for a given control");
@@ -202,7 +202,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 }
                 finally
                 {
-                    logger.Debug("Control lookup completed.");
+                    logger.Information("Control lookup completed.");
                 }
             }
         }
@@ -244,9 +244,8 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
             var foundControl = policy.Execute(() =>
             {
-                if (javaControlIdentity.Index.HasValue)
-                {
-                    int index = javaControlIdentity.Index.Value;
+                if (javaControlIdentity.Index > 1)
+                {                 
                     var foundControls = searchRoot.FindAll(TreeScope.Children, javaControlIdentity);
                     if (foundControls.Count() == 0)
                     {
@@ -299,13 +298,8 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             ConfigureRetryPolicy(javaControlIdentity);
 
             var foundControl = policy.Execute(() =>
-            {
-                int index = 1;
-                if (javaControlIdentity.Index.HasValue)
-                {
-                    index = javaControlIdentity.Index.Value;                 
-                }
-                return currentSearchRoot.FindNthDescendantControl(javaControlIdentity, index) ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+            {                      
+                return currentSearchRoot.FindNthDescendantControl(javaControlIdentity, javaControlIdentity.Index) ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
             });
 
             HighlightElement(foundControl);
@@ -401,7 +395,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 {
                     if (window.IsMatch(javaControlIdentity))
                     {
-                        logger.Debug($"Located control {javaControlIdentity}");
+                        logger.Information($"Located control {javaControlIdentity}");
                         return window;
                     }
                 }
@@ -416,9 +410,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
         protected AccessibleContextNode GetElementAtConfiguredIndex(IEnumerable<AccessibleContextNode> foundControls, JavaControlIdentity javaControlIdentity)
         {
-            if (javaControlIdentity.Index.HasValue)
+            if (javaControlIdentity.Index > 0)
             {
-                int index = javaControlIdentity.Index.Value - 1;
+                int index = javaControlIdentity.Index - 1;
                 if (foundControls.Count() > index)
                 {
                     var foundControl = foundControls.ElementAt(index);
