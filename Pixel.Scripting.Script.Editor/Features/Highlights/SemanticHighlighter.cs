@@ -57,7 +57,7 @@ namespace Pixel.Scripting.Script.Editor.Features
                 }
             });
 
-            IObservable<long> intervalObservable = Observable.Interval(TimeSpan.FromMilliseconds(500)).ObserveOnDispatcher();
+            IObservable<long> intervalObservable = Observable.Interval(TimeSpan.FromMilliseconds(500)).ObserveOn(synchonizationContext);
             intervalSubscription = intervalObservable.Subscribe(itr =>
             {
                 RequestHighlightAsync(Document.GetLineByNumber(textView.HighlightedLine));
