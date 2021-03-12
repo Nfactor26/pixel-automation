@@ -5,11 +5,16 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.Components;
 using System;
 using System.Collections.Generic;
+using Serilog;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
     public class WebControlEntity : ControlEntity
     {
+        private readonly ILogger logger = Log.ForContext<WebControlEntity>();
+
+        private IWebElement webElement;
+
         protected override void InitializeFilter()
         {
             if (this.Filter == null)
@@ -18,8 +23,32 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }
 
+        /// <summary>
+        /// Clear the located control once entity is processed
+        /// </summary>
+        public override void OnCompletion()
+        {
+            if (CacheControl)
+            {
+                webElement = null;              
+                logger.Debug($"Cleared cached WebElement for {this.Name}");
+            }          
+        }
+
+
         public override T GetTargetControl<T>()
         {
+            if (CacheControl && webElement != null)
+            {
+                if (webElement is T cachedControl)
+                {
+                    logger.Debug($"Return cached element for {this.Name}");
+                    return cachedControl;
+                }
+                throw new Exception($"IWebElement is not compatible with type {typeof(T)}");
+            }
+
+
             IWebElement searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
@@ -31,7 +60,6 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
 
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
-            IWebElement webElement = default;
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
@@ -53,7 +81,11 @@ namespace Pixel.Automation.Web.Selenium.Components
                     throw new NotSupportedException();
             }
 
-            return (T)webElement;
+            if (webElement is T result)
+            {
+                return result;
+            }
+            throw new Exception($"IWebElement is not compatible with type {typeof(T)}");
         }
 
         public override UIControl GetControl()

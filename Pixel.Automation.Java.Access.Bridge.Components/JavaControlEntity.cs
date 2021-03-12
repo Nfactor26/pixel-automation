@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using WindowsAccessBridgeInterop;
@@ -10,6 +11,10 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 {
     public class JavaControlEntity : ControlEntity
     {
+        private readonly ILogger logger = Log.ForContext<JavaControlEntity>();
+
+        private AccessibleContextNode controlNode;
+
         protected override void InitializeFilter()
         {
             if (this.Filter == null)
@@ -18,8 +23,31 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             }
         }
 
+        /// <summary>
+        /// Clear the located control once entity is processed
+        /// </summary>
+        public override void OnCompletion()
+        {
+            if (CacheControl)
+            {
+                controlNode = null;
+                logger.Debug($"Cleared cached AccessibleContextNode for {this.Name}");
+            }         
+        }
+
+
         public override T GetTargetControl<T>()
         {
+            if (CacheControl && controlNode != null)
+            {
+                if (controlNode is T cachedControl)
+                {
+                    logger.Debug($"Return cached AccessibleContextNode for {this.Name}");                 
+                    return cachedControl;
+                }
+                throw new Exception($"AccessibleContextNode is not compatible with type {typeof(T)}");
+            }
+
             AccessibleContextNode searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
@@ -30,8 +58,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 searchRoot = (this.Parent as JavaControlEntity).GetTargetControl<AccessibleContextNode>();
             }
 
-            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
-            AccessibleContextNode controlNode = default;
+            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;          
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
