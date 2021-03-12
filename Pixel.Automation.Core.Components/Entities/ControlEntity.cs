@@ -124,6 +124,10 @@ namespace Pixel.Automation.Core.Components
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
         public virtual Argument Filter { get; set; }
 
+        [DataMember]
+        [Display(Name = "Enable Caching", GroupName = "Caching", Order = 50,
+            Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
+        public bool CacheControl { get; set; } = true;
 
         protected abstract void InitializeFilter();
 
