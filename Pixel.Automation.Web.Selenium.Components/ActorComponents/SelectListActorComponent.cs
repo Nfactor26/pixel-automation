@@ -2,41 +2,56 @@
 using OpenQA.Selenium.Support.UI;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Web.Selenium.Components.Enums;
 using Serilog;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
+
+    /// <summary>
+    /// Use <see cref="SelectListItemActorComponent"/> to select an option in list web control.
+    /// Option can be specified using display text, value or index of the option
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Select List", "Selenium", iconSource: null, description: "Select an item in list using text/value/index", tags: new string[] { "Select", "List", "Web" })]
-    public class SelectListItemActorComponent : SeleniumActorComponent
+    public class SelectListItemActorComponent : WebElementActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<SelectListItemActorComponent>();
+
+        /// <summary>
+        /// Specify whether to select by display text, value or index of the option
+        /// </summary>
         [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]             
-        [Browsable(true)]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        [Display(Name = "Select By", GroupName = "Configuration", Order = 20, Description = "Specify whether to selecy by display text, value or index of the option")]      
+        public SelectBy SelectBy { get; set; } = SelectBy.Value;
 
+        /// <summary>
+        /// Option to be selected
+        /// </summary>
         [DataMember]
-        public SelectBy SelectBy { get; set; }
+        [Display(Name = "Option", GroupName = "Configuration", Order = 30, Description = "Option to be selected")]
+        public Argument Option { get; set; } = new InArgument<string>();
 
-        [DataMember]       
-        [Description("Text/Value/Index to be selected")]
-        public Argument Input { get; set; } = new InArgument<string>();
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public SelectListItemActorComponent() : base("Select List Item", "SelectListItem")
         {
 
         }
 
+        /// <summary>
+        /// Select the configured option contained in a select (or similar) element
+        /// </summary>
         public override void Act()
         {
             IWebElement control = GetTargetControl(this.TargetControl);
-            string selectText = ArgumentProcessor.GetValue<string>(this.Input);
+            string selectText = ArgumentProcessor.GetValue<string>(this.Option);
 
             SelectElement selectElement = new SelectElement(control);
             switch (SelectBy)
@@ -53,20 +68,13 @@ namespace Pixel.Automation.Web.Selenium.Components
                     break;
             }
 
-            Log.Information("SelectList interaction completed");
+            logger.Information($"Option {selectText} was selected.");
         }
 
         public override string ToString()
         {
-            return "Selenium.SelectList";
+            return "Select List Actor";
         }
 
-    }
-
-    public enum SelectBy
-    {
-        Text,
-        Value,
-        Index
-    }
+    }  
 }

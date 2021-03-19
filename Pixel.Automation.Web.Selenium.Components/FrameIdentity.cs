@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -19,8 +20,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         ///  For ex : id,name,css3selector,etc.
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Description(" FindBy strategy used to search for frame")]
-        //[ItemsSource(typeof(FindFrameByItemsSource))]
+        [Display(Name = "Find By", GroupName = "Configuration", Order = 10, Description = "FindBy strategy used to search for frame")]
         public virtual string FindByStrategy
         {
             get
@@ -45,8 +45,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Identifier used to search for the control i.e. name of control if FindByStrategy is name,etc.
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Description("Identifier used to search for the control")]
-     
+        [Display(Name = "Identifier", GroupName = "Configuration", Order = 20, Description = "Identifier used to search for the control")
         public virtual string Identifier
         {
             get; set;

@@ -1,35 +1,44 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
+    /// <summary>
+    /// Use <see cref="ScrollToActorComponent"/> to scroll to a target web control
+    /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Scroll To Element", "Selenium", iconSource: null, description: "Scroll to element in browser window", tags: new string[] { "Click", "Web" })]
+    [ToolBoxItem("Scroll To Element", "Selenium", iconSource: null, description: "Scroll to web control in browser window", tags: new string[] { "Scroll", "Web" })]
 
-    public class ScrollToActorComponent : SeleniumActorComponent
+    public class ScrollToActorComponent : WebElementActorComponent
     {
-        [DisplayName("Target Control")]
-        [Category("Control Details")]            
-        [Browsable(true)]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        private readonly ILogger logger = Log.ForContext<ScrollPageActorComponent>();
 
-
+        /// <summary>
+        /// Amount of vertial offset from element's actual y coordinate to apply while scrolling
+        /// </summary>
         [DataMember]      
-        [Description("Amount of offset from element's actual y coordinate to apply while scrolling")]
+        [Display(Name = "Offset", GroupName = "Configuration", Order = 20, Description = "Amount of vertial offset from element's actual y coordinate to apply while scrolling")]       
         public Argument OffSet { get; set; } = new InArgument<int>() { DefaultValue = 0 };
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ScrollToActorComponent() : base("Scroll To Element", "ScrollToElement")
         {
 
         }
 
+        /// <summary>
+        /// Scroll the browser to a target <see cref="IWebElement"/>.
+        /// A vertical offset can be optionally specified.
+        /// </summary>
         public override void Act()
         {
             int offsetAmount = ArgumentProcessor.GetValue<int>(this.OffSet);
@@ -37,7 +46,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             int elemPos = control.Location.Y+ offsetAmount;
             ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll(0, {elemPos});");
 
-            Log.Information("ScrollTo interaction completed");
+            logger.Information($"Browser was scrolled to (0, {elemPos})");
         }
 
         public override string ToString()

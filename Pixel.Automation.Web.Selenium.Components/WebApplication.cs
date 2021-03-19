@@ -2,8 +2,10 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Web.Selenium.Components.Enums;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
@@ -18,12 +20,19 @@ namespace Pixel.Automation.Web.Selenium.Components
     {
         #region IApplication
 
+        /// <summary>
+        /// Id of the application
+        /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
         [Browsable(false)]
         public string ApplicationId { get; set; } = Guid.NewGuid().ToString();
 
+        /// <summary>
+        /// Name of the application
+        /// </summary>
         string applicationName;
-        [DataMember(IsRequired = true, Order = 20)]
+        [DataMember(IsRequired = true)]
+        [Display(Name = "Application Name", Order = 20, Description = "Name of the application")]      
         public string ApplicationName
         {
             get
@@ -37,6 +46,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }       
 
+        /// <summary>
+        /// Process Id of the launched browser application
+        /// </summary>
         [Browsable(false)]
         public int ProcessId
         {
@@ -50,6 +62,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }
 
+        /// <summary>
+        /// Handle of the launched browser window
+        /// </summary>
         [Browsable(false)]
         public IntPtr Hwnd
         {
@@ -73,15 +88,27 @@ namespace Pixel.Automation.Web.Selenium.Components
             this.launchedInstance = launchedInstance;
         }
 
-        [DataMember(IsRequired = true, Order = 30)]
+        /// <summary>
+        /// Browser to use for test execution
+        /// </summary>
+        [DataMember(IsRequired = true)]
+        [Display(Name = "Preferred Browser", Order = 30, Description = "Browser to use")]
         public Browsers PreferredBrowser { get; set; }
 
-        [DataMember(IsRequired = true, Order = 40)]    
+        /// <summary>
+        /// Web application url
+        /// </summary>
+        [DataMember(IsRequired = true)]    
+        [Display(Name = "Target Url", Order = 40, Description = "Web application url")]
         public Uri TargetUri { get; set; } = new Uri("https://www.bing.com");
 
 
         [NonSerialized]
         IWebDriver webDriver;
+
+        /// <summary>
+        /// <see cref="IWebDriver"/> used to interact with the browser
+        /// </summary>
         [BrowsableAttribute(false)]
         [IgnoreDataMember]
         public IWebDriver WebDriver
@@ -97,6 +124,9 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }
 
+        /// <summary>
+        /// Dispose webdriver
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

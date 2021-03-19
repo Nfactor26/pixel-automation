@@ -20,12 +20,11 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         string findByStrategy;
         /// <summary>
-        ///  FindBy strategy used to search for a control.
-        ///  For ex : id,name,css3selector,etc.
+        ///  FindBy strategy used to search for a control e.g. id, name, css3selector, etc.     
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Description(" FindBy strategy used to search for a control.For ex: id,name,css3selector,etc.")]    
         [Display(Name = "Find By", Order = 10, GroupName = "Search Strategy")]
+        [Description(" FindBy strategy used to search for a control.For ex: id,name,css3selector,etc.")]       
         public virtual string FindByStrategy
         {
             get
@@ -47,24 +46,26 @@ namespace Pixel.Automation.Web.Selenium.Components
 
       
         /// <summary>
-        /// Identifier used to search for the control i.e. name of control if FindByStrategy is name,etc.
+        /// Identifier value used to search for the control i.e. name of control if FindByStrategy is name,etc.
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Description("Identifier used to search for the control")]       
         [Display(Name = "Identifier", Order = 20, GroupName = "Search Strategy")]
-        public string Identifier
-        {
-            get;set;
-        }
+        [Description("Identifier value used to search for the control")]
+        public string Identifier { get; set; }
 
+        /// <summary>
+        /// Wait timeout in seconds for control lookup
+        /// </summary>
         [DataMember()]
-        [Description("Explicit wait timeout in seconds for control during lookup")]
         [Display(Name = "Search Timout", Order = 40, GroupName = "Search Strategy")]
-        public int SearchTimeout { get; set; } = 10;
-
+        [Description("Wait timeout in seconds for control lookup")]
+        public int SearchTimeout { get; set; } = 5;
+        
+        /// <summary>
+        /// Indicates the SearchScope for control lookup e.g. if the control should be looked in child subtree or descendant subtree of the search root, etc.
+        /// </summary>
         [DataMember]
-        [Display(Name = "Search Scope", Order = 30, GroupName = "Search Strategy")]
-        //[ItemsSource(typeof(SearchScopeItemSource))]
+        [Display(Name = "Search Scope", Order = 30, GroupName = "Search Strategy")]   
         public override SearchScope SearchScope { get; set; } = SearchScope.Descendants;
 
         /// <summary>
@@ -78,32 +79,24 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         #region Frame Details
 
-        List<FrameIdentity> frameHierarchy = new List<FrameIdentity>();
         /// <summary>
-        /// Indicates the index of the frame inside a window/tab where the target control can be located. 
+        /// Identification details for the frame that contains the control 
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Description("Details of frame hierarchy in web page  which contains the element")]
         [Display(Name = "Frame Hierarchy", Order = 10, GroupName = "Frame Details")]
-        public List<FrameIdentity> FrameHierarchy
-        {
-            get
-            {             
-                return frameHierarchy;
-            }    
-            set
-            {
-                frameHierarchy = value;
-            }
-        }
+        [Description("Details of frame hierarchy in web page  which contains the element")]
+        public List<FrameIdentity> FrameHierarchy { get; set; } = new List<FrameIdentity>();
+     
 
         #endregion Frame Details
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public WebControlIdentity() : base()
         {
-                         
+            RetryAttempts = 2;            
         }
-
 
         public override object Clone()
         {
@@ -125,7 +118,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 SearchTimeout = this.SearchTimeout,
                 SearchScope = this.SearchScope,
                 AvilableIdentifiers = new List<ControlIdentifier>(this.AvilableIdentifiers),
-                FrameHierarchy = new List<FrameIdentity>(this.FrameHierarchy),
+                FrameHierarchy = new List<FrameIdentity>(this.FrameHierarchy ?? new List<FrameIdentity>()),
                 Next = this.Next?.Clone() as WebControlIdentity
 
             };
@@ -135,36 +128,6 @@ namespace Pixel.Automation.Web.Selenium.Components
         public override string ToString()
         {
             return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.ControlType}|SearchScope:{this.SearchScope}";
-        }
-      
+        }      
     }
-
-    //class FindControlByItemSource : IItemsSource
-    //{
-    //    public ItemCollection GetValues()
-    //    {
-    //        ItemCollection strategies = new ItemCollection();
-    //        strategies.Add("Id");
-    //        strategies.Add("ClassName");
-    //        strategies.Add("CssSelector");
-    //        strategies.Add("LinkText");
-    //        strategies.Add("Name");
-    //        strategies.Add("PartialLinkText");
-    //        strategies.Add("TagName");
-    //        strategies.Add("XPath");
-    //        return strategies;
-    //    }
-    //}
-
-    //class SearchScopeItemSource : IItemsSource
-    //{
-    //    public ItemCollection GetValues()
-    //    {
-    //        ItemCollection strategies = new ItemCollection();
-    //        strategies.Add(SearchScope.Ancestor, "Ancestor");
-    //        strategies.Add(SearchScope.Descendants,"Descendants");
-    //        strategies.Add(SearchScope.Sibling, "Sibling");          
-    //        return strategies;
-    //    }
-    //}
 }

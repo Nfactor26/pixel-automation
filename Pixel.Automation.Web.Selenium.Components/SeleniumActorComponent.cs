@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components
@@ -25,16 +26,37 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }
 
+        protected SeleniumActorComponent(string name = "", string tag = "") : base(name, tag)
+        {
+
+        }
+
+    }
+
+    public abstract class WebElementActorComponent : SeleniumActorComponent
+    {
+
+        [DataMember]
+        [Display(Name = "Target Control", GroupName = "Control Details", Order = 10)]
+        [Description("[Optional] Specify a WebUIControl that should be clicked")]
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+
+
         [Browsable(false)]
         public IControlEntity ControlEntity
         {
             get
             {
-                return this.Parent as IControlEntity;            
-            
+                return this.Parent as IControlEntity;
+
             }
-        }    
-                
+        }
+
+        protected WebElementActorComponent(string name = "", string tag = "") : base(name, tag)
+        {
+
+        }
+
 
         protected virtual IWebElement GetTargetControl(Argument controlArgument)
         {
@@ -51,11 +73,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
             return targetControl.GetApiControl<IWebElement>();
         }
-       
-        protected SeleniumActorComponent(string name = "", string tag = ""):base(name,tag)
-        {
 
-        }
 
         protected void ThrowIfMissingControlEntity()
         {

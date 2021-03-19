@@ -1,59 +1,67 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
+    /// <summary>
+    /// Use <see cref="SendKeyActorComponent"/> to set text on a web control e.g. input
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Send Key", "Selenium", iconSource: null, description: "Send keys to simulate typing on a  WebElement", tags: new string[] { "SendKey", "Type", "Web" })]
-    public class SendKeyActorComponent : SeleniumActorComponent
+    public class SendKeyActorComponent : WebElementActorComponent
     {
-        [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]          
-        [Browsable(true)]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        private readonly ILogger logger = Log.ForContext<SendKeyActorComponent>();
 
-        [DataMember]       
-        [Category("Send Key Settings")]      
-        [Description("To send text,configure the input value in any of the mode. To send special keys such as Enter,use scripted mode and return desired keys. For Example : Keys.Control + \"A\" or Keys.Enter etc.")]
-        public Argument Input { get; set; } = new InArgument<string>();
-
+        /// <summary>
+        /// Set the text on a web control. To send special keys such as Enter however, use scripted mode and return desired keys. For Example : Keys.Control + \"A\" or Keys.Enter etc.
+        /// </summary>
         [DataMember]
-        [DisplayName("Clear Existing Value")]
-        [Description("if set to true, value of control will be cleared before trying to set new value")]
-        [Category("Send Key Settings")]    
+        [Display(Name = "Input", GroupName = "Configuration", Order = 20, Description = "Set the text on a web control. To send special keys such as Enter however, " +
+            "use scripted mode and return desired keys. For Example : Keys.Control + \"A\" or Keys.Enter etc.")]     
+        public Argument Input { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+
+        /// <summary>
+        /// Indicates whether to clear the existing value before setting a new value
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Clear", GroupName = "Configuration", Order = 20, Description = "Indicates whether to clear the existing value before setting a new value")]      
         public bool ClearBeforeSendKeys { get; set; } = false;
             
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public SendKeyActorComponent() : base("Set Text", "SetText")
         {
 
         }
 
+        /// <summary>
+        /// Set the text on a <see cref="IWebElement"/>
+        /// </summary>
         public override void Act()
         {
             IWebElement control = GetTargetControl(this.TargetControl);
             string inputForControl = ArgumentProcessor.GetValue<string>(this.Input);
             if (this.ClearBeforeSendKeys)
             {
-                Log.Information("Value of Control has been cleared ");
+                logger.Information("Value of control was cleared ");
                 control.Clear();
             }
             control.SendKeys(inputForControl);
-            Log.Information("SendKey interaction completed");
+            logger.Information("Send key operation completed on control");
 
         }
 
         public override string ToString()
         {
-            return "Selenium.SetText";
+            return "Send Key Actor";
         }
 
     }

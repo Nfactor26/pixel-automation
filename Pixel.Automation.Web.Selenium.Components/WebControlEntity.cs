@@ -9,6 +9,10 @@ using Serilog;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
+    /// <summary>
+    /// WebControlEntity wraps a control details required to lookup a control detail.
+    /// It also supports caching of the <see cref="IWebElement"/> for subsequent lookup.
+    /// </summary>
     public class WebControlEntity : ControlEntity
     {
         private readonly ILogger logger = Log.ForContext<WebControlEntity>();
@@ -35,7 +39,12 @@ namespace Pixel.Automation.Web.Selenium.Components
             }          
         }
 
-
+        /// <summary>
+        /// Get first control as <see cref="IWebElement"/> identified using wrapped <see cref="IControlIdentity"/>
+        /// </summary>
+        /// <typeparam name="T">Should be a IWebElement</typeparam>
+        /// <returns>IWebElement</returns>
+        /// <exception cref="Exception">Throws Exception if located control is not of type T</exception>
         public override T GetTargetControl<T>()
         {
             if (CacheControl && webElement != null)
@@ -88,14 +97,21 @@ namespace Pixel.Automation.Web.Selenium.Components
             throw new Exception($"IWebElement is not compatible with type {typeof(T)}");
         }
 
+        /// <summary>
+        /// Get first control identified using wrapped <see cref="IControlIdentity"/>
+        /// </summary>
+        /// <returns></returns>
         public override UIControl GetControl()
         {
             IWebElement foundControl = GetTargetControl<IWebElement>();
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
             return new WebUIControl(this.ControlDetails, foundControl,  webControlLocator) ;
-        }    
+        }
 
-
+        /// <summary>
+        /// Get all the controls identifed using wrapped <see cref="IControlIdentity"/>
+        /// </summary>
+        /// <returns></returns>
         public override IEnumerable<UIControl> GetAllControls()
         {
             IWebElement searchRoot = default;

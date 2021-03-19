@@ -50,10 +50,6 @@ namespace Pixel.Automation.Web.Selenium.Components
 
 
         [NonSerialized]
-        WebControlIdentity lastControlInteracted;
-
-
-        [NonSerialized]
         bool showBoundingBox;
         /// <summary>
         /// Toggle if bounding box is shown during playback on controls.
@@ -654,21 +650,17 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         private void SwitchToTargetFrame(WebControlIdentity webControlIdentity)
         {
-            var lastControlFrameDetails = lastControlInteracted?.FrameHierarchy;
-
-            //switch to frame only if frame details have changed between last control and current control 
-            if (lastControlFrameDetails != null && !webControlIdentity.FrameHierarchy.SequenceEqual(lastControlFrameDetails))
+            if(webControlIdentity.FrameHierarchy?.Any() ?? false)
             {
                 WebDriver.SwitchTo().DefaultContent();
 
-                Log.Information($"Web driver switched to default content.");
+                logger.Information($"Web driver switched to default content.");
 
                 foreach (var frame in webControlIdentity.FrameHierarchy)
                 {
-                    SwitchToFrame(frame, webControlIdentity);
+                    SwitchToFrame(frame, webControlIdentity);                   
                 }
             }
-            lastControlInteracted = webControlIdentity;
         }
 
         private void HighlightElement(IWebElement foundControl)

@@ -5,7 +5,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-
+using Pixel.Automation.Web.Selenium.Components.Enums;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {

@@ -1,133 +1,145 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.IE;
-using OpenQA.Selenium.Opera;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Exceptions;
+using Pixel.Automation.Web.Selenium.Components.Enums;
 using Serilog;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Linq;
 using System.Management;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
+    /// <summary>
+    /// Use <see cref="LaunchBrowserActorComponent"/> to launch a browser using selenium webdriver.
+    /// Browser details are specified using <see cref="WebApplication"/>. 
+    /// Driver executables should be present in .\\WebDrivers directory
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Launch Browser", "Selenium", "Browser", iconSource: null, description: "Launch a Selenium based browser", tags: new string[] { "Launch", "Web" })]
     public class LaunchBrowserActorComponent : SeleniumActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<LaunchBrowserActorComponent>();
         private readonly string webDriverFolder = ".//WebDrivers//";
 
-        public LaunchBrowserActorComponent():base("Launch Browser","LaunchBrowser")
+        /// <summary>
+        /// Optionally specify custom <see cref="DriverOptions"/> with which WebDriver should be initialized.
+        /// If DriverOptions is not configured, default configuration is created and used.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Driver Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Specify a custom configured driver options." +
+            "Default configuration is used if not specified.")]      
+        public Argument DriverOptions = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+
+        /// <summary>
+        /// Indicates whether the browser should be maximized on launch. Default value is true.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Maximinze browser", GroupName = "Configuration", Order = 20)]
+        [Description("Specify whether browser window should be maximized after launch.")]
+        public bool MaximizeOnLaunch { get; set; } = true;
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public LaunchBrowserActorComponent():base("Launch Browser", "LaunchBrowser")
         {            
-            this.ProcessOrder = 0;
+          
         }      
         
+        /// <summary>
+        /// Launch the configured browser for <see cref="WebApplication"/> using selenium webdriver.
+        /// Custom <see cref="DriverOptions"/> can be specified. 
+        /// </summary>
         public override void Act()
         {
             var applicationDetails = ApplicationDetails;           
-            if (applicationDetails == null)
-            {
-                throw new MissingComponentException("Web Application Details component is missing.Launch will fail.");
-            }
-
-            IWebDriver webDriver = null;
             string processIdentifier = Guid.NewGuid().ToString();
+
+            IWebDriver webDriver;           
             switch (applicationDetails.PreferredBrowser)
             {
-                case Browsers.FireFox:
-                    FirefoxOptions firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.AddArgument($"--{processIdentifier}");
-                    webDriver = new FirefoxDriver(webDriverFolder,firefoxOptions);                    
+                case Browsers.FireFox:                  
+                    webDriver = new FirefoxDriver(webDriverFolder, GetDriverOptions<FirefoxOptions>(applicationDetails.PreferredBrowser, processIdentifier));
                     break;
-                case Browsers.Chrome:
-                    ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.AddArgument("test-type");                    
-                    chromeOptions.AddArgument(processIdentifier);
-                    webDriver = new ChromeDriver(webDriverFolder, chromeOptions);                  
+                case Browsers.Chrome:                    
+                    webDriver = new ChromeDriver(webDriverFolder, GetDriverOptions<ChromeOptions>(applicationDetails.PreferredBrowser, processIdentifier));
                     break;
-                case Browsers.Opera:
-                    OperaOptions operaOptions = new OperaOptions();
-                    operaOptions.AddArgument($"--{processIdentifier}");
-                    operaOptions.AddArgument("test-type");                 
-                    operaOptions.BinaryLocation = @"C:\Users\Nish26\AppData\Local\Programs\Opera\44.0.2510.1159\opera.exe";
-                    webDriver = new OperaDriver(webDriverFolder, operaOptions);
-                    break;              
-                case Browsers.InternetExplorer:
-
-                    //Note : We could just query if the commandline contains targeturl/loginurl . However, many a times browsers get redirected to some other url
-                    List<Process> previouslyRunningIEInstances = new List<Process>();
-                    List<Process> launchedIEInstances = new List<Process>();
-
-                    string wmiQuery ="select ProcessId,CommandLine from Win32_Process where Name='iexplore.exe'";
-                    ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmiQuery);
-                    ManagementObjectCollection retObjectCollection = searcher.Get();
-                    foreach (ManagementObject retObject in retObjectCollection)
-                    {
-                        if (retObject["CommandLine"].ToString().Contains("noframemerging"))
-                        {
-                            int processId = Convert.ToInt32(retObject["ProcessId"]);
-                            previouslyRunningIEInstances.Add(Process.GetProcessById(processId));
-                        }
-                    }
-                                      
-                    InternetExplorerOptions ieOptions = new InternetExplorerOptions();
-                    //ieOptions.BrowserCommandLineArguments = $"--{processIdentifier}";
-                    ieOptions.InitialBrowserUrl = applicationDetails.TargetUri.ToString();        
-                    webDriver = new InternetExplorerDriver(ieOptions);
-                                     
-                    retObjectCollection = searcher.Get();
-                    foreach (ManagementObject retObject in retObjectCollection)
-                    {
-                        if (retObject["CommandLine"].ToString().Contains("noframemerging"))
-                        {
-                            int processId = Convert.ToInt32(retObject["ProcessId"]);
-                            if(!previouslyRunningIEInstances.Any(p=>p.Id.Equals(processId)))
-                                launchedIEInstances.Add(Process.GetProcessById(processId));
-                        }
-                    }                
-                    if (launchedIEInstances.Count() != 1)
-                    {
-                        Log.Warning("More than one or No iexplore.exe have been started.It is not possible to determine target process started by IEDriver");
-                    }
-                    else
-                    {
-                        applicationDetails.SetProcessDetails(launchedIEInstances.First());
-                        Log.Information("{PreferredBrowser} has been launched with process id {ProcessId}", applicationDetails.PreferredBrowser, applicationDetails.ProcessId);
-                    }
+                case Browsers.Edge:                  
+                    webDriver = new EdgeDriver(webDriverFolder, GetDriverOptions<EdgeOptions>(applicationDetails.PreferredBrowser, processIdentifier));
                     break;
-
                 default:
                     throw new ArgumentException("Requested web driver type is not supported");
             }
 
-            Log.Information("{PreferredBrowser} has been launched.", applicationDetails.PreferredBrowser);
+            logger.Information($"{applicationDetails.PreferredBrowser} has been launched.");
 
-            webDriver.Manage().Window.Maximize();
+            if(this.MaximizeOnLaunch)
+            {
+                webDriver.Manage().Window.Maximize();
+            }
             ApplicationDetails.WebDriver = webDriver;
 
-            //for firefox/chrome/opera
+            //for firefox/chrome
             Process launchedInstance = GetLaunchedBrowserProcess(applicationDetails.PreferredBrowser, processIdentifier);
             if(launchedInstance!=null)
             {
                 applicationDetails.SetProcessDetails(launchedInstance);
-                Log.Information("{PreferredBrowser} has been launched with process id {ProcessId}", applicationDetails.PreferredBrowser, applicationDetails.ProcessId);
+                logger.Information($"Process Id of launched browser is : {applicationDetails.ProcessId}");
             }
             
              Uri targetUrl = applicationDetails.TargetUri;
              webDriver.Navigate().GoToUrl(targetUrl);
 
-            Log.Information("{PreferredBrowser} has been navigated to {Url}", applicationDetails.PreferredBrowser, applicationDetails.TargetUri);
+            logger.Information($"{applicationDetails.PreferredBrowser} has been navigated to {applicationDetails.TargetUri}");
         }
 
-        private Process GetLaunchedBrowserProcess(Browsers preferredBrowser,string processIdentifier)
+
+        T GetDriverOptions<T>(Browsers browser, string processIdentifier) where  T : DriverOptions
         {
-            string processName = string.Empty;
-            switch(preferredBrowser)
+            DriverOptions driverOptions = null;
+            if (this.DriverOptions.IsConfigured())
+            {
+                driverOptions = ArgumentProcessor.GetValue<DriverOptions>(this.DriverOptions);
+                if(!(driverOptions is T t))
+                {
+                    throw new ArgumentException($"Incorrect driver option : {driverOptions.GetType()} for browser : {browser}");
+                }
+            }
+
+            switch (browser)
+            {
+                case Browsers.FireFox:
+                    FirefoxOptions firefoxOptions = driverOptions as FirefoxOptions ?? new FirefoxOptions();
+                    firefoxOptions.AddArgument($"--{processIdentifier}");
+                    return firefoxOptions as T;
+                case Browsers.Chrome:
+                    ChromeOptions chromeOptions = driverOptions as ChromeOptions ?? new ChromeOptions();   
+                    //TODO : Check what "test-type" parameter does and add a comment here.
+                    chromeOptions.AddArgument("test-type");
+                    chromeOptions.AddArgument(processIdentifier);
+                    return chromeOptions as T;
+                case Browsers.Edge:
+                    EdgeOptions edgeOptions = driverOptions as EdgeOptions ?? new EdgeOptions();
+                    edgeOptions.UseChromium = true;
+                    //edgeOptions.AddArgument("test-type");
+                    edgeOptions.AddArgument($"--{processIdentifier}");
+                    return edgeOptions as T;
+                default:
+                    throw new ArgumentException("Requested web driver type is not supported");
+            }         
+        }
+
+        private Process GetLaunchedBrowserProcess(Browsers preferredBrowser, string processIdentifier)
+        {
+            string processName;
+            switch (preferredBrowser)
             {
                 case Browsers.Chrome:
                     processName = "chrome.exe";
@@ -135,11 +147,9 @@ namespace Pixel.Automation.Web.Selenium.Components
                 case Browsers.FireFox:
                     processName = "Firefox.exe";
                     break;
-                case Browsers.Opera:
-                    processName = "opera.exe";
+                case Browsers.Edge:
+                    processName = "msedge.exe";
                     break;
-                case Browsers.InternetExplorer:
-                    return null; //Ie driver doesn't have option to add argument :s                   
                 default:
                     throw new ArgumentException("Browser is not supported");
             }         
@@ -164,7 +174,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override string ToString()
         {
-            return "Launch Browser";
+            return "Launch Browser Actor";
         }
     }
 }
