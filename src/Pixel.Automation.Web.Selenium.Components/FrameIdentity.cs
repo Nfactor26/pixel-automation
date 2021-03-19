@@ -45,7 +45,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Identifier used to search for the control i.e. name of control if FindByStrategy is name,etc.
         /// </summary>
         [DataMember(IsRequired = true)]
-        [Display(Name = "Identifier", GroupName = "Configuration", Order = 20, Description = "Identifier used to search for the control")
+        [Display(Name = "Identifier", GroupName = "Configuration", Order = 20, Description = "Identifier used to search for the control")]
         public virtual string Identifier
         {
             get; set;

@@ -5,6 +5,10 @@
     <UserSecretsId>6da300a2-c532-481d-b6a1-431c16742bd5</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\.builds\Persistence</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />

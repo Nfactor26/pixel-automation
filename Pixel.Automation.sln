@@ -5,39 +5,39 @@ VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7E4532E6-7928-4E6F-8874-15482508447F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core", "Pixel.Automation.Core\Pixel.Automation.Core.csproj", "{0B9D2BD0-2193-4FB0-A939-79B0AED2467F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core", "src\Pixel.Automation.Core\Pixel.Automation.Core.csproj", "{0B9D2BD0-2193-4FB0-A939-79B0AED2467F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Components", "Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj", "{93B51CBC-F5DA-4303-85BD-EF1CDECAA612}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Components", "src\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj", "{93B51CBC-F5DA-4303-85BD-EF1CDECAA612}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Scripting.Components", "Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj", "{83FA1304-3CE4-4709-8DC4-ABC542A46F64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Scripting.Components", "src\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj", "{83FA1304-3CE4-4709-8DC4-ABC542A46F64}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RunTime", "Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj", "{00A9F1A9-7C66-45F4-B3C4-B26FA63ABB33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RunTime", "src\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj", "{00A9F1A9-7C66-45F4-B3C4-B26FA63ABB33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripting", "Scripting", "{4E906FCE-BF6F-44B0-8E8D-C3F6AFEE6874}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.CodeGeneration", "Pixel.Scripting.CodeGeneration\Pixel.Scripting.CodeGeneration.csproj", "{3A89EAE8-84BB-4E58-B74A-AB6BC34219F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.CodeGeneration", "src\Pixel.Scripting.CodeGeneration\Pixel.Scripting.CodeGeneration.csproj", "{3A89EAE8-84BB-4E58-B74A-AB6BC34219F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Common.CSharp", "Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj", "{3E19F3B1-253D-43F2-9AA6-41DDE1E0787E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Common.CSharp", "src\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj", "{3E19F3B1-253D-43F2-9AA6-41DDE1E0787E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Engine.CSharp", "Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj", "{C9D49D56-C3B7-48C0-9FF7-83392A31A302}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Engine.CSharp", "src\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj", "{C9D49D56-C3B7-48C0-9FF7-83392A31A302}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{2A028EC5-0824-4120-91A0-988F6AADE81C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Editor.Services.CSharp", "Pixel.Scripting.Editor.Services.CSharp\Pixel.Scripting.Editor.Services.CSharp.csproj", "{91E8159E-31F5-468D-B7E2-6B369D270A20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Editor.Services.CSharp", "src\Pixel.Scripting.Editor.Services.CSharp\Pixel.Scripting.Editor.Services.CSharp.csproj", "{91E8159E-31F5-468D-B7E2-6B369D270A20}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Editor.Core", "Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj", "{A2836390-3423-42D0-B148-BE408E00B122}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Editor.Core", "src\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj", "{A2836390-3423-42D0-B148-BE408E00B122}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automation", "Automation", "{2B0C7388-18D7-4E3C-8BDF-B7A414520615}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices", "Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj", "{879B0937-E80E-4E14-83ED-5D055AA0D528}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices", "src\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj", "{879B0937-E80E-4E14-83ED-5D055AA0D528}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Management", "Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj", "{80B49469-0B0F-4D05-ADA6-09B73495AC91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Management", "src\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj", "{80B49469-0B0F-4D05-ADA6-09B73495AC91}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Selenium.Components", "Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj", "{8CAC0AE2-E8C7-4452-9A11-F54264D20152}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Selenium.Components", "src\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj", "{8CAC0AE2-E8C7-4452-9A11-F54264D20152}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Screen.Scrappers", "Screen.Scrappers", "{2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Scrapper", "Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj", "{1AEFEAB7-4292-46A8-8699-C5611AF8E353}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Scrapper", "src\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj", "{1AEFEAB7-4292-46A8-8699-C5611AF8E353}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Editors", "Editors", "{94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}"
 EndProject
@@ -45,21 +45,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ViewModels", "ViewModels", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Views", "Views", "{40DB0F5D-BB65-4027-B0A2-682628455D6A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Core", "Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj", "{44061547-D707-4ABB-8A37-72B9A5F9C3C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Core", "src\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj", "{44061547-D707-4ABB-8A37-72B9A5F9C3C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xceed.Wpf.AvalonDock.Themes.MahApps", "Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj", "{A07DC816-C476-4EBA-BAFF-577B25BB009C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xceed.Wpf.AvalonDock.Themes.MahApps", "src\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj", "{A07DC816-C476-4EBA-BAFF-577B25BB009C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels", "ViewModels\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj", "{C89B4340-499A-47F2-8008-D8CBB51918D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels", "src\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj", "{C89B4340-499A-47F2-8008-D8CBB51918D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels", "ViewModels\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj", "{48BE3392-8962-469E-A878-E6729523882D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels", "src\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj", "{48BE3392-8962-469E-A878-E6729523882D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.ViewModels", "ViewModels\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj", "{3C7CBE00-6736-4F56-BAD9-E967BAAFFC30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.ViewModels", "src\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj", "{3C7CBE00-6736-4F56-BAD9-E967BAAFFC30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.Views", "Views\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj", "{2DFBE5B9-BC50-41E9-A745-262966B61740}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.Views", "src\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj", "{2DFBE5B9-BC50-41E9-A745-262966B61740}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.Views", "Views\Pixel.Automation.Designer.Views\Pixel.Automation.Designer.Views.csproj", "{236A8EA6-96DD-496D-B65B-A5A35C66F6EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.Views", "src\Pixel.Automation.Designer.Views\Pixel.Automation.Designer.Views.csproj", "{236A8EA6-96DD-496D-B65B-A5A35C66F6EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Script.Editor", "Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj", "{E68A9169-63D0-4913-BE05-54A9BCA38E82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Script.Editor", "src\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj", "{E68A9169-63D0-4913-BE05-54A9BCA38E82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7FAAFBB0-7D80-4076-ABA8-42AAACCC37E9}"
 	ProjectSection(SolutionItems) = preProject
@@ -74,84 +74,84 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		BuildScripts\Windows.cake = BuildScripts\Windows.cake
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels", "ViewModels\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj", "{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels", "src\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj", "{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Components", "Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj", "{0D040153-2183-4D25-861D-B3AD74953A4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Components", "src\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj", "{0D040153-2183-4D25-861D-B3AD74953A4E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Scrapper", "Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj", "{10A70DD1-20E3-42C7-8D98-AD11C2970F4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Scrapper", "src\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj", "{10A70DD1-20E3-42C7-8D98-AD11C2970F4D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Windows", "Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj", "{F5CBC403-00B6-4156-9719-78081997B25D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Windows", "src\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj", "{F5CBC403-00B6-4156-9719-78081997B25D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit.Tests", "Unit.Tests", "{242744A0-4C9B-4B89-9AC0-4188D186D4D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Tests", "Unit.Tests\Pixel.Automation.Core.Tests\Pixel.Automation.Core.Tests.csproj", "{A4BAC7F8-8472-4E07-93F9-49D3B91B49AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Tests", "src\Unit.Tests\Pixel.Automation.Core.Tests\Pixel.Automation.Core.Tests.csproj", "{A4BAC7F8-8472-4E07-93F9-49D3B91B49AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Test.Helpers", "Unit.Tests\Pixel.Automation.Test.Helpers\Pixel.Automation.Test.Helpers.csproj", "{016CB702-19ED-4CBA-806E-29DABDB83653}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Test.Helpers", "src\Unit.Tests\Pixel.Automation.Test.Helpers\Pixel.Automation.Test.Helpers.csproj", "{016CB702-19ED-4CBA-806E-29DABDB83653}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Components.Tests", "Unit.Tests\Pixel.Automation.Core.Components.Tests\Pixel.Automation.Core.Components.Tests.csproj", "{7333BE4F-8269-413B-82F6-FFAB7B6A4FCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Core.Components.Tests", "src\Unit.Tests\Pixel.Automation.Core.Components.Tests\Pixel.Automation.Core.Components.Tests.csproj", "{7333BE4F-8269-413B-82F6-FFAB7B6A4FCA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Engine.CSharp.Tests", "Unit.Tests\Pixel.Scripting.Engine.CSharp.Tests\Pixel.Scripting.Engine.CSharp.Tests.csproj", "{87D36B90-18EC-4686-8E40-5E2E3EE2FE43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Engine.CSharp.Tests", "src\Unit.Tests\Pixel.Scripting.Engine.CSharp.Tests\Pixel.Scripting.Engine.CSharp.Tests.csproj", "{87D36B90-18EC-4686-8E40-5E2E3EE2FE43}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Scripting.Components.Tests", "Unit.Tests\Pixel.Automation.Scripting.Components.Tests\Pixel.Automation.Scripting.Components.Tests.csproj", "{ABCC3DDB-FE99-4822-9551-6A24C9E63998}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Scripting.Components.Tests", "src\Unit.Tests\Pixel.Automation.Scripting.Components.Tests\Pixel.Automation.Scripting.Components.Tests.csproj", "{ABCC3DDB-FE99-4822-9551-6A24C9E63998}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RunTime.Tests", "Unit.Tests\Pixel.Automation.RunTime.Tests\Pixel.Automation.RunTime.Tests.csproj", "{605AB381-D359-464D-9600-A45478B4FB69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RunTime.Tests", "src\Unit.Tests\Pixel.Automation.RunTime.Tests\Pixel.Automation.RunTime.Tests.csproj", "{605AB381-D359-464D-9600-A45478B4FB69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Management.Tests", "Unit.Tests\Pixel.Automation.Window.Management.Tests\Pixel.Automation.Window.Management.Tests.csproj", "{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Window.Management.Tests", "src\Unit.Tests\Pixel.Automation.Window.Management.Tests\Pixel.Automation.Window.Management.Tests.csproj", "{CB2D66A6-B67E-4F3A-AE4E-E08BFE025001}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Tests", "Unit.Tests\Pixel.Automation.Input.Devices.Tests\Pixel.Automation.Input.Devices.Tests.csproj", "{96FBE50C-DB2E-43F6-84F7-7F29481E889E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Tests", "src\Unit.Tests\Pixel.Automation.Input.Devices.Tests\Pixel.Automation.Input.Devices.Tests.csproj", "{96FBE50C-DB2E-43F6-84F7-7F29481E889E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Selenium.Components.Tests", "Unit.Tests\Pixel.Automation.Web.Selenium.Components.Tests\Pixel.Automation.Web.Selenium.Components.Tests.csproj", "{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Selenium.Components.Tests", "src\Unit.Tests\Pixel.Automation.Web.Selenium.Components.Tests\Pixel.Automation.Web.Selenium.Components.Tests.csproj", "{E9C28ACD-7807-423C-A0BD-C7369E46CCDA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test.Runner", "Test.Runner", "{29D9A408-E435-410E-86C8-D7A7D3936908}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Test.Runner", "Pixel.Automation.Test.Runner\Pixel.Automation.Test.Runner.csproj", "{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Test.Runner", "src\Pixel.Automation.Test.Runner\Pixel.Automation.Test.Runner.csproj", "{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Api", "Pixel.Persistence.Services.Api\Pixel.Persistence.Services.Api.csproj", "{8CC82948-DF4B-4036-9183-2450F43911B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Api", "src\Pixel.Persistence.Services.Api\Pixel.Persistence.Services.Api.csproj", "{8CC82948-DF4B-4036-9183-2450F43911B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Core", "Pixel.Persistence.Core\Pixel.Persistence.Core.csproj", "{143EDF5C-5970-4EF9-82C5-E11F96DF701A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Core", "src\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj", "{143EDF5C-5970-4EF9-82C5-E11F96DF701A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Respository", "Pixel.Persistence.Respository\Pixel.Persistence.Respository.csproj", "{2CB3D6DB-B509-41B1-84F8-1AA13AA43101}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Respository", "src\Pixel.Persistence.Respository\Pixel.Persistence.Respository.csproj", "{2CB3D6DB-B509-41B1-84F8-1AA13AA43101}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Client", "Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj", "{DC616BF5-7555-4972-99DC-71E208FA3C82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Client", "src\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj", "{DC616BF5-7555-4972-99DC-71E208FA3C82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{31FC611F-42BE-4506-AEF5-89BB59963695}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chrome", "Chrome", "{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0}"
 	ProjectSection(SolutionItems) = preProject
-		Extensions\Chrome\background.html = Extensions\Chrome\background.html
-		Extensions\Chrome\background.js = Extensions\Chrome\background.js
-		Extensions\Chrome\icon.png = Extensions\Chrome\icon.png
-		Extensions\Chrome\jquery-1.6.4-vsdoc.js = Extensions\Chrome\jquery-1.6.4-vsdoc.js
-		Extensions\Chrome\jquery-1.6.4.min.js = Extensions\Chrome\jquery-1.6.4.min.js
-		Extensions\Chrome\manifest.json = Extensions\Chrome\manifest.json
-		Extensions\Chrome\optimal-select.min.js = Extensions\Chrome\optimal-select.min.js
-		Extensions\Chrome\signalr.js = Extensions\Chrome\signalr.js
-		Extensions\Chrome\Web.Scrapper.js = Extensions\Chrome\Web.Scrapper.js
+		src\Extensions\Chrome\background.html = src\Extensions\Chrome\background.html
+		src\Extensions\Chrome\background.js = src\Extensions\Chrome\background.js
+		src\Extensions\Chrome\icon.png = src\Extensions\Chrome\icon.png
+		src\Extensions\Chrome\jquery-1.6.4-vsdoc.js = src\Extensions\Chrome\jquery-1.6.4-vsdoc.js
+		src\Extensions\Chrome\jquery-1.6.4.min.js = src\Extensions\Chrome\jquery-1.6.4.min.js
+		src\Extensions\Chrome\manifest.json = src\Extensions\Chrome\manifest.json
+		src\Extensions\Chrome\optimal-select.min.js = src\Extensions\Chrome\optimal-select.min.js
+		src\Extensions\Chrome\signalr.js = src\Extensions\Chrome\signalr.js
+		src\Extensions\Chrome\Web.Scrapper.js = src\Extensions\Chrome\Web.Scrapper.js
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.Views", "Views\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj", "{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.Views", "src\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj", "{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels.Tests", "Unit.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests.csproj", "{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests.csproj", "{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.Views", "Views\Pixel.Automation.TestData.Repository.Views\Pixel.Automation.TestData.Repository.Views.csproj", "{DC83E05E-6BD8-49B4-B133-87ADF186E432}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.Views", "src\Pixel.Automation.TestData.Repository.Views\Pixel.Automation.TestData.Repository.Views.csproj", "{DC83E05E-6BD8-49B4-B133-87ADF186E432}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Controls", "Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj", "{7D2893AE-B880-4AB1-9377-B508D4C0958C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Controls", "src\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj", "{7D2893AE-B880-4AB1-9377-B508D4C0958C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Windows.Tests", "Unit.Tests\Pixel.Automation.Native.Windows.Tests\Pixel.Automation.Native.Windows.Tests.csproj", "{9EF4F6E1-22DF-4568-9D97-8087EAFD960F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Windows.Tests", "src\Unit.Tests\Pixel.Automation.Native.Windows.Tests\Pixel.Automation.Native.Windows.Tests.csproj", "{9EF4F6E1-22DF-4568-9D97-8087EAFD960F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Java.Access.Bridge.Components", "Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj", "{B88DCFEF-61DD-4752-B1E0-D10287752CF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Java.Access.Bridge.Components", "src\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj", "{B88DCFEF-61DD-4752-B1E0-D10287752CF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.JAB.Scrapper", "Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj", "{5F8D6E77-35E5-4012-B5A4-08765E9CCEC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.JAB.Scrapper", "src\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj", "{5F8D6E77-35E5-4012-B5A4-08765E9CCEC5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Image.Matching.Components", "Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj", "{65EC6EA0-6289-4F43-8EAE-484CA6C55982}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Image.Matching.Components", "src\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj", "{65EC6EA0-6289-4F43-8EAE-484CA6C55982}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Image.Scrapper", "Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj", "{A854EA47-E25C-4412-B983-BC5C49E02F8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Image.Scrapper", "src\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj", "{A854EA47-E25C-4412-B983-BC5C49E02F8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editors.Image.Capture", "Pixel.Automation.Editors.Image.Capture\Pixel.Automation.Editors.Image.Capture.csproj", "{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editors.Image.Capture", "src\Pixel.Automation.Editors.Image.Capture\Pixel.Automation.Editors.Image.Capture.csproj", "{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
