@@ -3,6 +3,7 @@
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
+using Pixel.Automation.Core.Enums;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -56,7 +57,8 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                         throw new ArgumentException($"Option with index {int.Parse(selectText)} is not available for selection.");
                     }
                     break;
-                case SelectBy.Text:   
+                case SelectBy.Text:
+                case SelectBy.Value:
                     foreach (var option in options)
                     {
                         if (option.GetInfo().name.Equals(selectText))
@@ -97,11 +99,5 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             //targetControl.AccessBridge.Functions.ClearAccessibleSelectionFromContext(targetControl.JvmId, targetControl.AccessibleContextHandle);
             //targetControl.AccessBridge.Functions.AddAccessibleSelectionFromContext(targetControl.JvmId, targetControl.AccessibleContextHandle, targetIndex);
         }
-    }
-
-    public enum SelectBy
-    {             
-        Index,
-        Text
-    }
+    }  
 }

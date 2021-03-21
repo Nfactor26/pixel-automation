@@ -363,9 +363,20 @@ namespace Pixel.Automation.UIA.Components
 
             AutomationElement foundControl = policy.Execute(() =>
             {
-                var matchingAncestor = searchRoot.FindFirst(TreeScope.Ancestors, lookupCondition)
-                  ?? throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
-                return matchingAncestor;
+                if(searchRoot != AutomationElement.RootElement)
+                {
+                    var current = TreeWalker.RawViewWalker.GetParent(searchRoot);
+                    while (current != AutomationElement.RootElement)
+                    {
+                        var matchingAncestor = current.FindFirst(TreeScope.Element, lookupCondition);
+                        if(matchingAncestor != null)
+                        {
+                            return matchingAncestor;
+                        }
+                        current = TreeWalker.RawViewWalker.GetParent(current);
+                    }
+                }
+                throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
             });
 
             HighlightElement(foundControl);

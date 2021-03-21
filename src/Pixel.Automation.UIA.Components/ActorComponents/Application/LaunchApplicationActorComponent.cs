@@ -8,16 +8,19 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
-
+    /// <summary>
+    /// Use <see cref="LaunchApplicationActorComponent"/> to launch an executable file.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Launch", "UIA", "Application", iconSource: null, description: "Launch target application", tags: new string[] { "Launch", "UIA" })]
-
     public class LaunchApplicationActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<LaunchApplicationActorComponent>();
 
-
+        /// <summary>
+        /// Owner application details
+        /// </summary>
         [RequiredComponent]
         [Browsable(false)]
         public WinApplication ApplicationDetails
@@ -28,12 +31,17 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             }
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public LaunchApplicationActorComponent() : base("Launch", "WinApplicationLauncher")
         {       
            
         }
 
-
+        /// <summary>
+        /// Launch the executable for owner application
+        /// </summary>
         public override void Act()
         {
             var appDetails = ApplicationDetails;
@@ -56,6 +64,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Error($"Launch failed for application : {appDetails.ExecutablePath}");
             throw new ArgumentException($"Please verify configured application path : {executablePath}");
         }
-      
+
+        public override string ToString()
+        {
+            return "Launch Application Actor";
+        }
     }
 }

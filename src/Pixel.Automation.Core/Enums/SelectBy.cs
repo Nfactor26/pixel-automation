@@ -1,4 +1,4 @@
-﻿namespace Pixel.Automation.Web.Selenium.Components.Enums
+﻿namespace Pixel.Automation.Core.Enums
 {   
     public enum SelectBy
     {
