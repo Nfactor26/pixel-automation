@@ -56,7 +56,7 @@ namespace Pixel.Automation.UIA.Components
             {
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AutomationElement>();
             }
-            else if (this.GetControlDetails().ControlType.Equals(Core.Enums.ControlType.Relative))
+            else if (this.GetControlDetails().LookupType.Equals(Core.Enums.LookupType.Relative))
             {
                 searchRoot = (this.Parent as WinControlEntity).GetTargetControl<AutomationElement>();
             }
@@ -105,7 +105,7 @@ namespace Pixel.Automation.UIA.Components
             {         
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AutomationElement>();
             }
-            else if (this.GetControlDetails().ControlType.Equals(Core.Enums.ControlType.Relative))
+            else if (this.GetControlDetails().LookupType.Equals(Core.Enums.LookupType.Relative))
             {
                 searchRoot = (this.Parent as WinControlEntity).GetTargetControl<AutomationElement>();
             }

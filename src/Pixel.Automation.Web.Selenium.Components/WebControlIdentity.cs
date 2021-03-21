@@ -104,7 +104,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             {
                 Name = this.Name,     
                 Index = this.Index,
-                ControlType = this.ControlType,
+                LookupType = this.LookupType,
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,              
@@ -127,7 +127,7 @@ namespace Pixel.Automation.Web.Selenium.Components
      
         public override string ToString()
         {
-            return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.ControlType}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
         }      
     }
 }

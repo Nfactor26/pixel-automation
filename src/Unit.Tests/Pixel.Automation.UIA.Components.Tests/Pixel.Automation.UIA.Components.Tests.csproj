@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="NSubstitute" Version="4.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.UIAutomationClient">
+      <HintPath>..\..\Libs\Interop.UIAutomationClient.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Aliases>uiaAutomationClient</Aliases>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UIAComWrapper">
+      <HintPath>..\..\Libs\UIAComWrapper.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Aliases>uiaComWrapper</Aliases>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  
+</Project>

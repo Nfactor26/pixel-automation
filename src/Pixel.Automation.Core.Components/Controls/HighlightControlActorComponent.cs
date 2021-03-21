@@ -43,7 +43,7 @@ namespace Pixel.Automation.Core.Components.Controls
             if (this.Parent.GetComponentsOfType<IControlEntity>(SearchScope.Descendants).Any())
             {
                 var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(SearchScope.Descendants);
-                if(controlEntity.ControlDetails.ControlType.Equals(ControlType.Relative))
+                if(controlEntity.ControlDetails.LookupType.Equals(LookupType.Relative))
                 {
                     throw new InvalidOperationException("Highlight Control Actor doesn't support Relative controls");
                 }

@@ -153,6 +153,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Image.Scra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editors.Image.Capture", "src\Pixel.Automation.Editors.Image.Capture\Pixel.Automation.Editors.Image.Capture.csproj", "{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.UIA.Components.Tests", "src\Unit.Tests\Pixel.Automation.UIA.Components.Tests\Pixel.Automation.UIA.Components.Tests.csproj", "{402259E1-BA43-4747-94FA-9ECB1862C564}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -355,6 +357,10 @@ Global
 		{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{402259E1-BA43-4747-94FA-9ECB1862C564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{402259E1-BA43-4747-94FA-9ECB1862C564}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{402259E1-BA43-4747-94FA-9ECB1862C564}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{402259E1-BA43-4747-94FA-9ECB1862C564}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -414,6 +420,7 @@ Global
 		{65EC6EA0-6289-4F43-8EAE-484CA6C55982} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{A854EA47-E25C-4412-B983-BC5C49E02F8E} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
 		{51AFD9D4-F163-4132-B7DA-5A6ADFA1F1AF} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
+		{402259E1-BA43-4747-94FA-9ECB1862C564} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

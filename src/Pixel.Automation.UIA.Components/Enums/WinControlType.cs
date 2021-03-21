@@ -1,0 +1,43 @@
+﻿namespace Pixel.Automation.UIA.Components.Enums
+{
+    public enum WinControlType
+    {
+        Button,
+        Separator,
+        Slider,
+        SplitButton,
+        StatusBar,
+        Tab,
+        TabItem,
+        ScrollBar,
+        Table,
+        Thumb,
+        TitleBar,
+        ToolTip,
+        Tree,
+        TreeItem,
+        Window,
+        Text,
+        ProgressBar,
+        RadioButton,
+        MenuItem,
+        Calendar,
+        CheckBox,
+        ComboBox,
+        Custom,
+        DataGrid,
+        DataItem,
+        Document,
+        Pane,
+        Group,
+        Edit,
+        HeaderItem,
+        HyperLink,
+        Image,
+        List,
+        ListItem,
+        Menu,
+        MenuBar,
+        Header
+    }
+}

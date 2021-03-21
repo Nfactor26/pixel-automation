@@ -128,7 +128,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 Role = this.Role,              
                 Depth = this.Depth, 
                 Index = this.Index,
-                ControlType = this.ControlType,
+                LookupType = this.LookupType,
                 OwnerApplication = this.OwnerApplication,
                 Next = this.Next?.Clone() as JavaControlIdentity
             };

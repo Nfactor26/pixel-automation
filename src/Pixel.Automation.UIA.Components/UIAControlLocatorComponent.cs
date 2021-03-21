@@ -470,7 +470,7 @@ namespace Pixel.Automation.UIA.Components
 
         private Condition BuildSearchCondition(WinControlIdentity controlIdentity)
         {
-            Condition searchCondition = ConditionFactory.FromControlType(uiaComWrapper.System.Windows.Automation.ControlType.LookupById(controlIdentity.ControlTypeId));
+            Condition searchCondition = ConditionFactory.FromControlType(controlIdentity.WinControlType.ToUIAControlType());
             if (MatchProcessId)
             {
                 searchCondition = searchCondition.AndProcessId(TargetApplication.ProcessId);

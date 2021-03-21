@@ -79,7 +79,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Controls how the control lookup will be performed by <see cref="IControlLocator{T}"/>
         /// </summary>
-        ControlType ControlType
+        LookupType LookupType
         {
             get;
             set;
