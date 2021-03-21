@@ -144,7 +144,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
                if(root.Next != null)
                 {
                     this.rootControl = root.Next;
-                    this.rootControl.ControlType = ControlType.Relative;
+                    this.rootControl.LookupType = LookupType.Relative;
                 }
                 return;
             }

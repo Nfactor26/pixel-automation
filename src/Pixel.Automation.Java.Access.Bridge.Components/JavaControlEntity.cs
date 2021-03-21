@@ -53,7 +53,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AccessibleContextNode>();
             }
-            else if (this.GetControlDetails().ControlType.Equals(ControlType.Relative))
+            else if (this.GetControlDetails().LookupType.Equals(LookupType.Relative))
             {
                 searchRoot = (this.Parent as JavaControlEntity).GetTargetControl<AccessibleContextNode>();
             }
@@ -102,7 +102,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AccessibleContextNode>();
             }
-            else if (this.GetControlDetails().ControlType.Equals(ControlType.Relative))
+            else if (this.GetControlDetails().LookupType.Equals(LookupType.Relative))
             {
                 searchRoot = (this.Parent as JavaControlEntity).GetTargetControl<AccessibleContextNode>();
             }

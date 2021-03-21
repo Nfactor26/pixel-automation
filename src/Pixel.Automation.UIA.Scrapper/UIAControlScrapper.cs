@@ -266,13 +266,13 @@ namespace Pixel.Automation.UIA.Scrapper
                         case MouseButtons.Left:
                             if (containerNode != null)
                             {
-                                rootNodeIdentity.ControlType = Core.Enums.ControlType.Relative;
+                                rootNodeIdentity.LookupType = Core.Enums.LookupType.Relative;
                             }
                             break;
 
                         case MouseButtons.Right:
                             containerNode = trackedElement;
-                            rootNodeIdentity.ControlType = Core.Enums.ControlType.Default;
+                            rootNodeIdentity.LookupType = Core.Enums.LookupType.Default;
                             ShowContainerHighlightRectangle(containerNode.Current.BoundingRectangle, Color.Purple);
                             break;
                     }
@@ -283,7 +283,7 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     controlHighlight.BorderColor = Color.Green;
 
-                    Log.Information("Captured control : {$capturedControl} as {$controlType}", current, rootNodeIdentity.ControlType);
+                    Log.Information("Captured control : {$capturedControl} as {$controlType}", current, rootNodeIdentity.LookupType);
 
                 }
                 catch (Exception ex)
@@ -361,7 +361,7 @@ namespace Pixel.Automation.UIA.Scrapper
             capturedControl.NameProperty = trackedElement.Current.Name;
             capturedControl.AutomationId = trackedElement.Current.AutomationId;
             capturedControl.ClassName = trackedElement.Current.ClassName;
-            capturedControl.ControlTypeId = trackedElement.Current.ControlType.Id;
+            capturedControl.WinControlType = ControlType.LookupById(trackedElement.Current.ControlType.Id).ToWinControlType();
             var boundingRectangle = trackedElement.Current.BoundingRectangle;
             capturedControl.BoundingBox = new Rectangle((int)boundingRectangle.X, (int)boundingRectangle.Y,
                             (int)boundingRectangle.Width, (int)boundingRectangle.Height);

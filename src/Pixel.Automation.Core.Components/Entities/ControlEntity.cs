@@ -167,7 +167,7 @@ namespace Pixel.Automation.Core.Components
         public override bool ValidateComponent()
         {
             base.ValidateComponent();
-            if (this.ControlDetails.ControlType.Equals(Core.Enums.ControlType.Relative) && !(this.Parent is ControlEntity))
+            if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative) && !(this.Parent is ControlEntity))
             {
                 IsValid = false;
             }

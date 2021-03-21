@@ -106,29 +106,28 @@ namespace Pixel.Automation.Core.Components
 
         #endregion Clickable Point Offset
 
+
         #region Search Strategy
-               
+
         [DataMember]
-        [Display(Name = "Search Scope", Order = 30, GroupName = "Search Strategy")]
+        [Display(Name = "Look Up Type", GroupName = "Search Strategy", Order = 10)]
+        [Description("Whether control should be looked relative to Application root or relative to a parent control")]
+        public LookupType LookupType { get; set; } = LookupType.Default;
+
+       
+        [DataMember]
+        [Display(Name = "Search Scope", Order = 20, GroupName = "Search Strategy")]
         public virtual SearchScope SearchScope { get; set; } = SearchScope.Descendants;
 
         [DataMember]
         [Browsable(false)]
-        [Display(Name = "Index", GroupName = "Search Mode", Order = 40)]
+        [Display(Name = "Index", GroupName = "Search Strategy", Order = 30)]
         [Description("Bind to current Iteration when used inside loop")]
         public int Index { get; set; } = 1;
 
         #endregion Search Strategy
 
-        #region Lookup Mode
-
-        [DataMember]
-        [Display(Name = "Look Up Type", GroupName = "Search Mode", Order = 10)]       
-        [Description("Whether control should be looked relative to Application root or relative to a parent control")]
-        public ControlType ControlType { get; set; } = ControlType.Default;     
-
-        #endregion Lookup Mode
-
+      
         [DataMember]
         [Browsable(false)]
         public IControlIdentity Next { get; set; }

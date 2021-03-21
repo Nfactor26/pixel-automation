@@ -1,11 +1,12 @@
 ﻿extern alias uiaComWrapper;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.UIA.Components.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using uiaComWrapper::System.Windows.Automation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -34,31 +35,10 @@ namespace Pixel.Automation.UIA.Components
         [Category("Identification")]
         public string NameProperty { get; set; }
         
-        int controlTypeId;
         [DataMember]
-        [Category("Identification")]
-        public int ControlTypeId
-        {
-            get
-            {
-                return controlTypeId;
-            }
-
-            set
-            {
-                controlTypeId = value;
-                OnPropertyChanged("ControlTypeId");
-                OnPropertyChanged("ControlType");
-            }
-        }      
-
-        public string ProgrammaticName
-        {
-            get
-            {
-                return uiaComWrapper::System.Windows.Automation.ControlType.LookupById(this.ControlTypeId).ProgrammaticName;
-            }           
-        }
+        [Category("Identification")]   
+        [Display(Name = "Control Type")]
+        public WinControlType WinControlType { get; set; }
 
         [DataMember]
         [Category("Identification")]
@@ -72,18 +52,7 @@ namespace Pixel.Automation.UIA.Components
         [DataMember]
         [Category("Identification")]
         public bool IsControlElement { get; set; }
-
-
-        System.Windows.Rect boundingRectangle;
-        [DataMember]
-        [Category("Visibility")]
-        public System.Windows.Rect BoundingRectangle
-        {
-            get { return boundingRectangle; }
-            set { boundingRectangle = value; }
-        }
-
-        
+                
         [DataMember]
         [Browsable(false)]
         public int Depth { get; set; }
@@ -129,7 +98,7 @@ namespace Pixel.Automation.UIA.Components
                 Name = this.Name,     
                 Index = this.Index,
                 Depth = this.Depth,
-                ControlType = this.ControlType,
+                LookupType = this.LookupType,
                 ApplicationId = this.ApplicationId,
                 ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,
@@ -141,9 +110,9 @@ namespace Pixel.Automation.UIA.Components
                 AcceleratorKey = this.AcceleratorKey,
                 AccessKey = this.AccessKey,
                 AutomationId = this.AutomationId,
-                boundingRectangle = this.boundingRectangle,
+                boundingBox = this.BoundingBox,
                 ClassName = this.ClassName,
-                controlTypeId = this.controlTypeId,
+                WinControlType = this.WinControlType,
                 HelpText = this.HelpText,              
                 IsContentElement = this.IsContentElement,
                 IsControlElement = this.IsControlElement,
@@ -158,7 +127,7 @@ namespace Pixel.Automation.UIA.Components
 
         public override string ToString()
         {
-            return $"{this.Name} -> Name:{this.NameProperty}|AutomationId:{this.AutomationId}|ClassName:{this.ClassName}|ControlType:{this.ProgrammaticName}|LookUpType:{this.ControlType}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> Name:{this.NameProperty}|AutomationId:{this.AutomationId}|ClassName:{this.ClassName}|ControlType:{this.WinControlType}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
         }
     }
 }
