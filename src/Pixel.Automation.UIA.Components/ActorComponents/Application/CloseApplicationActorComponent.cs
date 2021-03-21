@@ -8,14 +8,19 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
 
+    /// <summary>
+    /// Use <see cref="CloseApplicationActorComponent"/> to close application which was previously launched or attached to.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Close", "UIA", "Application", iconSource: null, description: "Close target application", tags: new string[] { "Close", "UIA" })]
-
     public class CloseApplicationActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<CloseApplicationActorComponent>();
 
+        /// <summary>
+        /// Owner application details
+        /// </summary>
         [RequiredComponent]
         [Browsable(false)]
         public WinApplication ApplicationDetails
@@ -26,18 +31,26 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             }
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public CloseApplicationActorComponent() : base("Close Application", "CloseApplication")
         {
-           
+
         }
 
-
+        /// <summary>
+        /// Close the owner application
+        /// </summary>
         public override void Act()
         {
-            logger.Information($"Trying to close application : {ApplicationDetails}");
             ApplicationDetails.TargetApplication.Close();
-            logger.Information("Application is closed now");
+            logger.Information($"Application : {ApplicationDetails}  is closed now.");
         }
 
+        public override string ToString()
+        {
+            return "Close Application Actor";
+        }
     }
 }

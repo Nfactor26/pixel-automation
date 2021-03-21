@@ -8,13 +8,13 @@ namespace Pixel.Automation.UIA.Components.Enums
     [DataContract]
     [Serializable]
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-    public enum AttachMode
+    public enum SelectMode
     {
-        [Description("Attach to executable")]
-        AttachToExecutable,
-        [Description("Attach to window")]
-        AttachToWindow,
-        [Description("Attach to Control owner")]
-        AttachToAutomationElement
+        [Description("Select")]
+        Select,
+        [Description("Add to selection")]
+        AddToSelection,
+        [Description("Remove from selection")]
+        RemoveFromSelection
     }
 }

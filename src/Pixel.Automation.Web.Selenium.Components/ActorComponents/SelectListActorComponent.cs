@@ -2,10 +2,9 @@
 using OpenQA.Selenium.Support.UI;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Web.Selenium.Components.Enums;
+using Pixel.Automation.Core.Enums;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 

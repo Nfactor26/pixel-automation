@@ -127,7 +127,7 @@ namespace Pixel.Automation.Core.Components
         [DataMember]
         [Display(Name = "Enable Caching", GroupName = "Caching", Order = 50,
             Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
-        public bool CacheControl { get; set; } = true;
+        public bool CacheControl { get; set; } = false;
 
         protected abstract void InitializeFilter();
 
