@@ -8,13 +8,22 @@ namespace Pixel.Automation.Core.Models
 
     [Serializable]
     [DataContract]
-    public class ApplicationDescription
+    public class ApplicationDescription : NotifyPropertyChanged
     {
-        [DataMember]
-        public string ApplicationId { get; set; }
-
-        [DataMember]
-        public string ApplicationName { get; set; }
+        public string ApplicationId
+        {
+            get => ApplicationDetails.ApplicationId;
+        }
+             
+        public string ApplicationName
+        {
+            get => ApplicationDetails.ApplicationName;
+            set
+            {
+                ApplicationDetails.ApplicationName = value;
+                OnPropertyChanged();
+            }
+        }
 
         [DataMember]
         public string ApplicationType { get; set; }
@@ -39,9 +48,7 @@ namespace Pixel.Automation.Core.Models
 
         public ApplicationDescription(IApplication applicationDetails)
         {
-            this.ApplicationDetails = applicationDetails;
-            this.ApplicationId = applicationDetails.ApplicationId;
-            this.ApplicationName = applicationDetails.ApplicationName;
+            this.ApplicationDetails = applicationDetails;          
         }
 
         public void AddPrefab(PrefabDescription prefabDescription)

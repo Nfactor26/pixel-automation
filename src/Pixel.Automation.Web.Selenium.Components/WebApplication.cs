@@ -88,12 +88,21 @@ namespace Pixel.Automation.Web.Selenium.Components
             this.launchedInstance = launchedInstance;
         }
 
+        private Browsers preferredBrowser = Browsers.FireFox;
         /// <summary>
         /// Browser to use for test execution
         /// </summary>
         [DataMember(IsRequired = true)]
         [Display(Name = "Preferred Browser", Order = 30, Description = "Browser to use")]
-        public Browsers PreferredBrowser { get; set; }
+        public Browsers PreferredBrowser
+        {
+            get => this.preferredBrowser;
+            set
+            {
+                this.preferredBrowser = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Web application url
