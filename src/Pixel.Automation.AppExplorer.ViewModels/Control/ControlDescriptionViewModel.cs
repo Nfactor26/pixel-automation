@@ -27,27 +27,33 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         [Browsable(false)]
         public string ApplicationId
         {
-            get => this.controlDescription.ApplicationId;
-            set => this.controlDescription.ApplicationId = value;
+            get => this.controlDescription.ApplicationId;           
         }
 
         [Browsable(false)]
         public string ControlId
         {
-            get => this.controlDescription.ControlId;
-            set => this.controlDescription.ControlId = value;
+            get => this.controlDescription.ControlId;          
         }
      
         public string GroupName
         {
             get => this.controlDescription.GroupName;
-            set => this.controlDescription.GroupName = value;
+            set
+            {
+                this.controlDescription.GroupName = value;
+                OnPropertyChanged();
+            }
         }
 
         public string ControlName
         {
             get => this.controlDescription.ControlName;
-            set => this.controlDescription.ControlName = value;
+            set
+            {
+                this.controlDescription.ControlName = value;
+                OnPropertyChanged();
+            }
         }
       
         [Browsable(false)]
@@ -95,6 +101,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 imageSource = value;
                 OnPropertyChanged();
             }
+        }
+
+        public override string ToString()
+        {
+            return "Control Details";
         }
     }
 }

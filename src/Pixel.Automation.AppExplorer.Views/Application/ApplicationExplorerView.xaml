@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
              xmlns:local="clr-namespace:Pixel.Automation.AppExplorer.Views.Application"
              mc:Ignorable="d" 
@@ -14,6 +15,7 @@
     <UserControl.Resources>
 
         <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
+        <converters:EnumToStringConverter x:Key="enumToStringConverter"/>
         <local:ApplicationTemplateSelector x:Key="AppTemplateSelector"/>
 
         <DataTemplate x:Key="DefaultApplication">
@@ -21,32 +23,57 @@
                 <iconPacks:PackIconMaterial Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}"
                                         IsHitTestVisible="False"
-                                        Margin="2"
-                                        Padding="4"                                      
+                                        Margin="2" Padding="4"                                      
                                         Kind="Application" />
             </Border>          
         </DataTemplate>
 
         <DataTemplate x:Key="WinApplication">
             <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
-                <iconPacks:PackIconMaterial Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}"
-                                        IsHitTestVisible="False"
-                                        Margin="2"
-                                        Padding="4"                                      
+                <iconPacks:PackIconMaterial Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"
+                                        IsHitTestVisible="False" Margin="2" Padding="4"                                      
                                         Kind="Windows" />
             </Border>
         </DataTemplate>
 
+        <iconPacks:PackIconFontAwesome x:Key="FireFox"   Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                    
+                                       Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                       Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                       Kind="FirefoxBrands" />
+   
+        <iconPacks:PackIconFontAwesome x:Key="Chrome"  Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Kind="ChromeBrands" />
+      
+        <iconPacks:PackIconFontAwesome x:Key="Edge"  Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"    
+                                        Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Kind="EdgeBrands" />
+        
         <DataTemplate x:Key="WebApplication">
             <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
-                <iconPacks:PackIconEntypo Width="{TemplateBinding Width}"
+                <ContentPresenter x:Name="IconPlaceHolder" Content="{StaticResource FireFox}"/>
+            </Border>                 
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding PreferredBrowser, Converter={StaticResource enumToStringConverter}}" Value="Chrome">
+                    <Setter Property="Content" Value="{StaticResource Chrome}" TargetName="IconPlaceHolder"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding PreferredBrowser, Converter={StaticResource enumToStringConverter}}" Value="Edge">
+                    <Setter Property="Content" Value="{StaticResource Edge}"  TargetName="IconPlaceHolder"/>
+                </DataTrigger>              
+            </DataTemplate.Triggers>
+        </DataTemplate> 
+        
+        <DataTemplate x:Key="JavaApplication">
+            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                <iconPacks:PackIconModern Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}"
                                         IsHitTestVisible="False"
                                         Margin="2"
                                         Padding="4"                                      
-                                        Kind="Browser" />
-            </Border>          
+                                        Kind="LanguageJava" />
+            </Border>
         </DataTemplate>
 
         <Style x:Key="AddApplicationButtonStyle" TargetType="{x:Type Button}">
@@ -58,11 +85,10 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>                      
-                            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                            <Border IsHitTestVisible="True" ToolTip="Add Application" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
                                 <iconPacks:PackIconMaterial x:Name="PlusIcon" Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2"
-                                        Padding="4"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
                                         Foreground="{DynamicResource MahApps.Brushes.Accent2}"
                                         Kind="PlusCircleOutline" />
                             </Border>                    
@@ -76,16 +102,13 @@
             </Setter>
             <Setter Property="ContextMenu">
                 <Setter.Value>
-                    <ContextMenu ItemsSource="{Binding Path=KnownApplications}">
-                        <ContextMenu.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical"></StackPanel>
-                            </ItemsPanelTemplate>
-                        </ContextMenu.ItemsPanel>
+                    <ContextMenu ItemsSource="{Binding Path=KnownApplications}">                    
                         <ContextMenu.ItemTemplate>
                             <DataTemplate>
-                                <MenuItem Header="{Binding DisplayName}" ToolTip="{Binding Description}" Style="{x:Null}"
-                                          cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" cal:Message.Attach="[Event Click] = [Action AddApplication($dataContext)]"/>
+                                <TextBlock Text="{Binding DisplayName}"  ToolTip="{Binding Description}"
+                                          cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" 
+                                          cal:Message.Attach="[Event MouseLeftButtonDown] = [Action AddApplication($dataContext)]">                             
+                                </TextBlock>
                             </DataTemplate>
                         </ContextMenu.ItemTemplate>
                     </ContextMenu>
@@ -193,8 +216,8 @@
                                             ContentTemplateSelector="{StaticResource AppTemplateSelector}"  Background="{DynamicResource MahApps.Brushes.Control.Background}"
                                             cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                                             cal:Message.Attach="[Event MouseDoubleClick] = [Action OpenApplication($dataContext)];"
-                                            Margin="2" Width="40" Height="40" ToolTip="{Binding ApplicationName}"></ContentControl>
-                            <TextBox x:Name="Name" Text="{Binding ApplicationName}"   Margin="5"  IsHitTestVisible="True"  Style="{StaticResource label}" Height="20" Width="90"
+                                            Margin="2" Width="40" Height="40" ToolTip="{Binding ApplicationDetails.ApplicationName}"></ContentControl>
+                            <TextBox x:Name="Name" Text="{Binding ApplicationDetails.ApplicationName}"   Margin="5"  IsHitTestVisible="True"  Style="{StaticResource label}" Height="20" Width="90"
                                          cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                                          cal:Message.Attach="[Event KeyDown] = [Action RenameApplication($executionContext,$dataContext)];
                                          [Event MouseDoubleClick] = [Action ToggleRename($dataContext)];"

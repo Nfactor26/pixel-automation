@@ -165,7 +165,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }     
 
-        public async Task EditControl(ControlDescriptionViewModel controlToEdit)
+        /// <summary>
+        /// Open the ControlEditor View to allow edtiing the captured automation identifers and search strategy for control.
+        /// </summary>
+        /// <param name="controlToEdit"></param>
+        /// <returns></returns>
+        public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit).NotNull();
 
@@ -178,6 +183,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 await SaveControlDetails(controlToEdit, false);
                 await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
             }
+        }
+
+        /// <summary>
+        /// Allow Control description to be modified from PropertyGrid
+        /// </summary>
+        /// <param name="controlToEdit"></param>
+        /// <returns></returns>
+        public async Task EditControlAsync(ControlDescriptionViewModel controlToEdit)
+        {
+            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, () => { _ = SaveControlDetails(controlToEdit, false); }, () => { return true; }));
         }
 
         /// <summary>
