@@ -290,7 +290,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region property grid     
 
-        public async void SetSelectedItem(Object obj)
+        public async Task SetSelectedItem(Object obj)
         {
             if(obj is GroupEntity groupEntity)
             {
@@ -307,26 +307,39 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async Task HandleAsync(ControlUpdatedEventArgs updatedControl, CancellationToken cancellationToken)
         {
-            var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
-            var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
-            foreach(var control in controlsToBeReloaded)
+            try
             {
-                control.Reload();
-                logger.Information($"Control : {control.Name} with Id : {control.ControlId} has been reloaded");
-                await Task.CompletedTask;
+                var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+                var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
+                foreach (var control in controlsToBeReloaded)
+                {
+                    control.Reload();
+                    logger.Information($"Control : {control.Name} with Id : {control.ControlId} has been reloaded");
+                    await Task.CompletedTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
             }
         }
 
         public async Task HandleAsync(ApplicationUpdatedEventArgs updatedApplication, CancellationToken cancellationToken)
         {
-
-            var applicationEntities = this.EntityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(Core.Enums.SearchScope.Descendants);
-            var applicationsToReload = applicationEntities.Where(a => a.ApplicationId.Equals(updatedApplication.ApplicationId));
-            foreach (var application in applicationsToReload)
+            try
             {
-                application.Reload();
-                logger.Information($"Application : {application.Name} with Id : {application.ApplicationId} has been reloaded");
-                await Task.CompletedTask;
+                var applicationEntities = this.EntityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(Core.Enums.SearchScope.Descendants);
+                var applicationsToReload = applicationEntities.Where(a => a.ApplicationId.Equals(updatedApplication.ApplicationId));
+                foreach (var application in applicationsToReload)
+                {
+                    application.Reload();
+                    logger.Information($"Application : {application.Name} with Id : {application.ApplicationId} has been reloaded");
+                    await Task.CompletedTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
             }
         }
 

@@ -18,9 +18,12 @@ namespace Pixel.Automation.Core.Components
     [Serializable]
     public abstract class ControlEntity : Entity, IControlEntity
     {
-        [DataMember]
+        private string controlId;
         [Browsable(false)]
-        public string ControlId { get; set; }
+        public string ControlId
+        {
+            get => this.controlId;
+        }
 
         /// <summary>
         /// Control file inside the repository 
@@ -142,6 +145,7 @@ namespace Pixel.Automation.Core.Components
             {
                 ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
                 var controlDescription = serializer.Deserialize<ControlDescription>(this.ControlFile);
+                this.controlId = controlDescription.ControlId;
                 var controlDetails = controlDescription.ControlDetails;             
                 return controlDetails;
             }

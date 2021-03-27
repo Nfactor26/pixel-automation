@@ -10,7 +10,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Identifier of the control
         /// </summary>
-        string ControlId { get; set; }
+        string ControlId { get; }
 
         /// <summary>
         /// Target file where control identification details are saved
