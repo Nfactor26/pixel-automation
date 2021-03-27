@@ -12,7 +12,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Close", "Java", "Application", iconSource: null, description: "Close target application", tags: new string[] { "Close", "Java" })]
+    [ToolBoxItem("Close", "Application", "Java", iconSource: null, description: "Close target application", tags: new string[] { "Close", "Java" })]
 
     public class CloseApplicationActorComponent : ActorComponent
     {

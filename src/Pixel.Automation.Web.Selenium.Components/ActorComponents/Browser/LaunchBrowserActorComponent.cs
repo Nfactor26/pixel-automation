@@ -22,26 +22,33 @@ namespace Pixel.Automation.Web.Selenium.Components
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Launch Browser", "Selenium", "Browser", iconSource: null, description: "Launch a Selenium based browser", tags: new string[] { "Launch", "Web" })]
+    [ToolBoxItem("Launch Browser", "Application", "Browser", iconSource: null, description: "Launch a Selenium based browser", tags: new string[] { "Launch", "Web" })]
     public class LaunchBrowserActorComponent : SeleniumActorComponent
     {
         private readonly ILogger logger = Log.ForContext<LaunchBrowserActorComponent>();
         private readonly string webDriverFolder = ".//WebDrivers//";
 
         /// <summary>
+        /// Optional argument which can be used to override the preferred browser configured on application.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Browser Override", GroupName = "Configuration", Order = 10, Description = "[Optional] Override the preferred browser option set on Application")]
+        public Argument BrowserOverride { get; set; } = new InArgument<Browsers>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+
+        /// <summary>
         /// Optionally specify custom <see cref="DriverOptions"/> with which WebDriver should be initialized.
         /// If DriverOptions is not configured, default configuration is created and used.
         /// </summary>
         [DataMember]
-        [Display(Name = "Driver Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Specify a custom configured driver options." +
-            "Default configuration is used if not specified.")]      
-        public Argument DriverOptions = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+        [Display(Name = "Driver Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Specify a custom configured driver options." +
+            "Default configuration is used if not specified.")]
+        public Argument DriverOptions { get; set; } = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Indicates whether the browser should be maximized on launch. Default value is true.
         /// </summary>
         [DataMember]
-        [Display(Name = "Maximinze browser", GroupName = "Configuration", Order = 20)]
+        [Display(Name = "Maximize browser", GroupName = "Configuration", Order = 20)]
         [Description("Specify whether browser window should be maximized after launch.")]
         public bool MaximizeOnLaunch { get; set; } = true;
 
@@ -62,23 +69,29 @@ namespace Pixel.Automation.Web.Selenium.Components
             var applicationDetails = ApplicationDetails;           
             string processIdentifier = Guid.NewGuid().ToString();
 
-            IWebDriver webDriver;           
-            switch (applicationDetails.PreferredBrowser)
+            IWebDriver webDriver;
+            var browserToLaunch = applicationDetails.PreferredBrowser;
+            if(this.BrowserOverride.IsConfigured())
+            {
+                browserToLaunch = this.ArgumentProcessor.GetValue<Browsers>(this.BrowserOverride);
+                logger.Information("Preferred browser was over-ridden to {browserToLaunch}", browserToLaunch);
+            }
+            switch (browserToLaunch)
             {
                 case Browsers.FireFox:                  
-                    webDriver = new FirefoxDriver(webDriverFolder, GetDriverOptions<FirefoxOptions>(applicationDetails.PreferredBrowser, processIdentifier));
+                    webDriver = new FirefoxDriver(webDriverFolder, GetDriverOptions<FirefoxOptions>(browserToLaunch, processIdentifier));
                     break;
                 case Browsers.Chrome:                    
-                    webDriver = new ChromeDriver(webDriverFolder, GetDriverOptions<ChromeOptions>(applicationDetails.PreferredBrowser, processIdentifier));
+                    webDriver = new ChromeDriver(webDriverFolder, GetDriverOptions<ChromeOptions>(browserToLaunch, processIdentifier));
                     break;
                 case Browsers.Edge:                  
-                    webDriver = new EdgeDriver(webDriverFolder, GetDriverOptions<EdgeOptions>(applicationDetails.PreferredBrowser, processIdentifier));
+                    webDriver = new EdgeDriver(webDriverFolder, GetDriverOptions<EdgeOptions>(browserToLaunch, processIdentifier));
                     break;
                 default:
                     throw new ArgumentException("Requested web driver type is not supported");
             }
 
-            logger.Information($"{applicationDetails.PreferredBrowser} has been launched.");
+            logger.Information("{browserToLaunch} has been launched.", browserToLaunch);
 
             if(this.MaximizeOnLaunch)
             {
@@ -87,7 +100,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             ApplicationDetails.WebDriver = webDriver;
 
             //for firefox/chrome
-            Process launchedInstance = GetLaunchedBrowserProcess(applicationDetails.PreferredBrowser, processIdentifier);
+            Process launchedInstance = GetLaunchedBrowserProcess(browserToLaunch, processIdentifier);
             if(launchedInstance!=null)
             {
                 applicationDetails.SetProcessDetails(launchedInstance);
@@ -97,7 +110,7 @@ namespace Pixel.Automation.Web.Selenium.Components
              Uri targetUrl = applicationDetails.TargetUri;
              webDriver.Navigate().GoToUrl(targetUrl);
 
-            logger.Information($"{applicationDetails.PreferredBrowser} has been navigated to {applicationDetails.TargetUri}");
+            logger.Information($"{browserToLaunch} has been navigated to {applicationDetails.TargetUri}");
         }
 
 
