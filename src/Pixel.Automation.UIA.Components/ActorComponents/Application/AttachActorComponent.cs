@@ -21,7 +21,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Attach", "UIA", "Application", iconSource: null, description: "Attach to target application", tags: new string[] { "Attach", "UIA" })]
+    [ToolBoxItem("Attach", "Application", "UIA", iconSource: null, description: "Attach to target application", tags: new string[] { "Attach", "UIA" })]
     public class AttachActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<AttachActorComponent>();
@@ -37,8 +37,47 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             {
                 return this.EntityManager.GetOwnerApplication<WinApplication>(this);
             }
-        }      
-      
+        }
+
+
+        AttachMode attachMode = AttachMode.AttachToExecutable;
+        /// <summary>
+        /// Indicaets how the application to be attached to is identifed.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Attach Mode", GroupName = "Configuration", Order = 10, Description = "Indicates how the application to be attached to is identified.")]
+        [RefreshProperties(RefreshProperties.All)]
+        public AttachMode AttachMode
+        {
+            get => this.attachMode;
+            set
+            {
+                switch (value)
+                {
+                    case AttachMode.AttachToExecutable:
+                        if (!this.AttachTarget.ArgumentType.Equals(typeof(string).Name))
+                        {
+                            this.AttachTarget = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = string.Empty };
+                        }
+                        break;
+                    case AttachMode.AttachToWindow:
+                        if (!this.AttachTarget.ArgumentType.Equals(typeof(ApplicationWindow).Name))
+                        {
+                            this.AttachTarget = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
+                        }
+                        break;
+                    case AttachMode.AttachToAutomationElement:
+                        if (!this.AttachTarget.ArgumentType.Equals(typeof(AutomationElement).Name))
+                        {
+                            this.AttachTarget = new InArgument<AutomationElement>() { Mode = ArgumentMode.DataBound };
+                        }
+                        break;
+                }
+                this.attachMode = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         Argument attachTarget = new InArgument<ApplicationWindow>();        
         /// <summary>
@@ -47,8 +86,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// you need to lookup ApplicationWindow first and setup this as an argument.
         /// </summary>
         [DataMember]       
-        [Display(Name = "Attach To", GroupName = "Configuration", Order = 10, Description = "Details of the target application to be attached to")]       
-        [RefreshProperties(RefreshProperties.All)]
+        [Display(Name = "Attach To", GroupName = "Configuration", Order = 20, Description = "Details of the target application to be attached to")]      
         public Argument AttachTarget
         {
             get => this.attachTarget;
@@ -58,34 +96,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                 OnPropertyChanged();
             }
         }
-
-        AttachMode attachMode = AttachMode.AttachToExecutable;
-       /// <summary>
-       /// Indicaets how the application to be attached to is identifed.
-       /// </summary>
-        [DataMember]         
-        [Display(Name = "Attach Mode", GroupName = "Configuration", Order = 30, Description = "Indicates how the application to be attached to is identified.")]
-        public AttachMode AttachMode
-        {
-            get => this.attachMode;
-            set
-            {
-                switch(value)
-                {
-                    case AttachMode.AttachToExecutable:
-                        this.AttachTarget = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = string.Empty };
-                        break;
-                    case AttachMode.AttachToWindow:
-                        this.AttachTarget = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
-                        break;
-                    case AttachMode.AttachToAutomationElement:
-                        this.AttachTarget = new InArgument<AutomationElement>() { Mode = ArgumentMode.DataBound };
-                        break;
-                }
-                this.attachMode = value;               
-            }
-        }     
-
+     
         /// <summary>
         /// Default constructor
         /// </summary>

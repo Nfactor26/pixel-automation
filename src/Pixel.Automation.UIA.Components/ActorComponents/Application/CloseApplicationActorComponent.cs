@@ -13,7 +13,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Close", "UIA", "Application", iconSource: null, description: "Close target application", tags: new string[] { "Close", "UIA" })]
+    [ToolBoxItem("Close", "Application", "UIA", iconSource: null, description: "Close target application", tags: new string[] { "Close", "UIA" })]
     public class CloseApplicationActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<CloseApplicationActorComponent>();

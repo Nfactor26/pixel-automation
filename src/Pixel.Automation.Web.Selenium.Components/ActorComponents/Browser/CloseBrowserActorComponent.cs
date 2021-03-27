@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Close Browser", "Selenium", "Browser", iconSource: null, description: "Closes a Selenium based browser", tags: new string[] { "Close", "Shutdown", "Dispose", "Web" })]
+    [ToolBoxItem("Close Browser", "Application", "Browser", iconSource: null, description: "Closes a Selenium based browser", tags: new string[] { "Close", "Shutdown", "Dispose", "Web" })]
     public class CloseBrowserActorComponent : SeleniumActorComponent
     {
         private readonly ILogger logger = Log.ForContext<CloseBrowserActorComponent>();
