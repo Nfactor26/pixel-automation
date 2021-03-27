@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"      
         xmlns:docking="clr-namespace:Pixel.Automation.Editor.Core.Docking;assembly=Pixel.Automation.Editor.Core"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
         xmlns:cal="http://www.caliburnproject.org" 
         xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
         mc:Ignorable="d" ShowActivated="True" WindowState="Maximized"

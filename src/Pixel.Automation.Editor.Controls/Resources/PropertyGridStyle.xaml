@@ -1,15 +1,15 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-                    xmlns:themes="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=Xceed.Wpf.Toolkit"
+                    xmlns:themes="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=DotNetProjects.Wpf.Extended.Toolkit"
                     xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                     xmlns:metroControls="http://metro.mahapps.com/winfx/xaml/controls"
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-                    xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-                    xmlns:converters="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Converters;assembly=Xceed.Wpf.Toolkit"
-                    xmlns:utilities="clr-namespace:Xceed.Wpf.Toolkit.Core.Utilities;assembly=Xceed.Wpf.Toolkit"
-                    xmlns:editor="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Editors;assembly=Xceed.Wpf.Toolkit"
-                    xmlns:commands="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Commands;assembly=Xceed.Wpf.Toolkit">
+                    xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"                   
+                    xmlns:converters="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Converters;assembly=DotNetProjects.Wpf.Extended.Toolkit"
+                    xmlns:utilities="clr-namespace:Xceed.Wpf.Toolkit.Core.Utilities;assembly=DotNetProjects.Wpf.Extended.Toolkit"
+                    xmlns:editor="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Editors;assembly=DotNetProjects.Wpf.Extended.Toolkit"
+                    xmlns:commands="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid.Commands;assembly=DotNetProjects.Wpf.Extended.Toolkit">
 
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <xctk:InverseBoolConverter x:Key="InverseBoolConverter" />
@@ -543,22 +543,22 @@
                             <Setter Property="MinWidth"  Value="15" TargetName="_expandableButtonColumn" />
                         </Trigger>-->
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}" Value="{x:Static xctk:StringConstants.Local}">
-                            <Setter TargetName="_optionsImage"   Property="Source"  Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/Local11.png" />
+                            <Setter TargetName="_optionsImage"   Property="Source"  Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/Local11.png" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}"  Value="{x:Static xctk:StringConstants.Resource}">
-                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/Resource11.png" />
+                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/Resource11.png" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}" Value="{x:Static xctk:StringConstants.Databinding}">
-                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/Database11.png" />
+                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/Database11.png" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}" Value="{x:Static xctk:StringConstants.Inheritance}">
-                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/Inheritance11.png" />
+                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/Inheritance11.png" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}" Value="{x:Static xctk:StringConstants.StyleSetter}">
-                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/Style11.png" />
+                            <Setter TargetName="_optionsImage" Property="Source" Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/Style11.png" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ElementName=_optionsImage, Path=ToolTip}"  Value="{x:Static xctk:StringConstants.Default}">
-                            <Setter TargetName="_optionsImage"  Property="Source" Value="pack://application:,,,/Xceed.Wpf.Toolkit;component/PropertyGrid/Images/AdvancedProperties11.png" />
+                            <Setter TargetName="_optionsImage"  Property="Source" Value="pack://application:,,,/DotNetProjects.Wpf.Extended.Toolkit;component/PropertyGrid/Images/AdvancedProperties11.png" />
                         </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
