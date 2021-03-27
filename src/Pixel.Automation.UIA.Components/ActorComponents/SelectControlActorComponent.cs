@@ -16,7 +16,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [DataContract]
     [Serializable]
     [ToolBoxItem("Select Control", "UIA", iconSource: null, description: "Trigger SelectionItemPattern pattern on AutomationElement to select it", tags: new string[] { "Select", "UIA" })]
-
     public class SelectControlActorComponent : UIAActorComponent
     {
         private readonly ILogger logger = Log.ForContext<SelectControlActorComponent>();
@@ -32,7 +31,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public SelectControlActorComponent() : base("Select")
+        public SelectControlActorComponent() : base("Select Control", "SelectControl")
         {
 
         }

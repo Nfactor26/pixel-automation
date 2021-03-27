@@ -137,6 +137,7 @@ namespace Pixel.Automation.RunTime
                         case ".\\Pixel.Automation.Scripting.Components.dll":
                         case ".\\Pixel.Automation.UIA.Components.dll":
                         case ".\\Pixel.Automation.Java.Access.Bridge.Components.dll":
+                        case ".\\Pixel.Automation.Image.Matching.Components.dll":
                             Assembly pixelAssembly = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, assembly));
                             var definedTypes = pixelAssembly.DefinedTypes.Where(t => t.IsPublic && !t.IsAbstract);
                             foreach (var definedType in definedTypes)

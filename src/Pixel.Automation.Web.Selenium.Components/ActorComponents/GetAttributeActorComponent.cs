@@ -3,7 +3,6 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
@@ -30,8 +29,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Argument where the value of the attribute will be stored
         /// </summary>
         [DataMember]
-        [Display(Name = "Result", GroupName = "Output", Order = 10)]
-        [Description("Argument where the value of the attribute will be stored")]
+        [Display(Name = "Result", GroupName = "Output", Order = 10, Description = "Store the result in specified Argument")]       
         public Argument Result { get; set; } = new OutArgument<string>();
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             string extractedValue = control.GetAttribute(this.AttributeName);
             ArgumentProcessor.SetValue<string>(Result, extractedValue);
 

@@ -22,6 +22,9 @@ using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
+    [DataContract]
+    [Serializable]
+    [ToolBoxItem("JAB Locator", "Control Locators", iconSource: null, description: "Identify a java control on screen", tags: new string[] { "Locator" })]
     public class JavaControlLocatorComponent : ServiceComponent, IControlLocator<AccessibleContextNode, AccessibleContextNode>, ICoordinateProvider, IDisposable
     {
 

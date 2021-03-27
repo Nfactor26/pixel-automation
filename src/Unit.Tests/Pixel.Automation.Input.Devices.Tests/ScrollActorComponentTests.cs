@@ -12,49 +12,20 @@ namespace Pixel.Automation.Input.Devices.Tests
         public void ValidateThatScrollActorComponentCanBeInitialized()
         {
             var scrollActorComponent = new ScrollActorComponent();
-
-            Assert.AreEqual(ScrollMode.Vertical, scrollActorComponent.ScrollMode);
+            
             Assert.AreEqual(ScrollDirection.Down, scrollActorComponent.ScrollDirection);
 
-            //validate that up direction can be assigned to vertical scroll mode
+            //validate that direction can be changed
             scrollActorComponent.ScrollDirection = ScrollDirection.Up;           
-            Assert.AreEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);
-
-            //validate that left direction can not be assigned to vertical scroll mode
-            scrollActorComponent.ScrollDirection = ScrollDirection.Left;
-            Assert.AreNotEqual(ScrollDirection.Left, scrollActorComponent.ScrollDirection);
-            Assert.AreEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);
-
-            //validate that right direction can not be assigned to vertical scroll mode
-            scrollActorComponent.ScrollDirection = ScrollDirection.Right;
-            Assert.AreNotEqual(ScrollDirection.Right, scrollActorComponent.ScrollDirection);
-            Assert.AreEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);
-
-            //validate that changing from vertical scroll mode to horizontal automatically changes direction to right
-            scrollActorComponent.ScrollMode = ScrollMode.Horizontal;
-            Assert.AreEqual(ScrollDirection.Right, scrollActorComponent.ScrollDirection);
-
-            //validate that left direction can be assigned to horizontal scroll mode
-            scrollActorComponent.ScrollDirection = ScrollDirection.Left;
-            Assert.AreEqual(ScrollDirection.Left, scrollActorComponent.ScrollDirection);
-
-            //validate that up direction can not be assigned to horizontal scroll mode
-            scrollActorComponent.ScrollDirection = ScrollDirection.Up;
-            Assert.AreNotEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);
-            Assert.AreEqual(ScrollDirection.Left, scrollActorComponent.ScrollDirection);
-
-            //validate that down direction can not be assigned to horizontal scroll mode
-            scrollActorComponent.ScrollDirection = ScrollDirection.Down;
-            Assert.AreNotEqual(ScrollDirection.Down, scrollActorComponent.ScrollDirection);
-            Assert.AreEqual(ScrollDirection.Left, scrollActorComponent.ScrollDirection);
-
+            Assert.AreEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);        
+          
         }
 
-        [TestCase(ScrollMode.Horizontal, ScrollDirection.Left)]
-        [TestCase(ScrollMode.Horizontal, ScrollDirection.Right)]
-        [TestCase(ScrollMode.Vertical, ScrollDirection.Down)]
-        [TestCase(ScrollMode.Vertical, ScrollDirection.Up)]
-        public void ValidateThatScrollActorCanPerformDifferentCombinationsOfScroll(ScrollMode scrollMode, ScrollDirection scrollDirection)
+        [TestCase(ScrollDirection.Left)]
+        [TestCase(ScrollDirection.Right)]
+        [TestCase(ScrollDirection.Down)]
+        [TestCase(ScrollDirection.Up)]
+        public void ValidateThatScrollActorCanPerformDifferentCombinationsOfScroll(ScrollDirection scrollDirection)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -68,20 +39,21 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             var scrollActorComponent = new ScrollActorComponent()
             {
-                EntityManager = entityManager,
-                ScrollMode = scrollMode,
+                EntityManager = entityManager,              
                 ScrollDirection = scrollDirection
             };
             scrollActorComponent.Act();
 
             argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
 
-            switch(scrollMode)
+            switch(scrollDirection)
             {
-                case ScrollMode.Horizontal:
+                case ScrollDirection.Left:
+                case ScrollDirection.Right:
                     synthethicMouse.Received(1).HorizontalScroll(Arg.Any<int>());
                     break;
-                case ScrollMode.Vertical:
+                case ScrollDirection.Down:
+                case ScrollDirection.Up:
                     synthethicMouse.Received(1).VerticalScroll(Arg.Any<int>());
                     break;
             }

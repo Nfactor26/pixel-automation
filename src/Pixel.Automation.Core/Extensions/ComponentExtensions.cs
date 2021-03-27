@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -10,6 +9,12 @@ namespace Pixel.Automation.Core
 {
     public static class ComponentExtensions
     {
+        /// <summary>
+        /// Always update DisplayAttribute in property getter. Otherwise, if there are two components of same type, changing property on one impacts other as well.
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="value"></param>
         public static void SetDispalyAttribute(this object component, string propertyName, bool value)
         {
             var displayAttr = TypeDescriptor.GetProperties(component.GetType())[propertyName]?.Attributes[typeof(DisplayAttribute)] as DisplayAttribute;

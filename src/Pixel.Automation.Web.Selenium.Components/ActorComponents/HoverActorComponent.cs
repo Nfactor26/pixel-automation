@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
@@ -12,15 +11,15 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Web.Selenium.Components
 {
     /// <summary>
-    /// Use <see cref="MoveToElementActorComponent"/> to simulate hover on a web control.
+    /// Use <see cref="HoverActorComponent"/> to simulate hover on a web control.
     /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Hover", "Selenium", iconSource: null, description: "Perform a hover action on WebElement", tags: new string[] { "MouseOver", "Web" })]
 
-    public class MoveToElementActorComponent : WebElementActorComponent
+    public class HoverActorComponent : WebElementActorComponent
     {
-        private readonly ILogger logger = Log.ForContext<MoveToElementActorComponent>();
+        private readonly ILogger logger = Log.ForContext<HoverActorComponent>();
 
         /// <summary>
         /// Optional argument which can be used to specify an offset from the of the <see cref="IWebElement"/> where hover action should be performed.
@@ -33,7 +32,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MoveToElementActorComponent() : base("Mouse Over", "MouseOver")
+        public HoverActorComponent() : base("Mouse Over", "MouseOver")
         {
 
         }
@@ -43,7 +42,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = ControlEntity.GetTargetControl<IWebElement>();
+            IWebElement control = GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             if(this.Offset.IsConfigured())
             {
@@ -59,7 +58,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override string ToString()
         {
-            return "Move To Element Actor";
+            return "Hover Actor";
         }
     }
 }

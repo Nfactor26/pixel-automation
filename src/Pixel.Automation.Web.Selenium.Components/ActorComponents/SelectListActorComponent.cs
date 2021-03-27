@@ -49,7 +49,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             string selectText = ArgumentProcessor.GetValue<string>(this.Option);
 
             SelectElement selectElement = new SelectElement(control);

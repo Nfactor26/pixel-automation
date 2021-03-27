@@ -37,7 +37,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             var mouseClickActor = new MouseClickActorComponent()
             {
-                Target = Target.Empty,
+                Target = Target.Point,
                 ClickMode = clickMode,
                 Button = buttonToClick,
                 EntityManager = entityManager
@@ -105,7 +105,7 @@ namespace Pixel.Automation.Input.Devices.Tests
         {
             var mouseClickActor = new MouseClickActorComponent()
             {
-                Target = Target.Empty
+                Target = Target.Point
             };
 
             //MoveTo is already initialized with a screen coordinate

@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using OpenCvSharp;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
@@ -21,6 +22,7 @@ namespace Pixel.Automation.Image.Matching.Components
 {
     [DataContract]
     [Serializable]
+    [ToolBoxItem("Image Locator", "Control Locators", iconSource: null, description: "Identify a image control on screen", tags: new string[] { "Locator" })]
     public class ImageControlLocatorComponent : ServiceComponent, IControlLocator<BoundingBox, BoundingBox>, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<ImageControlLocatorComponent>();

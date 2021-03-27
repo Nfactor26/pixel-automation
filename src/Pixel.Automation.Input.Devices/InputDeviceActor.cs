@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -11,17 +12,27 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
 {
+    /// <summary>
+    /// Base class for Input Device Actor
+    /// </summary>
     [DataContract]
     [Serializable]
-    public abstract class DeviceInputActor : ActorComponent
+    public abstract class InputDeviceActor : ActorComponent
     {
+        /// <summary>
+        /// Get <see cref="ISyntheticKeyboard"/> from the entity manager
+        /// </summary>
+        /// <returns></returns>
         protected ISyntheticKeyboard GetKeyboard()
         {
             var keyboard = this.EntityManager.GetServiceOfType<ISyntheticKeyboard>();
             return keyboard;
         }
 
-
+        /// <summary>
+        /// Get <see cref="ISyntheticMouse"/> from the entity manager
+        /// </summary>
+        /// <returns></returns>
         protected ISyntheticMouse GetMouse()
         {
             var mouse = this.EntityManager.GetServiceOfType<ISyntheticMouse>();
@@ -34,11 +45,22 @@ namespace Pixel.Automation.Input.Devices
             get => this.Parent as IControlEntity;          
         }
 
-        protected DeviceInputActor(string name = "", string tag = ""):base(name,tag)
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="tag"></param>
+        protected InputDeviceActor(string name = "", string tag = ""):base(name,tag)
         {
 
         }
 
+        /// <summary>
+        /// Retrieve the control based on whether parent control entity or a target control provided as Argument is configured and then
+        /// get the ClickablePoint of this control.
+        /// </summary>
+        /// <param name="targetControl"></param>
+        /// <returns></returns>
         internal protected ScreenCoordinate GetScreenCoordinateFromControl(InArgument<UIControl> targetControl)
         {
             var argumentProcessor = this.ArgumentProcessor;
@@ -71,16 +93,22 @@ namespace Pixel.Automation.Input.Devices
             }
         }      
 
+        /// <summary>
+        /// Validate whether the input key sequence is valid
+        /// </summary>
+        /// <param name="keyCode"></param>
+        /// <returns></returns>
         protected bool IsKeySequenceValid(string keyCode)
         {
-            ISyntheticKeyboard syntheticKeyboard = GetKeyboard();
             try
             {
+                ISyntheticKeyboard syntheticKeyboard = GetKeyboard();
                 var syntheticKeySequence = syntheticKeyboard.GetSynthethicKeyCodes(keyCode);
                 return syntheticKeySequence.Any();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Warning("Key Sequence is not valid. {Message}", ex.Message);
                 return false;
             }
         }

@@ -24,11 +24,10 @@ namespace Pixel.Automation.Core.Components.Tests
 
             serializer = Substitute.For<ISerializer>();
             var applicationDetails = Substitute.For<IApplication, IComponent>();
-            var applicationDescription = new ApplicationDescription()
+            applicationDetails.ApplicationName.Returns("MockApplication");           
+            var applicationDescription = new ApplicationDescription(applicationDetails)
             {               
-                ApplicationName = "MockApplication",
-                ApplicationType = "Windows",
-                ApplicationDetails = applicationDetails
+                ApplicationType = "Windows"              
             };
             serializer.Deserialize<ApplicationDescription>(Arg.Any<string>(), null).Returns(applicationDescription);
             entityManager.GetServiceOfType<ISerializer>().Returns(serializer);

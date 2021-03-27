@@ -16,7 +16,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [DataContract]
     [Serializable]
     [ToolBoxItem("Resize", "UIA", "Transform", iconSource: null, description: "Trigger Transform pattern on AutomationElement to resize", tags: new string[] { "Resize", "UIA" })]
-
     public class ResizeActorComponent : UIAActorComponent
     {
         private readonly ILogger logger = Log.ForContext<ResizeActorComponent>();

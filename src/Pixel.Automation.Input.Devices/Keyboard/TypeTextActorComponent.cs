@@ -1,26 +1,37 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
 {
+    /// <summary>
+    /// Use <see cref="TypeTextActorComponent"/> to simulate typing some text.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Type text", "Input Device", "Keyboard", iconSource: null, description: "Type text using keyboard", tags: new string[] { "Type" })]
-
-    public class TypeTextActorComponent : DeviceInputActor
+    public class TypeTextActorComponent : InputDeviceActor
     {
-        [DataMember]
-        [Category("Input Text Configuration")]    
-        public Argument Input { get; set; } = new InArgument<string>();
+        private readonly ILogger logger = Log.ForContext<TypeTextActorComponent>();
 
+        [DataMember]
+        [Display(Name = "Text To Type", GroupName = "Configuration", Order = 10, Description = "Text to be typed")]
+        public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = "", CanChangeType = false };
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public TypeTextActorComponent() : base("Type text", "TypeText")
         {
 
         }
 
+        /// <summary>
+        /// Type configured text by simulating keyboard
+        /// </summary>
         public override void Act()
         {           
             string textToType = this.ArgumentProcessor.GetValue<string>(this.Input);
@@ -30,8 +41,12 @@ namespace Pixel.Automation.Input.Devices
                 var keyboard = GetKeyboard();
                 keyboard.TypeText(textToType);
             }
-
+            logger.Information("Text was typed.");
         }
 
+        public override string ToString()
+        {
+            return "Type Text Actor";
+        }
     }
 }

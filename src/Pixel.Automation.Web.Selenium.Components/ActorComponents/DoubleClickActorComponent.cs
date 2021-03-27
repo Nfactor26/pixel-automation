@@ -31,7 +31,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             action.DoubleClick(control).Perform();
             logger.Information("control was double clicked.");

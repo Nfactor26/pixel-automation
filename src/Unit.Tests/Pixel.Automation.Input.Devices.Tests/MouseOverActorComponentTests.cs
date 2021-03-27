@@ -28,7 +28,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             var mouseOverActor = new MouseOverActorComponent()
             {
-                Target = Target.Empty,          
+                Target = Target.Point,          
                 EntityManager = entityManager
             };
 
@@ -84,7 +84,7 @@ namespace Pixel.Automation.Input.Devices.Tests
         {
             var mouseOverActor = new MouseOverActorComponent()
             {
-                Target = Target.Empty
+                Target = Target.Point
             };
             
             //MoveTo is already initialized with a screen coordinate

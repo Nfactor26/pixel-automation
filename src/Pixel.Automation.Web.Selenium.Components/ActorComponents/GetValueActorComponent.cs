@@ -40,7 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             string extractedValue = control.GetAttribute("value");
             if (string.IsNullOrEmpty(extractedValue))
             {

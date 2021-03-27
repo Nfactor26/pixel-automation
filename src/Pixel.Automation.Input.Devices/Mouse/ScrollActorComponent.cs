@@ -1,99 +1,74 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
+using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
 {
+    /// <summary>
+    /// Use <see cref="ScrollActorComponent"/> to perform a horizontal or vertical scroll.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Scroll", "Input Device", "Mouse", iconSource: null, description: "Perform a scroll  action using mouse", tags: new string[] { "Scroll" })]
-
-    public class ScrollActorComponent : DeviceInputActor
+    public class ScrollActorComponent : InputDeviceActor
     {
+        private readonly ILogger logger = Log.ForContext<ScrollActorComponent>();
+
+        /// <summary>
+        /// Indicates whether to scroll left or right if scroll mode is horizontal and up or down if scroll mode is vertical.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Direction", GroupName = "Configuration", Order = 10, Description = "Direction of scroll")]
+        public ScrollDirection ScrollDirection { get; set; } = ScrollDirection.Down;
+
         /// <summary>
         /// Note : 1 unit of scroll is equivalent to 120 pixels . This is specific to library being used
         /// </summary>
         [DataMember]
-        [Description("Number of scroll unit to perform")]
-        [Display(Name = "Amount", GroupName = "Scroll Configuration")]           
+        [Display(Name = "Amount", GroupName = "Configuration", Order = 20, Description = "Amount of scroll. 1 unit equals 120 pixel.")]
         public Argument ScrollAmount { get; set; } = new InArgument<int>() { DefaultValue = 1, CanChangeType = false };
 
-        ScrollMode scrollMode = ScrollMode.Vertical;
-        [DataMember]
-        [Display(Name = "Mode", GroupName = "Scroll Configuration")]
-        public ScrollMode ScrollMode
-        {
-            get => this.scrollMode;
-            set
-            {
-                this.scrollMode = value;
-                OnPropertyChanged();
-                switch (value)
-                {
-                    case ScrollMode.Vertical:
-                        this.ScrollDirection = ScrollDirection.Down;
-                        break;
-                    case ScrollMode.Horizontal:
-                        this.ScrollDirection = ScrollDirection.Right;
-                        break;
-                }
-                
-            }
-        }
-
-        ScrollDirection scrollDirection = ScrollDirection.Down;
-        [DataMember]
-        [Display(Name = "Direction", GroupName = "Scroll Configuration")]
-        public ScrollDirection ScrollDirection
-        {
-            get => this.scrollDirection;
-            set
-            {
-                switch(this.scrollMode)
-                {
-                    case ScrollMode.Horizontal:
-                        if (value == ScrollDirection.Left || value == ScrollDirection.Right)
-                        {
-                            this.scrollDirection = value;
-                        }
-                        break;
-                    case ScrollMode.Vertical:
-                        if (value == ScrollDirection.Down || value == ScrollDirection.Up)
-                        {
-                            this.scrollDirection = value;
-                        }
-                        break;
-                }
-                OnPropertyChanged();
-            }
-        }
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ScrollActorComponent() : base("Scroll", "Scroll")
         {
 
         }
 
+        /// <summary>
+        /// Perform a horizontal or vertical scroll
+        /// </summary>
         public override void Act()
-        {         
+        {
             int amountToScroll = this.ArgumentProcessor.GetValue<int>(this.ScrollAmount);
-            if (this.scrollDirection.Equals(ScrollDirection.Down) || this.scrollDirection.Equals(ScrollDirection.Right))
+            if (this.ScrollDirection.Equals(ScrollDirection.Down) || this.ScrollDirection.Equals(ScrollDirection.Right))
             {
                 amountToScroll *= -1;
             }
             var syntheticMouse = GetMouse();
-            switch (this.scrollMode)
+            switch (this.ScrollDirection)
             {
-                case ScrollMode.Horizontal:
+                case ScrollDirection.Left:
+                case ScrollDirection.Right:
                     syntheticMouse.HorizontalScroll(amountToScroll);
+                    logger.Information($"Mouse was horizontally scrolled by {amountToScroll} ticks in direction {this.ScrollDirection}");
                     break;
-                case ScrollMode.Vertical:
+                case ScrollDirection.Up:
+                case ScrollDirection.Down:
                     syntheticMouse.VerticalScroll(amountToScroll);
+                    logger.Information($"Mouse was vertically scrolled by {amountToScroll} ticks in direction {this.ScrollDirection}");
                     break;
             }
         }
-    } 
+
+        public override string ToString()
+        {
+            return "Scroll Actor";
+        }
+    }
 }

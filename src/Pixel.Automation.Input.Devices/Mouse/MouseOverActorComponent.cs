@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -11,61 +12,77 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Input.Devices
 {
+    /// <summary>
+    /// Use <see cref="MouseOverActorComponent"/> to move mouse cursor to a target control or an arbitrary co-ordinates.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Mouse Over", "Input Device", "Mouse", iconSource: null, description: "Move mouse to desired coordinates", tags: new string[] { "Click" })]
-
-    public class MouseOverActorComponent : DeviceInputActor
+    public class MouseOverActorComponent : InputDeviceActor
     {
-        [DataMember]
-        [Display(Name = "Target Control", GroupName = "Control Details")]     
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        private readonly ILogger logger = Log.ForContext<MouseOverActorComponent>();
 
-        [DataMember]
-        [Display(Name = "Move To", GroupName = "Mouse Over configuration", AutoGenerateField = false)]
-        [Description("Represents the coordinates to which cursor is moved.This is auto calculated if Control and CoordinateProvider are configured.")]            
-        public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>()
-        {
-            DefaultValue = new ScreenCoordinate() { XCoordinate = 100, YCoordinate = 100 },
-            CanChangeType = false
-        };
-
+        [Display(Name = "Smooth Mode", GroupName = "Configuration", Order = 10, Description = "Controls how the mouse moves between two points")]
+        public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
 
         Target target = Target.Control;
+        /// <summary>
+        /// Specify whether to move mouse cursor to a target control or arbitrary co-ordinates
+        /// </summary>
         [DataMember]
-        [Display(Name = "Target", GroupName = "Mouse Over Configuration")]
-        [Description("Configure if mouse target is a control  or specified coordinates")]
+        [Display(Name = "Target", GroupName = "Configuration", Order = 20, Description = "Indicates whether to move cursor to a control or an arbitrary co-ordinates")]
         [RefreshProperties(RefreshProperties.Repaint)]
         public Target Target
         {
-            get => target;
-            set
+            get
             {
-                switch (value)
+                switch (this.target)
                 {
                     case Target.Control:
                         this.SetDispalyAttribute(nameof(MoveTo), false);
+                        this.SetDispalyAttribute(nameof(TargetControl), true);                     
                         break;
-                    case Target.Empty:
+                    case Target.Point:
                         this.SetDispalyAttribute(nameof(MoveTo), true);
+                        this.SetDispalyAttribute(nameof(TargetControl), false);
                         break;
                 }
-                MoveTo.Mode = ArgumentMode.Default;
-                target = value;
+                return this.target;
+            }
+            set
+            {                
+                this.target = value;
+                OnPropertyChanged();
+                ValidateComponent();
             }
         }
 
+        /// <summary>
+        /// Target control where cursor needs to be moved to. Target control is automatically identfied if component is a child of <see cref="IControlEntity"/>.
+        /// However, if control has been already looked up and stored in an argument, it can be passed as an argument instead as the target control.
+        /// </summary>
         [DataMember]
-        [Display(Name = "Smooth Mode", GroupName = "Mouse Over Configuration")]
-        [Description("Controls how the mouse moves between two points")]      
-        public SmoothMode SmootMode { get; set; } = SmoothMode.Interpolated;
+        [Display(Name = "Target Control", GroupName = "Control Details", Order = 30, Description = "[Optional] Target control where cursor needs to be moved.")]
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
+        /// <summary>
+        /// An arbitrary co-ordinates where the cursor position should be moved.
+        /// </summary>
+        [DataMember]
+        [Display(Name = "Move To", GroupName = "Point", Order = 40, Description = "[Optional] Arbitrary co-ordinates where mouse cursor should be moved to.")]
+        public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(100, 100), CanChangeType = false };
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public MouseOverActorComponent() : base("Mouse Over", "MouseOver")
         {
 
         }
 
+        /// <summary>
+        /// Move the mouse cursor to a target control or an arbitrary co-ordinate.
+        /// </summary>
         public override void Act()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
@@ -76,29 +93,39 @@ namespace Pixel.Automation.Input.Devices
                 case Target.Control:
                     screenCoordinate = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
                     break;
-                case Target.Empty:
+                case Target.Point:
                     screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.MoveTo);
                     break;
             }
-            var syntheticMouse = GetMouse();        
+            var syntheticMouse = GetMouse();
             syntheticMouse.MoveMouseTo(screenCoordinate, this.SmootMode);
-             
 
+            logger.Information($"Mouse cursor was moved to ({screenCoordinate.XCoordinate}, {screenCoordinate.YCoordinate})");
 
         }
 
+        /// <summary>
+        /// Check if component is correctly configured
+        /// </summary>
+        /// <returns></returns>
         public override bool ValidateComponent()
         {
-            switch(this.Target)
+            IsValid = true;
+            switch (this.Target)
             {
-                case Target.Empty:
+                case Target.Point:
                     IsValid = this.MoveTo?.IsConfigured() ?? false;
                     break;
                 case Target.Control:
                     IsValid = (this.TargetControl?.IsConfigured() ?? false) || this.ControlEntity != null;
                     break;
-            }         
+            }
             return IsValid && base.ValidateComponent();
+        }
+
+        public override string ToString()
+        {
+            return "Mouse Over Actor";
         }
     }
 }

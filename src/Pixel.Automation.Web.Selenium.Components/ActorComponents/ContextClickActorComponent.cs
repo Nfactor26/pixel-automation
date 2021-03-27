@@ -30,7 +30,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             action.ContextClick(control).Build().Perform();
             logger.Information("Context click performed on control");

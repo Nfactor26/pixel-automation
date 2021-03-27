@@ -22,7 +22,8 @@ using uiaComWrapper::System.Windows.Automation;
 namespace Pixel.Automation.UIA.Components
 {
     [DataContract]
-    [Serializable]  
+    [Serializable]
+    [ToolBoxItem("UIA Locator", "Control Locators", iconSource: null, description: "Identify a UIA based control on screen", tags: new string[] { "Locator" })]
     public class UIAControlLocatorComponent : ServiceComponent, IControlLocator<AutomationElement, AutomationElement>, ICoordinateProvider
     {
         #region Data Members

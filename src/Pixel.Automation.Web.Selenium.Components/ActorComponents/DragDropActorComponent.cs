@@ -16,7 +16,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Drag Drop", "Selenium", iconSource: null, description: "Drag drop a web control to another control", tags: new string[] { "Click", "Web" })]
+    [ToolBoxItem("Drag Drop", "Selenium", iconSource: null, description: "Drag drop a web control to another control", tags: new string[] { "Drag", "Drop", "Web" })]
 
     public class DragDropActorComponent : SeleniumActorComponent
     {
@@ -26,7 +26,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Drag source control
         /// </summary>
         [DataMember]
-        [Display(Name = "Source Control", GroupName = "Control Details", Order = 10)]
+        [Display(Name = "Drag Source", GroupName = "Control Details", Order = 10)]
         [Description("Drag source control")]
         public Argument SourceControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
@@ -34,7 +34,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Drop target control
         /// </summary>
         [DataMember]
-        [Display(Name = "Target Control", GroupName = "Control Details", Order = 10)]
+        [Display(Name = "Drop Target", GroupName = "Control Details", Order = 10)]
         [Description("Drop target control")]
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
@@ -58,8 +58,12 @@ namespace Pixel.Automation.Web.Selenium.Components
             var targetWebElement = targetControl.GetApiControl<IWebElement>();
             (new Actions(ApplicationDetails.WebDriver)).DragAndDrop(sourceWebElement, targetWebElement).Perform();
 
-            logger.Information("source control was drag-dropped to target control");
+            logger.Information("Source control was drag-dropped to target control.");
         }
 
+        public override string ToString()
+        {
+            return "Drag Drop Actor";
+        }
     }
 }

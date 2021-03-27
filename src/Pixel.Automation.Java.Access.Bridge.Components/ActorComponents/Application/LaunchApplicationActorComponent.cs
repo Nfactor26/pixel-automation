@@ -9,10 +9,12 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
+    /// <summary>
+    /// Use <see cref="LaunchApplicationActorComponent"/> to launch a jar file
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Launch", "Java", "Application", iconSource: null, description: "Launch target application", tags: new string[] { "Launch", "Java" })]
-
     public class LaunchApplicationActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<LaunchApplicationActorComponent>();
@@ -27,12 +29,17 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             }
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public LaunchApplicationActorComponent() : base("Launch", "JavaApplicationLauncher")
         {
 
         }
 
-
+        /// <summary>
+        /// Launch a jar file
+        /// </summary>
         public override void Act()
         {
             var appDetails = ApplicationDetails;
@@ -55,5 +62,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             throw new ArgumentException($"Application path : {executablePath} empty or doesn't exist.");
         }
 
+        public override string ToString()
+        {
+            return "Launch Application Actor";
+        }
     }
 }

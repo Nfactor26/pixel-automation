@@ -63,7 +63,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 
             if (this.Parent is IControlEntity)
             {
-                IWebElement control = GetTargetControl(this.TargetControl);
+                IWebElement control = GetTargetControl();
                 allArguments.Add(control);
             }
 

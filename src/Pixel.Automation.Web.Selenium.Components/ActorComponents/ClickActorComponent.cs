@@ -36,7 +36,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override void Act()
         {
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             if (this.ForceClick)
             {
                 //doesn't check for preconditions like whether element is clickable,etc

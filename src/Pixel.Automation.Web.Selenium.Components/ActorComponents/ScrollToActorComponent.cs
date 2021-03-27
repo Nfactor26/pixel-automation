@@ -42,7 +42,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         public override void Act()
         {
             int offsetAmount = ArgumentProcessor.GetValue<int>(this.OffSet);
-            IWebElement control = GetTargetControl(this.TargetControl);
+            IWebElement control = GetTargetControl();
             int elemPos = control.Location.Y+ offsetAmount;
             ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll(0, {elemPos});");
 

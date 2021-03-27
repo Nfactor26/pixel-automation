@@ -23,6 +23,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]
+    [ToolBoxItem("Selenium Locator", "Control Locators", iconSource: null, description: "Identify a web control on screen", tags: new string[] { "Locator" })]
     public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement, ISearchContext>, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
@@ -131,7 +132,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Contrsuctor      
         /// </summary>
-        public WebControlLocatorComponent() : base("Web Control Locator", "SeleniumControlLocator")
+        public WebControlLocatorComponent() : base("Selenium Control Locator", "SeleniumControlLocator")
         {
             retrySequence = new List<TimeSpan>();
             foreach (var i in Enumerable.Range(1, retryAttempts))

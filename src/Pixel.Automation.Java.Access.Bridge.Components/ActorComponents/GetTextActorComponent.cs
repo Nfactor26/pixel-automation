@@ -1,7 +1,8 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -9,21 +10,34 @@ using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
+    /// <summary>
+    /// Use <see cref="GetTextActorComponent"/> to get the text of a control.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Get Text", "Java", iconSource: null, description: "Get text contents of a control", tags: new string[] { "Get Text", "Java" })]
-
     public class GetTextActorComponent : JABActorComponent
     {
+        private readonly ILogger logger = Log.ForContext<GetTextActorComponent>();
+
+        /// <summary>
+        /// Argument where the value of the retrieve text will be stored
+        /// </summary>
         [DataMember]
-        [Description("Store the value in Result Argument")]
+        [Display(Name = "Result", GroupName = "Output", Order = 10, Description = "Argument where the value of the retrieved text will be stored")]
         public Argument Result { get; set; } = new OutArgument<string>();
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public GetTextActorComponent() : base("Get Text", "GetText")
         {
 
         }
 
+        /// <summary>
+        /// Retrieve the text of a control
+        /// </summary>
         public override void Act()
         {          
             AccessibleContextNode targetControl = this.GetTargetControl();
@@ -43,12 +57,18 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 {                   
                     sb.Append(lineData.Text);
                 }
-                this.ArgumentProcessor.SetValue<string>(this.Result, sb.ToString());               
+                this.ArgumentProcessor.SetValue<string>(this.Result, sb.ToString());
+                logger.Information("Text was retrieved from control.");
+                return;
             }
-            else
-            {
-                throw new InvalidOperationException($"Control: {this.TargetControl} doesn't support cAccessibleTextInterface.");
-            }
+
+            throw new InvalidOperationException($"Control: {this.TargetControl} doesn't support cAccessibleTextInterface.");
+        }
+
+
+        public override string ToString()
+        {
+            return "Get Text Actor";
         }
 
         //private static string MakePrintable(string text)

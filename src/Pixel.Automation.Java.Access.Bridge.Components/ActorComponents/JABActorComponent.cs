@@ -4,23 +4,31 @@ using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
+    /// <summary>
+    /// Base class for actor components based on Java Access Bridge
+    /// </summary>
     [DataContract]
     [Serializable]
     public abstract class JABActorComponent : ActorComponent
     {
 
+        /// <summary>
+        /// If the control to be interacted has been already looked up , it can be specified as an argument.
+        /// TargetControl Argument takes precedence over parent Control Entity.
+        /// </summary>
         [DataMember]
-        [DisplayName("Target Control")]
-        [Category("Control Details")]
-        [Browsable(true)]
+        [Display(Name = "Target Control", GroupName = "Control Details", Order = 10, Description = "[Optional] Specify a JavaUIControl to be interacted with.")]
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
               
-
+        /// <summary>
+        /// Parent Control entity component if any
+        /// </summary>
         [Browsable(false)]
         public JavaControlEntity ControlEntity
         {
@@ -30,12 +38,21 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
             }
         }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="tag"></param>
         protected JABActorComponent(string name = "", string tag = "") : base(name, tag)
         {
 
         }
 
-
+        /// <summary>
+        /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="JavaControlEntity"/>
+        /// </summary>
+        /// <returns>Control as <see cref="AccessibleContextNode"/></returns>
         protected AccessibleContextNode GetTargetControl()
         {
             UIControl targetControl;

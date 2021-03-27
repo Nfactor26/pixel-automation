@@ -26,7 +26,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// argument instead.
         /// </summary>
         [DataMember]
-        [Display(Name ="Target Control", GroupName = "Configuration", Order = 10, Description = "[Optional] Target control that needs to be interacted with")]         
+        [Display(Name ="Target Control", GroupName = "Control Details", Order = 10, Description = "[Optional] Target control that needs to be interacted with")]         
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
         /// <summary>

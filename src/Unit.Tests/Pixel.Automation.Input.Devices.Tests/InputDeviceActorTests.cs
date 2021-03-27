@@ -13,7 +13,7 @@ namespace Pixel.Automation.Input.Devices.Tests
     /// <summary>
     /// Use this Mock class for testing functionalities on abstract DeviceInputActor
     /// </summary>
-    public class MockDeviceInputActor : DeviceInputActor
+    public class MockInputDeviceActor : InputDeviceActor
     {
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
@@ -50,7 +50,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             argumentProcessor.GetValue<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(uiControl);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            var deviceInputActor = new MockDeviceInputActor()
+            var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager,
                 TargetControl = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, PropertyPath = "SomeProperty" } //so that Argument.IsConfigured() returns true
@@ -86,7 +86,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
 
-            var deviceInputActor = new MockDeviceInputActor()
+            var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager,
                 Parent = controlEntity
@@ -106,7 +106,7 @@ namespace Pixel.Automation.Input.Devices.Tests
         public void ValidateThatExceptionIsThrownIfControlEntityIsMissingAndTargetControlIsNotConfigured()
         {
             var entityManager = Substitute.For<IEntityManager>();
-            var deviceInputActor = new MockDeviceInputActor()
+            var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager
             };
@@ -123,7 +123,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             argumentProcessor.GetValue<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(default(UIControl));
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
-            var deviceInputActor = new MockDeviceInputActor()
+            var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager,
                 TargetControl = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, PropertyPath = "SomeProperty" } //so that Argument.IsConfigured() returns true
@@ -140,9 +140,9 @@ namespace Pixel.Automation.Input.Devices.Tests
             var syntheticKeyboard = Substitute.For<ISyntheticKeyboard>();
             syntheticKeyboard.GetSynthethicKeyCodes(Arg.Is<string>("Ctrl + C")).Returns(new [] { SyntheticKeyCode.LCONTROL, SyntheticKeyCode.VK_C });
             syntheticKeyboard.GetSynthethicKeyCodes(Arg.Is<string>("")).Returns(new SyntheticKeyCode [] { });
-            syntheticKeyboard.GetSynthethicKeyCodes(Arg.Is<string>("InvalidKey")).Returns(x => { throw new System.Exception(); });
+            syntheticKeyboard.GetSynthethicKeyCodes(Arg.Is<string>("InvalidKey")).Returns(new SyntheticKeyCode[] { });
             entityManager.GetServiceOfType<ISyntheticKeyboard>(Arg.Any<string>()).Returns(syntheticKeyboard);
-            var deviceInputActor = new MockDeviceInputActor()
+            var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager               
             };

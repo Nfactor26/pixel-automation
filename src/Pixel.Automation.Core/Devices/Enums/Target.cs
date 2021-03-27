@@ -3,6 +3,6 @@
     public enum Target
     {
         Control,
-        Empty
+        Point
     }
 }

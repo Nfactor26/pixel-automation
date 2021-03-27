@@ -14,7 +14,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [DataContract]
     [Serializable]
     [ToolBoxItem("Scroll To Control", "UIA", iconSource: null, description: "Scroll control in to view", tags: new string[] { "Scroll", "UIA" })]
-
     public class ScrollToActorComponent : UIAActorComponent
     {
         private readonly ILogger logger = Log.ForContext<ScrollToActorComponent>();

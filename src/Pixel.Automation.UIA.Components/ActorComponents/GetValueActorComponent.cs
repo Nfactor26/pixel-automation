@@ -16,7 +16,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [DataContract]
     [Serializable]
     [ToolBoxItem("Get Value", "UIA", iconSource: null, description: "Trigger Value pattern on AutomationElement to GetValue", tags: new string[] { "GetValue", "UIA" })]
-
     public class GetValueActorComponent : UIAActorComponent
     {
         private readonly ILogger logger = Log.ForContext<GetValueActorComponent>();

@@ -14,7 +14,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
     [DataContract]
     [Serializable]
     [ToolBoxItem("Collapse", "UIA", iconSource: null, description: "Trigger ExpandCollapsePattern on AutomationElement to collapse it", tags: new string[] { "Collapse", "UIA" })]
-
     public class CollapseActorComponent : UIAActorComponent
     {
         private readonly ILogger logger = Log.ForContext<CollapseActorComponent>();
