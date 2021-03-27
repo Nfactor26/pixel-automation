@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pixel.Scripting.Script.Editor.MultiEditor"           
-             xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
+             xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
              xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
              xmlns:docking="clr-namespace:Pixel.Automation.Editor.Core.Docking;assembly=Pixel.Automation.Editor.Core"
              xmlns:cal="http://www.caliburnproject.org"  

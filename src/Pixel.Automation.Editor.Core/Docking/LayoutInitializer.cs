@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AvalonDock.Layout;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Xceed.Wpf.AvalonDock.Layout;
 
 
 namespace Pixel.Automation.Editor.Core.Docking
