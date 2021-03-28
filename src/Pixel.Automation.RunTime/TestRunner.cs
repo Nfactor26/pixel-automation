@@ -115,7 +115,7 @@ namespace Pixel.Automation.RunTime
                 oneTimeSetupEntity.ResetHierarchy();
                 await ProcessEntity(oneTimeSetupEntity);
               
-                Log.Information("One time setup completed for fixture : {0}", fixture);
+                logger.Information("One time setup completed for fixture : {0}", fixture);
 
             }
             catch (Exception ex)
@@ -137,8 +137,12 @@ namespace Pixel.Automation.RunTime
              
                 IScriptEngine scriptEngine = fixture.TestFixtureEntity.EntityManager.GetScriptEngine();
                 scriptEngine.ClearState();
-             
-                Log.Information("One time teardown completed for fixture : {0}", fixture);
+
+                //Execute the script file again. This is required at design time so that any arguments bound to variables in this script file
+                //still have access to them.
+                await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
+
+                logger.Information("One time teardown completed for fixture : {0}", fixture);
 
             }
             catch (Exception ex)
@@ -356,7 +360,11 @@ namespace Pixel.Automation.RunTime
                     }
 
                     requireFixture.AddComponent(testCaseEntity);
-                    await Task.CompletedTask;                
+
+                    //This is required so that any argument that was configured in previous session should have access to variables.
+                    var scriptEngine = testEntityManager.GetScriptEngine();
+                    await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
+                    await scriptEngine.ExecuteFileAsync(testCase.ScriptFile);
 
                     logger.Information("Added test case : {testCase} to Fixture.", testCase);
 
