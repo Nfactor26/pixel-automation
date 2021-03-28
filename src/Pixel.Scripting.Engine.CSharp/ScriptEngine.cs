@@ -118,6 +118,10 @@ namespace Pixel.Scripting.Engine.CSharp
             var scriptVariable = (lastExecutionResult?.CurrentState as ScriptState).GetVariable(variableName);
             if(scriptVariable != null)
             {
+                if(value == null)
+                {
+                    return;
+                }
                 if (scriptVariable.Type.IsAssignableFrom(value.GetType()))
                 {
                     scriptVariable.Value = value;
