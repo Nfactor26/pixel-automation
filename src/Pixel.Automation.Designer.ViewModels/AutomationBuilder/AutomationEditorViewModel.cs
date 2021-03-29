@@ -116,8 +116,11 @@ namespace Pixel.Automation.Designer.ViewModels
           
         } 
 
-
-        public override async Task EditDataModel()
+        /// <summary>
+        /// Add, remove, edit data models to be used across the project and test cases.
+        /// </summary>
+        /// <returns></returns>
+        public override async Task EditDataModelAsync()
         {
             try
             {
@@ -130,8 +133,8 @@ namespace Pixel.Automation.Designer.ViewModels
                         await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
                     }
 
-                    await editor.AddDocumentAsync("DataModel.cs", this.CurrentProject.Name, string.Empty, false);
-                    await editor.OpenDocumentAsync("DataModel.cs", this.CurrentProject.Name);                 
+                    await editor.AddDocumentAsync($"{Constants.ProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
+                    await editor.OpenDocumentAsync($"{Constants.ProcessDataModelName}.cs", this.CurrentProject.Name);                 
               
                     bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
                     if (hasChanges.HasValue && !hasChanges.Value)
@@ -166,7 +169,43 @@ namespace Pixel.Automation.Designer.ViewModels
             { 
                 logger.Information(ex, ex.Message);
             }
-        }       
+        }
+
+        /// <summary>
+        /// Edit the Initialization script file for the automation process.
+        /// Initialization script can be over-ridden in test runner to initialize automation process
+        /// environment differently e.g. specify a different browser to be launched then what is 
+        /// configured as the PreferredBrowser on WebApplication.
+        /// </summary>
+        /// <returns></returns>
+        public async Task EditScriptAsync()
+        {
+            try
+            {
+                var entityManager = this.EntityManager;
+                var fileSystem = entityManager.GetCurrentFileSystem();
+                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);             
+              
+                //Add the project to workspace
+                var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.AddProject(this.CurrentProject.GetProjectName(), new string[] {}, this.EntityManager.Arguments.GetType());
+                scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), File.ReadAllText(scriptFile));
+                //Create script editor and open the document to edit
+                IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
+                scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), string.Empty);
+                var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                if (result.HasValue && result.Value)
+                {
+                    var scriptEngine = entityManager.GetScriptEngine();
+                    scriptEngine.ClearState();
+                    await scriptEngine.ExecuteFileAsync(scriptFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
 
         private void InitializeTestProcess()
         {         
@@ -249,7 +288,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async  Task CloseAsync()
         {
-            SetSelectedItem(null);
+            await SetSelectedItem(null);
             this.globalEventAggregator.Unsubscribe(this);
 
             //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.

@@ -29,9 +29,8 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         void DeleteComponent(IComponent component);
 
         /// <summary>
-        /// Open data model associated with project for editing
+        /// Open code editor that can be used to add , remove or modify existing data models for the project
         /// </summary>
-        Task EditDataModel();
-    
+        Task EditDataModelAsync();    
     }
 }

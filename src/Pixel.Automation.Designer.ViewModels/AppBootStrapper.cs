@@ -19,7 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels
 {
     public class AppBootstrapper : BootstrapperBase
     {
-        private readonly ILogger logger = Log.ForContext<AppBootstrapper>();
+        private ILogger logger;
 
         private IKernel kernel;
    
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Designer.ViewModels
              .WriteTo.ColoredConsole()
              .WriteTo.RollingFile("logs\\Pixel-Automation-{Date}.txt")
              .CreateLogger();
-
+            logger = Log.ForContext<AppBootstrapper>();
             Initialize();
         }
 

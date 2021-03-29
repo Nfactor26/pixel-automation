@@ -1,10 +1,10 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Ninject;
+using Pixel.Automation.Core;
 using Pixel.Automation.Test.Runner.Modules;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
@@ -19,7 +19,8 @@ namespace Pixel.Automation.Test.Runner
             var version = app.Option("-v | --version", "Deployed version of target project to use", CommandOptionType.SingleValue);
             var run = app.Option("-r || --run", "Indicates that test should be executed", CommandOptionType.NoValue);
             var list = app.Option("-l | --list", "List all the tests that matches selection criteria", CommandOptionType.NoValue);
-            var where = app.Option("-w | --where", "Test selector function e.g. fixture.Category == \"SomeCategory\" && (test.Priority == Priority.Medium || test.Tags[\"key\"] != \"value\")" ,CommandOptionType.SingleValue);          
+            var where = app.Option("-w | --where", "Test selector function e.g. fixture.Category == \"SomeCategory\" && (test.Priority == Priority.Medium || test.Tags[\"key\"] != \"value\")", CommandOptionType.SingleValue);
+            var script = app.Option("-s | --script", $"Script file (*.csx) override that can be used to initialize the process data model e.g. -s:\"CustomScript.csx\". By default {Constants.InitializeEnvironmentScript} generated at design time is used", CommandOptionType.SingleOrNoValue);
 
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -43,12 +44,12 @@ namespace Pixel.Automation.Test.Runner
                 if (project.HasValue() && version.HasValue() && where.HasValue())
                 {
                     var projectManager = kernel.Get<ProjectManager>();
-                    projectManager.LoadProject(project.Value(), version.Value());
+                    await projectManager.LoadProjectAsync(project.Value(), version.Value(), script.Value());
                     projectManager.LoadTestCases();
 
                     if(run.HasValue())
                     {
-                        await projectManager.RunAll(where.Value());
+                        await projectManager.RunAllAsync(where.Value());
                     }
                     if(list.HasValue())
                     {

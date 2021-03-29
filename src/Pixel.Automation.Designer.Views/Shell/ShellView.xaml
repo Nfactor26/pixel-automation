@@ -89,7 +89,8 @@
             
             <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
                 <MenuItem x:Name="Manage" Header="Manage" ToolTip="Manage versions and their deployment"/>               
-                <MenuItem x:Name="EditDataModel" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>             
+                <MenuItem x:Name="EditDataModelAsync" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>
+                <MenuItem x:Name="EditScriptAsync" Header="Edit Script" ToolTip="Open default initialization script for editing"/>
             </MenuItem>
            
             <MenuItem x:Name="ScreenScrappers"  Header="Screen Scrappers"

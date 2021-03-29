@@ -56,8 +56,11 @@ namespace Pixel.Automation.Designer.ViewModels
          
         }
 
-
-        public override async Task EditDataModel()
+        /// <summary>
+        /// Edit the PrefabDataModel that was generated while creating the Prefab.
+        /// </summary>
+        /// <returns></returns>
+        public override async Task EditDataModelAsync()
         {
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
             using (var editor = editorFactory.CreateMultiCodeEditorScreen())
