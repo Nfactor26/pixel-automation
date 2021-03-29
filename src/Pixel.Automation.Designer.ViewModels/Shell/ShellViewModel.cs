@@ -171,13 +171,34 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public void EditDataModel()
+        public async Task EditDataModelAsync()
         {
             var activeItem = this.ActiveItem as IEditor;
             if (activeItem == null)
+            {
                 return;
-            activeItem.EditDataModel();
-        }     
+            }
+            await activeItem.EditDataModelAsync();
+        }
+
+
+        public bool CanEditScript
+        {
+            get
+            {
+                return this.ActiveItem != null && this.ActiveItem is IAutomationEditor;
+            }
+        }
+
+        public async Task EditScriptAsync()
+        {
+            var activeItem = this.ActiveItem as IAutomationEditor;
+            if (activeItem == null)
+            {
+                return;
+            }
+            await activeItem.EditScriptAsync();
+        }
 
         public bool CanManage
         {
@@ -210,6 +231,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 await base.ActivateItemAsync(item, cancellationToken);
                 NotifyOfPropertyChange(() => CanEditDataModel);
+                NotifyOfPropertyChange(() => CanEditScript);
                 NotifyOfPropertyChange(() => CanSave);
                 NotifyOfPropertyChange(() => CanSaveAll);
                 NotifyOfPropertyChange(() => CanManage);           

@@ -230,7 +230,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public abstract Task Manage();
 
-        public abstract Task EditDataModel();
+        public abstract Task EditDataModelAsync();
 
         protected void UpdateWorkFlowRoot()
         {

@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
-using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -9,6 +8,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -39,29 +39,58 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
 
-            CreateDataModelFile();
+            await CreateDataModelFile();
             ConfigureCodeEditor();
 
-            this.entityManager.Arguments  = CompileAndCreateDataModel("DataModel");
+            this.entityManager.Arguments  = CompileAndCreateDataModel(Constants.ProcessDataModelName);
           
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            await ExecuteInitializationScript();
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();
             return this.RootEntity;
         }   
 
-        private void CreateDataModelFile()
+        private async Task CreateDataModelFile()
         {
             string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
             if (!dataModelFiles.Any())
             {
-                var classGenerator = this.codeGenerator.CreateClassGenerator("DataModel", $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
+                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.ProcessDataModelName, $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
-                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, "DataModel.cs");
-                File.WriteAllText(dataModelFile, dataModelInitialContent);
+                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, $"{Constants.ProcessDataModelName}.cs");
+                await File.WriteAllTextAsync(dataModelFile, dataModelInitialContent);
                 logger.Information($"Created data model file : {dataModelFile}");
             }             
         }      
+
+        /// <summary>
+        /// Execute the Initialization script for Automation process.
+        /// Empty Initialization script is created if script file doesn't exist already.
+        /// </summary>
+        private async Task ExecuteInitializationScript()
+        {
+            try
+            {
+                var fileSystem = this.entityManager.GetCurrentFileSystem();
+                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+                if (!File.Exists(scriptFile))
+                {
+                    using (var sw = File.CreateText(scriptFile))
+                    {
+                        sw.WriteLine("//Default Initialization script for automation process");
+                    };
+                    logger.Information("Created initialization script file : {scriptFile}", scriptFile);
+                }
+                var scriptEngine = this.entityManager.GetScriptEngine();
+                await scriptEngine.ExecuteFileAsync(scriptFile);
+                logger.Information("Executed initialization script : {scriptFile}", scriptFile);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to execute Initialization script {Constants.InitializeEnvironmentScript}");               
+            }
+        }
 
         private void Initialize()
         {
@@ -76,7 +105,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
                        
             AddDefaultEntities();
-            logger.Information($"Project file for {this.GetProjectName()} has ben loaded ");
+            logger.Information($"Project file for {this.GetProjectName()} has been loaded ");
         }
 
         private Entity DeserializeProject()
@@ -112,8 +141,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
-            this.entityManager.Arguments = CompileAndCreateDataModel("DataModel");
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.ProcessDataModelName);
+         
             ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            await ExecuteInitializationScript();
+        
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());            
