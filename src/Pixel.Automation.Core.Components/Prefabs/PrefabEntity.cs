@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
     [Serializable]
     [Scriptable(nameof(InputMappingScript), nameof(OutputMappingScript))]
     [Initializer(typeof(ScriptFileInitializer))]
-    public class PrefabEntity : Entity, IDisposable
+    public class PrefabEntity : Entity
     {
         [DataMember]
         [Browsable(false)]
@@ -116,19 +116,5 @@ namespace Pixel.Automation.Core.Components.Prefabs
         }
 
         #endregion overridden methods
-
-        protected virtual void Dispose(bool isDisposing)
-        {
-            if(this.prefabLoader != null)
-            {
-                (this.prefabLoader as IDisposable).Dispose();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
     }
 }
