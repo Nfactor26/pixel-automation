@@ -24,8 +24,18 @@
   </ComponentTemplate>
   
   <ComponentTemplate>
-    <Name>ApplicationEntity</Name>
-    <DataTemplateKey>SequenceTemplate</DataTemplateKey>
+    <Name>WinApplicationEntity</Name>
+    <DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>JavaApplicationEntity</Name>
+    <DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
+    <StyleKey>ContainerStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>WebApplicationEntity</Name>
+    <DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
     <StyleKey>ContainerStyle</StyleKey>
   </ComponentTemplate>
   <ComponentTemplate>

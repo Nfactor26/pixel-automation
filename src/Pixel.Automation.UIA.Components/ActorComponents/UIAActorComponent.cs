@@ -29,19 +29,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         [Display(Name ="Target Control", GroupName = "Control Details", Order = 10, Description = "[Optional] Target control that needs to be interacted with")]         
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
-        /// <summary>
-        /// Target application details
-        /// </summary>
-        [RequiredComponent]
-        [Browsable(false)]
-        public WinApplication ApplicationDetails
-        {
-            get
-            {
-                return this.EntityManager.GetOwnerApplication<WinApplication>(this);
-            }
-        }
-
+        
         /// <summary>
         /// Parent control entity that provides the target control to be interacted with.
         /// </summary>

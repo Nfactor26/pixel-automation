@@ -1,9 +1,8 @@
-﻿using Pixel.Automation.Core;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.UIA.Components.Enums
+namespace Pixel.Automation.Core.Enums
 {
     [DataContract]
     [Serializable]
@@ -13,8 +12,6 @@ namespace Pixel.Automation.UIA.Components.Enums
         [Description("Attach to executable")]
         AttachToExecutable,
         [Description("Attach to window")]
-        AttachToWindow,
-        [Description("Attach to Control owner")]
-        AttachToAutomationElement
+        AttachToWindow       
     }
 }
