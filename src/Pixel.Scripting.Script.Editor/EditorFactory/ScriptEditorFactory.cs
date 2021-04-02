@@ -32,7 +32,7 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService.Initialize(new WorkspaceOptions()
             { 
                 WorkingDirectory = workingDirectory,
-                EnableCodeActions = false,
+                EnableCodeActions = true,
                 AssemblyReferences = editorReferences,
                 WorkspaceType = WorkspaceType.Script
             });

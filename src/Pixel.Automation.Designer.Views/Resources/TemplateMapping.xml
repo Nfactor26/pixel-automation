@@ -111,12 +111,12 @@
   </ComponentTemplate>
   <!--Scripted Components-->
   <ComponentTemplate>
-    <Name>ScriptedAssignActorComponent</Name>
-    <DataTemplateKey>AssignScriptTemplate</DataTemplateKey>
+    <Name>ExecuteInlineScriptActorComponent</Name>
+    <DataTemplateKey>ExecuteInlineScriptTemplate</DataTemplateKey>
     <StyleKey>SlimStyle</StyleKey>
   </ComponentTemplate>   
   <ComponentTemplate>
-    <Name>ScriptedActionActorComponent</Name>
+    <Name>ExecuteScriptActorComponent</Name>
     <DataTemplateKey>ExecuteScriptTemplate</DataTemplateKey>
     <StyleKey>SlimStyle</StyleKey>
   </ComponentTemplate> 
