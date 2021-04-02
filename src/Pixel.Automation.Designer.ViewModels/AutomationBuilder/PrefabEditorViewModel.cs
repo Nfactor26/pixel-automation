@@ -93,10 +93,19 @@ namespace Pixel.Automation.Designer.ViewModels
             await DoSave();
 
             var versionManager = this.versionManagerFactory.CreatePrefabVersionManager(this.PrefabDescription);          
-            await this.windowManager.ShowDialogAsync(versionManager);
+            var result  = await this.windowManager.ShowDialogAsync(versionManager);
+            if(result.HasValue && result.Value)
+            {
+                var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
+                fileSystem.SwitchToVersion(this.PrefabDescription.ActiveVersion);
 
-            var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-            fileSystem.SwitchToVersion(this.PrefabDescription.ActiveVersion);
+                //This will update Code editor and script editor to point to the new workspace directory
+                //This will update Code editor and script editor to point to the new workspace directory
+                var codeEditorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                codeEditorFactory.SwitchWorkingDirectory(fileSystem.DataModelDirectory);
+                var scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.SwitchWorkingDirectory(fileSystem.WorkingDirectory);
+            }         
         }
 
         #endregion Save project

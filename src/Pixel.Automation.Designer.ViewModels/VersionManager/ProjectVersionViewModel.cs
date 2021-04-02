@@ -174,7 +174,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 }
             }
 
-            logger.Information($"Assembly references updated in all tes cases.");
+            logger.Information($"Assembly references updated in all test cases.");
         }
 
         /// <summary>

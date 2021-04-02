@@ -22,6 +22,8 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly AutomationProject automationProject;
         private readonly ApplicationSettings applicationSettings;
 
+        private bool wasDeployed;
+
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
        
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
@@ -50,7 +52,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             {               
                 if (projectVersionViewModel?.IsActive == true)
                 {
-                    logger.Information($"Trying to deploy version {projectVersionViewModel} for project : {this.automationProject.Name}");
+                    logger.Information($"Trying to deploy version {projectVersionViewModel.Version} for project : {this.automationProject.Name}");
                   
                     //Create a new active version from selected version
                     ProjectVersion newVersion = projectVersionViewModel.Clone();
@@ -66,16 +68,21 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
                     await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
                    
-                    AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem));
-                    logger.Information($"Completed deployment of version : {projectVersionViewModel} for project : {this.automationProject.Name}");
-                    return;
+                    this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem));
+                    logger.Information($"Completed deployment of version : {projectVersionViewModel.Version} for project : {this.automationProject.Name}");
+
+                    this.wasDeployed = true;
                 }              
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);              
             }           
         }
-       
+
+        public async Task CloseAsync()
+        {
+            await this.TryCloseAsync(this.wasDeployed);
+        }
     }
 }

@@ -33,6 +33,11 @@ namespace Pixel.Scripting.Script.Editor
             logger.Information($"{nameof(CodeEditorFactory)} is initialized now.");
         }
 
+        public void SwitchWorkingDirectory(string workingDirectory)
+        {
+            this.editorService.SwitchToDirectory(workingDirectory);
+        }
+
         public ICodeEditorScreen CreateCodeEditor()
         {
             EnsureInitialized();

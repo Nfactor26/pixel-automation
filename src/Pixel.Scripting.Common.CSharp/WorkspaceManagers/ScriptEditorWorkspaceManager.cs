@@ -18,13 +18,12 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     /// Each script file is added to a new project. Removing script file will also remove that project.
     /// </summary>
     public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
-    {
-        private readonly ILogger logger = Log.ForContext<ScriptWorkSpaceManager>();
+    {      
         private List<string> searchPaths = new List<string>();
-
         public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
         {         
-            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.ScriptSemantic);            
+            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.ScriptSemantic);
+            logger = Log.ForContext<ScriptWorkSpaceManager>();
         }     
 
         public  void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType)

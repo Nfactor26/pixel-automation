@@ -27,7 +27,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             ConsoleManager.Show();
 
-            Log.Logger = new LoggerConfiguration()
+            Log.Logger = new LoggerConfiguration()            
              .MinimumLevel.Debug()
              .WriteTo.ColoredConsole()
              .WriteTo.RollingFile("logs\\Pixel-Automation-{Date}.txt")
@@ -48,16 +48,16 @@ namespace Pixel.Automation.Designer.ViewModels
                     try
                     {
                         var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                        Log.Information("Downloading application data now");
+                        logger.Information("Downloading application data now");
                         await applicationDataManger.DownloadApplicationsDataAsync();
-                        Log.Information("Download of application data completed");
-                        Log.Information("Downloading project information now");
+                        logger.Information("Download of application data completed");
+                        logger.Information("Downloading project information now");
                         await applicationDataManger.DownloadProjectsAsync();
-                        Log.Information("Download of project information completed");
+                        logger.Information("Download of project information completed");
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex.Message, ex);
+                        logger.Error(ex.Message, ex);
                     }
                     finally
                     {
@@ -65,15 +65,15 @@ namespace Pixel.Automation.Designer.ViewModels
                     }                  
                 });
                 downloadApplicationDataTask.Start();
-                Log.Information("Waiting for data download");
+                logger.Information("Waiting for data download");
                 resetEvent.WaitOne();
             }
             else
             {
-                Log.Information("Application is configured to run in offline mode.");
+                logger.Information("Application is configured to run in offline mode.");
             }
-            
-            Log.Information("Initializing Root View now");
+
+            logger.Information("Initializing Root View now");
             DisplayRootViewFor<IShell>();
         }
 
@@ -151,12 +151,12 @@ namespace Pixel.Automation.Designer.ViewModels
             catch(TypeLoadException ex)
             {
                 logger.Error(ex, ex.Message);
-                throw ex;
+                throw;
             }
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-                throw ex;
+                throw;
             }        
 
         }

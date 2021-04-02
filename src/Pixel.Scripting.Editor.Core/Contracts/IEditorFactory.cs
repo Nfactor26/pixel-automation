@@ -12,6 +12,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="editorReferences"></param>
         void Initialize(string workingDirectory, string[] editorReferences);
 
+        /// <summary>
+        /// Update the Editor to use a new working directory
+        /// </summary>
+        /// <param name="workingDirectory">New working directory</param>
+        void SwitchWorkingDirectory(string workingDirectory);
+
         void AddDocument(string documentName, string projectName, string documentContent);
 
         void RemoveDocument(string documentName, string projectName);
@@ -59,14 +65,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <returns></returns>
         IScriptEditorScreen CreateScriptEditor();
-
-        /// <summary>
-        /// Create a script editor with a specified working directory.
-        /// This script editor will read and write files from specified working directory.
-        /// </summary>
-        /// <param name="workingDirectory"></param>
-        /// <returns></returns>
-        IScriptEditorScreen CreateScriptEditor(string workingDirectory);
+       
 
         /// <summary>
         /// Create an inline script editor

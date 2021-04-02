@@ -11,12 +11,10 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         string GetWorkingDirectory();
 
         /// <summary>
-        /// Set current directory to override default working directory e.g. for a specific file that needs to be 
-        /// saved somewhere else other than the default script directory
+        /// Change the working directory to a new location
         /// </summary>
-        /// <param name="currentyDirectory"></param>
-        /// <returns></returns>
-        void SetCurrentDirectory(string currentyDirectory);
+        /// <param name="workingDirectory">Location of new working directory</param>
+        void SwitchWorkingDirectory(string workingDirectory);
 
         T GetService<T>();
 
