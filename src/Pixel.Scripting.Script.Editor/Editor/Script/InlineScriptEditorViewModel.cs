@@ -22,6 +22,8 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.editorService = editorService;
             this.Editor = new CodeTextEditor(editorService)
             {
+                EnableDiagnostics = false,
+                EnableCodeActions = false,
                 ShowLineNumbers = false,
                 Margin = new Thickness(2),
                 FontSize = 14,

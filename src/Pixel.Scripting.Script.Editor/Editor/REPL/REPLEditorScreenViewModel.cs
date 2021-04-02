@@ -39,6 +39,8 @@ namespace Pixel.Scripting.Script.Editor.REPL
             this.DisplayName = "Script Editor";
             this.Editor = new CodeTextEditor(this.editorService)
             {
+                EnableCodeActions = false,
+                EnableDiagnostics = false,
                 ShowLineNumbers = true,
                 Margin = new Thickness(5),
                 FontSize = 23,

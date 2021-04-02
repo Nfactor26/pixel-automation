@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Scripting.Components
 {
+    /// <summary>
+    /// Use <see cref="ExecuteScriptActorComponent"/> to execute actions using custom script.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
-    public class ScriptedActionActorComponent : ScriptedComponentBase
+    public class ExecuteScriptActorComponent : ScriptedComponentBase
     {
 
-        public ScriptedActionActorComponent() : base("Scripted Action", "ScriptedAction")
+        public ExecuteScriptActorComponent() : base("Script", "ExecuteScript")
         {
 
         }

@@ -61,9 +61,9 @@
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
             </DataTrigger>
         </DataTemplate.Triggers>
-    </DataTemplate>   
+    </DataTemplate>
 
-    <DataTemplate x:Key="AssignScriptTemplate">
+    <DataTemplate x:Key="ExecuteInlineScriptTemplate">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
@@ -96,7 +96,7 @@
                 <Border BorderThickness="2" Height="1" Grid.Row="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                     HorizontalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
                 <se:InlineScriptEditorUserControl Grid.Row="2" VerticalContentAlignment="Center"  Margin="2"     
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" dd:DragDrop.DragSourceIgnore="true"
                     OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
             </Grid>
         </Border>

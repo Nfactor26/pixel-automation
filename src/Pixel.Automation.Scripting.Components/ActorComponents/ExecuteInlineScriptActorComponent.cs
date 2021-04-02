@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Scripting.Components
 {
+    /// <summary>
+    /// Use <see cref="ExecuteInlineScriptActorComponent"/> to execute a short inline script e.g. to assing some data to a variable or making an assertion , etc.
+    /// </summary>
     [DataContract]
     [Serializable]
     [ToolBoxItem("Execute [Inline]", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]   
-    public class ScriptedAssignActorComponent : ScriptedComponentBase
+    public class ExecuteInlineScriptActorComponent : ScriptedComponentBase
     {       
-        public ScriptedAssignActorComponent() : base("Assign", "ScriptedAssign")
+        public ExecuteInlineScriptActorComponent() : base("Script", "ExecuteInlineScript")
         {           
         }
 

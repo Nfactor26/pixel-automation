@@ -7,7 +7,7 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
-             MinHeight="400" Height="400" Width="Auto" MaxWidth="800"
+             MinHeight="400" Height="Auto" Width="Auto"
              mc:Ignorable="d" VerticalAlignment="Top"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>

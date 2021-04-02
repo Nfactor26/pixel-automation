@@ -35,6 +35,9 @@ namespace Pixel.Scripting.Script.Editor
             private set;
         }
 
+        public bool EnableDiagnostics { get; set; } = true;
+
+        public bool EnableCodeActions { get; set; } = true;
 
         private IEditorService editorService;      
         private CodeActionsControl codeActionsControl;
@@ -82,12 +85,12 @@ namespace Pixel.Scripting.Script.Editor
             TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
             TextArea.TextView.LineTransformers.Add(textMarkerService);
 
-            if(this.editorService.IsFeatureEnabled(EditorFeature.Diagnostics))
+            if(this.EnableDiagnostics && this.editorService.IsFeatureEnabled(EditorFeature.Diagnostics))
             {
                 this.diagnosticsManager = new DiagnosticsManager(this.editorService, this, this.Document, this.textMarkerService);
             }
 
-            if (this.editorService.IsFeatureEnabled(EditorFeature.CodeActions))
+            if (this.EnableCodeActions && this.editorService.IsFeatureEnabled(EditorFeature.CodeActions))
             {
                 this.codeActionsControl = new CodeActionsControl(this, this.editorService);
             }
