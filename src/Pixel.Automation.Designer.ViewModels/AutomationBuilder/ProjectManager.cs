@@ -103,19 +103,19 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
 
         /// <summary>
-        /// Configure ScriptEditor with specified globalsType. This method can be called again with a different globalsType.
-        /// On doing so,  underlying workspace will be disposed and new workspace will be created to reflect change in globalsType.
+        /// Configure ScriptEditor with EntityManager->Arguments as globalsType. For subsequent calls, if Arguments change,
+        /// underlying workspace will be disposed and new workspace will be created to reflect change in globalsType.
         /// If there are any inline script editor controls, they are not impacted. They will pick up this change in globalsType.
         /// ScriptEditor should be configured for primary as well as secondary entity manager since they have different globalsType.
         /// </summary>
         /// <param name="fileSystem"></param>
         /// <param name="globalsType"></param>
-        protected virtual void ConfigureScriptEditor(IFileSystem fileSystem)
+        protected virtual void ConfigureScriptEditor()
         {      
             logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
-            var assemblyReferences = new List<string>(fileSystem.GetAssemblyReferences());
+            var assemblyReferences = new List<string>(this.fileSystem.GetAssemblyReferences());
             assemblyReferences.Add(this.entityManager.Arguments.GetType().Assembly.Location);
-            this.scriptEditorFactory.Initialize(fileSystem.WorkingDirectory, assemblyReferences.ToArray());      
+            this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences.ToArray());      
             logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
         }
 

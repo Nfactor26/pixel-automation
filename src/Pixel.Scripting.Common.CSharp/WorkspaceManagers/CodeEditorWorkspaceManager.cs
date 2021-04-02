@@ -19,15 +19,12 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     /// </summary>
     public class CodeWorkspaceManager : AdhocWorkspaceManager , ICodeWorkspaceManager
     {
-        private readonly ILogger logger = Log.ForContext<CodeWorkspaceManager>();
-
         public CodeWorkspaceManager(string workingDirectory) : base(workingDirectory)
         {
             Guard.Argument(workingDirectory).NotEmpty().NotNull();
-            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.Semantic);           
-        }        
-        
-
+            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.Semantic);
+            logger = Log.ForContext<CodeWorkspaceManager>();
+        }    
 
         public void AddProject(string projectName, string defaultNameSpace, IEnumerable<string> projectReferences)
         {

@@ -30,6 +30,11 @@ namespace Pixel.Scripting.Script.Editor
             scriptEngine.SetWorkingDirectory(Path.Combine(workingDirectory, "Temp"));           
         }
 
+        public void SwitchWorkingDirectory(string workingDirectory)
+        {
+            this.editorService.SwitchToDirectory(workingDirectory);
+        }
+
         public IREPLScriptEditor CreateREPLEditor<T>(T globals)
         {
             EnsureInitialized();           

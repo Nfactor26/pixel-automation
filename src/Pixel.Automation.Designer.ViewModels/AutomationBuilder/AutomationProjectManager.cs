@@ -44,7 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             this.entityManager.Arguments  = CompileAndCreateDataModel(Constants.ProcessDataModelName);
           
-            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             await ExecuteInitializationScript();
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();
@@ -143,7 +143,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             logger.Information($"{this.GetProjectName()} will be re-loaded");
             this.entityManager.Arguments = CompileAndCreateDataModel(Constants.ProcessDataModelName);
          
-            ConfigureScriptEditor(this.fileSystem); //every time data model assembly changes, we need to reconfigure script editor
+            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             await ExecuteInitializationScript();
         
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);

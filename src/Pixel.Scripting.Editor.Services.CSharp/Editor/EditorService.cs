@@ -150,11 +150,8 @@ namespace Pixel.Script.Editor.Services.CSharp
 
         public void SwitchToDirectory(string directory)
         {
-            if(string.IsNullOrEmpty(directory))
-            {
-                workspaceManager.SetCurrentDirectory(null);
-            }
-            workspaceManager.SetCurrentDirectory(directory);
+            this.editorOptions.WorkingDirectory = directory;
+            workspaceManager.SwitchWorkingDirectory(directory);
         }
 
         public IEnumerable<string> GetAvailableProjects()

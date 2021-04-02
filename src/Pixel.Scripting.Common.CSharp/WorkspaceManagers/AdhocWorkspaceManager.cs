@@ -24,9 +24,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     /// </summary>
     public abstract class AdhocWorkspaceManager : IWorkspaceManager
     {
-        protected readonly ILogger logger = Log.ForContext<AdhocWorkspaceManager>();
-
-        private string currentDirectory;
+        protected ILogger logger;
+       
         private string workingDirectory;
         protected AdhocWorkspace workspace = default;              
       
@@ -35,6 +34,11 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         public AdhocWorkspaceManager(string workingDirectory)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
+
+            if (!Directory.Exists(workingDirectory))
+            {
+                throw new ArgumentException($"{workingDirectory ?? "NULL"} doesn't exist.");
+            }
 
             this.workingDirectory = workingDirectory;
 
@@ -186,12 +190,18 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         public string GetWorkingDirectory()
         {
-            return this.currentDirectory ?? this.workingDirectory;
+            return this.workingDirectory;
         }
 
-        public void SetCurrentDirectory(string currentDirectory)
+        public void SwitchWorkingDirectory(string workingDirectory)
         {
-            this.currentDirectory = currentDirectory;
+            Guard.Argument(workingDirectory).NotNull().NotEmpty();
+            if(!Directory.Exists(workingDirectory))
+            {
+                throw new ArgumentException($"{workingDirectory ?? "NULL"} doesn't exist.");
+            }
+            this.workingDirectory = workingDirectory;
+            logger.Information("WorkingDirectory was changed to {workingDirectory}", workingDirectory);
         }
 
         /// <inheritdoc/>

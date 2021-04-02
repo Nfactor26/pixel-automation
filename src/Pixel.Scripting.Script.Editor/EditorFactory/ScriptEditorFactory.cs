@@ -39,6 +39,11 @@ namespace Pixel.Scripting.Script.Editor
             logger.Information($"{nameof(ScriptEditorFactory)} is initialized now.");
         }
 
+        public void SwitchWorkingDirectory(string workingDirectory)
+        {
+            this.editorService.SwitchToDirectory(workingDirectory);
+        }
+
         public IInlineScriptEditor CreateInlineScriptEditor()
         {
             EnsureInitialized();
@@ -50,19 +55,7 @@ namespace Pixel.Scripting.Script.Editor
             EnsureInitialized();
             return new ScriptEditorScreenViewModel(this.editorService);
         }      
-
-        /// <summary>
-        /// Create script editor that uses currentDirectory relative to workingDirectory to read and write files.
-        /// </summary>
-        /// <param name="currentDirectory"></param>
-        /// <returns></returns>
-        public IScriptEditorScreen CreateScriptEditor(string currentDirectory)
-        {
-            EnsureInitialized();
-            this.editorService.SwitchToDirectory(currentDirectory);
-            return new ScriptEditorScreenViewModel(this.editorService);
-        }
-
+      
         private IScriptWorkspaceManager GetWorkspaceManager()
         {
             IWorkspaceManager workspaceManager = this.editorService.GetWorkspaceManager();
