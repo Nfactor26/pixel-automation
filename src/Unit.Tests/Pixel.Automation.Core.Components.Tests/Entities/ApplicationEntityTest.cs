@@ -7,6 +7,18 @@ namespace Pixel.Automation.Core.Components.Tests
 {
     public class ApplicationEntityTest
     {
+        class MockApplicationEntity : ApplicationEntity
+        {
+            public override void Launch()
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override void Close()
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         private ApplicationEntity applicationEntity;
         private ISerializer serializer;
@@ -32,7 +44,7 @@ namespace Pixel.Automation.Core.Components.Tests
             serializer.Deserialize<ApplicationDescription>(Arg.Any<string>(), null).Returns(applicationDescription);
             entityManager.GetServiceOfType<ISerializer>().Returns(serializer);
 
-            applicationEntity = new ApplicationEntity() { ApplicationId = "MockId", EntityManager = entityManager };      
+            applicationEntity = new MockApplicationEntity() { ApplicationId = "MockId", EntityManager = entityManager };      
         }
 
         [Test]

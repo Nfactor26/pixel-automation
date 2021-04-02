@@ -282,7 +282,7 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="component"></param>
         /// <returns></returns>
-        private IApplicationEntity GetApplicationEntity(IComponent component)
+        public IApplicationEntity GetApplicationEntity(IComponent component)
         {
             var current = component;
             while (true)

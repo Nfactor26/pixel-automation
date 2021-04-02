@@ -17,5 +17,26 @@
         /// in reponse to a change in applcation details from application explorer
         /// </summary>
         void Reload();
+
+        /// <summary>
+        /// Indicates whether an existing process can be used as target application for automation.
+        /// </summary>
+        bool CanUseExisting { get; }
+
+        /// <summary>
+        /// Launch the Application
+        /// </summary>
+        void Launch();
+
+        /// <summary>
+        /// Close the Application
+        /// </summary>
+        void Close();
+
+        /// <summary>
+        /// Use an existing application which might already be launched.
+        /// </summary>
+        /// <param name="targetApplication">Identified application instance</param>
+        void UseExisting(ApplicationProcess targetApplication);
     }
 }

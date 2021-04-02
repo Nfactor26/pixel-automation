@@ -63,31 +63,31 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     IComponent targetItem = dropInfo.TargetItem as IComponent;
 
 
-                    switch(System.Windows.Forms.Control.ModifierKeys)
+                    switch (System.Windows.Forms.Control.ModifierKeys)
                     {
                         case System.Windows.Forms.Keys.Control:
                             if (targetItem is Entity)
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                                 dropInfo.Effects = DragDropEffects.Copy;
-                            }                          
+                            }
                             break;
                         case System.Windows.Forms.Keys.Alt:
-                            if(targetItem is Entity)
+                            if (targetItem is Entity)
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                                 dropInfo.Effects = DragDropEffects.Move;
                             }
                             break;
                         default:
-                            if(sourceItem.Parent==targetItem.Parent)
+                            if (sourceItem.Parent == targetItem.Parent)
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
                                 dropInfo.Effects = DragDropEffects.Move;
-                            }                                              
+                            }
                             break;
                     }
-                    return;                 
+                    return;
                 }
 
 
@@ -109,15 +109,15 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
                 //Handle dragging of prefab
                 if (dropInfo.Data is PrefabDescription prefabDescription && dropInfo.TargetItem is Entity)
-                {   
-                    if(dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
+                {
+                    if (dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
                     {
                         if (prefabDescription.DeployedVersions.Any())
                         {
                             dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                             dropInfo.Effects = DragDropEffects.Copy;
                         }
-                    }                            
+                    }
                     return;
                 }
 
@@ -126,7 +126,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-            }          
+            }
 
 
         }
@@ -134,13 +134,13 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         public void Drop(IDropInfo dropInfo)
         {
             try
-            {       
+            {
                 //Adding a new component by dragging from ComponentToolBox
                 if (dropInfo.Data is ComponentToolBoxItem)
                 {
                     var sourceItem = dropInfo.Data as ComponentToolBoxItem;
-                    var automationBuilder = (dropInfo.VisualTarget as TreeView).DataContext as IEditor;                 
-                                    
+                    var automationBuilder = (dropInfo.VisualTarget as TreeView).DataContext as IEditor;
+
                     if (sourceItem.TypeOfComponent.GetInterface("IComponent") != null)
                     {
                         HandleComponentDrop(dropInfo);
@@ -173,12 +173,12 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                             }
                             break;
                     }
-                    return;                
+                    return;
                 }
 
                 if (dropInfo.Data is PrefabDescription)
                 {
-                    var data = dropInfo.Data as PrefabDescription;                 
+                    var data = dropInfo.Data as PrefabDescription;
                     HandlerPrefabDrop(dropInfo);
                     return;
                 }
@@ -206,54 +206,54 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         {
             var sourceItem = dropInfo.Data as IComponent;
             var targetItem = dropInfo.TargetItem as IComponent;
-           
-     
+
+
             //Rearrange if the parents are same updating process order in the order
-            if(sourceItem.Parent==targetItem.Parent)
+            if (sourceItem.Parent == targetItem.Parent)
             {
                 Entity parentEntity = targetItem.Parent;
 
                 int desiredPosition = dropInfo.InsertIndex;
-                if(desiredPosition>parentEntity.Components.Count)
+                if (desiredPosition > parentEntity.Components.Count)
                 {
                     desiredPosition = desiredPosition - 1;
                 }
-                int currentPosition = sourceItem.ProcessOrder-1;
+                int currentPosition = sourceItem.ProcessOrder - 1;
 
-                if(desiredPosition==currentPosition)
+                if (desiredPosition == currentPosition)
                 {
                     return;
                 }
-                else if (desiredPosition>currentPosition)
-                {              
-                    while(desiredPosition > currentPosition)
+                else if (desiredPosition > currentPosition)
+                {
+                    while (desiredPosition > currentPosition)
                     {
-                        parentEntity.Components.ElementAt(desiredPosition-1).ProcessOrder--;
+                        parentEntity.Components.ElementAt(desiredPosition - 1).ProcessOrder--;
                         desiredPosition--;
                     }
-                    sourceItem.ProcessOrder = dropInfo.InsertIndex>parentEntity.Components.Count? dropInfo.InsertIndex-1 : dropInfo.InsertIndex;
+                    sourceItem.ProcessOrder = dropInfo.InsertIndex > parentEntity.Components.Count ? dropInfo.InsertIndex - 1 : dropInfo.InsertIndex;
                     parentEntity.RefereshComponents();
-                   return;
+                    return;
                 }
                 else
-                {               
-                    while(desiredPosition < currentPosition)
+                {
+                    while (desiredPosition < currentPosition)
                     {
                         parentEntity.Components.ElementAt(desiredPosition).ProcessOrder++;
                         desiredPosition++;
                     }
-                    sourceItem.ProcessOrder = dropInfo.InsertIndex+1;
-                    parentEntity.RefereshComponents();                   
+                    sourceItem.ProcessOrder = dropInfo.InsertIndex + 1;
+                    parentEntity.RefereshComponents();
                     return;
-                }            
+                }
             }
         }
 
         void HandleDuplicateComponent(IDropInfo dropInfo)
         {
             var sourceItem = dropInfo.Data as IComponent;
-            var targetItem = dropInfo.TargetItem as Entity;          
-          
+            var targetItem = dropInfo.TargetItem as Entity;
+
             IComponent copyOfSourceItem;
             using (var stream = new MemoryStream())
             {
@@ -288,7 +288,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         void HandleParentChange(IDropInfo dropInfo)
         {
-            var sourceItem = dropInfo.Data as Component;           
+            var sourceItem = dropInfo.Data as Component;
             if (dropInfo.TargetItem is Entity entity)
             {
                 if (sourceItem?.Parent != null)
@@ -314,11 +314,11 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     IComponent componentToAdd = default;
 
                     BuilderAttribute builderAttibute = typeOfComponent.GetCustomAttributes(typeof(BuilderAttribute), false).OfType<BuilderAttribute>().FirstOrDefault();
-                    if(builderAttibute != null)
+                    if (builderAttibute != null)
                     {
                         IComponentBuillder componentBuilder = Activator.CreateInstance(builderAttibute.Builder) as IComponentBuillder;
                         componentToAdd = componentBuilder.CreateComponent();
-                        parentEntity.AddComponent(componentToAdd);                      
+                        parentEntity.AddComponent(componentToAdd);
                     }
                     else
                     {
@@ -327,20 +327,20 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     }
 
                     var initializers = typeOfComponent.GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
-                    foreach(var intializer in initializers)
+                    foreach (var intializer in initializers)
                     {
                         IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
                         componentInitializer.IntializeComponent(componentToAdd, parentEntity.EntityManager);
                     }
-                  
+
                 }
             }
 
-        }       
+        }
 
         void HandlerPrefabDrop(IDropInfo dropInfo)
         {
-            var sourceItem = dropInfo.Data as PrefabDescription;           
+            var sourceItem = dropInfo.Data as PrefabDescription;
             var targetItem = dropInfo.TargetItem as Entity;
 
             var prefabEntity = new PrefabEntity()
@@ -349,14 +349,14 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 ApplicationId = sourceItem.ApplicationId
             };
 
-          
+
             targetItem.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
             PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, sourceItem, prefabEntity.Id, testCaseEntity?.Id);
             IWindowManager windowManager = targetItem.EntityManager.GetServiceOfType<IWindowManager>();
             var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
             result.ContinueWith(a =>
             {
-                if(a.Result.HasValue && a.Result.Value)
+                if (a.Result.HasValue && a.Result.Value)
                 {
                     var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
                     foreach (var intializer in initializers)
@@ -366,93 +366,83 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     }
                     targetItem.AddComponent(prefabEntity);
                 }
-            });          
+            });
 
         }
 
         void HandleControlDrop(IDropInfo dropInfo)
-        {                 
+        {
             if (dropInfo.TargetItem is Entity targetEntity && dropInfo.Data is ControlDescriptionViewModel controlItem)
-            {              
+            {
                 IControlIdentity controlIdentity = controlItem.ControlDetails;
                 ContainerEntityAttribute containerEntityAttribute = controlIdentity.GetType().
-                    GetCustomAttributes(typeof(ContainerEntityAttribute), false).FirstOrDefault() 
+                    GetCustomAttributes(typeof(ContainerEntityAttribute), false).FirstOrDefault()
                     as ContainerEntityAttribute;
-                if(containerEntityAttribute != null)
+                if (containerEntityAttribute != null)
                 {
                     ControlEntity controlEntity = Activator.CreateInstance(containerEntityAttribute.ContainerEntityType)
-                        as ControlEntity;                  
+                        as ControlEntity;
                     controlEntity.Name = controlItem.ControlName;
                     controlEntity.ControlFile = Path.Combine(applicationSettings.ApplicationDirectory, controlIdentity.ApplicationId, "Controls", controlItem.ControlId, $"{controlItem.ControlId}.dat");
                     targetEntity.AddComponent(controlEntity);
                 }
-                
+
             }
 
         }
 
         void HandleApplicationDrop(IDropInfo dropInfo)
         {
-            var sourceItem = dropInfo.Data as ApplicationDescription;
-            var targetItem = dropInfo.TargetItem;
-
-            if (targetItem is Entity)
+            if (dropInfo.TargetItem is Entity targetEntity && dropInfo.Data is ApplicationDescription applicationDescription)
             {
-                Entity targetEntity = targetItem as Entity;
-                var availableApplications = targetEntity.EntityManager.RootEntity.GetFirstComponentOfType<ApplicationPoolEntity>().GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants);
-                if (targetEntity.Tag.Equals("ApplicationPoolEntity"))
-                {
-                    if (availableApplications != null)
-                    {
-                        if (availableApplications.Any(a => a.ApplicationId.Equals(sourceItem.ApplicationId)))
-                        {
-                            logger.Information("An attempt was made to add application with id : {applicationId} to the Application Pool. Application with such id already exists.", sourceItem.ApplicationId);
-                            return;
+                var availableApplications = targetEntity.EntityManager.RootEntity.GetFirstComponentOfType<ApplicationPoolEntity>()?.
+                                            GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants) ?? Enumerable.Empty<ApplicationEntity>() ;
+                bool applicationAlreadyExists = availableApplications.Any(a => a.ApplicationId.Equals(applicationDescription.ApplicationId));
 
-                        }
-                    }
-                    //Add the application to the Application Pool
-                    ApplicationEntity appDetailsEntity = new ApplicationEntity()
-                    {
-                        Name = $"Details : {sourceItem.ApplicationName}",
-                        ApplicationId = sourceItem.ApplicationId,
-                        EntityManager = targetEntity.EntityManager,
-                        ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, sourceItem.ApplicationId, $"{sourceItem.ApplicationId}.app")
-                    
-                    };
-                    appDetailsEntity.GetTargetApplicationDetails();
-                    targetEntity.AddComponent(appDetailsEntity);
+                if (targetEntity.Tag.Equals(nameof(ApplicationPoolEntity)) && !applicationAlreadyExists)
+                {                   
+                    AddApplication(applicationDescription, targetEntity);
                     return;
                 }
                 else
                 {
-                    //Create and add a AutomationSequnceEntity with its TargetAppId and Name appropriately initialized                    
-                    if (availableApplications != null)
+                    if(!applicationAlreadyExists)
                     {
-                        bool applicationExists = false;
-                        foreach (ApplicationEntity app in availableApplications)
+                        var result = MessageBox.Show("Application should be added to ApplicationPoolEntity before using it. Would you like to add it?", "Add to ApplicationPoolEntity", MessageBoxButton.OKCancel);
+                        if(result == MessageBoxResult.Cancel)
                         {
-                            if (app.ApplicationId.ToString().Equals(sourceItem.ApplicationId))
-                            {
-                                SequenceEntity automationSequenceEntity = new SequenceEntity()
-                                {
-                                    Name = $"Sequence : {sourceItem.ApplicationName}",
-                                    TargetAppId = app.ApplicationId
-                                };
-                                targetEntity.AddComponent(automationSequenceEntity);
-                                applicationExists = true;
-                                break;
-                            }
+                            return;                           
                         }
-                        if (!applicationExists)
-                        {
-                            //TODO : Show message box to the user and with his consent automatically add the application to the Pool
-                            logger.Warning($"Automation Sequence can't be created for application : {sourceItem.ApplicationName}. Please add this application to Application Pool first");
-                        }
+                        var applicationPoolEntity = targetEntity.EntityManager.RootEntity.GetFirstComponentOfType<ApplicationPoolEntity>();
+                        AddApplication(applicationDescription, applicationPoolEntity);
                     }
-                }
-            }
+                    SequenceEntity automationSequenceEntity = new SequenceEntity()
+                    {
+                        Name = $"Sequence : {applicationDescription.ApplicationName}",
+                        TargetAppId = applicationDescription.ApplicationId
+                    };
+                    targetEntity.AddComponent(automationSequenceEntity);
+                }              
+            }           
 
+        }
+
+        private void AddApplication(ApplicationDescription applicationDescription, Entity parentEntity)
+        {
+            ApplicationEntityAttribute applicationEntityAttribute = applicationDescription.ApplicationDetails.GetType().GetCustomAttributes(typeof(ApplicationEntityAttribute), false).FirstOrDefault()
+                                                                       as ApplicationEntityAttribute;
+            if (applicationEntityAttribute != null)
+            {
+                var applicationEntity = Activator.CreateInstance(applicationEntityAttribute.ApplicationEntity) as ApplicationEntity;
+                applicationEntity.Name = $"Details : {applicationDescription.ApplicationName}";
+                applicationEntity.ApplicationId = applicationDescription.ApplicationId;
+                applicationEntity.EntityManager = parentEntity.EntityManager;
+                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, $"{applicationDescription.ApplicationId}.app");
+
+                //Add the ApplicationEntity to ApplicationPool and load ApplicationDetails
+                parentEntity.AddComponent(applicationEntity);
+                applicationEntity.GetTargetApplicationDetails();
+            }
         }
     }
 }

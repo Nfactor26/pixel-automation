@@ -1,48 +1,45 @@
-﻿extern alias uiaComWrapper;
-using Pixel.Automation.Core;
+﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.UIA.Components.Enums;
 using Serilog;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using uiaComWrapper::System.Windows.Automation;
-
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
     /// <summary>
-    /// Use <see cref="AttachActorComponent"/> to attach to an existing application which needs to be automated.
+    /// Use <see cref="AttachApplicationActorComponent"/> to attach to an existing application process which needs to be automated.
+    /// Not all application types support attach behavior and will throw an exception if attach behavior is not supported by application type.
     /// </summary>
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Attach", "Application", "UIA", iconSource: null, description: "Attach to target application", tags: new string[] { "Attach", "UIA" })]
-    public class AttachActorComponent : ActorComponent
+    [ToolBoxItem("Attach", "Application", iconSource: null, description: "Attach to target application", tags: new string[] { "Attach" })]
+    public class AttachApplicationActorComponent : ActorComponent
     {
-        private readonly ILogger logger = Log.ForContext<AttachActorComponent>();
-
+        private readonly ILogger logger = Log.ForContext<AttachApplicationActorComponent>();
+      
         /// <summary>
-        /// Owner application details
+        /// Owner application entity
         /// </summary>
         [RequiredComponent]
         [Browsable(false)]
-        public WinApplication ApplicationDetails
+        public IApplicationEntity ApplicationEntity
         {
             get
             {
-                return this.EntityManager.GetOwnerApplication<WinApplication>(this);
+                return this.EntityManager.GetApplicationEntity(this);
             }
         }
 
-
         AttachMode attachMode = AttachMode.AttachToExecutable;
         /// <summary>
-        /// Indicaets how the application to be attached to is identifed.
+        /// Indicates how the target process to be attached to is identifed.
         /// </summary>
         [DataMember]
         [Display(Name = "Attach Mode", GroupName = "Configuration", Order = 10, Description = "Indicates how the application to be attached to is identified.")]
@@ -66,12 +63,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                             this.AttachTarget = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
                         }
                         break;
-                    case AttachMode.AttachToAutomationElement:
-                        if (!this.AttachTarget.ArgumentType.Equals(typeof(AutomationElement).Name))
-                        {
-                            this.AttachTarget = new InArgument<AutomationElement>() { Mode = ArgumentMode.DataBound };
-                        }
-                        break;
                 }
                 this.attachMode = value;
                 OnPropertyChanged();
@@ -79,14 +70,14 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         }
 
 
-        Argument attachTarget = new InArgument<ApplicationWindow>();        
+        Argument attachTarget = new InArgument<ApplicationWindow>();
         /// <summary>
         /// Details of the target application to be attached to. Details will vary based on AttachMode.
         /// For e.g. if AttachMode is AttachToExecutable, you need to specify the name of the executable. However, if AttachMode is AttachToWindow, 
         /// you need to lookup ApplicationWindow first and setup this as an argument.
         /// </summary>
-        [DataMember]       
-        [Display(Name = "Attach To", GroupName = "Configuration", Order = 20, Description = "Details of the target application to be attached to")]      
+        [DataMember]
+        [Display(Name = "Attach To", GroupName = "Configuration", Order = 20, Description = "Details of the target application to be attached to")]
         public Argument AttachTarget
         {
             get => this.attachTarget;
@@ -96,70 +87,60 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                 OnPropertyChanged();
             }
         }
-     
+
         /// <summary>
         /// Default constructor
         /// </summary>
-        public AttachActorComponent() : base("Attach to window", "AttachActorComponent")
+        public AttachApplicationActorComponent() : base("Attach Application", "AttachApplication")
         {
-           
+
         }
 
         /// <summary>
-        /// Locate the target app based on how AttachMode is configured and point setup owner application to use the identified application as 
-        /// Target application
+        /// Locate the target app based on how AttachMode is configured and  setup owner application to use the identified application process as 
+        /// Target application for automation. 
         /// </summary>
+        /// <exception cref="NotSupportedException">Throws NotSupportedException if ApplcationType doesn't support attach to behavior</exception>
         public override void Act()
         {
-            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-
-            Application targetApp;
-            Process windowProcess;
-            ApplicationWindow applicationWindow = default;
+            var applicationEntity = this.ApplicationEntity;
+            if (!applicationEntity.CanUseExisting)
+            {
+                throw new NotSupportedException($"Application type doesn't support attach to an existing process. Application must be launched using Launch Actor for automation.");
+            }
+            ApplicationProcess targetApp;
 
             switch (this.attachMode)
             {
                 case AttachMode.AttachToExecutable:
-                    string executableName = argumentProcessor.GetValue<string>(this.attachTarget);
+                    string executableName = this.ArgumentProcessor.GetValue<string>(this.attachTarget);
                     if (string.IsNullOrEmpty(executableName))
                     {
-                        throw new ArgumentException($"{nameof(this.attachTarget)} can't be null or empty");                  
+                        throw new ArgumentException($"{nameof(this.attachTarget)} can't be null or empty");
                     }
-                    targetApp = Application.Attach(executableName);
-                    ApplicationDetails.TargetApplication = targetApp;
+                    targetApp = ApplicationProcess.Attach(executableName);
+                    applicationEntity.UseExisting(targetApp);
                     logger.Information("Attached to executable : {$ExecutableName}", executableName);
                     break;
 
                 case AttachMode.AttachToWindow:
-                    applicationWindow = argumentProcessor.GetValue<ApplicationWindow>(this.attachTarget);
-                    windowProcess = Process.GetProcessById(applicationWindow.ProcessId);
+                    var applicationWindow = this.ArgumentProcessor.GetValue<ApplicationWindow>(this.attachTarget);
+                    var windowProcess = Process.GetProcessById(applicationWindow.ProcessId);
                     if (windowProcess == null)
                     {
                         throw new ArgumentException($"Failed to get process by id : {applicationWindow.ProcessId} for {applicationWindow}");
                     }
-                    targetApp = Application.Attach(windowProcess);
-                    ApplicationDetails.TargetApplication = targetApp;
-                    logger.Information("Attached to application window : {$applicationWindow}", applicationWindow);
-                    break;
-
-                case AttachMode.AttachToAutomationElement:
-                    AutomationElement targetElement = argumentProcessor.GetValue<AutomationElement>(this.attachTarget);
-                    windowProcess = Process.GetProcessById(targetElement.Current.ProcessId);
-                    if (windowProcess == null)
-                    {
-                        throw new ArgumentException($"Failed to get process by id : {applicationWindow.ProcessId} for {applicationWindow}");
-                    }
-                    targetApp = Application.Attach(windowProcess);
-                    ApplicationDetails.TargetApplication = targetApp;
+                    targetApp = ApplicationProcess.Attach(windowProcess);
+                    applicationEntity.UseExisting(targetApp);
                     logger.Information("Attached to application window : {$applicationWindow}", applicationWindow);
                     break;
             }
-                  
+
         }
 
         public override string ToString()
         {
-            return "Attach To Actor";
+            return "Attach Actor";
         }
     }
 }

@@ -8,6 +8,17 @@
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:prefabs="clr-namespace:Pixel.Automation.Editor.Controls.Prefabs;assembly=Pixel.Automation.Editor.Controls">
 
+    <iconPacks:PackIconMaterial x:Key="WindowsIcon" Kind="Windows" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+    <iconPacks:PackIconModern x:Key="JavaIcon" Kind="LanguageJava" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+    <iconPacks:PackIconFontAwesome x:Key="FireFoxIcon"  Kind="FirefoxBrands" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+    <iconPacks:PackIconFontAwesome x:Key="ChromeIcon"  Kind="ChromeBrands" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+    <iconPacks:PackIconFontAwesome x:Key="EdgeIcon"  Kind="EdgeBrands" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+
     <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
@@ -330,6 +341,47 @@
         </DataTemplate.Triggers>
     </HierarchicalDataTemplate>
 
+    <HierarchicalDataTemplate x:Key="ApplicationEntityTemplate"  ItemsSource="{Binding ComponentCollection}">
+         <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
+                   Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">
+                <ContentPresenter x:Name="IconPlaceHolder" Content="{StaticResource FireFoxIcon}"/>
+            </StackPanel>
+            <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                                                HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Edit Script"
+                                            cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
+                                            Style="{DynamicResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ArrangeBringForward}"/>
+                <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"
+                                          cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                                          ToolTip="Delete" Style="{DynamicResource EditControlButtonStyle}"
+                                          Content="{iconPacks:Material CloseCircleOutline}"/>
+            </StackPanel>   
+        </DockPanel>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding Platform}" Value="Windows">
+                <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource WindowsIcon}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Platform}" Value="Java">
+                <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource JavaIcon}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Platform}" Value="FireFox">
+                <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource FireFoxIcon}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Platform}" Value="Chrome">
+                <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource ChromeIcon}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Platform}" Value="Edge">
+                <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource EdgeIcon}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>       
+    </HierarchicalDataTemplate>
     
     <!--<HierarchicalDataTemplate x:Key="GroupedTemplate" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"

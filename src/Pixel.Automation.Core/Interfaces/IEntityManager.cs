@@ -31,6 +31,8 @@ namespace Pixel.Automation.Core.Interfaces
 
         T GetOwnerApplication<T>(IComponent component) where T : class, IApplication;
 
+        IApplicationEntity GetApplicationEntity(IComponent component);
+
         IControlLocator GetControlLocator(IControlIdentity forControl);
 
         ICoordinateProvider GetCoordinateProvider(IControlIdentity forControl);
