@@ -80,20 +80,20 @@ namespace Pixel.Scripting.Editor.Services.Completion
                                     completionText = symbol.Name;
                                 }
 
-                                //if (symbol != null)
-                                //{
-                                //    if (request.WantSnippet)
-                                //    {
-                                //        foreach (var completion in MakeSnippetedResponses(request, symbol, completionText, preselect, isSuggestionMode))
-                                //        {
-                                //            completions.Add(completion);
-                                //        }
-                                //    }
-                                //    else
-                                //    {
-                                //        completions.Add(MakeAutoCompleteResponse(request, symbol, completionText, preselect, isSuggestionMode));
-                                //    }
-                                //}
+                                if (symbol != null)
+                                {
+                                    if (request.WantSnippet)
+                                    {
+                                        foreach (var completion in MakeSnippetedResponses(request, symbol, completionText, preselect, isSuggestionMode))
+                                        {
+                                            completions.Add(completion);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        completions.Add(MakeAutoCompleteResponse(request, symbol, completionText, preselect, isSuggestionMode));
+                                    }
+                                }
                             }
 
                             // if we had any symbols from the completion, we can continue, otherwise it means
