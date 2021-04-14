@@ -5,9 +5,9 @@ using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +17,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 {
     public class ArgumentEditorBase : UserControl
     {
-
+        private readonly ILogger logger = Log.ForContext<ArgumentEditorBase>();
         protected PropertyItem propertyItem;
 
         public static readonly DependencyProperty ArgumentProperty = DependencyProperty.Register("Argument", typeof(Argument), typeof(ArgumentEditorBase),
@@ -53,7 +53,9 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         protected void LoadAvailableProperties()
         {
             if (Argument?.Mode != ArgumentMode.DataBound)
+            {
                 return;
+            }
 
             string currentValue = Argument.PropertyPath;
             var argumentType = Argument.GetType().GetGenericArguments()[0];  // Argument<string> will return string as the argumentType
@@ -79,11 +81,22 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             }
         }
 
-    
+        protected void InitializeScriptName()
+        {
+            var entityManager = this.OwnerComponent.EntityManager;
+            if (string.IsNullOrEmpty(Argument.ScriptFile))
+            {
+                var fileSystem = entityManager.GetCurrentFileSystem();
+                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));               
+            }
+        }
+
         public async void ShowScriptEditor(object sender, RoutedEventArgs e)
         {
             if (OwnerComponent == null && Argument == null)
+            {
                 return;
+            }
 
             var entityManager = this.OwnerComponent.EntityManager;
 
@@ -91,13 +104,9 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
             IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
 
-            string initialContent = string.Empty;
-            if (string.IsNullOrEmpty(Argument.ScriptFile))
-            {
-                var fileSystem = entityManager.GetCurrentFileSystem();
-                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
-                initialContent = Argument.GenerateInitialScript();
-            }
+            InitializeScriptName();
+            string initialContent = Argument.GenerateInitialScript();
+         
             if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
                 //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
@@ -122,7 +131,9 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         {
             //Using outside automation process such as Application in ApplicationRepository
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
 
             var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
@@ -159,9 +170,11 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
         }
 
+        /// <summary>
+        /// Delete script file if any
+        /// </summary>
         protected void DeleteScriptFile()
-        {
-            //Delete the script file if any
+        {           
             try
             {
                 if (this.Argument.Mode == ArgumentMode.Scripted)
@@ -171,22 +184,26 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                         string processDirectory = this.OwnerComponent.EntityManager.GetCurrentFileSystem().WorkingDirectory; ;
                         string fileToDelete = Path.Combine(processDirectory, "Scripts", this.Argument.ScriptFile);
                         if (File.Exists(fileToDelete))
+                        {
                             File.Delete(fileToDelete);
+                            logger.Information($"Deleted script file : {fileToDelete}");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                logger.Error(ex, ex.Message);
             }
-
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
             base.OnPropertyChanged(e);
             if (Argument?.Mode != ArgumentMode.DataBound)
+            {
                 return;
+            }
             if (e.Property == ArgumentProperty)
             {
                 this.AvailableProperties.Clear();

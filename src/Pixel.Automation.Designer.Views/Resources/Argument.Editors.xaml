@@ -7,23 +7,44 @@
                     xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro">
   
     <Style TargetType="Button" x:Key="ChangeArgumentTypeButtonStyle" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
         <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
         <Setter Property="BorderThickness" Value="0,1,1,1"/>
         <Setter Property="Controls:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Width" Value="20"/>     
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{DynamicResource MahApps.Brushes.Control.Border}">
+                        <iconPacks:PackIconFontAwesome x:Name="EllipsisVSolid" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Foreground="{TemplateBinding Foreground}"
+                                        Kind="EllipsisVSolid" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource MahApps.Colors.Gray8}" />
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
-                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>              
             </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="InArgumentToggleStateStyle" TargetType="ToggleButton" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
         <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
         <Setter Property="BorderThickness" Value="0,1,1,1" />
         <Setter Property="Controls:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}" />
         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"/>
+            </Trigger>
             <Trigger Property="IsChecked" Value="False">
                 <Setter Property="Content">
                     <Setter.Value>
@@ -44,23 +65,21 @@
                         S
                     </Setter.Value>
                 </Setter>
-            </Trigger>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource MahApps.Colors.Gray8}" />
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
-                <Setter Property="BorderThickness" Value="1"/>
-            </Trigger>
-            <!--<DataTrigger Binding="{Binding OwnerComponent.EntityManager, ElementName=InArgumentControl}" Value="{x:Null}">
-                <Setter Property="Visibility" Value="Collapsed"/>
-            </DataTrigger>-->
+            </Trigger>           
         </Style.Triggers>
     </Style>
 
     <Style x:Key="OutArgumentToggleStateStyle" TargetType="ToggleButton" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
         <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
         <Setter Property="BorderThickness" Value="0,1,1,1" />
         <Setter Property="Controls:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}" />
         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"/>
+            </Trigger>
             <Trigger Property="IsChecked" Value="False">
                 <Setter Property="Content">
                     <Setter.Value>
@@ -74,26 +93,18 @@
                         S
                     </Setter.Value>
                 </Setter>
-            </Trigger>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource MahApps.Colors.Gray8}" />
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
-                <Setter Property="BorderThickness" Value="1"/>
-            </Trigger>
-            <!--<DataTrigger Binding="{Binding OwnerComponent.EntityManager, ElementName=OutArgumentControl}" Value="{x:Null}">
-                <Setter Property="Visibility" Value="Collapsed"/>
-            </DataTrigger>-->
+            </Trigger>            
         </Style.Triggers>
     </Style>
 
-    <!-- InArgument Data Templates-->
-    <DataTemplate x:Key="InArgument_Default">
+    <!-- Argument Data Templates-->
+    <DataTemplate x:Key="Argument_Default">
         <TextBox x:Name="DefaultValueTextBox"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
                  Text="{Binding Path=DefaultValue,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Metro:TextBoxHelper.UseFloatingWatermark="True"
                  Metro:TextBoxHelper.Watermark="{Binding ArgumentType}" Metro:TextBoxHelper.ClearTextButton="True" />
     </DataTemplate>
 
-    <DataTemplate x:Key="InArgument_ScreenCoordinate">
+    <DataTemplate x:Key="Argument_ScreenCoordinate">
         <StackPanel Orientation="Vertical">
             <TextBox x:Name="XCoordinate"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
                  Text="{Binding Path=DefaultValue.XCoordinate,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Metro:TextBoxHelper.UseFloatingWatermark="True"
@@ -104,7 +115,7 @@
         </StackPanel>        
     </DataTemplate>
 
-    <DataTemplate x:Key="InArgument_Point">
+    <DataTemplate x:Key="Argument_Point">
         <StackPanel Orientation="Vertical">
             <TextBox x:Name="XCoordinate"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
                  Text="{Binding Path=DefaultValue.X,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Metro:TextBoxHelper.UseFloatingWatermark="True"
@@ -114,5 +125,13 @@
                  Metro:TextBoxHelper.Watermark="y-coordinate" Metro:TextBoxHelper.ClearTextButton="True" />
         </StackPanel>
     </DataTemplate>
-    
+
+    <DataTemplate x:Key="Argument_Error">
+        <TextBox x:Name="ErrorTemplate" IsEnabled="False" BorderBrush="{DynamicResource MahApps.Brushes.Validation5}" 
+                 DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ContentControl}}"
+                 Metro:TextBoxHelper.Watermark="{Binding ArgumentType}"
+                 ToolTip="Use data bound or script mode for complex types" 
+                 ToolTipService.ShowOnDisabled="true" />
+    </DataTemplate>
+
 </ResourceDictionary>

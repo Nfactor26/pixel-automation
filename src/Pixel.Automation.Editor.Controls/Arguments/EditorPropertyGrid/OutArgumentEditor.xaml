@@ -10,19 +10,17 @@
              d:DesignHeight="300" d:DesignWidth="300">
 
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <local:InArgumentTemplateSelector x:Key="InArgumentTemplateSelector"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>       
         <converters:ArgumentModeToVisibilityConverter x:Key="ArgsModeToVisConverter"/>
         <converters:ArgumentModeToBooleanConverter x:Key="ArgsModeToBoolConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid>
-
             <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True">
 
-                <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=OutArgumentControl,Converter={StaticResource BoolToVis}}"
-                    Click="ChangeArgumentType"  Style="{DynamicResource ChangeArgumentTypeButtonStyle}"
-                    Content="..." ToolTip="Change Type" DockPanel.Dock="Right"/>
+                <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=OutArgumentControl,Converter={StaticResource BoolToVis}}"                                        
+                    Click="ChangeArgumentType"  Style="{DynamicResource ChangeArgumentTypeButtonStyle}" Height="26"
+                    ToolTip="Change Type" DockPanel.Dock="Right"/>
 
                 <ToggleButton x:Name="ArgumentModeToggle" Style="{DynamicResource OutArgumentToggleStateStyle}" Width="28"
                       Click="ChangeArgumentMode" Visibility="{Binding Argument.CanChangeMode,ElementName=OutArgumentControl,Converter={StaticResource BoolToVis}}"
@@ -33,21 +31,22 @@
                 <Grid  MinWidth="100" HorizontalAlignment="Stretch" DockPanel.Dock="Right">
 
                     <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=OutArgumentControl}" 
-                          IsEditable="True"
-                          Metro:TextBoxHelper.UseFloatingWatermark="True"
+                          IsEditable="True" Metro:TextBoxHelper.UseFloatingWatermark="True"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=OutArgumentControl}"
                           SelectedValue="{Binding Argument.PropertyPath,Mode=TwoWay,ElementName=OutArgumentControl}"
-                  Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
-                  Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl, Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
+                          Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                          Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl, Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
 
-                    <Button x:Name="ScriptEditorButton" Content="C# Script Editor..."  Click="ShowScriptEditor" BorderThickness="1,1,1,1"  BorderBrush="#FFCCCCCC"
-                        ToolTip="Open Script editor" Padding="5"  Style="{DynamicResource MahApps.Styles.Button.Square}"
-                        Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl,Converter={StaticResource ArgsModeToVisConverter},
-                        ConverterParameter=VisibleOnScripted}"></Button>
+                    <DockPanel Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
+                        ConverterParameter=VisibleOnScripted}" LastChildFill="True">
+                        <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{DynamicResource EditScriptButtonStyle}" Height="26"                                                            
+                                ToolTip="Open Script editor" Padding="5"  BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC" DockPanel.Dock="Right"></Button>
+                        <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=OutArgumentControl}"
+                                 BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
+                    </DockPanel>
 
                 </Grid>
-
-            </DockPanel>
-        </Grid>
+            </DockPanel>            
+        </Grid>        
     </Grid>
 </local:ArgumentEditorBase>
