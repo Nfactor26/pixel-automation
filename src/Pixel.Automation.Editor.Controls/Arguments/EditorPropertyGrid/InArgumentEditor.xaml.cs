@@ -9,7 +9,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
     /// <summary>
     /// Interaction logic for InArgumentEditor.xaml
     /// </summary>
-    public partial class InArgumentEditor : ArgumentEditorBase , ITypeEditor
+    public partial class InArgumentEditor : ArgumentEditorBase, ITypeEditor
     {
         public InArgumentEditor() : base()
         {
@@ -21,14 +21,16 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         {
             this.propertyItem = propertyItem;
             this.OwnerComponent = propertyItem.Instance as Component;
-            this.Argument = propertyItem.Instance.GetType().GetProperty(propertyItem.PropertyName).GetValue(propertyItem.Instance) as Argument;         
+            this.Argument = propertyItem.Instance.GetType().GetProperty(propertyItem.PropertyName).GetValue(propertyItem.Instance) as Argument;
             return this;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
             LoadAvailableProperties();
         }
 
@@ -36,7 +38,10 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         public void ChangeArgumentMode(object sender, RoutedEventArgs e)
         {
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
+            //Set argument mode to next mode based on current mode i.e. rotate from Default -> DataBound -> Scripted -> Default....
             switch (this.Argument.Mode)
             {
                 case ArgumentMode.Default:
@@ -45,13 +50,12 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                     break;
                 case ArgumentMode.DataBound:
                     this.Argument.Mode = ArgumentMode.Scripted;
+                    InitializeScriptName();
                     break;
                 case ArgumentMode.Scripted:
-                    DeleteScriptFile();
                     this.Argument.Mode = ArgumentMode.Default;
                     break;
             }
-
         }
 
     }

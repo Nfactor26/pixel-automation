@@ -20,7 +20,9 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
             LoadAvailableProperties();
         }     
 
@@ -38,9 +40,9 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                     break;
                 case ArgumentMode.DataBound:
                     this.Argument.Mode = ArgumentMode.Scripted;
+                    InitializeScriptName();
                     break;
-                case ArgumentMode.Scripted:
-                    DeleteScriptFile();
+                case ArgumentMode.Scripted:                   
                     this.Argument.Mode = ArgumentMode.Default;
                     break;
             }            

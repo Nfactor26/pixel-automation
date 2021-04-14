@@ -26,16 +26,18 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         public void ChangeArgumentMode(object sender, RoutedEventArgs e)
         {
             if (this.OwnerComponent?.EntityManager == null)
+            {
                 return;
+            }
             if (this.Argument.Mode == ArgumentMode.DataBound)
             {
                 this.Argument.Mode = ArgumentMode.Scripted;
+                InitializeScriptName();
             }
             else if (this.Argument.Mode == ArgumentMode.Scripted)
-            {
-                LoadAvailableProperties();
-                DeleteScriptFile();
+            {                        
                 this.Argument.Mode = ArgumentMode.DataBound;
+                LoadAvailableProperties();
             }
 
         }        

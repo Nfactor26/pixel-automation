@@ -166,6 +166,57 @@
         </Setter>
     </Style>
 
+    <Style x:Key="EditScriptButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}">
+                        <iconPacks:PackIconModern x:Name="PageEdit" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Foreground="{TemplateBinding Foreground}"
+                                        Kind="PageEdit" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">                
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Trigger>
+        </Style.Triggers>       
+    </Style>
+
+    <Style x:Key="VerticalDotsButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>             
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}">                     
+                        <iconPacks:PackIconFontAwesome x:Name="EllipsisVSolid" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent2}"
+                                        Kind="EllipsisVSolid" />
+                    </Border>               
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="TextBlockStyle" TargetType="TextBlock">
         <Setter Property="FontWeight" Value="Bold"></Setter>
         <Setter Property="FontStyle" Value="Normal"></Setter>
