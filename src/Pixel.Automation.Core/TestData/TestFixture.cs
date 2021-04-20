@@ -31,6 +31,12 @@ namespace Pixel.Automation.Core.TestData
         [DataMember]
         public string Category { get; set; } = "Default";
 
+        /// <summary>
+        /// Controls the delay for pre and post run of actors.
+        /// </summary>
+        [DataMember]
+        public int DelayFactor { get; set; } = 3; 
+
         [DataMember]
         public TagCollection Tags { get; private set; } = new TagCollection();
 
@@ -47,6 +53,7 @@ namespace Pixel.Automation.Core.TestData
                 IsMuted = this.IsMuted,             
                 Description = this.Description,
                 Category = this.Category,
+                DelayFactor = this.DelayFactor,
                 Tags = this.Tags               
             };
             return copy;

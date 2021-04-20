@@ -26,6 +26,13 @@ namespace Pixel.Automation.Core.TestData
         [DataMember]
         public bool IsMuted { get; set; }
 
+        /// <summary>
+        /// Controls the delay for pre and post run of actors.
+        /// </summary>
+        [DataMember]
+        public int DelayFactor { get; set; } = 3;
+
+
         [DataMember]
         public Priority Priority { get; set; }
 
@@ -49,12 +56,13 @@ namespace Pixel.Automation.Core.TestData
         public object Clone()
         {
             TestCase copy = new TestCase()
-            {              
+            {
                 DisplayName = this.DisplayName,
-                Description = this.Description,   
+                Description = this.Description,
                 Tags = new TagCollection(this.Tags.Tags),
-                IsMuted = this.IsMuted,               
-                Order = this.Order            
+                IsMuted = this.IsMuted,
+                Order = this.Order,
+                DelayFactor = this.DelayFactor
             };
             return copy;
         }

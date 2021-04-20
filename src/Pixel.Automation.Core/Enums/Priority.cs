@@ -9,7 +9,7 @@ namespace Pixel.Automation.Core.Enums
         Default,
         [Description("Low")]
         Low,
-        [Description("Low")]
+        [Description("Medium")]
         Medium,
         [Description("High")]
         High       

@@ -217,6 +217,27 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="InfoButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+        <Setter Property="Width" Value="24"></Setter>
+        <Setter Property="Height" Value="24"></Setter>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border IsHitTestVisible="True" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}">
+                        <iconPacks:PackIconOcticons x:Name="Info" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Flyout.Foreground}"
+                                        Kind="Info" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+ 
     <Style x:Key="TextBlockStyle" TargetType="TextBlock">
         <Setter Property="FontWeight" Value="Bold"></Setter>
         <Setter Property="FontStyle" Value="Normal"></Setter>

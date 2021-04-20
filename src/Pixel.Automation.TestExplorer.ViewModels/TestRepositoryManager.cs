@@ -36,6 +36,7 @@ namespace Pixel.Automation.TestExplorer
         private readonly IProjectManager projectManager;       
         private readonly IEventAggregator eventAggregator;      
         private readonly IWindowManager windowManager;
+        private readonly ApplicationSettings applicationSettings;
         private bool isInitialized = false;
 
         public ITestRunner TestRunner { get; }
@@ -62,13 +63,14 @@ namespace Pixel.Automation.TestExplorer
 
         #region Constructor
 
-        public TestRepositoryManager(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, IWindowManager windowManager)
+        public TestRepositoryManager(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, IWindowManager windowManager, ApplicationSettings applicationSettings)
         {
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.TestRunner = Guard.Argument(testRunner).NotNull().Value;        
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;            
-            this.windowManager = Guard.Argument(windowManager).NotNull().Value;    
+            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
             this.eventAggregator.SubscribeOnPublishedThread(this);
            
             CreateDefaultView();           
@@ -130,7 +132,10 @@ namespace Pixel.Automation.TestExplorer
                     Order = TestFixtures.Count() + 1,
                     TestFixtureEntity = new TestFixtureEntity()
                 };
-                TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(newTestFixture);
+                TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(newTestFixture)
+                {
+                    DelayFactor = applicationSettings.DelayFactor
+                };
                 var testCategoryEditor = new EditTestFixtureViewModel(testFixtureVM, this.TestFixtures);
                 bool? result = await this.windowManager.ShowDialogAsync(testCategoryEditor);
                 if (result.HasValue && result.Value)
@@ -153,7 +158,7 @@ namespace Pixel.Automation.TestExplorer
                 bool? result = await this.windowManager.ShowDialogAsync(testCategoryEditor);
                 if (result.HasValue && result.Value)
                 {
-                    SaveTestFixture(fixtureVM);
+                    SaveTestFixture(fixtureVM, false);
                 }
             }
             catch (Exception ex)
@@ -366,7 +371,10 @@ namespace Pixel.Automation.TestExplorer
                     Order = testFixtureVM.Tests.Count() + 1,
                     TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testFixtureVM.Tests.Count() + 1}" }
                 };
-                TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator);
+                TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase, this.eventAggregator)
+                {
+                    DelayFactor = testFixtureVM.DelayFactor
+                };
              
                 var testCaseEditor = new EditTestCaseViewModel(testCaseVM, testFixtureVM.Tests);               
                 bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);

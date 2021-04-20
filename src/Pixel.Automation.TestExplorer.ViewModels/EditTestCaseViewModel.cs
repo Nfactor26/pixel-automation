@@ -40,6 +40,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestCase.IsMuted = value;
         }
 
+        public int DelayFactor
+        {
+            get => (100 - CopyOfTestCase.DelayFactor);
+            set => CopyOfTestCase.DelayFactor = (100 - value);
+        }
+
+
         public int Order
         {
             get => CopyOfTestCase.Order;
@@ -84,6 +91,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testCase.Description = CopyOfTestCase.Description;
                 this.testCase.IsMuted = CopyOfTestCase.IsMuted;
                 this.testCase.Order = CopyOfTestCase.Order;
+                this.testCase.DelayFactor = CopyOfTestCase.DelayFactor;
                 //this.testCase.Tags.Clear();
                 //this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
                 await this.TryCloseAsync(true);
