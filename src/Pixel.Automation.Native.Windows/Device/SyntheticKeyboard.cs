@@ -309,6 +309,7 @@ namespace Pixel.Automation.Native.Windows.Device
             {
                 case SyntheticKeyCode.LCONTROL:
                 case SyntheticKeyCode.RCONTROL:
+                case SyntheticKeyCode.CONTROL:
                 case SyntheticKeyCode.LSHIFT:
                 case SyntheticKeyCode.RSHIFT:
                 case SyntheticKeyCode.SHIFT:
