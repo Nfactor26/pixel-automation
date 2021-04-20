@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.RunTime
@@ -19,12 +20,16 @@ namespace Pixel.Automation.RunTime
         protected readonly ILogger logger = Log.ForContext<TestRunner>();
         protected readonly IEntityManager entityManager;
         protected readonly IDataSourceReader testDataLoader;
-     
+        protected readonly ApplicationSettings applicationSettings;
 
-        public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader)
+        protected int preDelay = 0;
+        protected int postDelay = 0;
+        
+        public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader, ApplicationSettings applicationSettings)
         {           
             this.entityManager = Guard.Argument(entityManager).NotNull().Value; 
-            this.testDataLoader = Guard.Argument(testDataLoader).NotNull().Value;         
+            this.testDataLoader = Guard.Argument(testDataLoader).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
         }   
 
         #region ITestRunner
@@ -153,8 +158,8 @@ namespace Pixel.Automation.RunTime
 
 
         [NonSerialized]
-        Stopwatch stopWatch = new Stopwatch();
-
+        private Stopwatch stopWatch = new Stopwatch();
+   
         public async IAsyncEnumerable<TestResult> RunTestAsync(TestFixture fixture, TestCase testCase)
         {
             Guard.Argument(testCase).NotNull();
@@ -170,6 +175,7 @@ namespace Pixel.Automation.RunTime
                     var fixtureScriptEngine = fixtureEntity.EntityManager.GetScriptEngine();
                     var testScriptEngine = testCaseEntity.EntityManager.GetScriptEngine();
 
+                    ConfigureDelays(testCase);
 
                     stopWatch.Reset();
                     stopWatch.Start();
@@ -250,6 +256,7 @@ namespace Pixel.Automation.RunTime
                     {
                         stopWatch.Stop();
                         result.ExecutionTime = TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds);
+                        ResetDelays();
                     }
 
                    yield return result;
@@ -409,6 +416,29 @@ namespace Pixel.Automation.RunTime
         #endregion ITestRunner
 
         protected Stack<Entity> entitiesBeingProcessed = new Stack<Entity>();
+
+
+        protected void ConfigureDelays(TestCase testCase)
+        {
+            this.preDelay = testCase.DelayFactor * this.applicationSettings.PreDelay;
+            this.postDelay = testCase.DelayFactor * this.applicationSettings.PostDelay;
+        }
+
+        protected void ResetDelays()
+        {
+            this.preDelay  = 0;
+            this.postDelay = 0;
+        }
+       
+        protected void AddDelay(int delayAmount)
+        {
+            if(delayAmount > 0)
+            {
+                logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
+                Thread.Sleep(delayAmount);
+            }
+        }
+
         protected virtual async Task<bool> ProcessEntity(Entity targetEntity)
         {
             IComponent actorBeingProcessed = null;
@@ -428,10 +458,13 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
+                                    AddDelay(this.preDelay);
                                     actor.BeforeProcess();
                                     actor.IsExecuting = true;                                  
                                     actor.Act();
                                     actor.OnCompletion();
+                                    AddDelay(this.postDelay);
+
                                 }
                                 catch (Exception ex)
                                 {
@@ -446,7 +479,6 @@ namespace Pixel.Automation.RunTime
                                     }
                                 }
 
-                                //Thread.Sleep(TimeSpan.FromSeconds(this.ProcessingDelay));
                                 actor.IsExecuting = false;
                                 break;
 
@@ -454,10 +486,12 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
+                                    AddDelay(this.preDelay);
                                     actor.BeforeProcess();
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
                                     actor.OnCompletion();
+                                    AddDelay(this.postDelay);
                                 }
                                 catch (Exception ex)
                                 {
@@ -471,8 +505,7 @@ namespace Pixel.Automation.RunTime
                                         logger.Warning(ex, ex.Message);
                                     }
                                 }
-
-                                //Thread.Sleep(TimeSpan.FromSeconds(this.ProcessingDelay));
+                                
                                 actor.IsExecuting = false;
                                 break;
 
@@ -496,6 +529,7 @@ namespace Pixel.Automation.RunTime
                         }
                     }
                 }
+
                 targetEntity.OnCompletion();
 
                 logger.Information("All components have been processed for Entity : {Id}, {Name}", targetEntity.Id, targetEntity.Name);

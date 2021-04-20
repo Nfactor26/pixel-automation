@@ -68,6 +68,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             get => TestFixture.Category;
             set => TestFixture.Category = value;
         }
+
+        public int DelayFactor
+        {
+            get => TestFixture.DelayFactor;
+            set => TestFixture.DelayFactor = value;
+        }
         
         public Entity TestFixtureEntity
         {

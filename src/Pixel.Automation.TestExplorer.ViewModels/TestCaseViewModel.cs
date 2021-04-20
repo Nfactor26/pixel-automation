@@ -71,7 +71,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 OnPropertyChanged();
             }
         }
-     
+
+        public int DelayFactor
+        {
+            get => TestCase.DelayFactor;
+            set => TestCase.DelayFactor = value;
+        }
+
         public Priority Priority
         {
             get => TestCase.Priority;

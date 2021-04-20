@@ -37,6 +37,13 @@
                      controls:TextBoxHelper.Watermark="Description"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
+                <Label Content="Execution Speed"/>
+                <Slider x:Name="DelayFactor" Value="{Binding DelayFactor}" SmallChange="1" TickPlacement="None" LargeChange="10"
+                        Margin="5,5,5,0"  Style="{DynamicResource MahApps.Styles.Slider.Flat}"
+                        AutoToolTipPlacement="TopLeft"
+                        Minimum="0"  Maximum="100" ToolTip="Controls the pre-delay and post-delay for actors"/>
+            </StackPanel>
             <!--<StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Tags"/>
                 <TextBox x:Name="Tags" Text="{Binding Tags, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
@@ -45,12 +52,10 @@
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>-->
             <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlMargin}">
-                <StackPanel Orientation="Horizontal" Margin="4 0 0 0">
-                    <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Tests belonging to a muted fixture are not executed"/>
-                    <Label Content="Muted" ></Label>
-                    <controls:NumericUpDown Minimum="0" Value="{Binding Order}" Margin="10,0,0,0" ToolTip="Order of execution of fixture"/>
-                    <Label Content="Order" ></Label>
-                </StackPanel>
+                <Label Content="Muted" ></Label>
+                <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Tests belonging to a muted fixture are not executed"/>
+                <Label Content="Order" Margin="4,0,0,0" ></Label>
+                <controls:NumericUpDown Minimum="0" Value="{Binding Order}" ToolTip="Order of execution of fixture"/>               
             </StackPanel>           
         </StackPanel>
         <DockPanel LastChildFill="False" Margin="{StaticResource ControlMargin}">

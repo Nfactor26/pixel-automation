@@ -51,6 +51,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestFixture.IsMuted = value;
         }
 
+        public int DelayFactor
+        {
+            get => (100 - CopyOfTestFixture.DelayFactor);
+            set => CopyOfTestFixture.DelayFactor = (100 - value);
+        }
+
         public int Order
         {
             get => CopyOfTestFixture.Order;
@@ -90,6 +96,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 this.testFixtureVM.Category = CopyOfTestFixture.Category;
                 this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;
                 this.testFixtureVM.Order = CopyOfTestFixture.Order;
+                this.testFixtureVM.DelayFactor = CopyOfTestFixture.DelayFactor;
                 //this.testFixtureVM.Tags.Clear();
                 //this.testFixtureVM.Tags.AddRange(CopyOfTestFixture.Tags);
                 await this.TryCloseAsync(true);
