@@ -28,6 +28,7 @@ namespace Pixel.Automation.Core
         /// Name of the application
         /// </summary>
         [DataMember(IsRequired = true, Order = 20)]
+        [Browsable(false)]
         public string ApplicationName
         {
             get
