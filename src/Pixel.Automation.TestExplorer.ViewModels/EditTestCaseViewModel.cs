@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
+using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,6 +9,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class EditTestCaseViewModel : SmartScreen
     {
+        private readonly ILogger logger = Log.ForContext<EditTestCaseViewModel>();
         private readonly TestCaseViewModel testCase;
         private readonly IEnumerable<TestCaseViewModel> existingTestCases;
 
@@ -95,12 +97,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 //this.testCase.Tags.Clear();
                 //this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
                 await this.TryCloseAsync(true);
+                logger.Information("Edit Test Case changes applied.");
             }
         }
 
         public async void Cancel()
         {
             await this.TryCloseAsync(false);
+            logger.Information("Edit Test Case changes were cancelled.");
         }
 
         public bool Validate()
