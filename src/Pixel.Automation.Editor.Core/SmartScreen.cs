@@ -36,13 +36,15 @@ namespace Pixel.Automation.Editor.Core
         public IEnumerable GetErrors(string propertyName)
         {           
             if (propertyErrors.ContainsKey(propertyName ?? string.Empty))
+            {
                 return propertyErrors[propertyName ?? string.Empty];
+            }
             return default(IEnumerable);
         }
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged = delegate { };
       
-        protected virtual void AddOrAppendErrors(string propertyName,params string[] errors)
+        protected virtual void AddOrAppendErrors(string propertyName, params string[] errors)
         {
             if (!propertyErrors.ContainsKey(propertyName))
             {

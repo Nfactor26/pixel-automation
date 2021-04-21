@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
+using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,6 +8,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 {
     public class EditTestFixtureViewModel : SmartScreen
     {
+        private readonly ILogger logger = Log.ForContext<EditTestFixtureViewModel>();
         private readonly TestFixtureViewModel testFixtureVM;
         private readonly IEnumerable<TestFixtureViewModel> existingFixtures;
 
@@ -100,12 +102,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 //this.testFixtureVM.Tags.Clear();
                 //this.testFixtureVM.Tags.AddRange(CopyOfTestFixture.Tags);
                 await this.TryCloseAsync(true);
+                logger.Information("Edit Test Fixture changes applied.");
             }           
         }
 
         public async void Cancel()
         {
             await this.TryCloseAsync(false);
+            logger.Information("Edit Test Fixture changes were cancelled.");
         }
 
         public bool Validate()

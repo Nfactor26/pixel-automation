@@ -394,8 +394,8 @@ namespace Pixel.Automation.TestExplorer
         {
             try
             {
-                var existingTestCases = TestFixtures.SelectMany(c => c.Tests);
-                existingTestCases = existingTestCases.Except(new[] { testCaseVM });
+                var parentFixture = TestFixtures.First(t => t.Id.Equals(testCaseVM.FixtureId));               
+                var existingTestCases = parentFixture.Tests.Except(new[] { testCaseVM });
                 var testCaseEditor = new EditTestCaseViewModel(testCaseVM, existingTestCases);
                 bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);
                 if (result.HasValue && result.Value)
