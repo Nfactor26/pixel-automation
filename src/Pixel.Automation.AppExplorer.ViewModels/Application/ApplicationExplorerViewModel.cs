@@ -228,6 +228,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 if (keyArgs != null && keyArgs.Key == Key.Enter)
                 {
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
+                    if(this.Applications.Any(a => a.ApplicationName.Equals(newName)))
+                    {
+                        logger.Warning($"An application already exists with name {newName}.");
+                        return;
+                    }
                     if (newName != application.ApplicationName)
                     {
                         var previousName = application.ApplicationName;
