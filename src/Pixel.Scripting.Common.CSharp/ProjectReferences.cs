@@ -18,6 +18,22 @@ namespace Pixel.Scripting.Common.CSharp
 {
     public class ProjectReferences
     {
+        static List<string> refsIncludeList = new List<string>();
+        static IEnumerable<string> RefsIncludeList
+        {
+            get
+            {
+                if(!refsIncludeList.Any())
+                {
+                    if (File.Exists(".\\.Refs.Include"))
+                    {
+                        refsIncludeList.AddRange(File.ReadAllLines(".\\.Refs.Include"));
+                    }
+                }
+                return refsIncludeList;
+            }
+        }
+
         private static readonly Lazy<(string assemblyPath, string docPath)> _referenceAssembliesPath =
             new Lazy<(string, string)>(GetReferenceAssembliesPath);
 
@@ -40,28 +56,6 @@ namespace Pixel.Scripting.Common.CSharp
             {
                 typeof(Microsoft.CSharp.RuntimeBinder.Binder).Assembly
             });
-
-            //var objectAssemblyPath = typeof(object).Assembly.Location;
-            //var mscorlibPath = Path.Combine(Path.GetDirectoryName(objectAssemblyPath), "mscorlib.dll");
-            //if (File.Exists(mscorlibPath))
-            //{
-            //    result = result.With(assemblyPathReferences: new[] { mscorlibPath });
-            //}
-
-            //var facadeAssemblies = TryGetFacadeAssemblies(_referenceAssembliesPath.Value.assemblyPath);
-            //if (facadeAssemblies != null)
-            //{
-            //    result = result.With(assemblyPathReferences: facadeAssemblies);
-            //}
-            //else
-            //{
-            //    var systemRuntimePath = Path.Combine(Path.GetDirectoryName(objectAssemblyPath), "System.Runtime.dll");
-            //    if (File.Exists(systemRuntimePath))
-            //    {
-            //        result = result.With(assemblyPathReferences: new[] { systemRuntimePath });
-            //    }
-            //}
-
             return result;
         });
 
@@ -69,8 +63,15 @@ namespace Pixel.Scripting.Common.CSharp
         {
             List<MetadataReference> metaDataReferences = new List<MetadataReference>();
             foreach (var file in Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "refs"), "*.dll"))
-            {
-                metaDataReferences.Add(MetadataReference.CreateFromFile(file));
+            {             
+                if(RefsIncludeList.Any() && RefsIncludeList.Contains(Path.GetFileName(file)))
+                {
+                    metaDataReferences.Add(MetadataReference.CreateFromFile(file));
+                }
+                else 
+                {
+                    metaDataReferences.Add(MetadataReference.CreateFromFile(file));
+                }
             }
 
             var result = Empty.With(metaDataReferences);
@@ -234,20 +235,6 @@ namespace Pixel.Scripting.Common.CSharp
             }
 
             return new Version(0, 0);
-        }
-
-        private static IEnumerable<string> TryGetFacadeAssemblies(string referenceAssembliesPath)
-        {
-            if (referenceAssembliesPath != null)
-            {
-                var facadesPath = Path.Combine(referenceAssembliesPath, "Facades");
-                if (Directory.Exists(facadesPath))
-                {
-                    return Directory.EnumerateFiles(facadesPath, "*.dll");
-                }
-            }
-
-            return null;
         }
     }
 }
