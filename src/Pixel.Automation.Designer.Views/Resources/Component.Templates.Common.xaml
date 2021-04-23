@@ -10,77 +10,7 @@
     <HierarchicalDataTemplate x:Key="EmptyTemplate" ItemsSource="{Binding ComponentCollection}">
 
     </HierarchicalDataTemplate>
-
-    <DataTemplate x:Key="HttpRequest">
-        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4"
-                Width="200" Height="60" Background="{DynamicResource MahApps.Brushes.Control.Background}">
-            <Grid IsHitTestVisible="True">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="6*"></RowDefinition>
-                    <RowDefinition Height="4*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Label  BorderThickness="1" Content="{Binding Name}" Padding="10,10,0,0" MinWidth="180" Height="60" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Top" Grid.Row="0" FontFamily="Segoe UI" FontSize="12"/>
-                <StackPanel x:Name="pnlActions" Orientation="Horizontal" Grid.Row="1"  IsHitTestVisible="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Button Style="{StaticResource LinkButton}" x:Name="btnDeleteComponent"  HorizontalAlignment="Left" VerticalAlignment="Center" Content="Delete" FontSize="10"
-                    FontWeight="Normal"  cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]" Visibility="Hidden"  />
-                    <Button Style="{StaticResource LinkButton}" x:Name="btnRunComponent" HorizontalAlignment="Left" VerticalAlignment="Center"  FontWeight="Normal" 
-                           cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" Content="Run" FontSize="10" Visibility="Hidden"/>
-                    <Button Style="{StaticResource LinkButton}" x:Name="btnConfigure" HorizontalAlignment="Left" VerticalAlignment="Center"  FontWeight="Normal" 
-                           cal:Message.Attach="[Event Click] = [Action ConfigureRequest()]" Content="Configure" FontSize="10" Visibility="Hidden"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-        <DataTemplate.Triggers>
-            <Trigger Property="IsMouseOver"  Value="true">
-                <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
-                <Setter TargetName="btnRunComponent"  Property="Visibility" Value="Visible"/>
-                <Setter TargetName="btnConfigure"  Property="Visibility" Value="Visible"/>
-            </Trigger>
-            <DataTrigger Binding="{Binding IsExecuting}" Value="true">
-                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
-                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
-                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
-                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
-                                Mode=FindAncestor,
-                                AncestorType={x:Type TreeViewItem}},
-                                Path=IsSelected}" Value="True">
-                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
-            </DataTrigger>
-        </DataTemplate.Triggers>
-    </DataTemplate>
-
-    <DataTemplate x:Key="TextInput">
-        <GroupBox BorderBrush="{DynamicResource MahApps.Brushes.Accent}"  Style="{StaticResource GroupBoxHeaderWithDelete}" Padding="10"
-                                  BorderThickness="2" Grid.Column="1" MinWidth="200" Width="Auto" MinHeight="60">
-            <TextBox Text="{Binding InputValue,Mode=TwoWay , UpdateSourceTrigger=PropertyChanged}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
-        </GroupBox>
-    </DataTemplate>
-
-    <DataTemplate x:Key="MultiInput">
-        <GroupBox BorderBrush="{DynamicResource MahApps.Brushes.Accent}"  Style="{StaticResource GroupBoxHeaderWithDelete}" Padding="10"
-                                  BorderThickness="2" Grid.Column="1" MinWidth="200" Width="Auto" MinHeight="60">
-            <ComboBox ItemsSource="{Binding InputValues,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEditable="True"></ComboBox>
-        </GroupBox>
-    </DataTemplate>
-
-    <DataTemplate x:Key="MultiOutput">
-        <GroupBox BorderBrush="{DynamicResource MahApps.Brushes.Accent}"  Style="{StaticResource GroupBoxHeaderWithDelete}" Padding="10"
-                                  BorderThickness="2" Grid.Column="1" MinWidth="200" Width="Auto" MinHeight="60">
-            <ComboBox ItemsSource="{Binding ExtractedValues}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEditable="True"></ComboBox>
-        </GroupBox>
-    </DataTemplate>
-
+   
     <Style x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Template">

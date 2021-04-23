@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Entities;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -99,7 +100,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             logger.Information($"Loading project file for {this.GetProjectName()} now");
             if (!File.Exists(this.projectFileSystem.ProcessFile))
             {
-                this.RootEntity = new Entity("Automation Process", "Root");
+                this.RootEntity = new ProcessRootEntity();
             }
             else
             {
