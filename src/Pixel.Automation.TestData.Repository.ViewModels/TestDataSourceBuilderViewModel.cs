@@ -1,5 +1,4 @@
-﻿using Caliburn.Micro;
-using Pixel.Automation.Editor.Core;
+﻿using Pixel.Automation.Editor.Core;
 using System.Collections.Generic;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
@@ -8,7 +7,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
     {     
         public TestDataSourceBuilderViewModel(IEnumerable<IStagedScreen> stagedScreens)
         {
-            this.DisplayName = "Create new data source";
+            this.DisplayName = "Data Source Editor";
             this.stagedScreens.AddRange(stagedScreens);
         }     
     }

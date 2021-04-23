@@ -9,38 +9,31 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             mc:Ignorable="d" 
+             xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
        
         <ResourceDictionary>
-           
+            <converters:InverseBooleanConverter x:Key="invBooleanConverter"/>
             <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>           
             <Thickness x:Key="RowMargin">0 5 0 5</Thickness>
-            <Thickness x:Key="ButtonMargin">10 0 0 0</Thickness>
-
-            <Style x:Key="SelectDataTypeButtonStyle" TargetType="Button">
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsInEditMode}" Value="true">
-                        <Setter Property="IsEnabled" Value="False"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-
+            <Thickness x:Key="ButtonMargin">0 0 0 0</Thickness>
             
             <DataTemplate DataType="{x:Type core:DataSourceConfiguration}">
                 <StackPanel Orientation="Horizontal"   DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="320" Margin="{StaticResource RowMargin}">
-                    <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80"></Label>
-                    <TextBox DockPanel.Dock="Left" VerticalAlignment="Center"
-                         Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                         controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                       
-                         ToolTip="Type of data model returned from this data source" />
-                    <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" Height="26"                          
-                            cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]"
-                            Style="{StaticResource SelectDataTypeButtonStyle}"
-                            Content="..." DockPanel.Dock="Right"/>
+                    <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
+                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>                      
+                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" Style="{DynamicResource VerticalDotsButtonStyle}"                          
+                            cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]"                         
+                            DockPanel.Dock="Right" Width="16" />
+                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" BorderThickness="1,1,0,1"
+                            Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
+                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                       
+                            ToolTip="Type of data model returned from this data source" />
+                    </DockPanel>
                 </StackPanel>
 
             </DataTemplate>
@@ -48,39 +41,40 @@
             <DataTemplate DataType="{x:Type core:CsvDataSourceConfiguration}">
                 <StackPanel Orientation="Vertical"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}">
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="320" Margin="{StaticResource RowMargin}" >
-                        <Label Content="File" DockPanel.Dock="Left" MinWidth="80"></Label>
-                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center"
-                         Text="{Binding DataFileName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                         controls:TextBoxHelper.Watermark="csv data file" HorizontalAlignment="Stretch"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                     
-                         ToolTip="csv file containing data for" />
-                        <Button x:Name="BrowseForFile" Margin="{StaticResource ButtonMargin}" Height="26"                               
-                                cal:Message.Attach="[Event Click] = [Action BrowseForFile()]"
-                                Content="..."  DockPanel.Dock="Right"/>
-                    </StackPanel>
+                    <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}" MaxHeight="38">
+                        <Label Content="File" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center" ></Label>
+                        <Button x:Name="BrowseForFile" Margin="{StaticResource ButtonMargin}" Style="{DynamicResource VerticalDotsButtonStyle}"                               
+                                cal:Message.Attach="[Event Click] = [Action BrowseForFile()]" VerticalAlignment="Center"
+                                DockPanel.Dock="Right" Width="16" />
+                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" BorderThickness="1,1,0,1"
+                            Text="{Binding DataFileName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            controls:TextBoxHelper.Watermark="csv data file" HorizontalAlignment="Stretch"
+                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                     
+                            ToolTip="csv file containing data for" />
+                    </DockPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="320" Margin="{StaticResource RowMargin}" >
-                        <Label Content="Delimiter" DockPanel.Dock="Left" MinWidth="80"></Label>
+                    <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
+                        <Label Content="Delimiter" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>
                         <TextBox DockPanel.Dock="Left" VerticalAlignment="Center"
-                         Text="{Binding Delimiter, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                         controls:TextBoxHelper.Watermark="Delimiter" HorizontalAlignment="Stretch"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                     
-                         ToolTip="Delimiter used in csv file" />                     
-                    </StackPanel>
+                            Text="{Binding Delimiter, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            controls:TextBoxHelper.Watermark="Delimiter" HorizontalAlignment="Stretch"
+                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                     
+                            ToolTip="Delimiter used in csv file" />                     
+                    </DockPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="320" Margin="{StaticResource RowMargin}" >
-                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80"></Label>
-                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" IsReadOnly="True"
-                         Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                         controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
-                         controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"                                                            
-                         ToolTip="Type of data model returned from this data source" />
-                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" Height="26"                            
+                    <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
+                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>                        
+                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" VerticalAlignment="Center"                            
                                 cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]" 
-                                Style="{StaticResource SelectDataTypeButtonStyle}"
-                                Content="..." DockPanel.Dock="Right"/>
-                    </StackPanel>
+                                Style="{DynamicResource VerticalDotsButtonStyle}"
+                                DockPanel.Dock="Right" Width="16"/>
+                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" IsReadOnly="True" BorderThickness="1,1,0,1"
+                            Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
+                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"        
+                            IsEnabled="{Binding IsInEditMode, Converter={StaticResource invBooleanConverter}}"     
+                            ToolTip="Type of data model returned from this data source" />
+                    </DockPanel>
 
                 </StackPanel>
             </DataTemplate>
@@ -94,10 +88,10 @@
         <StackPanel Orientation="Vertical" Margin="10" VerticalAlignment="Top">
 
             <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}">
-                <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
+                <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" VerticalAlignment="Center"></Label>
                 <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
                          Text="{Binding Name, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                         IsReadOnly="{Binding IsInEditMode}"
+                         IsEnabled="{Binding IsInEditMode, Converter={StaticResource invBooleanConverter}}"
                          controls:TextBoxHelper.Watermark="Data Source Name"
                          controls:TextBoxHelper.UseFloatingWatermark="True"                                                         
                          ToolTip="Data source name. It should be a valid C# class name." />

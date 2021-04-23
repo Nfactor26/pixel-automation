@@ -193,7 +193,8 @@
     </Style>
 
     <Style x:Key="VerticalDotsButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>             
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"></Setter>
         <Setter Property="Width" Value="20"/>
         <Setter Property="Height" Value="Auto"/>
         <Setter Property="Template">
@@ -204,7 +205,7 @@
                         <iconPacks:PackIconFontAwesome x:Name="EllipsisVSolid" Width="{TemplateBinding Width}"
                                         Height="{TemplateBinding Height}" IsHitTestVisible="False"
                                         Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MahApps.Brushes.Accent2}"
+                                        Foreground="{TemplateBinding Foreground}"
                                         Kind="EllipsisVSolid" />
                     </Border>               
                 </ControlTemplate>
@@ -213,6 +214,9 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Badged.Background.Disabled}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

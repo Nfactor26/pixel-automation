@@ -115,9 +115,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public TypeDefinition TypeDefinition { get; private set; }
 
-        public TestDataSourceViewModel(IWindowManager windowManager,IProjectFileSystem fileSystem, DataSource dataSource,
+        public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, DataSource dataSource,
            IEnumerable<string>  existingDataSources, IArgumentTypeBrowser typeBrowser)
-        {
+        {          
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.typeBrowser = Guard.Argument(typeBrowser, nameof(typeBrowser)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
@@ -128,14 +128,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.existingDataSources = existingDataSources;
         }
 
-        public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, TestDataSource dataSource, IArgumentTypeBrowser typeBrowser)
-        {
+        public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, TestDataSource dataSource)
+        {           
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
-            this.typeBrowser = Guard.Argument(typeBrowser, nameof(typeBrowser)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
             this.TestDataSource = Guard.Argument(dataSource, nameof(dataSource)).NotNull().Value;
             this.IsInEditMode = true;
+            NotifyOfPropertyChange(() => CanSelectTestDataType);
         }
+
+
+        public bool CanSelectTestDataType => !this.IsInEditMode;
 
         public async void SelectTestDataType()
         {
@@ -151,15 +154,24 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            openFileDialog.InitialDirectory = fileSystem.WorkingDirectory;
+            openFileDialog.InitialDirectory = this.fileSystem.TestDataRepository;
             if (openFileDialog.ShowDialog() == true)
             {
-                string selectedFile = openFileDialog.FileName;
-                string testDataRepository = this.fileSystem.TestDataRepository;
-                string destFile = Path.Combine(testDataRepository, Path.GetFileName(selectedFile));
-                //TODO : What is file already exists with same name?
-                File.Copy(selectedFile, destFile, true);
+                string selectedFile = openFileDialog.FileName;            
+                string destFile = Path.Combine(this.fileSystem.TestDataRepository, Path.GetFileName(selectedFile));
+                
+                //A file with same name already exists
+                if(File.Exists(destFile) && !selectedFile.Equals(destFile))
+                {
+                    AddOrAppendErrors(nameof(DataFileName), "A file already exists in Data Repository directory with same name.");
+                    return;
+                }
+                if(!File.Exists(destFile))
+                {
+                    File.Copy(selectedFile, destFile, true);
+                }
                 this.DataFileName = Path.GetFileName(selectedFile);
+
             }
             NotifyOfPropertyChange(() => MetaData);
         }   
@@ -201,7 +213,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                     {
                         AddOrAppendErrors(nameof(Delimiter), $"Delimiter must be a character.");                     
                     }
-                    break;               
+                    break;
+                case nameof(DataFileName):
+                    ValidateRequiredProperty(nameof(DataFileName), DataFileName);                   
+                    break;
             }         
 
             NotifyOfPropertyChange(() => IsValid);           

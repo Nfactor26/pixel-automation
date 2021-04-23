@@ -79,6 +79,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     using (var sw = File.CreateText(scriptFile))
                     {
                         sw.WriteLine("//Default Initialization script for automation process");
+                        sw.WriteLine();
+                        sw.Write("string dataSourceSuffix = string.Empty;");
                     };
                     logger.Information("Created initialization script file : {scriptFile}", scriptFile);
                 }

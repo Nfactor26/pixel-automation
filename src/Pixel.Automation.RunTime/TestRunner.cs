@@ -62,10 +62,19 @@ namespace Pixel.Automation.RunTime
             try
             {
                 logger.Information("Performing environment setup");               
+       
                 var oneTimeSetUpEntity = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Descendants);
                 oneTimeSetUpEntity.ResetHierarchy();
                 await ProcessEntity(oneTimeSetUpEntity);
                 IsSetupComplete = true;
+
+                //set the data source suffix if any 
+                var scriptEngine = this.entityManager.GetScriptEngine();
+                if(scriptEngine.HasScriptVariable("dataSourceSuffix"))
+                {
+                    string dataSourceSuffix = scriptEngine.GetVariableValue<string>("dataSourceSuffix");
+                    this.testDataLoader.SetDataSourceSuffix(dataSourceSuffix);
+                }
 
                 logger.Information("Environment setup completed");
 
@@ -91,6 +100,9 @@ namespace Pixel.Automation.RunTime
                 var oneTimeTearDownEntity = this.entityManager.RootEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Descendants);
                 oneTimeTearDownEntity.ResetHierarchy();
                 await ProcessEntity(oneTimeTearDownEntity);
+
+                //clear the data source suffix
+                this.testDataLoader.SetDataSourceSuffix(string.Empty);
 
                 logger.Information("Environment teardown completed");
 
