@@ -7,6 +7,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -183,9 +184,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         }
 
         private async void EditCsvDataSource(TestDataSource testDataSource)
-        {
-            var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser();
-            TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource, argumentTypeBrowser);
+        {            
+            TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource);
             TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { dataSourceViewModel });
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
             if (result.HasValue && result.Value)

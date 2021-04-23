@@ -52,10 +52,18 @@ namespace Pixel.Automation.RunTime.Tests
         [Test]
         public void ValidateThatCsvDataSourceCanBeLoaded()
         {
-            var testDataSource = new TestDataSource() { DataSource = DataSource.CsvFile };
+            var testDataSource = new TestDataSource() 
+            { 
+                DataSource = DataSource.CsvFile,
+                MetaData = new CsvDataSourceConfiguration()
+                {
+                    TargetFile = "CsvFile.csv"
+                }
+            };
 
             var fileSystem = Substitute.For<IProjectFileSystem>();
             fileSystem.TestCaseRepository.Returns(Environment.CurrentDirectory);
+            fileSystem.TestDataRepository.Returns(Environment.CurrentDirectory);
             fileSystem.Exists(Arg.Any<string>()).Returns(true);
 
             var serializer = Substitute.For<ISerializer>();

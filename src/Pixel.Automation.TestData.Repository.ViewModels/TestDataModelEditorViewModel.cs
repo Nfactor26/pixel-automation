@@ -79,7 +79,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(dataSourceType.GetRequiredImportsForType(Enumerable.Empty<Assembly>(), new string[] { typeof(object).Namespace, typeof(IEnumerable<>).Namespace, 
-            typeof(IDataReader).Namespace, typeof(TestDataSource).Name }));           
+            typeof(IDataReader).Namespace, typeof(TestDataSource).Namespace }));           
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append($"IEnumerable<{dataSourceType.GetDisplayName()}> GetDataRows(TestDataSource dataSource, IDataReader dataReader)");
             stringBuilder.Append(Environment.NewLine);
@@ -88,6 +88,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             stringBuilder.Append("\t dataReader.Initialize(dataSource.MetaData);");
             stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append($"\t return dataReader.GetAllRowsAs<{dataSourceType.GetDisplayName()}>();");
+            stringBuilder.Append(Environment.NewLine);
             stringBuilder.Append("}");
             return stringBuilder.ToString();
         }       
