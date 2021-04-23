@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Entities;
 using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
@@ -76,7 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             else
             {
-                templateRoot = new Entity("Automation Process", "Root");
+                templateRoot = new ProcessRootEntity();
                 templateRoot.EntityManager = entityManager;
 
                 ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();

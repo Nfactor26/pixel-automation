@@ -1,12 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ArrayOfComponentTemplate xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/Pixel.Automation.Designer.Views">
-  <!--<ComponentTemplate>
+ 
+  <ComponentTemplate>
+    <Name>ProcessRootEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
     <Name>ApplicationPoolEntity</Name>
-    <DataTemplateKey>EmptyTemplate</DataTemplateKey>
-    <StyleKey>ContainerStyleHorizontal</StyleKey>
-  </ComponentTemplate>-->
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>OneTimeSetUpEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>OneTimeTearDownEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>SetUpEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>TearDownEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>TestFixtureEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
+  <ComponentTemplate>
+    <Name>TestCaseEntity</Name>
+    <DataTemplateKey>EntityNoDelete</DataTemplateKey>
+    <StyleKey>DefaultStyle</StyleKey>
+  </ComponentTemplate>
   
-  <!--Sequences-->
   <ComponentTemplate>
     <Name>SequenceEntity</Name>
     <DataTemplateKey>SequenceTemplate</DataTemplateKey>

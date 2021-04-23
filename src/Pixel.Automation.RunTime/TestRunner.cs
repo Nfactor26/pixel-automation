@@ -128,10 +128,13 @@ namespace Pixel.Automation.RunTime
                 scriptEngine.ClearState();
                 await scriptEngine.ExecuteFileAsync(fixture.ScriptFile);
 
-                var oneTimeSetupEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Children);
-                oneTimeSetupEntity.ResetHierarchy();
-                await ProcessEntity(oneTimeSetupEntity);
-              
+                var oneTimeSetupEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeSetUpEntity>(Core.Enums.SearchScope.Children, false);
+                if (oneTimeSetupEntity != null)
+                {
+                    oneTimeSetupEntity.ResetHierarchy();
+                    await ProcessEntity(oneTimeSetupEntity);                   
+                }
+
                 logger.Information("One time setup completed for fixture : {0}", fixture);
 
             }
@@ -148,9 +151,12 @@ namespace Pixel.Automation.RunTime
             {
                 logger.Information("Performing one time teardown for fixture : {0}", fixture);
 
-                var oneTimeTearDownEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Children);
-                oneTimeTearDownEntity.ResetHierarchy();
-                await ProcessEntity(oneTimeTearDownEntity);
+                var oneTimeTearDownEntity = fixture.TestFixtureEntity.GetFirstComponentOfType<OneTimeTearDownEntity>(Core.Enums.SearchScope.Children, false);
+                if(oneTimeTearDownEntity != null)
+                {
+                    oneTimeTearDownEntity.ResetHierarchy();
+                    await ProcessEntity(oneTimeTearDownEntity);
+                }              
              
                 IScriptEngine scriptEngine = fixture.TestFixtureEntity.EntityManager.GetScriptEngine();
                 scriptEngine.ClearState();
@@ -212,9 +218,12 @@ namespace Pixel.Automation.RunTime
 
                                 await testScriptEngine.ExecuteFileAsync(testCase.ScriptFile);
 
-                                var setupEntity = fixtureEntity.GetFirstComponentOfType<SetUpEntity>(Core.Enums.SearchScope.Children);
-                                setupEntity.ResetHierarchy();
-                                await ProcessEntity(setupEntity);
+                                var setupEntity = fixtureEntity.GetFirstComponentOfType<SetUpEntity>(Core.Enums.SearchScope.Children, false);
+                                if(setupEntity != null)
+                                {
+                                    setupEntity.ResetHierarchy();
+                                    await ProcessEntity(setupEntity);
+                                }                             
                             }
                             catch
                             {
@@ -237,9 +246,12 @@ namespace Pixel.Automation.RunTime
                         {
                             try
                             {
-                                var teartDownEntity = fixtureEntity.GetFirstComponentOfType<TearDownEntity>(Core.Enums.SearchScope.Children);
-                                teartDownEntity.ResetHierarchy();
-                                await ProcessEntity(teartDownEntity);
+                                var teartDownEntity = fixtureEntity.GetFirstComponentOfType<TearDownEntity>(Core.Enums.SearchScope.Children, false);
+                                if(teartDownEntity != null)
+                                {
+                                    teartDownEntity.ResetHierarchy();
+                                    await ProcessEntity(teartDownEntity);
+                                }                              
 
                                 //copy the fixture variable values back to fixture script engine so that following tests see modified values of these variable
                                 foreach (var variable in fixtureScriptEngine.GetScriptVariables())
