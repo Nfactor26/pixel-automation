@@ -14,22 +14,13 @@ namespace Pixel.Automation.Editor.Core
 
         protected Dictionary<string, List<string>> propertyErrors = new Dictionary<string, List<string>>();
         
-        public bool HasErrors
-        {
-            get
-            {
-                return propertyErrors.Count() > 0;
-            }
-        }
-    
-        public bool ShowModelErrors
-        {
-            get => HasErrors && propertyErrors.ContainsKey("") && propertyErrors[""].Count() > 0;           
-        }
+        public bool HasErrors => propertyErrors.Count() > 0;
 
-        public void DismissModelErrors()
+        public virtual bool ShowModelErrors => HasErrors && propertyErrors.ContainsKey("") && propertyErrors[""].Count() > 0;
+
+        public virtual void DismissModelErrors()
         {
-            propertyErrors.Remove("");
+            ClearErrors("");
             NotifyOfPropertyChange(() => ShowModelErrors);
         }
 
@@ -59,6 +50,18 @@ namespace Pixel.Automation.Editor.Core
             NotifyOfPropertyChange(() => ShowModelErrors);
         }
 
+
+        protected virtual void AddOrAppendErrors(string propertyName, IEnumerable<string> errors)
+        {
+            if (!propertyErrors.ContainsKey(propertyName))
+            {
+                propertyErrors.Add(propertyName, new List<string>());
+            }
+            var existingErrors = propertyErrors[propertyName];         
+            existingErrors.AddRange(errors);
+            OnErrorsChanged(propertyName);
+            NotifyOfPropertyChange(() => ShowModelErrors);
+        }
 
         protected virtual void ClearErrors(string propertyName)
         {

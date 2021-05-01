@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,16 +11,23 @@ namespace Pixel.Automation.Core.TestData
     [Serializable]
     public class Tag
     {
+        [DataMember]
         public string Key { get; set; }
 
+        [DataMember]
         public string Value { get; set; }
     }
 
     [DataContract]
     [Serializable]
-    public class TagCollection
+    public class TagCollection : ICollection<Tag>
     {
-        public List<Tag> Tags { get; } = new List<Tag>();
+        [DataMember]
+        public List<Tag> Tags { get; set; } = new List<Tag>();
+
+        public int Count => this.Tags.Count;
+
+        public bool IsReadOnly => false;
 
         public string this[string key]
         {
@@ -30,7 +38,7 @@ namespace Pixel.Automation.Core.TestData
             }
             set
             {
-                AddTag(key, value);
+                Add(key, value);
             }
         }
 
@@ -45,7 +53,7 @@ namespace Pixel.Automation.Core.TestData
             this.Tags.AddRange(tags);
         }
 
-        public void AddTag(string key, string value)
+        public void Add(string key, string value)
         {
             var tag = this.Tags.FirstOrDefault(t => t.Key.Equals(key));
             if (tag != null)
@@ -56,7 +64,7 @@ namespace Pixel.Automation.Core.TestData
             this.Tags.Add(new Tag() { Key = key, Value = value });
         }
 
-        public void DeleteTag(string key)
+        public void Delete(string key)
         {
             var tag = this.Tags.FirstOrDefault(t => t.Key.Equals(key));
             if (tag != null)
@@ -65,9 +73,49 @@ namespace Pixel.Automation.Core.TestData
             }
         }
 
-        public bool HasTag(string key)
+        public bool Contains(string key)
         {
             return this.Tags.Any(t => t.Key.Equals(key));
+        }
+
+        public void Clear()
+        {
+            this.Tags.Clear();
+        }
+
+        public IEnumerator<Tag> GetEnumerator()
+        {
+            return this.Tags.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.Tags.GetEnumerator();
+        }
+
+        public void Add(Tag item)
+        {
+            Guard.Argument(item).NotNull();
+            this.Tags.Add(item);
+        }
+
+        public bool Contains(Tag item)
+        {
+            return this.Tags.Contains(item);
+        }
+
+        public void CopyTo(Tag[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(Tag item)
+        {
+            if(Contains(item))
+            {
+                return this.Tags.Remove(item);                
+            }
+            return false;
         }
     }
 }

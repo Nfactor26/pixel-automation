@@ -15,11 +15,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <controls:MetroWindow.Resources>
-        <Thickness x:Key="ControlMargin">5 5 5 5</Thickness>
-        <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
-    </controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary  Source="pack://application:,,,/Pixel.Automation.TestExplorer.Views;component/resources/Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Thickness x:Key="ControlMargin">5 5 5 5</Thickness>
+            <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
+        </ResourceDictionary>
+    </controls:MetroWindow.Resources>   
     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{StaticResource ControlMargin}">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+         
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Name" VerticalAlignment="Center"/>
                 <TextBox x:Name="DisplayName" Text="{Binding TestCaseDisplayName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
@@ -27,6 +33,7 @@
                      controls:TextBoxHelper.Watermark="Name"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
+            
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Description"/>
                 <TextBox x:Name="Description" Text="{Binding TestCaseDescription, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
@@ -34,22 +41,8 @@
                      controls:TextBoxHelper.Watermark="Description"  HorizontalAlignment="Stretch"
                      VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
-                <Label Content="Execution Speed"/>
-                <Slider x:Name="DelayFactor" Value="{Binding DelayFactor}" SmallChange="1" TickPlacement="None" LargeChange="10"
-                        Margin="5,5,5,0"  Style="{DynamicResource MahApps.Styles.Slider.Flat}"                      
-                        AutoToolTipPlacement="TopLeft"
-                        Minimum="0"  Maximum="100" ToolTip="Controls the pre-delay and post-delay for actors"/>
-            </StackPanel>
-            <!--<StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
-                <Label Content="Tags"/>
-                <TextBox x:Name="Tags" Text="{Binding Tags, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                     controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
-                     controls:TextBoxHelper.Watermark="Tags (comma seperate e.g. tag1,tag2)"  HorizontalAlignment="Stretch"
-                     VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
-            </StackPanel>-->
-          
-            <StackPanel Orientation="Horizontal" Margin="{StaticResource ControlMargin}">                
+            
+            <StackPanel Orientation="Horizontal" Margin="5,10,5,5">
                 <Label Content="Muted" ></Label>
                 <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Muted test cases are not executed"/>
                 <Label Content="Order" Margin="4,0,0,0" ></Label>
@@ -57,11 +50,59 @@
                 <Label Content="Priority" DockPanel.Dock="Left" Margin="4,0,0,0"></Label>
                 <ComboBox ItemsSource="{Binding Source={editorCore:EnumBindingSource {x:Type models:Priority}}}" DockPanel.Dock="Right"
                         SelectedItem="{Binding Path=Priority}" ToolTip="Priority" MinWidth="80"/>
-            </StackPanel>           
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
+                <Label Content="Execution Speed"/>
+                <Slider x:Name="DelayFactor" Value="{Binding DelayFactor}" SmallChange="1" TickPlacement="None" LargeChange="10"
+                        Margin="5,5,5,0"  AutoToolTipPlacement="TopLeft"
+                        Minimum="0"  Maximum="100" ToolTip="Controls the pre-delay and post-delay for actors"/>
+            </StackPanel>
+         
+
+            <StackPanel x:Name="TagPanel" Orientation="Vertical" Margin="{StaticResource ControlMargin}" Style="{StaticResource StackPanelWithoutErrorTemplateStyle}"
+                        DataContext="{Binding TagCollection, ValidatesOnNotifyDataErrors=True}">
+                <StackPanel Orientation="Horizontal" >
+                    <Label Name="Tags" Content="Tags"></Label>
+                    <Button Name="AddNewTag" Content="{iconPacks:Modern Add}"     
+                            ToolTip="Add new tag"
+                            cal:Message.Attach="[Event Click] = [Action AddNew()]" Style="{StaticResource EditControlButtonStyle}"/>
+                    <Button Name="EditSelectedTag" Content="{iconPacks:FontAwesome PencilAltSolid}"
+                            ToolTip="Edit selected tag" ToolTipService.ShowOnDisabled="true"
+                            IsEnabled="{Binding CanEdit, FallbackValue=false}"
+                            cal:Message.Attach="[Event Click] = [Action EditSelected()]" Style="{StaticResource EditControlButtonStyle}"/>
+                    <Button Name="DeleteSelectedTag" Content="{iconPacks:FontAwesome TrashAltSolid}"
+                            ToolTip="Delete selected tag" ToolTipService.ShowOnDisabled="true"
+                            IsEnabled="{Binding CanDelete, FallbackValue=false}"
+                            cal:Message.Attach="[Event Click] = [Action DeleteSelected()]" 
+                            Style="{StaticResource EditControlButtonStyle}"/>
+                </StackPanel>
+                <ListBox x:Name="TagCollection" ItemsSource="{Binding Tags}" SelectedItem="{Binding SelectedTag}" Style="{StaticResource TagEditorStyle}"
+                        BorderThickness="0" Margin="-6,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False"/>
+
+            </StackPanel>
+            
+            <DockPanel x:Name="ErrorPanel" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" LastChildFill="False" Grid.Row="1"
+                   Background="{DynamicResource MahApps.Brushes.ValidationSummary3}"
+                   Visibility="{Binding ShowModelErrors, FallbackValue=false, Converter={StaticResource boolToVisConverter}}">
+                <ItemsControl x:Name="ErrorList" Style="{DynamicResource ModelErrorStyle}"                       
+                      ItemsSource="{Binding Path=(Validation.Errors), ElementName=TagPanel}"
+                      DockPanel.Dock="Left" Margin="5"/>
+                <Button x:Name="HideErrorsPanel" Width="20"  Height="20" DockPanel.Dock="Right" VerticalAlignment="Top" Margin="0,5,5,0"
+                      cal:Message.Attach="[Event Click] = [Action DismissModelErrors()]" Background="Transparent"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Dismiss"
+                            Content="{iconPacks:Material CloseCircleOutline}"/>
+            </DockPanel>
+            
         </StackPanel>
-        <DockPanel LastChildFill="False" Margin="{StaticResource ControlMargin}">
+
+        <DockPanel LastChildFill="False" Margin="0,5,0,8">
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
+                    Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" 
+                    BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
             <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="10,0,4,0" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
             <Button x:Name="Save" Content="Save" DockPanel.Dock="Right" Width="100"  Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
         </DockPanel>
+        
     </StackPanel>
 </controls:MetroWindow>

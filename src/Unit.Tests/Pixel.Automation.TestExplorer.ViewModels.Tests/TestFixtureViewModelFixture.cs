@@ -21,16 +21,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 TestFixtureEntity = fixtureEntity
             };
-            testFixture.Tags.AddTag("color", "red");
-            testFixture.Tags.AddTag("priority", "low");
+            testFixture.Tags.Add("color", "red");
+            testFixture.Tags.Add("priority", "low");
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.Id));
             Assert.AreEqual("TestFixture#1", testFixtureviewModel.DisplayName);
             Assert.AreEqual(1, testFixtureviewModel.Order);
             Assert.AreEqual("Test fixture description", testFixtureviewModel.Description);          
-            Assert.IsTrue(testFixtureviewModel.Tags.HasTag("color"));
-            Assert.IsTrue(testFixtureviewModel.Tags.HasTag("priority"));
+            Assert.IsTrue(testFixtureviewModel.Tags.Contains("color"));
+            Assert.IsTrue(testFixtureviewModel.Tags.Contains("priority"));
             Assert.AreEqual("Script.csx", testFixtureviewModel.ScriptFile);
             Assert.AreEqual(fixtureEntity, testFixtureviewModel.TestFixtureEntity);
             Assert.IsFalse(testFixtureviewModel.IsMuted);
@@ -58,15 +58,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCaseViewModel.Tags.AddTag("color", "red");
-            testCaseViewModel.Tags.AddTag("priority", "high");
+            testCaseViewModel.Tags.Add("color", "red");
+            testCaseViewModel.Tags.Add("priority", "high");
 
             Assert.AreEqual("TestFixture#1", testFixture.DisplayName);
             Assert.AreEqual(1, testFixture.Order);
             Assert.AreEqual("Test fixture description", testFixture.Description);
             Assert.AreEqual(fixtureEntity, testFixture.TestFixtureEntity);
-            Assert.IsTrue(testCaseViewModel.Tags.HasTag("color"));
-            Assert.IsTrue(testCaseViewModel.Tags.HasTag("priority"));
+            Assert.IsTrue(testCaseViewModel.Tags.Contains("color"));
+            Assert.IsTrue(testCaseViewModel.Tags.Contains("priority"));
             Assert.AreEqual("Script.csx", testFixture.ScriptFile);
             Assert.IsTrue(testFixture.IsMuted);
         }
