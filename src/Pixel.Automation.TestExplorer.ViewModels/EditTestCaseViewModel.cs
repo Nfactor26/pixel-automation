@@ -4,6 +4,8 @@ using Pixel.Automation.Editor.Core;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -61,55 +63,68 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestCase.Priority = value;
         }
 
-        //public string Tags
-        //{
-        //    get => string.Join(",", CopyOfTestCase.Tags);
-        //    set
-        //    {
-        //        CopyOfTestCase.Tags.Clear();
-        //        CopyOfTestCase.Tags.AddRange(value.Trim(',').Split(new char[] { ',' }));
-        //        NotifyOfPropertyChange();
-        //    }
-        //}
+        public TagCollectionViewModel TagCollection { get; private set; } = new TagCollectionViewModel();
 
         public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
         {
             this.testCase = testCaseVM;
             this.existingTestCases = existingTestCases;
             this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase, null);
-        }
-
-        public bool CanSave
-        {
-            get => !HasErrors;
-        }
-
-
-        public async void Save()
-        {
-            if (Validate())
+            foreach (var tag in testCaseVM.Tags)
             {
-                this.testCase.DisplayName = CopyOfTestCase.DisplayName;
-                this.testCase.Description = CopyOfTestCase.Description;
-                this.testCase.IsMuted = CopyOfTestCase.IsMuted;
-                this.testCase.Order = CopyOfTestCase.Order;
-                this.testCase.DelayFactor = CopyOfTestCase.DelayFactor;
-                //this.testCase.Tags.Clear();
-                //this.testCase.Tags.AddRange(CopyOfTestCase.Tags);
-                await this.TryCloseAsync(true);
-                logger.Information("Edit Test Case changes applied.");
+                this.TagCollection.Add(new TagViewModel(tag));
             }
         }
 
-        public async void Cancel()
+        public async Task Save()
+        {
+            try
+            {
+                if (Validate())
+                {
+                    this.testCase.DisplayName = CopyOfTestCase.DisplayName;
+                    this.testCase.Description = CopyOfTestCase.Description;
+                    this.testCase.IsMuted = CopyOfTestCase.IsMuted;
+                    this.testCase.Order = CopyOfTestCase.Order;
+                    this.testCase.DelayFactor = CopyOfTestCase.DelayFactor;
+                    this.testCase.Tags.Clear();
+                    foreach (var item in this.TagCollection.Tags)
+                    {
+                        if (!item.IsDeleted)
+                        {
+                            this.testCase.Tags.Add(item.Key, item.Value);
+                        }
+                    }
+                    await this.TryCloseAsync(true);
+                    logger.Information("Edit Test Case changes applied.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);                
+            }
+        }
+
+        public async Task Cancel()
         {
             await this.TryCloseAsync(false);
             logger.Information("Edit Test Case changes were cancelled.");
         }
 
-        public bool Validate()
+        #region Validation
+
+        public override bool ShowModelErrors => HasErrors && propertyErrors.ContainsKey(nameof(TagCollection)) && propertyErrors[nameof(TagCollection)].Count() > 0;
+
+        public override void DismissModelErrors()
+        {
+            ClearErrors(nameof(TagCollection));
+            NotifyOfPropertyChange(() => ShowModelErrors);
+        }
+
+        private bool Validate()
         {
             ValidateProperty(nameof(TestCaseDisplayName));
+            ValidateProperty(nameof(TagCollection));
             return !HasErrors;
         }
 
@@ -125,10 +140,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
                     }
                     break;
-            }
-            NotifyOfPropertyChange(() => CanSave);
+                case nameof(TagCollection):
+                    if (!this.TagCollection.Validate(out List<string> validationErrors))
+                    {
+                        AddOrAppendErrors(nameof(TagCollection), validationErrors);
+                    }
+                    break;
+            }          
         }
 
-
+        #endregion Validation
     }
 }

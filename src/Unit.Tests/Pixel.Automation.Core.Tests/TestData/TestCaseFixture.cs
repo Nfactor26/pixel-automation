@@ -29,7 +29,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             testCase.IsMuted = true;
             testCase.ScriptFile = "TestCase.csx";
             testCase.TestDataId = Guid.NewGuid().ToString();
-            testCase.Tags.AddTag("color", "red");
+            testCase.Tags.Add("color", "red");
             testCase.Description = "Description";
             testCase.TestCaseEntity = new Entity();
 
@@ -48,7 +48,7 @@ namespace Pixel.Automation.Core.Tests.TestData
         public void ValidateThatTestCaseCanBeCloned()
         {
             var testCase = new TestCase() { DisplayName = "TestCase", FixtureId = "FixtureId", Order = 10, IsMuted = true, ScriptFile = "ScriptFile.csx", TestDataId = "TestDataId", Description = "Description", TestCaseEntity = new Entity() };
-            testCase.Tags.AddTag("color", "red");
+            testCase.Tags.Add("color", "red");
             var copyOfTestCase = testCase.Clone() as TestCase;
 
             Assert.AreEqual(testCase.DisplayName, copyOfTestCase.DisplayName);

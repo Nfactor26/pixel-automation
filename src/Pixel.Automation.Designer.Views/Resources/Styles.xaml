@@ -303,6 +303,18 @@
         </Setter>
     </Style>
 
+    <Style x:Key="StackPanelWithoutErrorTemplateStyle" TargetType="{x:Type StackPanel}">
+        <Style.Setters>
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <AdornedElementPlaceholder></AdornedElementPlaceholder>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style.Setters>
+    </Style>
+    
     <Style x:Key="ModelErrorStyle" TargetType="{x:Type ItemsControl}">
         <Setter Property="ItemTemplate">
             <Setter.Value>

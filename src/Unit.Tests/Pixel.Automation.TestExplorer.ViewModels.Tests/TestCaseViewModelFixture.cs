@@ -42,8 +42,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 FixtureId = "Fixture#1",
                 ScriptFile = "Script.csx"
             };
-            testCase.Tags.AddTag("color", "red");
-            testCase.Tags.AddTag("priority", "high");
+            testCase.Tags.Add("color", "red");
+            testCase.Tags.Add("priority", "high");
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
@@ -52,8 +52,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             Assert.AreEqual("Test case description", testCaseViewModel.Description);
             Assert.AreEqual("Fixture#1", testCaseViewModel.FixtureId);
             Assert.AreEqual(testCaseEntity, testCaseViewModel.TestCaseEntity);
-            Assert.IsTrue(testCaseViewModel.Tags.HasTag("color"));
-            Assert.IsTrue(testCaseViewModel.Tags.HasTag("priority"));
+            Assert.IsTrue(testCaseViewModel.Tags.Contains("color"));
+            Assert.IsTrue(testCaseViewModel.Tags.Contains("priority"));
             Assert.AreEqual("Script.csx", testCaseViewModel.ScriptFile);
             Assert.IsNull(testCaseViewModel.TestDataId);
             Assert.IsFalse(testCaseViewModel.IsMuted);
@@ -83,7 +83,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCase.Tags.AddTag("color", "red");       
+            testCase.Tags.Add("color", "red");       
             Assert.AreEqual("TestCase#1", testCase.DisplayName);
             Assert.AreEqual(1, testCase.Order);
             Assert.AreEqual("Test case description", testCase.Description);         

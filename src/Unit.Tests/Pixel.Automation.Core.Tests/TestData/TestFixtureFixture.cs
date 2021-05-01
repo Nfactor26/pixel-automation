@@ -29,7 +29,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             testFixture.IsMuted = true;
             testFixture.ScriptFile = "TestFixture.csx";
             testFixture.Description = "Description";
-            testFixture.Tags.AddTag("color", "red");
+            testFixture.Tags.Add("color", "red");
             testFixture.Tests.Add(new TestCase());
             testFixture.TestFixtureEntity = new Entity();
 
@@ -49,7 +49,7 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testFixture = new TestFixture() { DisplayName = "TestCase", Order = 10, IsMuted = true, ScriptFile = "ScriptFile.csx", 
                 Description = "Description", Category = "GroupOne", TestFixtureEntity = new Entity() };
-            testFixture.Tags.AddTag("color", "red");
+            testFixture.Tags.Add("color", "red");
             testFixture.Tests.Add(new TestCase());
             var copyOftestFixture = testFixture.Clone() as TestFixture;
 
