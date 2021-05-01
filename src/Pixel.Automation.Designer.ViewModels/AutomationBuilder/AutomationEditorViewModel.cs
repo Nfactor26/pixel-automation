@@ -10,6 +10,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Notfications;
 using Pixel.Automation.TestData.Repository.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -312,7 +313,8 @@ namespace Pixel.Automation.Designer.ViewModels
             this.testDataRepositoryViewModel?.ClearActiveInstance();
             this.testDataRepository = null;
             
-            this.Dispose();           
+            this.Dispose();
+            await this.globalEventAggregator.PublishOnBackgroundThreadAsync(new EditorClosedNotification(this.CurrentProject));
             await this.TryCloseAsync(true);            
         }
 
