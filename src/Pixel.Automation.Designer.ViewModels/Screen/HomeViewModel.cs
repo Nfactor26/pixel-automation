@@ -5,23 +5,28 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Notfications;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-    public class HomeViewModel : ScreenBase, IHome
+    public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification>
     {
         private readonly ILogger logger = Log.ForContext<HomeViewModel>();
 
+        private readonly IEventAggregator eventAggregator;
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
-      
+        private readonly List<AutomationProject> openProjects = new List<AutomationProject>();
+
         BindableCollection<AutomationProject> recentProjects = new BindableCollection<AutomationProject>();
         public BindableCollection<AutomationProject> RecentProjects
         {
@@ -36,9 +41,12 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public HomeViewModel(ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager)
+
+        public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager)
         {
             this.DisplayName = "Home";
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
+            this.eventAggregator.SubscribeOnBackgroundThread(this);
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;       
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
@@ -87,7 +95,12 @@ namespace Pixel.Automation.Designer.ViewModels
                             automationProject = serializer.Deserialize<AutomationProject>(this.applicationDataManager.GetProjectFile(automationProject), null);
                             break;
                     }
+                }
 
+                if(this.openProjects.Any(a => a.ProjectId.Equals(automationProject.ProjectId)))
+                {
+                    logger.Information($"Project {automationProject.Name} is already open.");
+                    return;
                 }
 
                 logger.Information($"Trying to open project : {automationProject.Name}");
@@ -98,6 +111,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 if(this.Parent is IConductor conductor)
                 {
                     await conductor.ActivateItemAsync(automationEditor as Screen);
+                    this.openProjects.Add(automationProject);
                     logger.Information($"Project : {automationProject.Name} is open now.");
                     return;
                 }
@@ -134,6 +148,23 @@ namespace Pixel.Automation.Designer.ViewModels
         {           
             await this.TryCloseAsync(true);        
             logger.Information($"{nameof(HomeViewModel)} was closed.");
+        }
+
+        public async Task HandleAsync(EditorClosedNotification message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var project = this.openProjects.FirstOrDefault(a => a.ProjectId.Equals(message.AutomationProject.ProjectId));
+                if (project != null)
+                {
+                    this.openProjects.Remove(project);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+            await Task.CompletedTask;
         }
 
         #endregion Close Screen

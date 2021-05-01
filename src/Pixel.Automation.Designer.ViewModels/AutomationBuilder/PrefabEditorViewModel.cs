@@ -8,7 +8,6 @@ using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -115,20 +114,6 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             this.Dispose();         
             await this.TryCloseAsync(true);        
-        }
-
-        public event EventHandler<PrefabUpdatedEventArgs> PrefabUpdated = delegate { };
-
-        protected virtual void OnPrefabUpdated()
-        {
-            this.PrefabUpdated(this, new PrefabUpdatedEventArgs(this.PrefabDescription));
-        }
-
-        public event EventHandler<EditorClosingEventArgs> EditorClosing = delegate { };
-
-        protected virtual void OnEditorClosing()
-        {
-            this.EditorClosing(this, new EditorClosingEventArgs());
         }
 
         protected override void Dispose(bool isDisposing)
