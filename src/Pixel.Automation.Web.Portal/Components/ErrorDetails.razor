@@ -1,0 +1,21 @@
+﻿
+<MudTr>
+    <td colspan="7">
+        <MudCard Elevation="1">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Error" NoIcon="true">Exception of type <strong>@FailureDetails.Exception</strong> occured.</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudAlert Severity="Severity.Error" NoIcon="true">@FailureDetails.Message</MudAlert>
+                <MudAlert Severity="Severity.Error" NoIcon="true">@FailureDetails.StackTrace</MudAlert>
+            </MudCardContent>
+        </MudCard>      
+    </td>
+</MudTr>
+@code {
+
+    [Parameter]
+    public FailureDetailsViewModel FailureDetails { get; set; }
+}

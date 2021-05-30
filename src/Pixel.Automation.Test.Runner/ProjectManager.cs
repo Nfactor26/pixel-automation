@@ -126,7 +126,7 @@ namespace Pixel.Automation.Test.Runner
                         {
                             continue;
                         }
-                        Console.WriteLine($"    -- {testFixture.DisplayName}");
+                        Console.WriteLine($"    -- {testCase.DisplayName}");
                     }
                 }             
             }
@@ -138,10 +138,14 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task RunAllAsync(string selector)
         {
-            TestSession testSession = new TestSession(automationProject.Name, this.targetVersion.ToString());
-            await this.testSelector.Initialize(selector);
+            TestSession testSession = new TestSession(automationProject.ProjectId, automationProject.Name, this.targetVersion.ToString());
+            List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
+            testSession.SessionId = await sessionClient.AddSessionAsync(testSession);
+
             try
-            {                
+            {
+                int counter = 0;
+                await this.testSelector.Initialize(selector);
                 await this.testRunner.SetUpEnvironment();
 
                 foreach (var testFixture in this.availableFixtures)
@@ -165,7 +169,10 @@ namespace Pixel.Automation.Test.Runner
                        
                         await foreach(var testResult in  this.RunTestCaseAsync(testFixture, testCase))
                         {
-                            testSession.TestResultCollection.Add(testResult);
+                            testResult.SessionId = testSession.SessionId;                          
+                            testResult.ExecutionOrder = ++counter;
+                            await sessionClient.AddResultAsync(testResult);
+                            testResults.Add(testResult);
                         }
                                 
                     }
@@ -181,7 +188,8 @@ namespace Pixel.Automation.Test.Runner
            
             try
             {
-                await sessionClient.AddSession(testSession);
+                testSession.OnFinished(testResults);
+                await sessionClient.UpdateSessionAsync(testSession.SessionId, testSession);
             }
             catch (Exception ex)
             {
@@ -205,19 +213,21 @@ namespace Pixel.Automation.Test.Runner
                 {
                     var testResult = new Persistence.Core.Models.TestResult()
                     {
+                        ProjectId = automationProject.ProjectId,
+                        ProjectName = automationProject.Name,
                         TestId = testCase.Id,
                         TestName = testCase.DisplayName,
-                        CategoryId = fixture.Id,
-                        CategoryName = fixture.DisplayName,
-                        Result = (Persistence.Core.Models.TestState)((int)result.Result),
-                        ExecutionTime = result.ExecutionTime.TotalSeconds,
-                        ErrorMessage = result.ErrorMessage
+                        FixtureId = fixture.Id,
+                        FixtureName = fixture.DisplayName,
+                        Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
+                        ExecutionTime = result.ExecutionTime.TotalSeconds                        
                     };
-                    logger.Information($"Test case : {testCase.DisplayName} completed with result {testResult.Result} in time {testResult.ExecutionTime}");                   
-                    if (testResult.Result == Persistence.Core.Models.TestState.Failed)
+                    if(result.Result == Core.TestData.TestStatus.Failed)
                     {
-                        logger.Warning($"Test case failed with error : {testResult.ErrorMessage ?? "unknown" }");
+                        testResult.FailureDetails = new FailureDetails(result.Error);
+                        logger.Warning($"Test case failed with error : {testResult.FailureDetails.Message}");
                     }
+                    logger.Information($"Test case : {testCase.DisplayName} completed with result {testResult.Result} in time {testResult.ExecutionTime}");                 
                     yield return testResult;
                 }
                 await this.testRunner.TryCloseTestCase(fixture, testCase);

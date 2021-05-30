@@ -1,0 +1,58 @@
+﻿
+<MudTable Items="@(TestResults ?? Enumerable.Empty<TestResultViewModel>())"
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Test Results</MudText>
+        <MudToolBarSpacer />
+        <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>#</MudTh>
+        <MudTh>Fixture Name</MudTh>
+        <MudTh>Test Name</MudTh>
+        <MudTh>Execution Time</MudTh>
+        <MudTh>Result</MudTh>
+        <MudTh>Statistics</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <ResultItem ResultViewModel="@context" ToggleErrorDetailPanelVisibility="OnToggleErrorDetailsPanelVisibility" />
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.IsErrorDetailsVisible)
+        {
+            <ErrorDetails FailureDetails="@context.ErrorDetails" />            
+        }
+    </ChildRowContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Results Per Page" />
+    </PagerContent>
+    <ColGroup>
+        <col style="width:20px;" />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+    </ColGroup>
+</MudTable>
+
+@code {
+
+    private string searchString = "";
+    private readonly int[] pageSizeOptions = { 10, 20, 30, 40, 50 };
+
+
+    [Parameter]
+    public List<TestResultViewModel> TestResults { get; set; }
+
+    public void OnToggleErrorDetailsPanelVisibility(string rowId)
+    {
+        var row = TestResults.FirstOrDefault(t => t.Id.Equals(rowId));
+        if (row != null)
+        {
+            row.IsErrorDetailsVisible = !row.IsErrorDetailsVisible;
+        }
+    }
+}

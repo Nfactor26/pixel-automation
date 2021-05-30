@@ -1,0 +1,28 @@
+﻿@inject IJSRuntime jsRuntime
+
+<div id="chart-container-donut"></div>
+
+@code {
+
+    [Parameter]
+    public ChartDataModel ChartData { get; set; }
+
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await jsRuntime.InvokeVoidAsync("generateDonutChart", "#chart-donut", Values, Labels);
+    //        this.StateHasChanged();
+    //    }
+    //}
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(ChartData != null)
+        {
+            await jsRuntime.InvokeVoidAsync("generateDonutChart", "#chart-container-donut", ChartData);
+            this.StateHasChanged();
+        }
+    }
+}

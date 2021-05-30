@@ -2,7 +2,7 @@
 
 namespace Pixel.Automation.Core.TestData
 {
-    public enum TestState
+    public enum TestStatus
     {
         None,
         Success,
@@ -14,10 +14,10 @@ namespace Pixel.Automation.Core.TestData
     public class TestResult : NotifyPropertyChanged
     {
 
-        public static TestResult EmptyResult { get; } = new TestResult() { Result = TestState.None };
+        public static TestResult EmptyResult { get; } = new TestResult() { Result = TestStatus.None };
 
-        TestState result = TestState.None;
-        public TestState Result
+        TestStatus result = TestStatus.None;
+        public TestStatus Result
         {
             get => result;
             set

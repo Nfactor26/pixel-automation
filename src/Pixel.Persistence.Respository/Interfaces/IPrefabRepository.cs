@@ -32,15 +32,15 @@ namespace Pixel.Persistence.Respository
         /// <summary>
         /// Get the PrefabDescription file 
         /// </summary>
-        /// <param name="prefabId"></param>
+        /// <param name="prefabId">PrefabId of the Prefab whose data is required</param>
         /// <returns></returns>
         Task<byte[]> GetPrefabFileAsync(string prefabId);
 
         /// <summary>
         /// Get the prefab data files for a given version of prefab
         /// </summary>
-        /// <param name="prefabId"></param>
-        /// <param name="version"></param>
+        /// <param name="prefabId">PrefabId of the Prefab</param>
+        /// <param name="version">Version of the Prefab</param>
         /// <returns></returns>
         Task<byte[]> GetPrefabDataFilesAsync(string prefabId, string version);
     }

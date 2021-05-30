@@ -1,0 +1,95 @@
+﻿@page "/test-statistics/{TestId?}"
+@inject HttpClient Http
+
+@*<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudSelect T="string" Label="Search By">
+            <MudSelectItem Value="@("Name")" />
+            <MudSelectItem Value="@("Id")" />
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudTextField @bind-Value="Search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" AdornmentColor="Color.Secondary" />
+    </MudItem>
+</MudGrid>*@
+
+<MudGrid Spacing="4" Justify="Justify.FlexStart">
+    <MudItem xs="12">
+        <MudGrid Spacing="4">
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    @if (statisticsViewModel.SuccessRate > 80)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingDown" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    }
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sucess Rate</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.SuccessRate %</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Avg Execution Time</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime m</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem xs="3">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Execution Stats</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.DonutChart ChartData="@statisticsViewModel?.ExecutionSummaryChartData"></Pixel.Automation.Web.Portal.Components.Charts.DonutChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="9">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Executions History</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.BarChart ChartData="@statisticsViewModel?.MonthlyExecutionHistoryData"></Pixel.Automation.Web.Portal.Components.Charts.BarChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>     
+    <MudItem xs="12">
+        <FailureDetailsTable TableHeader="Unique Failures" Failures="@statisticsViewModel.UniqueFailures"></FailureDetailsTable>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+
+    public string Search { get; set; }
+
+    [Parameter]
+    public string TestId { get; set; }
+   
+    private TestStatisticsViewModel statisticsViewModel = new TestStatisticsViewModel();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(TestId))
+        {
+            var statistics = await Http.GetFromJsonAsync<TestStatistics>($"/api/TestStatistics/{TestId}");
+            statisticsViewModel = new TestStatisticsViewModel(statistics);
+        }
+    }
+
+}
