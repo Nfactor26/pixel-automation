@@ -1,11 +1,10 @@
 ﻿@page "/sessions"
 @inject TestSessionHttpClient Http
 
-
 <MudTable ServerData="@(new Func<TableState, Task<TableData<TestSession>>>(GetSessionsData))"
-          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By">
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Test Sessions</MudText>
+        <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-4">Test Sessions</MudText>
         <MudToolBarSpacer />
         <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -26,6 +25,8 @@
         <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Sessions Per Page" />
     </PagerContent>
 </MudTable>
+<br/>
+<br/>
 
 @code {
 
