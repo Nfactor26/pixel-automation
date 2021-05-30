@@ -1,0 +1,48 @@
+﻿@page "/sessions"
+@inject TestSessionHttpClient Http
+
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<TestSession>>>(GetSessionsData))"
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Test Sessions</MudText>
+        <MudToolBarSpacer />
+        <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>  
+    <HeaderContent>
+        <MudTh>Session Name</MudTh>
+        <MudTh>Project Name</MudTh>        
+        <MudTh>Machine</MudTh>   
+        <MudTh>Start Time</MudTh>
+        <MudTh>Execution Time</MudTh>
+        <MudTh>Result</MudTh>
+        <MudTh>Status</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <SessionItem Session="@context" />
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Sessions Per Page" />
+    </PagerContent>
+</MudTable>
+
+@code {
+
+    private string searchString = "";
+    private TestSessionRequest sessionQueryParameters = new TestSessionRequest();
+    private readonly int[] pageSizeOptions = { 10, 20, 30, 40, 50 };
+
+    
+    private async Task<TableData<TestSession>> GetSessionsData(TableState state)
+    {
+        sessionQueryParameters.CurrentPage = state.Page + 1;
+        sessionQueryParameters.PageSize = state.PageSize;
+        var sessionPage = await Http.GetAvailableSessions(sessionQueryParameters);
+        return new TableData<TestSession>
+        {
+            Items = sessionPage.Items,
+            TotalItems = sessionPage.ItemsCount
+        };
+    }    
+}

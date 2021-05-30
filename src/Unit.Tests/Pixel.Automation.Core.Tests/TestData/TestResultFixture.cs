@@ -11,18 +11,18 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testResult = new TestResult();
             
-            Assert.AreEqual(TestState.None, testResult.Result);
+            Assert.AreEqual(TestStatus.None, testResult.Result);
             Assert.AreEqual(TimeSpan.Zero, testResult.ExecutionTime);
             Assert.IsEmpty(testResult.ErrorMessage);
             Assert.IsNull(testResult.TestData);
             Assert.IsNull(testResult.Error);
 
             testResult.ExecutionTime = TimeSpan.FromSeconds(5);
-            testResult.Result = TestState.Failed;
+            testResult.Result = TestStatus.Failed;
             testResult.Error = new Exception("Could not find control");
             testResult.TestData = "Model.ToString()";
 
-            Assert.AreEqual(TestState.Failed, testResult.Result);
+            Assert.AreEqual(TestStatus.Failed, testResult.Result);
             Assert.AreEqual(TimeSpan.FromSeconds(5), testResult.ExecutionTime);
             Assert.AreEqual("System.Exception: Could not find control", testResult.ErrorMessage);
             Assert.IsNotNull(testResult.Error);

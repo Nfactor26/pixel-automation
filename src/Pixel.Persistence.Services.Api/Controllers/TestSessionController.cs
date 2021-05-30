@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using Pixel.Persistence.Respository;
 using System;
 using System.Collections.Generic;
@@ -18,33 +20,29 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public TestSessionController(ITestSessionRepository testSessionRepository)
         {
             this.testSessionRepository = testSessionRepository;
-        }
+        }      
 
-        // GET: api/TestSession
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TestSession>>> Get()
+        public async Task<PagedList<TestSession>> Get([FromQuery] TestSessionRequest queryParameter)
         {
-            var testSessions  = await testSessionRepository.GetTestSessionsAsync();
-            if(testSessions != null)
-            {
-                return testSessions.ToList();
-            }
-            return NoContent();
+            var count = await testSessionRepository.GetCountAsync(queryParameter);
+            var sessions = await testSessionRepository.GetTestSessionsAsync(queryParameter);           
+            return new PagedList<TestSession>(sessions, (int)count, queryParameter.CurrentPage, queryParameter.PageSize);
         }
 
         // GET: api/TestSession/5
-        [HttpGet("{sessionId}", Name = "Get")]
+        [HttpGet("{sessionId}")]
         public async Task<ActionResult<TestSession>> Get(string sessionId)
         {
-            var  testSession = await testSessionRepository.GetTestSessionAsync(sessionId);
-            if(testSession != null)
+            var testSession = await testSessionRepository.GetTestSessionAsync(sessionId);
+            if (testSession != null)
             {
                 return testSession;
             }
 
             return NotFound();
-        }
-
+        }             
+       
         // POST: api/TestSession
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TestSession testSession)
@@ -53,19 +51,29 @@ namespace Pixel.Persistence.Services.Api.Controllers
             return CreatedAtAction(nameof(Get), new { sessionId = testSession.SessionId }, testSession);
         }
 
+        /// <summary>
+        /// Update a TestSession with a given SessionId
+        /// </summary>
+        /// <param name="sessionId">SessionId of the TestSession to be updated</param>
+        /// <param name="testSession">Updated data for the TestSession</param>
+        /// <returns></returns>
+        [HttpPost("{sessionId}")]
+        public async Task<IActionResult> Post([FromRoute] string sessionId, [FromBody] TestSession testSession)
+        {
+            await testSessionRepository.UpdateTestSessionAsync(sessionId, testSession);
+            return CreatedAtAction(nameof(Get), new { sessionId = testSession.SessionId }, testSession);
+        }
 
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/TestSession/sessionId
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string sessionId)
         {
-            var testSession = await testSessionRepository.GetTestSessionAsync(sessionId);
-            if(testSession == null)
+            bool isDeleted = await testSessionRepository.TryDeleteTestSessionAsync(sessionId);
+            if (isDeleted)
             {
-                return NotFound();
+                return Ok();
             }
-
-            await testSessionRepository.DeleteTestSessionAsync(testSession.SessionId);
-            return NoContent();
+            return NotFound();
         }
     }
 }

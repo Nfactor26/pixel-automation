@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
@@ -7,6 +11,16 @@ namespace Pixel.Persistence.Core.Models
     [Serializable]
     public class TestStatistics
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [DataMember]
+        public string ProjectId { get; set; }
+
+        [DataMember]
+        public string ProjectName { get; set; }
+
         [DataMember]
         public string TestId { get; set; }
 
@@ -14,27 +28,26 @@ namespace Pixel.Persistence.Core.Models
         public string TestName { get; set; }
 
         [DataMember]
-        public string CategoryId { get; set; }
+        public string FixtureId { get; set; }
 
         [DataMember]
-        public string CategoryName { get; set; }
+        public string FixtureName { get; set; }
 
         [DataMember]
-        public int NumberOfTimesExeucted { get; set; }
+        List<Label> Annotations { get; set; } = new List<Label>();
 
+        /// <summary>
+        /// Historical execution statistics on a monthly basis
+        /// </summary>
         [DataMember]
-        public int NumberOfTimesFailed { get; set; }
+        public List<TestExecutionStatistics> MonthlyStatistics { get; set; } = new List<TestExecutionStatistics>();
 
+        /// <summary>
+        /// Collection of failure due to unique reasons over the period of this execution statistics
+        /// </summary>
         [DataMember]
-        public int NumberOfTimesPassed { get; set; }
-
-        [DataMember]
-        public double SuccessRate { get; set; }
-
-        [DataMember]
-        public int AverageExecutionTime { get; set; }
-
+        public List<FailureDetails> UniqueFailures { get; set; } = new List<FailureDetails>();
+        
     }
-
-
+        
 }

@@ -31,13 +31,18 @@ namespace Pixel.Persistence.Services.Api
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
         
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
+            services.AddTransient<ITestResultsRepository, TestResultsRepository>();
+            services.AddTransient<ITestStatisticsRepository, TestStatisticsRepository>();
             services.AddTransient<IApplicationRepository, ApplicationRepository>();
             services.AddTransient<IControlRepository, ControlRepository>();
             services.AddTransient<IProjectRepository, ProjectRepository>();
             services.AddTransient<IPrefabRepository, PrefabRepository>();
-            services.AddControllers();
+            services.AddControllers(); 
+            //services.AddControllersWithViews();
+            services.AddRazorPages();
 
             services.AddSwaggerGen();
+            services.AddHostedService<StatisticsProcessorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +60,8 @@ namespace Pixel.Persistence.Services.Api
             });
 
             app.UseHttpsRedirection();
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -62,7 +69,9 @@ namespace Pixel.Persistence.Services.Api
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
