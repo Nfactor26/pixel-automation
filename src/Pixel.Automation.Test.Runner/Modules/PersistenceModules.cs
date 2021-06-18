@@ -13,6 +13,7 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IProjectRepositoryClient>().To<ProjectRepositoryClient>();
             Kernel.Bind<IPrefabRepositoryClient>().To<PrefabRepositoryClient>();
             Kernel.Bind<ITestSessionClient>().To<TestSessionClient>();
+            Kernel.Bind<ITemplateClient>().To<TemplateClient>().InSingletonScope();
             Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
         }
     }

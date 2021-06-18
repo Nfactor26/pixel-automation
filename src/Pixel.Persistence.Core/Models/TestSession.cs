@@ -19,14 +19,14 @@ namespace Pixel.Persistence.Core.Models
         public string SessionId { get; set; }
 
         /// <summary>
-        /// Name of the Machine where test session was executed
+        /// Id of the Session Template that was used to start this session
         /// </summary>
-        public string MachineName { get; set; }
+        public string TemplateId { get; set; }
 
         /// <summary>
-        /// Operating System on which test session was execued
+        /// Name of the Session Template that was used to start this session
         /// </summary>
-        public string OSDetails { get; set; }
+        public string TemplateName { get; set; }
 
         /// <summary>
         /// Id of the Project executed in test session
@@ -42,6 +42,17 @@ namespace Pixel.Persistence.Core.Models
         /// Version of the project executed in test session
         /// </summary>
         public string ProjectVersion { get; set; }
+
+        /// <summary>
+        /// Name of the Machine where test session was executed
+        /// </summary>
+        public string MachineName { get; set; }
+
+        /// <summary>
+        /// Operating System on which test session was execued
+        /// </summary>
+        public string OSDetails { get; set; }
+      
 
         /// <summary>
         /// Date and time when the test session was executed
@@ -87,7 +98,19 @@ namespace Pixel.Persistence.Core.Models
         /// </summary>
         public TestSession()
         {
-           
+            this.SessionStartTime = DateTime.Now.ToUniversalTime();
+            this.SessionStatus = SessionStatus.InProgress;
+            this.MachineName = Environment.MachineName;
+            this.OSDetails = RuntimeInformation.OSDescription;
+        }
+
+
+        public TestSession(SessionTemplate template) : this()
+        {
+            this.TemplateId = template.Id;
+            this.TemplateName = template.Name;
+            this.ProjectName = template.ProjectName;
+            this.ProjectVersion = template.ProjectVersion;
         }
 
         /// <summary>
@@ -95,15 +118,11 @@ namespace Pixel.Persistence.Core.Models
         /// </summary>
         /// <param name="projectName">Name of the project</param>
         /// <param name="projectVersion">Version of the project</param>
-        public TestSession(string projectId, string projectName, string projectVersion)
+        public TestSession(string projectId, string projectName, string projectVersion) : this()
         {
             this.ProjectId = projectId;
             this.ProjectName = projectName;
-            this.ProjectVersion = projectVersion;
-            this.SessionStartTime = DateTime.Now.ToUniversalTime();
-            this.SessionStatus = SessionStatus.InProgress;
-            this.MachineName = Environment.MachineName;
-            this.OSDetails = RuntimeInformation.OSDescription;
+            this.ProjectVersion = projectVersion;            
         }    
       
 

@@ -51,6 +51,12 @@ namespace Pixel.Persistence.Services.Client
 
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(ApplicationSettings)).NotNull();
 
+            CreateLocalDataDirectories();
+
+        }
+
+        void CreateLocalDataDirectories()
+        {
             if (!Directory.Exists(applicationSettings.ApplicationDirectory))
             {
                 Directory.CreateDirectory(applicationSettings.ApplicationDirectory);
@@ -60,10 +66,26 @@ namespace Pixel.Persistence.Services.Client
             {
                 Directory.CreateDirectory(applicationSettings.AutomationDirectory);
             }
-
         }
 
         #endregion Constructor
+
+        public void CleanLocalData()
+        {
+            if (Directory.Exists(applicationSettings.ApplicationDirectory))
+            {
+                Directory.Delete(applicationSettings.ApplicationDirectory, true);
+                logger.Information($"Delted local application data directory {applicationSettings.ApplicationDirectory}.");
+            }
+
+            if (Directory.Exists(applicationSettings.AutomationDirectory))
+            {
+                Directory.Delete(applicationSettings.AutomationDirectory, true);
+                logger.Information($"Delte local automation data directory {applicationSettings.AutomationDirectory}.");
+            }
+
+            CreateLocalDataDirectories();
+        }
 
         #region Applications 
 
@@ -405,8 +427,10 @@ namespace Pixel.Persistence.Services.Client
                 var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
                 var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject.Name);
 
-                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
-                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId));
+                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
+                    a.Version.Equals(projectVersion.ToString()));
+                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
+                    a.Version.Equals(projectVersion.ToString()));
 
                 if (serverVersion?.LastUpdated > (localVersion?.LastUpdated ?? DateTime.MinValue))
                 {
@@ -417,7 +441,11 @@ namespace Pixel.Persistence.Services.Client
                         var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
                         zipArchive.ExtractToDirectory(versionDirectory, true);
                     }
-                    CreateOrUpdateProjectVersionMetaData(automationProject.Name, serverProjectMetaDataCollection);
+                    
+                    //append only entry for the projectVersion being downloaded to local copy of metadata.
+                    var updatedLocalMetaDataCollection = new List<ProjectMetaData>(localProjectsMetaDataCollection);
+                    updatedLocalMetaDataCollection.Add(serverVersion);
+                    CreateOrUpdateProjectVersionMetaData(automationProject.Name, updatedLocalMetaDataCollection);
                 }
             }          
         }

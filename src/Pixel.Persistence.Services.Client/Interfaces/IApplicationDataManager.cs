@@ -8,6 +8,11 @@ namespace Pixel.Persistence.Services.Client
     public interface IApplicationDataManager
     {
         /// <summary>
+        /// Delete application and automation data directory from local disk
+        /// </summary>
+        void CleanLocalData();
+
+        /// <summary>
         /// Load all application description from disk (e.g. for use in application explorer) and return loaded application descriptions
         /// </summary>
         /// <returns></returns>

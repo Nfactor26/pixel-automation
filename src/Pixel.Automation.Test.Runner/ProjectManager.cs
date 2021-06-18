@@ -31,6 +31,7 @@ namespace Pixel.Automation.Test.Runner
         private AutomationProject automationProject;
         private VersionInfo targetVersion;
         private List<TestFixture> availableFixtures = new List<TestFixture>();
+        private SessionTemplate sessionTemplate;
 
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IProjectFileSystem fileSystem, ITypeProvider typeProvider,
             IApplicationDataManager applicationDataManager, ITestRunner testRunner,
@@ -46,7 +47,13 @@ namespace Pixel.Automation.Test.Runner
             this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
         }
 
-
+        public async Task<string> LoadProjectAsync(SessionTemplate template)
+        {
+            Guard.Argument(template).NotNull();
+            this.sessionTemplate = template;
+            await LoadProjectAsync(template.ProjectName, template.ProjectVersion, template.InitializeScript);
+            return this.automationProject.ProjectId;
+        }
 
         public async Task LoadProjectAsync(string projectName, string projectVersion, string initializationScript)
         {
@@ -62,7 +69,7 @@ namespace Pixel.Automation.Test.Runner
             }
             this.targetVersion = automationProject.DeployedVersions.Where(a => a.Version.Equals(version)).Single();
 
-            _ = this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
+            await this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
             this.fileSystem.Initialize(automationProject.Name, targetVersion);
 
             if (!string.IsNullOrEmpty(initializationScript) && !File.Exists(Path.Combine(fileSystem.ScriptsDirectory, initializationScript)))
@@ -104,12 +111,14 @@ namespace Pixel.Automation.Test.Runner
                 {
                     testFixture.Tests.Add(testCase);
                 }
-            }         
+            }
+            logger.Information($"Found {this.availableFixtures.Select(s => s.Tests).Count()} test cases.");
         }
 
         public async Task ListAllAsync(string selector)
         {          
             await this.testSelector.Initialize(selector);
+            logger.Information($"Listing tests that matches selection condition now.");
             try
             {
               
@@ -138,7 +147,7 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task RunAllAsync(string selector)
         {
-            TestSession testSession = new TestSession(automationProject.ProjectId, automationProject.Name, this.targetVersion.ToString());
+            TestSession testSession = new TestSession(this.sessionTemplate);
             List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
             testSession.SessionId = await sessionClient.AddSessionAsync(testSession);
 
