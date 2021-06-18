@@ -37,6 +37,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<IControlRepository, ControlRepository>();
             services.AddTransient<IProjectRepository, ProjectRepository>();
             services.AddTransient<IPrefabRepository, PrefabRepository>();
+            services.AddTransient<ITemplateRepository, TemplateRepository>();
             services.AddControllers(); 
             //services.AddControllersWithViews();
             services.AddRazorPages();
