@@ -229,6 +229,7 @@ namespace Pixel.Automation.Test.Runner
                         FixtureId = fixture.Id,
                         FixtureName = fixture.DisplayName,
                         Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
+                        ExecutedOn = DateTime.Today.ToUniversalTime(),
                         ExecutionTime = result.ExecutionTime.TotalSeconds                        
                     };
                     if(result.Result == Core.TestData.TestStatus.Failed)

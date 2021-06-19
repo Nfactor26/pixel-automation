@@ -1,18 +1,11 @@
 ﻿using Pixel.Persistence.Core.Models;
-using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
-    interface IProjectStatisticsRepository
-    {
-        /// <summary>
-        /// Create or Update TestStatistics for a given TestResult
-        /// </summary>
-        /// <param name="testResult"><see cref="TestResult"/> whose statistics needs to be updated</param>
-        /// <returns></returns>
-        Task AddOrUpdateStatisticsAsync(TestResult testResult, DateTime fromTime, DateTime toTime);
-
+    public interface IProjectStatisticsRepository
+    {        
         /// <summary>
         /// Get ProjectStatistics given a projectId
         /// </summary>
@@ -26,5 +19,22 @@ namespace Pixel.Persistence.Respository
         /// <param name="projectName"></param>
         /// <returns></returns>
         Task<ProjectStatistics> GetProjectStatisticsByNameAsync(string projectName);
+
+
+        /// <summary>
+        /// Get TestStatistics for recently failed test cases for a given project.
+        /// Recently failed test cases are those failed in last 30 days.
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        Task<IEnumerable<TestStatistics>> GetRecentFailures(string projectId);
+
+        /// <summary>
+        /// Update ProjectStatistics for a given Session
+        /// </summary>
+        /// <param name="sessionId"><see cref="string"/>Id of the session that needs to be processed for project statistics</param>
+        /// <returns></returns>
+        Task AddOrUpdateStatisticsAsync(string sessionId);
+
     }
 }

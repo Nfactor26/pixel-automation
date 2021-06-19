@@ -11,6 +11,8 @@ namespace Pixel.Automation.Web.Portal.ViewModels
     {
         private TestSession testSession;
 
+        public string ProjectId => testSession.ProjectId;
+
         public string ProjectName => testSession.ProjectName;
 
         public string ProjectVersion => testSession.ProjectVersion;

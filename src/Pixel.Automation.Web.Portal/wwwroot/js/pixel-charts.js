@@ -69,24 +69,35 @@
     chart.render();
 }
 
-
-function generateExecutionHistoryBarChart(containerId, chartData) {
+function generateRadarChart(containerId, chartData) {
 
     var options = {
-        series: chartData.series,
+        series: chartData.series,       
         chart: {
-            type: 'bar',
-            height: 350,
-            stacked: true,
+            type: 'radar',
+            height: chartData.height,
+            width: chartData.width,
             toolbar: {
                 show: true
             },
             zoom: {
                 enabled: true
             }
-        },              
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: [],
+            dashArray: 0
+        },
+        markers: {
+            size: 0,
+            hover: {
+                size: 0
+            }
+        },
         responsive: [{
-            breakpoint: 480,
+            breakpoint: 300,
             options: {
                 legend: {
                     position: 'bottom',
@@ -94,18 +105,9 @@ function generateExecutionHistoryBarChart(containerId, chartData) {
                     offsetY: 0
                 }
             }
-        }],    
-        colors: chartData.colors,
-        plotOptions: {
-            bar: {
-                borderRadius: 8,
-                horizontal: false,
-                columnWidth: '45%',
-                distributed: false,
-            },
-        },
+        }],        
         xaxis: {
-            categories: chartData.xAxis.categories           
+            categories: chartData.xAxis.categories
         },
         legend: {
             show: false,
@@ -113,14 +115,23 @@ function generateExecutionHistoryBarChart(containerId, chartData) {
             offsetY: 40
         },
         fill: {
-            opacity: 1
+            opacity: 0.2
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val, opts) {
+                return val.toFixed(2)
+            },
+            background: {
+                enabled: true,
+                borderRadius: 2,
+            }
         }
     };
 
     var chart = new ApexCharts(document.querySelector(containerId), options);
     chart.render();
 }
-
 
 function generateBarChart(containerId, chartData) {
 
@@ -129,6 +140,7 @@ function generateBarChart(containerId, chartData) {
         chart: {
             type: 'bar',
             height: chartData.height,
+            width: chartData.width,
             stacked: true,
             toolbar: {
                 show: true
@@ -150,7 +162,7 @@ function generateBarChart(containerId, chartData) {
         colors: chartData.colors,
         plotOptions: {
             bar: {
-                borderRadius: 8,
+                borderRadius: 2,
                 horizontal: false,
                 columnWidth: '20%',
                 distributed: chartData.plotOptions.distributed,

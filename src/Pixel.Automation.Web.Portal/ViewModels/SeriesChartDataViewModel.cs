@@ -18,5 +18,10 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         {
             this.Series.Add(new Series<T>(name, data));
         }
+
+        public void AddSeries(string name, string type, IEnumerable<T> data)
+        {
+            this.Series.Add(new Series<T>(name, type, data));
+        }
     }
 }

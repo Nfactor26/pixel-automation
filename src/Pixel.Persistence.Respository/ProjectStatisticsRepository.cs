@@ -1,39 +1,140 @@
 ﻿using Dawn;
 using MongoDB.Driver;
+using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
     public class ProjectStatisticsRepository : IProjectStatisticsRepository
     {
-        private readonly IMongoCollection<ProjectStatistics> projectStatistics;
+        private readonly ITestResultsRepository testResultsRepository;
+        private readonly ITestSessionRepository testSessionRepository;
+        private readonly IMongoCollection<TestStatistics> testStatisticsCollection;
+        private readonly IMongoCollection<ProjectStatistics> projectStatisticsCollection;
+        private readonly IMongoCollection<TestResult> testResultsCollection;
 
-        public ProjectStatisticsRepository(IMongoDbSettings dbSettings)
+        public ProjectStatisticsRepository(IMongoDbSettings dbSettings, ITestSessionRepository testSessionRepository, ITestResultsRepository testResultsRepository)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
-            projectStatistics = database.GetCollection<ProjectStatistics>(dbSettings.ProjectStatisticsCollectionName);
+          
+            this.projectStatisticsCollection = database.GetCollection<ProjectStatistics>(dbSettings.ProjectStatisticsCollectionName);
+            this.testStatisticsCollection = database.GetCollection<TestStatistics>(dbSettings.TestStatisticsCollectionName);
+            this.testResultsCollection = database.GetCollection<TestResult>(dbSettings.TestResultsCollectionName);
+          
+            this.testSessionRepository = Guard.Argument(testSessionRepository).NotNull().Value;
+            this.testResultsRepository = Guard.Argument(testResultsRepository).NotNull().Value;
         }
 
-        public Task AddOrUpdateStatisticsAsync(TestResult testResult, DateTime fromTime, DateTime toTime)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<ProjectStatistics> GetProjectStatisticsByIdAsync(string projectId)
         {
             Guard.Argument(projectId).NotNull().NotEmpty();
-            var result = await projectStatistics.FindAsync<ProjectStatistics>(s => s.ProjectId.Equals(projectId));
+            var result = await projectStatisticsCollection.FindAsync<ProjectStatistics>(s => s.ProjectId.Equals(projectId));
             return await result.FirstOrDefaultAsync();
         }
 
         public async Task<ProjectStatistics> GetProjectStatisticsByNameAsync(string projectName)
         {
             Guard.Argument(projectName).NotNull().NotEmpty();
-            var result = await projectStatistics.FindAsync<ProjectStatistics>(s => s.ProjectName.Equals(projectName));
+            var result = await projectStatisticsCollection.FindAsync<ProjectStatistics>(s => s.ProjectName.Equals(projectName));
             return await result.FirstOrDefaultAsync();
         }
+
+        /// <summary>
+        /// Get test result details  for recently failed tests for a given project.
+        /// Tests failed in last 30 days are treated as recent failures.
+        /// </summary>
+        /// <param name="projectId">ProjectId for the owner project to which tests belong</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<TestStatistics>> GetRecentFailures(string projectId)
+        {
+            DateTime lookAfter = DateTime.Now.Subtract(TimeSpan.FromDays(30));
+            var filterBuilder = Builders<TestResult>.Filter;
+            //var filter = filterBuilder.And(filterBuilder.Eq(t => t.ProjectId, projectId), filterBuilder.Eq(t =>
+            //t.Result, TestStatus.Failed), filterBuilder.Gt(t => t.ExecutedOn, lookAfter));
+            var filter = filterBuilder.And(filterBuilder.Eq(t => t.ProjectId, projectId), filterBuilder.Eq(t =>
+                    t.Result, TestStatus.Failed));
+
+            var uniqueFailedTests = await testResultsCollection.Distinct<string>(nameof(TestResult.TestId), filter).ToListAsync();
+        
+            var fieldsBuilder = Builders<TestStatistics>.Projection;
+            var fields = fieldsBuilder.Exclude(t => t.MonthlyStatistics);
+            var result = await testStatisticsCollection.Find(t => uniqueFailedTests.Contains(t.TestId))
+                                                        .Project<TestStatistics>(fields).ToListAsync();      
+            return result ?? Enumerable.Empty<TestStatistics>();
+
+        }
+
+
+
+        public async Task AddOrUpdateStatisticsAsync(string sessionId)
+        {
+            Guard.Argument(sessionId).NotNull().NotEmpty();
+            var session = await testSessionRepository.GetTestSessionAsync(sessionId);
+            var testsInSession = await testResultsRepository.GetTestResultsAsync(sessionId);         
+          
+            int month = session.SessionStartTime.Month;
+            int year = session.SessionStartTime.Year;
+            int lastDayOfMonth = DateTime.DaysInMonth(year, month);
+            int firstDayOfMonth = 1;
+            var fromTime = new DateTime(year, month, firstDayOfMonth, 0, 0, 0, DateTimeKind.Utc);
+            var toTime = new DateTime(year, month, lastDayOfMonth, 23, 59, 59, DateTimeKind.Utc);
+
+            var projectStatistics = await GetProjectStatisticsByIdAsync(session.ProjectId);
+            if(projectStatistics == null)
+            {
+                projectStatistics = new ProjectStatistics()
+                {
+                    ProjectId = session.ProjectId,
+                    ProjectName = session.ProjectName,
+                    MonthlyStatistics = new List<ProjectExecutionStatistics>()
+                    {
+                        new ProjectExecutionStatistics(fromTime, toTime)
+                    }
+                };
+                await CreateAsync(projectStatistics);
+            }
+
+            if (!projectStatistics.MonthlyStatistics.Any(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && 
+                        s.ToTime.Equals(toTime.ToUniversalTime())))
+            {
+                projectStatistics.MonthlyStatistics.Add(new ProjectExecutionStatistics(fromTime, toTime));
+            }
+
+            //we need to update the execution statistics for the session (month, year)
+            var executionStatistics = projectStatistics.MonthlyStatistics.FirstOrDefault(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime()));
+         
+            var passed = testsInSession.Where(t => t.Result.Equals(TestStatus.Success)) ?? Enumerable.Empty<TestResult>();
+            var failed = testsInSession.Where(t => t.Result.Equals(TestStatus.Failed)) ?? Enumerable.Empty<TestResult>();
+            executionStatistics.NumberOfTestsExecuted += testsInSession.Count();
+            executionStatistics.NumberOfTestsPassed += passed.Count();
+            executionStatistics.NumberOfTestsFailed += failed.Count();
+            executionStatistics.TotalExecutionTime += passed.Sum(t => t.ExecutionTime);
+
+            await ReplaceAsync(projectStatistics);
+
+        }
+
+        public async Task CreateAsync(ProjectStatistics statistics)
+        {
+            Guard.Argument(projectStatisticsCollection).NotNull();
+            var exists = await projectStatisticsCollection.CountDocumentsAsync<ProjectStatistics>(s => s.ProjectId.Equals(statistics.ProjectId)) == 1;          
+            if(exists)
+            {
+                throw new ArgumentException("ProjectStatistics with projectId : {statistics.ProjectId} already exists");
+            }
+            await projectStatisticsCollection.InsertOneAsync(statistics);
+        }
+
+        public async Task ReplaceAsync(ProjectStatistics statistics)
+        {
+            Guard.Argument(projectStatisticsCollection).NotNull();
+            var result = await projectStatisticsCollection.ReplaceOneAsync(p => p.ProjectId.Equals(statistics.ProjectId), statistics);
+        }    
     }
 }
