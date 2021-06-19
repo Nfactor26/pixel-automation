@@ -86,7 +86,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 GroupActor = new HighlightControlActorComponent()
             };
             groupEntity.GroupPlaceHolder.MaxComponentsCount = 1;
-            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity);
+            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity).Name;
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;
         }

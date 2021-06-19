@@ -12,23 +12,27 @@ namespace Pixel.Automation.Core.Components
         [System.ComponentModel.Browsable(false)]
         public int? MaxComponentsCount { get; set; } = 50;
 
+        /// <summary>
+        /// Store an interface name to AllowedComponentsType property.
+        /// Only components that implement this interface are allowed to be added to this PlaceHolderEntity
+        /// </summary>
         [DataMember]
         [System.ComponentModel.Browsable(false)]
-        public Type AllowedComponentsType { get; set; } = typeof(IComponent);
+        public string AllowedComponentsType { get; set; } = typeof(IComponent).Name;
 
-        public PlaceHolderEntity() : base("Place Holder","PlaceHolder")
+        public PlaceHolderEntity() : base("Place Holder", "PlaceHolder")
         {
            
         }
 
-        public PlaceHolderEntity(string name,string tag= "PlaceHolder"):base(name, tag)
+        public PlaceHolderEntity(string name, string tag= "PlaceHolder"):base(name, tag)
         {
 
         }
 
         public override Entity AddComponent(IComponent component)
         {
-            if(!AllowedComponentsType.IsAssignableFrom(component.GetType()))
+            if(component.GetType().GetInterface(AllowedComponentsType) == null)
             {
                 throw new ArgumentException($"Only components of type {AllowedComponentsType} can be added");
             }

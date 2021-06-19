@@ -18,12 +18,12 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var placeHolderEntity = new PlaceHolderEntity()
             {
-                AllowedComponentsType = typeof(Entity),
+                AllowedComponentsType = typeof(IControlEntity).Name,
                 MaxComponentsCount = 5,
                 EntityManager = entityManager
             };
 
-            var entity = Substitute.For<Entity>();
+            var entity = Substitute.For<IControlEntity>();
             var actorComponent = Substitute.For<ActorComponent>();
 
             placeHolderEntity.AddComponent(entity);
@@ -43,7 +43,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var placeHolderEntity = new PlaceHolderEntity()
             {
-                AllowedComponentsType = typeof(IComponent),
+                AllowedComponentsType = typeof(IComponent).Name,
                 MaxComponentsCount = 3,
                 EntityManager = entityManager
             };
