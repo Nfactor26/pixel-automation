@@ -126,7 +126,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 Tag = "FindFirstControlsGroup",
                 GroupActor = new FindFirstControlActorComponent()
             };          
-            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity);
+            groupEntity.GroupPlaceHolder.AllowedComponentsType = typeof(IControlEntity).Name;
             groupEntity.GroupPlaceHolder.Name = "Control";
             return groupEntity;
         }

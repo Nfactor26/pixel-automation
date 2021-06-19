@@ -13,7 +13,7 @@ namespace Pixel.Automation.RunTime.Serialization
         private readonly JsonSerializerSettings settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.Auto,
-            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
         };
 
         public T Deserialize<T>(string path, List<Type> knownTypes = null) where T : new()
