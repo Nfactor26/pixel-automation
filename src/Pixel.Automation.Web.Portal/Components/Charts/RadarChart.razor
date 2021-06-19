@@ -1,0 +1,20 @@
+﻿@inject IJSRuntime jsRuntime
+
+<div id="chart-container-radar"></div>
+
+
+@code {
+
+    [Parameter]
+    public ChartDataModel ChartData { get; set; }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ChartData != null)
+        {
+            await jsRuntime.InvokeVoidAsync("generateRadarChart", "#chart-container-radar", ChartData);
+            this.StateHasChanged();
+        }
+    }
+}

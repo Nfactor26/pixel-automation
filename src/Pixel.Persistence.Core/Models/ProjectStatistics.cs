@@ -1,7 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
@@ -23,31 +22,7 @@ namespace Pixel.Persistence.Core.Models
         /// Historical execution statistics on a monthly basis
         /// </summary>
         [DataMember]
-        public List<ProjectExecutionStatistics> MonthlyStatistics { get; set; } = new List<ProjectExecutionStatistics>();
-
+        public List<ProjectExecutionStatistics> MonthlyStatistics { get; set; } = new List<ProjectExecutionStatistics>();     
       
-        [BsonIgnore]
-        public int NumberOfTestsExeucted
-        {
-            get => MonthlyStatistics.Select(m => m.NumberOfTestsExecuted).Sum();
-        }
-
-        [BsonIgnore]
-        public int NumberOfTestsFailed
-        {
-            get => MonthlyStatistics.Select(m => m.NumberOfTestsFailed).Sum();
-        }
-
-        [BsonIgnore]
-        public int NumberOfTestsPassed
-        {
-            get => MonthlyStatistics.Select(m => m.NumberOfTestsPassed).Sum();
-        }
-
-        [BsonIgnore]
-        public double SuccessRate
-        {
-            get => (NumberOfTestsPassed / NumberOfTestsExeucted) * 100;
-        }
     }
 }

@@ -1,0 +1,115 @@
+﻿@page "/project-statistics/{projectId?}"
+
+<MudGrid Spacing="4" Justify="Justify.FlexStart">
+    <MudItem xs="4">
+        <MudGrid Spacing="4">
+            <MudItem xs="12">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.WorkspacesFilled" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@statisticsViewModel?.ProjectName</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    @if (statisticsViewModel?.SuccessRate > 80)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingDown" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    }
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sucess Rate</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel?.SuccessRate.ToString("0.##0") %</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Avg Execution Time</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-n1">@statisticsViewModel?.AvgExecutionTime.ToString("0.##0") s</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem xs="4">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal"  Dense="true" NoIcon="true">Overall Execution Stats</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.DonutChart ChartData="@statisticsViewModel?.ExecutionSummaryChartData"></Pixel.Automation.Web.Portal.Components.Charts.DonutChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="4">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal"  Dense="true" NoIcon="true">Avg Execution Time (s)</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.RadarChart ChartData="@statisticsViewModel?.MonthlyAvgExecutionData"></Pixel.Automation.Web.Portal.Components.Charts.RadarChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Executions History (@DateTime.Now.Year)</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.BarChart ChartData="@statisticsViewModel?.MonthlyExecutionHistoryData"></Pixel.Automation.Web.Portal.Components.Charts.BarChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTable Items="@(recentFailures ?? Enumerable.Empty<TestStatistics>())"
+                  Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Recent Failures (Last 30 days)</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Fixture Name</MudTh>
+                <MudTh>Test Name</MudTh>
+                <MudTh>Last Failed On</MudTh>
+                <MudTh>Statistics</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Fixture Name">
+                    @context.FixtureName
+                </MudTd>
+                <MudTd DataLabel="Test Name">
+                    @context.TestName
+                </MudTd>
+                <MudTd DataLabel="Last Failed On">
+                    @context.UniqueFailures.Last().FailedOn
+                </MudTd>
+                <MudTd DataLabel="Statistics">
+                    <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
+                        View Stats
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager DisableRowsPerPage="true" RowsPerPageString="Results Per Page" />
+            </PagerContent>
+            <ColGroup>
+                <col />
+                <col />
+                <col />
+            </ColGroup>
+        </MudTable>
+    </MudItem>
+</MudGrid>

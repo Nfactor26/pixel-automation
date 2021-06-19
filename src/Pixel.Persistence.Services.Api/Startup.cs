@@ -33,6 +33,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
             services.AddTransient<ITestResultsRepository, TestResultsRepository>();
             services.AddTransient<ITestStatisticsRepository, TestStatisticsRepository>();
+            services.AddTransient<IProjectStatisticsRepository, ProjectStatisticsRepository>();
             services.AddTransient<IApplicationRepository, ApplicationRepository>();
             services.AddTransient<IControlRepository, ControlRepository>();
             services.AddTransient<IProjectRepository, ProjectRepository>();

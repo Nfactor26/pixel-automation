@@ -21,6 +21,7 @@ namespace Pixel.Automation.Web.Portal
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddHttpClient<TestSessionHttpClient>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<IProjectStatisticsService, ProjectStatisticsService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddMudServices();
 
             await builder.Build().RunAsync();

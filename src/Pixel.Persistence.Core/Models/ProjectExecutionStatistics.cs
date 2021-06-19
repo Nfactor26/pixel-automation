@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Pixel.Persistence.Core.Models
-{   
+{
     [DataContract]
     public class ProjectExecutionStatistics
     {
@@ -21,11 +19,38 @@ namespace Pixel.Persistence.Core.Models
         public int NumberOfTestsFailed { get; set; }
 
         [DataMember]
-        public int NumberOfTestsPassed { get; set; }           
+        public int NumberOfTestsPassed { get; set; }    
+        
+        /// <summary>
+        /// Total execution time for successful tests in seconds
+        /// </summary>
+        [DataMember]
+        public double TotalExecutionTime { get; set; }
 
+        [IgnoreDataMember]
+        public double AvgExecutionTime
+        {
+            get
+            {
+                if (NumberOfTestsPassed > 0)
+                {
+                    return TotalExecutionTime / NumberOfTestsPassed;
+                }
+                return 0;
+            }
+        }
+
+        [IgnoreDataMember]
         public double SuccessRate
         {
-            get => (NumberOfTestsPassed / NumberOfTestsExecuted) * 100;
+            get
+            {
+                if (NumberOfTestsExecuted > 0)
+                {
+                    return (NumberOfTestsPassed / NumberOfTestsExecuted) * 100;
+                }
+                return 0;
+            }
         }
 
         public ProjectExecutionStatistics(DateTime fromTime, DateTime toTime)

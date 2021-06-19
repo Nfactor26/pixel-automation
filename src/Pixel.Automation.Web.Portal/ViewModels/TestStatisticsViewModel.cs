@@ -89,8 +89,8 @@ namespace Pixel.Automation.Web.Portal.ViewModels
                 passedSeries[i - 1] = executionStats?.NumberOfTimesPassed ?? 0;
                 failedSeries[i - 1] = executionStats?.NumberOfTimesFailed ?? 0;
             }
-            seriesData.AddSeries("Passed", passedSeries);
-            seriesData.AddSeries("Failed", failedSeries);
+            seriesData.AddSeries("Passed", "column", passedSeries);
+            seriesData.AddSeries("Failed", "column", failedSeries);
             seriesData.AddColors(new[] { "#82EE5F", "#E91E63" });
             seriesData.PlotOptions.Distributed = false;
 

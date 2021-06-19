@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Pixel.Persistence.Core.Enums;
+using System;
 
 namespace Pixel.Persistence.Core.Models
 {
@@ -31,6 +32,11 @@ namespace Pixel.Persistence.Core.Models
         /// Indicates the order in which test was executed
         /// </summary>
         public int ExecutionOrder { get; set; }
+
+        /// <summary>
+        /// Date on which test was executed
+        /// </summary>
+        public DateTime ExecutedOn { get; set; } 
 
         /// <summary>
         /// Time taken by test to execute in seconds
