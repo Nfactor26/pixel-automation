@@ -109,6 +109,7 @@ namespace Pixel.Persistence.Core.Models
         {
             this.TemplateId = template.Id;
             this.TemplateName = template.Name;
+            this.ProjectId = template.ProjectId;
             this.ProjectName = template.ProjectName;
             this.ProjectVersion = template.ProjectVersion;
         }

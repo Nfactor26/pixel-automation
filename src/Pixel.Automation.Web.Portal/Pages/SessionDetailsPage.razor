@@ -1,6 +1,13 @@
 ﻿@page "/session-details/{sessionId}"
-@using Pixel.Persistence.Core.Models;
-@inject HttpClient Http
+
+<MudGrid Elevation="4" Justify="Justify.Center">
+    <MudItem xs="12">
+        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
+          <MudText Typo="Typo.h5" Color="Color.Info">Session Details</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+<br/>
 
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
     <MudItem xs="12">
@@ -23,7 +30,16 @@
                     </div>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="4" md="2">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Inbox" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Template</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-n1">@testSessionVm?.TemplateName</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="4" md="2">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.DateRange" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
@@ -32,7 +48,7 @@
                     </div>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="4" md="2">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
@@ -73,18 +89,3 @@
 </MudGrid>
 <br />
 <br />
-
-@code {
-
-    [Parameter]
-    public string SessionId { get; set; }
-  
-    private TestSessionViewModel testSessionVm;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var testSession = await Http.GetFromJsonAsync<TestSession>($"api/TestSession/{SessionId}");
-        var testsInSession = await Http.GetFromJsonAsync<TestResult[]>($"api/TestResult/{SessionId}");
-        testSessionVm = new TestSessionViewModel(testSession, testsInSession);
-    }  
-}

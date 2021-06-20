@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Web.Portal.Repository
+namespace Pixel.Automation.Web.Portal.Services
 {
     public interface IProjectStatisticsService
     {

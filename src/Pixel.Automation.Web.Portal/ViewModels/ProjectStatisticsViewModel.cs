@@ -68,20 +68,33 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             int currentYear = DateTime.Now.Year;
             int currentMonthOfYear = DateTime.Now.Month;
             List<string> monthsSoFar = new List<string>();
-            for (int i = 1; i <= currentMonthOfYear; i++)
+            for (int i = 1; i <= 6; i++)
             {
-                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(i));
+                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                }
             }
+            monthsSoFar.Reverse();
             XAxis xAxisData = new XAxis("category", monthsSoFar);
 
             SeriesChartDataViewModel<int> seriesData = new SeriesChartDataViewModel<int>(xAxisData);
-            int[] passedSeries = new int[currentMonthOfYear];
-            int[] failedSeries = new int[currentMonthOfYear];          
-            for (int i = 1; i <= currentMonthOfYear; i++)
+            int[] passedSeries = new int[6];
+            int[] failedSeries = new int[6];
+            currentMonthOfYear = DateTime.Now.Month;
+            for (int i = 6; i >= 1; i--)
             {
-                var executionStats = this.projectStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(i));
+                var executionStats = this.projectStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
                 passedSeries[i - 1] = executionStats?.NumberOfTestsPassed ?? 0;
-                failedSeries[i - 1] = executionStats?.NumberOfTestsFailed ?? 0;               
+                failedSeries[i - 1] = executionStats?.NumberOfTestsFailed ?? 0;
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                    currentYear--;
+                }
             }
             seriesData.AddSeries("Passed", "column", passedSeries);
             seriesData.AddSeries("Failed", "column", failedSeries);          
@@ -96,18 +109,31 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             int currentYear = DateTime.Now.Year;
             int currentMonthOfYear = DateTime.Now.Month;
             List<string> monthsSoFar = new List<string>();
-            for (int i = 1; i <= currentMonthOfYear; i++)
+            for (int i = 1; i <= 6; i++)
             {
-                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(i));
+                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                }
             }
+            monthsSoFar.Reverse();
             XAxis xAxisData = new XAxis("category", monthsSoFar);
 
             SeriesChartDataViewModel<double> seriesData = new SeriesChartDataViewModel<double>(xAxisData);
-            double[] avgExecutionTimeSeries = new double[currentMonthOfYear];         
-            for (int i = 1; i <= currentMonthOfYear; i++)
+            currentMonthOfYear = DateTime.Now.Month;
+            double[] avgExecutionTimeSeries = new double[currentMonthOfYear];
+            for (int i = 6; i >= 1; i--)
             {
-                var executionStats = this.projectStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(i));
-                avgExecutionTimeSeries[i - 1] = executionStats?.AvgExecutionTime ?? 0;               
+                var executionStats = this.projectStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
+                avgExecutionTimeSeries[i - 1] = executionStats?.AvgExecutionTime ?? 0;
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                    currentYear--;
+                }
             }
             seriesData.AddSeries("Avg Execution Time", avgExecutionTimeSeries);           
             seriesData.PlotOptions.Distributed = false;

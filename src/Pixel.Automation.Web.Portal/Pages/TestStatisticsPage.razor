@@ -1,17 +1,14 @@
 ﻿@page "/test-statistics/{TestId?}"
 @inject HttpClient Http
 
-@*<MudGrid>
-    <MudItem xs="12" sm="6" md="4">
-        <MudSelect T="string" Label="Search By">
-            <MudSelectItem Value="@("Name")" />
-            <MudSelectItem Value="@("Id")" />
-        </MudSelect>
+<MudGrid Elevation="4" Justify="Justify.Center">
+    <MudItem xs="12">
+        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
+            <MudText Typo="Typo.h5" Color="Color.Info">Test Statistics</MudText>
+        </MudPaper>
     </MudItem>
-    <MudItem xs="12" sm="6" md="4">
-        <MudTextField @bind-Value="Search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" AdornmentColor="Color.Secondary" />
-    </MudItem>
-</MudGrid>*@
+</MudGrid>
+<br />
 
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
     <MudItem xs="12">
@@ -37,7 +34,7 @@
                     <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
                         <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Avg Execution Time</MudText>
-                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime m</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime s</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
@@ -47,7 +44,7 @@
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal" NoIcon="true">Execution Stats</MudAlert>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Overall Execution Stats</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -59,14 +56,14 @@
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal" NoIcon="true">Executions History</MudAlert>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Executions History (Last 6 months)</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
                 <Pixel.Automation.Web.Portal.Components.Charts.BarChart ChartData="@statisticsViewModel?.MonthlyExecutionHistoryData"></Pixel.Automation.Web.Portal.Components.Charts.BarChart>
             </MudCardContent>
         </MudCard>
-    </MudItem>     
+    </MudItem>
     <MudItem xs="12">
         <FailureDetailsTable TableHeader="Unique Failures" Failures="@statisticsViewModel.UniqueFailures"></FailureDetailsTable>
     </MudItem>
@@ -80,7 +77,7 @@
 
     [Parameter]
     public string TestId { get; set; }
-   
+
     private TestStatisticsViewModel statisticsViewModel = new TestStatisticsViewModel();
 
     protected override async Task OnParametersSetAsync()
