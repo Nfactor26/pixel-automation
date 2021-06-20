@@ -50,15 +50,24 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             if(testStatistics != null && testStatistics.MonthlyStatistics.Any())
             {
                 this.MinExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.MinExecutionTime).Min();
-                this.MaxExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.MaxExecutionTime).Min();
-                this.AvgExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.AvgExecutionTime).Min();
+                this.MaxExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.MaxExecutionTime).Min();              
                 this.MinExecutionTimeForCurrentMonth = testStatistics.MonthlyStatistics.Last().MinExecutionTime;
                 this.MaxExecutionTimeForCurrentMonth = testStatistics.MonthlyStatistics.Last().MaxExecutionTime;
                 this.AvgExecutionTimeForCurrentMonth = testStatistics.MonthlyStatistics.Last().AvgExecutionTime;
                 this.NumberOfTimesExeucted = testStatistics.MonthlyStatistics.Select(m => m.NumberOfTimesExecuted).Sum();
                 this.NumberOfTimesFailed = testStatistics.MonthlyStatistics.Select(m => m.NumberOfTimesFailed).Sum();
                 this.NumberOfTimesPassed =  testStatistics.MonthlyStatistics.Select(m => m.NumberOfTimesPassed).Sum();
-                this.SuccessRate = (NumberOfTimesPassed / NumberOfTimesExeucted) * 100;
+
+                if (this.NumberOfTimesPassed > 0)
+                {                   
+                    this.AvgExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.TotalExecutionTime).Sum() / NumberOfTimesPassed;
+
+                }
+
+                if (this.NumberOfTimesExeucted > 0)
+                {
+                    this.SuccessRate = ((double)NumberOfTimesPassed / NumberOfTimesExeucted) * 100.0;
+                }               
 
                 this.ExecutionSummaryChartData = new DonutChartDataViewModel<double>(new string[] { "Passed", "Failed" }, new double[] { this.NumberOfTimesPassed, this.NumberOfTimesFailed });
                 this.ExecutionSummaryChartData.Height = "276px";
@@ -68,31 +77,48 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             }
         }
 
-
+        /// <summary>
+        /// Generate monthly execution history data for last 6 months
+        /// </summary>
+        /// <returns></returns>
         public SeriesChartDataViewModel<int> GenerateMonthlyExecutionsHistoryData()
         {
             int currentYear = DateTime.Now.Year;
             int currentMonthOfYear = DateTime.Now.Month;
             List<string> monthsSoFar = new List<string>();
-            for(int i = 1; i <= currentMonthOfYear; i++)
+            for(int i = 1; i <= 6; i++)
             {
-                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(i));
+                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
+                currentMonthOfYear--;
+                if(currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                }
             }
+            monthsSoFar.Reverse();
             XAxis xAxisData = new XAxis("category", monthsSoFar);
 
             SeriesChartDataViewModel<int> seriesData = new SeriesChartDataViewModel<int>(xAxisData);
-            int[] passedSeries = new int[currentMonthOfYear];
-            int[] failedSeries = new int[currentMonthOfYear];
-            for (int i = 1; i <= currentMonthOfYear; i++)
+            int[] passedSeries = new int[6];
+            int[] failedSeries = new int[6];
+            currentMonthOfYear = DateTime.Now.Month;
+            for (int i = 6; i >=1; i--)
             {
-                var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(i));
+                var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
                 passedSeries[i - 1] = executionStats?.NumberOfTimesPassed ?? 0;
                 failedSeries[i - 1] = executionStats?.NumberOfTimesFailed ?? 0;
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                    currentYear--;
+                }
             }
             seriesData.AddSeries("Passed", "column", passedSeries);
             seriesData.AddSeries("Failed", "column", failedSeries);
             seriesData.AddColors(new[] { "#82EE5F", "#E91E63" });
             seriesData.PlotOptions.Distributed = false;
+            seriesData.Width = "100%";
 
             return seriesData;
         }

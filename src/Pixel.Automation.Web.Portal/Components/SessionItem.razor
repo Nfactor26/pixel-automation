@@ -1,17 +1,18 @@
 ﻿
 <MudTd DataLabel="Details">
     <MudButton Link="@detailsLink"
-               Variant="Variant.Filled"
-               Color="@detailsButtonColor"
-               Disabled=@isDetailsButtonDisabled>
-               Show Details
-    </MudButton>   
+                   Variant="Variant.Filled"
+                   Color="@detailsButtonColor"
+                   Disabled=@isDetailsButtonDisabled>
+                   Show Details
+        </MudButton> 
 </MudTd>
 <MudTd DataLabel="Project Name">
     <MudLink Href=@($"/project-statistics/{Session.ProjectId}")>@Session.ProjectName</MudLink>
      <br />
     <MudText Typo="Typo.caption">@Session.ProjectVersion</MudText>
 </MudTd>
+<MudTd DataLabel="Template Name">@Session.TemplateName</MudTd>
 <MudTd DataLabel="Machine Name">
     @Session.MachineName <br/>
     <MudText Typo="Typo.caption">@Session.OSDetails</MudText>

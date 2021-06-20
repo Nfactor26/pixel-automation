@@ -47,7 +47,10 @@ namespace Pixel.Persistence.Respository
             {
                 filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.MachineName, queryParameter.MachineName));
             }
-
+            if (!string.IsNullOrEmpty(queryParameter.TemplateName))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.TemplateName, queryParameter.TemplateName));
+            }
             var sort = Builders<TestSession>.Sort.Descending(queryParameter.OrderBy ?? nameof(TestSession.SessionStartTime));
             var all =  sessionsCollection.Find(filter).Sort(sort).Skip(queryParameter.Skip).Limit(queryParameter.Take);
             var result =  await all.ToListAsync();
@@ -68,7 +71,10 @@ namespace Pixel.Persistence.Respository
             {
                 filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.MachineName, queryParameter.MachineName));
             }
-
+            if (!string.IsNullOrEmpty(queryParameter.TemplateName))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.TemplateName, queryParameter.TemplateName));
+            }
             return await sessionsCollection.CountDocumentsAsync(filter);
         }
 

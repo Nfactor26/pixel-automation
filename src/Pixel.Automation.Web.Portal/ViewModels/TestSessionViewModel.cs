@@ -3,7 +3,6 @@ using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.ViewModels
 {
@@ -11,11 +10,15 @@ namespace Pixel.Automation.Web.Portal.ViewModels
     {
         private TestSession testSession;
 
+        public string SessionId => testSession.SessionId;
+
         public string ProjectId => testSession.ProjectId;
 
         public string ProjectName => testSession.ProjectName;
 
         public string ProjectVersion => testSession.ProjectVersion;
+
+        public string TemplateName => testSession.TemplateName;
 
         public string MachineName => testSession.MachineName;
 
@@ -76,6 +79,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             this.ExecutionTimeChart.AddSeries("", seriesData);
             this.ExecutionTimeChart.AddColors(colors);
             this.ExecutionTimeChart.PlotOptions.Distributed = true;
+            this.ExecutionTimeChart.Width = "100%";
 
         }
     }

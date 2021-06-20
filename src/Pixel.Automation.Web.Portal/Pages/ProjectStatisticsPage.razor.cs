@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Pixel.Automation.Web.Portal.Repository;
+using Pixel.Automation.Web.Portal.Services;
 using Pixel.Automation.Web.Portal.ViewModels;
 using Pixel.Persistence.Core.Models;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

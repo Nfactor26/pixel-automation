@@ -1,18 +1,18 @@
 ﻿@page "/sessions"
-@inject TestSessionHttpClient Http
 
 <MudTable ServerData="@(new Func<TableState, Task<TableData<TestSession>>>(GetSessionsData))"
-          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="sessionsTable">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-4">Test Sessions</MudText>
         <MudToolBarSpacer />
-        <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="project:name or machine:name or template:name" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>  
     <HeaderContent>
-        <MudTh>Session Name</MudTh>
-        <MudTh>Project Name</MudTh>        
-        <MudTh>Machine</MudTh>   
+        <MudTh>Show Details</MudTh>
+        <MudTh>Project Name</MudTh>
+        <MudTh>Template Name</MudTh>
+        <MudTh>Machine</MudTh>
         <MudTh>Start Time</MudTh>
         <MudTh>Execution Time</MudTh>
         <MudTh>Result</MudTh>
@@ -27,23 +27,3 @@
 </MudTable>
 <br/>
 <br/>
-
-@code {
-
-    private string searchString = "";
-    private TestSessionRequest sessionQueryParameters = new TestSessionRequest();
-    private readonly int[] pageSizeOptions = { 10, 20, 30, 40, 50 };
-
-    
-    private async Task<TableData<TestSession>> GetSessionsData(TableState state)
-    {
-        sessionQueryParameters.CurrentPage = state.Page + 1;
-        sessionQueryParameters.PageSize = state.PageSize;
-        var sessionPage = await Http.GetAvailableSessions(sessionQueryParameters);
-        return new TableData<TestSession>
-        {
-            Items = sessionPage.Items,
-            TotalItems = sessionPage.ItemsCount
-        };
-    }    
-}

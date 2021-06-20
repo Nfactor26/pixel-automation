@@ -1,5 +1,14 @@
 ﻿@page "/project-statistics/{projectId?}"
 
+<MudGrid Elevation="4" Justify="Justify.Center">
+    <MudItem xs="12">
+        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
+            <MudText Typo="Typo.h5" Color="Color.Info">Project Statistcs</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+<br />
+
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
     <MudItem xs="4">
         <MudGrid Spacing="4">
@@ -42,7 +51,7 @@
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal"  Dense="true" NoIcon="true">Overall Execution Stats</MudAlert>
+                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Overall Execution Stats</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -54,7 +63,7 @@
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal"  Dense="true" NoIcon="true">Avg Execution Time (s)</MudAlert>
+                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Avg Execution Time (s) (Last 6 months)</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -66,7 +75,7 @@
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Executions History (@DateTime.Now.Year)</MudAlert>
+                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Executions History (Last 6 months) (@DateTime.Now.Year)</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>

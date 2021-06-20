@@ -19,7 +19,7 @@ namespace Pixel.Persistence.Core.Request
         public string ProjectName { get; set; }
 
         [DataMember(IsRequired = false)]
-        public string SessionName { get; set; }
+        public string TemplateName { get; set; }
 
         [DataMember(IsRequired = false)]
         public string MachineName { get; set; }
