@@ -54,7 +54,7 @@ namespace Pixel.Persistence.Core.Models
         {
             if(obj is FailureDetails other)
             {
-                return other.Exception.Equals(this.Exception);
+                return other.Exception.Equals(this.Exception) && other.Message.Equals(this.Message);
             }
             return false;
         }

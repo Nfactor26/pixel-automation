@@ -28,6 +28,9 @@ namespace Pixel.Persistence.Core.Models
         [DataMember]
         public double MaxExecutionTime { get; set; }
 
+        /// <summary>
+        /// Total execution time for the passed tests
+        /// </summary>
         [DataMember]
         public double TotalExecutionTime { get; set; }
 

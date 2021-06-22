@@ -11,9 +11,17 @@
 <br />
 
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
-    <MudItem xs="12">
+    <MudItem xs="4">
         <MudGrid Spacing="4">
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12">
+                <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.WorkspacesFilled" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@statisticsViewModel?.TestName</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     @if (statisticsViewModel.SuccessRate > 80)
                     {
@@ -25,22 +33,22 @@
                     }
                     <div>
                         <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sucess Rate</MudText>
-                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.SuccessRate %</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.SuccessRate.ToString("0.##0") %</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
                         <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Avg Execution Time</MudText>
-                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime s</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime.ToString("0.##0") s</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
         </MudGrid>
     </MudItem>
-    <MudItem xs="3">
+    <MudItem xs="4">
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
@@ -52,7 +60,19 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-    <MudItem xs="9">
+    <MudItem xs="4">
+        <MudCard Elevation="4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Avg Execution Time (s) (Last 6 months)</MudAlert>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <Pixel.Automation.Web.Portal.Components.Charts.RadarChart ChartData="@statisticsViewModel?.MonthlyAvgExecutionData"></Pixel.Automation.Web.Portal.Components.Charts.RadarChart>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>

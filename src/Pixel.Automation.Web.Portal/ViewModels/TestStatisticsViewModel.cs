@@ -11,7 +11,9 @@ namespace Pixel.Automation.Web.Portal.ViewModels
     public class TestStatisticsViewModel
     {
         private TestStatistics testStatistics;
-              
+
+        public string TestName { get; private set; }
+        
         public double MinExecutionTime { get; set; }
 
         public double MaxExecutionTime { get; set; }
@@ -37,7 +39,9 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         public DonutChartDataViewModel<double> ExecutionSummaryChartData { get; set; }
 
         public SeriesChartDataViewModel<int> MonthlyExecutionHistoryData { get; set; }
-       
+
+        public SeriesChartDataViewModel<double> MonthlyAvgExecutionData { get; set; }
+
         public TestStatisticsViewModel()
         {
 
@@ -46,7 +50,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         public TestStatisticsViewModel(TestStatistics testStatistics)
         {
             this.testStatistics = testStatistics;
-          
+            this.TestName = testStatistics.TestName;
             if(testStatistics != null && testStatistics.MonthlyStatistics.Any())
             {
                 this.MinExecutionTime = testStatistics.MonthlyStatistics.Select(s => s.MinExecutionTime).Min();
@@ -74,6 +78,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
                 this.ExecutionSummaryChartData.Width = "100%";
 
                 this.MonthlyExecutionHistoryData = GenerateMonthlyExecutionsHistoryData();
+                this.MonthlyAvgExecutionData = GenerateMonthlyAvgExecutionData();
             }
         }
 
@@ -123,6 +128,44 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             return seriesData;
         }
 
-      
+        public SeriesChartDataViewModel<double> GenerateMonthlyAvgExecutionData()
+        {
+            int currentYear = DateTime.Now.Year;
+            int currentMonthOfYear = DateTime.Now.Month;
+            List<string> monthsSoFar = new List<string>();
+            for (int i = 1; i <= 6; i++)
+            {
+                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                }
+            }
+            monthsSoFar.Reverse();
+            XAxis xAxisData = new XAxis("category", monthsSoFar);
+
+            SeriesChartDataViewModel<double> seriesData = new SeriesChartDataViewModel<double>(xAxisData);
+            currentMonthOfYear = DateTime.Now.Month;
+            double[] avgExecutionTimeSeries = new double[currentMonthOfYear];
+            for (int i = 6; i >= 1; i--)
+            {
+                var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
+                avgExecutionTimeSeries[i - 1] = executionStats?.AvgExecutionTime ?? 0;
+                currentMonthOfYear--;
+                if (currentMonthOfYear == 0)
+                {
+                    currentMonthOfYear = 12;
+                    currentYear--;
+                }
+            }
+            seriesData.AddSeries("Avg Execution Time", avgExecutionTimeSeries);
+            seriesData.PlotOptions.Distributed = false;
+            seriesData.Height = "248px";
+            seriesData.Width = "100%";
+
+            return seriesData;
+        }
+
     }
 }
