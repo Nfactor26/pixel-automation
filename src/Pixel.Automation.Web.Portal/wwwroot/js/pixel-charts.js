@@ -78,12 +78,12 @@ function generateRadarChart(containerId, chartData) {
             height: chartData.height,
             width: chartData.width,
             toolbar: {
-                show: true
+                show: true              
             },
             zoom: {
                 enabled: true
             }
-        },
+        },        
         stroke: {
             show: true,
             width: 2,
@@ -107,7 +107,14 @@ function generateRadarChart(containerId, chartData) {
             }
         }],        
         xaxis: {
-            categories: chartData.xAxis.categories
+            categories: chartData.xAxis.categories           
+        },
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return val.toFixed(2)
+                }
+            },
         },
         legend: {
             show: false,
