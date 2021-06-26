@@ -19,6 +19,7 @@ namespace Pixel.Automation.Web.Portal
 
             builder.Services.AddHttpClient<ITestResultService, TestResultService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<ITestSessionService, TestSessionService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<ITestStatisticsService, TestStatisticsService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<IProjectStatisticsService, ProjectStatisticsService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddMudServices();
 
