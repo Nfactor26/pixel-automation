@@ -1,6 +1,5 @@
 ﻿using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Pixel.Automation.Web.Portal.ViewModels
@@ -10,6 +9,8 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         private TestResult testResult;
 
         public string Id => testResult.Id;
+
+        public string SessionId => testResult.SessionId;
 
         public string TestId => testResult.TestId;
 
@@ -32,7 +33,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             this.testResult = testResult;
             if(testResult.FailureDetails != null)
             {
-                this.ErrorDetails = new FailureDetailsViewModel(testResult.FailureDetails);
+                this.ErrorDetails = new FailureDetailsViewModel(testResult.SessionId, testResult.TestId, testResult.FailureDetails);
             }
         }      
     }

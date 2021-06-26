@@ -17,12 +17,34 @@
         <MudTh>Statistics</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <ResultItem ResultViewModel="@context" ToggleErrorDetailPanelVisibility="OnToggleErrorDetailsPanelVisibility" />
-    </RowTemplate>
+        <MudTd>
+            <MudToggleIconButton ToggledChanged="@(() => OnToggleErrorDetailsPanelVisibility(context.Id))"
+                                 Icon="@Icons.Material.Filled.ExpandMore" Color="@Color.Error" Disabled="@(context.ErrorDetails == null)"
+                                 ToggledIcon="@Icons.Material.Filled.ExpandLess" ToggledColor="@Color.Error" />
+        </MudTd>
+        <MudTd DataLabel="#">
+            @context.ExecutionOrder
+        </MudTd>
+        <MudTd DataLabel="Fixture Name">
+            @context.FixtureName
+        </MudTd>
+        <MudTd DataLabel="Test Name">
+            @context.TestName
+        </MudTd>
+        <MudTd DataLabel="Execution Time">@String.Format("{0:0.000#}", context.ExecutionTime) m</MudTd>
+        <MudTd DataLabel="Status">
+            <ResultIcon Result="@context.Result" />
+        </MudTd>
+        <MudTd DataLabel="Statistics">
+            <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
+                View Stats
+            </MudButton>
+        </MudTd>
+    </RowTemplate>    
     <ChildRowContent>
         @if (context.IsErrorDetailsVisible)
         {
-            <ErrorDetails FailureDetails="@context.ErrorDetails" />            
+            <ErrorDetails IsFailureReasonEditable="true" FailureDetails="@context.ErrorDetails"/>
         }
     </ChildRowContent>
     <PagerContent>
@@ -37,22 +59,3 @@
         <col />
     </ColGroup>
 </MudTable>
-
-@code {
-
-    private string searchString = "";
-    private readonly int[] pageSizeOptions = { 10, 20, 30, 40, 50 };
-
-
-    [Parameter]
-    public List<TestResultViewModel> TestResults { get; set; }
-
-    public void OnToggleErrorDetailsPanelVisibility(string rowId)
-    {
-        var row = TestResults.FirstOrDefault(t => t.Id.Equals(rowId));
-        if (row != null)
-        {
-            row.IsErrorDetailsVisible = !row.IsErrorDetailsVisible;
-        }
-    }
-}

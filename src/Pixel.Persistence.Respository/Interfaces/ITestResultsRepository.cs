@@ -1,4 +1,5 @@
 ﻿using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -19,6 +20,13 @@ namespace Pixel.Persistence.Respository
         /// <param name="testResult"></param>
         /// <returns></returns>
         Task AddTestResultAsync(TestResult testResult);
+
+        /// <summary>
+        /// Update the failure reason for a failed test case
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task UpdateFailureReasonAsync(UpdateFailureReasonRequest request);
 
         /// <summary>
         /// Mark TestResult as processed given it's sessionId and testId
