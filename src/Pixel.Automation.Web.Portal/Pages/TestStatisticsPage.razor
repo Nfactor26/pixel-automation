@@ -1,10 +1,9 @@
 ﻿@page "/test-statistics/{TestId?}"
-@inject HttpClient Http
 
 <MudGrid Elevation="4" Justify="Justify.Center">
     <MudItem xs="12">
         <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
-            <MudText Typo="Typo.h5" Color="Color.Info">Test Statistics</MudText>
+            <MudText Typo="Typo.h5" Color="Color.Primary">Test Statistics</MudText>
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -86,27 +85,5 @@
     </MudItem>
     <MudItem xs="12">
         <FailureDetailsTable TableHeader="Unique Failures" Failures="@statisticsViewModel.UniqueFailures"></FailureDetailsTable>
-    </MudItem>
+    </MudItem>   
 </MudGrid>
-
-
-
-@code {
-
-    public string Search { get; set; }
-
-    [Parameter]
-    public string TestId { get; set; }
-
-    private TestStatisticsViewModel statisticsViewModel = new TestStatisticsViewModel();
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (!string.IsNullOrEmpty(TestId))
-        {
-            var statistics = await Http.GetFromJsonAsync<TestStatistics>($"/api/TestStatistics/{TestId}");
-            statisticsViewModel = new TestStatisticsViewModel(statistics);
-        }
-    }
-
-}

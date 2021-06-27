@@ -5,26 +5,36 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="4" Dense="false" Fixed="false">
+    
+    <MudAppBar Elevation="4">
         <MudToolBar DisableGutters="true">
             <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" />
-        </MudToolBar>
-        <MudHidden Breakpoint="Breakpoint.Xs">
-            <MudText Typo="Typo.h6" Class="ml-4">Pixel Dashboard</MudText>
-        </MudHidden>
-        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
-            <MudText Typo="Typo.subtitle2">Pixel Dashboard</MudText>
-        </MudHidden>
-        @*<MudAppBarSpacer />*@
+            <MudHidden Breakpoint="Breakpoint.Xs">
+                <MudText Typo="Typo.h6" Class="ml-4">Pixel Dashboard</MudText>
+            </MudHidden>
+            <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                <MudText Typo="Typo.subtitle2">Pixel Dashboard</MudText>
+            </MudHidden>
+        </MudToolBar>      
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="4" ClipMode="DrawerClipMode.Docked" Variant="@DrawerVariant.Responsive">
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="4">
+        <MudDrawerHeader>
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ma-2">P</MudAvatar>
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ma-2">I</MudAvatar>
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ma-2">X</MudAvatar>
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ma-2">E</MudAvatar>
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ma-2">L</MudAvatar>
+        </MudDrawerHeader>       
         <NavMenu />
     </MudDrawer>
-    <MudMainContent Class="mudContent">
+    <br/>
+    <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.False">
             @Body
         </MudContainer>
     </MudMainContent>
+
 </MudLayout>
 
 

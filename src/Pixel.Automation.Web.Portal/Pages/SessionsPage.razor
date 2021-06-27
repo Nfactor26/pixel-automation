@@ -19,7 +19,32 @@
         <MudTh>Status</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <SessionItem Session="@context" />
+        <MudTd DataLabel="Details">
+            <MudButton Link="@($"session-details/{context.SessionId}")"
+                       Variant="Variant.Filled"
+                       Color="@((context.SessionResult == TestStatus.Success) ? Color.Success : Color.Error)"
+                       Disabled=@(context.SessionStatus == SessionStatus.InProgress)>
+                Show Details
+            </MudButton>
+        </MudTd>
+        <MudTd DataLabel="Project Name">
+            <MudLink Href=@($"/project-statistics/{context.ProjectId}")>@context.ProjectName</MudLink>
+            <br />
+            <MudText Typo="Typo.caption">@context.ProjectVersion</MudText>
+        </MudTd>
+        <MudTd DataLabel="Template Name">@context.TemplateName</MudTd>
+        <MudTd DataLabel="Machine Name">
+            @context.MachineName <br />
+            <MudText Typo="Typo.caption">@context.OSDetails</MudText>
+        </MudTd>
+        <MudTd DataLabel="Start Time">@context.SessionStartTime.ToLocalTime()</MudTd>
+        <MudTd DataLabel="Execution Time">@String.Format("{0:0.000#}", context.SessionTime) m</MudTd>
+        <MudTd DataLabel="Total | Passed | Failed">
+            <MudChip Color="Color.Info">@context.TotalNumberOfTests</MudChip>
+            <MudChip Color="Color.Success">@context.NumberOfTestsPassed</MudChip>
+            <MudChip Color="Color.Error">@context.NumberOfTestsFailed</MudChip>
+        </MudTd>
+        <MudTd DataLabel="Status"><ResultIcon Result="@context.SessionResult" /></MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Sessions Per Page" />

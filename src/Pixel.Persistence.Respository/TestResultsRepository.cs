@@ -2,9 +2,8 @@
 using MongoDB.Driver;
 using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
-using System;
+using Pixel.Persistence.Core.Request;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
@@ -31,7 +30,19 @@ namespace Pixel.Persistence.Respository
         {
             Guard.Argument(testResult).NotNull();
             await testResults.InsertOneAsync(testResult);
-        }    
+        }
+
+        public async Task UpdateFailureReasonAsync(UpdateFailureReasonRequest request)
+        {
+            Guard.Argument(request).NotNull();
+            var filterBuilder = Builders<TestResult>.Filter;
+            var filter = filterBuilder.And(filterBuilder.Eq(t => t.TestId, request.TestId),
+                filterBuilder.Eq(t => t.SessionId, request.SessionId),
+                filterBuilder.Eq(t => t.Result, TestStatus.Failed));
+            var updateBuilder = Builders<TestResult>.Update;
+            var update = updateBuilder.Set(t => t.FailureDetails.FailureReason, request.FailureReason);
+            var result = await testResults.FindOneAndUpdateAsync(filter, update);
+        }
 
         public async Task MarkTestProcessedAsync(string sessionId, string testId)
         {
@@ -40,6 +51,6 @@ namespace Pixel.Persistence.Respository
             var updateBuilder = Builders<TestResult>.Update;
             var update = updateBuilder.Set(t => t.IsProcessed, true);
             await testResults.FindOneAndUpdateAsync(filter, update);
-        }
+        }       
     }
 }

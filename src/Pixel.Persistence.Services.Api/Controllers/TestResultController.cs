@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Respository;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,5 +39,12 @@ namespace Pixel.Persistence.Services.Api.Controllers
             return Ok();
         }
 
+        [HttpPut("failure/reason")]
+        public async Task<IActionResult> Update([FromBody] UpdateFailureReasonRequest request)
+        {
+            Guard.Argument(request).NotNull();
+            await testResultsRepository.UpdateFailureReasonAsync(request);
+            return Ok();
+        }
     }
 }

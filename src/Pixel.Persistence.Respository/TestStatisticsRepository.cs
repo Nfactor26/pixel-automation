@@ -40,8 +40,7 @@ namespace Pixel.Persistence.Respository
             {
                 await this.AddOrUpdateStatisticsAsync(group.ToList(), new DateTime(year, month, firstDayOfMonth, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(year, month, lastDayOfMonth, 23, 59, 59, DateTimeKind.Utc));
-            }
-            await testSessionRepository.MarkSessionProcessedAsync(sessionId);
+            }           
         }
 
         public async Task AddOrUpdateStatisticsAsync(IEnumerable<TestResult> testResults, DateTime fromTime, DateTime toTime)
