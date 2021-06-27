@@ -3,20 +3,21 @@
 <MudGrid Elevation="4" Justify="Justify.Center">
     <MudItem xs="12">
         <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
-          <MudText Typo="Typo.h5" Color="Color.Info">Session Details</MudText>
+          <MudText Typo="Typo.h5" Color="Color.Primary">Session Details</MudText>
         </MudPaper>
     </MudItem>
 </MudGrid>
 <br/>
 
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
+
     <MudItem xs="12">
         <MudGrid Spacing="4">
             <MudItem xs="12" sm="6" md="3">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.WorkspacesFilled" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@testSessionVm?.ProjectName</MudText>
+                        <MudLink Href=@($"/project-statistics/{testSessionVm?.ProjectId}")>@testSessionVm?.ProjectName</MudLink>
                         <MudText Typo="Typo.subtitle2">@testSessionVm?.ProjectVersion</MudText>
                     </div>
                 </MudPaper>
@@ -59,6 +60,7 @@
             </MudItem>
         </MudGrid>
     </MudItem>
+
     <MudItem xs="3">
         <MudCard Elevation="4">
             <MudCardHeader>
@@ -71,6 +73,7 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
+
     <MudItem xs="9">
         <MudCard Elevation="4">
             <MudCardHeader>
@@ -83,9 +86,11 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
+
     <MudItem xs="12">
         <TestResultsTable TestResults="@testSessionVm?.TestsInSession"></TestResultsTable>
     </MudItem>
+
 </MudGrid>
 <br />
 <br />

@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Web.Portal.Charts;
+using Pixel.Automation.Web.Portal.Helpers;
 using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -90,17 +91,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         {
             int currentYear = DateTime.Now.Year;
             int currentMonthOfYear = DateTime.Now.Month;
-            List<string> monthsSoFar = new List<string>();
-            for(int i = 1; i <= 6; i++)
-            {
-                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
-                currentMonthOfYear--;
-                if(currentMonthOfYear == 0)
-                {
-                    currentMonthOfYear = 12;
-                }
-            }
-            monthsSoFar.Reverse();
+            var monthsSoFar = DateTimeHelper.GetLastNMonths(6);
             XAxis xAxisData = new XAxis("category", monthsSoFar);
 
             SeriesChartDataViewModel<int> seriesData = new SeriesChartDataViewModel<int>(xAxisData);
@@ -132,17 +123,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         {
             int currentYear = DateTime.Now.Year;
             int currentMonthOfYear = DateTime.Now.Month;
-            List<string> monthsSoFar = new List<string>();
-            for (int i = 1; i <= 6; i++)
-            {
-                monthsSoFar.Add(DateTimeFormatInfo.CurrentInfo.GetAbbreviatedMonthName(currentMonthOfYear));
-                currentMonthOfYear--;
-                if (currentMonthOfYear == 0)
-                {
-                    currentMonthOfYear = 12;
-                }
-            }
-            monthsSoFar.Reverse();
+            var monthsSoFar = DateTimeHelper.GetLastNMonths(6);
             XAxis xAxisData = new XAxis("category", monthsSoFar);
 
             SeriesChartDataViewModel<double> seriesData = new SeriesChartDataViewModel<double>(xAxisData);
