@@ -67,6 +67,10 @@ namespace Pixel.Automation.Test.Runner
             {
                 throw new ArgumentException($"{nameof(projectVersion)} : {projectVersion} doesn't have a valid format");
             }
+            if(!automationProject.DeployedVersions.Any(a => a.Version.Equals(version)))
+            {
+                logger.Error($"Version : {version} doesn't exist for project {automationProject.Name}");               
+            }
             this.targetVersion = automationProject.DeployedVersions.Where(a => a.Version.Equals(version)).Single();
 
             await this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
