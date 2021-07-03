@@ -28,18 +28,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return projectStatistics;
             }
             return NotFound();
-        }
-
-        [HttpGet("recent/failures/{projectId}")]
-        public async Task<ActionResult<IEnumerable<TestStatistics>>> GetRecentFailures(string projectId)
-        {
-            var recentFailures = await this.repository.GetRecentFailures(projectId);
-            if (recentFailures != null)
-            {
-                return recentFailures.ToList();
-            }
-            return NotFound();
-        }
+        }      
 
         [HttpPost("process/{sessionId}")]
         public ActionResult Post(string sessionId)

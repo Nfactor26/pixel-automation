@@ -18,16 +18,7 @@ namespace Pixel.Persistence.Respository
         /// </summary>
         /// <param name="projectName"></param>
         /// <returns></returns>
-        Task<ProjectStatistics> GetProjectStatisticsByNameAsync(string projectName);
-
-
-        /// <summary>
-        /// Get TestStatistics for recently failed test cases for a given project.
-        /// Recently failed test cases are those failed in last 30 days.
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        Task<IEnumerable<TestStatistics>> GetRecentFailures(string projectId);
+        Task<ProjectStatistics> GetProjectStatisticsByNameAsync(string projectName);      
 
         /// <summary>
         /// Update ProjectStatistics for a given Session

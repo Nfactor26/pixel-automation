@@ -87,9 +87,12 @@
         </MudCard>
     </MudItem>
 
-    <MudItem xs="12">
-        <TestResultsTable TestResults="@testSessionVm?.TestsInSession"></TestResultsTable>
-    </MudItem>
+    @if(!string.IsNullOrEmpty(SessionId))
+    {
+        <MudItem xs="12">
+            <TestResultsTable TableHeader="Test Results" TableStateChanged="GetTestResultsAsync" ShowExecutionOrder="true"></TestResultsTable>
+        </MudItem>
+    }
 
 </MudGrid>
 <br />

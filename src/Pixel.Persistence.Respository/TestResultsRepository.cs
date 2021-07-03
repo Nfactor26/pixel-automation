@@ -4,6 +4,7 @@ using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
@@ -17,6 +18,63 @@ namespace Pixel.Persistence.Respository
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             testResults = database.GetCollection<TestResult>(dbSettings.TestResultsCollectionName);
+        }
+
+        public async Task<IEnumerable<TestResult>> GetTestResultsAsync(TestResultRequest queryParameter)
+        {
+            Guard.Argument(queryParameter).NotNull();
+
+            var filter = GetFilterCriteria(queryParameter);
+            var sort = Builders<TestResult>.Sort.Ascending(queryParameter.OrderBy ?? nameof(TestResult.ExecutionOrder));
+            var all = testResults.Find(filter).Sort(sort).Skip(queryParameter.Skip).Limit(queryParameter.Take);
+            var result = await all.ToListAsync();
+            return result ?? Enumerable.Empty<TestResult>();
+        }
+
+        public async Task<long> GetCountAsync(TestResultRequest queryParameter)
+        {
+            Guard.Argument(queryParameter).NotNull();
+            var filter = GetFilterCriteria(queryParameter);         
+            return await testResults.CountDocumentsAsync(filter);
+        }
+
+        private FilterDefinition<TestResult> GetFilterCriteria(TestResultRequest queryParameter)
+        {
+            var filterBuilder = Builders<TestResult>.Filter;
+            var filter = filterBuilder.Empty;
+            if (!string.IsNullOrEmpty(queryParameter.SessionId))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.SessionId, queryParameter.SessionId));
+            }
+            if (!string.IsNullOrEmpty(queryParameter.ProjectId))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.ProjectId, queryParameter.ProjectId));
+            }
+            if (!string.IsNullOrEmpty(queryParameter.TestId))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.TestId, queryParameter.TestId));
+            }
+            if (queryParameter.Result != default)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.Result, queryParameter.Result));
+            }
+            if (!string.IsNullOrEmpty(queryParameter.FixtureName))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(t => t.FixtureName, queryParameter.FixtureName));
+            }
+            //if (queryParameter.ExecutionTimeGte != default)
+            //{
+            //    filter = filterBuilder.And(filter, filterBuilder.Gte(t => t.ExecutionTimeGte, queryParameter.ExecutionTimeGte));
+            //}
+            //if (queryParameter.ExecutionTimeLte != default)
+            //{
+            //    filter = filterBuilder.And(filter, filterBuilder.Lte(t => t.ExecutionTimeLte, queryParameter.ExecutionTimeLte));
+            //}
+            if (queryParameter.ExecutedAfter != default)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Gte(t => t.ExecutedOn, queryParameter.ExecutedAfter));
+            }
+            return filter;
         }
 
         public async Task<IEnumerable<TestResult>> GetTestResultsAsync(string sessionId)

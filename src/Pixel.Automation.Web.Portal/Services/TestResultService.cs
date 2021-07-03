@@ -1,6 +1,8 @@
-﻿using MudBlazor;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using MudBlazor;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +20,13 @@ namespace Pixel.Automation.Web.Portal.Services
         /// <param name="sessionId"></param>
         /// <returns></returns>
         Task<IEnumerable<TestResult>> GetResultsInSessionAsync(string sessionId);
+
+        /// <summary>
+        /// Get all the available Test Session that match the request filter
+        /// </summary>
+        /// <param name="sessionFilter"></param>
+        /// <returns></returns>
+        Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest request);
 
         /// <summary>
         /// Update the failure reason for a test case
@@ -51,6 +60,50 @@ namespace Pixel.Automation.Web.Portal.Services
                 snackBar.Add($"Error while retrieving test result in session : {sessionId}", Severity.Error);
                 Console.WriteLine("Error: " + ex.ToString());
                 return Enumerable.Empty<TestResult>();
+            }
+        }
+
+        public async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest request)
+        {
+            try
+            {
+                var queryStringParam = new Dictionary<string, string>
+                {
+                    ["currentPage"] = request.CurrentPage.ToString(),
+                    ["pageSize"] = request.PageSize.ToString(),
+                    ["executedAfter"] = request.ExecutedAfter.ToUniversalTime().ToString(),
+                    //["executionTimeGte"] = request.ExecutionTimeGte.ToString(),
+                    //["executionTimeLte"] = request.ExecutionTimeLte.ToString(),
+                    ["result"] = request.Result.ToString()
+                };
+                if(!string.IsNullOrEmpty(request.SessionId))
+                {
+                    queryStringParam.Add("sessionId", request.SessionId);
+                }
+                if(!string.IsNullOrEmpty(request.ProjectId))
+                {
+                    queryStringParam.Add("projectId", request.ProjectId);
+                }
+                if (!string.IsNullOrEmpty(request.TestId))
+                {
+                    queryStringParam.Add("testId", request.TestId);
+                }
+                if (!string.IsNullOrEmpty(request.FixtureName))
+                {
+                    queryStringParam.Add("fixtureName", request.ProjectId);
+                }
+                if (!string.IsNullOrEmpty(request.OrderBy))
+                {
+                    queryStringParam.Add("orderBy", request.OrderBy);
+                }
+                var response = await this.http.GetFromJsonAsync<PagedList<TestResult>>(QueryHelpers.AddQueryString("api/TestResult", queryStringParam));
+                return response;
+            }
+            catch (Exception ex)
+            {
+                snackBar.Add("Error while retrieving test results data", Severity.Error);
+                Console.WriteLine("Error: " + ex.ToString());
+                return new PagedList<TestResult>(Enumerable.Empty<TestResult>(), 0, 0, 0);
             }
         }
 

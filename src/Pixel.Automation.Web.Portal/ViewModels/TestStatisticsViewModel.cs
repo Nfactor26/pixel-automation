@@ -33,9 +33,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
           
         public int NumberOfTimesPassed { get; set; }
         
-        public double SuccessRate { get; set; }
-
-        public IEnumerable<FailureDetails> UniqueFailures => testStatistics?.UniqueFailures ?? Enumerable.Empty<FailureDetails>();
+        public double SuccessRate { get; set; }      
 
         public DonutChartDataViewModel<double> ExecutionSummaryChartData { get; set; }
 

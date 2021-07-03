@@ -10,7 +10,7 @@
 <br />
 
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
-   
+
     <MudItem xs="4">
         <MudGrid Spacing="4">
             <MudItem xs="12">
@@ -87,44 +87,11 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-
-    <MudItem xs="12">
-        <MudTable Items="@(recentFailures ?? Enumerable.Empty<TestStatistics>())"
-                  Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Recent Failures (Last 30 days)</MudText>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Fixture Name</MudTh>
-                <MudTh>Test Name</MudTh>
-                <MudTh>Last Failed On</MudTh>
-                <MudTh>Statistics</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Fixture Name">
-                    @context.FixtureName
-                </MudTd>
-                <MudTd DataLabel="Test Name">
-                    @context.TestName
-                </MudTd>
-                <MudTd DataLabel="Last Failed On">
-                    @context.UniqueFailures.Last().FailedOn
-                </MudTd>
-                <MudTd DataLabel="Statistics">
-                    <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
-                        View Stats
-                    </MudButton>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager DisableRowsPerPage="true" RowsPerPageString="Results Per Page" />
-            </PagerContent>
-            <ColGroup>
-                <col />
-                <col />
-                <col />
-            </ColGroup>
-        </MudTable>
-    </MudItem>
-
+    
+    @if (!string.IsNullOrEmpty(ProjectId))
+    {
+        <MudItem xs="12">
+            <TestResultsTable TableHeader="Recent Failures" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"></TestResultsTable>
+        </MudItem>
+    }
 </MudGrid>
