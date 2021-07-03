@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using MongoDB.Driver;
+using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using System;
@@ -80,7 +81,8 @@ namespace Pixel.Persistence.Respository
 
         public async Task<IEnumerable<string>> GetUnprocessedSessionsAsync()
         {
-            var condition = Builders<TestSession>.Filter.Eq(s => s.IsProcessed, false);
+            var filterBuilder = Builders<TestSession>.Filter;
+            var condition = filterBuilder.And(filterBuilder.Ne<SessionStatus>(s => s.SessionStatus , Core.Enums.SessionStatus.InProgress), filterBuilder.Eq(s => s.IsProcessed , false) );
             var fields = Builders<TestSession>.Projection.Include(p => p.SessionId);
             var all = await sessionsCollection.Find(condition).Project<TestSession>(fields).ToListAsync();        
             return all.Select(s => s.SessionId);
