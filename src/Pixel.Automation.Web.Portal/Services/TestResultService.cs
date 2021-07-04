@@ -74,7 +74,8 @@ namespace Pixel.Automation.Web.Portal.Services
                     ["executedAfter"] = request.ExecutedAfter.ToUniversalTime().ToString(),
                     //["executionTimeGte"] = request.ExecutionTimeGte.ToString(),
                     //["executionTimeLte"] = request.ExecutionTimeLte.ToString(),
-                    ["result"] = request.Result.ToString()
+                    ["result"] = request.Result.ToString(),
+                    ["sortDirection"] = request.SortDirection.ToString()
                 };
                 if(!string.IsNullOrEmpty(request.SessionId))
                 {
@@ -90,11 +91,11 @@ namespace Pixel.Automation.Web.Portal.Services
                 }
                 if (!string.IsNullOrEmpty(request.FixtureName))
                 {
-                    queryStringParam.Add("fixtureName", request.ProjectId);
+                    queryStringParam.Add("fixtureName", request.FixtureName);
                 }
-                if (!string.IsNullOrEmpty(request.OrderBy))
+                if (!string.IsNullOrEmpty(request.SortBy))
                 {
-                    queryStringParam.Add("orderBy", request.OrderBy);
+                    queryStringParam.Add("sortBy", request.SortBy);
                 }
                 var response = await this.http.GetFromJsonAsync<PagedList<TestResult>>(QueryHelpers.AddQueryString("api/TestResult", queryStringParam));
                 return response;

@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using Pixel.Automation.Web.Portal.Services;
 using Pixel.Automation.Web.Portal.ViewModels;
 using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.Pages
@@ -32,15 +30,11 @@ namespace Pixel.Automation.Web.Portal.Pages
             }
         }
 
-        async Task<PagedList<TestResult>> GetTestResultsAsync(TableState tableState)
+        async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest testResultRequest)
         {
-            var result = await TestResultService.GetTestResultsAsync(new Persistence.Core.Request.TestResultRequest()
-            {
-                ProjectId = ProjectId,  
-                Result = TestStatus.Failed,
-                CurrentPage = tableState.Page + 1,
-                PageSize = tableState.PageSize               
-            });
+            testResultRequest.ProjectId = ProjectId;
+            testResultRequest.Result = TestStatus.Failed;
+            var result = await TestResultService.GetTestResultsAsync(testResultRequest);
             return result;
         }
     }

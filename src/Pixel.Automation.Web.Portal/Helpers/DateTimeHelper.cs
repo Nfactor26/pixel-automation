@@ -34,5 +34,36 @@ namespace Pixel.Automation.Web.Portal.Helpers
             monthsSoFar.Reverse();
             return monthsSoFar;
         }
+
+        /// <summary>
+        /// Get the DateTime n months before current DateTime
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static DateTime NMonthsBefore(int n)
+        {
+            if (n > 12)
+            {
+                throw new ArgumentException("Number of months can't be greater then 12");
+            }
+
+            int currentYear = DateTime.Now.Year;
+            int currentMonthOfYear = DateTime.Now.Month;
+
+            int numberOfDays = DateTime.Now.Day;
+            while(n > 1)
+            {
+                currentMonthOfYear--;
+                if(currentMonthOfYear == 12)
+                {
+                    currentYear--;
+                }
+                numberOfDays += DateTime.DaysInMonth(currentYear, currentMonthOfYear);
+                n--;
+            }
+
+            return DateTime.Now.Subtract(TimeSpan.FromDays(numberOfDays)).ToUniversalTime();
+
+        }
     }
 }

@@ -67,7 +67,10 @@ namespace Pixel.Persistence.Core.Request
         /// Result is sorted in ascending order for given column name
         /// </summary>
         [DataMember(IsRequired = true)]
-        public string OrderBy { get; set; } = nameof(TestResult.ExecutionOrder);
+        public string SortBy { get; set; } = nameof(TestResult.ExecutionOrder);
+
+        [DataMember(IsRequired = true)]
+        public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
         /// <summary>
         /// Page number for the Test results

@@ -24,11 +24,24 @@ namespace Pixel.Persistence.Respository
         {
             Guard.Argument(queryParameter).NotNull();
 
-            var filter = GetFilterCriteria(queryParameter);
-            var sort = Builders<TestResult>.Sort.Ascending(queryParameter.OrderBy ?? nameof(TestResult.ExecutionOrder));
-            var all = testResults.Find(filter).Sort(sort).Skip(queryParameter.Skip).Limit(queryParameter.Take);
-            var result = await all.ToListAsync();
-            return result ?? Enumerable.Empty<TestResult>();
+            var filter = GetFilterCriteria(queryParameter);     
+           
+            if(queryParameter.SortDirection != Core.Enums.SortDirection.None && !string.IsNullOrEmpty(queryParameter.SortBy))
+            {
+                var sort = (queryParameter.SortDirection == Core.Enums.SortDirection.Ascending) ? Builders<TestResult>.Sort.Ascending(queryParameter.SortBy ?? nameof(TestResult.ExecutionOrder)) :
+                Builders<TestResult>.Sort.Descending(queryParameter.SortBy ?? nameof(TestResult.ExecutionOrder));
+                var all = testResults.Find(filter).Sort(sort).Skip(queryParameter.Skip).Limit(queryParameter.Take);
+                var result = await all.ToListAsync();
+                return result ?? Enumerable.Empty<TestResult>();
+            }
+            else
+            {
+                var defaultSort = Builders<TestResult>.Sort.Ascending(nameof(TestResult.ExecutionOrder));
+                var all = testResults.Find(filter).Sort(defaultSort).Skip(queryParameter.Skip).Limit(queryParameter.Take);
+                var result = await all.ToListAsync();
+                return result ?? Enumerable.Empty<TestResult>();
+            }
+          
         }
 
         public async Task<long> GetCountAsync(TestResultRequest queryParameter)

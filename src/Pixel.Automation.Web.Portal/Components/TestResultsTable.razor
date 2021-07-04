@@ -3,24 +3,33 @@
           Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="table">
     <ToolBarContent>
         <MudText Typo="Typo.h6">@TableHeader</MudText>
-        @*<MudToolBarSpacer />
-        <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>*@
+        <MudToolBarSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="e.g. fixture:name and result:Success|Failed" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudItem xs="1" Class="ml-4">
+            <MudSelect Label="Last N Months" T="int" Value="lastNMonths" ValueChanged="OnMonthsChanged"
+                       OffsetY="true">
+                @foreach (int item in Enumerable.Range(1, 6))
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>       
     </ToolBarContent>
     <HeaderContent>
         <MudTh></MudTh>
         @if (ShowExecutionOrder)
         {
-            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel SortLabel="ExecutionOrder" T="TestResultViewModel">#</MudTableSortLabel></MudTh>
         }
         @if (ShowExecutionDate)
         {
-            <MudTh>Executed On</MudTh>
+            <MudTh><MudTableSortLabel SortLabel="ExecutedOn" T="TestResultViewModel">Executed On</MudTableSortLabel></MudTh>
         }
-        <MudTh>Fixture Name</MudTh>
-        <MudTh>Test Name</MudTh>
-        <MudTh>Execution Time</MudTh>
-        <MudTh>Result</MudTh>
+        <MudTh><MudTableSortLabel SortLabel="FixtureName" T="TestResultViewModel">Fixture Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="TestName" T="TestResultViewModel">Test Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ExecutionTime" T="TestResultViewModel">Execution Time</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Result" T="TestResultViewModel">Result</MudTableSortLabel></MudTh>
         <MudTh>Statistics</MudTh>
     </HeaderContent>
     <RowTemplate>

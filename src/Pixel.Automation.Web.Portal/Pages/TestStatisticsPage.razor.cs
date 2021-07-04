@@ -31,14 +31,10 @@ namespace Pixel.Automation.Web.Portal.Pages
                 this.statisticsViewModel = await StatisticsService.GetTestStatisticsByTestId(TestId);
             }
         }
-        async Task<PagedList<TestResult>> GetTestResultsAsync(TableState tableState)
+        async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest testResultRequest)
         {
-            var result = await TestResultService.GetTestResultsAsync(new TestResultRequest()
-            {
-                TestId = TestId,               
-                CurrentPage = tableState.Page + 1,
-                PageSize = tableState.PageSize               
-            });
+            testResultRequest.TestId = TestId;
+            var result = await TestResultService.GetTestResultsAsync(testResultRequest);
             return result;
         }
     }
