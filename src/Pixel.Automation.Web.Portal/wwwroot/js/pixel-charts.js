@@ -150,7 +150,17 @@ function generateBarChart(containerId, chartData) {
             width: chartData.width,
             stacked: true,
             toolbar: {
-                show: true
+                show: true,
+                tools: {
+                    download: true,
+                    selection: true,
+                    zoom: true,
+                    zoomin: true,
+                    zoomout: true,
+                    pan: true,
+                    reset: true,
+                    customIcons: []
+                }
             },
             zoom: {
                 enabled: true
@@ -177,6 +187,7 @@ function generateBarChart(containerId, chartData) {
         },
         xaxis: {
             categories: chartData.xAxis.categories,
+            tickPlacement: 'on'
             //labels: {
             //    style: {
             //        colors: chartData.colors.length ? chartData.colors : 'undefined',
