@@ -14,7 +14,7 @@
                     <MudSelectItem Value="@item">@item</MudSelectItem>
                 }
             </MudSelect>
-        </MudItem>       
+        </MudItem>
     </ToolBarContent>
     <HeaderContent>
         <MudTh></MudTh>
@@ -30,7 +30,11 @@
         <MudTh><MudTableSortLabel SortLabel="TestName" T="TestResultViewModel">Test Name</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="ExecutionTime" T="TestResultViewModel">Execution Time</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="Result" T="TestResultViewModel">Result</MudTableSortLabel></MudTh>
-        <MudTh>Statistics</MudTh>
+        @if (ShowStatisticsButton)
+        {
+            <MudTh>Statistics</MudTh>
+        }
+
     </HeaderContent>
     <RowTemplate>
         <MudTd>
@@ -61,11 +65,14 @@
         <MudTd DataLabel="Status">
             <ResultIcon Result="@context.Result" />
         </MudTd>
-        <MudTd DataLabel="Statistics">
-            <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
-                View Stats
-            </MudButton>
-        </MudTd>
+        @if (ShowStatisticsButton)
+        {
+            <MudTd DataLabel="Statistics">
+                <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
+                    View Stats
+                </MudButton>
+            </MudTd>
+        }
     </RowTemplate>
     <ChildRowContent>
         @if (context.IsErrorDetailsVisible)
@@ -89,6 +96,9 @@
         <col />
         <col />
         <col />
-        <col />
+        @if (ShowStatisticsButton)
+        {
+            <col />
+        }
     </ColGroup>
 </MudTable>

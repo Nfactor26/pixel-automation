@@ -87,7 +87,8 @@
     @if (!string.IsNullOrEmpty(TestId))
     {
         <MudItem xs="12">
-            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"></TestResultsTable>
+            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync" 
+                           ShowStatisticsButton="false"   ShowExecutionDate="true"></TestResultsTable>
         </MudItem>
     }
 

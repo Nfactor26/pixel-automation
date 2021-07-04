@@ -42,6 +42,8 @@ namespace Pixel.Automation.Web.Portal.Components
         [Parameter]
         public bool ShowExecutionDate { get; set; } = false;
 
+        [Parameter]
+        public bool ShowStatisticsButton { get; set; } = true;
 
         private async Task<TableData<TestResultViewModel>> GetTestResultsAsync(TableState state)
         {          
