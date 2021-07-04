@@ -14,6 +14,11 @@ namespace Pixel.Persistence.Respository
         /// <returns>Collection of <see cref="TestResult"/> belonging to a <see cref="TestSession"/></returns>
         Task<IEnumerable<TestResult>> GetTestResultsAsync(string sessionId);
 
+
+        Task<IEnumerable<TestResult>> GetTestResultsAsync(TestResultRequest queryParameter);
+
+        Task<long> GetCountAsync(TestResultRequest queryParameter);
+
         /// <summary>
         /// Store the <see cref="TestResult"/> data to database
         /// </summary>

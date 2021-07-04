@@ -92,14 +92,7 @@ namespace Pixel.Persistence.Respository
             {
                 executionStatistics.MinExecutionTime = Math.Min(passed.Min(t => t.ExecutionTime), executionStatistics.MinExecutionTime);
                 executionStatistics.MaxExecutionTime = Math.Max(passed.Max(t => t.ExecutionTime), executionStatistics.MaxExecutionTime);
-            }
-
-            //Remove previous failure with same failure details and add the new entry so that we have new failed on date and failure reason
-            foreach(var test in testResults.Where(t => t.Result.Equals(TestStatus.Failed)))
-            {
-                statistics.UniqueFailures.RemoveAll(f => f.Equals(test.FailureDetails));
-                statistics.UniqueFailures.Add(test.FailureDetails);              
-            }
+            }         
 
             await testStatistics.ReplaceOneAsync(t => t.TestId.Equals(first.TestId), statistics);
             //Todo : Can this be done as batch update

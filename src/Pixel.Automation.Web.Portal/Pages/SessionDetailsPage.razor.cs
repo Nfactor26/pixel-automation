@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using Pixel.Automation.Web.Portal.Services;
 using Pixel.Automation.Web.Portal.ViewModels;
+using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.Pages
@@ -23,6 +27,13 @@ namespace Pixel.Automation.Web.Portal.Pages
             var testSession = await TestSessionService.GetSessionByIdAsync(SessionId);
             var testsInSession = await TestResultService.GetResultsInSessionAsync(SessionId);
             testSessionVm = new TestSessionViewModel(testSession, testsInSession);
+        }
+
+        async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest testResultRequest)
+        {
+            testResultRequest.SessionId = SessionId;
+            var result = await TestResultService.GetTestResultsAsync(testResultRequest);
+            return result;
         }
     }
 }

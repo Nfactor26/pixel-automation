@@ -83,7 +83,13 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-    <MudItem xs="12">
-        <FailureDetailsTable TableHeader="Unique Failures" Failures="@statisticsViewModel.UniqueFailures"></FailureDetailsTable>
-    </MudItem>   
+
+    @if (!string.IsNullOrEmpty(TestId))
+    {
+        <MudItem xs="12">
+            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync" 
+                           ShowStatisticsButton="false"   ShowExecutionDate="true"></TestResultsTable>
+        </MudItem>
+    }
+
 </MudGrid>

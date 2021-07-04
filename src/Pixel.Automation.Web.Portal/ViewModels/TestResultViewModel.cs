@@ -1,5 +1,6 @@
 ﻿using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
 
 namespace Pixel.Automation.Web.Portal.ViewModels
@@ -21,6 +22,8 @@ namespace Pixel.Automation.Web.Portal.ViewModels
         public int ExecutionOrder => testResult.ExecutionOrder;
 
         public double ExecutionTime => testResult.ExecutionTime;
+
+        public DateTime ExecutedOn => testResult.ExecutedOn.ToLocalTime();
 
         public TestStatus Result => testResult.Result;
 

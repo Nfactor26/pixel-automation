@@ -53,6 +53,7 @@ namespace Pixel.Persistence.Services.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
             }
 
             app.UseSwagger();

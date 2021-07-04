@@ -10,9 +10,7 @@ namespace Pixel.Automation.Web.Portal.Services
 {
     public interface IProjectStatisticsService
     {
-        Task<ProjectStatisticsViewModel> GetProjectStatisticsByProjectIdAsync(string projectId);
-
-        Task<IEnumerable<TestStatistics>> GetRecentFailuresAsync(string projectId);
+        Task<ProjectStatisticsViewModel> GetProjectStatisticsByProjectIdAsync(string projectId);    
     }
 
     public class ProjectStatisticsService : IProjectStatisticsService
@@ -32,12 +30,6 @@ namespace Pixel.Automation.Web.Portal.Services
                 return new ProjectStatisticsViewModel(result);
             }
             return null;
-        }
-
-        public async Task<IEnumerable<TestStatistics>> GetRecentFailuresAsync(string projectId)
-        {
-            var result = await http.GetFromJsonAsync<IEnumerable<TestStatistics>>($"api/ProjectStatistics/recent/failures/{projectId}");
-            return result ?? Enumerable.Empty<TestStatistics>();
         }
     }
 }

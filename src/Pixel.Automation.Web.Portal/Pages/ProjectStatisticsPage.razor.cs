@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Pixel.Automation.Web.Portal.Services;
 using Pixel.Automation.Web.Portal.ViewModels;
+using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
-using System.Collections.Generic;
+using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.Pages
@@ -12,20 +14,28 @@ namespace Pixel.Automation.Web.Portal.Pages
         [Inject]
         public IProjectStatisticsService Service { get; set; }
 
+        [Inject]
+        public ITestResultService TestResultService { get; set; }
+
         [Parameter]
         public string ProjectId { get; set; }
 
         ProjectStatisticsViewModel statisticsViewModel;
-
-        IEnumerable<TestStatistics> recentFailures;     
-
+        
         protected override async Task OnParametersSetAsync()
         {
             if (!string.IsNullOrEmpty(ProjectId))
             {
-                statisticsViewModel = await Service.GetProjectStatisticsByProjectIdAsync(ProjectId);
-                recentFailures = await Service.GetRecentFailuresAsync(ProjectId);
+                statisticsViewModel = await Service.GetProjectStatisticsByProjectIdAsync(ProjectId);               
             }
+        }
+
+        async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest testResultRequest)
+        {
+            testResultRequest.ProjectId = ProjectId;
+            testResultRequest.Result = TestStatus.Failed;
+            var result = await TestResultService.GetTestResultsAsync(testResultRequest);
+            return result;
         }
     }
 }

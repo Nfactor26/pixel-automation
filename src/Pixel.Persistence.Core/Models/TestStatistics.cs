@@ -2,11 +2,10 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
-{ 
+{
     [DataContract]
     [Serializable]
     public class TestStatistics
@@ -41,12 +40,6 @@ namespace Pixel.Persistence.Core.Models
         /// </summary>
         [DataMember]
         public List<TestExecutionStatistics> MonthlyStatistics { get; set; } = new List<TestExecutionStatistics>();
-
-        /// <summary>
-        /// Collection of failure due to unique reasons over the period of this execution statistics
-        /// </summary>
-        [DataMember]
-        public List<FailureDetails> UniqueFailures { get; set; } = new List<FailureDetails>();
         
     }
         

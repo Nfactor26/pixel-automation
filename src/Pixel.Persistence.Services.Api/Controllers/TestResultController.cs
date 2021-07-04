@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using Pixel.Persistence.Respository;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,15 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public TestResultController(ITestResultsRepository testResultsRepository)
         {
             this.testResultsRepository = testResultsRepository;
+        }
+
+
+        [HttpGet]
+        public async Task<PagedList<TestResult>> Get([FromQuery] TestResultRequest queryParameter)
+        {
+            var count = await testResultsRepository.GetCountAsync(queryParameter);
+            var sessions = await testResultsRepository.GetTestResultsAsync(queryParameter);
+            return new PagedList<TestResult>(sessions, (int)count, queryParameter.CurrentPage, queryParameter.PageSize);
         }
 
 

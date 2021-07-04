@@ -1,20 +1,40 @@
 ﻿
-<MudTable Items="@(TestResults ?? Enumerable.Empty<TestResultViewModel>())"
-          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4">
+<MudTable ServerData="@(new Func<TableState, Task<TableData<TestResultViewModel>>>(GetTestResultsAsync))"
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="table">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Test Results</MudText>
+        <MudText Typo="Typo.h6">@TableHeader</MudText>
         <MudToolBarSpacer />
-        <MudTextField Placeholder="Search" Adornment="Adornment.Start" @bind-Value="@searchString"
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="e.g. fixture:name and result:Success|Failed" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudItem xs="1" Class="ml-4">
+            <MudSelect Label="Last N Months" T="int" Value="lastNMonths" ValueChanged="OnMonthsChanged"
+                       OffsetY="true">
+                @foreach (int item in Enumerable.Range(1, 6))
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
     </ToolBarContent>
     <HeaderContent>
         <MudTh></MudTh>
-        <MudTh>#</MudTh>
-        <MudTh>Fixture Name</MudTh>
-        <MudTh>Test Name</MudTh>
-        <MudTh>Execution Time</MudTh>
-        <MudTh>Result</MudTh>
-        <MudTh>Statistics</MudTh>
+        @if (ShowExecutionOrder)
+        {
+            <MudTh><MudTableSortLabel SortLabel="ExecutionOrder" T="TestResultViewModel">#</MudTableSortLabel></MudTh>
+        }
+        @if (ShowExecutionDate)
+        {
+            <MudTh><MudTableSortLabel SortLabel="ExecutedOn" T="TestResultViewModel">Executed On</MudTableSortLabel></MudTh>
+        }
+        <MudTh><MudTableSortLabel SortLabel="FixtureName" T="TestResultViewModel">Fixture Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="TestName" T="TestResultViewModel">Test Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ExecutionTime" T="TestResultViewModel">Execution Time</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Result" T="TestResultViewModel">Result</MudTableSortLabel></MudTh>
+        @if (ShowStatisticsButton)
+        {
+            <MudTh>Statistics</MudTh>
+        }
+
     </HeaderContent>
     <RowTemplate>
         <MudTd>
@@ -22,9 +42,19 @@
                                  Icon="@Icons.Material.Filled.ExpandMore" Color="@Color.Error" Disabled="@(context.ErrorDetails == null)"
                                  ToggledIcon="@Icons.Material.Filled.ExpandLess" ToggledColor="@Color.Error" />
         </MudTd>
-        <MudTd DataLabel="#">
-            @context.ExecutionOrder
-        </MudTd>
+        @if (ShowExecutionOrder)
+        {
+            <MudTd DataLabel="#">
+                @context.ExecutionOrder
+            </MudTd>
+        }
+
+        @if (ShowExecutionDate)
+        {
+            <MudTd DataLabel="#">
+                @context.ExecutedOn
+            </MudTd>
+        }
         <MudTd DataLabel="Fixture Name">
             @context.FixtureName
         </MudTd>
@@ -35,16 +65,19 @@
         <MudTd DataLabel="Status">
             <ResultIcon Result="@context.Result" />
         </MudTd>
-        <MudTd DataLabel="Statistics">
-            <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
-                View Stats
-            </MudButton>
-        </MudTd>
-    </RowTemplate>    
+        @if (ShowStatisticsButton)
+        {
+            <MudTd DataLabel="Statistics">
+                <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
+                    View Stats
+                </MudButton>
+            </MudTd>
+        }
+    </RowTemplate>
     <ChildRowContent>
         @if (context.IsErrorDetailsVisible)
         {
-            <ErrorDetails IsFailureReasonEditable="true" FailureDetails="@context.ErrorDetails"/>
+            <ErrorDetails IsFailureReasonEditable="true" FailureDetails="@context.ErrorDetails" />
         }
     </ChildRowContent>
     <PagerContent>
@@ -52,10 +85,20 @@
     </PagerContent>
     <ColGroup>
         <col style="width:20px;" />
+        @if (ShowExecutionOrder)
+        {
+            <col />
+        }
+        @if (ShowExecutionDate)
+        {
+            <col />
+        }
         <col />
         <col />
         <col />
-        <col />
-        <col />
+        @if (ShowStatisticsButton)
+        {
+            <col />
+        }
     </ColGroup>
 </MudTable>

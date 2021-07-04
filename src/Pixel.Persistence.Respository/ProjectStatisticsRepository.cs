@@ -45,33 +45,6 @@ namespace Pixel.Persistence.Respository
             return await result.FirstOrDefaultAsync();
         }
 
-        /// <summary>
-        /// Get test result details  for recently failed tests for a given project.
-        /// Tests failed in last 30 days are treated as recent failures.
-        /// </summary>
-        /// <param name="projectId">ProjectId for the owner project to which tests belong</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<TestStatistics>> GetRecentFailures(string projectId)
-        {
-            DateTime lookAfter = DateTime.Now.Subtract(TimeSpan.FromDays(30));
-            var filterBuilder = Builders<TestResult>.Filter;
-            //var filter = filterBuilder.And(filterBuilder.Eq(t => t.ProjectId, projectId), filterBuilder.Eq(t =>
-            //t.Result, TestStatus.Failed), filterBuilder.Gt(t => t.ExecutedOn, lookAfter));
-            var filter = filterBuilder.And(filterBuilder.Eq(t => t.ProjectId, projectId), filterBuilder.Eq(t =>
-                    t.Result, TestStatus.Failed));
-
-            var uniqueFailedTests = await testResultsCollection.Distinct<string>(nameof(TestResult.TestId), filter).ToListAsync();
-        
-            var fieldsBuilder = Builders<TestStatistics>.Projection;
-            var fields = fieldsBuilder.Exclude(t => t.MonthlyStatistics);
-            var result = await testStatisticsCollection.Find(t => uniqueFailedTests.Contains(t.TestId))
-                                                        .Project<TestStatistics>(fields).ToListAsync();      
-            return result ?? Enumerable.Empty<TestStatistics>();
-
-        }
-
-
-
         public async Task AddOrUpdateStatisticsAsync(string sessionId)
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
