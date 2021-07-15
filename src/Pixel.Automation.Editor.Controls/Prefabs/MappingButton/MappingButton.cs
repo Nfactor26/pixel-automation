@@ -1,6 +1,11 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Models;
+﻿using Caliburn.Micro;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.TestCase;
+using Pixel.Automation.Editor.Core.Helpers;
+using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -50,5 +55,42 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
             get { return (EntityManager)GetValue(EntityManagerProperty); }
             set { SetValue(EntityManagerProperty, value); }
         }
+
+        protected async void OpenMappingWindow(object sender, RoutedEventArgs e)
+        {
+            var prefabArgumentMapper = GetArgumentMapper();
+            var propertyMappings = prefabArgumentMapper.GenerateMapping(this.EntityManager.GetScriptEngine(), this.AssignFrom, this.AssignTo).ToList();
+            string generatedCode = prefabArgumentMapper.GeneratedMappingCode(propertyMappings, this.AssignFrom, this.AssignTo);
+
+            IWindowManager windowManager = IoC.Get<IWindowManager>();
+            IScriptEditorFactory scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+            IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor();
+            if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            {
+                //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                AddProject(new string[] { testCaseEntity.Tag });
+            }
+            else if (OwnerComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+            {
+                //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project                
+                AddProject(new string[] { testFixtureEntity.Tag });
+            }
+            else
+            {
+                AddProject(Array.Empty<string>());
+            }
+            scriptEditorFactory.AddDocument(this.ScriptFile, GetProjectName(), generatedCode);
+            scriptEditor.OpenDocument(this.ScriptFile, GetProjectName(), generatedCode);
+            await windowManager.ShowDialogAsync(scriptEditor);
+
+            void AddProject(string[] projectReferences)
+            {
+                scriptEditorFactory.AddProject(GetProjectName(), projectReferences, EntityManager.Arguments.GetType());
+            }
+        }
+
+        protected abstract IPrefabArgumentMapper GetArgumentMapper();
+
+        protected abstract string GetProjectName();
     }
 }
