@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Entities;
 using Pixel.Automation.Core.Components.Processors;
@@ -9,6 +10,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,15 +19,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public class PrefabProjectManager : ProjectManager, IPrefabProjectManager
     {
-        private readonly IPrefabFileSystem prefabFileSystem;      
-    
+        private readonly IPrefabFileSystem prefabFileSystem;
+        private readonly ApplicationSettings applicationSettings;
         private PrefabDescription prefabDescription;       
         private Entity prefabbedEntity;       
 
-        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
+        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
             : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator, applicationDataManager)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull().Value;
         }
 
         #region load project
@@ -80,27 +83,67 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 templateRoot = new ProcessRootEntity();
                 templateRoot.EntityManager = entityManager;
 
-                ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();
+                var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabDescription.ApplicationId));
+
+                ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();          
                 templateRoot.AddComponent(appPoolEntity);
 
+                var applicationEntity = CreateApplicationEntity(targetApplication);
+                appPoolEntity.AddComponent(applicationEntity);
+
                 SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "Launch Applications" };
-                templateRoot.AddComponent(launchProcessor);            
+                templateRoot.AddComponent(launchProcessor);
+                launchProcessor.AddComponent(new SequenceEntity() 
+                {
+                    Name = $"Sequence : {targetApplication.ApplicationName}",
+                    TargetAppId = applicationEntity.ApplicationId 
+                });
+               
 
                 SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "Shutdown Applications" };
                 templateRoot.AddComponent(shutDownProcessor);
-               
+                shutDownProcessor.AddComponent(new SequenceEntity()
+                {
+                    Name = $"Sequence : {targetApplication.ApplicationName}",
+                    TargetAppId = applicationEntity.ApplicationId
+                });
+
                 SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "Run Prefab" };                           
                 templateRoot.AddComponent(prefabProcessor);
-                var sequenceEntity = new SequenceEntity() { Name = "Initialize Data" };
-                prefabProcessor.AddComponent(sequenceEntity);
+                prefabProcessor.AddComponent(new SequenceEntity()
+                {
+                    Name = $"Sequence : {targetApplication.ApplicationName}",
+                    TargetAppId = applicationEntity.ApplicationId
+                });
 
+                var applicationSequence = prefabProcessor.Components.First() as Entity;                            
+                applicationSequence.AddComponent(new SequenceEntity() { Name = "Initialize Data" });
+            
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);
 
-                prefabProcessor.AddComponent(prefabbedEntity);               
+                applicationSequence.AddComponent(prefabbedEntity);               
                 RestoreParentChildRelation(templateRoot);
             }
 
             return templateRoot;
+        }
+
+        private ApplicationEntity CreateApplicationEntity(ApplicationDescription targetApplication)        {
+           
+            ApplicationEntityAttribute applicationEntityAttribute = targetApplication.ApplicationDetails.GetType().GetCustomAttributes(typeof(ApplicationEntityAttribute), false).FirstOrDefault()
+                                                                      as ApplicationEntityAttribute;
+            if (applicationEntityAttribute != null)
+            {
+                var applicationEntity = Activator.CreateInstance(applicationEntityAttribute.ApplicationEntity) as ApplicationEntity;
+                applicationEntity.Name = $"Details : {targetApplication.ApplicationName}";
+                applicationEntity.ApplicationId = targetApplication.ApplicationId;
+                applicationEntity.EntityManager = this.entityManager;
+                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, targetApplication.ApplicationId, $"{targetApplication.ApplicationId}.app");
+            
+                applicationEntity.GetTargetApplicationDetails();
+                return applicationEntity;
+            }
+            throw new Exception($"Failed to create application entity for application id : {prefabDescription.ApplicationId}");
         }
 
         #endregion load project
