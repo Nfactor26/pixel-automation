@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Notfications;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -125,6 +126,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 logger.Error(ex, ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Broadcast a FilterTestMessage which is processed by Test explorer view to filter and show only those test cases
+        /// which uses this prefab
+        /// </summary>
+        /// <param name="targetPrefab"></param>
+        /// <returns></returns>
+        public async Task ShowUsage(PrefabDescription targetPrefab)
+        {
+            await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("prefab", targetPrefab.PrefabId));
         }
 
         #region Filter 

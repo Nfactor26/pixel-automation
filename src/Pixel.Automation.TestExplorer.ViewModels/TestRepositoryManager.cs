@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -26,7 +27,8 @@ namespace Pixel.Automation.TestExplorer
     /// <summary>
     /// TestCaseManager manages test cases for active Automation Project 
     /// </summary>
-    public class TestRepositoryManager : PropertyChangedBase, IHandle<TestCaseUpdatedEventArgs>, ITestRepositoryManager
+    public class TestRepositoryManager : PropertyChangedBase, IHandle<TestCaseUpdatedEventArgs>,
+        IHandle<TestFilterNotification>, ITestRepositoryManager
     {
         #region Data members
     
@@ -423,6 +425,16 @@ namespace Pixel.Automation.TestExplorer
                 {
                     testCaseVM.ScriptFile = testCaseFileSystem.GetRelativePath(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
                     testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, testCaseFileSystem.GetTestScriptFile(testCaseVM.Id), string.Empty);
+                }
+
+                var prefabsUsed = testCaseVM.TestCaseEntity.GetComponentsOfType<PrefabEntity>(SearchScope.Descendants);
+                if(prefabsUsed.Any())
+                {
+                    testCaseVM.PrefabReferences = new Core.Models.PrefabReferences();
+                    foreach (var prefab in prefabsUsed)
+                    {
+                        testCaseVM.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference(prefab.ApplicationId, prefab.PrefabId));
+                    }
                 }
 
                 testCaseFileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.FixtureDirectory);               
@@ -835,6 +847,12 @@ namespace Pixel.Automation.TestExplorer
                 var targetTestCase = this.TestFixtures.SelectMany(c => c.Tests).FirstOrDefault(t => t.Id.Equals(message.ModifiedTestCase.Id));               
                 this.SaveTestCase(targetTestCase, false);
             }
+            await Task.CompletedTask;
+        }
+
+        public async Task HandleAsync(TestFilterNotification message, CancellationToken cancellationToken)
+        {
+            this.FilterText = message?.FilterText ?? string.Empty;
             await Task.CompletedTask;
         }
 

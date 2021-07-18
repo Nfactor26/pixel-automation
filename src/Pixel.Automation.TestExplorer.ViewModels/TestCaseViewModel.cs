@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using System;
@@ -113,6 +114,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        public PrefabReferences PrefabReferences
+        {
+            get => TestCase.PrefabReferences;
+            set => TestCase.PrefabReferences = value;
+        }
+
         bool isSelected;
         public bool IsSelected
         {
@@ -181,7 +188,39 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         public void UpdateVisibility(string filterText)
         {
-            IsVisible = string.IsNullOrEmpty(filterText) ? true :  this.DisplayName.ToLower().Contains(filterText.ToLower());
+            if(string.IsNullOrEmpty(filterText))
+            {
+                isVisible = true;               
+            }
+
+            string[] query = filterText.Split(new char[] { ':' });
+            foreach(var part in query)
+            {
+                if(string.IsNullOrEmpty(part))
+                {
+                    return;
+                }
+            }
+            switch(query.Length)
+            {
+                case 1:
+                    IsVisible = this.DisplayName.ToLower().Contains(filterText.ToLower());
+                    break;
+                case 2: // we have a key value pair query
+                    switch(query[0].ToLower())
+                    {
+                        case "name":
+                            IsVisible = this.DisplayName.ToLower().Contains(filterText.ToLower());
+                            break;                       
+                        case "prefab":
+                            IsVisible = this.PrefabReferences.HasReference(query[1]);
+                            break;
+                        default:
+                            IsVisible = this.Tags.Contains(query[0]) && this.Tags[query[0]].Equals(query[1]);
+                            break;
+                    }
+                    break;
+            }          
         }
     }
 }

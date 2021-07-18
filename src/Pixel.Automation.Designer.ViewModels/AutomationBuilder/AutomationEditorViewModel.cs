@@ -68,28 +68,7 @@ namespace Pixel.Automation.Designer.ViewModels
          
         }
 
-        #endregion constructor               
-
-        #region Manage components
-
-        public override void DeleteComponent(IComponent component)
-        {
-            //when deleting a PrefabEntity, we need to remove it from PrefabReferences mapping file
-            if (component is PrefabEntity prefabEntity)
-            {
-                component.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
-                base.DeleteComponent(component);
-                var fileSystem = projectManager.GetProjectFileSystem() as IProjectFileSystem;
-                var prefabReferences = fileSystem.LoadFile<PrefabReferences>(fileSystem.PrefabReferencesFile);
-                var prefabReference = prefabReferences.GetPrefabReference(prefabEntity.PrefabId);
-                prefabReference.RemoveReference(new ReferringEntityDetails() { EntityId = prefabEntity.Id, TestCaseId = testCaseEntity?.Id });
-                fileSystem.SaveToFile<PrefabReferences>(prefabReferences, fileSystem.WorkingDirectory, Path.GetFileName(fileSystem.PrefabReferencesFile));
-                return;
-            }
-            base.DeleteComponent(component);
-        }
-
-        #endregion Manage components
+        #endregion constructor                    
 
         #region Automation Project 
 
