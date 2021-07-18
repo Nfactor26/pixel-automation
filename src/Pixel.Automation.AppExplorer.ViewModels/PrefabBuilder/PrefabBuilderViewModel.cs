@@ -114,7 +114,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             Regex assmelbyNameMatcher = new Regex($"{oldAssembly.Name}");
             fileContents = assmelbyNameMatcher.Replace(fileContents, (m) =>
             {
-                return newAssemblyName;
+                // while loading prefab regex matches with format assemblyname_digit in data file to update with most recent assembly.
+                // Hence, we append _0 so that Regex matches as expected.
+                return $"{newAssemblyName}_0";
             });
             fileContents = fileContents.Replace(oldNameSpace, prefabDescription.NameSpace);
             File.WriteAllText(prefabFileSystem.PrefabFile, fileContents);

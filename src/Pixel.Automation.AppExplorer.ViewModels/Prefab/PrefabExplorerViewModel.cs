@@ -27,8 +27,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
-        private readonly IEventAggregator eventAggregator;
-        private readonly IPrefabEditorFactory editorFactory;
+        private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
@@ -40,14 +39,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IPrefabEditorFactory editorFactory,
+            ISerializer serializer, IVersionManagerFactory versionManagerFactory,
             IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
             this.eventAggregator = eventAggregator;
             this.prefabBuilderFactory = prefabBuilderFactory;
             this.windowManager = windowManager;
-            this.serializer = serializer;
-            this.editorFactory = editorFactory;
+            this.serializer = serializer;         
             this.versionManagerFactory = versionManagerFactory;          
             CreateCollectionView();
         }
@@ -104,8 +102,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void EditPrefab(PrefabDescription prefabToEdit)
         {
             try
-            {            
-                var prefabEditor = this.editorFactory.CreatePrefabEditor();              
+            {
+                var editorFactory = IoC.Get<IEditorFactory>();              
+                var prefabEditor = editorFactory.CreatePrefabEditor();              
                 prefabEditor.DoLoad(prefabToEdit);               
                 this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });               
             }
