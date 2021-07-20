@@ -10,13 +10,7 @@ namespace Pixel.Automation.Core.Models
     /// </summary>
     [DataContract]
     public class PrefabReferences
-    {
-        /// <summary>
-        /// Identifier of the AutomationProject for which mapping is stored
-        /// </summary>
-        [DataMember]
-        public string ProjectId { get; set; }
-
+    {       
         /// <summary>
         /// Collection of PrefabReference i.e. Prefabs in use by AutomationProject
         /// </summary>
@@ -55,6 +49,17 @@ namespace Pixel.Automation.Core.Models
         }
 
         /// <summary>
+        /// Check if the automation process uses a prefab whose details are provided
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="prefabId"></param>
+        /// <returns></returns>
+        public bool HasReference(string prefabId)
+        {
+            return References.Any(a => a.PrefabId.Equals(prefabId));
+        }
+
+        /// <summary>
         /// Get the PrefabReference for a given prefabId
         /// </summary>
         /// <param name="applicationId"></param>
@@ -62,7 +67,7 @@ namespace Pixel.Automation.Core.Models
         /// <returns></returns>
         public PrefabReference GetPrefabReference(string prefabId)
         {
-            var reference =  References.FirstOrDefault(a => a.PrefabDetails.PrefabId.Equals(prefabId));
+            var reference =  References.FirstOrDefault(a => a.PrefabId.Equals(prefabId));
             return reference ?? throw new ArgumentException($"No reference exists for Prefab with Id {prefabId}");
         }
 
@@ -73,10 +78,10 @@ namespace Pixel.Automation.Core.Models
         /// <returns></returns>
         public PrefabVersion GetPrefabVersionInUse(PrefabDescription prefabDescription)
         {
-           var reference  =  References.FirstOrDefault(a => a.Equals(prefabDescription));
-            if(reference != null)
+            var reference = References.FirstOrDefault(a => a.Equals(prefabDescription));
+            if (reference != null)
             {
-                return reference.PrefabDetails.Version;
+                return reference.Version;
             }
             throw new InvalidOperationException($"Failed to get version in use. No reference exists for Prefab with Id : {prefabDescription.PrefabId}");
         }
@@ -88,50 +93,6 @@ namespace Pixel.Automation.Core.Models
     /// </summary>
     [DataContract]
     public class PrefabReference
-    {
-       [DataMember]
-       public ReferencedPrefabDetails PrefabDetails { get; set; }
-
-        /// <summary>
-        /// Collection of TestCase Identifiers which have a reference to this Prefab
-        /// </summary>
-        [DataMember]
-        public List<ReferringEntityDetails> ReferringEntities { get; set; } = new List<ReferringEntityDetails>();
-
-
-        public void AddReference(ReferringEntityDetails referringEntity)
-        {
-            if(!this.ReferringEntities.Contains(referringEntity))
-            {
-                this.ReferringEntities.Add(referringEntity);
-            }
-        }
-
-        public void RemoveReference(ReferringEntityDetails referringEntity)
-        {
-            if (this.ReferringEntities.Contains(referringEntity))
-            {
-                this.ReferringEntities.Remove(referringEntity);
-            }
-        }
-
-        public override bool Equals(object obj)
-        {
-            if(obj is PrefabReference pr)
-            {
-                return pr.PrefabDetails.Equals(this.PrefabDetails);           
-            }
-            if(obj is PrefabDescription pd)
-            {
-                return pd.ApplicationId.Equals(this.PrefabDetails.ApplicationId) && pd.PrefabId.Equals(this.PrefabDetails.PrefabId);
-            }
-            return false;
-        }
-
-    }
-
-    [DataContract]
-    public class ReferencedPrefabDetails
     {
         /// <summary>
         /// ApplicationId to which Prefab belongs
@@ -148,42 +109,45 @@ namespace Pixel.Automation.Core.Models
         /// <summary>
         /// Version of Prefab in use
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
         public PrefabVersion Version { get; set; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public PrefabReference()
+        {
+
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public PrefabReference(string applicationId, string prefabId)
+        {
+            this.ApplicationId = applicationId;
+            this.PrefabId = prefabId;          
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public PrefabReference(string applicationId, string prefabId, PrefabVersion version) : this(applicationId, prefabId)
+        {           
+            this.Version = version;
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj is ReferencedPrefabDetails r)
+            if(obj is PrefabReference pr)
             {
-                return r.ApplicationId.Equals(this.ApplicationId) && r.PrefabId.Equals(this.PrefabId) && r.Version.Equals(this.Version);
+                return pr.ApplicationId.Equals(this.ApplicationId) && pr.PrefabId.Equals(this.PrefabId);
+            }
+            if (obj is PrefabDescription pd)
+            {
+                return pd.ApplicationId.Equals(this.ApplicationId) && pd.PrefabId.Equals(this.PrefabId);
             }
             return false;
         }
-    }
-
-    [DataContract]
-    public class ReferringEntityDetails
-    {
-        /// <summary>
-        /// Id of the test case to which PrefabEntity belongs. This can be empty when PrefabEntity is added outside test case.
-        /// </summary>
-        [DataMember(IsRequired = false)]
-        public string TestCaseId { get; set; }
-
-        /// <summary>
-        /// Id of the PrefabEntity added to process
-        /// </summary>
-        [DataMember]
-        public string EntityId { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is ReferringEntityDetails r)
-            {
-                return r.EntityId.Equals(this.EntityId) && (( r.TestCaseId == null && this.TestCaseId == null) || r.TestCaseId.Equals(this.TestCaseId));
-            }
-            return false;
-        }
-
     }
 }

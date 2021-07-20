@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Notfications;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -26,8 +27,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
-        private readonly IEventAggregator eventAggregator;
-        private readonly IPrefabEditorFactory editorFactory;
+        private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
@@ -39,14 +39,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IPrefabEditorFactory editorFactory,
+            ISerializer serializer, IVersionManagerFactory versionManagerFactory,
             IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
             this.eventAggregator = eventAggregator;
             this.prefabBuilderFactory = prefabBuilderFactory;
             this.windowManager = windowManager;
-            this.serializer = serializer;
-            this.editorFactory = editorFactory;
+            this.serializer = serializer;         
             this.versionManagerFactory = versionManagerFactory;          
             CreateCollectionView();
         }
@@ -103,8 +102,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void EditPrefab(PrefabDescription prefabToEdit)
         {
             try
-            {            
-                var prefabEditor = this.editorFactory.CreatePrefabEditor();              
+            {
+                var editorFactory = IoC.Get<IEditorFactory>();              
+                var prefabEditor = editorFactory.CreatePrefabEditor();              
                 prefabEditor.DoLoad(prefabToEdit);               
                 this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });               
             }
@@ -125,6 +125,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 logger.Error(ex, ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Broadcast a FilterTestMessage which is processed by Test explorer view to filter and show only those test cases
+        /// which uses this prefab
+        /// </summary>
+        /// <param name="targetPrefab"></param>
+        /// <returns></returns>
+        public async Task ShowUsage(PrefabDescription targetPrefab)
+        {
+            await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("prefab", targetPrefab.PrefabId));
         }
 
         #region Filter 

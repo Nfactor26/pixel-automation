@@ -91,7 +91,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information("Start creating Prefab data model");
 
             var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace)?
-                .Distinct().Except(new[] { prefabDescription.NameSpace }) ?? new List<string>();
+                .Distinct().Except(new[] { prefabDescription.NameSpace, currentDataModel.GetType().Namespace }) ?? new List<string>();
             imports = imports.Append(typeof(ParameterUsage).Namespace); 
             imports = imports.Append(typeof(ParameterUsageAttribute).Namespace);
 
@@ -173,8 +173,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     {
                         var targetProperty = RequiredProperties.FirstOrDefault(p => p.PropertyName.Equals(argument.PropertyPath));
                         if (targetProperty == null)
-                        {
-                            Debug.Assert(false, "Argument PropertyPath points to a non-existent property / variable");
+                        {                           
                             logger.Warning($"Argument PropertyPath points to a non-existent property / variable");
                             continue;
                         }

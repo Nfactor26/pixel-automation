@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Editor.Controls.Arguments;
+﻿using Pixel.Automation.Editor.Controls;
+using Pixel.Automation.Editor.Controls.Arguments;
 using Pixel.Automation.Editor.Controls.HotKeys;
 using Serilog;
 using System;
@@ -21,7 +22,7 @@ namespace Pixel.Automation.Designer.Views
             this.propertyGrid.PreparePropertyItem += SetEditorForProperty;
         }
 
-        private void SetEditorForProperty(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemEventArgs e)
+        private void SetEditorForProperty(object sender, PropertyItemEventArgs e)
         {
             try
             {
@@ -32,22 +33,27 @@ namespace Pixel.Automation.Designer.Views
                 }
                 if (targetPropertyItem.Value.GetType().Name.StartsWith("InArgument"))
                 {
-                    targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
+                    targetPropertyItem.Editor = new InArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
                 if (targetPropertyItem.Value.GetType().Name.StartsWith("OutArgument"))
                 {
-                    targetPropertyItem.Editor = (new OutArgumentEditor()).ResolveEditor(targetPropertyItem);
+                    targetPropertyItem.Editor = new OutArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
                 if (targetPropertyItem.Value.GetType().Name.StartsWith("PredicateArgument"))
                 {
-                    targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
+                    targetPropertyItem.Editor = new InArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
                 if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
                 {
-                    targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
+                    targetPropertyItem.Editor = new KeyEditor().ResolveEditor(targetPropertyItem);
+                    return;
+                }
+                if (targetPropertyItem.DisplayName.EndsWith("Script"))
+                {
+                    targetPropertyItem.Editor = new ScriptFileEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
             }

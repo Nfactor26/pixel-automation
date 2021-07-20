@@ -37,7 +37,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             else
             {
-                this.prefabReferences = new PrefabReferences() { ProjectId = projectFileSystem.ProjectId };
+                this.prefabReferences = new PrefabReferences();
             }
             this.AvailableVersions = prefabDescription.DeployedVersions;
             this.CanChangeVersion = !prefabReferences.HasReference(prefabDescription);
@@ -57,12 +57,9 @@ namespace Pixel.Automation.Designer.ViewModels
         public async Task ConfirmSelection()
         {        
             if(!prefabReferences.HasReference(prefabDescription))
-            {
-                ReferencedPrefabDetails referencedPrefabDetails = new ReferencedPrefabDetails() { ApplicationId = prefabDescription.ApplicationId, PrefabId = prefabDescription.PrefabId, Version = this.SelectedVersion };
-                prefabReferences.AddPrefabReference(new PrefabReference() { PrefabDetails = referencedPrefabDetails });
-            }
-            var prefabReference = prefabReferences.GetPrefabReference(prefabDescription.PrefabId);
-            prefabReference.AddReference(new ReferringEntityDetails() { EntityId = this.entityId, TestCaseId = this.testCaseId });
+            {                
+                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabDescription.ApplicationId, PrefabId = prefabDescription.PrefabId, Version = this.SelectedVersion });
+            }            
             this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, this.projectFileSystem.WorkingDirectory, Path.GetFileName(this.projectFileSystem.PrefabReferencesFile));
             await this.TryCloseAsync(true);
             logger.Information($"{nameof(PrefabVersionSelectorViewModel)} was closed by clicking ok. {this.SelectedVersion} was selected.");

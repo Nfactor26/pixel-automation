@@ -92,7 +92,8 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             logger.Debug("OpenProject start");
 
-            var automationEditor = IoC.Get<IAutomationEditor>();            
+            var editorFactory = IoC.Get<IEditorFactory>();
+            var automationEditor = editorFactory.CreateAutomationEditor();
             await this.ActivateItemAsync(automationEditor as Screen);
             await automationEditor.DoLoad(automationProject);
 

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
@@ -87,13 +88,41 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             serializer.Serialize<PrefabDescription>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
+            UpdateAssemblyReferenceAndNameSpace(prefabToolBoxItem, prefabFileSystem);
             logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
            
             await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
             await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);           
             return this.prefabToolBoxItem;
-        }        
-       
+        }
+
+        /// <summary>
+        /// Entity used to create prefab has references to old assembly and when serialized , data has
+        /// namespace and assembly name from old assembly. While generating prefab, we have created new
+        /// data models (mirrored types) in to a local assembly for Prefab. We need to replace old references
+        /// with new ones while saving. 
+        /// </summary>
+        /// <param name="prefabDescription"></param>
+        /// <param name="prefabFileSystem"></param>
+        private void UpdateAssemblyReferenceAndNameSpace(PrefabDescription prefabDescription, IPrefabFileSystem prefabFileSystem)
+        {
+            var oldAssembly = prefabDescription.PrefabRoot.EntityManager.Arguments.GetType()
+                .Assembly.GetName();
+            var oldNameSpace = prefabDescription.PrefabRoot.EntityManager.Arguments.GetType().Namespace;
+            var newAssemblyName = prefabDescription.GetPrefabName();
+            string fileContents = File.ReadAllText(prefabFileSystem.PrefabFile);
+            Regex assmelbyNameMatcher = new Regex($"{oldAssembly.Name}");
+            fileContents = assmelbyNameMatcher.Replace(fileContents, (m) =>
+            {
+                // while loading prefab regex matches with format assemblyname_digit in data file to update with most recent assembly.
+                // Hence, we append _0 so that Regex matches as expected.
+                return $"{newAssemblyName}_0";
+            });
+            fileContents = fileContents.Replace(oldNameSpace, prefabDescription.NameSpace);
+            File.WriteAllText(prefabFileSystem.PrefabFile, fileContents);
+
+        }
+
         public override async Task Cancel()
         {
             string prefabsDirectory = Directory.GetParent(prefabFileSystem.WorkingDirectory).FullName;
