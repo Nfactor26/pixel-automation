@@ -27,8 +27,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         /// </summary>
         /// <returns></returns>
         public Entity GetPrefabRootEntity()
-        {
-            this.parentEntityManager.RootEntity = this.parentEntityManager.RootEntity;
+        {          
             var prefabRoot = this.prefabFileSystem.GetPrefabEntity(this.dataModelType.GetType().Assembly);
             prefabRoot.EntityManager = this.prefabEntityManager;
             this.prefabEntityManager.RestoreParentChildRelation(prefabRoot, false);

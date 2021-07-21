@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
     [Initializer(typeof(ScriptFileInitializer))]
     public class PrefabEntity : Entity
     {
+        private readonly ILogger logger = Log.ForContext<PrefabEntity>();
         [DataMember]
         [Browsable(false)]
         public string ApplicationId { get; set; }
@@ -77,8 +79,9 @@ namespace Pixel.Automation.Core.Components.Prefabs
           
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScript);
-            inputMappingAction.Invoke(prefabDataModel);       
-          
+            inputMappingAction.Invoke(prefabDataModel);
+            logger.Information($"Executed input mapping script : {this.InputMappingScript} for Prefab : {this.PrefabId}");
+
             base.BeforeProcess();
         }
 
@@ -91,7 +94,8 @@ namespace Pixel.Automation.Core.Components.Prefabs
             this.prefabEntity = prefabLoader.GetPrefabEntity(this.ApplicationId, this.PrefabId, this.EntityManager);
             this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;
             this.components.Clear();
-            this.components.Add(this.prefabEntity);          
+            this.components.Add(this.prefabEntity);
+            logger.Information($"Loaded Prefab : {this.PrefabId} with data model type : {this.prefabDataModel.GetType()}");
         }
 
         public override async void OnCompletion()
@@ -99,11 +103,12 @@ namespace Pixel.Automation.Core.Components.Prefabs
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScript);
             outputMappingAction.Invoke(prefabDataModel);
+            logger.Information($"Executed output mapping script : {this.OutputMappingScript} for Prefab : {this.PrefabId}");
 
             this.Components.Clear();
             this.prefabDataModel = null;
 
-            base.OnCompletion();
+            base.OnCompletion();            
         }
 
         #region overridden methods
