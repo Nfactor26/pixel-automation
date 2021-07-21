@@ -147,7 +147,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                 targetProperty = root.GetType().GetProperty(property);
                 if (targetProperty == null)
                 {
-                    throw new ArgumentException($"Could not find property {targetProperty} in type {root.GetType()}");
+                    throw new ArgumentException($"Could not find property {property} in type {root.GetType()}");
                 }
                 var propertyValue = targetProperty.GetValue(root);
                 if (propertyValue == null)
