@@ -69,6 +69,11 @@ namespace Pixel.Automation.Core.Models
                 GroupName = this.GroupName,
                 ApplicationId = this.ApplicationId               
             };
-        }    
+        }
+
+        public override string ToString()
+        {
+            return this.ControlDetails?.ToString();
+        }
     }
 }
