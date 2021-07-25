@@ -228,7 +228,7 @@ namespace Pixel.Scripting.Engine.CSharp
             IScriptEngine scriptEngine = new ScriptEngine(() => this.scriptOptions, new ScriptRunner());
             scriptEngine.SetWorkingDirectory(workingDirectory);
             this.createdScriptEngines.Add(new WeakReference<IScriptEngine>(scriptEngine));
-            logger.Information($"Created a new instance of {nameof(ScriptEngine)}");
+            logger.Information($"Created a new instance of {nameof(ScriptEngine)} with working directory : {workingDirectory}");
             return scriptEngine;
         }
 

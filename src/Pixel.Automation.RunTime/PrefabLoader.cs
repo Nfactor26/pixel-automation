@@ -86,10 +86,11 @@ namespace Pixel.Automation.RunTime
             PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(new PrefabDescription() { ApplicationId = applicationId, PrefabId = prefabId });
 
             IEntityManager prefabEntityManager = new EntityManager(parentEntityManager);
+            prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
             IPrefabFileSystem prefabFileSystem = prefabEntityManager.GetServiceOfType<IPrefabFileSystem>();
             prefabFileSystem.Initialize(applicationId, prefabId, versionToLoad);
             prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);
-
+          
             ConfigureServices(parentEntityManager, prefabFileSystem);    
 
             string prefabAssembly = Path.Combine(prefabFileSystem.ReferencesDirectory, versionToLoad.DataModelAssembly);

@@ -90,7 +90,6 @@ namespace Pixel.Automation.Test.Runner
             this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
 
             var processEntity = serializer.Deserialize<Entity>(this.fileSystem.ProcessFile, typeProvider.GetAllTypes());
-            processEntity.EntityManager = this.entityManager;
             this.entityManager.RootEntity = processEntity;
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
 

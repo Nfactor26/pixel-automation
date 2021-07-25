@@ -299,10 +299,12 @@ namespace Pixel.Automation.RunTime
                 if (!allFixtures.Any(f => f.Tag.Equals(fixture.Id)))
                 {
                     TestFixtureEntity fixtureEntity = fixture.TestFixtureEntity as TestFixtureEntity;
-                    EntityManager fixtureEntityManager = new EntityManager(this.entityManager) { Arguments = new Empty() };
+                    EntityManager fixtureEntityManager = new EntityManager(this.entityManager);
+                    fixtureEntityManager.SetIdentifier($"Fixture - {fixture.DisplayName}");
+                    fixtureEntityManager.Arguments = new Empty();
                     fixtureEntity.EntityManager = fixtureEntityManager;
-                    this.entityManager.RootEntity.AddComponent(fixture.TestFixtureEntity);
-                 
+                    this.entityManager.RootEntity.AddComponent(fixture.TestFixtureEntity);                 
+                    
                     logger.Information("Added test fixture : {0} to process.", fixture);
 
                     IScriptEngine scriptEngine = fixtureEntityManager.GetScriptEngine();
@@ -372,7 +374,8 @@ namespace Pixel.Automation.RunTime
                 {
                     //Create a new EntityManager for TestCaseEntity that can use ArgumentProcessor and ScriptEngine with different globals object               
                     EntityManager testEntityManager = new EntityManager(this.entityManager);
-                    testCaseEntity.EntityManager = testEntityManager;
+                    testEntityManager.SetIdentifier($"Test - {testCase.DisplayName}");
+                    testCaseEntity.EntityManager = testEntityManager;                  
 
                     var dataSource = testDataLoader.LoadData(testCase.TestDataId);
                     if (dataSource is IEnumerable dataSourceCollection)

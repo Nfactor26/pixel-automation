@@ -209,9 +209,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return dataModelAssemblyName;
         }
 
-        protected void RestoreParentChildRelation(Entity entity, bool resetId = false)
+        protected void RestoreParentChildRelation(Entity entity)
         {
-            this.entityManager.RestoreParentChildRelation(entity, resetId);
+            this.entityManager.RestoreParentChildRelation(entity);
         }
              
         #endregion helper methods

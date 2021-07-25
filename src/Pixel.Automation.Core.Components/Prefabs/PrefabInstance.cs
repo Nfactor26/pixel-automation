@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         {          
             var prefabRoot = this.prefabFileSystem.GetPrefabEntity(this.dataModelType.GetType().Assembly);
             prefabRoot.EntityManager = this.prefabEntityManager;
-            this.prefabEntityManager.RestoreParentChildRelation(prefabRoot, false);
+            this.prefabEntityManager.RestoreParentChildRelation(prefabRoot);
             //Setting argument will initialize all the required services such as script engine, argument processor , etc.
             var dataModelInstance = Activator.CreateInstance(dataModelType);
             this.prefabEntityManager.Arguments = dataModelInstance;
