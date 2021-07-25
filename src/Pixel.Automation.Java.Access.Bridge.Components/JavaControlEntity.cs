@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -26,13 +27,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <summary>
         /// Clear the located control once entity is processed
         /// </summary>
-        public override void OnCompletion()
+        public override async Task OnCompletionAsync()
         {
             if (CacheControl)
             {
                 controlNode = null;
                 logger.Debug($"Cleared cached AccessibleContextNode for {this.Name}");
-            }         
+            }
+            await Task.CompletedTask;
         }
 
 

@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Components.Tests
         /// </summary>
         /// <returns></returns>
         [Test]
-        public void GivenSequenceEntityIsConfiguredToRequreFocusValidateThatApplicationWindowIsSetToForegroundWindow()
+        public async Task GivenSequenceEntityIsConfiguredToRequreFocusValidateThatApplicationWindowIsSetToForegroundWindow()
         {
             var entityManager = Substitute.For<IEntityManager>();
             
@@ -47,8 +47,8 @@ namespace Pixel.Automation.Core.Components.Tests
             //Act
             using(sequenceEntity)
             {
-                sequenceEntity.BeforeProcess();
-                sequenceEntity.OnCompletion();
+                await sequenceEntity.BeforeProcessAsync();
+                await sequenceEntity.OnCompletionAsync();
             }
         
             //Assert
@@ -62,7 +62,7 @@ namespace Pixel.Automation.Core.Components.Tests
         /// </summary>
         /// <returns></returns>
         [Test]
-        public void GivenSequenceEntityIsConfiguredToRequreFocusValidateThatExceptionIsThrownIfOWnerApplicationWindowHandleIsZero()
+        public async Task GivenSequenceEntityIsConfiguredToRequreFocusValidateThatExceptionIsThrownIfOWnerApplicationWindowHandleIsZero()
         {
 
             var entityManager = Substitute.For<IEntityManager>();
@@ -76,9 +76,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             //Act
             using (sequenceEntity)
-            {
-                Assert.Throws<InvalidOperationException>(() => { sequenceEntity.BeforeProcess(); });
-                sequenceEntity.OnFault(sequenceEntity);
+            { 
+                Assert.ThrowsAsync<InvalidOperationException>(async () => { await sequenceEntity.BeforeProcessAsync(); });
+                await sequenceEntity.OnFaultAsync(sequenceEntity);
             }         
         }
 
@@ -97,9 +97,9 @@ namespace Pixel.Automation.Core.Components.Tests
                 //Start on a new task since Mutex can be acquired multiple time by same thread 
                 var task = new Task(() =>
                 {
-                    Assert.Throws<TimeoutException>(() =>
+                    Assert.ThrowsAsync<TimeoutException>(async () =>
                     {
-                        sequenceEntity.BeforeProcess();
+                        await sequenceEntity.BeforeProcessAsync();
                     });
                 });
                 task.Start();
@@ -116,7 +116,7 @@ namespace Pixel.Automation.Core.Components.Tests
         /// </summary>
         /// <returns></returns>
         [Test]
-        public void GivenSequenceEntityIsConfiguredNotToRequreFocusValidateThatNoAttemptIsMadeToSetOwnerApplicationAsForegroundWindow()
+        public async Task GivenSequenceEntityIsConfiguredNotToRequreFocusValidateThatNoAttemptIsMadeToSetOwnerApplicationAsForegroundWindow()
         {
             var entityManager = Substitute.For<IEntityManager>();       
 
@@ -127,8 +127,8 @@ namespace Pixel.Automation.Core.Components.Tests
             var sequenceEntity = new SequenceEntity() { RequiresFocus = false };         
             using (sequenceEntity)
             {
-                sequenceEntity.BeforeProcess();
-                sequenceEntity.OnCompletion();
+                await sequenceEntity.BeforeProcessAsync();
+                await sequenceEntity.OnCompletionAsync();
             }
         
             applicationWindowManager.Received(0).SetForeGroundWindow(Arg.Any<ApplicationWindow>());

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -74,17 +74,17 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Processor will call BeforeProcess on  a component before processing it
         /// </summary>
-        void BeforeProcess();
+        Task BeforeProcessAsync();
 
         /// <summary>
         /// Processor will call OnCompletion on a component after processing it
         /// </summary>
-        void OnCompletion();
+        Task OnCompletionAsync();
 
         /// <summary>
         /// Processor will call OnFault on all entities that are being processed with the faulting component
         /// </summary>
-        void OnFault(IComponent faultingComponent);
+        Task OnFaultAsync(IComponent faultingComponent);
 
         /// <summary>
         /// Validate if the component is configured properly.

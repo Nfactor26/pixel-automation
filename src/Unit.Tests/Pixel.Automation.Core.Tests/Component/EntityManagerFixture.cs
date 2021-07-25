@@ -184,10 +184,13 @@ namespace Pixel.Automation.Core.Tests
         [Order(110)]
         public void ValidateThatEntityManagerCanBeCreatedFromExistingEntityManager()
         {
-            var secondaryEntityManager = new EntityManager(this.entityManager);
+            Entity rootEntity = new Entity("Root", "Root"); 
+            this.entityManager.RootEntity = rootEntity;
+            var secondaryEntityManager = new EntityManager(this.entityManager);          
             Assert.AreSame(secondaryEntityManager.RootEntity, this.entityManager.RootEntity);
             Assert.AreSame(secondaryEntityManager.GetCurrentFileSystem(), this.entityManager.GetCurrentFileSystem());
-           
+            Assert.AreSame(this.entityManager, rootEntity.EntityManager);
+         
             secondaryEntityManager.Arguments = new Person();
 
             Assert.AreSame(secondaryEntityManager.GetServiceOfType<IScriptEngineFactory>(), this.entityManager.GetServiceOfType<IScriptEngineFactory>());

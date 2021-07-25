@@ -58,7 +58,7 @@ namespace Pixel.Automation.Core.Components.Processors
             IComponent actorBeingProcessed = null;
             try
             {
-                targetEntity.BeforeProcess();
+                await targetEntity.BeforeProcessAsync();
                 foreach (IComponent component in targetEntity.GetNextComponentToProcess())
                 {
                     if (component.IsEnabled)
@@ -72,10 +72,10 @@ namespace Pixel.Automation.Core.Components.Processors
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    actor.BeforeProcess();
+                                    await actor.BeforeProcessAsync();
                                     actor.IsExecuting = true;                                  
                                     actor.Act();
-                                    actor.OnCompletion();
+                                    await actor.OnCompletionAsync();
                                 }
                                 catch (Exception ex)
                                 {
@@ -98,10 +98,10 @@ namespace Pixel.Automation.Core.Components.Processors
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    actor.BeforeProcess();
+                                    await actor.BeforeProcessAsync();
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
-                                    actor.OnCompletion();
+                                    await actor.OnCompletionAsync();
                                 }
                                 catch (Exception ex)
                                 {
@@ -129,18 +129,18 @@ namespace Pixel.Automation.Core.Components.Processors
                                 if (entitiesBeingProcessed.Count() > 0 && entitiesBeingProcessed.Peek().Equals(component as Entity))
                                 {
                                     var processedEntity = entitiesBeingProcessed.Pop();
-                                    processedEntity.OnCompletion();
+                                    await processedEntity.OnCompletionAsync();
                                 }
                                 else
                                 {
-                                    component.BeforeProcess();
+                                    await component.BeforeProcessAsync();
                                     entitiesBeingProcessed.Push(component as Entity);
                                 }
                                 break;
                         }
                     }
                 }
-                targetEntity.OnCompletion();
+                await targetEntity.OnCompletionAsync();
 
                 logger.Information("All components have been processed for Entity : {Id},{Name}", targetEntity.Id, targetEntity.Name);
 
@@ -160,7 +160,7 @@ namespace Pixel.Automation.Core.Components.Processors
                     try
                     {
                         var entity = entitiesBeingProcessed.Pop();
-                        entity.OnFault(actorBeingProcessed);
+                        await entity.OnFaultAsync(actorBeingProcessed);
                     }
                     catch (Exception faultHandlingExcpetion)
                     {
@@ -168,7 +168,7 @@ namespace Pixel.Automation.Core.Components.Processors
                     }
                 }
 
-                targetEntity.OnFault(actorBeingProcessed);
+                await targetEntity.OnFaultAsync(actorBeingProcessed);
                 throw;
             }
 

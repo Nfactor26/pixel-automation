@@ -471,13 +471,12 @@ namespace Pixel.Automation.RunTime
             IComponent actorBeingProcessed = null;
             try
             {
-                targetEntity.BeforeProcess();
+                await targetEntity.BeforeProcessAsync();
                 foreach (IComponent component in targetEntity.GetNextComponentToProcess())
                 {
                     if (component.IsEnabled)
                     {
                         logger.Information("Component : [{$Id},{$Name}] will be processed next.", component.Id, component.Name);
-
 
                         switch (component)
                         {
@@ -486,10 +485,10 @@ namespace Pixel.Automation.RunTime
                                 {
                                     actorBeingProcessed = actor;
                                     AddDelay(this.preDelay);
-                                    actor.BeforeProcess();
+                                    await actor.BeforeProcessAsync();
                                     actor.IsExecuting = true;                                  
                                     actor.Act();
-                                    actor.OnCompletion();
+                                    await actor.OnCompletionAsync();
                                     AddDelay(this.postDelay);
 
                                 }
@@ -514,10 +513,10 @@ namespace Pixel.Automation.RunTime
                                 {
                                     actorBeingProcessed = actor;
                                     AddDelay(this.preDelay);
-                                    actor.BeforeProcess();
+                                    await actor.BeforeProcessAsync();
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
-                                    actor.OnCompletion();
+                                    await actor.OnCompletionAsync();
                                     AddDelay(this.postDelay);
                                 }
                                 catch (Exception ex)
@@ -543,13 +542,13 @@ namespace Pixel.Automation.RunTime
                             case Entity entity:
                                 //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
                                 if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(entity))
-                                {                                   
+                                {
                                     var processedEntity = this.entitiesBeingProcessed.Pop();
-                                    processedEntity.OnCompletion();
+                                    await processedEntity.OnCompletionAsync();
                                 }
                                 else
                                 {
-                                    entity.BeforeProcess();
+                                    await entity.BeforeProcessAsync();
                                     this.entitiesBeingProcessed.Push(entity);
                                 }
                                 break;
@@ -557,7 +556,7 @@ namespace Pixel.Automation.RunTime
                     }
                 }
 
-                targetEntity.OnCompletion();
+                await targetEntity.OnCompletionAsync();
 
                 logger.Information("All components have been processed for Entity : {Id}, {Name}", targetEntity.Id, targetEntity.Name);
 
@@ -577,7 +576,7 @@ namespace Pixel.Automation.RunTime
                     try
                     {
                         var entity = this.entitiesBeingProcessed.Pop();
-                        entity.OnFault(actorBeingProcessed);
+                        await entity.OnFaultAsync(actorBeingProcessed);
                     }
                     catch (Exception faultHandlingExcpetion)
                     {
@@ -585,7 +584,7 @@ namespace Pixel.Automation.RunTime
                     }
                 }
 
-                targetEntity.OnFault(actorBeingProcessed);
+                await targetEntity.OnFaultAsync(actorBeingProcessed);
                 throw;
             }
 

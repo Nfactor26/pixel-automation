@@ -8,6 +8,7 @@ using System;
 using Pixel.Automation.Core.Enums;
 using System.ComponentModel.DataAnnotations;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -28,14 +29,14 @@ namespace Pixel.Automation.UIA.Components
         /// <summary>
         /// Clear the located control once entity is processed
         /// </summary>
-        public override void OnCompletion()
+        public override async Task OnCompletionAsync()
         {
             if (CacheControl)
             {
                 uiaElement = null;
                 logger.Debug($"Cleared cached AutomationElement for {this.Name}");
             }
-
+            await Task.CompletedTask;
         }
 
 

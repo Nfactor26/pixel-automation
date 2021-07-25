@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Components;
 using System;
 using System.Collections.Generic;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -30,13 +31,14 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Clear the located control once entity is processed
         /// </summary>
-        public override void OnCompletion()
+        public override async Task OnCompletionAsync()
         {
             if (CacheControl)
             {
                 webElement = null;              
                 logger.Debug($"Cleared cached WebElement for {this.Name}");
-            }          
+            }
+            await Task.CompletedTask;
         }
 
         /// <summary>

@@ -167,7 +167,28 @@ namespace Pixel.Automation.Core
                 isValid = value;
                 OnPropertyChanged();
             }
-        }       
+        }
+
+        /// <summary>
+        /// Indicates whether the component is in a faulted state after processing
+        /// </summary>
+        [NonSerialized]
+        private bool isFaulted;
+
+        [Browsable(false)]
+        [IgnoreDataMember]
+        public bool IsFaulted
+        {
+            get
+            {
+                return isFaulted;
+            }
+            set
+            {
+                isFaulted = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Component()
         {
@@ -187,20 +208,20 @@ namespace Pixel.Automation.Core
         }
 
         /// <inheritdoc/>
-        public virtual void BeforeProcess()
+        public virtual async Task BeforeProcessAsync()
         {
-
+            await Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public virtual void OnCompletion()
+        public virtual async Task OnCompletionAsync()
         {
-
+            await Task.CompletedTask;
         }
 
-        public virtual void OnFault(IComponent faultingComponent)
+        public virtual async Task OnFaultAsync(IComponent faultingComponent)
         {
-           
+            await Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -293,29 +314,8 @@ namespace Pixel.Automation.Core
                 }
                 OnPropertyChanged();
             }
-
         }
-
-        /// <summary>
-        /// Indicates whether the component is in a faulted state after processing
-        /// </summary>
-        [NonSerialized]
-        private bool isFaulted;
-
-        [Browsable(false)]
-        [IgnoreDataMember]
-        public bool IsFaulted
-        {
-            get
-            {
-                return isFaulted;
-            }
-            set
-            {
-                isFaulted = value;               
-                OnPropertyChanged();
-            }
-        }
+      
 
         [NonSerialized]
         private List<string> errorMessages = new List<string>();
@@ -394,28 +394,7 @@ namespace Pixel.Automation.Core
                 OnPropertyChanged();
             }
 
-        }
-
-        /// <summary>
-        /// Indicates whether the component is in a faulted state after processing
-        /// </summary>
-        [NonSerialized]
-        private bool isFaulted;
-
-        [Browsable(false)]
-        [IgnoreDataMember]
-        public bool IsFaulted
-        {
-            get
-            {
-                return isFaulted;
-            }
-            set
-            {
-                isFaulted = value;
-                OnPropertyChanged();
-            }
-        }
+        }        
 
         [NonSerialized]
         private List<string> errorMessages = new List<string>();
