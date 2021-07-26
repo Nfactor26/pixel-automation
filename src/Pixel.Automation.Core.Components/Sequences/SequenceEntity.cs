@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core.Components.Sequences
@@ -72,7 +73,7 @@ namespace Pixel.Automation.Core.Components.Sequences
         }
 
 
-        public override void BeforeProcess()
+        public override async Task BeforeProcessAsync()
         {
             if (!string.IsNullOrEmpty(this.targetAppId) && RequiresFocus)
             {
@@ -105,9 +106,10 @@ namespace Pixel.Automation.Core.Components.Sequences
                     throw new TimeoutException($"Failed to acquire mutex lock  within configured timeout of  {this.acquireFocusTimeout} ms.");
                 }
             }
+            await Task.CompletedTask;
         }
 
-        public override void OnCompletion()
+        public override async Task OnCompletionAsync()
         {
             if(mutex!=null && wasMutexAcquired)
             {               
@@ -115,12 +117,11 @@ namespace Pixel.Automation.Core.Components.Sequences
                 wasMutexAcquired = false;
                 logger.Information($"Mutex lock released by {this}");
             }
-          
-            base.OnCompletion();
+            await Task.CompletedTask;
         }
 
 
-        public override void OnFault(IComponent faultingComponent)
+        public override async Task OnFaultAsync(IComponent faultingComponent)
         {
             if (mutex != null && wasMutexAcquired)
             {
@@ -128,8 +129,7 @@ namespace Pixel.Automation.Core.Components.Sequences
                 wasMutexAcquired = false;
                 logger.Information($"Mutex lock released by {this}");
             }
-
-            base.OnFault(faultingComponent);
+            await Task.CompletedTask;
         }
 
         public void SetAppContext(string targetAppId)

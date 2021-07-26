@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Test.Helpers;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
@@ -16,7 +17,7 @@ namespace Pixel.Automation.Core.Components.Tests
         /// from PrefabProcess in the order they are supposed to be processed.
         /// </summary>
         [Test]
-        public void ValidateThatPrefabLoaderCanLoadPrefabProcess()
+        public async Task ValidateThatPrefabLoaderCanLoadPrefabProcess()
         {
             var prefabEntityManager = Substitute.For<IEntityManager>();
             prefabEntityManager.Arguments.Returns(new Person());
@@ -50,8 +51,8 @@ namespace Pixel.Automation.Core.Components.Tests
             Assert.AreEqual(0, prefabEntity.Components.Count);
             Assert.AreEqual(typeof(Person), prefabEntity.DataModelType);
 
-            prefabEntity.BeforeProcess();
-            scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("InputMappingScript.csx"));
+            await prefabEntity.BeforeProcessAsync();
+            await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("InputMappingScript.csx"));
             Assert.AreEqual(typeof(Person), prefabEntity.PrefabDataModelType);
 
             Assert.AreEqual(1, prefabEntity.Components.Count);
@@ -60,8 +61,8 @@ namespace Pixel.Automation.Core.Components.Tests
             Assert.IsTrue(components.Contains(prefabProcessRootEntity));
             Assert.IsTrue(components.Contains(actorComponent));
 
-            prefabEntity.OnCompletion();
-            scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("OutputMappingScript.csx"));
+            await prefabEntity.OnCompletionAsync();
+            await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("OutputMappingScript.csx"));
 
             Assert.AreEqual(0, prefabEntity.Components.Count);
         }

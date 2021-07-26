@@ -5,7 +5,9 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -16,6 +18,7 @@ namespace Pixel.Automation.Designer.ViewModels
            
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
+        private List<AutomationProject> existingProjects = new List<AutomationProject>();
 
         public AutomationProject NewProject { get; }
 
@@ -41,6 +44,8 @@ namespace Pixel.Automation.Designer.ViewModels
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject();
             this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
+
+            this.existingProjects.AddRange(this.applicationDataManager.GetAllProjects());
         
         }    
 
@@ -78,7 +83,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             get
             {
-                return !this.HasErrors && !string.IsNullOrEmpty(this.Name);
+                return !this.HasErrors && !string.IsNullOrEmpty(this.Name) && !!IsNameAvailable(this.Name);
             }
 
         }
@@ -88,6 +93,16 @@ namespace Pixel.Automation.Designer.ViewModels
             ClearErrors(nameof(Name));
             ValidateRequiredProperty(nameof(Name), projectName);
             ValidatePattern("^([A-Za-z]|[_]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or '_' and should be atleast 4 characters in length.");
+            if(!IsNameAvailable(projectName))
+            {
+                this.AddOrAppendErrors(nameof(Name), "An application already exists with this name");
+            }
+            
+        }
+
+        private bool IsNameAvailable(string projectName)
+        {
+            return !this.existingProjects.Any(a => a.Name.Equals(projectName));            
         }
 
         public async void Cancel()

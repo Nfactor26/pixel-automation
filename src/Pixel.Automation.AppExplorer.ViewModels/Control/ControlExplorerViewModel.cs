@@ -131,6 +131,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 if (keyArgs != null && keyArgs.Key == Key.Enter)
                 {
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
+                    if(this.Controls.Except(new[] { controlToRename }).Any(a => a.ControlName.Equals(newName)))
+                    {
+                        return;
+                    }
                     controlToRename.ControlName = newName;
                     CanEdit = false;
                     await SaveControlDetails(controlToRename, false);
@@ -138,7 +142,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
                 CanEdit = false;
             }
         }
@@ -244,7 +248,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
 
-        private async Task AddControl(ControlDescriptionViewModel controlItem)
+        private async Task AddControlAsync(ControlDescriptionViewModel controlItem)
         {
             await SaveBitMapSource(controlItem.ControlDescription, controlItem.ImageSource, "Default");
             await SaveControlDetails(controlItem, true);            
@@ -270,7 +274,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         public async Task HandleAsync(IEnumerable<ScrapedControl> scrapedControls, CancellationToken cancellationToken)
         {
-            Log.Information("Received {count} scraped controls to process", scrapedControls.Count());
+            logger.Information("Received {count} scraped controls to process", scrapedControls.Count());
             if (this.activeApplication == null)
             {
                 throw new InvalidOperationException("There is no active application in Application explorer");
@@ -279,24 +283,32 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 using (scrapedControl)
                 {
-                    //update the application id for each control identity in hierarchy
-                    IControlIdentity control = scrapedControl.ControlData;
-                    control.ApplicationId = this.activeApplication.ApplicationId;
-                    IControlIdentity current = control;
-                    while (current.Next != null)
+                    try
                     {
-                        current = current.Next;
-                        current.ApplicationId = this.activeApplication.ApplicationId;
-                    }
+                        //update the application id for each control identity in hierarchy
+                        IControlIdentity control = scrapedControl.ControlData;
+                        control.ApplicationId = this.activeApplication.ApplicationId;
+                        IControlIdentity current = control;
+                        while (current.Next != null)
+                        {
+                            current = current.Next;
+                            current.ApplicationId = this.activeApplication.ApplicationId;
+                        }
 
-                    //create an instance of ControlToolBoxItem to display in the toolbox
-                    var controlDescription = new ControlDescription(control);
-                    ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
-                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();           
-                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);  
-                    
-                    //save the captured control details to file
-                    await AddControl(controlDescriptionViewModel);
+                        //create an instance of ControlToolBoxItem to display in the toolbox
+                        var controlDescription = new ControlDescription(control);
+                        ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
+                        controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
+                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+
+                        //save the captured control details to file
+                        await AddControlAsync(controlDescriptionViewModel);
+                        logger.Information($"Added control with details {controlDescription}");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, ex.Message);
+                    }
                 }
             }
             await Task.CompletedTask;

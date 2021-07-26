@@ -23,7 +23,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
             Kernel.Bind<IPrefabProjectManager>().To<PrefabProjectManager>().InSingletonScope();
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
-            Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>().InSingletonScope();
+            Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
             Kernel.Bind<IEntityManager>().ToConstructor(c => new EntityManager(c.Inject<IServiceResolver>())).InSingletonScope();
 
             Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();

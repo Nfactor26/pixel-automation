@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Tests
 
             component.Received(1).ResolveDependencies();
             component.Received(1).ValidateComponent();
-            entityManager.Received(1).RestoreParentChildRelation(component, Arg.Any<bool>());
+            entityManager.Received(1).RestoreParentChildRelation(component);
 
         }
 

@@ -103,6 +103,12 @@ namespace Pixel.Automation.Editor.Core.Helpers
                     AssignMap(mappingBuilder, mapping);
                 }
             }
+            else
+            {
+                //Always add this to generated code so that it is easier to get started if needed.
+                mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => {});");
+                mappingBuilder.AppendLine("     var mapper = configuration.CreateMapper();");
+            }
             foreach (var mapping in mappings)
             {
                 if ((mapping.AssignToType != null) && (!mapping.AssignFromType.Equals(mapping.AssignToType)))

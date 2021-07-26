@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,12 +16,15 @@ namespace Pixel.Automation.Core
     {
         #region data members       
 
-        protected IServiceResolver serviceProvider;
+        private readonly ILogger logger = Log.ForContext<EntityManager>();
+
+        private IServiceResolver serviceProvider;
         private IFileSystem fileSystem;
         private IArgumentProcessor argumentProcessor;
         private IScriptEngine scriptEngine;
         private bool areDefaultServicesInitialized = false;
         private bool isPrimaryEntityManager = true;
+        private string identifier;
 
         private Entity rootEntity;
         public Entity RootEntity
@@ -28,10 +32,15 @@ namespace Pixel.Automation.Core
             get => rootEntity;
             set
             {
+                if(value == null)
+                {
+                    throw new ArgumentNullException("Null value can't be assigned to RootEntity");
+                }
                 rootEntity = value;
-                if(rootEntity != null)
+                if(isPrimaryEntityManager)
                 {
                     rootEntity.EntityManager = this;
+                    logger.Information($"Root entity set to {rootEntity} for {this}");
                 }
             }
         }
@@ -71,7 +80,9 @@ namespace Pixel.Automation.Core
 
         public EntityManager(IServiceResolver serviceProvider)
         {
-            this.serviceProvider = serviceProvider;          
+            this.identifier = "Root";
+            this.serviceProvider = serviceProvider;
+            logger.Information("Created a new instance of primary entity manager");           
         }
 
         /// <summary>
@@ -81,14 +92,24 @@ namespace Pixel.Automation.Core
         public EntityManager(IEntityManager parentEntityManager)
         {
             this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>();
-            this.RootEntity = parentEntityManager.RootEntity;
             this.isPrimaryEntityManager = false;
+            this.RootEntity = parentEntityManager.RootEntity;         
             this.SetCurrentFileSystem(parentEntityManager.GetCurrentFileSystem());
+            logger.Information("Created a new instance of secondary entity manager");
         }
 
         #endregion Constructor
 
         #region Run time services
+
+        public void SetIdentifier(string identifier)
+        {
+            if(!string.IsNullOrEmpty(identifier))
+            {
+                this.identifier = identifier;
+                logger.Information($"Entity manager identifer set to {identifier}");
+            }
+        }
 
         public void SetCurrentFileSystem(IFileSystem fileSystem)
         {
@@ -366,24 +387,35 @@ namespace Pixel.Automation.Core
             return matchingProperties;
         }
 
-        public void RestoreParentChildRelation(IComponent entityComponent, bool resetId = false)
+        public void RestoreParentChildRelation(IComponent entityComponent)
         {
             if (entityComponent is Entity entity)
             {
                 foreach (var component in entity.Components)
                 {
                     component.Parent = entity;
-                    component.EntityManager = entity.EntityManager;
+                    //There are primary and secondary entity managers. We don't want to overwrite secondary entity managers
+                    //when doing a restore from top down.
+                    if (component.EntityManager == null)
+                    {
+                        component.EntityManager = entity.EntityManager;
+                    }
                     if (component is Entity childEntity)
                     {
-                        RestoreParentChildRelation(childEntity, resetId);
+                        RestoreParentChildRelation(childEntity);
                     }
                     Debug.Assert(component.Parent != null);
+                    Debug.Assert(component.EntityManager != null);
                 }
             }
         }
 
         #endregion private methods
+
+        public override string ToString()
+        {
+            return $"Entity Manager - {this.identifier ?? string.Empty} | IsPrimary - {this.isPrimaryEntityManager}";
+        }
 
         #region IDisposable
 
@@ -404,11 +436,12 @@ namespace Pixel.Automation.Core
                     }
                 }
 
-                this.RootEntity = null;
+                this.rootEntity = null;
                 this.arguments = null;
                 this.serviceProvider = null;
                 this.fileSystem = null;
             }
+            logger.Information($"Entity manager : {this} has been disposed");
         }
 
         #endregion IDisposable
