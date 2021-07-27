@@ -97,14 +97,7 @@ namespace Pixel.Scripting.Script.Editor
         /// <returns></returns>
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            if(close)
-            {
-                CloseDocument(false);
-            }
-            else
-            {
-                this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
-            }
+            CloseDocument(false);
             return base.OnDeactivateAsync(close, cancellationToken);
         }
 
