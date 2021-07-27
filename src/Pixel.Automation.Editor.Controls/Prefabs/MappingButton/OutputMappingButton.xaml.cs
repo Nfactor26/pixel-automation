@@ -16,12 +16,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
         protected override IPrefabArgumentMapper GetArgumentMapper()
         {
             return new PrefabOutputMapper();
-        }
-
-        protected override string GetProjectName()
-        {
-            return $"Out-{OwnerComponent.Id}";
-        }
+        }       
     }
 }
 

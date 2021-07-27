@@ -1,8 +1,8 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -42,14 +42,14 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         {
             get { return (ObservableCollection<string>)GetValue(AvailablePropertiesProperty); }
             set { SetValue(AvailablePropertiesProperty, value); }
-        }    
+        }
 
         public ArgumentEditorBase()
-        {         
+        {
             AvailableProperties = new ObservableCollection<string>();
         }
 
-       
+
         protected void LoadAvailableProperties()
         {
             if (Argument?.Mode != ArgumentMode.DataBound)
@@ -69,13 +69,13 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                     AvailableProperties.Add($"{scopedArgumentName}.{item}");
                 }
             }
-         
+
             foreach (var item in OwnerComponent.EntityManager.GetPropertiesOfType(argumentType))
             {
                 AvailableProperties.Add(item);
             }
-           
-            if(AvailableProperties.Contains(currentValue))
+
+            if (AvailableProperties.Contains(currentValue))
             {
                 Argument.PropertyPath = currentValue;
             }
@@ -87,7 +87,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             if (string.IsNullOrEmpty(Argument.ScriptFile))
             {
                 var fileSystem = entityManager.GetCurrentFileSystem();
-                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));               
+                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));
             }
         }
 
@@ -97,34 +97,16 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             {
                 return;
             }
+            InitializeScriptName();
 
             var entityManager = this.OwnerComponent.EntityManager;
-
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-            IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor();
-
-            InitializeScriptName();
-            string initialContent = Argument.GenerateInitialScript();
-         
-            if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            Func<IComponent, string> scriptDefaultValueGetter = (a) =>
             {
-                //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                editorFactory.AddProject(OwnerComponent.Id, new string[] { testCaseEntity.Tag }, OwnerComponent.EntityManager.Arguments.GetType());
-            }
-            else if (OwnerComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
-            {
-                //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                editorFactory.AddProject(OwnerComponent.Id, new string[] { testFixtureEntity.Tag }, OwnerComponent.EntityManager.Arguments.GetType());
-            }            
-            else
-            {
-                editorFactory.AddProject(OwnerComponent.Id, Array.Empty<string>(), OwnerComponent.EntityManager.Arguments.GetType());
-            }
-            editorFactory.AddDocument(Argument.ScriptFile, OwnerComponent.Id, initialContent);
-            scriptEditor.OpenDocument(Argument.ScriptFile, OwnerComponent.Id, initialContent);
-                 
-            await windowManager.ShowDialogAsync(scriptEditor);
+                return Argument.GenerateInitialScript();
+            };
+            await editorFactory.CreateAndShowDialogAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);
         }
 
         public async void ChangeArgumentType(object sender, RoutedEventArgs e)
@@ -138,7 +120,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             var argumentBrowserFactory = entityManager.GetServiceOfType<IArgumentTypeBrowserFactory>();
-            var typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();           
+            var typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();
 
             var result = await windowManager.ShowDialogAsync(typeBrowserWindow);
 
@@ -174,7 +156,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         /// Delete script file if any
         /// </summary>
         protected void DeleteScriptFile()
-        {           
+        {
             try
             {
                 if (this.Argument.Mode == ArgumentMode.Scripted)
