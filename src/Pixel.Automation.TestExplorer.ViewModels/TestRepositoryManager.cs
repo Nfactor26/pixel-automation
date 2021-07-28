@@ -250,6 +250,10 @@ namespace Pixel.Automation.TestExplorer
                     await CloseTestCaseAsync(testCase, autoSave);
                 }
 
+                var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
+                IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.RemoveProject(fixtureVM.Id);
+
                 await this.TestRunner.TryCloseTestFixture(fixtureVM.TestFixture);
                
                 fixtureVM.TestFixtureEntity = null;
@@ -281,30 +285,35 @@ namespace Pixel.Automation.TestExplorer
             try
             {
                 ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(fixtureVM.Id);
-                IScriptEditorScreen scriptEditorScreen = this.projectManager.CreateScriptEditor(fixtureVM.Id, Array.Empty<string>(), typeof(Empty), testCaseFileSystem.FixtureScript);
-                scriptEditorScreen.OpenDocument(fixtureVM.ScriptFile, fixtureVM.Id, string.Empty);
-                var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
-                if (result.HasValue && result.Value)
+                var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
+                IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();              
+                using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
                 {
-                    if (fixtureVM.IsOpenForEdit)
-                    {
-                        var fixtureScriptEngine = fixtureVM.TestFixtureEntity.EntityManager.GetScriptEngine();
-                        fixtureScriptEngine.ClearState();
-                        await fixtureScriptEngine.ExecuteFileAsync(fixtureVM.ScriptFile);
+                    scriptEditorScreen.OpenDocument(fixtureVM.ScriptFile, fixtureVM.Id, string.Empty);
+                    var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
 
-                        foreach (var testCaseVM in fixtureVM.Tests)
+                    if (result.HasValue && result.Value)
+                    {
+                        if (fixtureVM.IsOpenForEdit)
                         {
-                            if (testCaseVM.IsOpenForEdit)
+                            var fixtureScriptEngine = fixtureVM.TestFixtureEntity.EntityManager.GetScriptEngine();
+                            fixtureScriptEngine.ClearState();
+                            await fixtureScriptEngine.ExecuteFileAsync(fixtureVM.ScriptFile);
+
+                            foreach (var testCaseVM in fixtureVM.Tests)
                             {
-                                var scriptEngine = testCaseVM.TestCaseEntity.EntityManager.GetScriptEngine();
-                                scriptEngine.ClearState();
-                                await scriptEngine.ExecuteFileAsync(fixtureVM.ScriptFile);
-                                await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
+                                if (testCaseVM.IsOpenForEdit)
+                                {
+                                    var scriptEngine = testCaseVM.TestCaseEntity.EntityManager.GetScriptEngine();
+                                    scriptEngine.ClearState();
+                                    await scriptEngine.ExecuteFileAsync(fixtureVM.ScriptFile);
+                                    await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
+                                }
                             }
                         }
-                    }
 
-                }
+                    }
+                }               
             }
             catch (Exception ex)
             {
@@ -562,6 +571,12 @@ namespace Pixel.Automation.TestExplorer
                         SaveTestCase(testCaseVM);
                     }                 
                     var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+
+                    //Remove the script editor project that was added while opening the test case
+                    var entityManager = testCaseVM.TestCaseEntity.EntityManager;
+                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                    scriptEditorFactory.RemoveProject(testCaseVM.Id);
+
                     await this.TestRunner.TryCloseTestCase(parentFixture.TestFixture, testCaseVM.TestCase);                 
 
                     testCaseVM.TestCaseEntity = null;
@@ -610,18 +625,21 @@ namespace Pixel.Automation.TestExplorer
                 if (testCaseVM.IsOpenForEdit)
                 {
                     var entityManager = testCaseVM.TestCaseEntity.EntityManager;
-                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                    IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
-                    scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.Id, string.Empty);
-                    var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
-                    if (result.HasValue && result.Value)
+                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();                  
+                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
                     {
-                        var scriptEngine = entityManager.GetScriptEngine();
-                        scriptEngine.ClearState();
-                        var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
-                        await scriptEngine.ExecuteFileAsync(parentFixture.ScriptFile);
-                        await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
-                    }
+                        scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.Id, string.Empty);
+                        var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                        if (result.HasValue && result.Value)
+                        {
+                            var scriptEngine = entityManager.GetScriptEngine();
+                            scriptEngine.ClearState();
+                            var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+                            await scriptEngine.ExecuteFileAsync(parentFixture.ScriptFile);
+                            await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);
+                        }
+                    }   
+                    
                 }
             }
             catch (Exception ex)
@@ -636,9 +654,9 @@ namespace Pixel.Automation.TestExplorer
             await this.eventAggregator.PublishOnUIThreadAsync(new ShowTestDataSourceNotification(testCaseVM.TestDataId));
         }
 
-
         #endregion Test Case
 
+        #region save all
 
         public bool CanSaveAll
         {
@@ -673,6 +691,7 @@ namespace Pixel.Automation.TestExplorer
             }
         }
 
+        #endregion save all
 
         #region Execute
 

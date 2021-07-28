@@ -119,15 +119,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
         }
 
-
-        public IScriptEditorScreen CreateScriptEditor(string projectId, string[] projectReferences, Type globalsType, string scriptFile)
-        {
-            this.scriptEditorFactory.AddProject(projectId, projectReferences, globalsType);
-            string scriptFileContent = File.ReadAllText(scriptFile);
-            this.scriptEditorFactory.AddDocument(scriptFile, projectId, scriptFileContent);
-            return this.scriptEditorFactory.CreateScriptEditor();
-        }
-
         /// <summary>
         /// Add data model assembly to arguments type provider so that it can show types defined in data model assembly 
         /// </summary>
