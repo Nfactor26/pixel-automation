@@ -18,6 +18,8 @@ namespace Pixel.Scripting.Script.Editor.Script
                 HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto,
                 VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto
             };
+            logger.Debug($"Created a new instance of {nameof(ScriptEditorScreenViewModel)} with Id : {Identifier}");
+
         }
 
         public override void OpenDocument(string documentName, string ownerProject, string initialContent)

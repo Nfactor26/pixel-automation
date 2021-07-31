@@ -33,6 +33,7 @@ namespace Pixel.Script.Editor.Services.CSharp
     public class EditorService : IEditorService
     {
         private readonly ILogger logger = Log.ForContext<EditorService>();
+        private readonly string Identifier = Guid.NewGuid().ToString();
 
         private readonly ICodeGenerator codeGenerator;
         private WorkspaceOptions editorOptions;
@@ -55,6 +56,7 @@ namespace Pixel.Script.Editor.Services.CSharp
         public EditorService(ICodeGenerator codeGenerator)
         {
             this.codeGenerator = codeGenerator;
+            logger.Debug($"Create a new instance of {nameof(EditorService)} with Id : {Identifier}");
         }
 
         public IWorkspaceManager GetWorkspaceManager()
@@ -145,7 +147,7 @@ namespace Pixel.Script.Editor.Services.CSharp
 
             OnWorkspaceChanged(new WorkspaceChangedEventArgs());
 
-            logger.Information($"{nameof(EditorService)} of type {editorOptions.WorkspaceType} is initialized now.");
+            logger.Information($"{nameof(EditorService)} of type {editorOptions.WorkspaceType} with Id {Identifier} is initialized now.");
         }
 
         public void SwitchToDirectory(string directory)
@@ -192,6 +194,7 @@ namespace Pixel.Script.Editor.Services.CSharp
 
         protected virtual void OnWorkspaceChanged(WorkspaceChangedEventArgs w)
         {
+            logger.Information($"Underlying workspace changed for {nameof(EditorService)} with Id : {Identifier}");
             this.WorkspaceChanged?.Invoke(this, w);
         }
 
@@ -200,7 +203,7 @@ namespace Pixel.Script.Editor.Services.CSharp
             if (this.workspaceManager != null)
             {                
                 this.workspaceManager.Dispose();
-                logger.Information("Disposed workspace manager for editor service");
+                logger.Information($"Disposed workspace manager for {nameof(EditorService)} with Id : {Identifier}");
             }
         }
 

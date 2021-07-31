@@ -9,12 +9,15 @@ namespace Pixel.Scripting.Script.Editor
     public class ScriptEditorFactory : IScriptEditorFactory
     {
         private readonly ILogger logger = Log.ForContext<ScriptEditorFactory>();
+        private readonly string Identifier = Guid.NewGuid().ToString();
         private readonly IEditorService editorService;
         private bool isInitialized = false;
       
         public ScriptEditorFactory(IEditorService editorService)
         {
+            Guard.Argument(editorService).NotNull();
             this.editorService = editorService;
+            logger.Debug($"Create a new instance of {nameof(ScriptEditorFactory)} with Id : {Identifier}");
         }
 
         private void EnsureInitialized()
@@ -28,7 +31,8 @@ namespace Pixel.Scripting.Script.Editor
 
         public void Initialize(string workingDirectory, string[] editorReferences)
         {
-            this.isInitialized = true;
+            Guard.Argument(workingDirectory).NotNull().NotEmpty();
+         
             this.editorService.Initialize(new WorkspaceOptions()
             { 
                 WorkingDirectory = workingDirectory,
@@ -36,6 +40,8 @@ namespace Pixel.Scripting.Script.Editor
                 AssemblyReferences = editorReferences,
                 WorkspaceType = WorkspaceType.Script
             });
+            this.isInitialized = true;
+
             logger.Information($"{nameof(ScriptEditorFactory)} is initialized now.");
         }
 

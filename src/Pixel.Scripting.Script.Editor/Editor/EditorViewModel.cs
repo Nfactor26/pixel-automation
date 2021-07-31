@@ -1,5 +1,7 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,23 +9,27 @@ using System.Threading.Tasks;
 namespace Pixel.Scripting.Script.Editor
 {
     public abstract class EditorViewModel : Screen, ICodeEditor, IDisposable
-    {       
+    {
+        protected readonly ILogger logger = Log.ForContext<EditorViewModel>();
+        protected readonly string Identifier = Guid.NewGuid().ToString();
+
         protected string targetDocument;
         protected string ownerProject;
         protected readonly IEditorService editorService;
 
-
         protected CodeTextEditor editor;
-        public CodeTextEditor Editor => editor;       
-       
+        public CodeTextEditor Editor => editor;
 
-        public EditorViewModel(IEditorService editorService)
+        protected EditorViewModel(IEditorService editorService)
         {
             this.editorService = editorService;          
         }
 
         public virtual void OpenDocument(string targetDocument, string ownerProject, string intialContent)
         {
+            Guard.Argument(targetDocument).NotNull().NotEmpty();
+            Guard.Argument(ownerProject).NotNull().NotEmpty();
+
             this.targetDocument = targetDocument;
             this.ownerProject = ownerProject;
             this.editorService.CreateFileIfNotExists(targetDocument, intialContent);
@@ -42,6 +48,10 @@ namespace Pixel.Scripting.Script.Editor
 
         public void SetContent(string targetDocument, string documentContent, string ownerProject)
         {
+            Guard.Argument(targetDocument).NotNull().NotEmpty();
+            Guard.Argument(ownerProject).NotNull().NotEmpty();
+            Guard.Argument(documentContent).NotNull();
+
             this.editorService.SetContent(targetDocument, ownerProject, documentContent);
             this.Editor.Text = documentContent;
         }
@@ -105,6 +115,7 @@ namespace Pixel.Scripting.Script.Editor
         {
             (editor as IDisposable).Dispose();
             editor = null;
+            logger.Debug($"{nameof(EditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
         public void Dispose()

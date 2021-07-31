@@ -1,4 +1,5 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
+﻿using Dawn;
+using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Script.Editor.Code;
 using Pixel.Scripting.Script.Editor.MultiEditor;
 using Serilog;
@@ -9,27 +10,34 @@ namespace Pixel.Scripting.Script.Editor
     public class CodeEditorFactory : ICodeEditorFactory
     {
         private readonly ILogger logger = Log.ForContext<CodeEditorFactory>();
+        private readonly string Identifier = Guid.NewGuid().ToString();
+
         private readonly IEditorService editorService;
         private bool isInitialized = false;
 
         public CodeEditorFactory(IEditorService editorService)
         {
+            Guard.Argument(editorService).NotNull();
             this.editorService = editorService;
+            logger.Debug($"Create a new instance of {nameof(CodeEditorFactory)} with Id : {Identifier}");
         }
 
         public void Initialize(string workingDirectory, string[] editorReferences)
         {
+            Guard.Argument(workingDirectory).NotNull().NotEmpty();
+           
             if (this.isInitialized)
             {
                 throw new InvalidOperationException($"{nameof(ScriptEditorFactory)} is already initialized.");
-            }
-            this.isInitialized = true;
+            }         
             this.editorService.Initialize(new WorkspaceOptions()
             {
                 WorkingDirectory = workingDirectory,
                 AssemblyReferences = editorReferences,
                 WorkspaceType = WorkspaceType.Code
             });
+            this.isInitialized = true;
+
             logger.Information($"{nameof(CodeEditorFactory)} is initialized now.");
         }
 

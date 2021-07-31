@@ -1,7 +1,10 @@
-﻿using Pixel.Scripting.Editor.Core;
+﻿using Dawn;
+using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +14,9 @@ namespace Pixel.Scripting.Script.Editor.Script
 {
     public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged
     {
+        private readonly ILogger logger = Log.ForContext<InlineScriptEditorViewModel>();
+        private readonly string Identifier = Guid.NewGuid().ToString();
+
         private string targetDocument;
         private string ownerProject;
         private readonly IEditorService editorService;
@@ -19,6 +25,8 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         public InlineScriptEditorViewModel(IEditorService editorService)
         {
+            Guard.Argument(editorService).NotNull();
+
             this.editorService = editorService;
             this.Editor = new CodeTextEditor(editorService)
             {
@@ -38,6 +46,8 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
             this.editorService.WorkspaceChanged += OnWorkspaceChanged;
+
+            logger.Debug($"Created a new instance of {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
         }
 
         public void SetEditorOptions(EditorOptions editorOptions)
@@ -53,6 +63,8 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         private void OnWorkspaceChanged(object sender, WorkspaceChangedEventArgs e)
         {
+            logger.Debug($"Process workspace changed event for {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
+
             this.Editor.LostFocus -= OnLostFocus;
             this.Editor.GotFocus -= OnFocus;
             (this.Editor as IDisposable)?.Dispose();
@@ -69,7 +81,12 @@ namespace Pixel.Scripting.Script.Editor.Script
                 VerticalAlignment = VerticalAlignment.Stretch,
                 WordWrap = true
             };
-            OpenDocument(this.targetDocument, this.ownerProject, string.Empty);
+            Debug.Assert(!string.IsNullOrEmpty(targetDocument));
+            Debug.Assert(!string.IsNullOrEmpty(ownerProject));
+            if(!string.IsNullOrEmpty(targetDocument) && !string.IsNullOrEmpty(ownerProject))
+            {
+                OpenDocument(this.targetDocument, this.ownerProject, string.Empty);
+            }
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
             OnPropertyChanged(nameof(Editor));          
@@ -86,7 +103,10 @@ namespace Pixel.Scripting.Script.Editor.Script
         }
 
         public void OpenDocument(string targetDocument, string ownerProject, string initialContent)
-        {          
+        {
+            Guard.Argument(targetDocument).NotNull().NotEmpty();
+            Guard.Argument(ownerProject).NotNull().NotEmpty();
+
             this.targetDocument = targetDocument;
             this.ownerProject = ownerProject;
             this.editorService.CreateFileIfNotExists(targetDocument, initialContent);
@@ -136,6 +156,8 @@ namespace Pixel.Scripting.Script.Editor.Script
             CloseDocument(false);
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
             (this.Editor as IDisposable)?.Dispose();
+            this.PropertyChanged = null;
+            logger.Debug($"{nameof(InlineScriptEditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
         public void Dispose()

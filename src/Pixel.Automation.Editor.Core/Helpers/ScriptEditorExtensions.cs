@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
@@ -13,6 +14,11 @@ namespace Pixel.Automation.Editor.Core.Helpers
         public static async Task CreateAndShowDialogAsync(this IScriptEditorFactory editorFactory, IWindowManager windowManager,
             IComponent forComponent, string scriptFile, Func<IComponent, string> initialScriptContentGetter)
         {
+            Guard.Argument(windowManager).NotNull();
+            Guard.Argument(forComponent).NotNull();
+            Guard.Argument(scriptFile).NotNull().NotEmpty();
+            Guard.Argument(initialScriptContentGetter).NotNull();
+
             using (IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor())
             {
                 AddProject(editorFactory, forComponent);
@@ -32,7 +38,11 @@ namespace Pixel.Automation.Editor.Core.Helpers
 
         public static IInlineScriptEditor CreateAndInitializeInilineScriptEditor(this IScriptEditorFactory editorFactory,
             IComponent forComponent, string scriptFile, Func<IComponent, string> initialScriptContentGetter)
-        {
+        {          
+            Guard.Argument(forComponent).NotNull();
+            Guard.Argument(scriptFile).NotNull().NotEmpty();
+            Guard.Argument(initialScriptContentGetter).NotNull();
+
             var scriptEditor = editorFactory.CreateInlineScriptEditor();
             AddProject(editorFactory, forComponent);
             string initialContent = initialScriptContentGetter(forComponent);
