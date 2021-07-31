@@ -140,8 +140,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="entityManager"></param>
         /// <returns></returns>
         public override async Task Refresh()
-        {           
-            Debug.Assert(!this.entityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).Any());
+        {        
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
             this.entityManager.Arguments = CompileAndCreateDataModel(Constants.ProcessDataModelName);
