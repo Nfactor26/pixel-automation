@@ -34,13 +34,15 @@ namespace Pixel.Automation.Test.Runner
             var version = app.Option("-v | --version", "Deployed version of target project to use --version:\"n.0.0.0\"", CommandOptionType.SingleOrNoValue);          
             var where = app.Option("-w | --where", "Test selector function e.g. fixture.Category == \"SomeCategory\" && (test.Priority == Priority.Medium || test.Tags[\"key\"] != \"value\")", CommandOptionType.SingleOrNoValue);
             var script = app.Option("-s | --script", $"Script file (*.csx) override that can be used to initialize the process data model e.g. --script:\"CustomScript.csx\". By default {Constants.InitializeEnvironmentScript} generated at design time is used", CommandOptionType.SingleOrNoValue);
-       
+
 
             Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.ColoredConsole()
-            .WriteTo.RollingFile("logs\\Pixel-Automation-{Date}.txt")
-            .CreateLogger();            
+                .Enrich.WithThreadId()
+                .MinimumLevel.Debug()
+                .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File("logs\\Pixel-Automation-{Date}.txt",
+                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
 
             app.OnExecuteAsync(async c =>
             {
@@ -132,6 +134,8 @@ namespace Pixel.Automation.Test.Runner
                 return await Task.FromResult<int>(0);
 
             });
+
+            Log.CloseAndFlush();
 
             return app.Execute(args);
 

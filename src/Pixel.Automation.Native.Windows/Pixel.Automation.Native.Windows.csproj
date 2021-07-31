@@ -20,7 +20,7 @@
     <PackageReference Include="InputSimulatorStandard" Version="1.0.0">
       <Private>false</Private>
     </PackageReference>
-    <PackageReference Include="Vanara.Core" Version="3.2.0">
+    <PackageReference Include="Vanara.Core" Version="3.3.11">
       <Private>false</Private>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Gdi32" Version="3.2.0">
