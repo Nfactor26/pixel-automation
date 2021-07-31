@@ -15,20 +15,7 @@ namespace Pixel.Automation.Editor.Core.Helpers
         {
             using (IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor())
             {
-                if (forComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
-                {
-                    //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                    editorFactory.AddProject(forComponent.Id, new string[] { testCaseEntity.Tag }, forComponent.EntityManager.Arguments.GetType());
-                }
-                else if (forComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
-                {
-                    //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                    editorFactory.AddProject(forComponent.Id, new string[] { testFixtureEntity.Tag }, forComponent.EntityManager.Arguments.GetType());
-                }
-                else
-                {
-                    editorFactory.AddProject(forComponent.Id, Array.Empty<string>(), forComponent.EntityManager.Arguments.GetType());
-                }
+                AddProject(editorFactory, forComponent);
                 string initialContent = initialScriptContentGetter(forComponent);
                 editorFactory.AddDocument(scriptFile, forComponent.Id, initialContent);
                 scriptEditor.OpenDocument(scriptFile, forComponent.Id, initialContent);
@@ -41,6 +28,35 @@ namespace Pixel.Automation.Editor.Core.Helpers
                 //TODO : Would it be better to generate a random identifier and combine it with component id to use as a project id ?
                 editorFactory.RemoveProject(forComponent.Id);
             }            
+        }
+
+        public static IInlineScriptEditor CreateAndInitializeInilineScriptEditor(this IScriptEditorFactory editorFactory,
+            IComponent forComponent, string scriptFile, Func<IComponent, string> initialScriptContentGetter)
+        {
+            var scriptEditor = editorFactory.CreateInlineScriptEditor();
+            AddProject(editorFactory, forComponent);
+            string initialContent = initialScriptContentGetter(forComponent);
+            editorFactory.AddDocument(scriptFile, forComponent.Id, initialContent);
+            scriptEditor.OpenDocument(scriptFile, forComponent.Id, initialContent);
+            return scriptEditor;
+        }
+
+        private static void AddProject(IScriptEditorFactory editorFactory, IComponent forComponent)
+        {
+            if (forComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            {
+                //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                editorFactory.AddProject(forComponent.Id, new string[] { testCaseEntity.Tag }, forComponent.EntityManager.Arguments.GetType());
+            }
+            else if (forComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+            {
+                //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
+                editorFactory.AddProject(forComponent.Id, new string[] { testFixtureEntity.Tag }, forComponent.EntityManager.Arguments.GetType());
+            }
+            else
+            {
+                editorFactory.AddProject(forComponent.Id, Array.Empty<string>(), forComponent.EntityManager.Arguments.GetType());
+            }
         }
     }
 }

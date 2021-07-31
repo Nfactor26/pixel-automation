@@ -1,13 +1,12 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
+﻿using Pixel.Automation.Editor.Core.Helpers;
+using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using Component = Pixel.Automation.Core.Component;
-using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components.TestCase;
-using System.Collections.Generic;
 
 namespace Pixel.Scripting.Script.Editor.Script
 {
@@ -16,6 +15,8 @@ namespace Pixel.Scripting.Script.Editor.Script
     /// </summary>
     public partial class InlineScriptEditorUserControl : UserControl, INotifyPropertyChanged
     {
+        private readonly ILogger logger = Log.ForContext<InlineScriptEditorUserControl>();
+
         public static readonly DependencyProperty ScriptFileProperty = DependencyProperty.Register("ScriptFile", typeof(string), typeof(InlineScriptEditorUserControl),
                                                                                         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
         public string ScriptFile
@@ -37,34 +38,26 @@ namespace Pixel.Scripting.Script.Editor.Script
         public InlineScriptEditorUserControl()
         {
             InitializeComponent();
-            this.Loaded += OnLoaded;
+            this.Loaded += OnLoaded;          
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (OwnerComponent != null && !string.IsNullOrEmpty(ScriptFile) && this.Editor == null)
-            {             
-
-                var editorFactory = OwnerComponent.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-                this.Editor = editorFactory.CreateInlineScriptEditor();
-                if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            try
+            {
+                if (OwnerComponent != null && !string.IsNullOrEmpty(ScriptFile) && this.Editor == null)
                 {
-                    //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                    editorFactory.AddProject(OwnerComponent.Id, new string[] { testCaseEntity.Tag }, OwnerComponent.EntityManager.Arguments.GetType());
+                    var editorFactory = OwnerComponent.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+                    this.Editor = editorFactory.CreateAndInitializeInilineScriptEditor(this.OwnerComponent, this.ScriptFile,
+                        (a) => { return string.Empty; });
+                    OnPropertyChanged(nameof(this.Editor));
+                    logger.Debug($"Created and initialized inline script editor for component with Id : {this.OwnerComponent.Id}");
                 }
-                else if (OwnerComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
-                {
-                    //Test fixture have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
-                    editorFactory.AddProject(OwnerComponent.Id, new string[] { testFixtureEntity.Tag}, OwnerComponent.EntityManager.Arguments.GetType());                   
-                }              
-                else
-                {
-                    editorFactory.AddProject(OwnerComponent.Id, Array.Empty<string>(), OwnerComponent.EntityManager.Arguments.GetType());                   
-                }
-                editorFactory.AddDocument(ScriptFile, OwnerComponent.Id, string.Empty);
-                this.Editor.OpenDocument(ScriptFile, OwnerComponent.Id, string.Empty);
-                OnPropertyChanged(nameof(this.Editor));
-            }      
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         #region INotifyPropertyChanged
