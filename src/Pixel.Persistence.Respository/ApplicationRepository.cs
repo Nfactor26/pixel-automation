@@ -1,83 +1,83 @@
 ﻿using Dawn;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.GridFS;
 using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
     public class ApplicationRepository : IApplicationRepository
-    {       
-        private readonly IGridFSBucket bucket;
+    {
+        private readonly IMongoCollection<BsonDocument> applicationsCollection;
 
         public ApplicationRepository(IMongoDbSettings dbSettings)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
-            var database = client.GetDatabase(dbSettings.DatabaseName);           
-            bucket = new GridFSBucket(database, new GridFSBucketOptions
-            {
-                BucketName = dbSettings.ApplicationsBucketName
-            });
+            var database = client.GetDatabase(dbSettings.DatabaseName);
+            applicationsCollection = database.GetCollection<BsonDocument>(dbSettings.ApplicationsCollectionName);
 
         }
 
-        public async Task<byte[]> GetApplicationFile(string applicationId)
+        ///<inheritdoc/>
+        public async Task<object> GetApplicationData(string applicationId)
         {
             Guard.Argument(applicationId).NotNull().NotEmpty();
-            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId);
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            var options = new GridFSFindOptions
-            {
-                Limit = 1,
-                Sort = sort
-            };
-            using (var cursor = await bucket.FindAsync(filter, options))
-            {
-                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
-            }                
+          
+            var filter = Builders<BsonDocument>.Filter.Eq(x => x["ApplicationId"], applicationId);
+            //exclude _id and LastUpdated as client will fail to deserialize this in to ApplicationDescription
+            var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated").Exclude("ApplicationId");
+            var result = applicationsCollection.Find<BsonDocument>(filter).Project(projection);
+            var document = await result.SingleOrDefaultAsync();
+            return BsonTypeMapper.MapToDotNetValue(document);
         }
 
+        ///<inheritdoc/>
         public async IAsyncEnumerable<ApplicationMetaData> GetMetadataAsync()
         {
-            
-            var filter = Builders<GridFSFileInfo>.Filter.Empty;
-            //var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            //var options = new GridFSFindOptions
-            //{               
-            //    Sort = sort
-            //};
-            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var projection = Builders<BsonDocument>.Projection.Include("ApplicationId").Include("LastUpdated");
+            var results = await applicationsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
+
+            foreach (var doc in results)
             {
-                var files = await cursor.ToListAsync();              
-                foreach(var group in files.GroupBy(a => a.Metadata["applicationId"]))
+                yield return new ApplicationMetaData()
                 {
-                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
-                    yield return new ApplicationMetaData() 
-                    { 
-                        ApplicationId = file.Metadata["applicationId"].AsString,
-                        LastUpdated = file.UploadDateTime
-                    };
-                 
-                }
-                yield break;
+                    ApplicationId = doc["ApplicationId"].AsString,
+                    LastUpdated = doc["LastUpdated"].ToUniversalTime()
+                };
             }
         }
 
-        public async Task AddOrUpdate(ApplicationMetaData application, string fileName,  byte[] fileData)
+        ///<inheritdoc/>
+        public async Task AddOrUpdate(string applicationDescriptionJson)
         {
-            Guard.Argument(application).NotNull();        
-            await bucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
+            Guard.Argument(applicationDescriptionJson).NotNull().NotEmpty();
+            if (BsonDocument.TryParse(applicationDescriptionJson, out BsonDocument document))
             {
-                Metadata = new MongoDB.Bson.BsonDocument()
+                string applicationId = document["ApplicationDetails"]["ApplicationId"].AsString;
+
+                //Add these extra fields while storing. However, these will be dropped off in response while retrieving
+                document.Add("ApplicationId", applicationId);
+                document.Add("LastUpdated", DateTime.Now.ToUniversalTime());
+
+                var filter = Builders<BsonDocument>.Filter.Eq(x => x["ApplicationDetails.ApplicationId"], applicationId);
+
+                //if document with application id already exists, replace it
+                if (applicationsCollection.CountDocuments<BsonDocument>(x => x["ApplicationDetails.ApplicationId"].Equals(applicationId),
+                    new CountOptions { Limit = 1 }) > 0)
                 {
-                    {"applicationId" , application.ApplicationId },
-                    {"applicationName", application.ApplicationName},
-                    {"applicationType", application.ApplicationType}
+                    await applicationsCollection.FindOneAndReplaceAsync<BsonDocument>(filter, document);                  
                 }
-            });
+                else
+                {
+                    await applicationsCollection.InsertOneAsync(document);                  
+                }
+                return;
+
+            }
+            throw new ArgumentException("Failed to parse application data in to BsonDocument");
         }
     }
 }

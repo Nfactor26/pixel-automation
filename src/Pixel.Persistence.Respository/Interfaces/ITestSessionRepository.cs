@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
+    /// <summary>
+    /// ITestSessionRepository is used to manage <see cref="TestSession"/> stored in database
+    /// </summary>
     public interface ITestSessionRepository
     {
         /// <summary>

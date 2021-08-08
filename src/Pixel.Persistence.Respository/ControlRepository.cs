@@ -1,26 +1,26 @@
 ﻿using Dawn;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
     public class ControlRepository : IControlRepository
     {
-        private readonly IGridFSBucket controlBucket;
+        private readonly IMongoCollection<BsonDocument> controlsCollection;    
         private readonly IGridFSBucket imageBucket;
 
         public ControlRepository(IMongoDbSettings dbSettings)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
-            controlBucket = new GridFSBucket(database, new GridFSBucketOptions
-            {
-                BucketName = dbSettings.ControlsBucketName
-            });
+            controlsCollection = database.GetCollection<BsonDocument>(dbSettings.ControlsCollectionName);
             imageBucket = new GridFSBucket(database, new GridFSBucketOptions
             {
                 BucketName = dbSettings.ImagesBucketName
@@ -28,91 +28,152 @@ namespace Pixel.Persistence.Respository
 
         }
 
-        public async Task AddOrUpdateControl(ControlMetaData control, string fileName, byte[] fileData)
+        ///<inheritdoc/>
+        public async Task AddOrUpdateControl(string controlDataJson)
         {
-            Guard.Argument(control).NotNull();
-            await controlBucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
+            Guard.Argument(controlDataJson, nameof(controlDataJson)).NotNull().NotEmpty();
+       
+            if (BsonDocument.TryParse(controlDataJson, out BsonDocument document))
             {
-                Metadata = new MongoDB.Bson.BsonDocument()
+                string applicationId = document["ApplicationId"].AsString;
+                string controlId = document["ControlId"].AsString;
+
+                document.Add("LastUpdated", DateTime.Now.ToUniversalTime());            
+              
+                //if document with application id already exists, replace it
+                if (controlsCollection.CountDocuments<BsonDocument>(x => x["ApplicationId"].Equals(applicationId) 
+                    && x["ControlId"].Equals(controlId), new CountOptions { Limit = 1 }) > 0)
                 {
-                    {"applicationId" , control.ApplicationId },
-                    {"controlId" , control.ControlId },
-                    {"controlName", control.ControlName }
+                    await controlsCollection.FindOneAndReplaceAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), document);
                 }
-            });           
+                else
+                {
+                    await controlsCollection.InsertOneAsync(document);
+                }
+                return;
+            }
+
+            throw new ArgumentException("Failed to parse control data in to BsonDocument");
         }
 
+        ///<inheritdoc/>
         public async Task AddOrUpdateControlImage(ControlImageMetaData control, string fileName, byte[] fileData)
         {
-            Guard.Argument(control).NotNull();        
+            Guard.Argument(control, nameof(control)).NotNull();
+           
+            //Delete any existing version of image file. We don't want revisions of image.
+            await DeleteImageAsync(control);
+          
             await imageBucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
             {
-                Metadata = new MongoDB.Bson.BsonDocument()
+                Metadata = new BsonDocument()
                 {
                     {"applicationId" , control.ApplicationId},
                     {"controlId" , control.ControlId },
                     {"resolution", control.Resolution }
                 }
             });
+          
         }
 
-        public async IAsyncEnumerable<DataFile> GetControlFiles(string applicationId, string controlId)
+        ///<inheritdoc/>
+        public async Task DeleteImageAsync(ControlImageMetaData control)
         {
-            Guard.Argument(applicationId).NotNull().NotEmpty();
-            Guard.Argument(controlId).NotNull().NotEmpty();
-            var applicationIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId);
-            var controlIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["controlId"], controlId);
-            var filter = Builders<GridFSFileInfo>.Filter.And(applicationIdFilter, controlIdFilter);
+            var filter = CreateImageFilter(control.ApplicationId, control.ControlId);
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
             {
                 Limit = 1,
                 Sort = sort
             };
-            using (var cursor = await controlBucket.FindAsync(filter, options))
+
+            using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
             {
-                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                var result = await controlBucket.DownloadAsBytesAsync(fileInfo.Id);
-                yield return new DataFile() { FileName = fileInfo.Filename, Bytes = result, Type = "ControlFile" };
+                var imageFiles = await cursor.ToListAsync();
+                foreach (var imageFile in imageFiles)
+                {
+                    await imageBucket.DeleteAsync(imageFile.Id);
+                }
             }
+        }
+
+        ///<inheritdoc/>
+        public async IAsyncEnumerable<DataFile> GetControlFiles(string applicationId, string controlId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+            Guard.Argument(controlId, nameof(controlId)).NotNull().NotEmpty();
+
+            var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated");
+            var result = controlsCollection.Find<BsonDocument>(CreateControlFilter(applicationId, controlId)).Project(projection);
+            var document = await result.SingleOrDefaultAsync();          
+            using(MemoryStream ms = new MemoryStream())
+            {
+                using(StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.UTF8))
+                {
+                    var jsonData = JsonSerializer.Serialize(BsonTypeMapper.MapToDotNetValue(document), new JsonSerializerOptions()
+                    {
+                        WriteIndented = true
+                    }) ;
+                    sw.Write(jsonData);
+                    sw.Flush();
+                    yield return new DataFile() { FileName = $"{controlId}.dat", Bytes = ms.ToArray(), Type = "ControlFile" };
+
+                }
+            }
+
+            var filter = CreateImageFilter(applicationId, controlId);
+            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+            var options = new GridFSFindOptions
+            {
+                Limit = 1,
+                Sort = sort
+            };
             //Get all the images
             using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
             {
                 var imageFiles = await cursor.ToListAsync();
                 foreach(var imageFile in imageFiles)
                 {
-                    var result = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
-                    yield return new ImageDataFile() { FileName = imageFile.Filename, Bytes = result, Resolution = imageFile.Metadata["resolution"].AsString, Type = "ControlImage" };
+                    var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
+                    yield return new ImageDataFile() { FileName = imageFile.Filename, Bytes = imageBytes, Resolution = imageFile.Metadata["resolution"].AsString, Type = "ControlImage" };
                 }
             }
            
-        }   
+        }
 
+        ///<inheritdoc/>
         public async IAsyncEnumerable<ControlMetaData> GetMetadataAsync(string applicationId)
         {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
 
-            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId);
-            //var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            //var options = new GridFSFindOptions
-            //{
-            //    Limit = 1,
-            //    Sort = sort
-            //};
-            using (var cursor = await controlBucket.FindAsync(filter, new GridFSFindOptions()))
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var projection = Builders<BsonDocument>.Projection.Include("ControlId").Include("LastUpdated");
+            var results = await controlsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
+            foreach (var doc in results)
             {
-                var files = await cursor.ToListAsync();
-                foreach (var group in files.GroupBy(a => a.Metadata["controlId"]))
+                yield return new ControlMetaData()
                 {
-                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
-                    yield return new ControlMetaData()
-                    {                       
-                        ControlId = file.Metadata["controlId"].AsString,
-                        LastUpdated = file.UploadDateTime
-                    };
-
-                }
-                yield break;
+                    ControlId = doc["ControlId"].AsString,
+                    LastUpdated = doc["LastUpdated"].ToUniversalTime()
+                };
             }
+        }
+
+
+        private FilterDefinition<BsonDocument> CreateControlFilter(string applicationId, string controlId)
+        {
+            var filterBuilder = Builders<BsonDocument>.Filter;
+            var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x["ControlId"], controlId));
+            return filter;
+        }
+
+        private FilterDefinition<GridFSFileInfo> CreateImageFilter(string applicationId, string controlId)
+        {
+            var filterBuilder = Builders<GridFSFileInfo>.Filter;
+            var filter = filterBuilder.Eq(x => x.Metadata["applicationId"], applicationId);
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["controlId"], controlId));
+            return filter;        
         }
     }
 }

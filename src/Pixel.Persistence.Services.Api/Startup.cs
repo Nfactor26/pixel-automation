@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pixel.Persistence.Respository;
+using Serilog;
 
 namespace Pixel.Persistence.Services.Api
 {
@@ -55,6 +56,7 @@ namespace Pixel.Persistence.Services.Api
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
             }
+            app.UseSerilogRequestLogging();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

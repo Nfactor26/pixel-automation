@@ -40,23 +40,21 @@ namespace Pixel.Persistence.Services.Client
             throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? "Failed to download controls for application with id :" + controlDataRequest.ApplicationId}");
         }
 
-        public async Task<string> AddOrUpdateControl(ControlDescription controlDescription, string controlFile)
+        public async Task AddOrUpdateControl(ControlDescription controlDescription)
         {
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+
             RestRequest restRequest = new RestRequest() { Method = Method.POST };
-            var controlMetaData = new ControlMetaData()
-            {
-                ApplicationId = controlDescription.ApplicationId,
-                ControlId = controlDescription.ControlId,
-                ControlName = controlDescription.ControlName
-            };
-            restRequest.AddParameter(nameof(ControlMetaData), serializer.Serialize<ControlMetaData>(controlMetaData), ParameterType.RequestBody);
-            restRequest.AddFile("file", controlFile);
+            restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
             var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var result = await client.ExecuteAsync(restRequest, Method.POST);
+            if (!result.IsSuccessful)
+            {
+                throw new Exception(result.ErrorMessage, result.ErrorException);
+            }
         }
 
-        public async Task<string> AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution)
+        public async Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution)
         {
             RestRequest restRequest = new RestRequest("image") { Method = Method.POST };
             var controlImageMetaData = new ControlImageMetaData()
@@ -69,8 +67,7 @@ namespace Pixel.Persistence.Services.Client
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);
             var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            await client.PostAsync<string>(restRequest);           
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
+    /// <summary>
+    /// ITestResultsRepository is used to manage the <see cref="TestResult"/> stored in database
+    /// </summary>
     public interface ITestResultsRepository
     {
         /// <summary>
@@ -14,9 +17,18 @@ namespace Pixel.Persistence.Respository
         /// <returns>Collection of <see cref="TestResult"/> belonging to a <see cref="TestSession"/></returns>
         Task<IEnumerable<TestResult>> GetTestResultsAsync(string sessionId);
 
-
+        /// <summary>
+        /// Get all the <see cref="TestResult"/> matching the criteria specified by the query
+        /// </summary>
+        /// <param name="queryParameter"></param>
+        /// <returns></returns>
         Task<IEnumerable<TestResult>> GetTestResultsAsync(TestResultRequest queryParameter);
 
+        /// <summary>
+        /// Get the count of <see cref="TestResult"/> matching the criteria specified by the query
+        /// </summary>
+        /// <param name="queryParameter"></param>
+        /// <returns></returns>
         Task<long> GetCountAsync(TestResultRequest queryParameter);
 
         /// <summary>

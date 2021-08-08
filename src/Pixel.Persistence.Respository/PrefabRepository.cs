@@ -13,6 +13,10 @@ namespace Pixel.Persistence.Respository
     {
         private readonly IGridFSBucket bucket;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="dbSettings"></param>
         public PrefabRepository(IMongoDbSettings dbSettings)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
@@ -23,14 +27,14 @@ namespace Pixel.Persistence.Respository
             });
         }
 
-
+        ///<inheritdoc/>
         public async Task AddOrUpdatePrefabAsync(PrefabMetaData prefab, string fileName, byte[] fileData)
         {
-            Guard.Argument(prefab).NotNull();
-
+            Guard.Argument(prefab).NotNull();          
+           
             switch (prefab.Type)
             {
-                case "PrefabFile":
+                case "PrefabFile":                   
                     await bucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
                     {
                         Metadata = new MongoDB.Bson.BsonDocument()
@@ -43,9 +47,9 @@ namespace Pixel.Persistence.Respository
                     break;
 
                 case "PrefabDataFiles":
-                    var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefab.PrefabId);
-                    var projectVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], prefab.Version);
-                    var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, projectVersionFilter);
+                    var prefabIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefab.PrefabId);                   
+                    var prefabVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], prefab.Version);
+                    var filter = Builders<GridFSFileInfo>.Filter.And(prefabIdFilter, prefabVersionFilter);
                     var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
                     var options = new GridFSFindOptions
                     {
@@ -77,71 +81,9 @@ namespace Pixel.Persistence.Respository
                 default:
                     throw new ArgumentException($"type : {prefab.Type} is not supported. Valid values are PrefabFile file and PrefabDataFiles for contents of a prefab version (process, template, scripts, etc)");
             }
-
         }
 
-
-        /// <summary>
-        /// Get a metadata collection of all the prefabs belonging to a given application
-        /// </summary>
-        /// <param name="applicationId">ApplicationId of application whose prefab's metadata collection needs to be retrieved</param>
-        /// <returns></returns>
-        public async IAsyncEnumerable<PrefabMetaDataCompact> GetPrefabsMetadataForApplicationAsync(string applicationId)
-        {
-            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabFile");
-            var applicationFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId);
-            var filter = Builders<GridFSFileInfo>.Filter.And(typeFilter, applicationFilter);
-
-            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
-            {
-                var files = await cursor.ToListAsync();
-
-                foreach (var group in files.GroupBy(a => a.Metadata["prefabId"]))
-                {
-                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
-                    var prefabMetaData = await GetPrefabMetadataForPrefabAsync(applicationId, file.Metadata["prefabId"].AsString);
-                    prefabMetaData.LastUpdated = file.UploadDateTime;
-                    yield return prefabMetaData;
-                }
-                yield break;
-            }
-        }
-
-        /// <summary>
-        /// Get the metadata for a prefab with a given prefabId
-        /// </summary>
-        /// <param name="prefabId">PrefabId of the Prefab whose metadata needs to be retrieved</param>
-        /// <returns></returns>
-        public async Task<PrefabMetaDataCompact> GetPrefabMetadataForPrefabAsync(string applicationId, string prefabId)
-        {
-            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefabId);
-            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabDataFiles");
-            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, typeFilter);
-
-            var prefabMetaData = new PrefabMetaDataCompact() { PrefabId = prefabId, ApplicationId = applicationId };
-            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
-            {
-                var files = await cursor.ToListAsync();
-                foreach (var group in files.GroupBy(a => a.Metadata["version"]))
-                {
-                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
-                    prefabMetaData.AddOrUpdateVersionMetaData(new PrefabVersionMetaData()
-                    {
-                        Version = file.Metadata["version"].AsString,                     
-                        IsActive = file.Metadata["isActive"].AsBoolean,
-                        IsDeployed = file.Metadata["isDeployed"].AsBoolean,
-                        LastUpdated = file.UploadDateTime
-                    });                 
-                }             
-            }
-            return prefabMetaData;
-        }
-
-        /// <summary>
-        /// Get the prefab description file for a given prefab projectId.
-        /// </summary>
-        /// <param name="projectId">ProjectId of the Prefab</param>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public async Task<byte[]> GetPrefabFileAsync(string projectId)
         {
             Guard.Argument(projectId).NotNull().NotEmpty();
@@ -162,13 +104,7 @@ namespace Pixel.Persistence.Respository
             }
         }
 
-
-        /// <summary>
-        /// Get the  content file (zipped) for a prefab project which includes process, scripts, assembiles, etc. for specified version
-        /// </summary>
-        /// <param name="projectId">ProjectId of the prefab</param>
-        /// <param name="version">Version of the prefab</param>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public async Task<byte[]> GetPrefabDataFilesAsync(string projectId, string version)
         {
             Guard.Argument(projectId).NotNull().NotEmpty();
@@ -190,5 +126,55 @@ namespace Pixel.Persistence.Respository
                 return await bucket.DownloadAsBytesAsync(fileInfo.Id);
             }
         }
+
+
+        ///<inheritdoc/>
+        public async IAsyncEnumerable<PrefabMetaDataCompact> GetPrefabsMetadataForApplicationAsync(string applicationId)
+        {
+            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabFile");
+            var applicationFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId);
+            var filter = Builders<GridFSFileInfo>.Filter.And(typeFilter, applicationFilter);
+
+            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
+            {
+                var files = await cursor.ToListAsync();
+
+                foreach (var group in files.GroupBy(a => a.Metadata["prefabId"]))
+                {
+                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
+                    var prefabMetaData = await GetPrefabMetadataForPrefabAsync(applicationId, file.Metadata["prefabId"].AsString);
+                    prefabMetaData.LastUpdated = file.UploadDateTime;
+                    yield return prefabMetaData;
+                }
+                yield break;
+            }
+        }
+
+        ///<inheritdoc/>
+        public async Task<PrefabMetaDataCompact> GetPrefabMetadataForPrefabAsync(string applicationId, string prefabId)
+        {
+            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefabId);
+            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabDataFiles");
+            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, typeFilter);
+
+            var prefabMetaData = new PrefabMetaDataCompact() { PrefabId = prefabId, ApplicationId = applicationId };
+            using (var cursor = await bucket.FindAsync(filter, new GridFSFindOptions()))
+            {
+                var files = await cursor.ToListAsync();
+                foreach (var group in files.GroupBy(a => a.Metadata["version"]))
+                {
+                    var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
+                    prefabMetaData.AddOrUpdateVersionMetaData(new PrefabVersionMetaData()
+                    {
+                        Version = file.Metadata["version"].AsString,
+                        IsActive = file.Metadata["isActive"].AsBoolean,
+                        IsDeployed = file.Metadata["isDeployed"].AsBoolean,
+                        LastUpdated = file.UploadDateTime
+                    });
+                }
+            }
+            return prefabMetaData;
+        }
+
     }
 }

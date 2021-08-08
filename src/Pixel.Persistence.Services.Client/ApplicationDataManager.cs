@@ -116,11 +116,11 @@ namespace Pixel.Persistence.Services.Client
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, controlsDirectory));
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, prefabsDirectory));
 
-            string savedFile = SaveApplicationToDisk(applicationDescription);
+            SaveApplicationToDisk(applicationDescription);
             
             if(IsOnlineMode)
             {
-                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription, savedFile);
+                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription);
             }
             
         }
@@ -256,10 +256,10 @@ namespace Pixel.Persistence.Services.Client
 
         public async Task AddOrUpdateControlAsync(ControlDescription controlDescription)
         {
-            string savedFile = SaveControlToDisk(controlDescription);
+            SaveControlToDisk(controlDescription);
             if(IsOnlineMode)
             {
-                await controlRepositoryClient.AddOrUpdateControl(controlDescription, savedFile);
+                await controlRepositoryClient.AddOrUpdateControl(controlDescription);
             }
         }
 

@@ -8,26 +8,25 @@ namespace Pixel.Persistence.Services.Client
     public interface IApplicationRepositoryClient
     {
         /// <summary>
-        /// Get the application file 
+        /// Get the ApplicationDescription for a given applicationId 
         /// </summary>
         /// <param name="applicationId"></param>
         /// <returns></returns>
         Task<ApplicationDescription> GetApplication(string applicationId);
 
         /// <summary>
-        /// Get all the specified application files
+        /// Get ApplicationDescription for all the specified application
         /// </summary>
         /// <param name="applicationsToDownload"></param>
         /// <returns></returns>
         Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload);
 
         /// <summary>
-        /// Add or update application file
+        /// Add or update application description
         /// </summary>
-        /// <param name="applicationDescription"></param>
-        /// <param name="applicationFile"></param>
+        /// <param name="applicationDescription"></param>     
         /// <returns></returns>
-        Task<ApplicationDescription> AddOrUpdateApplication(ApplicationDescription applicationDescription, string applicationFile);
+        Task AddOrUpdateApplication(ApplicationDescription applicationDescription);
 
     }
 }

@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
 using RestSharp;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,8 @@ namespace Pixel.Persistence.Services.Client
 {
     public class ApplicationRepositoryClient : IApplicationRepositoryClient
     {
+        private readonly ILogger logger = Log.ForContext<ApplicationRepositoryClient>();
+     
         private readonly string baseUrl;       
         private readonly ISerializer serializer;
 
@@ -22,6 +25,7 @@ namespace Pixel.Persistence.Services.Client
         {
             Guard.Argument(serializer, nameof(serializer)).NotNull();
             Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
+          
             this.serializer = serializer;        
             this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Application";
         }
@@ -29,6 +33,8 @@ namespace Pixel.Persistence.Services.Client
 
         public async Task<ApplicationDescription> GetApplication(string applicationId)
         {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+
             RestRequest restRequest = new RestRequest($"{applicationId}");
             var client = new RestClient(baseUrl);
             var response = await client.ExecuteGetAsync(restRequest);
@@ -37,7 +43,7 @@ namespace Pixel.Persistence.Services.Client
                 using (var stream = new MemoryStream(response.RawBytes))
                 {
                     using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    {
+                    {                    
                         return serializer.DeserializeContent<ApplicationDescription>(reader.ReadToEnd());
                     }
                 }
@@ -47,6 +53,8 @@ namespace Pixel.Persistence.Services.Client
                
         public async Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload)
         {
+            Guard.Argument(applicationsToDownload, nameof(applicationsToDownload)).NotNull();
+
             List<ApplicationDescription> applicationDescriptions = new List<ApplicationDescription>();         
             foreach (var application in applicationsToDownload)
             {
@@ -57,25 +65,19 @@ namespace Pixel.Persistence.Services.Client
         }
         
 
-        public async Task<ApplicationDescription> AddOrUpdateApplication(ApplicationDescription applicationDescription, string applicationFile)
+        public async Task AddOrUpdateApplication(ApplicationDescription applicationDescription)
         {
+            Guard.Argument(applicationDescription, nameof(applicationDescription)).NotNull();
+            
             RestRequest restRequest = new RestRequest() { Method = Method.POST };
-            var applicationMetaData = new ApplicationMetaData() { ApplicationId = applicationDescription.ApplicationId, ApplicationName = applicationDescription.ApplicationName, ApplicationType = applicationDescription.ApplicationType };
-            restRequest.AddParameter(nameof(ApplicationMetaData), serializer.Serialize<ApplicationMetaData>(applicationMetaData), ParameterType.RequestBody);      
-            restRequest.AddFile("file", applicationFile);
+            restRequest.AddJsonBody(serializer.Serialize<ApplicationDescription>(applicationDescription));           
             var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<ApplicationDescription>(restRequest);
-            return result;
-        }      
-       
+            var result = await client.ExecuteAsync(restRequest, Method.POST);
+            if(!result.IsSuccessful)
+            {
+                throw new Exception(result.ErrorMessage, result.ErrorException);
+            }
+        }     
 
-        public async Task<ApplicationDescription> UpdateApplication(ApplicationDescription applicationDescription)
-        {
-            RestRequest restRequest = new RestRequest();
-            restRequest.AddJsonBody(applicationDescription);
-            var client = new RestClient(baseUrl);
-            var result = await client.PutAsync<ApplicationDescription>(restRequest);
-            return result;
-        }
     }
 }

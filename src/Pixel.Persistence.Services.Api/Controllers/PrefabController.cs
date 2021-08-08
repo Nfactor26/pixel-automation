@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dawn;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -12,11 +15,18 @@ namespace Pixel.Persistence.Services.Api.Controllers
     [ApiController]
     public class PrefabController : ControllerBase
     {
+        private readonly ILogger<PrefabController> logger;
         private readonly IPrefabRepository prefabRepository;
 
-        public PrefabController(IPrefabRepository prefabRepository)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="prefabRepository"></param>
+        public PrefabController(ILogger<PrefabController> logger, IPrefabRepository prefabRepository)
         {
-            this.prefabRepository = prefabRepository;
+            this.logger = Guard.Argument(logger).NotNull().Value;
+            this.prefabRepository = Guard.Argument(prefabRepository).NotNull().Value;
         }
 
         /// <summary>
@@ -27,8 +37,16 @@ namespace Pixel.Persistence.Services.Api.Controllers
         [HttpGet("{prefabId}")]
         public async Task<ActionResult> Get(string prefabId)
         {
-            var bytes = await prefabRepository.GetPrefabFileAsync(prefabId);
-            return File(bytes, "application/octet-stream", prefabId);
+            try
+            {
+                var bytes = await prefabRepository.GetPrefabFileAsync(prefabId);
+                return File(bytes, "application/octet-stream", prefabId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
         }
 
         /// <summary>
@@ -40,8 +58,16 @@ namespace Pixel.Persistence.Services.Api.Controllers
         [HttpGet("{prefabId}/{version}")]
         public async Task<ActionResult> Get(string prefabId, string version)
         {
-            var bytes = await prefabRepository.GetPrefabDataFilesAsync(prefabId, version);
-            return File(bytes, "application/octet-stream", prefabId);
+            try
+            {
+                var bytes = await prefabRepository.GetPrefabDataFilesAsync(prefabId, version);
+                return File(bytes, "application/octet-stream", prefabId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
         }
 
         /// <summary>
@@ -53,19 +79,27 @@ namespace Pixel.Persistence.Services.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(PrefabMetaData))] PrefabMetaData prefabDescription, [FromForm(Name = "file")] IFormFile prefabFile)
         {
-            using (var ms = new MemoryStream())
+            try
             {
-                prefabFile.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                await prefabRepository.AddOrUpdatePrefabAsync(prefabDescription, prefabFile.FileName, fileBytes);
+                using (var ms = new MemoryStream())
+                {
+                    prefabFile.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    await prefabRepository.AddOrUpdatePrefabAsync(prefabDescription, prefabFile.FileName, fileBytes);
+                }
+                if (string.IsNullOrEmpty(prefabDescription.Version))
+                {
+                    return CreatedAtAction(nameof(Get), new { prefabId = prefabDescription.PrefabId }, prefabDescription);
+                }
+                else
+                {
+                    return CreatedAtAction(nameof(Get), new { prefabId = prefabDescription.PrefabId, version = prefabDescription.Version }, prefabDescription);
+                }
             }
-            if(string.IsNullOrEmpty(prefabDescription.Version))
+            catch (Exception ex)
             {
-                return CreatedAtAction(nameof(Get), new { prefabId = prefabDescription.PrefabId }, prefabDescription);
-            }
-            else
-            {
-                return CreatedAtAction(nameof(Get), new { prefabId = prefabDescription.PrefabId, version = prefabDescription.Version }, prefabDescription);
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
         }
     }

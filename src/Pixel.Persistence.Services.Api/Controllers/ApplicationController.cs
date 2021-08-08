@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dawn;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Pixel.Persistence.Core.Models;
+using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Respository;
-using Pixel.Persistence.Services.Api.Extensions;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
@@ -15,46 +12,64 @@ namespace Pixel.Persistence.Services.Api.Controllers
     [ApiController]
     public class ApplicationController : ControllerBase
     {
+        private readonly ILogger<ApplicationController> logger;
         private readonly IApplicationRepository applicationRepository;
 
-        public ApplicationController(IApplicationRepository applicationRepository)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="applicationRepository"></param>
+        public ApplicationController(ILogger<ApplicationController> logger, IApplicationRepository applicationRepository)
         {
-            this.applicationRepository = applicationRepository;
+            this.logger = Guard.Argument(logger).NotNull().Value;
+            this.applicationRepository = Guard.Argument(applicationRepository).NotNull().Value;                        
         }
 
-
+        /// <summary>
+        /// Get the applicatoin data for a given applicationId 
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
         [HttpGet("{applicationId}")]
         public async Task<ActionResult> Get(string applicationId)
         {
-            var applicationBytes = await applicationRepository.GetApplicationFile(applicationId);
-            return File(applicationBytes, "application/octet-stream", applicationId);
+            try
+            {
+                var applicationData = await applicationRepository.GetApplicationData(applicationId);              
+                return Ok(applicationData);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
 
-
+        /// <summary>
+        /// Save the application description data in to database
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ApplicationMetaData))] ApplicationMetaData applicationDescription, [FromForm(Name = "file")] IFormFile applicationFile)
+        public async Task<IActionResult> Post([FromBody] object applicationDescription)
         {
-            using (var ms = new MemoryStream())
+            try
             {
-                applicationFile.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                await applicationRepository.AddOrUpdate(applicationDescription, applicationFile.FileName, fileBytes);
+                await applicationRepository.AddOrUpdate(applicationDescription.ToString());
+                return Ok();
             }
-
-            return CreatedAtAction(nameof(Get), new { applicationId = applicationDescription.ApplicationId }, applicationDescription);
+            catch (ArgumentException ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex);
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] ApplicationMetaData applicationDescription, IFormFile applicationFile)
-        {
-            using (var ms = new MemoryStream())
-            {
-                applicationFile.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                await applicationRepository.AddOrUpdate(applicationDescription, applicationFile.FileName, fileBytes);
-            }
-
-            return CreatedAtAction(nameof(Get), new { applicationId = applicationDescription.ApplicationId }, applicationDescription);
-        }
     }
 }

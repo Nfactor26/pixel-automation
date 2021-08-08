@@ -4,22 +4,36 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
+    /// <summary>
+    /// IProjectRepository is used to manage the project data files stored in database
+    /// </summary>
     public interface IProjectRepository
     {
         /// <summary>
-        /// Get the project data files 
+        /// Add or Update Project data
+        /// </summary>
+        /// <param name="projectMetaData"><see cref="ProjectMetaData"/> of the project</param>
+        /// <param name="fileName">FileName to save contents to</param>
+        /// <param name="fileData">Content of the files</param>
+        /// <returns></returns>
+        Task AddOrUpdateProject(ProjectMetaData projectMetaData, string fileName, byte[] fileData);
+
+        /// <summary>
+        /// Get the project file  
         /// </summary>
         /// <param name="projectId">ProjectId of the project whose data files are required</param>
         /// <returns></returns>
         Task<byte[]> GetProjectFile(string projectId);
 
         /// <summary>
-        /// Get the project data files for a given version of project
+        /// Get the project data files (zipped) for a given version of project.
+        /// Project data files include process, test cases, scripts, assembiles, etc.
         /// </summary>
         /// <param name="projectId">ProjectId of the project whose data files are required</param>
         /// <param name="version">Version of the project</param>
         /// <returns></returns>
-        Task<byte[]> GetProjectDataFiles(string projectId, string version);
+        Task<byte[]> GetProjectDataFiles(string projectId, string version);      
+       
 
         /// <summary>
         /// Get all the availalbe <see cref="ProjectMetaData"/> 
@@ -34,13 +48,5 @@ namespace Pixel.Persistence.Respository
         /// <returns></returns>
         IAsyncEnumerable<ProjectMetaData> GetProjectMetadataAsync(string projectId);
 
-        /// <summary>
-        /// Add or Update Project data
-        /// </summary>
-        /// <param name="projectMetaData"><see cref="ProjectMetaData"/> of the project</param>
-        /// <param name="fileName">FileName to save contents to</param>
-        /// <param name="fileData">Content of the files</param>
-        /// <returns></returns>
-        Task AddOrUpdateProject(ProjectMetaData projectMetaData, string fileName, byte[] fileData);
     }
 }
