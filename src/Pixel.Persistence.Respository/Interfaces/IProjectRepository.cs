@@ -48,5 +48,14 @@ namespace Pixel.Persistence.Respository
         /// <returns></returns>
         IAsyncEnumerable<ProjectMetaData> GetProjectMetadataAsync(string projectId);
 
+        /// <summary>
+        /// Remove the file revisions as per specified purge strategy.
+        /// As user saves project, revisions accumulate over time and older revisions shold be removed.
+        /// </summary>
+        /// <param name="purgeStrategy"></param>
+        /// <returns></returns>
+        Task PurgeRevisionFiles(RetentionPolicy purgeStrategy);
+
+
     }
 }

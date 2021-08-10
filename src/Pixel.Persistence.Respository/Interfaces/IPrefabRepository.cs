@@ -47,5 +47,13 @@ namespace Pixel.Persistence.Respository
         /// <param name="prefabId"></param>
         /// <returns></returns>
         Task<PrefabMetaDataCompact> GetPrefabMetadataForPrefabAsync(string applicationId, string prefabId);
+
+        /// <summary>
+        /// Remove the file revisions as per specified purge strategy.
+        /// As user saves project, revisions accumulate over time and older revisions shold be removed.
+        /// </summary>
+        /// <param name="purgeStrategy"></param>
+        /// <returns></returns>
+        Task PurgeRevisionFiles(RetentionPolicy purgeStrategy);
     }
 }
