@@ -28,10 +28,9 @@ namespace Pixel.Automation.Designer.ViewModels
             ConsoleManager.Show();
 
             Log.Logger = new LoggerConfiguration()              
-              .Enrich.WithThreadId()        
-              .MinimumLevel.Debug()
-              .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
-              .WriteTo.File("logs\\Pixel-Automation-{Date}.txt", 
+              .Enrich.WithThreadId()           
+              .WriteTo.Console(Serilog.Events.LogEventLevel.Information, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
+              .WriteTo.File("logs\\Pixel-Automation-.txt",  restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose,
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}",  rollingInterval: RollingInterval.Day)
               .CreateLogger();
             logger = Log.ForContext<AppBootstrapper>();
