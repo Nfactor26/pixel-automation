@@ -5,8 +5,8 @@ namespace Pixel.Persistence.Services.Client
 {
     public interface IPrefabRepositoryClient
     {
-        Task<string> AddOrUpdatePrefabAsync(PrefabDescription prefabDescription, string prefabDescriptionFile);
-        Task<string> AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo version, string prefabDescriptionFile);
+        Task AddOrUpdatePrefabAsync(PrefabDescription prefabDescription, string prefabDescriptionFile);
+        Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo version, string prefabDescriptionFile);
         Task<byte[]> GetPrefabDataFilesAsync(string prefabId, string version);
         Task<PrefabDescription> GetPrefabFileAsync(string prefabId);
     }

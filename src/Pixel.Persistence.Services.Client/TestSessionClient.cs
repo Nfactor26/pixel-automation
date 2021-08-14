@@ -1,48 +1,64 @@
 ﻿using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
 {
     public class TestSessionClient : ITestSessionClient
     {
-        private readonly string sessionUrl;
-        private readonly string resultsUrl;
-
-        public TestSessionClient(ApplicationSettings applicationSettings)
+        private readonly ILogger logger = Log.ForContext<TestSessionClient>();
+        private readonly IRestClientFactory clientFactory;
+        
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="clientFactory"></param>
+        public TestSessionClient(IRestClientFactory clientFactory)
         {
-            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.sessionUrl = $"{applicationSettings.PersistenceServiceUri}/TestSession";
-            this.resultsUrl = $"{applicationSettings.PersistenceServiceUri}/TestResult";
+            this.clientFactory = Guard.Argument(clientFactory).NotNull().Value;           
         }
 
+        ///<inheritdoc/>
         public async Task<string> AddSessionAsync(TestSession testSession)
-        {         
-            RestRequest restRequest = new RestRequest();           
+        {
+            Guard.Argument(testSession).NotNull();
+            logger.Debug("Add test session {@TestSession}", testSession);
+            
+            RestRequest restRequest = new RestRequest("testsession");           
             restRequest.AddJsonBody(testSession);
-            var client = new RestClient(sessionUrl);
+            var client = this.clientFactory.GetOrCreateClient();
             var result = await client.PostAsync<TestSession>(restRequest);
             return result.SessionId;
         }
 
+        ///<inheritdoc/>
         public async Task UpdateSessionAsync(string sessionId, TestSession testSession)
         {
-            RestRequest restRequest = new RestRequest();
+            Guard.Argument(sessionId).NotNull().NotEmpty();
+            Guard.Argument(testSession).NotNull();
+            logger.Debug("Updated test session {@TestSession}", testSession);
+
+            RestRequest restRequest = new RestRequest($"testsession/{sessionId}") { Method = Method.POST };
             restRequest.AddJsonBody(testSession);
-            var client = new RestClient($"{sessionUrl}/{sessionId}");
-            _ = await client.PostAsync<TestSession>(restRequest);
-            await Task.CompletedTask;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result =  await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
 
+        ///<inheritdoc/>
         public async Task AddResultAsync(TestResult testResult)
         {
-            RestRequest restRequest = new RestRequest();
+            Guard.Argument(testResult).NotNull();
+            logger.Debug("Add test result {@TestResult}", testResult);
+
+            RestRequest restRequest = new RestRequest("testresult") { Method = Method.POST };
             restRequest.AddJsonBody(testResult);
-            var client = new RestClient(resultsUrl);
-            _ = await client.PostAsync<TestSession>(restRequest);
-            await Task.CompletedTask;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
     }
 }

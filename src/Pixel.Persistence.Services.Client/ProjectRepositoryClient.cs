@@ -3,10 +3,10 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
-using System;
+using Serilog;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,50 +14,62 @@ namespace Pixel.Persistence.Services.Client
 {
     public class ProjectRepositoryClient : IProjectRepositoryClient
     {
-        private readonly string baseUrl;
+        private readonly ILogger logger = Log.ForContext<ProjectRepositoryClient>();
+        private readonly IRestClientFactory clientFactory;
         private readonly ISerializer serializer;
 
-        public ProjectRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="applicationSettings"></param>
+        public ProjectRepositoryClient(IRestClientFactory clientFactory, ISerializer serializer)
         {
-            Guard.Argument(serializer, nameof(serializer)).NotNull();
-            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.serializer = serializer;
-            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Project";
+            this.clientFactory = Guard.Argument(clientFactory).NotNull().Value;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
         }
 
+        ///<inheritdoc/>
         public async Task<AutomationProject> GetProjectFile(string projectId)
         {
-            RestRequest restRequest = new RestRequest($"{projectId}");
-            var client = new RestClient(baseUrl);
-            var response = await client.ExecuteGetAsync(restRequest);
-            if (response.StatusCode.Equals(HttpStatusCode.OK))
+            Guard.Argument(projectId).NotNull().NotEmpty();
+            logger.Debug("Get Project file for projectId : {0}", projectId);
+
+            RestRequest restRequest = new RestRequest($"project/{projectId}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            using (var stream = new MemoryStream(result.RawBytes))
             {
-                using (var stream = new MemoryStream(response.RawBytes))
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    {
-                        return serializer.DeserializeContent<AutomationProject>(reader.ReadToEnd());
-                    }
+                    return serializer.DeserializeContent<AutomationProject>(reader.ReadToEnd());
                 }
             }
-            throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
         }
 
+        ///<inheritdoc/>
         public async Task<byte[]> GetProjectDataFiles(string projectId, string version)
         {
-            RestRequest restRequest = new RestRequest($"{projectId}/{version}");
-            var client = new RestClient(baseUrl);
-            var response = await client.ExecuteGetAsync(restRequest);
-            if (response.StatusCode.Equals(HttpStatusCode.OK))
-            {
-                return response.RawBytes;
-            }
-            throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
+            Guard.Argument(projectId).NotNull().NotEmpty();
+            Guard.Argument(version).NotNull().NotEmpty();
+            logger.Debug("Get project data files for projectId : {0} and version : {1}", projectId, version);
+
+            RestRequest restRequest = new RestRequest($"project/{projectId}/{version}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            return result.RawBytes;
         }
 
-        public async Task<string> AddOrUpdateProject(AutomationProject automationProject, string projectFile)
+        ///<inheritdoc/>
+        public async Task AddOrUpdateProject(AutomationProject automationProject, string projectFile)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.POST };
+            Guard.Argument(automationProject).NotNull();
+            Guard.Argument(projectFile).NotNull().NotEmpty();
+            logger.Debug("Add or update project {@AutomationProject}", automationProject);
+
+            RestRequest restRequest = new RestRequest("project") { Method = Method.POST };
             var projectMetaData = new ProjectMetaData()
             {
                 ProjectId = automationProject.ProjectId,
@@ -65,15 +77,20 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", projectFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
 
-
-        public async Task<string> AddOrUpdateProjectDataFiles(AutomationProject automationProject, VersionInfo version, string zippedDataFile)
+        ///<inheritdoc/>
+        public async Task AddOrUpdateProjectDataFiles(AutomationProject automationProject, VersionInfo version, string zippedDataFile)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.POST };
+            Guard.Argument(automationProject).NotNull();
+            Guard.Argument(version).NotNull();
+            Guard.Argument(zippedDataFile).NotNull().NotEmpty();
+            logger.Debug("Add or update project data files for project : {0}", automationProject.Name);
+
+            RestRequest restRequest = new RestRequest("project") { Method = Method.POST };
             var projectMetaData = new ProjectMetaData()
             {
                 ProjectId = automationProject.ProjectId,
@@ -84,9 +101,9 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", zippedDataFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
     }
 }
