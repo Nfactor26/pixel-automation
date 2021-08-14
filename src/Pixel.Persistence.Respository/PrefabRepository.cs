@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using Pixel.Persistence.Core.Models;
@@ -11,10 +12,21 @@ namespace Pixel.Persistence.Respository
 {
     public class PrefabRepository : IPrefabRepository
     {
+        private readonly string prefabFile = "PrefabFile";
+        private readonly string prefabDataFiles = "PrefabDataFiles";
+    
+        private readonly ILogger logger;
         private readonly IGridFSBucket bucket;
 
-        public PrefabRepository(IMongoDbSettings dbSettings)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="dbSettings"></param>
+        public PrefabRepository(ILogger<ProjectRepository> logger, IMongoDbSettings dbSettings)
         {
+            Guard.Argument(dbSettings).NotNull();
+            this.logger = Guard.Argument(logger).NotNull().Value;
+
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             bucket = new GridFSBucket(database, new GridFSBucketOptions
@@ -23,14 +35,14 @@ namespace Pixel.Persistence.Respository
             });
         }
 
-
+        ///<inheritdoc/>
         public async Task AddOrUpdatePrefabAsync(PrefabMetaData prefab, string fileName, byte[] fileData)
         {
-            Guard.Argument(prefab).NotNull();
-
+            Guard.Argument(prefab).NotNull();          
+           
             switch (prefab.Type)
             {
-                case "PrefabFile":
+                case "PrefabFile":                   
                     await bucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
                     {
                         Metadata = new MongoDB.Bson.BsonDocument()
@@ -43,9 +55,9 @@ namespace Pixel.Persistence.Respository
                     break;
 
                 case "PrefabDataFiles":
-                    var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefab.PrefabId);
-                    var projectVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], prefab.Version);
-                    var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, projectVersionFilter);
+                    var prefabIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefab.PrefabId);                   
+                    var prefabVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], prefab.Version);
+                    var filter = Builders<GridFSFileInfo>.Filter.And(prefabIdFilter, prefabVersionFilter);
                     var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
                     var options = new GridFSFindOptions
                     {
@@ -64,28 +76,67 @@ namespace Pixel.Persistence.Respository
                     await bucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
                     {
                         Metadata = new MongoDB.Bson.BsonDocument()
-                    {
-                        {"prefabId" , prefab.PrefabId},
-                        {"applicationId", prefab.ApplicationId },
-                        {"version", prefab.Version},
-                        {"type", prefab.Type},
-                        {"isActive", prefab.IsActive},
-                        {"isDeployed", prefab.IsDeployed}
-                    }
+                        {
+                            {"prefabId" , prefab.PrefabId},
+                            {"applicationId", prefab.ApplicationId},
+                            {"version", prefab.Version},
+                            {"type", prefab.Type},
+                            {"isActive", prefab.IsActive},
+                            {"isDeployed", prefab.IsDeployed}
+                        }
                     });
                     break;
                 default:
                     throw new ArgumentException($"type : {prefab.Type} is not supported. Valid values are PrefabFile file and PrefabDataFiles for contents of a prefab version (process, template, scripts, etc)");
             }
+        }
 
+        ///<inheritdoc/>
+        public async Task<byte[]> GetPrefabFileAsync(string projectId)
+        {
+            Guard.Argument(projectId).NotNull().NotEmpty();
+            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], projectId);
+            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], prefabFile);
+            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, typeFilter);
+
+            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+            var options = new GridFSFindOptions
+            {
+                Limit = 1,
+                Sort = sort
+            };
+            using (var cursor = await bucket.FindAsync(filter, options))
+            {
+                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
+                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
+            }
+        }
+
+        ///<inheritdoc/>
+        public async Task<byte[]> GetPrefabDataFilesAsync(string projectId, string version)
+        {
+            Guard.Argument(projectId).NotNull().NotEmpty();
+            Guard.Argument(version).NotNull().NotEmpty();
+            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], projectId);
+            var projectVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], version);
+            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], prefabDataFiles);
+            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, projectVersionFilter, typeFilter);
+
+            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+            var options = new GridFSFindOptions
+            {
+                Limit = 1,
+                Sort = sort
+            };
+            using (var cursor = await bucket.FindAsync(filter, options))
+            {
+                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
+                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
+            }
         }
 
 
-        /// <summary>
-        /// Get a metadata collection of all the prefabs belonging to a given application
-        /// </summary>
-        /// <param name="applicationId">ApplicationId of application whose prefab's metadata collection needs to be retrieved</param>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public async IAsyncEnumerable<PrefabMetaDataCompact> GetPrefabsMetadataForApplicationAsync(string applicationId)
         {
             var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabFile");
@@ -107,11 +158,7 @@ namespace Pixel.Persistence.Respository
             }
         }
 
-        /// <summary>
-        /// Get the metadata for a prefab with a given prefabId
-        /// </summary>
-        /// <param name="prefabId">PrefabId of the Prefab whose metadata needs to be retrieved</param>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public async Task<PrefabMetaDataCompact> GetPrefabMetadataForPrefabAsync(string applicationId, string prefabId)
         {
             var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], prefabId);
@@ -127,67 +174,99 @@ namespace Pixel.Persistence.Respository
                     var file = group.OrderByDescending(a => a.UploadDateTime).FirstOrDefault();
                     prefabMetaData.AddOrUpdateVersionMetaData(new PrefabVersionMetaData()
                     {
-                        Version = file.Metadata["version"].AsString,                     
+                        Version = file.Metadata["version"].AsString,
                         IsActive = file.Metadata["isActive"].AsBoolean,
                         IsDeployed = file.Metadata["isDeployed"].AsBoolean,
                         LastUpdated = file.UploadDateTime
-                    });                 
-                }             
+                    });
+                }
             }
             return prefabMetaData;
         }
 
-        /// <summary>
-        /// Get the prefab description file for a given prefab projectId.
-        /// </summary>
-        /// <param name="projectId">ProjectId of the Prefab</param>
-        /// <returns></returns>
-        public async Task<byte[]> GetPrefabFileAsync(string projectId)
-        {
-            Guard.Argument(projectId).NotNull().NotEmpty();
-            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], projectId);
-            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabFile");
-            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, typeFilter);
 
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            var options = new GridFSFindOptions
+        ///<inheritdoc/>
+        public async Task PurgeRevisionFiles(RetentionPolicy purgeStrategy)
+        {
+            Guard.Argument(purgeStrategy).NotNull();
+
+            await PurgeProjectFiles();
+            await PurgeProjectDataFiles(purgeStrategy);
+        }
+
+        /// <summary>
+        /// Delete the revisions for project file. We want to keep only the latest for the project file
+        /// and previous revisios can be deleted.
+        /// </summary>
+        /// <returns></returns>
+        private async Task PurgeProjectFiles()
+        {
+            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], prefabFile);
+            using (var cursor = await bucket.FindAsync(filter))
             {
-                Limit = 1,
-                Sort = sort
-            };
-            using (var cursor = await bucket.FindAsync(filter, options))
-            {
-                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
+                var files = await cursor.ToListAsync();
+
+                foreach (var group in files.GroupBy(a => a.Metadata["prefabId"]))
+                {
+                    var fileRevisions = group.OrderByDescending(a => a.UploadDateTime);
+                    foreach (var fileRevision in fileRevisions.Skip(1))
+                    {
+                        logger.LogInformation("Deleting project file with Id : {Id} for project : {projectId}",
+                            fileRevision.Id, fileRevision.Metadata["projectId"]);
+                        await bucket.DeleteAsync(fileRevision.Id);
+                    }
+
+                }
             }
         }
 
-
         /// <summary>
-        /// Get the  content file (zipped) for a prefab project which includes process, scripts, assembiles, etc. for specified version
+        /// Delete the revisions for the project data file as per specified retention policy.
         /// </summary>
-        /// <param name="projectId">ProjectId of the prefab</param>
-        /// <param name="version">Version of the prefab</param>
+        /// <param name="policy"></param>
         /// <returns></returns>
-        public async Task<byte[]> GetPrefabDataFilesAsync(string projectId, string version)
+        private async Task PurgeProjectDataFiles(RetentionPolicy policy)
         {
-            Guard.Argument(projectId).NotNull().NotEmpty();
-            Guard.Argument(version).NotNull().NotEmpty();
-            var projectIdFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["prefabId"], projectId);
-            var projectVersionFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["version"], version);
-            var typeFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], "PrefabDataFiles");
-            var filter = Builders<GridFSFileInfo>.Filter.And(projectIdFilter, projectVersionFilter, typeFilter);
+            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["type"], prefabDataFiles);
+            using (var cursor = await bucket.FindAsync(filter))
+            {
+                var files = await cursor.ToListAsync();
+                foreach (var group in files.GroupBy(a => a.Metadata["prefabId"]))
+                {
+                    var fileRevisions = group.OrderByDescending(a => a.UploadDateTime);
+                    //Delete all the revisions that exceed max allowed number of revisions
+                    foreach (var fileRevision in fileRevisions.Skip(policy.MaxNumberOfRevisions))
+                    {
+                        //don't delete the deployed version as there will be a single
+                        //entry per version with isDeployed = true
+                        if (fileRevision.Metadata["isDeployed"].AsBoolean)
+                        {
+                            continue;
+                        }
+                        logger.LogInformation("Deleting project data file with Id : {Id} for project : {projectId},  version {version} updated on {updated}",
+                            fileRevision.Id, fileRevision.Metadata["projectId"], fileRevision.Metadata["version"],
+                            fileRevision.UploadDateTime.ToUniversalTime().ToString());
+                        await bucket.DeleteAsync(fileRevision.Id);
+                    }
 
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            var options = new GridFSFindOptions
-            {
-                Limit = 1,
-                Sort = sort
-            };
-            using (var cursor = await bucket.FindAsync(filter, options))
-            {
-                var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                return await bucket.DownloadAsBytesAsync(fileInfo.Id);
+                    //Delete all the revisions that are older then the allowed age
+                    foreach (var fileRevision in fileRevisions.Skip(1))
+                    {
+                        //don't delete the deployed version as there will be a single
+                        //entry per version with isDeployed = true
+                        if (fileRevision.Metadata["isDeployed"].AsBoolean)
+                        {
+                            continue;
+                        }
+                        if (DateTime.Now.ToUniversalTime().Subtract(fileRevision.UploadDateTime) > TimeSpan.FromDays(policy.MaxAgeOfRevisions))
+                        {
+                            logger.LogInformation("Deleting project data file with Id : {Id} for project : {projectId},  version {version} updated on {updated}",
+                            fileRevision.Id, fileRevision.Metadata["projectId"], fileRevision.Metadata["version"],
+                            fileRevision.UploadDateTime.ToUniversalTime().ToString());
+                            await bucket.DeleteAsync(fileRevision.Id);
+                        }
+                    }
+                }
             }
         }
     }

@@ -11,8 +11,8 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="automationProject"></param>
         /// <param name="projectFile"></param>
         /// <returns></returns>
-        Task<string> AddOrUpdateProject(AutomationProject automationProject, string projectFile);
-       
+        Task AddOrUpdateProject(AutomationProject automationProject, string projectFile);
+
         /// <summary>
         /// Add or update project data files for a given version
         /// </summary>
@@ -20,8 +20,8 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="version"></param>
         /// <param name="projectFile"></param>
         /// <returns></returns>
-        Task<string> AddOrUpdateProjectDataFiles(AutomationProject automationProject, VersionInfo version, string projectFile);
-      
+        Task AddOrUpdateProjectDataFiles(AutomationProject automationProject, VersionInfo version, string projectFile);
+
         /// <summary>
         /// Get project data files for a given version
         /// </summary>
@@ -29,7 +29,7 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="version"></param>
         /// <returns></returns>
         Task<byte[]> GetProjectDataFiles(string projectId, string version);
-      
+
         /// <summary>
         /// Get project file (.atm) given it's id
         /// </summary>

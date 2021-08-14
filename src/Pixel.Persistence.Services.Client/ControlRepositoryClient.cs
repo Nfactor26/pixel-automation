@@ -1,64 +1,73 @@
 ﻿using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
-using System;
-using System.Net;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
 {
     public class ControlRepositoryClient : IControlRepositoryClient
     {
-        private readonly string baseUrl;     
+        private readonly ILogger logger = Log.ForContext<ControlRepositoryClient>();      
         private readonly ISerializer serializer;
+        private readonly IRestClientFactory clientFactory;
 
-        public ControlRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="clientFactory"></param>
+        /// <param name="serializer"></param>
+        public ControlRepositoryClient(IRestClientFactory clientFactory, ISerializer serializer)
         {
-            Guard.Argument(serializer, nameof(serializer)).NotNull();
-            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.serializer = serializer;
-            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Control";
+            this.clientFactory = Guard.Argument(clientFactory).NotNull().Value;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;           
         }
 
+        ///<inheritdoc/>
         public async Task<byte[]> GetControls(GetControlDataForApplicationRequest controlDataRequest)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.GET, RequestFormat = DataFormat.Json };
+            Guard.Argument(controlDataRequest).NotNull();
+            logger.Debug("Get controls for applicationId : {0}", controlDataRequest.ApplicationId);
+
+            //Note : RestSharp doesn't support content body in get request. Hence, we are adding as query string
+            RestRequest restRequest = new RestRequest("control") { Method = Method.GET, RequestFormat = DataFormat.Json };
             restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ApplicationId), controlDataRequest.ApplicationId, ParameterType.QueryString);
             foreach(var controlId in controlDataRequest.ControlIdCollection)
             {
                 restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ControlIdCollection), controlId, ParameterType.QueryString);
             }
-            var client = new RestClient(baseUrl);
-            var response = await client.ExecuteGetAsync(restRequest);
-            if (response.StatusCode.Equals(HttpStatusCode.OK))
-            {
-                return response.RawBytes;
-            }
-            throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? "Failed to download controls for application with id :" + controlDataRequest.ApplicationId}");
+
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            return result.RawBytes;
         }
 
-        public async Task<string> AddOrUpdateControl(ControlDescription controlDescription, string controlFile)
+        ///<inheritdoc/>
+        public async Task AddOrUpdateControl(ControlDescription controlDescription)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.POST };
-            var controlMetaData = new ControlMetaData()
-            {
-                ApplicationId = controlDescription.ApplicationId,
-                ControlId = controlDescription.ControlId,
-                ControlName = controlDescription.ControlName
-            };
-            restRequest.AddParameter(nameof(ControlMetaData), serializer.Serialize<ControlMetaData>(controlMetaData), ParameterType.RequestBody);
-            restRequest.AddFile("file", controlFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            Guard.Argument(controlDescription).NotNull();
+            logger.Debug("Add or update {@ControlDescription}", controlDescription);
+
+            RestRequest restRequest = new RestRequest("control") { Method = Method.POST };
+            restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.POST);
+            result.EnsureSuccess();
         }
 
-        public async Task<string> AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution)
+        ///<inheritdoc/>
+        public async Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution)
         {
-            RestRequest restRequest = new RestRequest("image") { Method = Method.POST };
+            Guard.Argument(controlDescription).NotNull();
+            Guard.Argument(imageFile).NotNull().NotEmpty();
+            Guard.Argument(resolution).NotNull().NotEmpty();
+            logger.Debug("Add or update control image for control : {0} with Id : {1}", controlDescription.ControlName, controlDescription.ControlId);
+
+            RestRequest restRequest = new RestRequest("control/image") { Method = Method.POST };
             var controlImageMetaData = new ControlImageMetaData()
             {
                 ApplicationId = controlDescription.ApplicationId,
@@ -68,9 +77,9 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
     }
 }

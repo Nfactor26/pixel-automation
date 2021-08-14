@@ -1,9 +1,11 @@
 ﻿using Pixel.Persistence.Core.Models;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
+    /// <summary>
+    /// IProjectStatistiscsRepository is used to manage <see cref="ProjectStatistics"/> stored in the database
+    /// </summary>
     public interface IProjectStatisticsRepository
     {        
         /// <summary>

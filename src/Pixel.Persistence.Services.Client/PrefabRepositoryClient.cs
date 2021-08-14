@@ -1,63 +1,74 @@
 ﻿using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
-using System;
+using Serilog;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
-{    
+{
     public class PrefabRepositoryClient : IPrefabRepositoryClient
     {
-        private readonly string baseUrl;
+        private readonly ILogger logger = Log.ForContext<PrefabRepositoryClient>();
+        private readonly IRestClientFactory clientFactory;
         private readonly ISerializer serializer;
 
-        public PrefabRepositoryClient(ISerializer serializer, ApplicationSettings applicationSettings)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="clientFactory"></param>
+        /// <param name="serializer"></param>
+        public PrefabRepositoryClient(IRestClientFactory clientFactory, ISerializer serializer)
         {
-            Guard.Argument(serializer, nameof(serializer)).NotNull();
-            Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.serializer = serializer;
-            this.baseUrl = $"{applicationSettings.PersistenceServiceUri}/Prefab";
+            this.clientFactory = Guard.Argument(clientFactory).NotNull().Value;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;        
         }
 
+        ///<inheritdoc/>
         public async Task<PrefabDescription> GetPrefabFileAsync(string prefabId)
         {
-            RestRequest restRequest = new RestRequest($"{prefabId}");
-            var client = new RestClient(baseUrl);
-            var response = await client.ExecuteGetAsync(restRequest);
-            if (response.StatusCode.Equals(HttpStatusCode.OK))
+            Guard.Argument(prefabId).NotNull().NotEmpty();
+            logger.Debug("Get Prefab file for prefabId : {0}", prefabId);
+
+            RestRequest restRequest = new RestRequest($"prefab/{prefabId}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            using (var stream = new MemoryStream(result.RawBytes))
             {
-                using (var stream = new MemoryStream(response.RawBytes))
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    {
-                        return serializer.DeserializeContent<PrefabDescription>(reader.ReadToEnd());
-                    }
+                    return serializer.DeserializeContent<PrefabDescription>(reader.ReadToEnd());
                 }
             }
-            throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
         }
 
+        ///<inheritdoc/>
         public async Task<byte[]> GetPrefabDataFilesAsync(string prefabId, string version)
         {
-            RestRequest restRequest = new RestRequest($"{prefabId}/{version}");
-            var client = new RestClient(baseUrl);
-            var response = await client.ExecuteGetAsync(restRequest);
-            if (response.StatusCode.Equals(HttpStatusCode.OK))
-            {
-                return response.RawBytes;
-            }
-            throw new Exception($"{response.StatusCode}, {response.ErrorMessage ?? string.Empty}");
+            Guard.Argument(prefabId).NotNull().NotEmpty();
+            Guard.Argument(version).NotNull().NotEmpty();
+            logger.Debug("Get Prefab data files for prefabId : {0} and version : {1}", prefabId, version);
+
+            RestRequest restRequest = new RestRequest($"prefab/{prefabId}/{version}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            return result.RawBytes;
         }
 
-        public async Task<string> AddOrUpdatePrefabAsync(PrefabDescription prefabDescription, string prefabDescriptionFile)
+        ///<inheritdoc/>
+        public async Task AddOrUpdatePrefabAsync(PrefabDescription prefabDescription, string prefabDescriptionFile)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.POST };
+            Guard.Argument(prefabDescription).NotNull();
+            Guard.Argument(prefabDescriptionFile).NotNull().NotEmpty();
+            logger.Debug("Add or update {@PrefabDescription}", prefabDescription);
+
+            RestRequest restRequest = new RestRequest("prefab") { Method = Method.POST };
             var projectMetaData = new PrefabMetaData()
             {
                 PrefabId = prefabDescription.PrefabId,
@@ -66,15 +77,20 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(PrefabMetaData), serializer.Serialize<PrefabMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", prefabDescriptionFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
 
-
-        public async Task<string> AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo version, string zippedDataFile)
+        ///<inheritdoc/>
+        public async Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo version, string zippedDataFile)
         {
-            RestRequest restRequest = new RestRequest() { Method = Method.POST };
+            Guard.Argument(prefabDescription).NotNull();
+            Guard.Argument(version).NotNull();
+            Guard.Argument(zippedDataFile).NotNull().NotEmpty();
+            logger.Debug("Add or update Prefab data files for Prefab : {0}", prefabDescription.PrefabName);
+
+            RestRequest restRequest = new RestRequest("prefab") { Method = Method.POST };
             var prefabMetaData = new PrefabMetaData()
             {
                 PrefabId = prefabDescription.PrefabId,
@@ -86,9 +102,9 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddParameter(nameof(PrefabMetaData), serializer.Serialize<PrefabMetaData>(prefabMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", zippedDataFile);
-            var client = new RestClient(baseUrl);
-            var result = await client.PostAsync<string>(restRequest);
-            return result;
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
         }
     }
 }

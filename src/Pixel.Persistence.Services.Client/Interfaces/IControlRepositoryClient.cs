@@ -16,10 +16,9 @@ namespace Pixel.Persistence.Services.Client
         /// <summary>
         /// Add or upate a control 
         /// </summary>
-        /// <param name="controlDescription"></param>
-        /// <param name="controlFile"></param>
+        /// <param name="controlDescription"></param>     
         /// <returns></returns>
-        Task<string> AddOrUpdateControl(ControlDescription controlDescription, string controlFile);
+        Task AddOrUpdateControl(ControlDescription controlDescription);
     
         /// <summary>
         /// Add or update control image  at a given resolution for a control
@@ -28,6 +27,6 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="imageFile"></param>
         /// <param name="resolution"></param>
         /// <returns></returns>
-        Task<string> AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution);
+        Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution);
     }
 }

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
 {
+    /// <summary>
+    /// ITestStatisticsRepository is used to manage <see cref="TestStatistics"/> stored in database
+    /// </summary>
     public interface ITestStatisticsRepository
     {
         /// <summary>

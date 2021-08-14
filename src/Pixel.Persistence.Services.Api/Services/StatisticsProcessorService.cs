@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pixel.Persistence.Services.Api
+namespace Pixel.Persistence.Services.Api.Services
 {
     public class StatisticsProcessorService : IHostedService, IDisposable
     {
@@ -28,7 +28,7 @@ namespace Pixel.Persistence.Services.Api
      
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("statistics processor background service is running now.");
+            logger.LogInformation("Statistics processor hosted service is running now.");
             timer = new Timer(ProcessStatistics, null, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
 
             #if DEBUG
@@ -41,17 +41,24 @@ namespace Pixel.Persistence.Services.Api
         private void ProcessStatistics(object state)
         {
             Task workerTask = new Task(async () =>
-            {              
-                var unprocessedSessions = await testSessionRepository.GetUnprocessedSessionsAsync();
-                logger.LogInformation($"There are {unprocessedSessions.Count()} unprocessed sessions");
-                if(unprocessedSessions.Any())
+            {
+                try
                 {
-                    var sessionToProcess = unprocessedSessions.Last();
-                    logger.LogInformation($"Start to process statistics for session : {sessionToProcess}");
-                    await projectStatisticsRepository.AddOrUpdateStatisticsAsync(sessionToProcess);
-                    await testStatisticsRepository.AddOrUpdateStatisticsAsync(sessionToProcess);
-                    await testSessionRepository.MarkSessionProcessedAsync(sessionToProcess);
-                    logger.LogInformation($"Finished processing session {sessionToProcess}");
+                    var unprocessedSessions = await testSessionRepository.GetUnprocessedSessionsAsync();
+                    logger.LogInformation($"There are {unprocessedSessions.Count()} unprocessed sessions");
+                    if (unprocessedSessions.Any())
+                    {
+                        var sessionToProcess = unprocessedSessions.Last();
+                        logger.LogInformation($"Start to process statistics for session : {sessionToProcess}");
+                        await projectStatisticsRepository.AddOrUpdateStatisticsAsync(sessionToProcess);
+                        await testStatisticsRepository.AddOrUpdateStatisticsAsync(sessionToProcess);
+                        await testSessionRepository.MarkSessionProcessedAsync(sessionToProcess);
+                        logger.LogInformation($"Finished processing session {sessionToProcess}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
                 }
             });
             workerTask.Start();
@@ -60,7 +67,7 @@ namespace Pixel.Persistence.Services.Api
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("Timed Hosted Service is stopping.");
+            logger.LogInformation("Statistics processor hosted service is stopping.");
 
             timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;

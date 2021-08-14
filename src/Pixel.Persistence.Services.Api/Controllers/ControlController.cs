@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dawn;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -14,91 +16,108 @@ namespace Pixel.Persistence.Services.Api.Controllers
     [ApiController]
     public class ControlController : ControllerBase
     {
+        private readonly ILogger<ControlController> logger;
         private readonly IControlRepository controlRepository;
 
-        public ControlController(IControlRepository controlRepository)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="controlRepository"></param>
+        public ControlController(ILogger<ControlController> logger, IControlRepository controlRepository)
         {
-            this.controlRepository = controlRepository;
-        }
+            this.logger = Guard.Argument(logger).NotNull().Value;
+            this.controlRepository = Guard.Argument(controlRepository).NotNull().Value;   
+        }        
 
-        //[HttpGet]
-        //public async Task<ActionResult> Get(GetControlDataForMultipleApplicationRequest controlDataReqest)
-        //{
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create))
-        //        {
-        //            foreach (var request in controlDataReqest.ControlDataRequestCollection)
-        //            {
-        //                foreach (var controlId in request.ControlIdCollection)
-        //                {
-        //                    await foreach (var file in this.controlRepository.GetControlFiles(request.ApplicationId, controlId))
-        //                    {
-        //                        var zipEntry = zipArchive.CreateEntry(file.FileName);
-        //                        using (var zipEntryStream = zipEntry.Open())
-        //                        {
-        //                            zipEntryStream.Write(file.Bytes);
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //        }
-        //        return File(stream.ToArray(), "application/zip", "ControlData.zip");
-        //    }
-        //}
-
-
+        /// <summary>
+        /// Get all the control data including control images as a zipped file for the control id's 
+        /// specified in request
+        /// </summary>
+        /// <param name="controlDataReqest"></param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery]GetControlDataForApplicationRequest controlDataReqest)
+        public async Task<ActionResult> Get([FromQuery] GetControlDataForApplicationRequest controlDataReqest)
         {
-            using (var stream = new MemoryStream())
+            try
             {
-                using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create))
+                using (var stream = new MemoryStream())
                 {
-                    foreach (var controlId in controlDataReqest.ControlIdCollection)
+                    using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create))
                     {
-                        await foreach (var file in this.controlRepository.GetControlFiles(controlDataReqest.ApplicationId, controlId))
+                        foreach (var controlId in controlDataReqest.ControlIdCollection)
                         {
-                            var zipEntry = zipArchive.CreateEntry(Path.Combine(controlId, file.FileName));
-                            using (var zipEntryStream = zipEntry.Open())
+                            await foreach (var file in this.controlRepository.GetControlFiles(controlDataReqest.ApplicationId, controlId))
                             {
-                                zipEntryStream.Write(file.Bytes);
+                                var zipEntry = zipArchive.CreateEntry(Path.Combine(controlId, file.FileName));
+                                using (var zipEntryStream = zipEntry.Open())
+                                {
+                                    zipEntryStream.Write(file.Bytes);
+                                }
                             }
                         }
+
                     }
-
+                    return File(stream.ToArray(), "application/zip", "ControlData.zip");
                 }
-                return File(stream.ToArray(), "application/zip", "ControlData.zip");
             }
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlMetaData))] ControlMetaData controlDescription, [FromForm(Name = "file")] IFormFile controlFile)
-        {
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                controlFile.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                await controlRepository.AddOrUpdateControl(controlDescription, controlFile.FileName, fileBytes);
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
-
-            return CreatedAtAction(nameof(Get), new { applicationId = controlDescription.ApplicationId, controlId = controlDescription.ControlId }, controlDescription);
         }
 
+        /// <summary>
+        /// Save the control details in database
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] object controlDescription)
+        {
+            try
+            {
+                await controlRepository.AddOrUpdateControl(controlDescription.ToString());
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }         
+        }
+
+        /// <summary>
+        /// Sae the control image in database
+        /// </summary>
+        /// <param name="controlImage">Metadata for the image</param>
+        /// <param name="imageFile">Image file</param>
+        /// <returns></returns>
         [Route("image")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlImageMetaData))] ControlImageMetaData controlImage, [FromForm(Name = "file")] IFormFile imageFile)
         {
-            using (var ms = new MemoryStream())
+            try
             {
-                imageFile.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                await controlRepository.AddOrUpdateControlImage(controlImage, imageFile.FileName, fileBytes);
+                using (var ms = new MemoryStream())
+                {
+                    imageFile.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    await controlRepository.AddOrUpdateControlImage(controlImage, imageFile.FileName, fileBytes);
+                    return Ok();
+                }
             }
-
-            return CreatedAtAction(nameof(Get), new { applicationId = controlImage.ApplicationId, controlId = controlImage.ControlId }, controlImage);
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
         }
 
     }

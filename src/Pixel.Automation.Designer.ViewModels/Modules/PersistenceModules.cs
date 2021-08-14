@@ -1,5 +1,6 @@
 ﻿using Ninject.Modules;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
@@ -7,6 +8,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
     {
         public override void Load()
         {
+            Kernel.Bind<IRestClientFactory>().To<RestClientFactory>().InSingletonScope();
             Kernel.Bind<IMetaDataClient>().To<MetaDataClient>();
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();

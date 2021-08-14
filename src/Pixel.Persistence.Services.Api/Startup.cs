@@ -11,7 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
+using Pixel.Persistence.Services.Api.Services;
+using Serilog;
 
 namespace Pixel.Persistence.Services.Api
 {
@@ -28,8 +31,10 @@ namespace Pixel.Persistence.Services.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
+            services.Configure<RetentionPolicy>(Configuration.GetSection(nameof(RetentionPolicy)));
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
-        
+            services.AddSingleton<RetentionPolicy>(sp => sp.GetRequiredService<IOptions<RetentionPolicy>>().Value);
+
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
             services.AddTransient<ITestResultsRepository, TestResultsRepository>();
             services.AddTransient<ITestStatisticsRepository, TestStatisticsRepository>();
@@ -45,6 +50,7 @@ namespace Pixel.Persistence.Services.Api
 
             services.AddSwaggerGen();
             services.AddHostedService<StatisticsProcessorService>();
+            services.AddHostedService<PurgeFileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +61,7 @@ namespace Pixel.Persistence.Services.Api
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
             }
+            app.UseSerilogRequestLogging();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

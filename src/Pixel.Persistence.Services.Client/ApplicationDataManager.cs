@@ -39,17 +39,17 @@ namespace Pixel.Persistence.Services.Client
 
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
             IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
-            IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, ApplicationSettings applicationSettings)
+            IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, 
+            ApplicationSettings applicationSettings)
         {
-            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
-            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value;
-            this.metaDataClient = Guard.Argument(metaDataClient, nameof(metaDataClient)).NotNull().Value;
-            this.appRepositoryClient = Guard.Argument(appRepositoryClient, nameof(appRepositoryClient)).NotNull().Value;
-            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient, nameof(controlRepositoryClient)).NotNull().Value;
-            this.projectRepositoryClient = Guard.Argument(projectRepositoryClient, nameof(projectRepositoryClient)).NotNull().Value;
-            this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient, nameof(prefabRepositoryClient)).NotNull().Value;
-
-            this.applicationSettings = Guard.Argument(applicationSettings, nameof(ApplicationSettings)).NotNull();
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
+            this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;
+            this.metaDataClient = Guard.Argument(metaDataClient).NotNull().Value;
+            this.appRepositoryClient = Guard.Argument(appRepositoryClient).NotNull().Value;
+            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;
+            this.projectRepositoryClient = Guard.Argument(projectRepositoryClient).NotNull().Value;
+            this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient).NotNull().Value;
+            this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
 
             CreateLocalDataDirectories();
 
@@ -116,11 +116,11 @@ namespace Pixel.Persistence.Services.Client
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, controlsDirectory));
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, prefabsDirectory));
 
-            string savedFile = SaveApplicationToDisk(applicationDescription);
+            SaveApplicationToDisk(applicationDescription);
             
             if(IsOnlineMode)
             {
-                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription, savedFile);
+                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription);
             }
             
         }
@@ -134,84 +134,80 @@ namespace Pixel.Persistence.Services.Client
         {
             if (IsOnlineMode)
             {
-                try
+                var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
+                var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
+                foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
                 {
-                    var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
-                    var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
-                    foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
+                    //download application file if there is a newer version available or data doesn't already exist locally
+                    bool isNewerApplicationVersionAvailable = localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && (a.LastUpdated < serverApplicationMetaData.LastUpdated));
+                    bool isApplicationNotAvailableLocally = !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
+                    if (isNewerApplicationVersionAvailable || isApplicationNotAvailableLocally)
                     {
-                        //download application file if there is a newer version available or data doesn't already exist locally
-                        if (localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && a.LastUpdated < serverApplicationMetaData.LastUpdated)
-                                 || !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId)))
-                        {
-                            var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
-                            SaveApplicationToDisk(applicationDescription);
-                            logger.Information($"Application : {applicationDescription.ApplicationId} has been updated.");
-                        }
-
-                        var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
-
-                        //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
-                        List<string> controlsToDownload = new List<string>();
-                        foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
-                        {
-                            if (localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && c.LastUpdated.Equals(controlMetaData.LastUpdated)) ?? false)
-                            {
-                                continue;
-                            }
-                            controlsToDownload.Add(controlMetaData.ControlId);
-                        }
-
-                        if (controlsToDownload.Any())
-                        {
-                            GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
-                            {
-                                ApplicationId = serverApplicationMetaData.ApplicationId,
-                                ControlIdCollection = new List<string>(controlsToDownload)
-                            };
-                            var zippedContent = await this.controlRepositoryClient.GetControls(request);
-
-                            using (var memoryStream = new MemoryStream(zippedContent, false))
-                            {
-                                var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                                foreach (var entry in zipArchive.Entries)
-                                {
-                                    var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
-                                    if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
-                                    {
-                                        Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
-                                    }
-                                    entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
-                                }
-                            }
-                            logger.Information($"{controlsToDownload.Count()} controls for application {serverApplicationMetaData.ApplicationId} have been updated.");
-                        }
-
-                        //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
-                        foreach (var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
-                        {
-                            var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
-                            if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
-                            {
-                                await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
-                                logger.Information($"PrefabDescription file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
-                            }
-                            foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
-                            {
-                                var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
-                                if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
-                                {
-                                    await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
-                                    logger.Information($"Prefab data files for version {serverPrefabVersionMetaData.Version} of prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} have been updated.");
-                                }
-                            }
-                        }
-                        CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
+                        var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
+                        SaveApplicationToDisk(applicationDescription);
+                        logger.Information("Updated local copy of Application : {applicationName} with Id {applicationId}.", applicationDescription.ApplicationName, applicationDescription.ApplicationId);
                     }
-                }
-                catch (Exception ex)
-                {                   
-                    logger.Error(ex, $"There was an error while updating application data. {ex.Message}");                    
+
+                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
+
+                    //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
+                    List<string> controlsToDownload = new List<string>();
+                    foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
+                    {
+                        bool isNewerControlVersionAvailable = localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && (c.LastUpdated < controlMetaData.LastUpdated)) ?? false;
+                        if (!isNewerControlVersionAvailable)
+                        {
+                            continue;
+                        }
+                        controlsToDownload.Add(controlMetaData.ControlId);
+                    }
+
+                    if (controlsToDownload.Any())
+                    {
+                        GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
+                        {
+                            ApplicationId = serverApplicationMetaData.ApplicationId,
+                            ControlIdCollection = new List<string>(controlsToDownload)
+                        };
+                        var zippedContent = await this.controlRepositoryClient.GetControls(request);
+
+                        using (var memoryStream = new MemoryStream(zippedContent, false))
+                        {
+                            var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                            foreach (var entry in zipArchive.Entries)
+                            {
+                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
+                                if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
+                                {
+                                    Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                                }
+                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
+                            }
+                        }
+                        logger.Information("Updated local copy for {count} controls for application : {applicationName} with Id : {applicationId}.",
+                            controlsToDownload.Count(), serverApplicationMetaData.ApplicationName, serverApplicationMetaData.ApplicationId);
+                    }
+
+                    //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
+                    foreach (var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
+                    {
+                        var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
+                        if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
+                        {
+                            await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
+                            logger.Information($"PrefabDescription file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
+                        }
+                        foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
+                        {
+                            var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
+                            if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
+                            {
+                                await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
+                                logger.Information($"Prefab data files for version {serverPrefabVersionMetaData.Version} of prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} have been updated.");
+                            }
+                        }
+                    }
+                    CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
                 }
             }
         }
@@ -256,10 +252,10 @@ namespace Pixel.Persistence.Services.Client
 
         public async Task AddOrUpdateControlAsync(ControlDescription controlDescription)
         {
-            string savedFile = SaveControlToDisk(controlDescription);
+            SaveControlToDisk(controlDescription);
             if(IsOnlineMode)
             {
-                await controlRepositoryClient.AddOrUpdateControl(controlDescription, savedFile);
+                await controlRepositoryClient.AddOrUpdateControl(controlDescription);
             }
         }
 
@@ -352,7 +348,7 @@ namespace Pixel.Persistence.Services.Client
                     yield return automationProject;
                     continue;
                 }
-                logger.Warning($"atomation file{automationProjectFile} doesn't exist.");
+                logger.Warning("Project file {file} doesn't exist.", automationProjectFile);
             }
             yield break;
         }
