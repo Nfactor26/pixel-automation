@@ -517,8 +517,12 @@ namespace Pixel.Automation.TestExplorer
                     SetupScriptEditor();                  
                     testCaseVM.IsOpenForEdit = true;
                     NotifyOfPropertyChange(nameof(CanSaveAll));
+                    logger.Information($"Test Case : {testCaseVM.DisplayName} is open for edit now.");
                 }
-
+                else
+                {
+                    logger.Warning("Failed to open test case {0} for edit.", testCaseVM.DisplayName);
+                }
                 void SetupScriptEditor()
                 {
                     var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;

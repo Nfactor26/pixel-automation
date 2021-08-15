@@ -378,22 +378,22 @@ namespace Pixel.Automation.RunTime
                     testCaseEntity.EntityManager = testEntityManager;                  
 
                     var dataSource = testDataLoader.LoadData(testCase.TestDataId);
-                    if (dataSource is IEnumerable dataSourceCollection)
-                    {
-                        testEntityManager.Arguments = dataSource.FirstOrDefault();
+                    if(!dataSource.Any())
+                    {                       
+                        throw new InvalidOperationException("Data source doesn't have any data records");
                     }
-                   
-                   
+                    testEntityManager.Arguments = dataSource.FirstOrDefault();
+                                      
                     //if fixture entity is not already added to process tree, add it.
                     var allFixtures = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(Core.Enums.SearchScope.Children);
-                    var requireFixture = allFixtures.FirstOrDefault(f => f.Tag.Equals(fixture.Id));
+                    var parentFixture = allFixtures.FirstOrDefault(f => f.Tag.Equals(fixture.Id));
 
-                    if(requireFixture == null)
+                    if(parentFixture == null)
                     {
                         throw new InvalidOperationException($"Failed to open test case : {testCase.DisplayName}. Parent fixture : {fixture.DisplayName} is not open.");
                     }
 
-                    requireFixture.AddComponent(testCaseEntity);
+                    parentFixture.AddComponent(testCaseEntity);
 
                     //This is required so that any argument that was configured in previous session should have access to variables.
                     var scriptEngine = testEntityManager.GetScriptEngine();
