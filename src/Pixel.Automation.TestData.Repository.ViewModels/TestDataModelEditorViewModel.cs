@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 {
     public class TestDataModelEditorViewModel : StagedSmartScreen
     {
+        private readonly ILogger logger = Log.ForContext<TestDataModelEditorViewModel>(); 
+
         public IInlineScriptEditor ScriptEditor { get; set; }
        
         private readonly IScriptEditorFactory editorFactory;
@@ -24,8 +27,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public TestDataModelEditorViewModel(IScriptEditorFactory editorFactory)
         {
             this.editorFactory = editorFactory;
-            this.ScriptEditor = editorFactory.CreateInlineScriptEditor();
-            this.ScriptEditor.SetEditorOptions(new EditorOptions() { FontSize = 23 });
+            logger.Debug("Created a new instance of {0}", nameof(TestDataModelEditorViewModel));
         }
 
         private bool TryGenerateDataModelCode(out string generatedCode, out string errorDescription)
@@ -110,6 +112,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         protected override  async Task OnActivateAsync(CancellationToken cancellationToken)
         {
+            if(this.ScriptEditor == null)
+            {
+                this.ScriptEditor = editorFactory.CreateInlineScriptEditor();
+                this.ScriptEditor.SetEditorOptions(new EditorOptions() { FontSize = 23 });
+            }            
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {                
                 editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(Empty));
@@ -119,18 +126,34 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             if (!string.IsNullOrEmpty(errorDescription))
             {
                 AddOrAppendErrors(string.Empty, errorDescription);
+                logger.Warning("There was an error while generating data model code. {0}", errorDescription);
             }
-
             await base.OnActivateAsync(cancellationToken);
+
+            logger.Debug("{0} is activated now", nameof(TestDataModelEditorViewModel));
         }
 
-       
-
-        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
+        public override void OnCancelled()
         {
-            this.ScriptEditor.CloseDocument(false); //TODO : this should be disposed ... Need to add methods like OnCancel and OnBack() to stages screens where cleanup should happen.
-            this.editorFactory.RemoveProject(testDataSource.Name);
-            await base.OnDeactivateAsync(close, cancellationToken);
+            if(this.ScriptEditor != null)
+            {
+                this.ScriptEditor.CloseDocument(false);
+                this.editorFactory.RemoveProject(testDataSource.Name);
+                this.ScriptEditor.Dispose();
+                this.ScriptEditor = null;
+                logger.Debug("Operation cancelled by user");
+            }           
+        }
+
+        public override void OnFinished()
+        {
+            if (this.ScriptEditor != null)
+            {
+                this.editorFactory.RemoveProject(testDataSource.Name);
+                this.ScriptEditor.Dispose();
+                this.ScriptEditor = null;
+                logger.Debug("Operation completed by user");
+            }         
         }
     }
 }
