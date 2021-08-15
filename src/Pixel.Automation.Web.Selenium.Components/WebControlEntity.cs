@@ -65,7 +65,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             {
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<IWebElement>();
             }
-            else if (this.GetControlDetails().LookupType.Equals(LookupType.Relative))
+            else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
                 searchRoot = (this.Parent as WebControlEntity).GetTargetControl<IWebElement>();
             }
@@ -121,7 +121,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             {              
                 searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<IWebElement>();
             }
-            else if (this.GetControlDetails().LookupType.Equals(LookupType.Relative))
+            else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
                 searchRoot = (this.Parent as WebControlEntity).GetTargetControl<IWebElement>();
             }
