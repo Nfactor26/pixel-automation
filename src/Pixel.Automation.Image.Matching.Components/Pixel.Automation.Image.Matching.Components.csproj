@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
     <PackageReference Include="OpenCvSharp4" Version="4.5.1.20210210" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.5.1.20210210" />
     <PackageReference Include="Serilog" Version="2.10.0" />
