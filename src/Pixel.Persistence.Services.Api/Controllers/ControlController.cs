@@ -109,7 +109,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 {
                     imageFile.CopyTo(ms);
                     var fileBytes = ms.ToArray();
-                    await controlRepository.AddOrUpdateControlImage(controlImage, imageFile.FileName, fileBytes);
+                    await controlRepository.AddOrUpdateControlImage(controlImage, fileBytes);
                     return Ok();
                 }
             }

@@ -27,6 +27,6 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="imageFile"></param>
         /// <param name="resolution"></param>
         /// <returns></returns>
-        Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution);
+        Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile);
     }
 }

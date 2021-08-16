@@ -78,8 +78,7 @@ namespace Pixel.Automation.Editors.Image.Capture
         {
             this.controlIdentity = new ImageControlIdentity()
             {
-                Name = Guid.NewGuid().ToString(),
-                ControlImage = "ScreenShot.Png",
+                Name = "1",
                 BoundingBox = new Rectangle()
                 {
                     X = 200,

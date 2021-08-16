@@ -33,20 +33,6 @@ namespace Pixel.Automation.Core.Components
         [Browsable(false)]
         public string ControlFile { get; set; } = string.Empty;
 
-        private IControlIdentity controlDetails;
-        [Browsable(false)]
-        public IControlIdentity ControlDetails
-        {
-            get
-            {
-                if (controlDetails == null)
-                {
-                    controlDetails = GetControlDetails();
-                }
-                return controlDetails;
-            }
-        }
-
         [DataMember]
         [DisplayName("Search Root")]
         [Category("Control Details")]
@@ -132,6 +118,27 @@ namespace Pixel.Automation.Core.Components
             Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
         public bool CacheControl { get; set; } = false;
 
+        private ControlDescription controlDescription;
+        [Browsable(false)]
+        protected ControlDescription ControlDescription
+        {
+            get
+            {
+                if(controlDescription == null)
+                {
+                    controlDescription = LoadControlDescription();
+                }
+                return controlDescription;
+            }
+        }
+
+        [Browsable(false)]
+        public IControlIdentity ControlDetails
+        {
+            get => ControlDescription.ControlDetails;
+          
+        }
+
         protected abstract void InitializeFilter();
 
         public ControlEntity(string name = "Control Entity", string tag = "ControlEntity") : base(name, tag)
@@ -139,19 +146,17 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        protected IControlIdentity GetControlDetails()
+        protected ControlDescription LoadControlDescription()
         {
             if (File.Exists(this.ControlFile))
             {
                 ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
                 var controlDescription = serializer.Deserialize<ControlDescription>(this.ControlFile);
                 this.controlId = controlDescription.ControlId;
-                var controlDetails = controlDescription.ControlDetails;             
-                return controlDetails;
+                return controlDescription;              
             }
 
-            throw new FileNotFoundException($"Control file : {this.ControlFile} could not be found");
-
+            throw new FileNotFoundException("Control file : {ControlFile} could not be found", this.ControlFile);
         }
 
         public override IEnumerable<IComponent> GetNextComponentToProcess()
@@ -216,7 +221,9 @@ namespace Pixel.Automation.Core.Components
 
         public void Reload()
         {
-            this.controlDetails = GetControlDetails();
+            this.controlDescription = LoadControlDescription();
+            OnPropertyChanged(nameof(ControlDescription));
+            OnPropertyChanged(nameof(ControlDetails));
         }
 
     }

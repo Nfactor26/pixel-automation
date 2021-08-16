@@ -5,6 +5,7 @@ using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -60,11 +61,10 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public async Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile, string resolution)
+        public async Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile)
         {
             Guard.Argument(controlDescription).NotNull();
-            Guard.Argument(imageFile).NotNull().NotEmpty();
-            Guard.Argument(resolution).NotNull().NotEmpty();
+            Guard.Argument(imageFile).NotNull().NotEmpty();           
             logger.Debug("Add or update control image for control : {0} with Id : {1}", controlDescription.ControlName, controlDescription.ControlId);
 
             RestRequest restRequest = new RestRequest("control/image") { Method = Method.POST };
@@ -72,8 +72,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 ApplicationId = controlDescription.ApplicationId,
                 ControlId = controlDescription.ControlId,
-                Resolution = resolution ?? "Default"
-
+                FileName = Path.GetFileName(imageFile)
             };
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);

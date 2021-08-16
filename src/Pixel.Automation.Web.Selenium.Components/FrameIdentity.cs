@@ -19,7 +19,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         ///  FindBy strategy used to search for a control.
         ///  For ex : id,name,css3selector,etc.
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 10)]
         [Display(Name = "Find By", GroupName = "Configuration", Order = 10, Description = "FindBy strategy used to search for frame")]
         public virtual string FindByStrategy
         {
@@ -39,12 +39,12 @@ namespace Pixel.Automation.Web.Selenium.Components
                     }
                 }
             }
-        }        
-       
+        }
+
         /// <summary>
         /// Identifier used to search for the control i.e. name of control if FindByStrategy is name,etc.
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 20)]
         [Display(Name = "Identifier", GroupName = "Configuration", Order = 20, Description = "Identifier used to search for the control")]
         public virtual string Identifier
         {
@@ -54,7 +54,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Holds all the identifiers captured at design time
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 30)]
         [Browsable(false)]
         public List<ControlIdentifier> AvilableIdentifiers = new List<ControlIdentifier>();
 
@@ -74,15 +74,16 @@ namespace Pixel.Automation.Web.Selenium.Components
     {
         public bool Equals(FrameIdentity x, FrameIdentity y)
         {
-            if (Object.ReferenceEquals(x, y)) return true;
-
+            if (Object.ReferenceEquals(x, y))
+            {
+                return true;
+            }
             return x.FindByStrategy.Equals(y.FindByStrategy) && x.Identifier.Equals(y.Identifier);
 
         }
 
         public int GetHashCode(FrameIdentity obj)
-        {
-            //TODO : Implement non-default hash code.
+        {            
             return obj.GetHashCode();
         }
     }

@@ -51,10 +51,9 @@ namespace Pixel.Persistence.Services.Client
         /// Add or update control image with a given resolution
         /// </summary>
         /// <param name="controlDescription"></param>
-        /// <param name="stream"></param>
-        /// <param name="imageResolution"></param>
+        /// <param name="stream"></param>      
         /// <returns></returns>
-        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream, string imageResolution);
+        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream);
 
         /// <summary>
         /// Get the automation project root directory

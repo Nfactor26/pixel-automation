@@ -15,50 +15,50 @@ namespace Pixel.Automation.UIA.Components
     [ContainerEntity(typeof(WinControlEntity))]
     public class WinControlIdentity : ControlIdentity
     {
-        [DataMember]
+        [DataMember(Order = 210)]
         [Category("Accessibility")]
         public string AccessKey { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 220)]
         [Category("Accessibility")]
         public string HelpText { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 230)]
         [Category("Accessibility")]
         public string AcceleratorKey { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 240)]
         [Category("Identification")]
         public string AutomationId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 250)]
         [Category("Identification")]
         public string NameProperty { get; set; }
-        
-        [DataMember]
+
+        [DataMember(Order = 260)]
         [Category("Identification")]   
         [Display(Name = "Control Type")]
         public WinControlType WinControlType { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 270)]
         [Category("Identification")]
         public string ClassName { get; set; }
 
-     
-        [DataMember]
+
+        [DataMember(Order = 280)]
         [Category("Identification")]
         public bool IsContentElement { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 290)]
         [Category("Identification")]
         public bool IsControlElement { get; set; }
-                
-        [DataMember]
+
+        [DataMember(Order = 300)]
         [Browsable(false)]
         public int Depth { get; set; }
-        
 
-        [DataMember]
+
+        [DataMember(Order = 310)]
         [Category("Supported Patterns")]
         public List<string> SupportedPatterns { get; set; }
 
@@ -80,9 +80,6 @@ namespace Pixel.Automation.UIA.Components
             }
         }
 
-        [DataMember]
-        public string OwnerApplication { get; set; }
-
         #endregion required during scraping
 
         public WinControlIdentity() : base()
@@ -100,7 +97,6 @@ namespace Pixel.Automation.UIA.Components
                 Depth = this.Depth,
                 LookupType = this.LookupType,
                 ApplicationId = this.ApplicationId,
-                ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
@@ -116,8 +112,7 @@ namespace Pixel.Automation.UIA.Components
                 HelpText = this.HelpText,              
                 IsContentElement = this.IsContentElement,
                 IsControlElement = this.IsControlElement,
-                NameProperty = this.NameProperty,
-                OwnerApplication = this.OwnerApplication,
+                NameProperty = this.NameProperty,               
                 SearchScope = this.SearchScope,                     
                 Next = this.Next?.Clone() as WinControlIdentity
 

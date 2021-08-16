@@ -40,7 +40,7 @@ namespace Pixel.Automation.Web.Scrapper
         {          
             WebControlIdentity controlIdentity = new WebControlIdentity()
             {
-                Name = Guid.NewGuid().ToString(),               
+                Name = "1",               
                 FindByStrategy = "CssSelector",
                 Identifier = captureData.Identifier,
                 BoundingBox = new Rectangle(captureData.Left, captureData.Top, captureData.Width, captureData.Height)

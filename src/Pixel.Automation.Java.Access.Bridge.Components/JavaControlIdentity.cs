@@ -13,7 +13,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     {
 
         string controlName;
-        [DataMember]
+        [DataMember(Order = 210)]
         [Category("Identification")]
         public string ControlName
         {
@@ -28,7 +28,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         string description;
-        [DataMember]
+        [DataMember(Order = 220)]
         [Category("Identification")]
         public string Description
         {
@@ -44,7 +44,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         string role;
-        [DataMember]
+        [DataMember(Order = 230)]
         [Category("Identification")]
         public string Role
         {
@@ -59,7 +59,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         int depth;
-        [DataMember]
+        [DataMember(Order = 240)]
         [Browsable(false)]      
         public int Depth
         {
@@ -89,22 +89,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 processId = value;
             }
         }
-
-
-        string ownerApplication;
-        [DataMember]
-        public string OwnerApplication
-        {
-            get
-            {
-                return ownerApplication;
-            }
-            set
-            {
-                ownerApplication = value;
-            }
-        }
-
+      
         #endregion required during scraping
 
         public JavaControlIdentity() : base()
@@ -118,7 +103,6 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 Name = this.Name,
                 ApplicationId = this.ApplicationId,
-                ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
@@ -128,8 +112,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 Role = this.Role,              
                 Depth = this.Depth, 
                 Index = this.Index,
-                LookupType = this.LookupType,
-                OwnerApplication = this.OwnerApplication,
+                LookupType = this.LookupType,               
                 Next = this.Next?.Clone() as JavaControlIdentity
             };
             return clone;

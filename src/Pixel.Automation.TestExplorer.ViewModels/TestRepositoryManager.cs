@@ -436,15 +436,21 @@ namespace Pixel.Automation.TestExplorer
                     testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, testCaseFileSystem.GetTestScriptFile(testCaseVM.Id), string.Empty);
                 }
 
-                var prefabsUsed = testCaseVM.TestCaseEntity.GetComponentsOfType<PrefabEntity>(SearchScope.Descendants);
-                if(prefabsUsed.Any())
+                //e.g. while assigning test data source , test case is not open for edit and hence will have
+                // TestCaseEntity null causing prefab lookup to fail
+                if(testCaseVM.IsOpenForEdit)
                 {
-                    testCaseVM.PrefabReferences = new Core.Models.PrefabReferences();
-                    foreach (var prefab in prefabsUsed)
+                    var prefabsUsed = testCaseVM.TestCaseEntity.GetComponentsOfType<PrefabEntity>(SearchScope.Descendants);
+                    if (prefabsUsed.Any())
                     {
-                        testCaseVM.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference(prefab.ApplicationId, prefab.PrefabId));
+                        testCaseVM.PrefabReferences = new Core.Models.PrefabReferences();
+                        foreach (var prefab in prefabsUsed)
+                        {
+                            testCaseVM.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference(prefab.ApplicationId, prefab.PrefabId));
+                        }
                     }
                 }
+               
 
                 testCaseFileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.FixtureDirectory);               
                 if(saveTestEntity)
@@ -517,8 +523,12 @@ namespace Pixel.Automation.TestExplorer
                     SetupScriptEditor();                  
                     testCaseVM.IsOpenForEdit = true;
                     NotifyOfPropertyChange(nameof(CanSaveAll));
+                    logger.Information($"Test Case : {testCaseVM.DisplayName} is open for edit now.");
                 }
-
+                else
+                {
+                    logger.Warning("Failed to open test case {0} for edit.", testCaseVM.DisplayName);
+                }
                 void SetupScriptEditor()
                 {
                     var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
@@ -529,7 +539,6 @@ namespace Pixel.Automation.TestExplorer
                     string scriptFileContent = File.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
                     editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.Id, scriptFileContent);
                 }
-                logger.Information($"Test Case : {testCaseVM.DisplayName} is open for edit now.");
             }
             catch (Exception ex)
             {

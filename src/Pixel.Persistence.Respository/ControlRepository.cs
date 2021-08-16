@@ -10,12 +10,16 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
-{
+{    
     public class ControlRepository : IControlRepository
     {
         private readonly IMongoCollection<BsonDocument> controlsCollection;    
         private readonly IGridFSBucket imageBucket;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="dbSettings"></param>
         public ControlRepository(IMongoDbSettings dbSettings)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
@@ -57,36 +61,36 @@ namespace Pixel.Persistence.Respository
         }
 
         ///<inheritdoc/>
-        public async Task AddOrUpdateControlImage(ControlImageMetaData control, string fileName, byte[] fileData)
+        public async Task AddOrUpdateControlImage(ControlImageMetaData imageMetaData, byte[] fileData)
         {
-            Guard.Argument(control, nameof(control)).NotNull();
+            Guard.Argument(imageMetaData, nameof(imageMetaData)).NotNull();
            
             //Delete any existing version of image file. We don't want revisions of image.
-            await DeleteImageAsync(control);
+            await DeleteImageAsync(imageMetaData);
           
-            await imageBucket.UploadFromBytesAsync(fileName, fileData, new GridFSUploadOptions()
+            await imageBucket.UploadFromBytesAsync(imageMetaData.FileName, fileData, new GridFSUploadOptions()
             {
                 Metadata = new BsonDocument()
                 {
-                    {"applicationId" , control.ApplicationId},
-                    {"controlId" , control.ControlId },
-                    {"resolution", control.Resolution }
+                    {"applicationId" , imageMetaData.ApplicationId},
+                    {"controlId" , imageMetaData.ControlId }                   
                 }
             });
           
         }
 
         ///<inheritdoc/>
-        public async Task DeleteImageAsync(ControlImageMetaData control)
+        public async Task DeleteImageAsync(ControlImageMetaData imageMetaData)
         {
-            var filter = CreateImageFilter(control.ApplicationId, control.ControlId);
+            Guard.Argument(imageMetaData, nameof(imageMetaData)).NotNull();
+            var filter = CreateImageFilter(imageMetaData.ApplicationId, imageMetaData.ControlId);
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
             {
                 Limit = 1,
                 Sort = sort
             };
-
+         
             using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
             {
                 var imageFiles = await cursor.ToListAsync();
@@ -135,7 +139,7 @@ namespace Pixel.Persistence.Respository
                 foreach(var imageFile in imageFiles)
                 {
                     var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
-                    yield return new ImageDataFile() { FileName = imageFile.Filename, Bytes = imageBytes, Resolution = imageFile.Metadata["resolution"].AsString, Type = "ControlImage" };
+                    yield return new DataFile() { FileName = imageFile.Filename, Bytes = imageBytes, Type = "ControlImage" };
                 }
             }
            
@@ -159,7 +163,12 @@ namespace Pixel.Persistence.Respository
             }
         }
 
-
+        /// <summary>
+        /// Create filter condition for control file with given applicationId and controlId
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="controlId"></param>
+        /// <returns></returns>
         private FilterDefinition<BsonDocument> CreateControlFilter(string applicationId, string controlId)
         {
             var filterBuilder = Builders<BsonDocument>.Filter;
@@ -167,13 +176,19 @@ namespace Pixel.Persistence.Respository
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x["ControlId"], controlId));
             return filter;
         }
-
+     
+        /// <summary>
+        /// Create filter condition for image with given applicationId and controlId.        
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="controlId"></param>
+        /// <returns></returns>
         private FilterDefinition<GridFSFileInfo> CreateImageFilter(string applicationId, string controlId)
         {
             var filterBuilder = Builders<GridFSFileInfo>.Filter;
             var filter = filterBuilder.Eq(x => x.Metadata["applicationId"], applicationId);
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["controlId"], controlId));
-            return filter;        
+            return filter;
         }
     }
 }
