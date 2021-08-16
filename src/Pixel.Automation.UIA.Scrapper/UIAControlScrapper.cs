@@ -354,10 +354,7 @@ namespace Pixel.Automation.UIA.Scrapper
             WinControlIdentity capturedControl = new WinControlIdentity();
             capturedControl.Name = depth.ToString();
             capturedControl.Depth = depth;
-            capturedControl.ProcessId = trackedElement.Current.ProcessId;
-            string executable = Process.GetProcessById(capturedControl.ProcessId).MainModule.FileName;
-            FileInfo executableInfo = new FileInfo(executable);
-            capturedControl.OwnerApplication = executableInfo.Name.Split(new char[] { '.' })[0];
+            capturedControl.ProcessId = trackedElement.Current.ProcessId;                       
             capturedControl.NameProperty = trackedElement.Current.Name;
             capturedControl.AutomationId = trackedElement.Current.AutomationId;
             capturedControl.ClassName = trackedElement.Current.ClassName;

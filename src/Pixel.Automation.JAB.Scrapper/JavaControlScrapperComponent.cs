@@ -201,11 +201,7 @@ namespace Pixel.Automation.JAB.Scrapper
                     {
                         return;
                     }
-
-                    //for simplicity, capture the window title as executable name. A better approach can be to retrieve
-                    //jar file name from command line parameter to javaw.exe identified using process id of this automation element
-                    string executable = trackedElement.Current.Name;
-                   
+                    
                     using (var accessibleWindow = accessBridge.CreateAccessibleWindow(new IntPtr(trackedElement.Current.NativeWindowHandle)))
                     {                        
                         var nodesInPath = accessibleWindow.GetNodePathAt(new Point(Convert.ToInt32(point.X), Convert.ToInt32(point.Y)));                       
@@ -240,7 +236,7 @@ namespace Pixel.Automation.JAB.Scrapper
                             }
 
                             var startingNode = (isRelativeScraping ? controlPath.ElementAt(0) : accessibleWindow);
-                            JavaControlIdentity rootNodeIdentity = CreateControlComponent(startingNode as AccessibleContextNode, 1, executable);
+                            JavaControlIdentity rootNodeIdentity = CreateControlComponent(startingNode as AccessibleContextNode, 1);
                             rootNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
                             rootNodeIdentity.LookupType = (isRelativeScraping ? Core.Enums.LookupType.Relative : Core.Enums.LookupType.Default);
                             JavaControlIdentity currentNodeIdentity = rootNodeIdentity;
@@ -254,7 +250,7 @@ namespace Pixel.Automation.JAB.Scrapper
 
                                 if (ShouldCaptureNode(currentNode, nextNode))
                                 {                                  
-                                    var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i) as AccessibleContextNode, i + 1, executable);
+                                    var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i) as AccessibleContextNode, i + 1);
                                     nextNodeIdentity.Index = GetIndexInParent(currentNode, lastCapturedAncestorNode);
                                     lastCapturedAncestorNode = currentNode;
                                     if (nextNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
@@ -273,7 +269,7 @@ namespace Pixel.Automation.JAB.Scrapper
 
                             if(pathLength > 1)
                             {
-                                var leafNodeIdentity = CreateControlComponent(leafNode, pathLength, executable);
+                                var leafNodeIdentity = CreateControlComponent(leafNode, pathLength);
                                 leafNodeIdentity.Index = GetIndexInParent(leafNode, lastCapturedAncestorNode);
                                 if (leafNodeIdentity.Depth - currentNodeIdentity.Depth > 1)
                                 {
@@ -335,7 +331,7 @@ namespace Pixel.Automation.JAB.Scrapper
             return targetNode.FindIndexOfControl(lastCapturedAncestorNode);           
         }
 
-        private JavaControlIdentity CreateControlComponent(AccessibleContextNode trackedElement, int depth, string ownerApplication)
+        private JavaControlIdentity CreateControlComponent(AccessibleContextNode trackedElement, int depth)
         {
             var nodeInfo = trackedElement.GetInfo();          
             JavaControlIdentity controlDetails = new JavaControlIdentity()
@@ -345,8 +341,7 @@ namespace Pixel.Automation.JAB.Scrapper
                 Role = nodeInfo.role,
                 Depth = depth,            
                 Name = depth.ToString(),
-                BoundingBox = trackedElement.GetScreenRectangle().GetValueOrDefault(),              
-                OwnerApplication = ownerApplication
+                BoundingBox = trackedElement.GetScreenRectangle().GetValueOrDefault()
             };
             return controlDetails;
         }

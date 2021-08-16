@@ -80,9 +80,6 @@ namespace Pixel.Automation.UIA.Components
             }
         }
 
-        [DataMember]
-        public string OwnerApplication { get; set; }
-
         #endregion required during scraping
 
         public WinControlIdentity() : base()
@@ -115,8 +112,7 @@ namespace Pixel.Automation.UIA.Components
                 HelpText = this.HelpText,              
                 IsContentElement = this.IsContentElement,
                 IsControlElement = this.IsControlElement,
-                NameProperty = this.NameProperty,
-                OwnerApplication = this.OwnerApplication,
+                NameProperty = this.NameProperty,               
                 SearchScope = this.SearchScope,                     
                 Next = this.Next?.Clone() as WinControlIdentity
 

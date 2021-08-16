@@ -89,22 +89,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 processId = value;
             }
         }
-
-
-        string ownerApplication;
-        [DataMember]
-        public string OwnerApplication
-        {
-            get
-            {
-                return ownerApplication;
-            }
-            set
-            {
-                ownerApplication = value;
-            }
-        }
-
+      
         #endregion required during scraping
 
         public JavaControlIdentity() : base()
@@ -127,8 +112,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 Role = this.Role,              
                 Depth = this.Depth, 
                 Index = this.Index,
-                LookupType = this.LookupType,
-                OwnerApplication = this.OwnerApplication,
+                LookupType = this.LookupType,               
                 Next = this.Next?.Clone() as JavaControlIdentity
             };
             return clone;
