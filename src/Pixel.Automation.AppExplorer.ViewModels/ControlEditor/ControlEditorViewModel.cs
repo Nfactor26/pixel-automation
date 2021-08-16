@@ -2,6 +2,7 @@
 using Dawn;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -18,13 +19,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
     {
 
         IControlIdentity rootControl;
-
-        public ObservableCollection<IControlIdentity> ControlHierarchy { get; } = new ObservableCollection<IControlIdentity>();
-
-
         IControlIdentity leafControl;
 
-
+        public ObservableCollection<IControlIdentity> ControlHierarchy { get; } = new ObservableCollection<IControlIdentity>();
+        
         IControlIdentity selectedControl;
         public IControlIdentity SelectedControl
         {
@@ -111,13 +109,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             base.OnViewReady(view);
         }
 
-        public void Initialize(IControlIdentity rootControl)
+        public void Initialize(ControlDescription targetControl)
         {
-            Guard.Argument(rootControl).NotNull();
+            Guard.Argument(targetControl).NotNull();
 
-            this.rootControl = rootControl;
+            this.rootControl = targetControl.ControlDetails;
             RefreshHierarchy();
-            this.ControlImage = rootControl.ControlImage;
+            this.ControlImage = targetControl.ControlImage;
             if (!string.IsNullOrEmpty(this.controlImage))
             {               
                 var source = new BitmapImage();

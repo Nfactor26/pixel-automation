@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Runtime.Serialization;
 
@@ -8,17 +9,17 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public class ControlDescription : NotifyPropertyChanged , ICloneable
     {
-        [DataMember]
+        [DataMember(Order = 10)]
         public string ApplicationId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 20)]
         public string ControlId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 30)]
         public string ControlName { get; set; }
 
         string groupName = "Default";
-        [DataMember]
+        [DataMember(Order = 40)]
         public string GroupName
         {
             get
@@ -31,20 +32,23 @@ namespace Pixel.Automation.Core.Models
                 OnPropertyChanged();
             }
         }
-
-        [DataMember]
+               
         private string controlImage;
+        [DataMember(Order = 50)]
         public string ControlImage
         {
             get => controlImage;
             set
             {
-                controlImage = value;
-                this.ControlDetails.ControlImage = value;
+                controlImage = value;  
+                if(ControlDetails is IImageControlIdentity imageControl)
+                {
+                    imageControl.ControlImage = value;
+                }
             }
         }
-     
-        [DataMember]
+
+        [DataMember(Order = 100)]
         public IControlIdentity ControlDetails { get; set; }
 
 
@@ -54,7 +58,9 @@ namespace Pixel.Automation.Core.Models
         }
 
         public ControlDescription(IControlIdentity controlDetails)
-        {          
+        {
+            Guard.Argument(controlDetails).NotNull();
+
             this.ApplicationId = controlDetails.ApplicationId;
             this.ControlId = Guid.NewGuid().ToString();           
             this.ControlDetails = controlDetails;

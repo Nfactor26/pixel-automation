@@ -13,7 +13,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     {
 
         string controlName;
-        [DataMember]
+        [DataMember(Order = 210)]
         [Category("Identification")]
         public string ControlName
         {
@@ -28,7 +28,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         string description;
-        [DataMember]
+        [DataMember(Order = 220)]
         [Category("Identification")]
         public string Description
         {
@@ -44,7 +44,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         string role;
-        [DataMember]
+        [DataMember(Order = 230)]
         [Category("Identification")]
         public string Role
         {
@@ -59,7 +59,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         int depth;
-        [DataMember]
+        [DataMember(Order = 240)]
         [Browsable(false)]      
         public int Depth
         {
@@ -118,7 +118,6 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 Name = this.Name,
                 ApplicationId = this.ApplicationId,
-                ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,

@@ -18,13 +18,7 @@ namespace Pixel.Automation.Core.Interfaces
             get;
             set;
         }
-
-        string ControlImage
-        {
-            get;
-            set;
-        }
-
+        
         Rectangle BoundingBox
         {
             get;
@@ -89,25 +83,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Get the Name of the control
         /// </summary>
         /// <returns></returns>
-        string GetControlName();
-
-        /// <summary>
-        /// Get the Owner application name
-        /// </summary>
-        /// <returns></returns>
-        //string GetOwnerAppName();
-
-        /// <summary>
-        /// Get the IControlLocator for IControlIdentity
-        /// </summary>
-        /// <returns></returns>
-        //IControlLocator<object> GetControlLocator();
-
-        /// <summary>
-        /// Get the ICoordinateProvider implementatoin for IControlIdentity
-        /// </summary>
-        /// <returns></returns>
-        //ICoordinateProvider GetCoordinateProvider();
+        string GetControlName();        
 
         /// <summary>
         /// For nested navigation
@@ -116,5 +92,13 @@ namespace Pixel.Automation.Core.Interfaces
         {
             get; set;
         }
+    }
+
+    public interface IImageControlIdentity : IControlIdentity
+    {
+        /// <summary>
+        /// Relative path of the ControlImage for the control
+        /// </summary>
+        string ControlImage { get; set; }
     }
 }

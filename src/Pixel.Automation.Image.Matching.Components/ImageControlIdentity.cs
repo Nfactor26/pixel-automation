@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -12,12 +13,16 @@ namespace Pixel.Automation.Image.Matching.Components
     [DataContract]
     [Serializable]
     [ContainerEntity(typeof(ImageControlEntity))]
-    public class ImageControlIdentity : ControlIdentity
+    public class ImageControlIdentity : ControlIdentity, IImageControlIdentity
     {
-        [NonSerialized]
+        [DataMember(Order = 210)]
+        [Description("Name of the source image")]
+        [Browsable(false)]
+        public string ControlImage { get; set; }
 
+        [NonSerialized]
         OpenCvSharp.TemplateMatchModes matchStrategy = OpenCvSharp.TemplateMatchModes.CCoeffNormed;
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Match Strategy", GroupName = "Configuration")]
         [Description("Specifies the way the template must be compared with image regions")]
         public OpenCvSharp.TemplateMatchModes MatchStrategy
@@ -27,7 +32,7 @@ namespace Pixel.Automation.Image.Matching.Components
         }
 
         float thresHold = 0.9f;
-        [DataMember]
+        [DataMember(Order = 230)]
         [Display(Name = "Threshold", GroupName = "Configuration")]
         [Description("Minimum match percentage for acceptance")]    
         public float ThreshHold

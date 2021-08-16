@@ -22,7 +22,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         ///  FindBy strategy used to search for a control e.g. id, name, css3selector, etc.     
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 210)]
         [Display(Name = "Find By", Order = 10, GroupName = "Search Strategy")]
         [Description(" FindBy strategy used to search for a control.For ex: id,name,css3selector,etc.")]       
         public virtual string FindByStrategy
@@ -44,11 +44,11 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
         }
 
-      
+
         /// <summary>
         /// Identifier value used to search for the control i.e. name of control if FindByStrategy is name,etc.
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 220)]
         [Display(Name = "Identifier", Order = 20, GroupName = "Search Strategy")]
         [Description("Identifier value used to search for the control")]
         public string Identifier { get; set; }
@@ -56,22 +56,22 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Wait timeout in seconds for control lookup
         /// </summary>
-        [DataMember()]
+        [DataMember(Order = 230)]
         [Display(Name = "Search Timout", Order = 40, GroupName = "Search Strategy")]
         [Description("Wait timeout in seconds for control lookup")]
         public int SearchTimeout { get; set; } = 5;
-        
+
         /// <summary>
         /// Indicates the SearchScope for control lookup e.g. if the control should be looked in child subtree or descendant subtree of the search root, etc.
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 240)]
         [Display(Name = "Search Scope", Order = 30, GroupName = "Search Strategy")]   
         public override SearchScope SearchScope { get; set; } = SearchScope.Descendants;
 
         /// <summary>
         /// Holds all the identifiers captured at design time
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 250)]
         [Browsable(false)]
         public List<ControlIdentifier> AvilableIdentifiers = new List<ControlIdentifier>();
 
@@ -82,7 +82,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Identification details for the frame that contains the control 
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 510)]
         [Display(Name = "Frame Hierarchy", Order = 10, GroupName = "Frame Details")]
         [Description("Details of frame hierarchy in web page  which contains the element")]
         public List<FrameIdentity> FrameHierarchy { get; set; } = new List<FrameIdentity>();
@@ -106,7 +106,6 @@ namespace Pixel.Automation.Web.Selenium.Components
                 Index = this.Index,
                 LookupType = this.LookupType,
                 ApplicationId = this.ApplicationId,
-                ControlImage = this.ControlImage,
                 BoundingBox = this.BoundingBox,              
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,

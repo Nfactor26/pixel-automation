@@ -178,13 +178,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit).NotNull();
-
-            var copyOfControlToEdit = controlToEdit.ControlDetails.Clone() as IControlIdentity;
-            controlEditor.Initialize(copyOfControlToEdit);
+            
+            //Make a copy of ControlDescription that is opened for edit
+            var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
+            controlEditor.Initialize(controlToEdit.ControlDescription);
             var result = await windowManager.ShowDialogAsync(controlEditor);
+            //if save was clicked, assign back changes in ControlDetails to controlToEdit.
+            //Editor only allows editing ControlDetails. Description won't be modified.
             if (result.HasValue && result.Value)
             {
-                controlToEdit.ControlDetails = copyOfControlToEdit;
+                controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
                 await SaveControlDetails(controlToEdit, false);
                 await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
             }
