@@ -32,11 +32,11 @@ namespace Pixel.Persistence.Core.Models
 
         [Required]
         [DataMember]
-        public string ControlId { get; set; }    
+        public string ControlId { get; set; }
 
         [Required]
         [DataMember]
-        public string Resolution { get; set; }
+        public string FileName { get; set; }        
 
         [DataMember]
         public DateTime LastUpdated { get; set; }

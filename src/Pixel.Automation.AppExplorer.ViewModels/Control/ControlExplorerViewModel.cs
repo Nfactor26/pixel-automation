@@ -211,7 +211,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
             controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
             await SaveControlDetails(controlDescriptionViewModel, true);
-            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource, "Default");
+            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
             this.Controls.Add(controlDescriptionViewModel);           
         }
 
@@ -250,12 +250,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private async Task AddControlAsync(ControlDescriptionViewModel controlItem)
         {
-            await SaveBitMapSource(controlItem.ControlDescription, controlItem.ImageSource, "Default");
+            await SaveBitMapSource(controlItem.ControlDescription, controlItem.ImageSource);
             await SaveControlDetails(controlItem, true);            
             this.Controls.Add(controlItem);         
         }
 
-        private async Task SaveBitMapSource(ControlDescription controlDescription, ImageSource imageSource, string resolution)
+        private async Task SaveBitMapSource(ControlDescription controlDescription, ImageSource imageSource)
         {
             if (imageSource is BitmapImage image)
             {
@@ -264,7 +264,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     BitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(stream);
-                    controlDescription.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(controlDescription, stream, resolution);
+                    controlDescription.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(controlDescription, stream);
                 }
                 return;
             }

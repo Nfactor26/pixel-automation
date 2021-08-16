@@ -259,10 +259,10 @@ namespace Pixel.Persistence.Services.Client
             }
         }
 
-        public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream, string imageResolution)
+        public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream)
         {
             Directory.CreateDirectory(GetControlDirectory(controlDescription));
-            string saveLocation = GetControlImageFile(controlDescription);
+            string saveLocation = Path.Combine(GetControlDirectory(controlDescription), $"{controlDescription.ControlId}.Png");
             using (FileStream fs = new FileStream(saveLocation, FileMode.Create))
             {
                 stream.Seek(0, SeekOrigin.Begin);
@@ -270,7 +270,7 @@ namespace Pixel.Persistence.Services.Client
             }
             if(IsOnlineMode)
             {
-                await controlRepositoryClient.AddOrUpdateControlImage(controlDescription, saveLocation, imageResolution ?? "Default");
+                await controlRepositoryClient.AddOrUpdateControlImage(controlDescription, saveLocation);
             }
             return saveLocation;
         }
@@ -307,11 +307,7 @@ namespace Pixel.Persistence.Services.Client
         {
             return Path.Combine(GetControlDirectory(controlItem), $"{controlItem.ControlId}.dat");
         }
-
-        private string GetControlImageFile(ControlDescription controlItem)
-        {
-            return Path.Combine(GetControlDirectory(controlItem), "ScreenShot.Png");
-        }
+      
 
         private string GetControlDirectory(ControlDescription controlItem)
         {

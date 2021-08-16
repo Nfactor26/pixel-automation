@@ -40,7 +40,7 @@ namespace Pixel.Persistence.Respository
         /// <param name="fileName">FileName to store image to</param>
         /// <param name="fileData">Content of the control image file </param>
         /// <returns></returns>
-        Task AddOrUpdateControlImage(ControlImageMetaData imageMetaData, string fileName, byte[] fileData);
+        Task AddOrUpdateControlImage(ControlImageMetaData imageMetaData, byte[] fileData);
 
         /// <summary>
         /// Delete the image from the database
