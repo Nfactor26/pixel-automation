@@ -5,6 +5,7 @@ using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -71,7 +72,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 ApplicationId = controlDescription.ApplicationId,
                 ControlId = controlDescription.ControlId,
-                FileName = $"{controlDescription.ControlId}.Png"
+                FileName = Path.GetFileName(imageFile)
             };
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);

@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Microsoft.Win32;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -197,6 +198,35 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task EditControlAsync(ControlDescriptionViewModel controlToEdit)
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, () => { _ = SaveControlDetails(controlToEdit, false); }, () => { return true; }));
+        }
+
+        /// <summary>
+        /// Show file browse dialog and let user pick a new image for the control.
+        /// Existing image will be deleted and replaced with the new image picked by user.
+        /// </summary>
+        /// <param name="selectedControl"></param>
+        /// <returns></returns>
+        public async Task ChangeImageFromExistingAsync(ControlDescriptionViewModel selectedControl)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "PNG File (*.Png)|*.Png";
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string fileName = openFileDialog.FileName;
+                File.Delete(selectedControl.ControlImage);             
+                using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
+                    //unless file name changes
+                    selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
+                    await SaveControlDetails(selectedControl, false);
+                    // This will force reload image on control explorer
+                    selectedControl.ImageSource = null;
+                    // This will force reload image on process designer
+                    await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
+                }
+            }
         }
 
         /// <summary>

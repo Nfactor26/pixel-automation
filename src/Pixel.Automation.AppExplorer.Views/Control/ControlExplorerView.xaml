@@ -91,6 +91,7 @@
                                     <MenuItem x:Name="Configure" Header="Configure" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ConfigureControlAsync($dataContext)]" ></MenuItem>
                                     <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>
                                     <MenuItem x:Name="Clone" Header="Clone" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CloneControl($dataContext)]" ></MenuItem>
+                                    <MenuItem x:Name="ChangeImage" Header="Change Image" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ChangeImageFromExistingAsync($dataContext)]" ></MenuItem>
                                 </StackPanel>
                             </ControlTemplate>
                         </ContextMenu.Template>
