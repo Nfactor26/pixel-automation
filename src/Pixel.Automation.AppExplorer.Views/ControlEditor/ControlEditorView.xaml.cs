@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Editor.Controls.Arguments;
+using Pixel.Automation.Editor.Controls.Browsers;
 using Pixel.Automation.Editor.Controls.HotKeys;
 using System;
 using System.Diagnostics;
@@ -69,7 +70,12 @@ namespace Pixel.Automation.AppExplorer.Views.ControlEditor
                 {
                     targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
                     return;
-                }            
+                }
+                if (targetPropertyItem.DisplayName.Equals("Find By"))
+                {
+                    targetPropertyItem.Editor = (new WebFindBy()).ResolveEditor(targetPropertyItem);
+                    return;
+                }
             }
             catch (Exception ex)
             {

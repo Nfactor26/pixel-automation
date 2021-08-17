@@ -53,11 +53,11 @@ namespace Pixel.Automation.Web.Scrapper
                 FrameIdentity frameIdentity = new FrameIdentity()
                 {
                     FindByStrategy = "Index",
-                    Identifier =  details[2]  //use id by default
+                    Identifier =  details[2]  //use index by default
                 };
-                frameIdentity.AvilableIdentifiers?.Add(new ControlIdentifier("Id", details[0]));
-                frameIdentity.AvilableIdentifiers?.Add(new ControlIdentifier("Name", details[1]));
-                frameIdentity.AvilableIdentifiers?.Add(new ControlIdentifier("Index", details[2]));
+                frameIdentity.AvilableIdentifiers.Add(new ControlIdentifier("Id", details[0]));
+                frameIdentity.AvilableIdentifiers.Add(new ControlIdentifier("Name", details[1]));
+                frameIdentity.AvilableIdentifiers.Add(new ControlIdentifier("Index", details[2]));
 
                 controlIdentity.FrameHierarchy.Add(frameIdentity);
             }
