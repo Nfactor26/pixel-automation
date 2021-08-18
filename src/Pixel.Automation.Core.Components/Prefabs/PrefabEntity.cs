@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
 {
     [DataContract]
     [Serializable]
-    [Scriptable(nameof(InputMappingScript), nameof(OutputMappingScript))]
+    [Scriptable(nameof(InputMappingScriptFile), nameof(OutputMappingScriptFile))]
     [Initializer(typeof(ScriptFileInitializer))]
     public class PrefabEntity : Entity
     {
@@ -23,29 +23,31 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public string ApplicationId { get; set; }
 
         [DataMember]
-        [Browsable(false)]
+        [Browsable(false)]    
         public string PrefabId { get; set; }
 
-        private string inputMappingScript;
-        [DataMember]      
-        public string InputMappingScript
+        private string inputMappingScriptFile;
+        [DataMember]
+        [DisplayName("Input Mapping Script")]
+        public string InputMappingScriptFile
         {
-            get => this.inputMappingScript;
+            get => this.inputMappingScriptFile;
             set
             {
-                this.inputMappingScript = value;
+                this.inputMappingScriptFile = value;
                 OnPropertyChanged();
             }
         }
 
-        private string outputMappingScript;
-        [DataMember]       
-        public string OutputMappingScript
+        private string outputMappingScriptFile;
+        [DataMember]
+        [DisplayName("Output Mapping Script")]
+        public string OutputMappingScriptFile
         {
-            get => this.outputMappingScript;
+            get => this.outputMappingScriptFile;
             set
             {
-                this.outputMappingScript = value;
+                this.outputMappingScriptFile = value;
                 OnPropertyChanged();
             }
            
@@ -98,9 +100,9 @@ namespace Pixel.Automation.Core.Components.Prefabs
             this.LoadPrefab();
           
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScript);
+            var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScriptFile);
             inputMappingAction.Invoke(prefabDataModel);
-            logger.Information($"Executed input mapping script : {this.InputMappingScript} for Prefab : {this.PrefabId}");
+            logger.Information($"Executed input mapping script : {this.InputMappingScriptFile} for Prefab : {this.PrefabId}");
         }
 
         private void LoadPrefab()
@@ -119,9 +121,9 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public override async Task OnCompletionAsync()
         {
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScript);
+            var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScriptFile);
             outputMappingAction.Invoke(prefabDataModel);
-            logger.Information($"Executed output mapping script : {this.OutputMappingScript} for Prefab : {this.PrefabId}");
+            logger.Information($"Executed output mapping script : {this.OutputMappingScriptFile} for Prefab : {this.PrefabId}");
 
             this.Components.Clear();
             this.prefabDataModel = null;       
