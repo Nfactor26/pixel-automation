@@ -67,9 +67,9 @@
 
     </UserControl.Resources>
     <Grid>
-        <local:KeyCaptureControl x:Name="HotKeyEditor" Margin="5" Text="{Binding ActorComponent.KeySequence,ElementName=KeyEditorControl,Mode=TwoWay}"
+        <local:KeyCaptureControl x:Name="HotKeyEditor" Margin="0,2,0,0" Text="{Binding ActorComponent.KeySequence,ElementName=KeyEditorControl,Mode=TwoWay}"
                                     AreModifierKeysRequired="{Binding IsModifierKeysRequired,ElementName=KeyEditorControl}"
                                     AppendToExistingKey ="{Binding AppendToExistingKey,ElementName=KeyEditorControl}"                                 
-                                    Watermark="Click and Press Keys" />
+                                    Watermark="Click and Press Keys" VerticalContentAlignment="Center" />
     </Grid>
 </UserControl>

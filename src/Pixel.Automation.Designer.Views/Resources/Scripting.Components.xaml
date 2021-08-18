@@ -21,8 +21,9 @@
                 </StackPanel>
               
                 <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                
-                <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">                  
+
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" HorizontalAlignment="Right" 
+                            Orientation="Horizontal" Visibility="Collapsed">                  
                     <Button x:Name="btnExecuteScript" Margin="0,0,2,0" HorizontalAlignment="Right" 
                             Height="20" Width="20" ToolTip="Execute Script"
                             cal:Message.Attach="[Action RunComponent($dataContext)]"                   
@@ -36,10 +37,9 @@
                 </StackPanel>
             </DockPanel>
         </Border>
-        <DataTemplate.Triggers>
-            <Trigger Property="IsMouseOver"  Value="true">
-                <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
-                <Setter TargetName="btnEditScript"  Property="Visibility" Value="Visible"/>
+        <DataTemplate.Triggers>         
+            <Trigger Property="IsMouseOver"  Value="true">              
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
             <DataTrigger Binding="{Binding IsExecuting}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
@@ -80,7 +80,8 @@
                         <iconPacks:MaterialLight Kind="Script"/>
                     </StackPanel>
                     <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
-                    <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                Orientation="Horizontal" Visibility="Collapsed">
                         <Button x:Name="btnExecuteScript"  Margin="0,0,2,0" HorizontalAlignment="Right" 
                             Height="20" Width="20" ToolTip="Execute Script"
                             cal:Message.Attach="[Action RunComponent($dataContext)]"                   
@@ -101,6 +102,9 @@
             </Grid>
         </Border>
         <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
             <DataTrigger Binding="{Binding IsExecuting}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
             </DataTrigger>
