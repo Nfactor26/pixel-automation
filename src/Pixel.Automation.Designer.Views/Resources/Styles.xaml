@@ -13,9 +13,10 @@
     <local:ComponentStyleSelector x:Key="ComponentStyleSelector"/>
     <converters:HorizontalLineConverter x:Key="horzLineConv"/>
     <converters:VerticalLineConverter x:Key="vertLineConv"/>
-
-
-
+    <iconPacks:PackIconMaterial x:Key="IconDotsVertical" Kind="DotsVertical" x:Shared="false" />
+    <iconPacks:PackIconModern x:Key="IconPageEdit" Kind="PageEdit" x:Shared="false" />
+    <iconPacks:PackIconOcticons x:Key="IconInfo" Kind="Info"  x:Shared="false" />
+    
     <Style  x:Key="LinkButton"  TargetType="Button">
         <Setter Property="Template">
             <Setter.Value>
@@ -59,8 +60,12 @@
     <Style x:Key="SquaredButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
         <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
         <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
-        <Setter Property="Width" Value="26"/>
-        <Setter Property="Height" Value="Auto"/>        
+        <Setter Property="MinWidth" Value="28"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Foreground" Value="Gray"/>
@@ -69,6 +74,21 @@
                 <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ShowDialogButtonStyle" TargetType="Button" BasedOn="{StaticResource SquaredButtonStyle}">
+        <Setter Property="Content" Value="{StaticResource IconDotsVertical}"/>
+    </Style>
+    <Style x:Key="EditScriptButtonStyle" TargetType="Button" BasedOn="{StaticResource SquaredButtonStyle}">
+        <Setter Property="Content" Value="{StaticResource IconPageEdit}"/>
+    </Style>
+
+    <Style x:Key="InfoButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+        <Setter Property="Width" Value="24"></Setter>
+        <Setter Property="Height" Value="24"></Setter>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Content" Value="{StaticResource IconInfo}"/>
     </Style>
 
     <Style TargetType="GroupBox" x:Key="GroupBoxHeaderWithDelete">
@@ -136,126 +156,7 @@
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
                           Color="Transparent" />
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"
-                         Color="{DynamicResource MahApps.Colors.Accent2}"/>
-
-    <Style x:Key="PlayButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">        
-        <Setter Property="Width" Value="20"></Setter>
-        <Setter Property="Height" Value="20"></Setter>        
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>       
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Button Style="{StaticResource MahApps.Styles.Button.Circle}">
-                        <Rectangle Width="20"
-                                   Height="20"
-                                   Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush Stretch="Uniform"  Visual="{StaticResource appbar_control_play}" />
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                    </Button>
-                </ControlTemplate>
-
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
-        <Setter Property="Width" Value="20"></Setter>
-        <Setter Property="Height" Value="20"></Setter>       
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Button  Style="{StaticResource MahApps.Styles.Button.Circle}">
-                        <Rectangle Width="20"
-                                       Height="20"
-                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush Stretch="Uniform"  Visual="{StaticResource appbar_close}" />
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                    </Button>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="EditScriptButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
-        <Setter Property="Width" Value="26"/>
-        <Setter Property="Height" Value="Auto"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
-                            BorderBrush="{TemplateBinding BorderBrush}">
-                        <iconPacks:PackIconModern x:Name="PageEdit" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        Kind="PageEdit" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">                
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
-            </Trigger>
-        </Style.Triggers>       
-    </Style>
-
-    <Style x:Key="VerticalDotsButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"></Setter>
-        <Setter Property="Width" Value="20"/>
-        <Setter Property="Height" Value="Auto"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
-                        BorderBrush="{TemplateBinding BorderBrush}">                     
-                        <iconPacks:PackIconFontAwesome x:Name="EllipsisVSolid" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        Kind="EllipsisVSolid" />
-                    </Border>               
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Badged.Background.Disabled}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <Style x:Key="InfoButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
-        <Setter Property="Width" Value="24"></Setter>
-        <Setter Property="Height" Value="24"></Setter>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Border IsHitTestVisible="True" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}"
-                        BorderBrush="{TemplateBinding BorderBrush}">
-                        <iconPacks:PackIconOcticons x:Name="Info" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{DynamicResource MahApps.Brushes.Flyout.Foreground}"
-                                        Kind="Info" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                         Color="{DynamicResource MahApps.Colors.Accent2}"/>  
  
     <Style x:Key="TextBlockStyle" TargetType="TextBlock">
         <Setter Property="FontWeight" Value="Bold"></Setter>

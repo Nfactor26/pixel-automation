@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pixel.Automation.Editor.Controls.Arguments"
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Controls.Converters"
-             xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"       
              mc:Ignorable="d" x:Name="InArgumentControl"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -40,13 +40,14 @@
                           Metro:TextBoxHelper.UseFloatingWatermark="True"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=InArgumentControl}"
                           SelectedValue="{Binding Argument.PropertyPath,ElementName=InArgumentControl}"
-                  Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
-                  Visibility="{Binding Argument.Mode,ElementName=InArgumentControl, Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
+                          Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                          Visibility="{Binding Argument.Mode,ElementName=InArgumentControl, 
+                          Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
 
                 <DockPanel Visibility="{Binding Argument.Mode,ElementName=InArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
                     ConverterParameter=VisibleOnScripted}" LastChildFill="True" Width="158" MaxWidth="158">
-                    <Button x:Name="ScriptEditorButton"  Click="ShowScriptEditor" Style="{DynamicResource EditScriptButtonStyle}"
-                            ToolTip="Open Script editor" Padding="5"  BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC" DockPanel.Dock="Right"></Button>
+                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource EditScriptButtonStyle}"
+                        ToolTip="Open Script editor" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                     <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=InArgumentControl}" VerticalContentAlignment="Center"
                              MaxWidth="158" BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
                 </DockPanel>

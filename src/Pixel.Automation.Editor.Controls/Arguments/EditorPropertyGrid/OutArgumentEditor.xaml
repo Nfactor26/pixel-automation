@@ -20,7 +20,7 @@
             <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True">
 
                 <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=OutArgumentControl,Converter={StaticResource BoolToVis}}"                                        
-                    Click="ChangeArgumentType"  Style="{DynamicResource ChangeArgumentTypeButtonStyle}" Height="26"
+                    Click="ChangeArgumentType"  Style="{DynamicResource ChangeArgumentTypeButtonStyle}"
                     ToolTip="Change Type" DockPanel.Dock="Right"/>
 
                 <ToggleButton x:Name="ArgumentModeToggle" Style="{DynamicResource OutArgumentToggleStateStyle}" Width="28"
@@ -41,11 +41,11 @@
                     <DockPanel Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
                         ConverterParameter=VisibleOnScripted}" LastChildFill="True">
                         <Button x:Name="BrowseScriptButton" Click="BrowseScript" Style="{StaticResource SquaredButtonStyle}"
-                            Content="{iconPacks:Entypo DotsThreeHorizontal}" Height="26" Width="24" ToolTip="Browse for Script" Padding="2"  
-                            BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC" DockPanel.Dock="Right"></Button>
-                        <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource SquaredButtonStyle}"
-                            Content="{iconPacks:Modern PageEdit}" Height="26" Width="26" ToolTip="Open Script editor" Padding="2"  
-                            BorderThickness="0,1,1,1" BorderBrush="#FFCCCCCC" DockPanel.Dock="Right"></Button>
+                            Content="{iconPacks:Entypo DotsThreeHorizontal}" Width="24" ToolTip="Browse for Script" 
+                            BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
+                        <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource EditScriptButtonStyle}"
+                            Width="26" ToolTip="Open Script editor"  
+                            BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                         <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=OutArgumentControl}"
                                  BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
                     </DockPanel>

@@ -5,33 +5,12 @@
                     xmlns:cal="http://www.caliburnproject.org"                   
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro">
-  
-    <Style TargetType="Button" x:Key="ChangeArgumentTypeButtonStyle" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
-        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
-        <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+
+    <iconPacks:PackIconMaterial x:Key="IconDotsVertical" Kind="DotsVertical" x:Shared="false" />
+
+    <Style TargetType="Button" x:Key="ChangeArgumentTypeButtonStyle" BasedOn="{StaticResource SquaredButtonStyle}">        
         <Setter Property="BorderThickness" Value="0,1,1,1"/>
-        <Setter Property="Controls:ControlsHelper.ContentCharacterCasing" Value="Normal" />
-        <Setter Property="Width" Value="20"/>     
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="{TemplateBinding BorderThickness}"
-                            BorderBrush="{DynamicResource MahApps.Brushes.Control.Border}">
-                        <iconPacks:PackIconFontAwesome x:Name="EllipsisVSolid" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        Kind="EllipsisVSolid" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>              
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="Content" Value="{StaticResource IconDotsVertical}"/>
     </Style>
 
     <Style x:Key="InArgumentToggleStateStyle" TargetType="ToggleButton" BasedOn="{StaticResource MahApps.Styles.Button.Square}">
