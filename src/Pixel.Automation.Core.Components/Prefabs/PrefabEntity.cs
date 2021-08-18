@@ -24,13 +24,32 @@ namespace Pixel.Automation.Core.Components.Prefabs
 
         [DataMember]
         [Browsable(false)]
-        public string PrefabId { get; set; }  
+        public string PrefabId { get; set; }
 
+        private string inputMappingScript;
         [DataMember]      
-        public string InputMappingScript { get; set; }
+        public string InputMappingScript
+        {
+            get => this.inputMappingScript;
+            set
+            {
+                this.inputMappingScript = value;
+                OnPropertyChanged();
+            }
+        }
 
+        private string outputMappingScript;
         [DataMember]       
-        public string OutputMappingScript { get; set; }
+        public string OutputMappingScript
+        {
+            get => this.outputMappingScript;
+            set
+            {
+                this.outputMappingScript = value;
+                OnPropertyChanged();
+            }
+           
+        }
 
         [IgnoreDataMember]
         [Browsable(false)]
