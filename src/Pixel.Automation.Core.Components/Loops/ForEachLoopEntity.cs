@@ -36,15 +36,33 @@ namespace Pixel.Automation.Core.Components.Loops
             }
         }
 
+        private Argument targetCollection = new InArgument<IEnumerable<object>>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = true };
         [DataMember]       
         [Description("Target collection which needs to be looped over all its items")]
         [Display(Name = "Collection", GroupName = "Input", Order = 20)]
-        public Argument TargetCollection { get; set; } = new InArgument<IEnumerable<object>>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = true };
+        public Argument TargetCollection
+        {
+            get => this.targetCollection;
+            set
+            {
+                this.targetCollection = value;
+                OnPropertyChanged();
+            }
+        }
 
+        private Argument current = new OutArgument<object>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = false };
         [DataMember]            
         [Description("Current object being iterated")]
         [Display(Name = "Item", GroupName = "Input", Order = 10)]
-        public Argument Current { get; set; } = new OutArgument<object>() { Mode = ArgumentMode.DataBound, CanChangeType = true, CanChangeMode = false };
+        public Argument Current
+        {
+            get => this.current;
+            set
+            {
+                this.current = value;
+                OnPropertyChanged();
+            }
+        }
 
 
         public ForEachLoopEntity() : base("For..Each Loop", "ForEachLoopEntity")
