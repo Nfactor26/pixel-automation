@@ -369,8 +369,7 @@ namespace Pixel.Script.Editor.Services.CSharp
             if (isDisposing)
             {
                 this.workspaceManager?.Dispose();
-                this.workspaceManager = null;
-                GC.SuppressFinalize(this);
+                this.workspaceManager = null;              
                 logger.Debug("EditorService : {0} is disposed now.", this.Identifier);
             }
         }

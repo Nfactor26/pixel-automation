@@ -155,8 +155,11 @@ namespace Pixel.Scripting.Script.Editor.Script
         {
             CloseDocument(false);
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
+            this.Editor.LostFocus -= OnLostFocus;
+            this.Editor.GotFocus -= OnFocus;
             (this.Editor as IDisposable)?.Dispose();
-            this.PropertyChanged = null;
+            this.Editor = null;
+            this.PropertyChanged = null;          
             logger.Debug($"{nameof(InlineScriptEditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
