@@ -4,6 +4,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IPrefabEditor : IEditor
     {      
-       void DoLoad(PrefabDescription prefabDescription, VersionInfo versionInfo = null);
+       void DoLoad(PrefabProject prefabProject, VersionInfo versionInfo = null);
     }
 }

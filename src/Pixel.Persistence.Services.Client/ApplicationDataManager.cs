@@ -194,8 +194,8 @@ namespace Pixel.Persistence.Services.Client
                         var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
                         if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
                         {
-                            await DownloadPrefabDescriptionFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
-                            logger.Information($"PrefabDescription file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
+                            await DownloadPrefabFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
+                            logger.Information($"PrefabProject file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
                         }
                         foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
                         {
@@ -449,56 +449,56 @@ namespace Pixel.Persistence.Services.Client
 
         #region Prefabs
 
-        public async Task AddOrUpdatePrefabDescriptionAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion)
+        public async Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             if (IsOnlineMode)
             {
                 var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
-                prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, prefabVersion);           
-                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabDescription, prefabFileSystem.PrefabDescriptionFile);
-                var applicationMetaData = GetLocalApplicationMetaData().FirstOrDefault(a => a.ApplicationId.Equals(prefabDescription.ApplicationId));
-                applicationMetaData.AddOrUpdatePrefabMetaData(prefabDescription.PrefabId, prefabVersion.ToString(), prefabVersion.IsDeployed);
+                prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, prefabVersion);           
+                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabProject, prefabFileSystem.PrefabDescriptionFile);
+                var applicationMetaData = GetLocalApplicationMetaData().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
+                applicationMetaData.AddOrUpdatePrefabMetaData(prefabProject.PrefabId, prefabVersion.ToString(), prefabVersion.IsDeployed);
 
             }
         }
 
-        public async Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion)
+        public async Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             if(IsOnlineMode)
             {
                 if (prefabVersion != null)
                 {
                     var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
-                    prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, prefabVersion);
+                    prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, prefabVersion);
                     if (!Directory.Exists(prefabFileSystem.WorkingDirectory))
                     {
-                        throw new ArgumentException($"Version {prefabVersion.ToString()} data directory doesn't exist for prefab : {prefabDescription.PrefabName}");
+                        throw new ArgumentException($"Version {prefabVersion.ToString()} data directory doesn't exist for prefab : {prefabProject.PrefabName}");
                     }
                     string prefabsDirectory = Path.GetDirectoryName(prefabFileSystem.PrefabDescriptionFile);
-                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabDescription.PrefabName}.zip");
+                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabProject.PrefabName}.zip");
                     if (File.Exists(zipLocation))
                     {
                         File.Delete(zipLocation);
                     }
                     ZipFile.CreateFromDirectory(prefabFileSystem.WorkingDirectory, zipLocation);
-                    await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabDescription, prefabVersion, zipLocation);
+                    await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabVersion, zipLocation);
                     File.Delete(zipLocation);
                 }
             }
         }
 
-        public async Task DownloadPrefabDescriptionFileAsync(string applicationId, string prefabId)
+        public async Task DownloadPrefabFileAsync(string applicationId, string prefabId)
         {
             if (IsOnlineMode)
             {
-                var prefabDescription = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
+                var prefabProject = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
                 var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId);
                 var prefabDescriptionFile = Path.Combine(prefabDirectory, "PrefabDescription.dat");
                 if(!Directory.Exists(prefabDirectory))
                 {
                     Directory.CreateDirectory(prefabDirectory);
                 }
-                this.serializer.Serialize<PrefabDescription>(prefabDescriptionFile, prefabDescription);
+                this.serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
             }         
         }
        

@@ -49,15 +49,15 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatPrefabCanBeAddedAndRemovedFromApplicationDescription()
         {
             var applicationDescription = new ApplicationDescription();
-            var prefabDescription = new PrefabDescription() { ApplicationId = "A1", PrefabId = "P1" };
-            applicationDescription.AddPrefab(prefabDescription);
+            var prefabProject = new PrefabProject() { ApplicationId = "A1", PrefabId = "P1" };
+            applicationDescription.AddPrefab(prefabProject);
 
-            Assert.IsTrue(applicationDescription.AvailablePrefabs.Contains(prefabDescription.PrefabId));
-            Assert.IsTrue(applicationDescription.PrefabsCollection.Contains(prefabDescription));
+            Assert.IsTrue(applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
+            Assert.IsTrue(applicationDescription.PrefabsCollection.Contains(prefabProject));
 
-            applicationDescription.DeletePrefab(prefabDescription);
-            Assert.IsTrue(!applicationDescription.AvailablePrefabs.Contains(prefabDescription.PrefabId));
-            Assert.IsTrue(!applicationDescription.PrefabsCollection.Contains(prefabDescription));
+            applicationDescription.DeletePrefab(prefabProject);
+            Assert.IsTrue(!applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
+            Assert.IsTrue(!applicationDescription.PrefabsCollection.Contains(prefabProject));
         }
     }
 }

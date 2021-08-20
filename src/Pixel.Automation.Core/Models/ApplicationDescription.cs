@@ -39,7 +39,7 @@ namespace Pixel.Automation.Core.Models
         [DataMember]
         public List<string> AvailablePrefabs { get; private set; } = new List<string>();
       
-        public List<PrefabDescription> PrefabsCollection { get; set; } = new List<PrefabDescription>();
+        public List<PrefabProject> PrefabsCollection { get; set; } = new List<PrefabProject>();
 
         public ApplicationDescription()
         {
@@ -51,27 +51,27 @@ namespace Pixel.Automation.Core.Models
             this.ApplicationDetails = applicationDetails;          
         }
 
-        public void AddPrefab(PrefabDescription prefabDescription)
+        public void AddPrefab(PrefabProject prefabProject)
         {
-            if(!this.AvailablePrefabs.Contains(prefabDescription.PrefabId))
+            if(!this.AvailablePrefabs.Contains(prefabProject.PrefabId))
             {
-                this.AvailablePrefabs.Add(prefabDescription.PrefabId);
+                this.AvailablePrefabs.Add(prefabProject.PrefabId);
             }
-            if(!this.PrefabsCollection.Contains(prefabDescription))
+            if(!this.PrefabsCollection.Contains(prefabProject))
             {
-                this.PrefabsCollection.Add(prefabDescription);
+                this.PrefabsCollection.Add(prefabProject);
             }
         }
 
-        public void DeletePrefab(PrefabDescription prefabDescription)
+        public void DeletePrefab(PrefabProject prefabProject)
         {
-            if (this.AvailablePrefabs.Contains(prefabDescription.PrefabId))
+            if (this.AvailablePrefabs.Contains(prefabProject.PrefabId))
             {
-                this.AvailablePrefabs.Remove(prefabDescription.PrefabId);
+                this.AvailablePrefabs.Remove(prefabProject.PrefabId);
             }
-            if (this.PrefabsCollection.Contains(prefabDescription))
+            if (this.PrefabsCollection.Contains(prefabProject))
             {
-                this.PrefabsCollection.Remove(prefabDescription);
+                this.PrefabsCollection.Remove(prefabProject);
             }
         }
 

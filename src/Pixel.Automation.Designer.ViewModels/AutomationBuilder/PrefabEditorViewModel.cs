@@ -19,6 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels
     {
         private readonly IServiceResolver serviceResolver;
         private readonly IPrefabProjectManager projectManager;    
+      
         #region constructor
 
         public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
@@ -34,24 +35,24 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #region Automation Project
        
-        public PrefabDescription PrefabDescription { get; private set; }       
+        public PrefabProject PrefabProject { get; private set; }       
 
-        public virtual void DoLoad(PrefabDescription prefabDescription, VersionInfo versionToLoad = null)
+        public virtual void DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
         {
-            Debug.Assert(prefabDescription != null);
+            Debug.Assert(prefabProject != null);
    
-            this.PrefabDescription = prefabDescription;
-            this.DisplayName = prefabDescription.PrefabName;
+            this.PrefabProject = prefabProject;
+            this.DisplayName = prefabProject.PrefabName;
 
-            var targetVersion = versionToLoad ?? PrefabDescription.ActiveVersion;
+            var targetVersion = versionToLoad ?? PrefabProject.ActiveVersion;
             if (targetVersion != null)
             {
-                this.projectManager.Load(prefabDescription, targetVersion);
+                this.projectManager.Load(prefabProject, targetVersion);
                 UpdateWorkFlowRoot();
                 return;
             }
 
-            throw new InvalidDataException($"No active version could be located for project : {this.PrefabDescription.PrefabName}");
+            throw new InvalidDataException($"No active version could be located for project : {this.PrefabProject.PrefabName}");
          
         }
 
@@ -66,10 +67,10 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
                 {
-                    await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabDescription.PrefabName, File.ReadAllText(file), false);
+                    await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
                 }
-                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName, string.Empty, false);
-                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabDescription.PrefabName);                            
+                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
+                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);                            
              
                 await this.windowManager.ShowDialogAsync(editor);               
             }
@@ -91,12 +92,12 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             await DoSave();
 
-            var versionManager = this.versionManagerFactory.CreatePrefabVersionManager(this.PrefabDescription);          
+            var versionManager = this.versionManagerFactory.CreatePrefabVersionManager(this.PrefabProject);          
             var result  = await this.windowManager.ShowDialogAsync(versionManager);
             if(result.HasValue && result.Value)
             {
                 var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-                fileSystem.SwitchToVersion(this.PrefabDescription.ActiveVersion);
+                fileSystem.SwitchToVersion(this.PrefabProject.ActiveVersion);
 
                 //This will update Code editor and script editor to point to the new workspace directory
                 //This will update Code editor and script editor to point to the new workspace directory
@@ -108,7 +109,6 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
         #endregion Save project
-
 
         protected override async Task CloseAsync()
         {

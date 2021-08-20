@@ -13,15 +13,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly ILogger logger = Log.ForContext<NewPrefabViewModel>();
 
         private ApplicationDescription applicationDescription;
-        private PrefabDescription prefabDescription;
+        private PrefabProject prefabProject;
 
         public string PrefabName
         {
-            get => prefabDescription.PrefabName;
+            get => prefabProject.PrefabName;
             set
             {
-                prefabDescription.PrefabName = value.Trim();
-                prefabDescription.NameSpace = "Pixel.Automation.Prefabs." + prefabDescription.GetPrefabName();
+                prefabProject.PrefabName = value.Trim();
+                prefabProject.NameSpace = "Pixel.Automation.Prefabs." + prefabProject.GetPrefabName();
                 NotifyOfPropertyChange(PrefabName);           
                 ValidateProperty(nameof(PrefabName));
             }
@@ -29,10 +29,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public string GroupName
         {
-            get => prefabDescription.GroupName;
+            get => prefabProject.GroupName;
             set
             {
-                prefabDescription.GroupName = value;
+                prefabProject.GroupName = value;
                 NotifyOfPropertyChange();
                 ValidateProperty(nameof(GroupName));
             }
@@ -40,10 +40,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public string Description
         {
-            get => prefabDescription.Description;
+            get => prefabProject.Description;
             set
             {
-                prefabDescription.Description = value;
+                prefabProject.Description = value;
                 NotifyOfPropertyChange();
                 ValidateProperty(nameof(Description));
             }
@@ -51,12 +51,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
 
 
-        public NewPrefabViewModel(ApplicationDescription applicationDescription, PrefabDescription prefabToolBoxItem)
+        public NewPrefabViewModel(ApplicationDescription applicationDescription, PrefabProject prefabToolBoxItem)
         {
             this.applicationDescription = applicationDescription;
-            this.prefabDescription = prefabToolBoxItem;
-            this.prefabDescription.PrefabName = "Prefab";
-            this.prefabDescription.Description = "Description";
+            this.prefabProject = prefabToolBoxItem;
+            this.prefabProject.PrefabName = "Prefab";
+            this.prefabProject.Description = "Description";
         }
        
         public bool CanTryProcessStage
@@ -77,7 +77,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public override object GetProcessedResult()
         {
-            return this.prefabDescription;
+            return this.prefabProject;
         }
 
         protected override Task OnActivateAsync(CancellationToken cancellationToken)

@@ -11,6 +11,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
     {
         IVersionManager CreateProjectVersionManager(AutomationProject automationProject);
 
-        IVersionManager CreatePrefabVersionManager(PrefabDescription prefabDescription);
+        IVersionManager CreatePrefabVersionManager(PrefabProject prefabProject);
     }
 }

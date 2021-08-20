@@ -41,11 +41,11 @@ namespace Pixel.Automation.Core.Models
         /// <summary>
         /// Check if the automation process uses a prefab whose details are provided
         /// </summary>
-        /// <param name="prefabDescription"></param>
+        /// <param name="prefabProject"></param>
         /// <returns></returns>
-        public bool HasReference(PrefabDescription prefabDescription)
+        public bool HasReference(PrefabProject prefabProject)
         {
-            return References.Any(a => a.Equals(prefabDescription));
+            return References.Any(a => a.Equals(prefabProject));
         }
 
         /// <summary>
@@ -74,16 +74,16 @@ namespace Pixel.Automation.Core.Models
         /// <summary>
         /// Get the version of Prefab in use by Automation process
         /// </summary>
-        /// <param name="prefabDescription"></param>
+        /// <param name="prefabProject"></param>
         /// <returns></returns>
-        public PrefabVersion GetPrefabVersionInUse(PrefabDescription prefabDescription)
+        public PrefabVersion GetPrefabVersionInUse(PrefabProject prefabProject)
         {
-            var reference = References.FirstOrDefault(a => a.Equals(prefabDescription));
+            var reference = References.FirstOrDefault(a => a.Equals(prefabProject));
             if (reference != null)
             {
                 return reference.Version;
             }
-            throw new InvalidOperationException($"Failed to get version in use. No reference exists for Prefab with Id : {prefabDescription.PrefabId}");
+            throw new InvalidOperationException($"Failed to get version in use. No reference exists for Prefab with Id : {prefabProject.PrefabId}");
         }
     }
 
@@ -143,7 +143,7 @@ namespace Pixel.Automation.Core.Models
             {
                 return pr.ApplicationId.Equals(this.ApplicationId) && pr.PrefabId.Equals(this.PrefabId);
             }
-            if (obj is PrefabDescription pd)
+            if (obj is PrefabProject pd)
             {
                 return pd.ApplicationId.Equals(this.ApplicationId) && pd.PrefabId.Equals(this.PrefabId);
             }

@@ -83,7 +83,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             });
         }
 
-        private void OnPrefabCreated(object sender, PrefabDescription e)
+        private void OnPrefabCreated(object sender, PrefabProject e)
         {
             try
             {

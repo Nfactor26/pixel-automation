@@ -44,12 +44,12 @@ namespace Pixel.Automation.Core
         public void Initialize(string applicationId, string prefabId)
         {
             this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
-            PrefabDescription prefabDescription = this.serializer.Deserialize<PrefabDescription>(this.PrefabDescriptionFile);
-            var deployedVersions = prefabDescription.DeployedVersions.OrderBy(a => a.Version);
+            PrefabProject prefabProject = this.serializer.Deserialize<PrefabProject>(this.PrefabDescriptionFile);
+            var deployedVersions = prefabProject.DeployedVersions.OrderBy(a => a.Version);
             var latestVersion = deployedVersions.LastOrDefault();
             if (latestVersion == null)
             {
-                throw new InvalidOperationException($"There is no deployed version for prefab : {prefabDescription.PrefabName}");
+                throw new InvalidOperationException($"There is no deployed version for prefab : {prefabProject.PrefabName}");
             }
             Initialize(applicationId, prefabId, latestVersion);
         }

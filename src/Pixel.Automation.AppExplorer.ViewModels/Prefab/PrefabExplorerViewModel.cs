@@ -32,9 +32,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
        
-        public BindableCollection<PrefabDescription> Prefabs { get; set; } = new BindableCollection<PrefabDescription>();
+        public BindableCollection<PrefabProject> Prefabs { get; set; } = new BindableCollection<PrefabProject>();
       
-        public PrefabDescription SelectedPrefab { get; set; }
+        public PrefabProject SelectedPrefab { get; set; }
 
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
@@ -70,8 +70,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     string prefabFile = Path.Combine("Applications", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
                     if(File.Exists(prefabFile))
                     {
-                        PrefabDescription prefabDescription = serializer.Deserialize<PrefabDescription>(prefabFile);
-                        application.PrefabsCollection.Add(prefabDescription);
+                        PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabFile);
+                        application.PrefabsCollection.Add(prefabProject);
                         continue;
                     }
                     logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
@@ -99,7 +99,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Open Prefab for Edit in Designer
         /// </summary>
         /// <param name="prefabToEdit"></param>
-        public void EditPrefab(PrefabDescription prefabToEdit)
+        public void EditPrefab(PrefabProject prefabToEdit)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public async Task ManagePrefab(PrefabDescription targetPrefab)
+        public async Task ManagePrefab(PrefabProject targetPrefab)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         /// <param name="targetPrefab"></param>
         /// <returns></returns>
-        public async Task ShowUsage(PrefabDescription targetPrefab)
+        public async Task ShowUsage(PrefabProject targetPrefab)
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("prefab", targetPrefab.PrefabId));
         }
@@ -162,19 +162,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private void CreateCollectionView()
         {
             var groupedItems = CollectionViewSource.GetDefaultView(Prefabs);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PrefabDescription.GroupName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabDescription.GroupName), ListSortDirection.Ascending));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabDescription.PrefabName), ListSortDirection.Ascending));
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PrefabProject.GroupName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabProject.GroupName), ListSortDirection.Ascending));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabProject.PrefabName), ListSortDirection.Ascending));
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as PrefabDescription).PrefabName.ToLower().Contains(this.filterText.ToLower());
+                return (a as PrefabProject).PrefabName.ToLower().Contains(this.filterText.ToLower());
             });
         }
 
         #endregion Filter
 
-        public event EventHandler<PrefabDescription> PrefabCreated = delegate { };
-        protected virtual void OnPrefabCreated(PrefabDescription createdPrefab)
+        public event EventHandler<PrefabProject> PrefabCreated = delegate { };
+        protected virtual void OnPrefabCreated(PrefabProject createdPrefab)
         {
             this.PrefabCreated(this, createdPrefab);
         }

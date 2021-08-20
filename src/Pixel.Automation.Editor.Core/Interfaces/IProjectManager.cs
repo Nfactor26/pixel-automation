@@ -37,6 +37,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
     public interface IPrefabProjectManager : IProjectManager
     {
-        Entity Load(PrefabDescription prefabDescription, VersionInfo versionInfo);
+        Entity Load(PrefabProject prefabProject, VersionInfo versionInfo);
     }
 }

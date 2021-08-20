@@ -105,11 +105,11 @@ namespace Pixel.Persistence.Services.Client
         Task DownloadProjectsAsync();
 
 
-        Task AddOrUpdatePrefabDescriptionAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion);
+        Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
-        Task AddOrUpdatePrefabDataFilesAsync(PrefabDescription prefabDescription, VersionInfo prefabVersion);
+        Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
-        Task DownloadPrefabDescriptionFileAsync(string applicationId, string prefabId);
+        Task DownloadPrefabFileAsync(string applicationId, string prefabId);
 
         Task DownloadPrefabDataAsync(string applicationId, string prefabId, string version);
     }
