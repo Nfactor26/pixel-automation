@@ -2,7 +2,7 @@
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
-    public interface IEditorFactory
+    public interface IEditorFactory : IDisposable
     {
         /// <summary>
         /// Initialize the editor factory with initial working directory and a collection of assembly names that should be referenced

@@ -74,5 +74,15 @@ namespace Pixel.Scripting.Script.Editor
         {
             throw new NotImplementedException();
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            this.editorService.Dispose();
+        }
     }
 }
