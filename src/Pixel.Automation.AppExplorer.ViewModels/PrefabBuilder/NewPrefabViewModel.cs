@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Models;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Serilog;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             set
             {
                 prefabProject.PrefabName = value.Trim();
-                prefabProject.NameSpace = "Pixel.Automation.Prefabs." + prefabProject.GetPrefabName();
+                prefabProject.NameSpace = $"{Constants.PrefabDataModelName}.{this.prefabProject.GetPrefabName()}";
                 NotifyOfPropertyChange(PrefabName);           
                 ValidateProperty(nameof(PrefabName));
             }

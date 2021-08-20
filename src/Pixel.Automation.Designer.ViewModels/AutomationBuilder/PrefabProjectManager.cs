@@ -41,7 +41,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             ConfigureCodeEditor();
           
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
 
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
@@ -160,7 +160,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             await this.Save();
             this.Initialize();
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
         }

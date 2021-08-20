@@ -8,6 +8,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Notfications;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -29,6 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
+        private readonly IApplicationDataManager applicationDataManager;
         private ApplicationDescription activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
        
@@ -39,14 +41,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IVersionManagerFactory versionManagerFactory,
+            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
             IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
-            this.eventAggregator = eventAggregator;
-            this.prefabBuilderFactory = prefabBuilderFactory;
-            this.windowManager = windowManager;
-            this.serializer = serializer;         
-            this.versionManagerFactory = versionManagerFactory;          
+            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
+            this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
             CreateCollectionView();
         }
 
@@ -65,16 +68,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             if(application.PrefabsCollection.Count() == 0)
             {
-                foreach(var prefabId in application.AvailablePrefabs)
+                foreach(var prefab in applicationDataManager.GetAllPrefabs(application.ApplicationId))
                 {
-                    string prefabFile = Path.Combine("Applications", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
-                    if(File.Exists(prefabFile))
-                    {
-                        PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabFile);
-                        application.PrefabsCollection.Add(prefabProject);
-                        continue;
-                    }
-                    logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
+                    application.AddPrefab(prefab);
                 }
             }       
         }

@@ -104,6 +104,12 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         Task DownloadProjectsAsync();
 
+        /// <summary>
+        /// Load all the prefabs for a given applicationId from local storage
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        IEnumerable<PrefabProject> GetAllPrefabs(string applicationId);
 
         Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 

@@ -98,7 +98,7 @@ namespace Pixel.Persistence.Services.Client
         {
             foreach (var app in Directory.GetDirectories(this.applicationSettings.ApplicationDirectory))
             {
-                string appFile = Directory.GetFiles(Path.Combine(this.applicationSettings.ApplicationDirectory, new DirectoryInfo(app).Name), "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                string appFile = Directory.GetFiles(app, "*.app", SearchOption.TopDirectoryOnly).FirstOrDefault();
                 ApplicationDescription application = serializer.Deserialize<ApplicationDescription>(appFile);
                 yield return application;
             }
@@ -449,6 +449,29 @@ namespace Pixel.Persistence.Services.Client
 
         #region Prefabs
 
+
+        /// <summary>
+        /// Get all the applications available on disk
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
+        {
+            var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory);
+            foreach (var prefab in Directory.GetDirectories(prefabDirectory))
+            {
+                string prefabFile = Directory.GetFiles(prefab, "*.dat", SearchOption.TopDirectoryOnly).FirstOrDefault();             
+                if (File.Exists(prefabFile))
+                {
+                    PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabFile);
+                    yield return prefabProject;
+                    continue;
+                }
+                logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
+            }
+            yield break;
+        }
+
+
         public async Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             if (IsOnlineMode)
@@ -475,7 +498,7 @@ namespace Pixel.Persistence.Services.Client
                         throw new ArgumentException($"Version {prefabVersion.ToString()} data directory doesn't exist for prefab : {prefabProject.PrefabName}");
                     }
                     string prefabsDirectory = Path.GetDirectoryName(prefabFileSystem.PrefabDescriptionFile);
-                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabProject.PrefabName}.zip");
+                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabProject.PrefabId}.zip");
                     if (File.Exists(zipLocation))
                     {
                         File.Delete(zipLocation);
@@ -493,7 +516,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 var prefabProject = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
                 var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId);
-                var prefabDescriptionFile = Path.Combine(prefabDirectory, "PrefabDescription.dat");
+                var prefabDescriptionFile = Path.Combine(prefabDirectory, $"{prefabId}.dat");
                 if(!Directory.Exists(prefabDirectory))
                 {
                     Directory.CreateDirectory(prefabDirectory);

@@ -34,16 +34,16 @@ namespace Pixel.Automation.Core
             this.prefabId = prefabId;        
 
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, version.ToString());    
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
-            this.PrefabFile = Path.Combine(this.WorkingDirectory, "Prefab.dat");
-            this.TemplateFile = Path.Combine(this.WorkingDirectory, "Template.dat");
+            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, $"{prefabId}.dat");
+            this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabEntityFileName);
+            this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
 
             base.Initialize();
         }
 
         public void Initialize(string applicationId, string prefabId)
         {
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, "PrefabDescription.dat");
+            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, $"{prefabId}.dat");
             PrefabProject prefabProject = this.serializer.Deserialize<PrefabProject>(this.PrefabDescriptionFile);
             var deployedVersions = prefabProject.DeployedVersions.OrderBy(a => a.Version);
             var latestVersion = deployedVersions.LastOrDefault();

@@ -42,9 +42,9 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, versionInfo.ToString());
             
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, "PrefabDescription.dat"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "Prefab.dat"), prefabFileSystem.PrefabFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "Template.dat"), prefabFileSystem.TemplateFile);            
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, $"{prefabId}.dat"), prefabFileSystem.PrefabDescriptionFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabEntityFileName), prefabFileSystem.PrefabFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);            
 
         }
 
@@ -58,9 +58,9 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, versionInfo.ToString());
             prefabFileSystem.SwitchToVersion(versionInfo);
 
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, "PrefabDescription.dat"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "Prefab.dat"), prefabFileSystem.PrefabFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "Template.dat"), prefabFileSystem.TemplateFile);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, $"{prefabId}.dat"), prefabFileSystem.PrefabDescriptionFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabEntityFileName), prefabFileSystem.PrefabFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);
         }
     }
 }
