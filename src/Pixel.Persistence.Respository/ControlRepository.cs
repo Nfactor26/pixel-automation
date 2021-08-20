@@ -150,7 +150,8 @@ namespace Pixel.Persistence.Respository
         {
             Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
 
-            var filter = Builders<BsonDocument>.Filter.Empty;
+            var filterBuilder = Builders<BsonDocument>.Filter;
+            var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
             var projection = Builders<BsonDocument>.Projection.Include("ControlId").Include("LastUpdated");
             var results = await controlsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
             foreach (var doc in results)
