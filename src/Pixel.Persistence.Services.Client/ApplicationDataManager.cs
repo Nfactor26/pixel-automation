@@ -457,6 +457,10 @@ namespace Pixel.Persistence.Services.Client
         public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
         {
             var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory);
+            if(!Directory.Exists(prefabDirectory))
+            {
+                yield break;
+            }
             foreach (var prefab in Directory.GetDirectories(prefabDirectory))
             {
                 string prefabFile = Directory.GetFiles(prefab, "*.dat", SearchOption.TopDirectoryOnly).FirstOrDefault();             
