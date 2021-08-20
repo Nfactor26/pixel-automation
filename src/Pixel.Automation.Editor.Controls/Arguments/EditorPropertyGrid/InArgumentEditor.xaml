@@ -6,6 +6,7 @@
              xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:local="clr-namespace:Pixel.Automation.Editor.Controls.Arguments"
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Controls.Converters"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" x:Name="InArgumentControl"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -19,7 +20,7 @@
         <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True">
 
             <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=InArgumentControl,Converter={StaticResource BoolToVis}}"                    
-                    Click="ChangeArgumentType" Style="{DynamicResource ChangeArgumentTypeButtonStyle}" Height="26" 
+                    Click="ChangeArgumentType" Style="{DynamicResource ChangeArgumentTypeButtonStyle}" 
                     ToolTip="Change Type" DockPanel.Dock="Right"/>
 
             <ToggleButton x:Name="ArgumentModeToggle" IsThreeState="True" Style="{DynamicResource InArgumentToggleStateStyle}" Width="28"                         
@@ -44,8 +45,11 @@
 
                 <DockPanel Visibility="{Binding Argument.Mode,ElementName=InArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
                     ConverterParameter=VisibleOnScripted}" LastChildFill="True">
-                    <Button x:Name="ScriptEditorButton" Content="E"  Click="ShowScriptEditor" Style="{DynamicResource EditScriptButtonStyle}" Height="26"
-                            ToolTip="Open Script editor" Padding="5"  BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC" DockPanel.Dock="Right"></Button>
+                    <Button x:Name="BrowseScriptButton" Click="BrowseScript" Style="{StaticResource SquaredButtonStyle}"
+                        Content="{iconPacks:Entypo DotsThreeHorizontal}" Width="24" ToolTip="Browse for Script" 
+                        BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
+                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource EditScriptButtonStyle}"
+                        Width="26" ToolTip="Open Script editor" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                     <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=InArgumentControl}" BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
                 </DockPanel>
 

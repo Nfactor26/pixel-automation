@@ -2,7 +2,7 @@
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
-    public interface ITestExplorer : IDisposable
+    public interface ITestExplorer
     {
         /// <summary>
         /// Sets the TestRepositoryManager instance belonging to an Automation process.

@@ -51,7 +51,7 @@ namespace Pixel.Automation.Designer.Views
                     targetPropertyItem.Editor = new KeyEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.DisplayName.EndsWith("Script"))
+                if (targetPropertyItem.PropertyDescriptor.Name.EndsWith("ScriptFile"))
                 {
                     targetPropertyItem.Editor = new ScriptFileEditor().ResolveEditor(targetPropertyItem);
                     return;

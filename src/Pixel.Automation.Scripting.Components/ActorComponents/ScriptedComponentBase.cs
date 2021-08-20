@@ -14,8 +14,8 @@ namespace Pixel.Automation.Scripting.Components
     public abstract class ScriptedComponentBase : AsyncActorComponent
     {
         protected string scriptFile;
-        [DataMember]
-        [Browsable(false)]
+        [DataMember]      
+        [DisplayName("Script File")]
         public string ScriptFile
         {
             get => scriptFile;

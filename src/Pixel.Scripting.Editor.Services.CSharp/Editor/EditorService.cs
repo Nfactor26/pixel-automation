@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Script.Editor.Services.CSharp
 {
-    public class EditorService : IEditorService
+    public class EditorService : IEditorService, IDisposable
     {
         private readonly ILogger logger = Log.ForContext<EditorService>();
         private readonly string Identifier = Guid.NewGuid().ToString();
@@ -356,6 +356,24 @@ namespace Pixel.Script.Editor.Services.CSharp
         {
             return await this.runCodeActionService.RunCodeActionAsync(runCodeActionsRequest);
         }
-       
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                this.workspaceManager?.Dispose();
+                this.workspaceManager = null;              
+                logger.Debug("EditorService : {0} is disposed now.", this.Identifier);
+            }
+        }
+
+        #endregion IDisposable
     }
 }

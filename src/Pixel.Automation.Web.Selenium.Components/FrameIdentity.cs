@@ -20,7 +20,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         ///  For ex : id,name,css3selector,etc.
         /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
-        [Display(Name = "Find By", GroupName = "Configuration", Order = 10, Description = "FindBy strategy used to search for frame")]
+        [Display(Name = "Find By", GroupName = "Configuration", Order = 10, Description = "FindBy strategy used to search for frame. Supported values are Id, Name, Index, CssSelector, XPath")]
         public virtual string FindByStrategy
         {
             get
@@ -60,7 +60,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public FrameIdentity()
         {
-
+            FindByStrategy = "Name";
         }
 
         public override string ToString()
@@ -86,19 +86,5 @@ namespace Pixel.Automation.Web.Selenium.Components
         {            
             return obj.GetHashCode();
         }
-    }
-
-    //class FindFrameByItemsSource : IItemsSource
-    //{
-    //    public ItemCollection GetValues()
-    //    {
-    //        ItemCollection strategies = new ItemCollection();
-    //        strategies.Add("Id");
-    //        strategies.Add("Index");
-    //        strategies.Add("CssSelector");         
-    //        strategies.Add("Name");           
-    //        strategies.Add("XPath");
-    //        return strategies;
-    //    }
-    //}
+    }    
 }

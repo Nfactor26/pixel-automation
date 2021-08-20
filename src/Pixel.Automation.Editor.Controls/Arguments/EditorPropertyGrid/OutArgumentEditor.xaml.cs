@@ -29,6 +29,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
         public FrameworkElement ResolveEditor(PropertyItem propertyItem)
         {
+            this.propertyItem = propertyItem;
             this.OwnerComponent = propertyItem.Instance as Component;
             this.Argument = propertyItem.Instance.GetType().GetProperty(propertyItem.PropertyName).GetValue(propertyItem.Instance) as Argument;          
             return this;           

@@ -120,7 +120,7 @@ namespace Pixel.Automation.Core.Components
 
         private ControlDescription controlDescription;
         [Browsable(false)]
-        protected ControlDescription ControlDescription
+        public ControlDescription ControlDescription
         {
             get
             {

@@ -24,10 +24,9 @@
                 <StackPanel Orientation="Horizontal"   DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="320" Margin="{StaticResource RowMargin}">
                     <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
-                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>                      
-                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" Style="{DynamicResource VerticalDotsButtonStyle}"                          
-                            cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]"                         
-                            DockPanel.Dock="Right" Width="16" />
+                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>
+                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" Style="{StaticResource ShowDialogButtonStyle}" 
+                                cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]" DockPanel.Dock="Right"/>
                         <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" BorderThickness="1,1,0,1"
                             Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                             controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
@@ -43,9 +42,10 @@
 
                     <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}" MaxHeight="38">
                         <Label Content="File" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center" ></Label>
-                        <Button x:Name="BrowseForFile" Margin="{StaticResource ButtonMargin}" Style="{DynamicResource VerticalDotsButtonStyle}"                               
-                                cal:Message.Attach="[Event Click] = [Action BrowseForFile()]" VerticalAlignment="Center"
-                                DockPanel.Dock="Right" Width="16" />
+                        <Button x:Name="BrowseForFile" Margin="{StaticResource ButtonMargin}" 
+                                Style="{StaticResource ShowDialogButtonStyle}"
+                                cal:Message.Attach="[Event Click] = [Action BrowseForFile()]"
+                                DockPanel.Dock="Right"/>
                         <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" BorderThickness="1,1,0,1"
                             Text="{Binding DataFileName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                             controls:TextBoxHelper.Watermark="csv data file" HorizontalAlignment="Stretch"
@@ -64,10 +64,9 @@
 
                     <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
                         <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>                        
-                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}" VerticalAlignment="Center"                            
+                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}"                            
                                 cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]" 
-                                Style="{DynamicResource VerticalDotsButtonStyle}"
-                                DockPanel.Dock="Right" Width="16"/>
+                                Style="{StaticResource ShowDialogButtonStyle}" DockPanel.Dock="Right"/>
                         <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" IsReadOnly="True" BorderThickness="1,1,0,1"
                             Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                             controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"

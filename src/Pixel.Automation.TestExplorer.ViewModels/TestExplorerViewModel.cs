@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using System.Linq;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -9,7 +8,20 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     {
         private readonly object locker = new object();
 
-        public ITestRepositoryManager ActiveInstance { get; set; }
+        private ITestRepositoryManager activeInstance;
+        public ITestRepositoryManager ActiveInstance
+        {
+            get => this.activeInstance;
+            set
+            {
+                this.activeInstance = value;
+                NotifyOfPropertyChange(nameof(ActiveInstance));
+            }
+        }
+        public bool IsTestProcessOpen
+        {
+            get => this.ActiveInstance != null;
+        }
 
         public override PaneLocation PreferredLocation => PaneLocation.Left;
      
@@ -24,9 +36,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             lock (locker)
             {
                 this.ActiveInstance = instance as TestRepositoryManager;
-            }
+            }        
          
-            NotifyOfPropertyChange(nameof(ActiveInstance));
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
         }
 
@@ -35,24 +46,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             lock(locker)
             {
                 this.ActiveInstance = null;               
-            }
-            NotifyOfPropertyChange(nameof(ActiveInstance));
+            }         
             NotifyOfPropertyChange(nameof(IsTestProcessOpen));
-        }
+        } 
 
-        public bool IsTestProcessOpen
-        {
-            get => this.ActiveInstance != null;
-        }
-
-        protected virtual void Dispose(bool isDisposing)
-        {
-            ClearActiveInstance();
-        }
-     
-        public void Dispose()
-        {
-            Dispose(true);
-        }
     }
 }

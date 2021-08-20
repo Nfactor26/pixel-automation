@@ -107,6 +107,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
         {
             this.view = view as FrameworkElement;
             base.OnViewReady(view);
+            this.SelectedControl = leafControl;
         }
 
         public void Initialize(ControlDescription targetControl)

@@ -154,7 +154,7 @@ namespace Pixel.Persistence.Services.Client
                     List<string> controlsToDownload = new List<string>();
                     foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
                     {
-                        bool isNewerControlVersionAvailable = localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && (c.LastUpdated < controlMetaData.LastUpdated)) ?? false;
+                        bool isNewerControlVersionAvailable = localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && (c.LastUpdated < controlMetaData.LastUpdated)) ?? true;
                         if (!isNewerControlVersionAvailable)
                         {
                             continue;

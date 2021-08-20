@@ -44,8 +44,8 @@ namespace Pixel.Automation.Core.Components.Tests
                 EntityManager = entityManager,
                 ApplicationId = "MockId",
                 PrefabId = "PrefabId",
-                InputMappingScript = "InputMappingScript.csx",
-                OutputMappingScript = "OutputMappingScript.csx"
+                InputMappingScriptFile = "InputMappingScript.csx",
+                OutputMappingScriptFile = "OutputMappingScript.csx"
             };
 
             Assert.AreEqual(0, prefabEntity.Components.Count);
@@ -79,8 +79,8 @@ namespace Pixel.Automation.Core.Components.Tests
                 EntityManager = entityManager,
                 ApplicationId = "MockId",
                 PrefabId = "PrefabId",
-                InputMappingScript = "InputMappingScript.csx",
-                OutputMappingScript = "OutputMappingScript.csx"
+                InputMappingScriptFile = "InputMappingScript.csx",
+                OutputMappingScriptFile = "OutputMappingScript.csx"
             };
 
             var component = Substitute.For<IComponent>();

@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Microsoft.Win32;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
@@ -91,22 +92,71 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             }
         }
 
+        /// <summary>
+        /// Open the script editor to edit the script file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
         public async void ShowScriptEditor(object sender, RoutedEventArgs e)
         {
-            if (OwnerComponent == null && Argument == null)
+            try
             {
-                return;
-            }
-            InitializeScriptName();
+                if (OwnerComponent == null && Argument == null)
+                {
+                    return;
+                }
+                InitializeScriptName();
 
-            var entityManager = this.OwnerComponent.EntityManager;
-            IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
-            IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-            Func<IComponent, string> scriptDefaultValueGetter = (a) =>
+                var entityManager = this.OwnerComponent.EntityManager;
+                IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
+                IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                Func<IComponent, string> scriptDefaultValueGetter = (a) =>
+                {
+                    return Argument.GenerateInitialScript();
+                };
+                await editorFactory.CreateAndShowDialogAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);
+            }
+            catch (Exception ex)
             {
-                return Argument.GenerateInitialScript();
-            };
-            await editorFactory.CreateAndShowDialogAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Open the file browser to browse for a script file.       
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void BrowseScript(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (OwnerComponent == null)
+                {
+                    return;
+                }
+                string existingScriptFile = Argument.ScriptFile;
+
+                var entityManager = this.OwnerComponent.EntityManager;
+                var fileSystem = entityManager.GetServiceOfType<IProjectFileSystem>();
+
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "CSX File (*.csx)|*.csx";
+                openFileDialog.InitialDirectory = fileSystem.ScriptsDirectory;
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, openFileDialog.FileName);
+                    logger.Information("ScriptFile for argument belonging to {Component} was updated to {ScriptFile} ", OwnerComponent, Argument.ScriptFile);
+                    return;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         public async void ChangeArgumentType(object sender, RoutedEventArgs e)
