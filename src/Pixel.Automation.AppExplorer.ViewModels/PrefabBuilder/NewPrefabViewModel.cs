@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Serilog;
@@ -13,7 +14,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
     {
         private readonly ILogger logger = Log.ForContext<NewPrefabViewModel>();
 
-        private ApplicationDescription applicationDescription;
+        private ApplicationDescriptionViewModel applicationDescriptionViewModel;
         private PrefabProject prefabProject;
 
         public string PrefabName
@@ -52,9 +53,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
 
 
-        public NewPrefabViewModel(ApplicationDescription applicationDescription, PrefabProject prefabToolBoxItem)
+        public NewPrefabViewModel(ApplicationDescriptionViewModel applicationDescriptionViewModel, PrefabProject prefabToolBoxItem)
         {
-            this.applicationDescription = applicationDescription;
+            this.applicationDescriptionViewModel = applicationDescriptionViewModel;
             this.prefabProject = prefabToolBoxItem;
             this.prefabProject.PrefabName = "Prefab";
             this.prefabProject.Description = "Description";
@@ -101,9 +102,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     {
                         AddOrAppendErrors(nameof(PrefabName), $"Value is not in expected format. Only characters, underscore and dots are allowed");
                     }
-                    if (this.applicationDescription.PrefabsCollection.Any(p => p.PrefabName.Equals(PrefabName)))
+                    if (this.applicationDescriptionViewModel.PrefabsCollection.Any(p => p.PrefabName.Equals(PrefabName)))
                     {
-                        AddOrAppendErrors(nameof(PrefabName), $"Prefab with name {PrefabName} already exists for application {this.applicationDescription.ApplicationName}");                  
+                        AddOrAppendErrors(nameof(PrefabName), $"Prefab with name {PrefabName} already exists for application {this.applicationDescriptionViewModel.ApplicationName}");                  
                     }
                     break;            
                 case nameof(GroupName):

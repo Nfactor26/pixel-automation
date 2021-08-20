@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Microsoft.Win32;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -30,7 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
 
-        private ApplicationDescription activeApplication;
+        private ApplicationDescriptionViewModel activeApplication;
 
         public BindableCollection<ControlDescriptionViewModel> Controls { get; set; } = new BindableCollection<ControlDescriptionViewModel>();
 
@@ -152,21 +153,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         #endregion Edit ControlToolBoxItem
         
 
-        public void SetActiveApplication(ApplicationDescription application)
+        public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            this.activeApplication = application;
-            LoadControlDetails(application);
-
+            this.activeApplication = applicationDescriptionViewModel;
             this.Controls.Clear();
-            this.Controls.AddRange(this.activeApplication.ControlsCollection.Select(a => new ControlDescriptionViewModel(a)));
+            if(applicationDescriptionViewModel != null)
+            {
+                LoadControlDetails(applicationDescriptionViewModel);
+                this.Controls.AddRange(this.activeApplication.ControlsCollection);
+            }          
         }
 
-        private void LoadControlDetails(ApplicationDescription application)
+        private void LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            if (application.ControlsCollection.Count() == 0)
+            if (applicationDescriptionViewModel.ControlsCollection.Count() == 0)
             {
-                var controls = this.applicationDataManager.GetAllControls(application).ToList();
-                application.ControlsCollection.AddRange(controls);
+                var controls = this.applicationDataManager.GetAllControls(applicationDescriptionViewModel.Model).ToList();
+                foreach(var control in controls)
+                {
+                    applicationDescriptionViewModel.AddControl(new ControlDescriptionViewModel(control));
+                }
             }
         }     
 
@@ -256,9 +262,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 lock (locker)
                 {
-                    this.activeApplication.AddControl(controlToSave.ControlDescription);                   
+                    this.activeApplication.AddControl(controlToSave);                   
                 }
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication);
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
             }             
          
             var view = CollectionViewSource.GetDefaultView(Controls);

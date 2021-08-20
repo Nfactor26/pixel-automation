@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.DragDropHandler;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
@@ -16,7 +17,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using IPrefabEditorFactory = Pixel.Automation.Editor.Core.Interfaces.IEditorFactory;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -30,8 +30,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
-        private readonly IApplicationDataManager applicationDataManager;
-        private ApplicationDescription activeApplication;
+        private readonly IApplicationDataManager applicationDataManager;   
+        private ApplicationDescriptionViewModel activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
        
         public BindableCollection<PrefabProject> Prefabs { get; set; } = new BindableCollection<PrefabProject>();
@@ -53,24 +53,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             CreateCollectionView();
         }
 
-        public void SetActiveApplication(ApplicationDescription application)
+        public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(application).NotNull();
-
-            this.activeApplication = application;
-            LoadPrefabs(application);
+            this.activeApplication = applicationDescriptionViewModel;          
             this.Prefabs.Clear();
-            this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);            
+            if(applicationDescriptionViewModel != null)
+            {
+                LoadPrefabs(applicationDescriptionViewModel);
+                this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);
+            }                     
         }
 
 
-        private void LoadPrefabs(ApplicationDescription application)
+        private void LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            if(application.PrefabsCollection.Count() == 0)
+            if(applicationDescriptionViewModel.PrefabsCollection.Count() == 0)
             {
-                foreach(var prefab in applicationDataManager.GetAllPrefabs(application.ApplicationId))
+                foreach(var prefab in applicationDataManager.GetAllPrefabs(applicationDescriptionViewModel.ApplicationId))
                 {
-                    application.AddPrefab(prefab);
+                    applicationDescriptionViewModel.AddPrefab(prefab);
                 }
             }       
         }

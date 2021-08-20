@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -40,24 +41,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.applicationDataManager = applicationDataManager;
         }
 
-        public void Initialize(ApplicationDescription applicationItem, Entity rootEntity)
+        public void Initialize(ApplicationDescriptionViewModel applicationDescriptionViewModel, Entity rootEntity)
         {
-            logger.Information($"Create prefab initiated by user for application : {applicationItem.ApplicationName}");
+            logger.Information($"Create prefab initiated by user for application : {applicationDescriptionViewModel.ApplicationName}");
 
             this.stagedScreens.Clear();
             PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
             prefabToolBoxItem = new PrefabProject()
             {
-                ApplicationId = applicationItem.ApplicationId,
+                ApplicationId = applicationDescriptionViewModel.ApplicationId,
                 PrefabId = Guid.NewGuid().ToString(),            
                 AvailableVersions = new List<PrefabVersion>() { prefabVersion },
                 PrefabRoot = rootEntity
             };
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
-            prefabFileSystem.Initialize(applicationItem.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
+            prefabFileSystem.Initialize(applicationDescriptionViewModel.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
 
-            var prefabToolBoxViewModel = new NewPrefabViewModel(applicationItem, prefabToolBoxItem);
+            var prefabToolBoxViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
             //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
