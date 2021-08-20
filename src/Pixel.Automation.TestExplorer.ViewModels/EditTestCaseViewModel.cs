@@ -13,7 +13,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<EditTestCaseViewModel>();
         private readonly TestCaseViewModel testCase;
-        private readonly IEnumerable<TestCaseViewModel> existingTestCases;
+        private readonly IEnumerable<string> existingTestCases;
 
         public TestCaseViewModel CopyOfTestCase { get; }
 
@@ -68,7 +68,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
         {
             this.testCase = testCaseVM;
-            this.existingTestCases = existingTestCases;
+            this.existingTestCases = existingTestCases.Select(s => s.DisplayName);
             this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase, null);
             foreach (var tag in testCaseVM.Tags)
             {
@@ -135,7 +135,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 case nameof(TestCaseDisplayName):
                     ValidateRequiredProperty(nameof(TestCaseDisplayName), TestCaseDisplayName);
-                    if (this.existingTestCases.Any(a => a.DisplayName.Equals(TestCaseDisplayName)))
+                    if (this.existingTestCases.Any(a => a.Equals(TestCaseDisplayName)))
                     {
                         AddOrAppendErrors(nameof(TestCaseDisplayName), "Name must be unique.");
                     }

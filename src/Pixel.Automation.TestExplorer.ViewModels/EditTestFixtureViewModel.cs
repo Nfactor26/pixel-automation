@@ -12,7 +12,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<EditTestFixtureViewModel>();
         private readonly TestFixtureViewModel testFixtureVM;
-        private readonly IEnumerable<TestFixtureViewModel> existingFixtures;
+        private readonly IEnumerable<string> existingFixtures;
 
         public TestFixtureViewModel CopyOfTestFixture { get; }
 
@@ -71,7 +71,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public EditTestFixtureViewModel(TestFixtureViewModel testFixtureVM, IEnumerable<TestFixtureViewModel> existingFixtures)
         {
             this.testFixtureVM = testFixtureVM;
-            this.existingFixtures = existingFixtures;
+            this.existingFixtures = existingFixtures.Select(s => s.DisplayName);
             this.CopyOfTestFixture = new TestFixtureViewModel(testFixtureVM.TestFixture.Clone() as TestFixture);
             foreach (var tag in testFixtureVM.Tags)
             {
@@ -140,7 +140,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 case nameof(TestFixtureDisplayName):
                     ValidateRequiredProperty(nameof(TestFixtureDisplayName), TestFixtureDisplayName);
-                    if (this.existingFixtures.Any(a => a.DisplayName.Equals(TestFixtureDisplayName)))
+                    if (this.existingFixtures.Any(a => a.Equals(TestFixtureDisplayName)))
                     {
                         AddOrAppendErrors(nameof(TestFixtureDisplayName), "Name must be unique.");
                     }
