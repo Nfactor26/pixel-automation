@@ -39,17 +39,17 @@
         <iconPacks:PackIconFontAwesome x:Key="FireFox"   Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                    
                                        Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
                                        Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
-                                       Kind="FirefoxBrands" />
+                                       Kind="FirefoxBrands" x:Shared="false" />
    
         <iconPacks:PackIconFontAwesome x:Key="Chrome"  Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                         Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
                                         Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
-                                        Kind="ChromeBrands" />
+                                        Kind="ChromeBrands" x:Shared="false" />
       
         <iconPacks:PackIconFontAwesome x:Key="Edge"  Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"    
                                         Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
                                         Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
-                                        Kind="EdgeBrands" />
+                                        Kind="EdgeBrands" x:Shared="false"  />
         
         <DataTemplate x:Key="WebApplication">
             <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
