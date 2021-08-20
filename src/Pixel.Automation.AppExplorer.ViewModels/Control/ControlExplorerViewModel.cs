@@ -181,7 +181,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             
             //Make a copy of ControlDescription that is opened for edit
             var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
-            controlEditor.Initialize(controlToEdit.ControlDescription);
+            controlEditor.Initialize(copyOfControlToEdit);
             var result = await windowManager.ShowDialogAsync(controlEditor);
             //if save was clicked, assign back changes in ControlDetails to controlToEdit.
             //Editor only allows editing ControlDetails. Description won't be modified.
