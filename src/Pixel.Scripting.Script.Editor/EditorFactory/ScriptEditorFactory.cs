@@ -130,5 +130,15 @@ namespace Pixel.Scripting.Script.Editor
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveSearchPaths(searchPaths);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            this.editorService.Dispose();
+        }
     }
 }

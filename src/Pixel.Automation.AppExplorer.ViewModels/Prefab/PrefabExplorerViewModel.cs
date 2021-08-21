@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.DragDropHandler;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
@@ -8,6 +9,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Notfications;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -15,7 +17,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using IPrefabEditorFactory = Pixel.Automation.Editor.Core.Interfaces.IEditorFactory;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -29,52 +30,48 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
-        private ApplicationDescription activeApplication;
+        private readonly IApplicationDataManager applicationDataManager;   
+        private ApplicationDescriptionViewModel activeApplication;
         private IPrefabBuilderViewModelFactory prefabBuilderFactory;
        
-        public BindableCollection<PrefabDescription> Prefabs { get; set; } = new BindableCollection<PrefabDescription>();
+        public BindableCollection<PrefabProject> Prefabs { get; set; } = new BindableCollection<PrefabProject>();
       
-        public PrefabDescription SelectedPrefab { get; set; }
+        public PrefabProject SelectedPrefab { get; set; }
 
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IVersionManagerFactory versionManagerFactory,
+            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
             IPrefabBuilderViewModelFactory prefabBuilderFactory)
         {
-            this.eventAggregator = eventAggregator;
-            this.prefabBuilderFactory = prefabBuilderFactory;
-            this.windowManager = windowManager;
-            this.serializer = serializer;         
-            this.versionManagerFactory = versionManagerFactory;          
+            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
+            this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
             CreateCollectionView();
         }
 
-        public void SetActiveApplication(ApplicationDescription application)
+        public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(application).NotNull();
-
-            this.activeApplication = application;
-            LoadPrefabs(application);
+            this.activeApplication = applicationDescriptionViewModel;          
             this.Prefabs.Clear();
-            this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);            
+            if(applicationDescriptionViewModel != null)
+            {
+                LoadPrefabs(applicationDescriptionViewModel);
+                this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);
+            }                     
         }
 
 
-        private void LoadPrefabs(ApplicationDescription application)
+        private void LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            if(application.PrefabsCollection.Count() == 0)
+            if(applicationDescriptionViewModel.PrefabsCollection.Count() == 0)
             {
-                foreach(var prefabId in application.AvailablePrefabs)
+                foreach(var prefab in applicationDataManager.GetAllPrefabs(applicationDescriptionViewModel.ApplicationId))
                 {
-                    string prefabFile = Path.Combine("Applications", application.ApplicationId, "Prefabs", prefabId, "PrefabDescription.dat");
-                    if(File.Exists(prefabFile))
-                    {
-                        PrefabDescription prefabDescription = serializer.Deserialize<PrefabDescription>(prefabFile);
-                        application.PrefabsCollection.Add(prefabDescription);
-                        continue;
-                    }
-                    logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
+                    applicationDescriptionViewModel.AddPrefab(prefab);
                 }
             }       
         }
@@ -99,7 +96,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Open Prefab for Edit in Designer
         /// </summary>
         /// <param name="prefabToEdit"></param>
-        public void EditPrefab(PrefabDescription prefabToEdit)
+        public void EditPrefab(PrefabProject prefabToEdit)
         {
             try
             {
@@ -114,7 +111,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public async Task ManagePrefab(PrefabDescription targetPrefab)
+        public async Task ManagePrefab(PrefabProject targetPrefab)
         {
             try
             {
@@ -133,7 +130,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         /// <param name="targetPrefab"></param>
         /// <returns></returns>
-        public async Task ShowUsage(PrefabDescription targetPrefab)
+        public async Task ShowUsage(PrefabProject targetPrefab)
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("prefab", targetPrefab.PrefabId));
         }
@@ -162,19 +159,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private void CreateCollectionView()
         {
             var groupedItems = CollectionViewSource.GetDefaultView(Prefabs);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PrefabDescription.GroupName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabDescription.GroupName), ListSortDirection.Ascending));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabDescription.PrefabName), ListSortDirection.Ascending));
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(PrefabProject.GroupName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabProject.GroupName), ListSortDirection.Ascending));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabProject.PrefabName), ListSortDirection.Ascending));
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as PrefabDescription).PrefabName.ToLower().Contains(this.filterText.ToLower());
+                return (a as PrefabProject).PrefabName.ToLower().Contains(this.filterText.ToLower());
             });
         }
 
         #endregion Filter
 
-        public event EventHandler<PrefabDescription> PrefabCreated = delegate { };
-        protected virtual void OnPrefabCreated(PrefabDescription createdPrefab)
+        public event EventHandler<PrefabProject> PrefabCreated = delegate { };
+        protected virtual void OnPrefabCreated(PrefabProject createdPrefab)
         {
             this.PrefabCreated(this, createdPrefab);
         }

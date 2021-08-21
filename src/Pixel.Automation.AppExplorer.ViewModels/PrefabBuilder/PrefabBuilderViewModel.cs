@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -26,7 +27,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
 
-        private PrefabDescription prefabToolBoxItem;
+        private PrefabProject prefabToolBoxItem;
 
         public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager,
             IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory, IScriptEngineFactory scriptEngineFactory)
@@ -40,24 +41,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.applicationDataManager = applicationDataManager;
         }
 
-        public void Initialize(ApplicationDescription applicationItem, Entity rootEntity)
+        public void Initialize(ApplicationDescriptionViewModel applicationDescriptionViewModel, Entity rootEntity)
         {
-            logger.Information($"Create prefab initiated by user for application : {applicationItem.ApplicationName}");
+            logger.Information($"Create prefab initiated by user for application : {applicationDescriptionViewModel.ApplicationName}");
 
             this.stagedScreens.Clear();
             PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
-            prefabToolBoxItem = new PrefabDescription()
+            prefabToolBoxItem = new PrefabProject()
             {
-                ApplicationId = applicationItem.ApplicationId,
+                ApplicationId = applicationDescriptionViewModel.ApplicationId,
                 PrefabId = Guid.NewGuid().ToString(),            
                 AvailableVersions = new List<PrefabVersion>() { prefabVersion },
                 PrefabRoot = rootEntity
             };
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
-            prefabFileSystem.Initialize(applicationItem.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
+            prefabFileSystem.Initialize(applicationDescriptionViewModel.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
 
-            var prefabToolBoxViewModel = new NewPrefabViewModel(applicationItem, prefabToolBoxItem);
+            var prefabToolBoxViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
             this.stagedScreens.Add(prefabToolBoxViewModel);
 
             //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
@@ -84,14 +85,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         }
 
-        public async Task<PrefabDescription> SavePrefabAsync()
+        public async Task<PrefabProject> SavePrefabAsync()
         {
-            serializer.Serialize<PrefabDescription>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
+            serializer.Serialize<PrefabProject>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
             UpdateAssemblyReferenceAndNameSpace(prefabToolBoxItem, prefabFileSystem);
             logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
            
-            await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
             await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);           
             return this.prefabToolBoxItem;
         }
@@ -102,14 +103,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         /// data models (mirrored types) in to a local assembly for Prefab. We need to replace old references
         /// with new ones while saving. 
         /// </summary>
-        /// <param name="prefabDescription"></param>
+        /// <param name="prefabProject"></param>
         /// <param name="prefabFileSystem"></param>
-        private void UpdateAssemblyReferenceAndNameSpace(PrefabDescription prefabDescription, IPrefabFileSystem prefabFileSystem)
+        private void UpdateAssemblyReferenceAndNameSpace(PrefabProject prefabProject, IPrefabFileSystem prefabFileSystem)
         {
-            var oldAssembly = prefabDescription.PrefabRoot.EntityManager.Arguments.GetType()
+            var oldAssembly = prefabProject.PrefabRoot.EntityManager.Arguments.GetType()
                 .Assembly.GetName();
-            var oldNameSpace = prefabDescription.PrefabRoot.EntityManager.Arguments.GetType().Namespace;
-            var newAssemblyName = prefabDescription.GetPrefabName();
+            var oldNameSpace = prefabProject.PrefabRoot.EntityManager.Arguments.GetType().Namespace;
+            var newAssemblyName = prefabProject.GetPrefabName();
             string fileContents = File.ReadAllText(prefabFileSystem.PrefabFile);
             Regex assmelbyNameMatcher = new Regex($"{oldAssembly.Name}");
             fileContents = assmelbyNameMatcher.Replace(fileContents, (m) =>
@@ -118,7 +119,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 // Hence, we append _0 so that Regex matches as expected.
                 return $"{newAssemblyName}_0";
             });
-            fileContents = fileContents.Replace(oldNameSpace, prefabDescription.NameSpace);
+            fileContents = fileContents.Replace(oldNameSpace, prefabProject.NameSpace);
             File.WriteAllText(prefabFileSystem.PrefabFile, fileContents);
 
         }

@@ -29,12 +29,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public PrefabExplorerViewModel PrefabExplorer { get; private set; }
 
-        public BindableCollection<ApplicationDescription> Applications { get; set; } = new BindableCollection<ApplicationDescription>();
+        public BindableCollection<ApplicationDescriptionViewModel> Applications { get; set; } = new BindableCollection<ApplicationDescriptionViewModel>();
 
         public BindableCollection<KnownApplication> KnownApplications { get; set; } = new BindableCollection<KnownApplication>();
 
-        private ApplicationDescription selectedApplication;
-        public ApplicationDescription SelectedApplication
+        private ApplicationDescriptionViewModel selectedApplication;
+        public ApplicationDescriptionViewModel SelectedApplication
         {
             get => selectedApplication;
             set
@@ -49,6 +49,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     this.IsActiveItem = true;
                     //Notification for property grid to display selected application details
                     this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails, true));
+                    logger.Debug("Selected application set to {Application}", selectedApplication.ApplicationName);
                 }
 
             }
@@ -68,22 +69,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             InitializeKnownApplications();
             
             var applications = this.applicationDataManager.GetAllApplications();
-            this.Applications.AddRange(applications);
+            foreach(var application in applications)
+            {
+                this.Applications.Add(new ApplicationDescriptionViewModel(application));
+            }
             Applications.OrderBy(a => a.ApplicationName);
         }      
 
         private void CreateCollectionView()
         {
             var groupedItems = CollectionViewSource.GetDefaultView(Applications);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ApplicationDescription.ApplicationName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ApplicationDescription.ApplicationName), ListSortDirection.Ascending));
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ApplicationDescriptionViewModel.ApplicationName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ApplicationDescriptionViewModel.ApplicationName), ListSortDirection.Ascending));
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as ApplicationDescription).ApplicationName.ToLower().Contains(this.filterText.ToLower());
+                return (a as ApplicationDescriptionViewModel).ApplicationName.ToLower().Contains(this.filterText.ToLower());
             });
         }
 
-        private void OnPrefabCreated(object sender, PrefabDescription e)
+        private void OnPrefabCreated(object sender, PrefabProject e)
         {
             try
             {
@@ -124,23 +128,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public bool IsApplicationOpen { get; set; }
 
-        public void OpenApplication(ApplicationDescription application)
+        public void OpenApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(application).NotNull();
+            Guard.Argument(applicationDescriptionViewModel).NotNull();
 
             IsApplicationOpen = true;
-            ControlExplorer.SetActiveApplication(application);
-            PrefabExplorer.SetActiveApplication(application);
+            ControlExplorer.SetActiveApplication(applicationDescriptionViewModel);
+            PrefabExplorer.SetActiveApplication(applicationDescriptionViewModel);
             if (this.eventAggregator.HandlerExistsFor(typeof(RepositoryApplicationOpenedEventArgs)))
             {
-                this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(application.ApplicationName, application.ApplicationId));
+                this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(applicationDescriptionViewModel.ApplicationName, applicationDescriptionViewModel.ApplicationId));
             }
             NotifyOfPropertyChange(nameof(IsApplicationOpen));
+            logger.Debug("Application {Application} is open now", applicationDescriptionViewModel.ApplicationName);
         }
        
         public void GoBack()
         {
-            IsApplicationOpen = false;        
+            IsApplicationOpen = false;
+            ControlExplorer.SetActiveApplication(null);
+            PrefabExplorer.SetActiveApplication(null);
             if (this.eventAggregator.HandlerExistsFor(typeof(RepositoryApplicationOpenedEventArgs)))
             {
                 this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(string.Empty, string.Empty));
@@ -155,31 +162,34 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
 
             ApplicationDescription newApplication = new ApplicationDescription(application);
-            if (string.IsNullOrEmpty(newApplication.ApplicationName))
+            var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
+            if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
             {
-                newApplication.ApplicationName = $"{this.Applications.Count() + 1}";
-                newApplication.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
+                applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
+                applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
             }
-        
-            this.Applications.Add(newApplication);
-            this.SelectedApplication = newApplication;
-            await SaveApplicationAsync(newApplication);
-            await EditApplicationAsync(newApplication);
+           
+            this.Applications.Add(applicationDescriptionViewModel);
+            this.SelectedApplication = applicationDescriptionViewModel;
+            await SaveApplicationAsync(applicationDescriptionViewModel);
+            await EditApplicationAsync(applicationDescriptionViewModel);
             NotifyOfPropertyChange(() => Applications);
-            logger.Information($"New application of type {application.ToString()} has been added to the application repository");
+            logger.Information("New application of type {0} has been added to the application repository", application.ToString());
         }
 
-        public async Task EditApplicationAsync(ApplicationDescription application)
+        public async Task EditApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-           await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(application.ApplicationDetails, () => { _ = SaveApplicationAsync(application); } , () => { return true; } ) );
+           await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, () => { _ = SaveApplicationAsync(applicationDescriptionViewModel); } , () => { return true; } ) );
         }
 
-        public async Task SaveApplicationAsync(ApplicationDescription application)
+        public async Task SaveApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(application).NotNull();
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(application);
-            logger.Information($"Saved application data for : {application.ApplicationName}");
-            await this.eventAggregator.PublishOnBackgroundThreadAsync(new ApplicationUpdatedEventArgs(application.ApplicationId));           
+            Guard.Argument(applicationDescriptionViewModel).NotNull();
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescriptionViewModel.Model);
+            logger.Information($"Saved application data for : {applicationDescriptionViewModel.ApplicationName}");
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
+            this.Applications.Remove(applicationDescriptionViewModel);
+            this.Applications.Add(applicationDescriptionViewModel);
         }
 
         private void InitializeKnownApplications()
@@ -212,7 +222,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }
 
-        public void ToggleRename(ApplicationDescription targetItem)
+        public void ToggleRename(ApplicationDescriptionViewModel targetItem)
         {
             if (selectedApplication == targetItem)
             {
@@ -220,7 +230,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }
 
-        public async Task RenameApplication(ActionExecutionContext context, ApplicationDescription application)
+        public async Task RenameApplication(ActionExecutionContext context, ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             try
             {
@@ -233,14 +243,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         logger.Warning($"An application already exists with name {newName}.");
                         return;
                     }
-                    if (newName != application.ApplicationName)
+                    if (newName != applicationDescriptionViewModel.ApplicationName)
                     {
-                        var previousName = application.ApplicationName;
-                        application.ApplicationName = newName;
-                        application.ApplicationDetails.ApplicationName = newName;
-                        await SaveApplicationAsync(application);
+                        var previousName = applicationDescriptionViewModel.ApplicationName;
+                        applicationDescriptionViewModel.ApplicationName = newName;
+                        applicationDescriptionViewModel.ApplicationDetails.ApplicationName = newName;
+                        await SaveApplicationAsync(applicationDescriptionViewModel);
                         CanEdit = false;
-                        logger.Information($"Application : {previousName} renamed to : {application.ApplicationName}");
+                        logger.Information($"Application : {previousName} renamed to : {applicationDescriptionViewModel.ApplicationName}");
                     }
                 }
             }

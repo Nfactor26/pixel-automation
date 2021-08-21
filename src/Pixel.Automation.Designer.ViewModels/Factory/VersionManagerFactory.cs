@@ -26,9 +26,9 @@ namespace Pixel.Automation.Designer.ViewModels.Factory
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         }
 
-        public IVersionManager CreatePrefabVersionManager(PrefabDescription prefabDescription)
+        public IVersionManager CreatePrefabVersionManager(PrefabProject prefabProject)
         {
-            return new PrefabVersionManagerViewModel(prefabDescription, this.workspaceManagerFactory, this.serializer, this.applicationDataManager, this.applicationSettings);
+            return new PrefabVersionManagerViewModel(prefabProject, this.workspaceManagerFactory, this.serializer, this.applicationDataManager, this.applicationSettings);
         }
 
         public IVersionManager CreateProjectVersionManager(AutomationProject automationProject)

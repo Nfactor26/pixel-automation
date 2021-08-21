@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly ApplicationSettings applicationSettings;
-        private PrefabDescription prefabDescription;       
+        private PrefabProject prefabProject;       
         private Entity prefabbedEntity;       
 
         public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
@@ -33,15 +33,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region load project
 
-        public Entity Load(PrefabDescription prefabDescription, VersionInfo versionInfo)
+        public Entity Load(PrefabProject prefabProject, VersionInfo versionInfo)
         {
-            this.prefabDescription = prefabDescription;
-            this.prefabFileSystem.Initialize(prefabDescription.ApplicationId, prefabDescription.PrefabId, versionInfo);
+            this.prefabProject = prefabProject;
+            this.prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, versionInfo);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
 
             ConfigureCodeEditor();
           
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
 
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
@@ -83,7 +83,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 templateRoot = new ProcessRootEntity();
                 templateRoot.EntityManager = entityManager;
 
-                var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabDescription.ApplicationId));
+                var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
 
                 ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();          
                 templateRoot.AddComponent(appPoolEntity);
@@ -143,7 +143,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 applicationEntity.GetTargetApplicationDetails();
                 return applicationEntity;
             }
-            throw new Exception($"Failed to create application entity for application id : {prefabDescription.ApplicationId}");
+            throw new Exception($"Failed to create application entity for application id : {prefabProject.ApplicationId}");
         }
 
         #endregion load project
@@ -160,7 +160,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             await this.Save();
             this.Initialize();
-            this.entityManager.Arguments = CompileAndCreateDataModel("PrefabDataModel");
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
         }
@@ -182,14 +182,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             prefabParent.AddComponent(this.prefabbedEntity);
 
             //push the changes to database
-            await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, this.prefabDescription.ActiveVersion);
-            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, this.prefabDescription.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, this.prefabProject.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, this.prefabProject.ActiveVersion);
         }
 
 
         protected override string GetProjectName()
         {
-            return this.prefabDescription.GetPrefabName();
+            return this.prefabProject.GetPrefabName();
         }
 
         #endregion overridden methods

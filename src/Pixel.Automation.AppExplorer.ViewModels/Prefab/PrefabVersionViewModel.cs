@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -11,7 +12,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
     public class PrefabVersionViewModel : PropertyChangedBase
     {
-        private readonly PrefabDescription prefabDescription;
+        private readonly PrefabProject prefabProject;
         private readonly PrefabVersion prefabVersion;
         private readonly IPrefabFileSystem fileSystem;
 
@@ -67,9 +68,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
 
-        public PrefabVersionViewModel(PrefabDescription prefabDescription, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem)
+        public PrefabVersionViewModel(PrefabProject prefabProject, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem)
         {
-            this.prefabDescription = prefabDescription;
+            this.prefabProject = prefabProject;
             this.prefabVersion = prefabVersion;
             this.fileSystem = fileSystem;
         }
@@ -83,7 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 IsDeployed = false
             };
 
-            this.fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, this.prefabVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
             Directory.CreateDirectory(newWorkingDirectory);
@@ -118,12 +119,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
         {           
            
-            this.fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, this.prefabVersion);
 
-            string prefabProjectName = this.prefabDescription.GetPrefabName();
+            string prefabProjectName = this.prefabProject.GetPrefabName();
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
-            workspaceManager.AddProject(prefabProjectName, $"Pixel.Automation.{this.prefabDescription.GetPrefabName()}", Array.Empty<string>());
+            workspaceManager.AddProject(prefabProjectName, $"{Constants.PrefabDataModelName}.{this.prefabProject.GetPrefabName()}", Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())
             {
@@ -138,7 +139,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
             }
 
-            string assemblyName = this.prefabDescription.GetPrefabName();
+            string assemblyName = this.prefabProject.GetPrefabName();
             using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);

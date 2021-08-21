@@ -25,7 +25,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
     {
         private readonly ILogger logger = Log.ForContext<PrefabDataModelBuilderViewModel>();
 
-        private readonly PrefabDescription prefabDescription;
+        private readonly PrefabProject prefabProject;
         private readonly ICodeGenerator codeGenerator;
         private readonly IScriptEngine scriptEngine;
         private readonly IArgumentExtractor argumentExtractor;
@@ -41,24 +41,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public BindableCollection<ParameterUsage> ArgumentUsage { get; } = new BindableCollection<ParameterUsage>() { ParameterUsage.Input, ParameterUsage.Output, ParameterUsage.InOut };
                
-        public PrefabDataModelBuilderViewModel(PrefabDescription prefabDescription, ICodeGenerator codeGenerator,
+        public PrefabDataModelBuilderViewModel(PrefabProject prefabProject, ICodeGenerator codeGenerator,
             IPrefabFileSystem fileSystem, IScriptEngine scriptEngine, ICompositeTypeExtractor compositeTypeExtractor, IArgumentExtractor argumentExtractor)
         {
-            Guard.Argument(prefabDescription).NotNull();
+            Guard.Argument(prefabProject).NotNull();
             Guard.Argument(codeGenerator).NotNull();
             Guard.Argument(fileSystem).NotNull();
             Guard.Argument(compositeTypeExtractor).NotNull();
             Guard.Argument(argumentExtractor).NotNull();
             Guard.Argument(scriptEngine).NotNull();
 
-            this.prefabDescription = prefabDescription;
+            this.prefabProject = prefabProject;
             this.codeGenerator = codeGenerator;
             this.scriptEngine = scriptEngine;
             this.fileSystem = fileSystem;
             this.argumentExtractor = argumentExtractor;
             this.compositeTypeExtractor = compositeTypeExtractor;
 
-            var rootEntity = prefabDescription.PrefabRoot as Entity;
+            var rootEntity = prefabProject.PrefabRoot as Entity;
             currentDataModel = rootEntity.EntityManager.Arguments;        
         }            
 
@@ -91,11 +91,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information("Start creating Prefab data model");
 
             var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace)?
-                .Distinct().Except(new[] { prefabDescription.NameSpace, currentDataModel.GetType().Namespace }) ?? new List<string>();
+                .Distinct().Except(new[] { prefabProject.NameSpace, currentDataModel.GetType().Namespace }) ?? new List<string>();
             imports = imports.Append(typeof(ParameterUsage).Namespace); 
             imports = imports.Append(typeof(ParameterUsageAttribute).Namespace);
 
-            var classBuilder = codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, prefabDescription.NameSpace, imports);
+            var classBuilder = codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, prefabProject.NameSpace, imports);
             foreach (var property in RequiredProperties.Where(r => r.IsRequired))
             {
                 classBuilder.AddProperty(property.PropertyName, property.PropertyType);
@@ -114,7 +114,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private void MirrorTargetType(Type targetType)
         {
             var imports = targetType.GetProperties().Select(s => s.PropertyType.Namespace).Distinct();
-            string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabDescription.NameSpace, imports);
+            string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabProject.NameSpace, imports);
             fileSystem.CreateOrReplaceFile(fileSystem.DataModelDirectory, $"{targetType.GetDisplayName()}.cs", generatedCode);
             logger.Information($"Mirror type created for type {targetType.GetDisplayName()}");
         }      
@@ -138,7 +138,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information($"Activate screen is {nameof(PrefabDataModelBuilderViewModel)}");
             ClearErrors("");          
             RequiredProperties.Clear();
-            arguments.AddRange(argumentExtractor.ExtractArguments(prefabDescription.PrefabRoot as Entity));
+            arguments.AddRange(argumentExtractor.ExtractArguments(prefabProject.PrefabRoot as Entity));
             BuildPropertyDescription(scriptEngine, currentDataModel);
             MarkRequiredProperties();
             await base.OnActivateAsync(cancellationToken);

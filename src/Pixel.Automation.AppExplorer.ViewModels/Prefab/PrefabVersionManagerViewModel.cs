@@ -18,7 +18,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
-        private readonly PrefabDescription prefabDescription;
+        private readonly PrefabProject prefabProject;
         private readonly ApplicationSettings applicationSettings;
 
         private bool wasDeployed = false;
@@ -26,7 +26,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
        
 
-        public PrefabVersionManagerViewModel(PrefabDescription prefabDescription, IWorkspaceManagerFactory workspaceManagerFactory, 
+        public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory, 
             ISerializer serializer, IApplicationDataManager applicationDataManager,
             ApplicationSettings applicationSettings)
         {
@@ -34,12 +34,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             this.workspaceManagerFactory = workspaceManagerFactory;
             this.serializer = serializer;
             this.applicationDataManager = applicationDataManager;
-            this.prefabDescription = prefabDescription;
+            this.prefabProject = prefabProject;
             this.applicationSettings = applicationSettings;
-            foreach (var version in this.prefabDescription.AvailableVersions)
+            foreach (var version in this.prefabProject.AvailableVersions)
             {
                 IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, version, fileSystem));
+                AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, version, fileSystem));
             }
         }
 
@@ -57,19 +57,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     PrefabVersion newVersion = prefabVersionViewModel.Clone();
 
                     IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                    fileSystem.Initialize(this.prefabDescription.ApplicationId, this.prefabDescription.PrefabId, newVersion);                  
+                    fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, newVersion);                  
 
                     //Deploy the selected version
                     prefabVersionViewModel.Deploy(this.workspaceManagerFactory);
 
-                    this.prefabDescription.AvailableVersions.Add(newVersion);
-                    serializer.Serialize<PrefabDescription>(fileSystem.PrefabDescriptionFile, this.prefabDescription);
+                    this.prefabProject.AvailableVersions.Add(newVersion);
+                    serializer.Serialize<PrefabProject>(fileSystem.PrefabDescriptionFile, this.prefabProject);
 
-                    await this.applicationDataManager.AddOrUpdatePrefabDescriptionAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
-                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
-                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabDescription, newVersion);
+                    await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, newVersion);
                    
-                    this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabDescription, newVersion, fileSystem));
+                    this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem));
 
                     this.wasDeployed = true;
                 }

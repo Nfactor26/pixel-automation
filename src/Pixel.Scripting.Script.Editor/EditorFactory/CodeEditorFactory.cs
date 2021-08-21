@@ -136,5 +136,15 @@ namespace Pixel.Scripting.Script.Editor
             var workSpaceManager = GetWorkspaceManager();
             return workSpaceManager.CompileProject(projectName, outputAssemblyName);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            this.editorService.Dispose();           
+        }
     }
 }

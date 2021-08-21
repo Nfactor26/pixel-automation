@@ -211,8 +211,8 @@ namespace Pixel.Persistence.Respository
                     var fileRevisions = group.OrderByDescending(a => a.UploadDateTime);
                     foreach (var fileRevision in fileRevisions.Skip(1))
                     {
-                        logger.LogInformation("Deleting project file with Id : {Id} for project : {projectId}",
-                            fileRevision.Id, fileRevision.Metadata["projectId"]);
+                        logger.LogInformation("Deleting project file with Id : {Id} for prefab : {prefab}",
+                            fileRevision.Id, fileRevision.Metadata["prefabId"]);
                         await bucket.DeleteAsync(fileRevision.Id);
                     }
 
@@ -244,7 +244,7 @@ namespace Pixel.Persistence.Respository
                             continue;
                         }
                         logger.LogInformation("Deleting project data file with Id : {Id} for project : {projectId},  version {version} updated on {updated}",
-                            fileRevision.Id, fileRevision.Metadata["projectId"], fileRevision.Metadata["version"],
+                            fileRevision.Id, fileRevision.Metadata["prefabId"], fileRevision.Metadata["version"],
                             fileRevision.UploadDateTime.ToUniversalTime().ToString());
                         await bucket.DeleteAsync(fileRevision.Id);
                     }
@@ -260,8 +260,8 @@ namespace Pixel.Persistence.Respository
                         }
                         if (DateTime.Now.ToUniversalTime().Subtract(fileRevision.UploadDateTime) > TimeSpan.FromDays(policy.MaxAgeOfRevisions))
                         {
-                            logger.LogInformation("Deleting project data file with Id : {Id} for project : {projectId},  version {version} updated on {updated}",
-                            fileRevision.Id, fileRevision.Metadata["projectId"], fileRevision.Metadata["version"],
+                            logger.LogInformation("Deleting project data file with Id : {Id} for prefab : {prefabId},  version {version} updated on {updated}",
+                            fileRevision.Id, fileRevision.Metadata["prefabId"], fileRevision.Metadata["version"],
                             fileRevision.UploadDateTime.ToUniversalTime().ToString());
                             await bucket.DeleteAsync(fileRevision.Id);
                         }

@@ -25,7 +25,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
     {
         private readonly ILogger logger = Log.ForContext<PrefabScriptsImporterViewModel>();
 
-        private readonly PrefabDescription prefabToolBoxItem;
+        private readonly PrefabProject prefabToolBoxItem;
         private readonly Entity rootEntity;
 
         private readonly IScriptEngineFactory scriptEngineFactory;
@@ -38,7 +38,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public bool HasScripts { get => RequiredScripts.Count() > 0; }
 
-        public PrefabScriptsImporterViewModel(PrefabDescription prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
+        public PrefabScriptsImporterViewModel(PrefabProject prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
             IArgumentExtractor argumentExtractor,
             IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory)
         {

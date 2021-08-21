@@ -83,7 +83,7 @@ namespace Pixel.Automation.RunTime
 
 
             var prefabReferences = GetPrefabReferences();
-            PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(new PrefabDescription() { ApplicationId = applicationId, PrefabId = prefabId });
+            PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(new PrefabProject() { ApplicationId = applicationId, PrefabId = prefabId });
 
             IEntityManager prefabEntityManager = new EntityManager(parentEntityManager);
             prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");

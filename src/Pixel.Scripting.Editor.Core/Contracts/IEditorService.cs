@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
-    public interface IEditorService
+    public interface IEditorService : IDisposable
     {
         event EventHandler<WorkspaceChangedEventArgs> WorkspaceChanged;
 

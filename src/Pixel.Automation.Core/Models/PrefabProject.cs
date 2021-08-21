@@ -8,7 +8,7 @@ namespace Pixel.Automation.Core.Models
 {
     [DataContract]
     [Serializable]
-    public class PrefabDescription : NotifyPropertyChanged, ICloneable
+    public class PrefabProject : NotifyPropertyChanged, ICloneable
     {
         [DataMember]
         [Browsable(false)]
@@ -67,12 +67,12 @@ namespace Pixel.Automation.Core.Models
         public Interfaces.IComponent PrefabRoot { get; set; }
 
 
-        public PrefabDescription()
+        public PrefabProject()
         {
 
         }
 
-        public PrefabDescription(Interfaces.IComponent prefabRoot)
+        public PrefabProject(Interfaces.IComponent prefabRoot)
         {
             this.PrefabRoot = prefabRoot;           
         }
@@ -85,7 +85,7 @@ namespace Pixel.Automation.Core.Models
 
         public object Clone()
         {
-            return new PrefabDescription()
+            return new PrefabProject()
             {
                 PrefabName = this.PrefabName,             
                 PrefabId = Guid.NewGuid().ToString(),             
@@ -98,7 +98,7 @@ namespace Pixel.Automation.Core.Models
 
         public override bool Equals(object obj)
         {
-            if(obj is PrefabDescription otherPrefab)
+            if(obj is PrefabProject otherPrefab)
             {
                 return this.ApplicationId.Equals(otherPrefab.ApplicationId) && this.PrefabId.Equals(otherPrefab.PrefabId);
             }

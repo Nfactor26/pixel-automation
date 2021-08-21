@@ -15,11 +15,11 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private readonly string entityId;
         private readonly string testCaseId;
-        private readonly PrefabDescription prefabDescription;
+        private readonly PrefabProject prefabProject;
         private readonly PrefabReferences prefabReferences;
         private readonly IProjectFileSystem projectFileSystem;
 
-        public string PrefabName => prefabDescription.PrefabName;
+        public string PrefabName => prefabProject.PrefabName;
 
         public IEnumerable<PrefabVersion> AvailableVersions { get; private set; }
 
@@ -27,10 +27,10 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public bool CanChangeVersion { get; private set; } 
 
-        public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, PrefabDescription prefabDescription, string entityId, string testCaseId)
+        public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, PrefabProject prefabProject, string entityId, string testCaseId)
         {          
             this.projectFileSystem = projectFileSystem;
-            this.prefabDescription = prefabDescription;
+            this.prefabProject = prefabProject;
             if(File.Exists(projectFileSystem.PrefabReferencesFile))
             {
                 this.prefabReferences = projectFileSystem.LoadFile<PrefabReferences>(projectFileSystem.PrefabReferencesFile);
@@ -39,11 +39,11 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 this.prefabReferences = new PrefabReferences();
             }
-            this.AvailableVersions = prefabDescription.DeployedVersions;
-            this.CanChangeVersion = !prefabReferences.HasReference(prefabDescription);
+            this.AvailableVersions = prefabProject.DeployedVersions;
+            this.CanChangeVersion = !prefabReferences.HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {
-                var referencedVersion = prefabReferences.GetPrefabVersionInUse(prefabDescription);
+                var referencedVersion = prefabReferences.GetPrefabVersionInUse(prefabProject);
                 this.SelectedVersion = AvailableVersions.First(a => a.Equals(referencedVersion));
             }
             else
@@ -56,9 +56,9 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task ConfirmSelection()
         {        
-            if(!prefabReferences.HasReference(prefabDescription))
+            if(!prefabReferences.HasReference(prefabProject))
             {                
-                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabDescription.ApplicationId, PrefabId = prefabDescription.PrefabId, Version = this.SelectedVersion });
+                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
             }            
             this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, this.projectFileSystem.WorkingDirectory, Path.GetFileName(this.projectFileSystem.PrefabReferencesFile));
             await this.TryCloseAsync(true);
