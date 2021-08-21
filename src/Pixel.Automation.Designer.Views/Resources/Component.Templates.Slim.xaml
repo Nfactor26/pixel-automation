@@ -7,8 +7,8 @@
                     xmlns:cal="http://www.caliburnproject.org"                   
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:prefabs="clr-namespace:Pixel.Automation.Editor.Controls.Prefabs;assembly=Pixel.Automation.Editor.Controls">
-
-    <iconPacks:PackIconMaterial x:Key="WindowsIcon" Kind="Windows" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+    
+    <!--<iconPacks:PackIconMaterial x:Key="WindowsIcon" Kind="Windows" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                            Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
     <iconPacks:PackIconModern x:Key="JavaIcon" Kind="LanguageJava" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                            Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
@@ -17,7 +17,7 @@
     <iconPacks:PackIconFontAwesome x:Key="ChromeIcon"  Kind="ChromeBrands" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                            Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
     <iconPacks:PackIconFontAwesome x:Key="EdgeIcon"  Kind="EdgeBrands" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
-                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>  
+                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>-->  
     
     <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
@@ -379,7 +379,11 @@
          <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
                    Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">
-                <ContentPresenter x:Name="IconPlaceHolder" Content="{StaticResource FireFoxIcon}"/>
+                <!--This causes memory leak even without triggers. Leaving here for future someone who might be able to explain the reason
+                    and help get the dynamic icons back again.-->
+                <!--<ContentPresenter x:Name="IconPlaceHolder" Content="{StaticResource FireFoxIcon}"/>-->
+                <iconPacks:PackIconMaterial Kind="Application"  Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                                                  Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
             </StackPanel>
             <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
             <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
@@ -399,7 +403,7 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding Platform}" Value="Windows">
+            <!--<DataTrigger Binding="{Binding Platform}" Value="Windows">
                 <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource WindowsIcon}"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding Platform}" Value="Java">
@@ -413,7 +417,7 @@
             </DataTrigger>
             <DataTrigger Binding="{Binding Platform}" Value="Edge">
                 <Setter TargetName="IconPlaceHolder" Property="Content" Value="{StaticResource EdgeIcon}"/>
-            </DataTrigger>
+            </DataTrigger>-->
         </DataTemplate.Triggers>       
     </HierarchicalDataTemplate>
   
