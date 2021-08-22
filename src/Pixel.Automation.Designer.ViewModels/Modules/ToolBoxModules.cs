@@ -24,7 +24,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IToolBox>().To<TestExplorerHostViewModel>().InSingletonScope();
 
             Kernel.Bind<IToolBox>().To<ApplicationExplorerViewModel>().InSingletonScope();
-            Kernel.Bind<IToolBox>().To<TestDataRepositoryViewModel>().InSingletonScope();
+            Kernel.Bind<IToolBox>().To<TestDataRepositoryHostViewModel>().InSingletonScope();
 
             //Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
             //.EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IToolBox>()
@@ -40,8 +40,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
 
             //Kernel.Bind<IFlyOut>().To<SettingsViewModel>().InSingletonScope();
           
-            Kernel.Bind<PrefabExplorerViewModel>().ToSelf();
-            Kernel.Bind<ControlExplorerViewModel>().ToSelf();
+            Kernel.Bind<PrefabExplorerViewModel>().ToSelf().InSingletonScope();
+            Kernel.Bind<ControlExplorerViewModel>().ToSelf().InSingletonScope();
         }
     }
 }
