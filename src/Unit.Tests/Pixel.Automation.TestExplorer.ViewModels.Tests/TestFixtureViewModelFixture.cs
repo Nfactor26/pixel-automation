@@ -103,7 +103,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         public void ValidateThatTestFixtureIsVisibleIfAnyOfItsTestCaseIsVisible(string filterText, bool shouldBeVisible)
         {
             var testCase = new TestCase() { DisplayName = "TestCase#1" };
-            var testCaseViewModel = new TestCaseViewModel(testCase, null);
+            var testCaseViewModel = new TestCaseViewModel(testCase);
             TestFixture testFixture = new TestFixture()
             {
                 DisplayName = "TestFixture"

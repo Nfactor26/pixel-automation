@@ -7,12 +7,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
     public class TestExplorerViewModelFixture
     {
-        [Test]
-        public void ValidateThatTestExplorerViewModelCanBeInitialized()
-        {
-            var testExplorerViewModel = new TestExplorerViewModel();
-            Assert.IsTrue(testExplorerViewModel.DisplayName.Equals("Test Explorer"));
-            Assert.IsNull(testExplorerViewModel.ActiveInstance);          
-        }      
+        //[Test]
+        //public void ValidateThatTestExplorerViewModelCanBeInitialized()
+        //{
+        //    var testExplorerViewModel = new TestExplorerViewModel();
+        //    Assert.IsTrue(testExplorerViewModel.DisplayName.Equals("Test Explorer"));
+        //    Assert.IsNull(testExplorerViewModel.ActiveInstance);          
+        //}      
     }
 }

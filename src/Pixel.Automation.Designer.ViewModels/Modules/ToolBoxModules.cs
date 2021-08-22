@@ -20,9 +20,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
         public override void Load()
         {
             Kernel.Bind<IToolBox>().To<PropertyGridViewModel>().InSingletonScope();
-            Kernel.Bind<IToolBox>().To<ComponentToolBoxViewModel>().InSingletonScope();
-
-            Kernel.Bind<IToolBox>().To<TestExplorerViewModel>().InSingletonScope();
+            Kernel.Bind<IToolBox>().To<ComponentToolBoxViewModel>().InSingletonScope();        
+            Kernel.Bind<IToolBox>().To<TestExplorerHostViewModel>().InSingletonScope();
 
             Kernel.Bind<IToolBox>().To<ApplicationExplorerViewModel>().InSingletonScope();
             Kernel.Bind<IToolBox>().To<TestDataRepositoryViewModel>().InSingletonScope();

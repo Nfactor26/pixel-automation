@@ -1,31 +1,11 @@
-using Caliburn.Micro;
-using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core;
-using Pixel.Automation.Editor.Core;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TestCase = Pixel.Automation.Core.TestData.TestCase;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
     public class TestCaseViewModelFixture
-    {
-        private IEventAggregator eventAggregator;
-
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            eventAggregator = Substitute.For<IEventAggregator>();
-            eventAggregator.PublishOnBackgroundThreadAsync(Arg.Any<TestCaseUpdatedEventArgs>()).Returns(Task.CompletedTask);
-        }
-
-        [SetUp]
-        public void Setup()
-        {
-            eventAggregator.ClearReceivedCalls();
-        }
-
+    { 
         /// <summary>
         /// Initialize a TestCaseViewModel from a TestCase object and verify that TestCaseViewModel properties returns correct values
         /// </summary>
@@ -44,7 +24,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             };
             testCase.Tags.Add("color", "red");
             testCase.Tags.Add("priority", "high");
-            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
+            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
 
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
             Assert.AreEqual("TestCase#1", testCaseViewModel.DisplayName);
@@ -74,7 +54,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var testCaseEntity = new Entity();          
             TestCase testCase = new TestCase();
-            var testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator)
+            var testCaseViewModel = new TestCaseViewModel(testCase)
             {
                 DisplayName = "TestCase#1",
                 Order = 1,
@@ -106,11 +86,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             {
                 TestDataId = dataSourceId
             };
-            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
+            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
             testCaseViewModel.SetTestDataSource(dataSourceId);
 
-            Assert.AreEqual(shouldBePossibleToEdit, testCaseViewModel.CanOpenForEdit);
-            eventAggregator.Received(1).PublishOnBackgroundThreadAsync(Arg.Any<TestCaseUpdatedEventArgs>());
+            Assert.AreEqual(shouldBePossibleToEdit, testCaseViewModel.CanOpenForEdit);           
         }
 
         /// <summary>
@@ -129,7 +108,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             {
                 DisplayName = "TestCase#1"
             };
-            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase, eventAggregator);
+            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
             testCaseViewModel.UpdateVisibility(filterText);
 
             Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);
