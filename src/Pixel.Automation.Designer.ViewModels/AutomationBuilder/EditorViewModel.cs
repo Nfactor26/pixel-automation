@@ -34,8 +34,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public IEntityManager EntityManager { get; private set; }
 
-        public IObservableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
-   
         public IDropTarget ComponentDropHandler { get; protected set; }        
       
         public BindableCollection<Entity> WorkFlowRoot { get; set; } = new BindableCollection<Entity>();
@@ -46,12 +44,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #region constructor
 
         public EditorViewModel(IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
-            IEntityManager entityManager, IScriptExtactor scriptExtractor,  IReadOnlyCollection<IToolBox> tools,
-            IVersionManagerFactory versionManagerFactory,
+            IEntityManager entityManager, IScriptExtactor scriptExtractor, IVersionManagerFactory versionManagerFactory,
             IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
-        {          
-            Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
-
+        { 
             this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
             this.globalEventAggregator.SubscribeOnPublishedThread(this);
 
@@ -61,9 +56,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
             this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).Value;
             this.ComponentDropHandler = Guard.Argument(componentDropHandler, nameof(componentDropHandler)).NotNull().Value;
-            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
-            this.Tools.AddRange(tools);  
-         
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();          
         }
 
         #endregion constructor
@@ -354,8 +347,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected virtual void Dispose(bool isDisposing)
         {
             if(isDisposing)
-            {              
-                this.Tools.Clear();
+            {                            
                 this.WorkFlowRoot.Clear();               
             }
         }

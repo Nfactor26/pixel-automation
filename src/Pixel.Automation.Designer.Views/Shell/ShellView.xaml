@@ -49,9 +49,7 @@
     </Controls:MetroWindow.Resources>
 
     <Controls:MetroWindow.Flyouts>
-        <Controls:FlyoutsControl x:Name="FlyoutViewModels" ItemsSource="{Binding FlyoutViewModels}" 
-                                 ItemContainerStyle="{StaticResource CustomFlyoutStyle}"
-                                 >
+        <Controls:FlyoutsControl x:Name="FlyOuts" ItemsSource="{Binding FlyOuts}" ItemContainerStyle="{StaticResource CustomFlyoutStyle}">
             <Controls:FlyoutsControl.ItemTemplate>
                 <DataTemplate>
                     <ContentControl cal:View.Model="{Binding}"  Background="{DynamicResource MahApps.Brushes.Window.Background}"/>
@@ -63,7 +61,8 @@
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button x:Name="Settings" cal:Message.Attach="[Event Click] = [Action ToggleFlyout(0)]"
-                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>         
+                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, 
+                     RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>         
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
 
@@ -98,18 +97,15 @@
                           ItemContainerStyle="{StaticResource ScrapperMenuItemStyle}">
             </MenuItem>
         </Menu>
-     
-        <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Tools}"
-							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated"
-                               >
 
+        <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Anchorables}"
+							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated">
             <avalonDock:DockingManager.LayoutItemTemplateSelector>
                 <docking:PanesTemplateSelector>
                     <docking:PanesTemplateSelector.ScreenTemplate>
                         <DataTemplate>
                             <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
-                                <ContentControl cal:View.Model="{Binding}"
-                                                IsTabStop="False" />
+                                <ContentControl cal:View.Model="{Binding}" IsTabStop="False" />
                             </Grid>
                         </DataTemplate>
                     </docking:PanesTemplateSelector.ScreenTemplate>
@@ -125,8 +121,7 @@
             <avalonDock:DockingManager.LayoutItemContainerStyleSelector>
                 <docking:PanesStyleSelector>
                     <docking:PanesStyleSelector.ScreenStyle>
-                        <Style TargetType="{x:Type avalonDock:LayoutItem}">
-                            <!--<Setter Property="ContentId" Value="{Binding Model.ContentId}" />-->
+                        <Style TargetType="{x:Type avalonDock:LayoutItem}">                          
                             <Setter Property="Title" Value="{Binding Model.DisplayName, Mode=OneWay}" />
                             <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
                             <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
@@ -134,11 +129,10 @@
                         </Style>
                     </docking:PanesStyleSelector.ScreenStyle>
                     <docking:PanesStyleSelector.ToolStyle>
-                        <Style TargetType="{x:Type avalonDock:LayoutAnchorableItem}">
-                            <!--<Setter Property="ContentId" Value="{Binding Model.ContentId}" />-->
+                        <Style TargetType="{x:Type avalonDock:LayoutAnchorableItem}">                          
                             <Setter Property="Title" Value="{Binding Model.DisplayName, Mode=OneWay}" />
                             <Setter Property="HideCommand" Value="{Binding Model.CloseCommand}" />
-                            <Setter Property="IsActive" Value="{Binding Model.IsActiveItem, Mode=TwoWay}" />
+                            <Setter Property="IsActive" Value="{Binding Model.IsActive, Mode=OneWay}" />
                             <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
                             <Setter Property="Visibility" Value="{Binding Model.IsVisible, ConverterParameter={x:Static Visibility.Hidden}, Converter={StaticResource boolToVisConverter},Mode=TwoWay}" />
                         </Style>
@@ -164,12 +158,10 @@
             </avalonDock:LayoutRoot>
 
         </avalonDock:DockingManager>
-
-
-
-
+        
         <!--<StatusBar>
             <StatusBarItem Content="{Binding Status}"></StatusBarItem>
         </StatusBar>-->
+        
     </DockPanel>
 </Controls:MetroWindow>

@@ -20,17 +20,16 @@ namespace Pixel.Automation.Designer.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<ShellViewModel>();
 
-        public IObservableCollection<IFlyOut> FlyoutViewModels { get; }
-            = new BindableCollection<IFlyOut>();
+        public BindableCollection<IFlyOut> FlyOuts { get; } = new BindableCollection<IFlyOut>();
 
-        public BindableCollection<IToolBox> Tools { get; } = new BindableCollection<IToolBox>();
+        public BindableCollection<IAnchorable> Anchorables { get; } = new BindableCollection<IAnchorable>();
 
-        public List<IControlScrapper> ScreenScrappers { get; } = new List<IControlScrapper>();
+        public BindableCollection<IControlScrapper> ScreenScrappers { get; } = new BindableCollection<IControlScrapper>();
 
-        ISerializer serializer;
+        private readonly ISerializer serializer;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IToolBox> tools, IEnumerable<IFlyOut> flyOuts,
-            IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
+        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IAnchorable> tools,
+            IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
         {
             Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
             Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
@@ -40,11 +39,11 @@ namespace Pixel.Automation.Designer.ViewModels
          
             DisplayName = "Pixel Automation";        
 
-            this.Tools.AddRange(tools);
+            this.Anchorables.AddRange(tools);
             this.ScreenScrappers.AddRange(scrappers);
-            this.FlyoutViewModels.AddRange(flyOuts);
+            this.FlyOuts.AddRange(flyOuts);
 
-            propertyGrid = this.Tools.OfType<PropertyGridViewModel>().FirstOrDefault();
+            propertyGrid = this.Anchorables.OfType<PropertyGridViewModel>().FirstOrDefault();
           
             eventAggregator.SubscribeOnUIThread(this);
 
@@ -55,7 +54,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public void ToggleFlyout(int index)
         {
-            var flyout = this.FlyoutViewModels[index];
+            var flyout = this.FlyOuts[index];
             flyout.IsOpen = !flyout.IsOpen;
         }
 
@@ -223,7 +222,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             //Temp fix
             //TODO : Check why selecting a tool box item causes ActivateItem to be triggered by avalon dock
-            if (item is IToolBox)
+            if (item is IAnchorable)
             {
                 return;
             }
@@ -249,10 +248,9 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public void ShowToolBox(string toolBoxName)
         {
-            var targetToolBox = this.Tools.FirstOrDefault(t => t.DisplayName.Equals(toolBoxName));
+            var targetToolBox = this.Anchorables.FirstOrDefault(t => t.DisplayName.Equals(toolBoxName));
             if (targetToolBox != null)
-            {
-                targetToolBox.IsActiveItem = true;
+            {                
                 targetToolBox.IsVisible = true;
                 targetToolBox.IsSelected = true;
             }
@@ -269,10 +267,10 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private PropertyGridViewModel propertyGrid;
 
-        public async Task HandleAsync(PropertyGridObjectEventArgs message, CancellationToken cancellationToken)
+        public Task HandleAsync(PropertyGridObjectEventArgs message, CancellationToken cancellationToken)
         {
             propertyGrid.SetState(message.ObjectToDisplay, message.IsReadOnly, message.SaveCommand, message.CanSaveCommand);          
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         #endregion property grid
@@ -282,13 +280,11 @@ namespace Pixel.Automation.Designer.ViewModels
             if (activateScreenNotification?.ScreenToActivate != null)
             {            
                 await this.ActivateItemAsync(activateScreenNotification.ScreenToActivate, CancellationToken.None);
-            }
-            await Task.CompletedTask;
+            }           
         }
 
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken)
-        {
-            ITestExplorer testExplorer = this.Tools.OfType<ITestExplorer>().FirstOrDefault();
+        {       
             var result = MessageBox.Show("Are you sure you want to exit? Any unsaved changes will be lost.",
                "Confirm Quit", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.Cancel)
@@ -296,8 +292,6 @@ namespace Pixel.Automation.Designer.ViewModels
                 return await Task.FromResult(false);
             }
             return await Task.FromResult(true);
-        }
-
-        
+        }        
     }
 }

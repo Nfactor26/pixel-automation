@@ -20,7 +20,7 @@ namespace Pixel.Automation.Editor.Core.Docking
 
 		public override Style SelectStyle(object item, DependencyObject container)
 		{
-            if (item is IToolBox)
+            if (item is IAnchorable)
             {
                 return ToolStyle;
             }

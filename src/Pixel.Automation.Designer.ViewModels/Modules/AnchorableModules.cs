@@ -15,23 +15,23 @@ using System.Linq;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
-    public class ToolBoxModules : NinjectModule
+    public class AnchorableModules : NinjectModule
     {
         public override void Load()
         {
-            Kernel.Bind<IToolBox>().To<PropertyGridViewModel>().InSingletonScope();
-            Kernel.Bind<IToolBox>().To<ComponentToolBoxViewModel>().InSingletonScope();        
-            Kernel.Bind<IToolBox>().To<TestExplorerHostViewModel>().InSingletonScope();
+            Kernel.Bind<IAnchorable>().To<PropertyGridViewModel>().InSingletonScope();
+            Kernel.Bind<IAnchorable>().To<ComponentToolBoxViewModel>().InSingletonScope();        
+            Kernel.Bind<IAnchorable>().To<TestExplorerHostViewModel>().InSingletonScope();
 
-            Kernel.Bind<IToolBox>().To<ApplicationExplorerViewModel>().InSingletonScope();
-            Kernel.Bind<IToolBox>().To<TestDataRepositoryHostViewModel>().InSingletonScope();
+            Kernel.Bind<IAnchorable>().To<ApplicationExplorerViewModel>().InSingletonScope();
+            Kernel.Bind<IAnchorable>().To<TestDataRepositoryHostViewModel>().InSingletonScope();
 
             //Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
             //.EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IToolBox>()
             //.BindAllInterfaces().Configure(s => s.InSingletonScope()));
 
-            Kernel.Bind<IReadOnlyCollection<IToolBox>>()
-            .ToMethod(ctx => new ReadOnlyCollection<IToolBox>(ctx.Kernel.GetAll<IToolBox>().ToList())).InSingletonScope();
+            Kernel.Bind<IReadOnlyCollection<IAnchorable>>()
+            .ToMethod(ctx => new ReadOnlyCollection<IAnchorable>(ctx.Kernel.GetAll<IAnchorable>().ToList())).InSingletonScope();
 
             Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
              .EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IFlyOut>()

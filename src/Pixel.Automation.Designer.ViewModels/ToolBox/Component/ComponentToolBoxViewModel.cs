@@ -11,7 +11,7 @@ using ToolBoxItem = Pixel.Automation.Core.Attributes.ToolBoxItemAttribute;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-    public class ComponentToolBoxViewModel : ToolBox, IComponentBox
+    public class ComponentToolBoxViewModel : Anchorable, IComponentBox
     {
         ITypeProvider knownTypesProvider;
 

@@ -1,5 +1,4 @@
-﻿using Caliburn.Micro;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Threading.Tasks;
 
@@ -7,11 +6,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IEditor : IDisposable
     {
-        IObservableCollection<IToolBox> Tools
-        {
-            get;
-        }
-
         /// <summary>
         /// Save the project state in the current workspace
         /// </summary>

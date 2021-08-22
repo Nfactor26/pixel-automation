@@ -17,7 +17,7 @@ using System.Windows.Input;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
-    public class ApplicationExplorerViewModel : Conductor<IScreen>.Collection.OneActive, IToolBox, IDisposable
+    public class ApplicationExplorerViewModel : AnchorableHost, IDisposable
     {
         private readonly ILogger logger = Log.ForContext<ApplicationExplorerViewModel>();
     
@@ -43,10 +43,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 NotifyOfPropertyChange(() => SelectedApplication);
                 CanEdit = false;
                 if (value != null)
-                {
-                    //If we directly click an application icon without selecting view first, IsActiveItem is not set. Hence, explicitly setting it whenever
-                    //one of the application is selected.
-                    this.IsActiveItem = true;
+                {                   
                     //Notification for property grid to display selected application details
                     this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails, true));
                     logger.Debug("Selected application set to {Application}", selectedApplication.ApplicationName);
@@ -263,52 +260,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         #endregion Edit Application
 
-        #region IToolBox
-
-        bool isActiveItem;
-        public bool IsActiveItem
-        {
-            get => isActiveItem;
-            set
-            {
-                isActiveItem = value;              
-                NotifyOfPropertyChange(() => IsActiveItem);
-                if (isActiveItem == false)
-                {
-                    this.SelectedApplication = null;
-                }
-            }
-
-        }
-
-        public PaneLocation PreferredLocation
+        #region Anchorable
+        
+        public override PaneLocation PreferredLocation
         {
             get
             {
                 return PaneLocation.Bottom;
             }
         }
-
-        private bool isVisible = true;
-        public bool IsVisible
-        {
-            get { return isVisible; }
-            set
-            {
-                isVisible = value;
-                NotifyOfPropertyChange(() => IsVisible);
-            }
-        }
-
-        public double PreferredWidth
-        {
-            get
-            {
-                return 250;
-            }
-        }
-
-        public double PreferredHeight
+      
+        public override double PreferredHeight
         {
             get
             {
@@ -316,24 +278,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }
 
-        protected ICommand closeCommand;
-        public virtual ICommand CloseCommand
-        {
-            get { return closeCommand ?? (closeCommand = new RelayCommand<bool>(p => IsVisible = false, p => true)); }
-        }
-
-        private bool isSelected;
-        public bool IsSelected
-        {
-            get { return isSelected; }
-            set
-            {
-                isSelected = value;
-                NotifyOfPropertyChange(() => IsSelected);
-            }
-        }
-
-        #endregion IToolBox        
+        #endregion Anchorable        
 
         #region IDisposable
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Script.Editor.MultiEditor
 {
-    public class DocumentViewModel : ToolBox
+    public class DocumentViewModel : Anchorable
     {       
         private readonly IMultiEditor editor;
 

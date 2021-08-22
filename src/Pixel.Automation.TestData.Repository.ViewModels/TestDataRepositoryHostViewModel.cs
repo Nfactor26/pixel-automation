@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
-    public class TestDataRepositoryHostViewModel : HostToolBox, ITestDataRepositoryHost
+    public class TestDataRepositoryHostViewModel : AnchorableHost, ITestDataRepositoryHost
     {      
         /// <summary>
         /// Preferred location of the panel

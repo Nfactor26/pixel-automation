@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-    public class PropertyGridViewModel : ToolBox
+    public class PropertyGridViewModel : Anchorable
     {
         public override double PreferredWidth => 320;
 

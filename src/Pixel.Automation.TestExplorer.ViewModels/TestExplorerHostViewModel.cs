@@ -9,7 +9,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     /// <summary>
     /// Host panel for test explorer for automation projects
     /// </summary>
-    public class TestExplorerHostViewModel : HostToolBox, ITestExplorerHost
+    public class TestExplorerHostViewModel : AnchorableHost, ITestExplorerHost
     {       
         /// <summary>
         /// Preferred location of the panel
