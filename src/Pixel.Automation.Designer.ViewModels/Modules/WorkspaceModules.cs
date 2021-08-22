@@ -10,7 +10,7 @@ using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.Scripting.Components.Arguments;
 using Pixel.Automation.TestData.Repository.ViewModels;
-using Pixel.Automation.TestExplorer;
+using Pixel.Automation.TestExplorer.ViewModels;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
@@ -20,6 +20,9 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
         {
             Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>().InSingletonScope();
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
+            Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>().InSingletonScope();
+
+
             Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
             Kernel.Bind<IPrefabProjectManager>().To<PrefabProjectManager>().InSingletonScope();
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
@@ -32,13 +35,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IArgumentTypeBrowserFactory>().To<ArgumentTypeBrowserFactory>().InSingletonScope();
             Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 
-            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();         
-
-
-            Kernel.Bind<ITestRepositoryManager>().To<TestRepositoryManager>().InSingletonScope();
-
+            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();    
             Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InThreadScope();
-
 
             Kernel.Bind<TestDataRepository>().ToSelf();
             

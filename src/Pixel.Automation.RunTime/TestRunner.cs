@@ -40,21 +40,13 @@ namespace Pixel.Automation.RunTime
             get => isSetupComplete;
             set
             {
-                isSetupComplete = value;
-                OnPropertyChanged(nameof(CanSetUpEnvironment));
-                OnPropertyChanged(nameof(CanTearDownEnvironment));
-                OnPropertyChanged(nameof(CanRunTests));
+                isSetupComplete = value;               
             }
         }
 
         public bool CanRunTests
         {
             get => IsSetupComplete;
-        }
-
-        public bool CanSetUpEnvironment
-        {
-            get => !isSetupComplete;
         }
 
         public async Task SetUpEnvironment()
@@ -83,12 +75,7 @@ namespace Pixel.Automation.RunTime
             {
                 logger.Error(ex.Message, ex);
             }
-        }
-     
-        public bool CanTearDownEnvironment
-        {
-            get => isSetupComplete;
-        }
+        }    
 
         public async Task TearDownEnvironment()
         {

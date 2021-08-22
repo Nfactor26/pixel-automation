@@ -90,7 +90,7 @@
                                         dd:DragDrop.DropHandler="{StaticResource dataSourceDropHandler}">
                                 <StackPanel Orientation="Horizontal" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                         Background="{DynamicResource MahApps.Brushes.Control.Background}"
-                                        Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}">
+                                        Tag="{Binding DataContext, ElementName=TestExplorerTreeView}">
 
                                     <iconPacks:PackIconOcticons x:Name="OpenIndicator" VerticalAlignment="Center"
                                          Foreground="{DynamicResource MahApps.Brushes.Accent2}"
@@ -98,7 +98,7 @@
                                          DockPanel.Dock="Left"  Visibility="Hidden" Kind="IssueOpened" />
                                     <TextBlock x:Name="TestCaseLabel" Text="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" HorizontalAlignment="Left"
                                          DockPanel.Dock="Left"  Padding="2" Margin="4,0,0,0"
-                                         cal:Action.TargetWithoutContext="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                                         cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=TestExplorerTreeView}"
                                          cal:Message.Attach="[Event DoubleClick] = [Action OpenTestCaseAsync($dataContext)]">
                                         <TextBlock.ToolTip>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -187,7 +187,7 @@
                     <ControlTemplate TargetType="TreeViewItem">
                         <StackPanel Orientation="Vertical">
                             <Expander x:Name="TestCategory" Header="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" 
-                                     Tag="{Binding DataContext.ActiveInstance, ElementName=TestExplorerTreeView}"
+                                     Tag="{Binding DataContext, ElementName=TestExplorerTreeView}"
                                      Background="{DynamicResource MahApps.Brushes.Window.Background}"   
                                      controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
                                      BorderThickness="0" Margin="5,0,0,0" FontSize="11">
@@ -206,7 +206,7 @@
                                             cal:Message.Attach="[Event Click] = [Action AddTestCaseAsync($dataContext)]"/>
                                         <MenuItem x:Name="Edit" Header="Edit Details"                                       
                                             cal:Message.Attach="[Event Click] = [Action EditTestFixtureAsync($dataContext)]"/>
-                                        <MenuItem x:Name="EditScript" Header="Edit Script"                                       
+                                        <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                        
                                             cal:Message.Attach="[Event Click] = [Action EditTestFixtureScriptAsync($dataContext)]"/>                                     
                                     </ContextMenu>
                                 </Expander.ContextMenu>
@@ -214,7 +214,7 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="TestCategory" Property="Foreground" Value="{StaticResource MahApps.Colors.AccentBase}"></Setter>
+                                <Setter TargetName="TestCategory" Property="Foreground" Value="{DynamicResource MahApps.Colors.AccentBase}"></Setter>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsMuted}" Value="True">
                                 <Setter Property="Foreground" Value="Gray"/>
@@ -243,79 +243,64 @@
             <StackPanel  Orientation="Horizontal">
                 
                 <Button x:Name="AddTestFixture" Margin="0,0,2,0" HorizontalAlignment="Right" 
-                                            Height="20" Width="20" ToolTip="Add new fixture"    
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"      
+                                            Height="20" Width="20" ToolTip="Add new fixture" 
+                                            IsEnabled="{Binding CanAddTestFixture}"
                                             cal:Message.Attach="[Event Click] = [Action AddTestFixtureAsync()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material PlaylistPlus}"/>
              
                 <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                                                                  
                                             Height="20" Width="20" ToolTip="Setup"     
-                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanSetUpEnvironment, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance.TestRunner}"   
-                                            cal:Message.Attach="[Event Click] = [Action SetUpEnvironment()]"
+                                            IsEnabled="{Binding CanSetUpEnvironment, FallbackValue=false}"                                       
+                                            cal:Message.Attach="[Event Click] = [Action SetUpEnvironmentAsync()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material Flash}"/>
 
                 <Button x:Name="TearDown" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                          
                                             Height="20" Width="20" ToolTip="Teardown"  
-                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanTearDownEnvironment, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance.TestRunner}" 
-                                            cal:Message.Attach="[Event Click] = [Action TearDownEnvironment()]"
+                                            IsEnabled="{Binding CanTearDownEnvironment, FallbackValue=false}"                                          
+                                            cal:Message.Attach="[Event Click] = [Action TearDownEnvironmentAsync()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material FlashOff}"/>
 
                 <Button x:Name="RunSelected" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Run Selected"     
-                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanRunTests, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}" 
+                                            IsEnabled="{Binding CanRunTests, FallbackValue=false}"                                            
                                             cal:Message.Attach="[Event Click] = [Action RunSelected()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material Run}"/>
 
                 <Button x:Name="RunAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Run All"   
-                                            IsEnabled="{Binding ActiveInstance.TestRunner.CanRunTests, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
+                                            IsEnabled="{Binding CanRunTests, FallbackValue=false}"                                          
                                             cal:Message.Attach="[Event Click] = [Action RunAll()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material RunFast}"/>
                 
                 <Button x:Name="Abort" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Abort Running Tests"   
-                                            IsEnabled="{Binding ActiveInstance.CanAbort, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
+                                            IsEnabled="{Binding CanAbort, FallbackValue=false}"                                         
                                             cal:Message.Attach="[Event Click] = [Action AbortRun()]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:FontAwesome StopCircleRegular}"/>
 
                 <Button x:Name="SaveAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
                                             Height="20" Width="20" ToolTip="Save changes to all open tests"    
-                                            IsEnabled="{Binding ActiveInstance.CanSaveAll, FallbackValue=false}"
-                                            cal:Action.TargetWithoutContext="{Binding Path=ActiveInstance}"
+                                            IsEnabled="{Binding CanSaveAll, FallbackValue=false}"                                          
                                             cal:Message.Attach="[Event Click] = [Action SaveAllOpenTests()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight ContentSaveAll}"/>
             </StackPanel>
         </StackPanel>
 
-        <TextBox x:Name="Filter" Text="{Binding ActiveInstance.FilterText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+        <TextBox x:Name="Filter" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
                  controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                  controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch"
                  VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
 
         <TreeView x:Name="TestExplorerTreeView" Grid.Row="2"
                                   ItemContainerStyleSelector="{StaticResource TreeViewItemStyleSelector}"
-                                  ItemsSource="{Binding ActiveInstance.TestFixtures}" BorderThickness="0">
-            <!--<TreeView.GroupStyle>
-                <GroupStyle ContainerStyle="{StaticResource FixtureGroupStyle}">
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock  Text="{Binding Path=Name}"/>
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </TreeView.GroupStyle>-->           
+                                  ItemsSource="{Binding TestFixtures}" BorderThickness="0">         
         </TreeView>
 
     </Grid>

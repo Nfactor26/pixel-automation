@@ -2,7 +2,6 @@
 using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -30,10 +29,10 @@ namespace Pixel.Automation.Designer.ViewModels
         #region data members        
 
         private readonly ILogger logger = Log.ForContext<AutomationEditorViewModel>();
-        private readonly IAutomationProjectManager projectManager;
-        private readonly ITestExplorer testExplorerToolBox;
-        private readonly ITestRepositoryManager testRepositoryManager;
-        private readonly IServiceResolver serviceResolver;        
+        private readonly IAutomationProjectManager projectManager;      
+        private readonly IServiceResolver serviceResolver;
+        private readonly ITestExplorer testExplorer;
+        private readonly ITestExplorerHost testExplorerHost;
 
         private readonly TestDataRepositoryViewModel testDataRepositoryViewModel;          
         TestDataRepository testDataRepository = default;
@@ -41,27 +40,25 @@ namespace Pixel.Automation.Designer.ViewModels
         #endregion data members
 
         #region constructor
-        public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager,  ISerializer serializer, IEntityManager entityManager,
-            IAutomationProjectManager projectManager, ITestRepositoryManager testRepositoryManager,
-            IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
+        public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager,  ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer,
+            IAutomationProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings) : base(
             globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, tools, versionManagerFactory, dropTarget, applicationSettings)
         {
 
-            this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
-            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;             
-            this.testRepositoryManager = Guard.Argument(testRepositoryManager, nameof(testRepositoryManager)).NotNull().Value; 
+            this.serviceResolver = Guard.Argument(serviceResolver).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager).NotNull().Value;           
+            this.testExplorer = Guard.Argument(testExplorer).NotNull().Value; 
 
             foreach (var item in Tools)
             {               
-                if(item is ITestExplorer)
-                {
-                    testExplorerToolBox = item as ITestExplorer;
-                    continue;
-                }
-
                 if(item is TestDataRepositoryViewModel)
                 {
                     testDataRepositoryViewModel = item as TestDataRepositoryViewModel;
+                }
+
+                if(item is ITestExplorerHost host)
+                {
+                    testExplorerHost = host;                  
                 }
             }
 
@@ -87,7 +84,7 @@ namespace Pixel.Automation.Designer.ViewModels
             logger.Information($"Version : {targetVersion} will be loaded.");
             if(targetVersion != null)
             {
-                await this.projectManager.Load(project, targetVersion);
+                await this.projectManager.Load(project, targetVersion);            
                 UpdateWorkFlowRoot();             
                 return;
             }
@@ -131,7 +128,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
                 foreach (var fixture in testFixtures)
                 {
-                    await this.testRepositoryManager.CloseTestFixtureAsync(fixture.Tag);
+                    await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
                 }
 
                 await this.projectManager.Refresh();
@@ -142,7 +139,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
                 foreach (var testEntity in testCaseEntities)
                 {
-                    await this.testRepositoryManager.OpenTestCaseAsync(testEntity.Tag);
+                    await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
                 }
             }
             catch (Exception ex)
@@ -188,10 +185,7 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
         private void InitializeTestProcess()
-        {         
-            this.testRepositoryManager.Initialize();
-            this.testExplorerToolBox?.SetActiveInstance(this.testRepositoryManager);
-
+        {        
             if(this.testDataRepository == null)
             {
                 this.testDataRepository = this.EntityManager.GetServiceOfType<TestDataRepository>();            
@@ -206,13 +200,17 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             InitializeTestProcess();
+            //whenever we activate the automation editor, activate the test explorer associated to it as well
+            await this.testExplorerHost.ActivateItemAsync(this.testExplorer);
             await base.OnActivateAsync(cancellationToken);
             logger.Information($"Automation Project : {this.CurrentProject.Name} was activated");
         }
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            this.testExplorerToolBox?.ClearActiveInstance();
+            //whenever we deactivate the automation editor, we deactivate the test explorer associated to it as well.
+            //false parameter tells that we should not close the test explorer but only deactivate.
+            await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, false);
             this.testDataRepositoryViewModel?.ClearActiveInstance();
             await base.OnDeactivateAsync(close, cancellationToken);
             logger.Information($"Automation Project : {this.CurrentProject.Name} was deactivated");
@@ -226,7 +224,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
-                this.testRepositoryManager.SaveAll();
+                this.testExplorer.SaveAll();
                 await projectManager.Save();
             }
             catch (Exception ex)
@@ -281,13 +279,13 @@ namespace Pixel.Automation.Designer.ViewModels
             await SetSelectedItem(null);
             this.globalEventAggregator.Unsubscribe(this);
 
-            //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.
-            this.testExplorerToolBox?.ClearActiveInstance();
+            //when test cases are closed by test explorer, EntityManageres created for each open tests are also disposed.        
             var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
             foreach (var testEntity in testCaseEntities)
             {
-                await this.testRepositoryManager.CloseTestCaseAsync(testEntity.Tag);
+                await this.testExplorer.CloseTestCaseAsync(testEntity.Tag);
             }
+            await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, true);
 
             this.testDataRepositoryViewModel?.ClearActiveInstance();
             this.testDataRepository = null;

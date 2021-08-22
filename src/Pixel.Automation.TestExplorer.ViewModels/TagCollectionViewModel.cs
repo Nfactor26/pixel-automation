@@ -7,11 +7,20 @@ using System.Linq;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
+    /// <summary>
+    /// View Model for a collection of <see cref="Tag"/>
+    /// </summary>
     public class TagCollectionViewModel : PropertyChangedBase
     {
+        /// <summary>
+        /// Collection of Tags 
+        /// </summary>
         public ObservableCollection<TagViewModel> Tags { get; private set; } = new ObservableCollection<TagViewModel>();
 
         private TagViewModel selectedTag;
+        /// <summary>
+        /// Selected Tag on the view
+        /// </summary>
         public TagViewModel SelectedTag
         {
             get => selectedTag;
@@ -25,6 +34,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         private bool hasErrors;
+        /// <summary>
+        /// Indiactes if there are any validation errors
+        /// </summary>
         public bool HasErrors
         {
             get => hasErrors;
@@ -35,11 +47,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
         public TagCollectionViewModel()
         {
 
         }
 
+        /// <summary>
+        /// Add a new Tag to the collection and set it selected
+        /// </summary>
         public void AddNew()
         {
             var newTag = new TagViewModel(new Tag()) { IsEditing = true };
@@ -47,21 +65,33 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             SelectedTag = newTag;
         }
 
+        /// <summary>
+        /// Guard method to determine if we can edit the Tag
+        /// </summary>
         public bool CanEdit
         {
             get => this.SelectedTag != null && !this.Tags.Any(t => t.IsEditing);
         }
 
+        /// <summary>
+        /// Put selected tag in edit mode
+        /// </summary>
         public void EditSelected()
         {
             this.SelectedTag?.Edit();
         }
 
+        /// <summary>
+        /// Guard method to determing if tag can be deleted
+        /// </summary>
         public bool CanDelete
         {
             get => this.SelectedTag != null;
         }
 
+        /// <summary>
+        /// Delete selected Tag
+        /// </summary>
         public void DeleteSelected()
         {
             if (this.SelectedTag != null)
@@ -72,12 +102,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Add a new Tag
+        /// </summary>
+        /// <param name="item"></param>
         public void Add(TagViewModel item)
         {
             Guard.Argument(item).NotNull();
             this.Tags.Add(item);
         }
 
+        /// <summary>
+        /// Check tags for any validation errors
+        /// </summary>
+        /// <param name="validationErrors"></param>
+        /// <returns></returns>
         public bool Validate(out List<string> validationErrors)
         {
             validationErrors = new List<string>();

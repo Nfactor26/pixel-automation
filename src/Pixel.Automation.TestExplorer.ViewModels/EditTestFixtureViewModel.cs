@@ -8,14 +8,24 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
+    /// <summary>
+    /// View Model used for editing the details of a <see cref="TestFixture"/>
+    /// </summary>
     public class EditTestFixtureViewModel : SmartScreen
     {
         private readonly ILogger logger = Log.ForContext<EditTestFixtureViewModel>();
         private readonly TestFixtureViewModel testFixtureVM;
         private readonly IEnumerable<string> existingFixtures;
 
+        /// <summary>
+        /// A clone of TestFixtureViewModel where edits are made.
+        /// Actual copy will be replaced with edited copy on user confirmation after edit is done.
+        /// </summary>
         public TestFixtureViewModel CopyOfTestFixture { get; }
 
+        /// <summary>
+        /// DisplayName for the Fixture
+        /// </summary>
         public string TestFixtureDisplayName
         {
             get => CopyOfTestFixture.DisplayName;
@@ -27,6 +37,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Category to which TestFixture belongs. This can be any user defined value and is used to filter the TestFixtures to be executed
+        /// and doesn't have any significance during the actual execution of the TestCases belonging to a TestFixture.
+        /// </summary>
         public string TestFixtureCategory
         {
             get => CopyOfTestFixture.Category;
@@ -38,6 +52,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Description for the Fixture
+        /// </summary>
         public string TestFixtureDescription
         {
             get => CopyOfTestFixture.Description;
@@ -49,25 +66,45 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Indicates if the Fixture is muted.
+        /// None of the TestCases belonging to a muted fixture will be executed.
+        /// </summary>
         public bool IsMuted
         {
             get => CopyOfTestFixture.IsMuted;
             set => CopyOfTestFixture.IsMuted = value;
         }
 
+        /// <summary>
+        /// Controls the execution speed of the TestCases belonging to a TestFixture
+        /// </summary>
         public int DelayFactor
         {
             get => (100 - CopyOfTestFixture.DelayFactor);
             set => CopyOfTestFixture.DelayFactor = (100 - value);
         }
 
+        /// <summary>
+        /// Order of execution of the TestFixture amongst a group of other Fixtures.
+        /// </summary>
         public int Order
         {
             get => CopyOfTestFixture.Order;
             set => CopyOfTestFixture.Order = value;
         }
+
+        /// <summary>
+        /// A collection of (key,value) tags associated with TestFixture. This can be used to filter the TestFixtures to be executed
+        /// and doesn't have any significance during the actual execution of TestCases belonging to a TestFixture.
+        /// </summary>
         public TagCollectionViewModel TagCollection { get; private set; } = new TagCollectionViewModel();
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="testFixtureVM"></param>
+        /// <param name="existingFixtures"></param>
         public EditTestFixtureViewModel(TestFixtureViewModel testFixtureVM, IEnumerable<TestFixtureViewModel> existingFixtures)
         {
             this.testFixtureVM = testFixtureVM;
@@ -79,6 +116,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Apply the edits done of temporary copy to the actual instance of TestFixture
+        /// and close the screen.
+        /// </summary>
+        /// <returns></returns>
         public async Task Save()
         {
             try
@@ -109,6 +151,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Close the screen without applying any edits done.
+        /// </summary>
+        /// <returns></returns>
         public async Task Cancel()
         {
             await this.TryCloseAsync(false);
@@ -117,8 +163,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         #region Validation
 
+        /// <inheritdoc/>
         public override bool ShowModelErrors => HasErrors && propertyErrors.ContainsKey(nameof(TagCollection)) && propertyErrors[nameof(TagCollection)].Count() > 0;
 
+        /// <inheritdoc/>
         public override void DismissModelErrors()
         {
             ClearErrors(nameof(TagCollection));

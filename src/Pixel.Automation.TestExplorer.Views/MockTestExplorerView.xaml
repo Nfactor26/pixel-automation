@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="Pixel.Automation.TestExplorer.Views.MockTestExplorerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.TestExplorer.Views"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"> 
+        <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"></RowDefinition>
+                <RowDefinition Height="45"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <StackPanel x:Name="ToolBar" Orientation="Horizontal" Margin="5,5,5,0" Grid.Row="0" 
+                   IsEnabled="{Binding IsTestProcessOpen}">
+                <StackPanel  Orientation="Horizontal">
+
+                    <Button x:Name="AddTestFixture" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Add new fixture" 
+                                            IsEnabled="false"                                                                 
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material PlaylistPlus}"/>
+
+                    <Button x:Name="SetUp" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                                                                  
+                                            Height="20" Width="20" ToolTip="Setup"     
+                                            IsEnabled="false"                                    
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material Flash}"/>
+
+                    <Button x:Name="TearDown" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"                                          
+                                            Height="20" Width="20" ToolTip="Teardown"  
+                                            IsEnabled="false"                                          
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material FlashOff}"/>
+
+                    <Button x:Name="RunSelected" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Run Selected"     
+                                            IsEnabled="false"                                
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material Run}"/>
+
+                    <Button x:Name="RunAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Run All"   
+                                            IsEnabled="false"                                               
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material RunFast}"/>
+
+                    <Button x:Name="Abort" Margin="0,0,2,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Abort Running Tests"   
+                                            IsEnabled="false" 
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:FontAwesome StopCircleRegular}"/>
+
+                    <Button x:Name="SaveAll" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Save changes to all open tests"    
+                                            IsEnabled="false"                      
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:MaterialLight ContentSaveAll}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBox x:Name="Filter" Grid.Row="1" IsEnabled="False"
+                 controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
+                 controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Stretch"
+                 VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>      
+        </Grid>
+</UserControl>
