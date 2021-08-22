@@ -4,34 +4,26 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestExplorer.ViewModels
+namespace Pixel.Automation.TestData.Repository.ViewModels
 {
-    /// <summary>
-    /// Host panel for test explorer for automation projects
-    /// </summary>
-    public class TestExplorerHostViewModel : HostToolBox, ITestExplorerHost
-    {       
+    public class TestDataRepositoryHostViewModel : HostToolBox, ITestDataRepositoryHost
+    {      
         /// <summary>
         /// Preferred location of the panel
         /// </summary>
         public override PaneLocation PreferredLocation
         {
-            get { return PaneLocation.Left; }
+            get { return PaneLocation.Bottom; }
+        }    
+
+        private IScreen defaultContent = new MockTestDataRepositoryViewModel();
+
+        public TestDataRepositoryHostViewModel()
+        {
+            this.DisplayName = "Test Data Repository";
+            _ = this.ActivateItemAsync(defaultContent);
         }
 
-       
-        private IScreen defaultContent = new MockTestExplorerViewModel();
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public TestExplorerHostViewModel()
-        {
-            this.DisplayName = "Test Explorer";
-            _ = this.ActivateItemAsync(defaultContent);
-        }      
-
-      
         /// <inheritdoc/>       
         public override async Task DeactivateItemAsync(IScreen item, bool close, CancellationToken cancellationToken = default)
         {

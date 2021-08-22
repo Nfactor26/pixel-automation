@@ -3,15 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"        
-             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:local="clr-namespace:Pixel.Automation.TestData.Repository.Views"
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:core="clr-namespace:Pixel.Automation.Core.TestData;assembly=Pixel.Automation.Core" 
-             xmlns:local="clr-namespace:Pixel.Automation.TestData.Repository.Views"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"    
+             xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
     <UserControl.Resources>
 
         <Style x:Key="AddButton" TargetType="Button">
@@ -74,7 +73,7 @@
                                         Margin="2"
                                         Padding="4"                                      
                                         Kind="FileCode" />
-            </Border>            
+            </Border>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type core:CsvDataSourceConfiguration}">
@@ -84,7 +83,7 @@
                                         Margin="2"
                                         Padding="4"                                     
                                         Kind="FileDelimited" />
-            </Border>          
+            </Border>
         </DataTemplate>
 
         <Style x:Key="TestDataListStyle" TargetType="ListBox">
@@ -105,7 +104,7 @@
                                     <ContextMenu.Template>
                                         <ControlTemplate>
                                             <StackPanel>
-                                                <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action EditDataSource($dataContext)]" ></MenuItem>                                                
+                                                <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action EditDataSource($dataContext)]" ></MenuItem>
                                             </StackPanel>
                                         </ControlTemplate>
                                     </ContextMenu.Template>
@@ -130,9 +129,8 @@
 
     <Grid Margin="5,5,0,0" Background="{DynamicResource MahApps.Brushes.Control.Background}">
 
-        <StackPanel x:Name="TestDataSourceView" HorizontalAlignment="Stretch"  cal:Message.Attach="[Event PreviewMouseLeftButtonDown] = [Action Activate()]"
-                    Margin="0,4,0,6"  Orientation="Vertical">
-            <StackPanel DataContext="{Binding ActiveInstance}">
+        <StackPanel x:Name="TestDataSourceView" HorizontalAlignment="Stretch"  Margin="0,4,0,6"  Orientation="Vertical">
+            <StackPanel>
 
                 <StackPanel Orientation="Horizontal" Grid.Row="0">
                     <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
@@ -140,14 +138,10 @@
                              controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
                                  Width="250"/>
                     <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-                    <Button x:Name="Add" Click="AddDataSourceClick" HorizontalAlignment="Right"
-                            IsEnabled="{Binding ElementName=TestDataSourceView, Path=DataContext.IsTestProcessOpen}"
-                            Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
+                    <Button x:Name="Add" Click="AddDataSourceClick" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
                 </StackPanel>
 
-                <ListBox  x:Name="TestDataSourceCollection" 
-                    ItemsSource="{Binding TestDataSourceCollection}"
-                    SelectedItem="{Binding SelectedTestDataSource}"
+                <ListBox  x:Name="TestDataSourceCollection"  ItemsSource="{Binding TestDataSourceCollection}" SelectedItem="{Binding SelectedTestDataSource}"
                     Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"                
                     Style="{StaticResource TestDataListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"                 
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
