@@ -98,21 +98,32 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         /// </summary>
         /// <param name="filterText"></param>
         /// <param name="shouldBeVisible"></param>
-        [TestCase("#1", true)]      
+        [TestCase("#1", true)]
+        [TestCase("Test", true)]
+        [TestCase("Fixture", true)]
+        [TestCase("TestFixture#1", true)]
+        [TestCase("TestCase#1", true)]
+        [TestCase("", true)]
         [TestCase("#2", false)]
+        [TestCase("name:", true)] 
+        [TestCase("name:#1:Fixture", true)] 
+        [TestCase("name:#1", true)] 
+        [TestCase("module:test", false)] 
+        [TestCase("module:test explorer", true)]
         public void ValidateThatTestFixtureIsVisibleIfAnyOfItsTestCaseIsVisible(string filterText, bool shouldBeVisible)
         {
             var testCase = new TestCase() { DisplayName = "TestCase#1" };
             var testCaseViewModel = new TestCaseViewModel(testCase);
             TestFixture testFixture = new TestFixture()
             {
-                DisplayName = "TestFixture"
+                DisplayName = "TestFixture#1"
             };
             TestFixtureViewModel testfixtureViewModel = new TestFixtureViewModel(testFixture);
+            testfixtureViewModel.Tags.Add("module", "test explorer");
             testfixtureViewModel.Tests.Add(testCaseViewModel);
-            testCaseViewModel.UpdateVisibility(filterText);
+            testfixtureViewModel.UpdateVisibility(filterText);
 
-            Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);
+            Assert.AreEqual(shouldBeVisible, testfixtureViewModel.IsVisible);
         }
     }
 }
