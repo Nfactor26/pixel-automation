@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.TestData;
 using TestCase = Pixel.Automation.Core.TestData.TestCase;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
@@ -100,15 +101,26 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [TestCase("#1", true)]
         [TestCase("Test", true)]
         [TestCase("Case", true)]
+        [TestCase("TestCase#1", true)]
         [TestCase("", true)]
         [TestCase("#2", false)]
+        [TestCase("name:", true)] 
+        [TestCase("name:#1:Test", true)] 
+        [TestCase("name:#1", true)] 
+        [TestCase("prefab:Prefab#1", true)] 
+        [TestCase("prefab:Prefab#2", false)] 
+        [TestCase("module:test", false)] 
+        [TestCase("module:test explorer", true)]
         public void ValidateThatVisibilityIsCorrectlyUpdatedWhenFilterTextChanges(string filterText, bool shouldBeVisible)
         {
             TestCase testCase = new TestCase()
             {
-                DisplayName = "TestCase#1"
+                DisplayName = "TestCase#1"               
             };
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
+            testCaseViewModel.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference() { PrefabId = "Prefab#1" });
+            testCaseViewModel.Tags.Add("module", "test explorer");
+
             testCaseViewModel.UpdateVisibility(filterText);
 
             Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);
