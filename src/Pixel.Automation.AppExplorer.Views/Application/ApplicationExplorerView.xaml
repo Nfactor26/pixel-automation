@@ -32,7 +32,7 @@
             <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
                 <iconPacks:PackIconMaterial Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"
                                         IsHitTestVisible="False" Margin="2" Padding="4"                                      
-                                        Kind="Windows" />
+                                        Kind="MicrosoftWindows" />
             </Border>
         </DataTemplate>
 
