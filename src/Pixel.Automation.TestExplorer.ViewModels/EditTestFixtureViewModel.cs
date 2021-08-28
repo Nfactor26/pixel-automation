@@ -14,14 +14,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     public class EditTestFixtureViewModel : SmartScreen
     {
         private readonly ILogger logger = Log.ForContext<EditTestFixtureViewModel>();
-        private readonly TestFixtureViewModel testFixtureVM;
+        private readonly TestFixture testFixture;
         private readonly IEnumerable<string> existingFixtures;
 
         /// <summary>
         /// A clone of TestFixtureViewModel where edits are made.
         /// Actual copy will be replaced with edited copy on user confirmation after edit is done.
         /// </summary>
-        public TestFixtureViewModel CopyOfTestFixture { get; }
+        public TestFixture CopyOfTestFixture { get; }
 
         /// <summary>
         /// DisplayName for the Fixture
@@ -98,19 +98,19 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// A collection of (key,value) tags associated with TestFixture. This can be used to filter the TestFixtures to be executed
         /// and doesn't have any significance during the actual execution of TestCases belonging to a TestFixture.
         /// </summary>
-        public TagCollectionViewModel TagCollection { get; private set; } = new TagCollectionViewModel();
+        public TagCollectionViewModel TagCollection { get; } = new TagCollectionViewModel();
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="testFixtureVM"></param>
         /// <param name="existingFixtures"></param>
-        public EditTestFixtureViewModel(TestFixtureViewModel testFixtureVM, IEnumerable<TestFixtureViewModel> existingFixtures)
+        public EditTestFixtureViewModel(TestFixture testFixture, IEnumerable<string> existingFixtures)
         {
-            this.testFixtureVM = testFixtureVM;
-            this.existingFixtures = existingFixtures.Select(s => s.DisplayName);
-            this.CopyOfTestFixture = new TestFixtureViewModel(testFixtureVM.TestFixture.Clone() as TestFixture);
-            foreach (var tag in testFixtureVM.Tags)
+            this.testFixture = testFixture;
+            this.existingFixtures = existingFixtures;
+            this.CopyOfTestFixture = testFixture.Clone() as TestFixture;
+            foreach (var tag in testFixture.Tags)
             {
                 this.TagCollection.Add(new TagViewModel(tag));
             }
@@ -127,18 +127,18 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 if (Validate())
                 {
-                    this.testFixtureVM.DisplayName = CopyOfTestFixture.DisplayName;
-                    this.testFixtureVM.Description = CopyOfTestFixture.Description;
-                    this.testFixtureVM.Category = CopyOfTestFixture.Category;
-                    this.testFixtureVM.IsMuted = CopyOfTestFixture.IsMuted;
-                    this.testFixtureVM.Order = CopyOfTestFixture.Order;
-                    this.testFixtureVM.DelayFactor = CopyOfTestFixture.DelayFactor;
-                    this.testFixtureVM.Tags.Clear();
+                    this.testFixture.DisplayName = CopyOfTestFixture.DisplayName;
+                    this.testFixture.Description = CopyOfTestFixture.Description;
+                    this.testFixture.Category = CopyOfTestFixture.Category;
+                    this.testFixture.IsMuted = CopyOfTestFixture.IsMuted;
+                    this.testFixture.Order = CopyOfTestFixture.Order;
+                    this.testFixture.DelayFactor = CopyOfTestFixture.DelayFactor;
+                    this.testFixture.Tags.Clear();
                     foreach (var item in this.TagCollection.Tags)
                     {
                         if (!item.IsDeleted)
                         {
-                            this.testFixtureVM.Tags.Add(item.Key, item.Value);
+                            this.testFixture.Tags.Add(item.Key, item.Value);
                         }
                     }
                     await this.TryCloseAsync(true);

@@ -103,6 +103,7 @@ namespace Pixel.Automation.Core.TestData
                 IsMuted = this.IsMuted,
                 Order = this.Order,
                 DelayFactor = this.DelayFactor,
+                Priority = this.Priority,
                 PrefabReferences = PrefabReferences
             };
             return copy;

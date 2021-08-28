@@ -5,13 +5,17 @@ using TestCase = Pixel.Automation.Core.TestData.TestCase;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
+    /// <summary>
+    /// Test Fixture for <see cref="TestCaseViewModel"/>
+    /// </summary>
+    [TestFixture]
     public class TestCaseViewModelFixture
     { 
         /// <summary>
-        /// Initialize a TestCaseViewModel from a TestCase object and verify that TestCaseViewModel properties returns correct values
+        /// Initialize a TestCaseViewModel from a TestCase object and verify the initial state 
         /// </summary>
         [Test]
-        public void ValidateThatTestCaseViewModelReturnsCorrectValues()
+        public void ValidateThatTestCaseViewModelIsCorrectlyInitialized()
         {
             var testCaseEntity = new Entity();        
             TestCase testCase = new TestCase()
@@ -27,6 +31,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCase.Tags.Add("priority", "high");
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
 
+            Assert.IsNotNull(testCaseViewModel.TestCase);
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
             Assert.AreEqual("TestCase#1", testCaseViewModel.DisplayName);
             Assert.AreEqual(1, testCaseViewModel.Order);
@@ -64,7 +69,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCase.Tags.Add("color", "red");       
+            testCaseViewModel.Tags.Add("color", "red");       
+        
             Assert.AreEqual("TestCase#1", testCase.DisplayName);
             Assert.AreEqual(1, testCase.Order);
             Assert.AreEqual("Test case description", testCase.Description);         

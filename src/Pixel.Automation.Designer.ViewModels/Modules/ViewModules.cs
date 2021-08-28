@@ -18,6 +18,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
         {
             Kernel.Bind<IEventAggregator>().To<EventAggregator>().InSingletonScope();
             Kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();
+            Kernel.Bind<IPlatformProvider>().To<XamlPlatformProvider>().InSingletonScope();
 
             Kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope();
             Kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();

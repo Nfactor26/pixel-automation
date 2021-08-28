@@ -18,7 +18,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// A colllection of TestCases beloning to this TestFixture
         /// </summary>
-        public ObservableCollection<TestCaseViewModel> Tests { get; set; } = new ObservableCollection<TestCaseViewModel>();
+        public ObservableCollection<TestCaseViewModel> Tests { get; } = new ObservableCollection<TestCaseViewModel>();
 
         /// <summary>
         /// constructor

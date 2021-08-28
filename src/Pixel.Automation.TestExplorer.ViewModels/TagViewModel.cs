@@ -97,7 +97,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         public void Save()
         {
-            if (!string.IsNullOrEmpty(this.Key) && !string.IsNullOrEmpty(this.Value))
+            if (IsValid())
             {
                 this.tag.Key = this.Key;
                 this.tag.Value = this.Value;

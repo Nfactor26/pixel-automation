@@ -15,14 +15,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     public class EditTestCaseViewModel : SmartScreen
     {
         private readonly ILogger logger = Log.ForContext<EditTestCaseViewModel>();
-        private readonly TestCaseViewModel testCase;
+        private readonly TestCase testCase;
         private readonly IEnumerable<string> existingTestCases;
 
         /// <summary>
         /// A clone of TestCaseViewModel where edits are made.
         /// Actual copy will be replaced with edited copy on user confirmation after edit is done.
         /// </summary>
-        public TestCaseViewModel CopyOfTestCase { get; }
+        public TestCase CopyOfTestCase { get; }
 
         /// <summary>
         /// DisplayName for the TestCase
@@ -102,12 +102,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         /// <param name="testCaseVM"></param>
         /// <param name="existingTestCases"></param>
-        public EditTestCaseViewModel(TestCaseViewModel testCaseVM, IEnumerable<TestCaseViewModel> existingTestCases)
+        public EditTestCaseViewModel(TestCase testCase, IEnumerable<string> existingTestCases)
         {
-            this.testCase = testCaseVM;
-            this.existingTestCases = existingTestCases.Select(s => s.DisplayName);
-            this.CopyOfTestCase = new TestCaseViewModel(testCaseVM.TestCase.Clone() as TestCase);
-            foreach (var tag in testCaseVM.Tags)
+            this.testCase = testCase;
+            this.existingTestCases = existingTestCases;
+            this.CopyOfTestCase = testCase.Clone() as TestCase;
+            foreach (var tag in testCase.Tags)
             {
                 this.TagCollection.Add(new TagViewModel(tag));
             }
@@ -129,6 +129,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     this.testCase.IsMuted = CopyOfTestCase.IsMuted;
                     this.testCase.Order = CopyOfTestCase.Order;
                     this.testCase.DelayFactor = CopyOfTestCase.DelayFactor;
+                    this.testCase.Priority = CopyOfTestCase.Priority;
                     this.testCase.Tags.Clear();
                     foreach (var item in this.TagCollection.Tags)
                     {

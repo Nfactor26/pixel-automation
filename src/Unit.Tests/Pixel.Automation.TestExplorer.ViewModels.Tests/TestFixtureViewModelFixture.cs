@@ -4,13 +4,17 @@ using Pixel.Automation.Core.TestData;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
+    /// <summary>
+    /// Test Fixture for <see cref="TestFixtureViewModel"/>
+    /// </summary>
+    [TestFixture]
     public class TestFixtureViewModelFixture
     {
         /// <summary>
-        /// Initialize a TestFixtureViewModel from a TestFixture object and verify that TestFixtureViewModel properties returns correct values
+        /// Initialize a TestFixtureViewModel from a TestFixture object and verify the initial state 
         /// </summary>
         [Test]
-        public void ValidateThatTestCaseViewModelReturnsCorrectValues()
+        public void ValidateThatTestCaseViewModelIsCorrectlyInitialized()
         {
             var fixtureEntity = new Entity();          
             TestFixture testFixture = new TestFixture()
@@ -25,6 +29,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testFixture.Tags.Add("priority", "low");
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
+            Assert.IsNotNull(testFixtureviewModel.TestFixture);
             Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.Id));
             Assert.AreEqual("TestFixture#1", testFixtureviewModel.DisplayName);
             Assert.AreEqual(1, testFixtureviewModel.Order);
@@ -49,7 +54,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var fixtureEntity = new Entity();          
             TestFixture testFixture = new TestFixture();
-            var testCaseViewModel = new TestFixtureViewModel(testFixture)
+            var testFixtureViewModel = new TestFixtureViewModel(testFixture)
             {
                 DisplayName = "TestFixture#1",
                 Order = 1,
@@ -58,15 +63,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCaseViewModel.Tags.Add("color", "red");
-            testCaseViewModel.Tags.Add("priority", "high");
+            testFixtureViewModel.Tags.Add("color", "red");
+            testFixtureViewModel.Tags.Add("priority", "high");
 
             Assert.AreEqual("TestFixture#1", testFixture.DisplayName);
             Assert.AreEqual(1, testFixture.Order);
             Assert.AreEqual("Test fixture description", testFixture.Description);
             Assert.AreEqual(fixtureEntity, testFixture.TestFixtureEntity);
-            Assert.IsTrue(testCaseViewModel.Tags.Contains("color"));
-            Assert.IsTrue(testCaseViewModel.Tags.Contains("priority"));
+            Assert.IsTrue(testFixtureViewModel.Tags.Contains("color"));
+            Assert.IsTrue(testFixtureViewModel.Tags.Contains("priority"));
             Assert.AreEqual("Script.csx", testFixture.ScriptFile);
             Assert.IsTrue(testFixture.IsMuted);
         }
