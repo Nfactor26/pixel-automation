@@ -15,7 +15,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Collection of Tags 
         /// </summary>
-        public ObservableCollection<TagViewModel> Tags { get; private set; } = new ObservableCollection<TagViewModel>();
+        public ObservableCollection<TagViewModel> Tags { get; } = new ObservableCollection<TagViewModel>();
 
         private TagViewModel selectedTag;
         /// <summary>
@@ -132,8 +132,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 validationErrors.Add("Tag keys must be unique");
             }
-            HasErrors = !validationErrors.Any();
-            return HasErrors;
+            HasErrors = validationErrors.Any();
+            return !HasErrors;
         }
 
     }

@@ -58,7 +58,7 @@
                             <!--<Setter Property="ContentId" Value="{Binding Model.ContentId}" />-->
                             <Setter Property="Title" Value="{Binding Model.DisplayName, Mode=OneWay}" />
                             <Setter Property="HideCommand" Value="{Binding Model.CloseCommand}" />
-                            <Setter Property="IsActive" Value="{Binding Model.IsActiveItem, Mode=TwoWay}" />
+                            <Setter Property="IsActive" Value="{Binding Model.IsActive, Mode=OneWay}" />
                             <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
                             <Setter Property="Visibility" Value="{Binding Model.IsVisible, ConverterParameter={x:Static Visibility.Hidden}, Converter={StaticResource boolToVisConverter},Mode=TwoWay}" />
                         </Style>

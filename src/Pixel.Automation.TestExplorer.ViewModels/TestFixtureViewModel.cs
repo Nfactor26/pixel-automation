@@ -18,7 +18,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// A colllection of TestCases beloning to this TestFixture
         /// </summary>
-        public ObservableCollection<TestCaseViewModel> Tests { get; set; } = new ObservableCollection<TestCaseViewModel>();
+        public ObservableCollection<TestCaseViewModel> Tests { get; } = new ObservableCollection<TestCaseViewModel>();
 
         /// <summary>
         /// constructor
@@ -191,11 +191,42 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <param name="filterText"></param>
         public void UpdateVisibility(string filterText)
         {
+            if (string.IsNullOrEmpty(filterText))
+            {
+                isVisible = true;
+            }
+
+            string[] query = filterText.Split(new char[] { ':' });
+            foreach (var part in query)
+            {
+                if (string.IsNullOrEmpty(part))
+                {
+                    isVisible = true;
+                    return;
+                }
+            }
+            switch (query.Length)
+            {
+                case 1:
+                    IsVisible = this.DisplayName.ToLower().Contains(filterText.ToLower());
+                    break;
+                case 2: // we have a key value pair query
+                    switch (query[0].ToLower())
+                    {
+                        case "name":
+                            IsVisible = this.DisplayName.ToLower().Contains(query[1]);
+                            break;                       
+                        default:
+                            IsVisible = this.Tags.Contains(query[0]) && this.Tags[query[0]].Equals(query[1]);
+                            break;
+                    }
+                    break;
+            }
+            
             foreach (var test in this.Tests)
             {
                 test.UpdateVisibility(filterText);
-            }
-            IsVisible = string.IsNullOrEmpty(filterText) ? true : this.DisplayName.ToLower().Contains(filterText.ToLower());
+            }         
         }
     }
 }

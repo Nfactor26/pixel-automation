@@ -41,18 +41,18 @@ namespace Pixel.Automation.Designer.ViewModels
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
-            IAutomationProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IToolBox> tools, 
+            IAutomationProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
-            : base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, tools, versionManagerFactory, dropTarget, applicationSettings)
+            : base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
 
             this.serviceResolver = Guard.Argument(serviceResolver).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;           
             this.testExplorer = Guard.Argument(testExplorer).NotNull().Value;
             this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;
-            Guard.Argument(tools).NotNull().NotEmpty().DoesNotContainNull();
+            Guard.Argument(anchorables).NotNull().NotEmpty().DoesNotContainNull();
 
-            foreach (var item in Tools)
+            foreach (var item in anchorables)
             {               
                 if(item is ITestDataRepositoryHost repositoryHost)
                 {

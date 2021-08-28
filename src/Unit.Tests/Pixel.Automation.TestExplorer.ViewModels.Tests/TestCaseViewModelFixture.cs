@@ -1,16 +1,21 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.TestData;
 using TestCase = Pixel.Automation.Core.TestData.TestCase;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 {
+    /// <summary>
+    /// Test Fixture for <see cref="TestCaseViewModel"/>
+    /// </summary>
+    [TestFixture]
     public class TestCaseViewModelFixture
     { 
         /// <summary>
-        /// Initialize a TestCaseViewModel from a TestCase object and verify that TestCaseViewModel properties returns correct values
+        /// Initialize a TestCaseViewModel from a TestCase object and verify the initial state 
         /// </summary>
         [Test]
-        public void ValidateThatTestCaseViewModelReturnsCorrectValues()
+        public void ValidateThatTestCaseViewModelIsCorrectlyInitialized()
         {
             var testCaseEntity = new Entity();        
             TestCase testCase = new TestCase()
@@ -26,6 +31,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCase.Tags.Add("priority", "high");
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
 
+            Assert.IsNotNull(testCaseViewModel.TestCase);
             Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
             Assert.AreEqual("TestCase#1", testCaseViewModel.DisplayName);
             Assert.AreEqual(1, testCaseViewModel.Order);
@@ -63,7 +69,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 ScriptFile = "Script.csx",
                 IsMuted = true
             };
-            testCase.Tags.Add("color", "red");       
+            testCaseViewModel.Tags.Add("color", "red");       
+        
             Assert.AreEqual("TestCase#1", testCase.DisplayName);
             Assert.AreEqual(1, testCase.Order);
             Assert.AreEqual("Test case description", testCase.Description);         
@@ -100,15 +107,26 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [TestCase("#1", true)]
         [TestCase("Test", true)]
         [TestCase("Case", true)]
+        [TestCase("TestCase#1", true)]
         [TestCase("", true)]
         [TestCase("#2", false)]
+        [TestCase("name:", true)] 
+        [TestCase("name:#1:Test", true)] 
+        [TestCase("name:#1", true)] 
+        [TestCase("prefab:Prefab#1", true)] 
+        [TestCase("prefab:Prefab#2", false)] 
+        [TestCase("module:test", false)] 
+        [TestCase("module:test explorer", true)]
         public void ValidateThatVisibilityIsCorrectlyUpdatedWhenFilterTextChanges(string filterText, bool shouldBeVisible)
         {
             TestCase testCase = new TestCase()
             {
-                DisplayName = "TestCase#1"
+                DisplayName = "TestCase#1"               
             };
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
+            testCaseViewModel.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference() { PrefabId = "Prefab#1" });
+            testCaseViewModel.Tags.Add("module", "test explorer");
+
             testCaseViewModel.UpdateVisibility(filterText);
 
             Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);

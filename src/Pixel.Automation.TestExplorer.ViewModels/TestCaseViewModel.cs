@@ -272,6 +272,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 if(string.IsNullOrEmpty(part))
                 {
+                    isVisible = true;
                     return;
                 }
             }
@@ -284,7 +285,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     switch(query[0].ToLower())
                     {
                         case "name":
-                            IsVisible = this.DisplayName.ToLower().Contains(filterText.ToLower());
+                            IsVisible = this.DisplayName.ToLower().Contains(query[1]);
                             break;                       
                         case "prefab":
                             IsVisible = this.PrefabReferences.HasReference(query[1]);

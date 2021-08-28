@@ -32,7 +32,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         }
 
-        public BindableCollection<IToolBox> Tools { get; set; } = new BindableCollection<IToolBox>();
+        public BindableCollection<IAnchorable> Tools { get; set; } = new BindableCollection<IAnchorable>();
 
         public MultiEditorViewModel(IEditorService editorService)
         {
@@ -177,7 +177,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
         {  
       
             //TODO : Check why selecting a tool box item causes ActivateItem to be triggered by avalon dock
-            if (item == null || item is IToolBox)
+            if (item == null || item is IAnchorable)
             {
                 return;
             }

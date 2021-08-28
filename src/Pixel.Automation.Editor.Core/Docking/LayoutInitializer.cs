@@ -11,10 +11,10 @@ namespace Pixel.Automation.Editor.Core.Docking
     {
         public bool BeforeInsertAnchorable(LayoutRoot layout, LayoutAnchorable anchorableToShow, ILayoutContainer destinationContainer)
         {
-            var tool = anchorableToShow.Content as IToolBox;
-            if (tool != null)
+            var anchorable = anchorableToShow.Content as IAnchorable;
+            if (anchorable != null)
             {
-                var preferredLocation = tool.PreferredLocation;
+                var preferredLocation = anchorable.PreferredLocation;
                 string paneName = GetPaneName(preferredLocation);
                 var toolsPane = layout.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault(d => d.Name == paneName);
                 if (toolsPane == null)
@@ -77,7 +77,7 @@ namespace Pixel.Automation.Editor.Core.Docking
         public void AfterInsertAnchorable(LayoutRoot layout, LayoutAnchorable anchorableShown)
         {
             // If this is the first anchorable added to this pane, then use the preferred size.
-            var tool = anchorableShown.Content as IToolBox;
+            var tool = anchorableShown.Content as IAnchorable;
             if (tool != null)
             {
                 var anchorablePane = anchorableShown.Parent as LayoutAnchorablePane;

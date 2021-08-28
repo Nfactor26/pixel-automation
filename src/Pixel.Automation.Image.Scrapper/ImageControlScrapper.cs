@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nish26.TestSuite.Image.Scrapper
+namespace Pixel.Automation.Image.Scrapper
 {
     public class ImageControlScrapper : PropertyChangedBase, IControlScrapper, IHandle<RepositoryApplicationOpenedEventArgs>
     {

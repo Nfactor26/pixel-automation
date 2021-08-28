@@ -3,24 +3,13 @@ using System.Windows.Input;
 
 namespace Pixel.Automation.Editor.Core
 {
-    public class HostToolBox : Conductor<IScreen>.Collection.OneActive, IToolBox
+    /// <summary>
+    /// AnchorabeHost screen is an anchored conductor screen  i.e. it hosts other screens.
+    /// </summary>
+    public class AnchorableHost : Conductor<IScreen>.Collection.OneActive, IAnchorable
     {
+        /// <inheritdoc/>
         public override bool IsActive => true;
-
-        bool isActiveItem;
-        /// <summary>
-        /// Indicates if panel is the active item amongst multiple other docked panels
-        /// </summary>
-        public virtual bool IsActiveItem
-        {
-            get => isActiveItem;
-            set
-            {
-                isActiveItem = value;
-                NotifyOfPropertyChange(() => IsActiveItem);
-            }
-
-        }
 
         private bool isVisible = true;
         /// <summary>
@@ -87,7 +76,7 @@ namespace Pixel.Automation.Editor.Core
         /// Guard method to indicate whether this panel can be closed
         /// </summary>
         /// <returns></returns>
-        public bool CanClose()
+        public virtual bool CanClose()
         {
             return true;
         }
@@ -95,7 +84,7 @@ namespace Pixel.Automation.Editor.Core
         /// <summary>
         /// Hide the panel on clicking close button
         /// </summary>
-        public void CloseScreen()
+        public virtual void CloseScreen()
         {
             this.IsVisible = false;
         }     
