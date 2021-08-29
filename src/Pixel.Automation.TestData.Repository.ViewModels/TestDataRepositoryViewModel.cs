@@ -33,7 +33,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <summary>
         /// Collection of TestDataSource available for the associated automation project
         /// </summary>
-        public BindableCollection<TestDataSource> TestDataSourceCollection { get; set; } = new BindableCollection<TestDataSource>();
+        public BindableCollection<TestDataSource> TestDataSourceCollection { get; } = new BindableCollection<TestDataSource>();
 
         private TestDataSource selectedTestDataSource;
         /// <summary>
@@ -75,13 +75,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// Load the available TestDataSources from local storage
         /// </summary>
         private void LoadDataSources()
-        {
-            string repositoryFolder = this.projectFileSystem.TestDataRepository;
-            string[] dataSourceFiles = Directory.GetFiles(repositoryFolder, "*.dat");
-            foreach (var dataSourceFile in dataSourceFiles)
-            {
-                var dataSource = serializer.Deserialize<TestDataSource>(dataSourceFile);
-                this.TestDataSourceCollection.Add(dataSource);
+        {           
+            foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
+            {               
+                this.TestDataSourceCollection.Add(testDataSource);
             }
         }
 
@@ -197,6 +194,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
          
         }
 
+        /// <summary>
+        /// show script editor screen to edit the script for Code data source
+        /// </summary>
+        /// <param name="testDataSource"></param>
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
             string projectName = testDataSource.Id;          
@@ -210,6 +211,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
     
         }
 
+        /// <summary>
+        /// Show the TestDataSource screen to edit the details for CSV data source
+        /// </summary>
+        /// <param name="testDataSource"></param>
         private async void EditCsvDataSource(TestDataSource testDataSource)
         {            
             TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource);
