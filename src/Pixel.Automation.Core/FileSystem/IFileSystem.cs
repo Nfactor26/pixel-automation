@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.TestData;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -85,8 +86,20 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="projectId"></param>
         void Initialize(string projectId, VersionInfo versionInfo);
 
+        /// <summary>
+        /// Create ITestCaseFileSystem for a given fixtureId
+        /// </summary>
+        /// <param name="testFixtureId"></param>
+        /// <returns></returns>
         ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId);
-      
+
+        /// <summary>
+        /// Load TestDataSources available on local storage
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<TestDataSource> GetTestDataSources();
+
+
     }
 
     public interface IPrefabFileSystem : IVersionedFileSystem

@@ -12,6 +12,9 @@ using System.Linq;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
+    /// <summary>
+    /// Allows to configure the details of a <see cref="TestDataSource"/>
+    /// </summary>
     public class TestDataSourceViewModel : StagedSmartScreen
     {
         private readonly IWindowManager windowManager;
@@ -19,10 +22,21 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly IArgumentTypeBrowser typeBrowser;
         private readonly IEnumerable<string> existingDataSources;
        
+        /// <summary>
+        /// Indicates if the screen is in edit mode.
+        /// Edit mode is used to modify an existing TestDataSource.
+        /// Default mode is used to create a new TestDataSource.
+        /// </summary>
         public bool IsInEditMode { get;}
 
+        /// <summary>
+        /// TestDataSource model which is being configured
+        /// </summary>
         public TestDataSource TestDataSource { get; }
 
+        /// <summary>
+        /// Name of the data source
+        /// </summary>
         public string Name
         {
             get => TestDataSource.Name;
@@ -34,6 +48,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// Script file for the data source.
+        /// </summary>
         public string ScriptFile
         {
             get => TestDataSource.ScriptFile;
@@ -45,6 +62,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
         
+        /// <summary>
+        /// Type of DataSource i.e. script code or csv file
+        /// </summary>
         public DataSource DataSource
         {
             get => TestDataSource.DataSource;
@@ -64,6 +84,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// Additional metadata for TestDataSource based on the type of DataSource
+        /// </summary>
         public DataSourceConfiguration MetaData
         {
             get => TestDataSource.MetaData;      
@@ -74,6 +97,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }     
         
+        /// <summary>
+        /// Name of Type of data source
+        /// </summary>
         public string TestDataType
         {
             get => MetaData.TargetTypeName;
@@ -85,6 +111,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// Name of the csv data file
+        /// </summary>
         public string DataFileName
         {
             get => Path.GetFileName((MetaData as CsvDataSourceConfiguration)?.TargetFile ?? string.Empty);
@@ -99,6 +128,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// Delimiter used in csv data file
+        /// </summary>
         public string Delimiter
         {
             get => (MetaData as CsvDataSourceConfiguration)?.Delimiter;
@@ -113,8 +145,19 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// TypeDefinition for the TestDataSource. TypeDefinition contains the details of data model type returned by data source
+        /// </summary>
         public TypeDefinition TypeDefinition { get; private set; }
 
+        /// <summary>
+        /// constructor when creating a new TestDataSource
+        /// </summary>
+        /// <param name="windowManager"></param>
+        /// <param name="fileSystem"></param>
+        /// <param name="dataSource"></param>
+        /// <param name="existingDataSources"></param>
+        /// <param name="typeBrowser"></param>
         public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, DataSource dataSource,
            IEnumerable<string>  existingDataSources, IArgumentTypeBrowser typeBrowser)
         {          
@@ -123,11 +166,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
        
             this.TestDataSource = new TestDataSource() { Id = Guid.NewGuid().ToString() };
-            this.TestDataSource.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.Id}.csx"));
+            this.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.Id}.csx"));
             this.DataSource = dataSource;
             this.existingDataSources = existingDataSources;
         }
 
+        /// <summary>
+        /// constructor when editing an existing TestDataSource
+        /// </summary>
+        /// <param name="windowManager"></param>
+        /// <param name="fileSystem"></param>
+        /// <param name="dataSource"></param>
         public TestDataSourceViewModel(IWindowManager windowManager, IProjectFileSystem fileSystem, TestDataSource dataSource)
         {           
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
@@ -137,9 +186,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             NotifyOfPropertyChange(() => CanSelectTestDataType);
         }
 
-
+        /// <summary>
+        /// Indicates whether data type returned by TestDataSource can be changed
+        /// </summary>
         public bool CanSelectTestDataType => !this.IsInEditMode;
 
+        /// <summary>
+        /// Select the data type for the TestDataSource
+        /// </summary>
         public async void SelectTestDataType()
         {
             var result  = await windowManager.ShowDialogAsync(typeBrowser);
@@ -150,6 +204,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+        /// <summary>
+        /// Browse for a csv file when DataSource is a csv file
+        /// </summary>
         public void BrowseForFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -176,13 +233,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             NotifyOfPropertyChange(() => MetaData);
         }   
 
-
+        ///<inheritdoc/>
         public override bool TryProcessStage(out string errorDescription)
         {
             errorDescription = string.Empty;
             return true;
         }
 
+        ///<inheritdoc/>
         public override object GetProcessedResult()
         {
             return this.TestDataSource;
@@ -224,6 +282,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         #endregion INotifyDataErrorInfo
 
+        /// <summary>
+        /// Validation logic for the TestDataSource
+        /// </summary>
+        /// <returns></returns>
         public override bool Validate()
         {
             ClearErrors("");

@@ -14,22 +14,37 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
+    /// <summary>
+    /// Generate the code for data source script and show the code in script editor
+    /// </summary>
     public class TestDataModelEditorViewModel : StagedSmartScreen
     {
-        private readonly ILogger logger = Log.ForContext<TestDataModelEditorViewModel>(); 
+        private readonly ILogger logger = Log.ForContext<TestDataModelEditorViewModel>();
 
-        public IInlineScriptEditor ScriptEditor { get; set; }
-       
         private readonly IScriptEditorFactory editorFactory;
-       
         private TestDataSource testDataSource;
 
+        /// <summary>
+        /// Script editor control
+        /// </summary>
+        public IInlineScriptEditor ScriptEditor { get; set; }       
+   
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="editorFactory"></param>
         public TestDataModelEditorViewModel(IScriptEditorFactory editorFactory)
         {
             this.editorFactory = editorFactory;
             logger.Debug("Created a new instance of {0}", nameof(TestDataModelEditorViewModel));
         }
 
+        /// <summary>
+        /// Generate the code based on the TestDataSource details configured in previous screen
+        /// </summary>
+        /// <param name="generatedCode"></param>
+        /// <param name="errorDescription"></param>
+        /// <returns></returns>
         private bool TryGenerateDataModelCode(out string generatedCode, out string errorDescription)
         {
             generatedCode = string.Empty;
@@ -61,6 +76,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Generate the code when TestDataSource is of type Code. A method with return type IEnumerable<SourceDataType> is generated
+        /// where user can create instances of SourceDataType and return these instances.
+        /// </summary>
+        /// <param name="dataSourceType"></param>
+        /// <returns></returns>
         private string GenerateScriptForCodedDataSource(Type dataSourceType)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -77,6 +98,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             return stringBuilder.ToString();
         }
 
+        /// <summary>
+        /// Generate the code to read the data from csv file  when TestDataSource is of type Csv
+        /// </summary>
+        /// <param name="dataSourceType"></param>
+        /// <returns></returns>
         private string GenerateScriptForCsvDataSource(Type dataSourceType)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -97,6 +123,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public override bool IsValid => true;
 
+        ///<inheritdoc/>
         public override bool TryProcessStage(out string errorDescription)
         {
             this.ScriptEditor.CloseDocument(true);
@@ -104,12 +131,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             return true;
         }
 
+        ///<inheritdoc/>
         public override object GetProcessedResult()
         {
             return true;
         }
 
-
+        ///<inheritdoc/>
         protected override  async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             if(this.ScriptEditor == null)
@@ -133,6 +161,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             logger.Debug("{0} is activated now", nameof(TestDataModelEditorViewModel));
         }
 
+        ///<inheritdoc/>
         public override void OnCancelled()
         {
             if(this.ScriptEditor != null)
@@ -145,6 +174,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }           
         }
 
+        ///<inheritdoc/>
         public override void OnFinished()
         {
             if (this.ScriptEditor != null)

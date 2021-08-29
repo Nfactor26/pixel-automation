@@ -1,6 +1,8 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.TestData;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Pixel.Automation.Core
@@ -57,6 +59,18 @@ namespace Pixel.Automation.Core
             var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings);
             fileSystem.Initialize(this.WorkingDirectory, testFixtureId);
             return fileSystem;
+        }
+
+        public IEnumerable<TestDataSource> GetTestDataSources()
+        {
+            string repositoryFolder = this.TestDataRepository;
+            string[] dataSourceFiles = Directory.GetFiles(repositoryFolder, "*.dat");
+            foreach (var dataSourceFile in dataSourceFiles)
+            {
+                var testDataSource = serializer.Deserialize<TestDataSource>(dataSourceFile);
+                yield return testDataSource;              
+            }
+            yield break;
         }
 
     }

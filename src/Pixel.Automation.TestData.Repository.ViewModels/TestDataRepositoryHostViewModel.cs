@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
+    /// <summary>
+    /// Host control for the TestDataRepository screen
+    /// </summary>
     public class TestDataRepositoryHostViewModel : AnchorableHost, ITestDataRepositoryHost
     {      
         /// <summary>
