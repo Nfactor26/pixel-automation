@@ -2,6 +2,7 @@
 using GongSolutions.Wpf.DragDrop;
 using Ninject.Extensions.Factory;
 using Ninject.Modules;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
@@ -26,7 +27,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IEditorFactory>().To<EditorFactory>();        
           
             Kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
-
+           
+            Kernel.Bind<IPrefabBuilder>().To<PrefabBuilderViewModel>();
             Kernel.Bind<IPrefabBuilderFactory>().ToFactory();
 
             Kernel.Bind<IArgumentExtractor>().To<ArgumentExtractor>().InSingletonScope();
