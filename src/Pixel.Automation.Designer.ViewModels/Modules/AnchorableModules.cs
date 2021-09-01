@@ -3,6 +3,7 @@ using Ninject;
 using Ninject.Extensions.Conventions;
 using Ninject.Modules;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Editor.Core;
@@ -37,11 +38,11 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
              .EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IFlyOut>()
              .BindAllInterfaces().Configure(s => s.InSingletonScope()));
 
-
-            //Kernel.Bind<IFlyOut>().To<SettingsViewModel>().InSingletonScope();
           
-            Kernel.Bind<PrefabExplorerViewModel>().ToSelf().InSingletonScope();
-            Kernel.Bind<ControlExplorerViewModel>().ToSelf().InSingletonScope();
+            //Kernel.Bind<IFlyOut>().To<SettingsViewModel>().InSingletonScope();
+
+            Kernel.Bind<IApplicationAware>().To<ControlExplorerViewModel>().InSingletonScope();
+            Kernel.Bind<IApplicationAware>().To<PrefabExplorerViewModel>().InSingletonScope();
         }
     }
 }

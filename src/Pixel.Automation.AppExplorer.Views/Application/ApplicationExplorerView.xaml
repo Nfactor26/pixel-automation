@@ -239,6 +239,17 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="TabItemStyle" TargetType="TabItem">
+            <Setter Property="Header" Value="{Binding DisplayName}"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <ContentControl cal:View.Model="{Binding}"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid Margin="5,5,0,0" Background="{DynamicResource MahApps.Brushes.Control.Background}">
@@ -264,20 +275,15 @@
                 Style="{StaticResource AppListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"
                 dd:DragDrop.IsDragSource="True"  ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            </ListBox>
-
+            </ListBox>        
+            
         </StackPanel>
 
         <controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" SelectedIndex="0"
              Visibility="{Binding IsApplicationOpen,Converter={StaticResource boolToVisibilityConverter}}"      
-             controls:TabControlHelper.Underlined="None"
-             HorizontalAlignment="Stretch" TabStripPlacement="Bottom">
-            <TabItem Header="Controls" IsSelected="True" controls:HeaderedControlHelper.HeaderFontSize="18">
-                <ContentControl cal:View.Model="{Binding ControlExplorer}" />
-            </TabItem>
-            <TabItem Header="Prefabs" controls:HeaderedControlHelper.HeaderFontSize="18">
-                <ContentControl cal:View.Model="{Binding PrefabExplorer}"  />
-            </TabItem>
+             controls:TabControlHelper.Underlined="None" ItemsSource="{Binding ChildViews}" SelectedItem="{Binding SelectedView}"
+             controls:HeaderedControlHelper.HeaderFontSize="18"
+             HorizontalAlignment="Stretch" TabStripPlacement="Bottom" ItemContainerStyle="{StaticResource TabItemStyle}">                
         </controls:MetroAnimatedSingleRowTabControl>
 
     </Grid>

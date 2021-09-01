@@ -19,5 +19,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// instance of IApplication when application is being added.
         /// </summary>
         public Type UnderlyingApplicationType { get; set; }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public KnownApplication()
+        {
+
+        }
+
+        public KnownApplication(string displayName, string description, Type underlyingApplicationType)
+        {
+            this.DisplayName = displayName;
+            this.Description = description;
+            this.UnderlyingApplicationType = underlyingApplicationType;
+        }
     }
 }

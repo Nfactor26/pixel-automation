@@ -2,6 +2,7 @@
 using Dawn;
 using Microsoft.Win32;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -23,7 +24,10 @@ using System.Windows.Media.Imaging;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Control
 {
-    public class ControlExplorerViewModel : Screen, IHandle<IEnumerable<ScrapedControl>>
+    /// <summary>
+    /// View model for displaying and managing controls belonging to an applicatoin
+    /// </summary>
+    public class ControlExplorerViewModel : Screen, IApplicationAware, IHandle<IEnumerable<ScrapedControl>>
     {
         private readonly ILogger logger = Log.ForContext<ControlExplorerViewModel>();
         private readonly IControlEditor controlEditor;
@@ -33,9 +37,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private ApplicationDescriptionViewModel activeApplication;
 
+        /// <summary>
+        /// Controls belonging to the active application
+        /// </summary>
         public BindableCollection<ControlDescriptionViewModel> Controls { get; set; } = new BindableCollection<ControlDescriptionViewModel>();
 
         private ControlDescriptionViewModel selectedControl;
+        /// <summary>
+        /// Selected control on the view
+        /// </summary>
         public ControlDescriptionViewModel SelectedControl
         {
             get => selectedControl;
@@ -48,9 +58,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="windowManager"></param>
+        /// <param name="eventAggregator"></param>
+        /// <param name="controlEditor"></param>
+        /// <param name="applicationDataManager"></param>
         public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditor controlEditor,
             IApplicationDataManager applicationDataManager)
         {
+            this.DisplayName = "Control Explorer";
             this.windowManager = windowManager;           
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnPublishedThread(this);
@@ -64,6 +82,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
 
         string filterText = string.Empty;
+        /// <summary>
+        /// Filter text is used to apply a filter for visible controls on view
+        /// </summary>
         public string FilterText
         {
             get
@@ -99,6 +120,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
 
         bool canEdit;
+        /// <summary>
+        /// Indicates if selected control can be edited
+        /// </summary>
         public bool CanEdit
         {
             get
@@ -112,6 +136,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
+        /// <summary>
+        /// Double click on control name to toggle visibility of textbox which can be used to edit the name
+        /// </summary>
+        /// <param name="targetControl"></param>
         public void ToggleRename(ControlDescriptionViewModel targetControl)
         {
             if (SelectedControl == targetControl)
@@ -121,7 +149,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
         /// <summary>
-        /// Update the name of ControlToolBoxItem
+        /// Press enter when in edit mode to apply the changed name of control after control name is edited in text box
         /// </summary>
         /// <param name="context"></param>
         /// <param name="controlToRename"></param>
@@ -150,9 +178,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
 
-        #endregion Edit ControlToolBoxItem
-        
+        #endregion Edit ControlToolBoxItem        
 
+        #region Manage Controls
+
+        /// <summary>
+        /// Set the application for which control collection should be loaded and displayed
+        /// </summary>
+        /// <param name="applicationDescriptionViewModel"></param>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             this.activeApplication = applicationDescriptionViewModel;
@@ -175,7 +208,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 }
             }
         }     
-
         /// <summary>
         /// Open the ControlEditor View to allow edtiing the captured automation identifers and search strategy for control.
         /// </summary>
@@ -255,15 +287,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
         private readonly object locker = new object();
+        /// <summary>
+        /// Save the ControlDescription optionally specifying whether to save the parent ApplicationDescription as well
+        /// </summary>
+        /// <param name="controlToSave"></param>
+        /// <param name="updateApplication"></param>
+        /// <returns></returns>
         public async Task SaveControlDetails(ControlDescriptionViewModel controlToSave, bool updateApplication)
         {
             await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
-            if(updateApplication)
+            lock (locker)
             {
-                lock (locker)
-                {
-                    this.activeApplication.AddControl(controlToSave);                   
-                }
+                this.activeApplication.AddControl(controlToSave);
+            }
+            if (updateApplication)
+            {               
                 await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
             }             
          
@@ -286,14 +324,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             return image;
         }
 
-
-        private async Task AddControlAsync(ControlDescriptionViewModel controlItem)
-        {
-            await SaveBitMapSource(controlItem.ControlDescription, controlItem.ImageSource);
-            await SaveControlDetails(controlItem, true);            
-            this.Controls.Add(controlItem);         
-        }
-
         private async Task SaveBitMapSource(ControlDescription controlDescription, ImageSource imageSource)
         {
             if (imageSource is BitmapImage image)
@@ -310,10 +340,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             throw new ArgumentException($"{nameof(imageSource)} must be a BitmapImage");
         }
 
+        #endregion Manage Controls
 
+        /// <summary>
+        /// Receive a collection of ScrapedControl and process them and save as ControlDescription
+        /// </summary>
+        /// <param name="scrapedControls"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task HandleAsync(IEnumerable<ScrapedControl> scrapedControls, CancellationToken cancellationToken)
         {
             logger.Information("Received {count} scraped controls to process", scrapedControls.Count());
+            if(!scrapedControls.Any())
+            {
+                return;
+            }
             if (this.activeApplication == null)
             {
                 throw new InvalidOperationException("There is no active application in Application explorer");
@@ -340,8 +381,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
                         controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
 
-                        //save the captured control details to file
-                        await AddControlAsync(controlDescriptionViewModel);
+                        //save the captured control details                        
+                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                        await SaveControlDetails(controlDescriptionViewModel, false);
+                        this.Controls.Add(controlDescriptionViewModel);
+
                         logger.Information($"Added control with details {controlDescription}");
                     }
                     catch (Exception ex)
@@ -350,7 +394,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     }
                 }
             }
-            await Task.CompletedTask;
-        }     
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+        }
     }
 }
