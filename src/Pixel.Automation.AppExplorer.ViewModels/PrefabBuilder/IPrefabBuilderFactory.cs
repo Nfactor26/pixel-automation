@@ -1,7 +1,7 @@
 ﻿namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
-    public interface IPrefabBuilderViewModelFactory
+    public interface IPrefabBuilderFactory
     {
-        PrefabBuilderViewModel CreatePrefabBuilderViewModel();
+        PrefabBuilderViewModel CreatePrefabBuilder();
     }
 }

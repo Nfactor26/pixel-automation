@@ -1,10 +1,10 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.DragDropHandler;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -13,7 +13,6 @@ using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -23,16 +22,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
     /// <summary>
     /// PrefabExplorer allows creating prefabs which are reusable components for a given application.
     /// </summary>
-    public class PrefabExplorerViewModel : Screen
+    public class PrefabExplorerViewModel : Screen, IApplicationAware
     {
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
-        private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
         private readonly IApplicationDataManager applicationDataManager;   
         private ApplicationDescriptionViewModel activeApplication;
-        private IPrefabBuilderViewModelFactory prefabBuilderFactory;
+        private IPrefabBuilderFactory prefabBuilderFactory;
        
         public BindableCollection<PrefabProject> Prefabs { get; set; } = new BindableCollection<PrefabProject>();
       
@@ -41,29 +39,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new PrefabDragHandler();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
-            IPrefabBuilderViewModelFactory prefabBuilderFactory)
+            IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
+            IPrefabBuilderFactory prefabBuilderFactory)
         {
+            this.DisplayName = "Prefab Explorer";
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
             this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager).NotNull().Value;
-            this.serializer = Guard.Argument(serializer).NotNull().Value;
             this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
             CreateCollectionView();
         }
 
+        /// <inheritdoc/>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             this.activeApplication = applicationDescriptionViewModel;          
             this.Prefabs.Clear();
-            if(applicationDescriptionViewModel != null)
+            if(this.activeApplication != null)
             {
                 LoadPrefabs(applicationDescriptionViewModel);
                 this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);
             }                     
         }
-
 
         private void LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
@@ -76,24 +74,38 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }       
         }
 
-        public async void CreatePrefab(Entity entity)
+        /// <summary>
+        /// Show PrefabBuilder wizard screen that can be used to configure and create a new Prefab for the specified Entity.
+        /// The entity is dragged and dropped from process designer to the PrefabExplorer to initiate the wizard.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task CreatePrefab(Entity entity)
         {
-            Guard.Argument(entity).NotNull();
-
-            var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilderViewModel();
-            prefabBuilder.Initialize(this.activeApplication, entity);
-            var result = await windowManager.ShowDialogAsync(prefabBuilder);
-            if (result.HasValue && result.Value)
+            try
             {
-                var createdPrefab = await prefabBuilder.SavePrefabAsync();                 
-                this.Prefabs.Add(createdPrefab);           
-                OnPrefabCreated(createdPrefab);
-            }           
+                Guard.Argument(entity).NotNull();
+
+                var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
+                prefabBuilder.Initialize(this.activeApplication, entity);
+                var result = await windowManager.ShowDialogAsync(prefabBuilder);
+                if (result.HasValue && result.Value)
+                {
+                    var createdPrefab = await prefabBuilder.SavePrefabAsync();
+                    this.Prefabs.Add(createdPrefab);
+                    this.activeApplication.AddPrefab(createdPrefab);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
        
         /// <summary>
-        /// Open Prefab for Edit in Designer
+        /// Open Prefab process for editing in process designer
         /// </summary>
         /// <param name="prefabToEdit"></param>
         public void EditPrefab(PrefabProject prefabToEdit)
@@ -111,6 +123,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
+        /// <summary>
+        /// Open the version manager screen that can be used to deploy current version of Prefab.
+        /// Only deployed versions can be used in another automatio project.
+        /// </summary>
+        /// <param name="targetPrefab"></param>
+        /// <returns></returns>
         public async Task ManagePrefab(PrefabProject targetPrefab)
         {
             try
@@ -168,13 +186,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             });
         }
 
-        #endregion Filter
-
-        public event EventHandler<PrefabProject> PrefabCreated = delegate { };
-        protected virtual void OnPrefabCreated(PrefabProject createdPrefab)
-        {
-            this.PrefabCreated(this, createdPrefab);
-        }
-      
+        #endregion Filter      
     }
 }

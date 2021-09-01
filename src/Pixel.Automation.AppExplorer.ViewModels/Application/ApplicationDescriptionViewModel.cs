@@ -122,7 +122,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="controlDescription"></param>
         public void DeleteControl(ControlDescriptionViewModel controlDescription)
         {
-            if (!this.AvailableControls.Contains(controlDescription.ControlId))
+            if (this.AvailableControls.Contains(controlDescription.ControlId))
             {
                 this.AvailableControls.Remove(controlDescription.ControlId);
             }

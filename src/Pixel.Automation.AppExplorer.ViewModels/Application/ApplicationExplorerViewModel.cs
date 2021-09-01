@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Pixel.Automation.AppExplorer.ViewModels.Control;
-using Pixel.Automation.AppExplorer.ViewModels.Prefab;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -9,6 +8,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,23 +17,52 @@ using System.Windows.Input;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
-    public class ApplicationExplorerViewModel : AnchorableHost, IDisposable
+    /// <summary>
+    /// Application explorer view is used to manage the applications that are used in an automation project.
+    /// </summary>
+    public class ApplicationExplorerViewModel : AnchorableHost
     {
+        #region data members
+
         private readonly ILogger logger = Log.ForContext<ApplicationExplorerViewModel>();
-    
-        private readonly IEventAggregator eventAggregator;      
-        private readonly ITypeProvider typeProvider;   
+
+        private readonly IEventAggregator eventAggregator;
+        private readonly ITypeProvider typeProvider;
         private readonly IApplicationDataManager applicationDataManager;
 
-        public ControlExplorerViewModel ControlExplorer { get; private set; }
+        /// <summary>
+        /// Child views that are dependent on the selected application such as control explorer and prefab explorer
+        /// </summary>
+        public BindableCollection<IApplicationAware> ChildViews { get; private set; } = new BindableCollection<IApplicationAware>();
 
-        public PrefabExplorerViewModel PrefabExplorer { get; private set; }
+        private IApplicationAware selectedView;
+        /// <summary>
+        /// Selected child view
+        /// </summary>
+        public IApplicationAware SelectedView
+        {
+            get => selectedView;
+            set
+            {
+                selectedView = value;
+                NotifyOfPropertyChange(() => SelectedView);
+            }
+        }
 
+        /// <summary>
+        /// Collection of applications available 
+        /// </summary>
         public BindableCollection<ApplicationDescriptionViewModel> Applications { get; set; } = new BindableCollection<ApplicationDescriptionViewModel>();
 
+        /// <summary>
+        /// Collection of known applications that can be added e.g. web application, windows application , etc
+        /// </summary>
         public BindableCollection<KnownApplication> KnownApplications { get; set; } = new BindableCollection<KnownApplication>();
 
         private ApplicationDescriptionViewModel selectedApplication;
+        /// <summary>
+        /// Selected Application on the view
+        /// </summary>
         public ApplicationDescriptionViewModel SelectedApplication
         {
             get => selectedApplication;
@@ -43,61 +72,48 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 NotifyOfPropertyChange(() => SelectedApplication);
                 CanEdit = false;
                 if (value != null)
-                {                   
+                {
                     //Notification for property grid to display selected application details
                     this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(value.ApplicationDetails, true));
                     logger.Debug("Selected application set to {Application}", selectedApplication.ApplicationName);
                 }
 
             }
-        }      
+        }
 
-        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager, ITypeProvider typeProvider,
-             ControlExplorerViewModel controlExplorer, PrefabExplorerViewModel prefabExplorer)
+        #endregion data members
+
+        #region constructor
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="eventAggregator"></param>
+        /// <param name="applicationDataManager"></param>
+        /// <param name="typeProvider"></param>
+        /// <param name="childView"></param>
+        public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager,
+            ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView)
         {
             this.DisplayName = "Application Repository";
             this.eventAggregator = eventAggregator;
-            this.typeProvider = typeProvider;          
+            this.typeProvider = typeProvider;
             this.applicationDataManager = applicationDataManager;
-            this.ControlExplorer = controlExplorer;
-            this.PrefabExplorer = prefabExplorer;           
-            this.PrefabExplorer.PrefabCreated += OnPrefabCreated;           
+            this.ChildViews.AddRange(childView);
+            this.SelectedView = this.ChildViews[0];
+
             CreateCollectionView();
             InitializeKnownApplications();
-            
+
             var applications = this.applicationDataManager.GetAllApplications();
-            foreach(var application in applications)
+            foreach (var application in applications)
             {
                 this.Applications.Add(new ApplicationDescriptionViewModel(application));
             }
             Applications.OrderBy(a => a.ApplicationName);
-        }      
-
-        private void CreateCollectionView()
-        {
-            var groupedItems = CollectionViewSource.GetDefaultView(Applications);
-            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ApplicationDescriptionViewModel.ApplicationName)));
-            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ApplicationDescriptionViewModel.ApplicationName), ListSortDirection.Ascending));
-            groupedItems.Filter = new Predicate<object>((a) =>
-            {
-                return (a as ApplicationDescriptionViewModel).ApplicationName.ToLower().Contains(this.filterText.ToLower());
-            });
         }
 
-        private void OnPrefabCreated(object sender, PrefabProject e)
-        {
-            try
-            {
-                var targetApplication = this.Applications.Where(a => a.ApplicationId.Equals(e.ApplicationId)).FirstOrDefault();
-                targetApplication.AddPrefab(e);
-                _ = SaveApplicationAsync(targetApplication);
-                logger.Information($"Added Prefab {e.PrefabName} to application : {targetApplication.ApplicationName}");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
+        #endregion constructor
 
         #region Filter 
 
@@ -119,6 +135,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
         }
 
+        private void CreateCollectionView()
+        {
+            var groupedItems = CollectionViewSource.GetDefaultView(Applications);
+            groupedItems.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ApplicationDescriptionViewModel.ApplicationName)));
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(ApplicationDescriptionViewModel.ApplicationName), ListSortDirection.Ascending));
+            groupedItems.Filter = new Predicate<object>((a) =>
+            {
+                return (a as ApplicationDescriptionViewModel).ApplicationName.ToLower().Contains(this.filterText.ToLower());
+            });
+        }
+
         #endregion Filter
 
         #region Manage Application
@@ -130,8 +157,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             Guard.Argument(applicationDescriptionViewModel).NotNull();
 
             IsApplicationOpen = true;
-            ControlExplorer.SetActiveApplication(applicationDescriptionViewModel);
-            PrefabExplorer.SetActiveApplication(applicationDescriptionViewModel);
+            foreach (var childView in ChildViews)
+            {
+                childView.SetActiveApplication(applicationDescriptionViewModel);
+            }
             if (this.eventAggregator.HandlerExistsFor(typeof(RepositoryApplicationOpenedEventArgs)))
             {
                 this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(applicationDescriptionViewModel.ApplicationName, applicationDescriptionViewModel.ApplicationId));
@@ -139,12 +168,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             NotifyOfPropertyChange(nameof(IsApplicationOpen));
             logger.Debug("Application {Application} is open now", applicationDescriptionViewModel.ApplicationName);
         }
-       
+
         public void GoBack()
         {
             IsApplicationOpen = false;
-            ControlExplorer.SetActiveApplication(null);
-            PrefabExplorer.SetActiveApplication(null);
+            foreach (var childView in ChildViews)
+            {
+                childView.SetActiveApplication(null);
+            }
             if (this.eventAggregator.HandlerExistsFor(typeof(RepositoryApplicationOpenedEventArgs)))
             {
                 this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(string.Empty, string.Empty));
@@ -165,7 +196,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
                 applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
             }
-           
+
             this.Applications.Add(applicationDescriptionViewModel);
             this.SelectedApplication = applicationDescriptionViewModel;
             await SaveApplicationAsync(applicationDescriptionViewModel);
@@ -176,7 +207,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task EditApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-           await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, () => { _ = SaveApplicationAsync(applicationDescriptionViewModel); } , () => { return true; } ) );
+            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, () => { _ = SaveApplicationAsync(applicationDescriptionViewModel); }, () => { return true; }));
         }
 
         public async Task SaveApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
@@ -184,7 +215,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             Guard.Argument(applicationDescriptionViewModel).NotNull();
             await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescriptionViewModel.Model);
             logger.Information($"Saved application data for : {applicationDescriptionViewModel.ApplicationName}");
-            await this.eventAggregator.PublishOnBackgroundThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
+            await this.eventAggregator.PublishOnUIThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
             this.Applications.Remove(applicationDescriptionViewModel);
             this.Applications.Add(applicationDescriptionViewModel);
         }
@@ -192,7 +223,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         private void InitializeKnownApplications()
         {
             var knownApps = this.typeProvider.GetAllTypes().Where(t => t.GetInterface(nameof(IApplication)) != null);
-            foreach(var knownApp in knownApps)
+            foreach (var knownApp in knownApps)
             {
                 string displayName = TypeDescriptor.GetAttributes(knownApp).OfType<DisplayNameAttribute>()?.FirstOrDefault()?.DisplayName ?? knownApp.Name;
                 string description = TypeDescriptor.GetAttributes(knownApp).OfType<DescriptionAttribute>()?.FirstOrDefault()?.Description ?? knownApp.Name;
@@ -235,7 +266,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 if (keyArgs != null && keyArgs.Key == Key.Enter)
                 {
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
-                    if(this.Applications.Any(a => a.ApplicationName.Equals(newName)))
+                    if (this.Applications.Any(a => a.ApplicationName.Equals(newName)))
                     {
                         logger.Warning($"An application already exists with name {newName}.");
                         return;
@@ -261,7 +292,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         #endregion Edit Application
 
         #region Anchorable
-        
+
+        /// <summary>
+        /// Preferred docked location of the view
+        /// </summary>
         public override PaneLocation PreferredLocation
         {
             get
@@ -269,7 +303,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 return PaneLocation.Bottom;
             }
         }
-      
+
+        /// <summary>
+        /// Preferred height of the view
+        /// </summary>
         public override double PreferredHeight
         {
             get
@@ -280,20 +317,5 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         #endregion Anchorable        
 
-        #region IDisposable
-
-        protected virtual void Dispose(bool isDisposing)
-        {           
-            this.PrefabExplorer.PrefabCreated -= OnPrefabCreated;           
-            logger.Information($"{nameof(ApplicationExplorerViewModel)} has been disposed");
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        #endregion IDisposable
-               
     }
 }

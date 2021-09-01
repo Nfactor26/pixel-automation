@@ -27,7 +27,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
           
             Kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
 
-            Kernel.Bind<IPrefabBuilderViewModelFactory>().ToFactory();
+            Kernel.Bind<IPrefabBuilderFactory>().ToFactory();
 
             Kernel.Bind<IArgumentExtractor>().To<ArgumentExtractor>().InSingletonScope();
             Kernel.Bind<IScriptExtactor>().To<ScriptExtractor>().InSingletonScope();

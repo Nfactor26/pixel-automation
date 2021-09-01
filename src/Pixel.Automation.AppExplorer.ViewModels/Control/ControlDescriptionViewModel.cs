@@ -9,6 +9,9 @@ using System.Windows.Media.Imaging;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Control
 {
+    /// <summary>
+    /// View Model for <see cref="ControlDescription"/>
+    /// </summary>
     public class ControlDescriptionViewModel : NotifyPropertyChanged
     {
         private readonly ControlDescription controlDescription;
@@ -19,23 +22,36 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             get => this.controlDescription;
         }
         
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="controlDescription"></param>
         public ControlDescriptionViewModel(ControlDescription controlDescription)
         {
             this.controlDescription = controlDescription;
         }
-              
+             
+        /// <summary>
+        /// Id of the owner application
+        /// </summary>
         [Browsable(false)]
         public string ApplicationId
         {
             get => this.controlDescription.ApplicationId;           
         }
 
+        /// <summary>
+        /// Id of the control
+        /// </summary>
         [Browsable(false)]
         public string ControlId
         {
             get => this.controlDescription.ControlId;          
         }
      
+        /// <summary>
+        /// Group assigned to control
+        /// </summary>
         public string GroupName
         {
             get => this.controlDescription.GroupName;
@@ -46,6 +62,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
+        /// <summary>
+        /// Name of the control
+        /// </summary>
         public string ControlName
         {
             get => this.controlDescription.ControlName;
@@ -56,6 +75,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
       
+        /// <summary>
+        /// Image file path for the control
+        /// </summary>
         [Browsable(false)]
         public string ControlImage
         {
@@ -63,6 +85,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             set => this.controlDescription.ControlImage = value;
         }
 
+        /// <summary>
+        /// Wrapped IControlIdentity
+        /// </summary>
         [Browsable(false)]
         public IControlIdentity ControlDetails
         {
@@ -72,7 +97,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
       
         ImageSource imageSource;
-
+        /// <summary>
+        /// ImageSource created from ControlImage
+        /// </summary>
         [Browsable(false)]
         public ImageSource ImageSource
         {
@@ -103,6 +130,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
+        ///<inheritdoc/>
         public override string ToString()
         {
             return "Control Details";
