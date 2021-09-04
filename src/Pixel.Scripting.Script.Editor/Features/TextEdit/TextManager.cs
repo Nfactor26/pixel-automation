@@ -138,6 +138,7 @@ namespace Pixel.Scripting.Script.Editor.Features
                     }
                     completionWindow.Closed += delegate
                     {
+                        completionWindow.CompletionList.CompletionData.Clear();
                         completionWindow = null;
                     };
                     completionWindow.Show();

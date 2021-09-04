@@ -58,6 +58,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             targetDocument.OpenForEdit(this, this.editorService);
             targetDocument.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
             targetDocument.Editor.OpenDocument(documentName, ownerProject);
+            targetDocument.Editor.ResumeEditorUpdates();
             this.OpenDocuments.Add(targetDocument);           
             await ActivateItemAsync(targetDocument, CancellationToken.None);
         }

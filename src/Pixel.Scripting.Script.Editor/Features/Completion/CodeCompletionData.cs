@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
+using Pixel.Automation.Core;
 using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Models.Completions;
 using System;
@@ -13,7 +14,7 @@ namespace Pixel.Scripting.Script.Editor.Features
         Glyph Glyph { get;}
     }
 
-    public class CodeCompletionData : ICompletionDataEx
+    public class CodeCompletionData : NotifyPropertyChanged, ICompletionDataEx
     {
         private Decorator description;
         AutoCompleteResponse completionData;
@@ -54,8 +55,9 @@ namespace Pixel.Scripting.Script.Editor.Features
                     description.Child = completionData.SymbolDisplayParts.ToTextBlock();
                 }
                 if (description != null)
+                {
                     return description;
-
+                }
                 return completionData.Description;
             }
         }

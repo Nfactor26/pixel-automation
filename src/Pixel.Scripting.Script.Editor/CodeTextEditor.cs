@@ -99,10 +99,8 @@ namespace Pixel.Scripting.Script.Editor
             if (this.EnableCodeActions && this.editorService.IsFeatureEnabled(EditorFeature.CodeActions))
             {
                 this.codeActionsControl = new CodeActionsControl(this, this.editorService);
-            }
-          
-            SubscribeToMouseEvents();
-
+            }         
+           
             //Set it to false once since setting the text while opening sets IsModified to true.
             this.IsModified = false;
         }

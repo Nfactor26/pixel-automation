@@ -120,9 +120,9 @@ namespace Pixel.Scripting.Script.Editor.Script
             {
                 this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);
                 this.editorService.SetContent(targetDocument, ownerProject, fileContents);
-            }          
-            this.Editor.OpenDocument(targetDocument, ownerProject);
+            }
             this.Editor.Text = fileContents;
+            this.Editor.OpenDocument(targetDocument, ownerProject);           
         }
 
 
