@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using Pixel.Automation.Editor.Core.Helpers;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -312,6 +313,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                 IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
                 scriptEditorFactory.RemoveProject(fixtureVM.Id);
+                fixtureVM.TestFixtureEntity.DisposeEditors();
 
                 await this.TestRunner.TryCloseTestFixture(fixtureVM.TestFixture);
 
@@ -638,6 +640,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     var entityManager = testCaseVM.TestCaseEntity.EntityManager;
                     var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
                     scriptEditorFactory.RemoveProject(testCaseVM.Id);
+                    testCaseVM.TestCaseEntity.DisposeEditors();
 
                     await this.TestRunner.TryCloseTestCase(parentFixture.TestFixture, testCaseVM.TestCase);
 

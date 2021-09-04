@@ -121,6 +121,7 @@ namespace Pixel.Scripting.Script.Editor
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

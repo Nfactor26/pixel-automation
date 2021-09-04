@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Serilog;
 using System;
@@ -100,6 +101,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 return;
             }
 
+            component.DisposeEditors();
+
             if (scripts?.Any() ?? false)
             {
                 foreach (var script in scripts)
@@ -126,9 +129,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 component.Parent.RemoveComponent(component);
                 logger.Information($"Component : {component.Name} has been deleted");
                 return;
-            }
-
-             
+            }          
           
         }
 

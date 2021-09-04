@@ -3,7 +3,9 @@ using NSubstitute;
 using NSubstitute.Core;
 using NUnit.Framework;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Loops;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -114,6 +116,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         TestFixtureViewModel CreateTestFixtureViewModel(bool isOpenForEdit)
         {
             var fixtureEntity = new TestFixtureEntity() { EntityManager = fixtureEntityManager };
+            var seqeunceEntity = new SequenceEntity();
+            fixtureEntity.AddComponent(seqeunceEntity);
+            // WhileLoopEntity has Scriptable Attribute. We need this to assert a condition while closing test case
+            var whileLoopEntity = new WhileLoopEntity() { ScriptFile = "Script.csx" };
+            seqeunceEntity.AddComponent(whileLoopEntity);
+         
             TestFixture testFixture = new TestFixture()
             {
                 DisplayName = $"Fixture#1",
@@ -273,10 +281,18 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             }          
 
             int expected = isOpenForEdit ? 1 : 0;         
-            await testRunner.Received(expected).TryCloseTestFixture(Arg.Is<TestFixture>(testFixture));
-            fixtureEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
+            await testRunner.Received(expected).TryCloseTestFixture(Arg.Is<TestFixture>(testFixture));         
             scriptEditorFactory.Received(expected).RemoveProject(Arg.Is<string>(fixtureViewModel.Id));
-         
+            if (isOpenForEdit)
+            {
+                fixtureEntityManager.Received(2).GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.Received(1).RemoveInlineScriptEditor(Arg.Any<string>()); // 1 when open for edit because of presence of while loop entity
+            }
+            else
+            {
+                fixtureEntityManager.Received(0).GetServiceOfType<IScriptEditorFactory>();
+            }
+
         }
 
         /// <summary>
@@ -453,6 +469,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         TestCaseViewModel CreateTestCaseViewModel(TestFixture parentFixture, bool isOpenForEdit)
         {
             var testEntity = new TestCaseEntity() { EntityManager = testEntityManager };
+            var seqeunceEntity = new SequenceEntity();
+            testEntity.AddComponent(seqeunceEntity);
+            // WhileLoopEntity has Scriptable Attribute. We need this to assert a condition while closing test case
+            var whileLoopEntity = new WhileLoopEntity() { ScriptFile = "Script.csx" }; 
+            seqeunceEntity.AddComponent(whileLoopEntity);
+
             TestCase testCase = new TestCase()
             {
                 FixtureId = parentFixture.Id,
@@ -604,9 +626,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             int expected = isOpenForEdit ? 1 : 0;
             await testRunner.Received(expected).TryCloseTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase));
-            testEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
             scriptEditorFactory.Received(expected).RemoveProject(Arg.Is<string>(testCaseViewModel.Id));
-
+            if (isOpenForEdit)
+            {
+                testEntityManager.Received(2).GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.Received(1).RemoveInlineScriptEditor(Arg.Any<string>()); // 1 when open for edit because of presence of while loop entity
+            }
+            else
+            {
+                testEntityManager.Received(0).GetServiceOfType<IScriptEditorFactory>();
+            }           
+         
         }
 
         /// <summary>

@@ -22,9 +22,15 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         }
 
+        ~ScriptEditorScreenViewModel()
+        {
+            Dispose(true);
+        }
+
         public override void OpenDocument(string documentName, string ownerProject, string initialContent)
         {
             base.OpenDocument(documentName, ownerProject, initialContent ?? string.Empty);           
         }
+        
     }
 }

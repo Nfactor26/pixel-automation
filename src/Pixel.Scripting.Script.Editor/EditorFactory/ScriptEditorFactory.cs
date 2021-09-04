@@ -3,6 +3,7 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Script.Editor.Script;
 using Serilog;
 using System;
+using System.Collections.Generic;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -12,6 +13,7 @@ namespace Pixel.Scripting.Script.Editor
         private readonly string Identifier = Guid.NewGuid().ToString();
         private readonly IEditorService editorService;
         private bool isInitialized = false;
+        private Dictionary<string, WeakReference<IInlineScriptEditor>> inlineEditors = new Dictionary<string, WeakReference<IInlineScriptEditor>>();
       
         public ScriptEditorFactory(IEditorService editorService)
         {
@@ -54,6 +56,39 @@ namespace Pixel.Scripting.Script.Editor
         {
             EnsureInitialized();
             return new InlineScriptEditorViewModel(this.editorService);
+        }
+
+        public IInlineScriptEditor CreateInlineScriptEditor(string cacheKey)
+        {
+            EnsureInitialized();
+            IInlineScriptEditor editor;
+            if (inlineEditors.ContainsKey(cacheKey))
+            {
+                if(inlineEditors[cacheKey].TryGetTarget(out editor))
+                {
+                    return editor;
+                }
+                inlineEditors.Remove(cacheKey);
+            }
+
+            editor = new InlineScriptEditorViewModel(this.editorService);
+            inlineEditors.Add(cacheKey, new WeakReference<IInlineScriptEditor>(editor));
+            logger.Debug("Created and cached inline script editor for {0}", cacheKey);
+        
+            return editor;          
+        }
+
+        public void RemoveInlineScriptEditor(string identifier)
+        {
+            if (inlineEditors.ContainsKey(identifier))
+            {
+                if (inlineEditors[identifier].TryGetTarget(out var editor))
+                {
+                    editor.Dispose();
+                }
+                inlineEditors.Remove(identifier);
+                logger.Debug("Removed inline script editor for {0} from script editor factory cahce", identifier);
+            }
         }
 
         public IScriptEditorScreen CreateScriptEditor()
@@ -138,6 +173,14 @@ namespace Pixel.Scripting.Script.Editor
 
         protected virtual void Dispose(bool isDisposing)
         {
+            foreach(var inlineEditorRef in this.inlineEditors)
+            {
+                if(inlineEditorRef.Value.TryGetTarget(out var editor))
+                {
+                    editor.Dispose();
+                }
+            }
+            this.inlineEditors.Clear();
             this.editorService.Dispose();
         }
     }

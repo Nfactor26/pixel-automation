@@ -22,7 +22,7 @@ namespace Pixel.Scripting.Script.Editor
             get => this.Document.FileName;
             private set
             {
-                this.Document.FileName = Path.GetFileName(value);
+                this.Document.FileName = value;
             }
         }
 
@@ -69,12 +69,18 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(documentName).NotNull().NotEmpty();
             Guard.Argument(projectName).NotNull().NotEmpty();
 
-            if(!string.IsNullOrEmpty(this.FileName) && !string.IsNullOrEmpty(this.ProjectName))
+            string fileName = Path.GetFileName(documentName);
+            if (!string.IsNullOrEmpty(this.FileName) && !string.IsNullOrEmpty(this.ProjectName))
             {
+                //Trying to open same document again. Do nothing. This can happen from inline script editor
+                if(this.FileName.Equals(fileName) && this.ProjectName.Equals(projectName))
+                {
+                    return;
+                }
                 throw new InvalidOperationException($"File : {this.FileName} is already open in Editor");
             }
 
-            this.FileName = documentName;
+            this.FileName = fileName;
             this.ProjectName = projectName;
             
             this.textManager = new TextManager(this.editorService, this);
