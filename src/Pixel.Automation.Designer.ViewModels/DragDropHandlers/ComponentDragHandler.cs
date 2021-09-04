@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using GongSolutions.Wpf.DragDrop;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
@@ -100,7 +101,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 }
 
                 //Handle dragging of application from applications repository
-                if (dropInfo.Data is ApplicationDescription && dropInfo.TargetItem is Entity)
+                if (dropInfo.Data is ApplicationDescriptionViewModel && dropInfo.TargetItem is Entity)
                 {
                     dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                     dropInfo.Effects = DragDropEffects.Copy;
@@ -189,7 +190,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     return;
                 }
 
-                if (dropInfo.Data is ApplicationDescription)
+                if (dropInfo.Data is ApplicationDescriptionViewModel)
                 {
                     HandleApplicationDrop(dropInfo);
                     return;
@@ -393,7 +394,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         void HandleApplicationDrop(IDropInfo dropInfo)
         {
-            if (dropInfo.TargetItem is Entity targetEntity && dropInfo.Data is ApplicationDescription applicationDescription)
+            if (dropInfo.TargetItem is Entity targetEntity && dropInfo.Data is ApplicationDescriptionViewModel applicationDescription)
             {
                 var availableApplications = targetEntity.EntityManager.RootEntity.GetFirstComponentOfType<ApplicationPoolEntity>()?.
                                             GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants) ?? Enumerable.Empty<ApplicationEntity>() ;
@@ -427,7 +428,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         }
 
-        private void AddApplication(ApplicationDescription applicationDescription, Entity parentEntity)
+        private void AddApplication(ApplicationDescriptionViewModel applicationDescription, Entity parentEntity)
         {
             ApplicationEntityAttribute applicationEntityAttribute = applicationDescription.ApplicationDetails.GetType().GetCustomAttributes(typeof(ApplicationEntityAttribute), false).FirstOrDefault()
                                                                        as ApplicationEntityAttribute;
