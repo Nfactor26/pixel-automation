@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Button Width="20" Height="20" Margin="0" Style="{DynamicResource MahApps.Styles.Button.Circle}" Content="{iconPacks:Material SettingsBox}" BorderThickness="0"
+        <Button Width="20" Height="20" Margin="0" Style="{DynamicResource MahApps.Styles.Button.Circle}" Content="{iconPacks:Material Cog}" BorderThickness="0"
                 Click="OpenMappingWindow" Foreground="{DynamicResource MahApps.Brushes.Accent}" RenderTransformOrigin="0.5,0.5" ToolTip="Input Mapping">
             <Button.RenderTransform>
                 <TransformGroup>
