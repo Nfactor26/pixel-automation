@@ -186,6 +186,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
+        /// Indicates whether the TestFixture is being opened for execution.
+        /// If true, skip setting up editors, etc which is required only when opened for edit.
+        /// </summary>
+        public bool OpenForExecute { get; set; } = false;
+
+        /// <summary>
         /// Determine whether this TestFixture should be visible on the TestExplorer
         /// </summary>
         /// <param name="filterText"></param>

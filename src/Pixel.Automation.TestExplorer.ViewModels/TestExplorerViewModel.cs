@@ -255,16 +255,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
                 void SetupScriptEditor()
                 {
-                    var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
-                    IScriptEditorFactory editorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                    editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(Empty));
-                    string fixtureScriptContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
-                    editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.Id, fixtureScriptContent);
+                    if(!fixtureVM.OpenForExecute)
+                    {
+                        var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
+                        IScriptEditorFactory editorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                        editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(Empty));
+                        string fixtureScriptContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
+                        editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.Id, fixtureScriptContent);
+                    }                    
+                   
                 }
                 logger.Information("Test fixture {0} is open for edit now.", fixtureVM.DisplayName);
             }
             catch (Exception ex)
             {
+                fixtureVM.OpenForExecute = false;
                 logger.Error(ex, ex.Message);
             }
         }
@@ -577,13 +582,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 }
                 void SetupScriptEditor()
                 {
-                    var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
-                    IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                    if(!testCaseVM.OpenForExecute)
+                    {
+                        var testEntityManager = testCaseVM.TestCase.TestCaseEntity.EntityManager;
+                        IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
 
-                    //Add the test script project and script file to script editor
-                    editorFactory.AddProject(testCaseVM.Id, new string[] { parentFixture.Id }, testEntityManager.Arguments.GetType());
-                    string scriptFileContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
-                    editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.Id, scriptFileContent);
+                        //Add the test script project and script file to script editor
+                        editorFactory.AddProject(testCaseVM.Id, new string[] { parentFixture.Id }, testEntityManager.Arguments.GetType());
+                        string scriptFileContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
+                        editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.Id, scriptFileContent);
+                    }                   
                 }
             }
             catch (Exception ex)
@@ -918,7 +926,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                                 bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
                                 if (!testFixture.IsOpenForEdit)
                                 {
+                                    testFixture.OpenForExecute = true;
                                     await OpenTestFixtureAsync(testFixture);
+                                    testFixture.OpenForExecute = false;
                                 }
 
                                 await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
@@ -965,7 +975,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
                         if (!testFixture.IsOpenForEdit)
                         {
+                            testFixture.OpenForExecute = true;
                             await OpenTestFixtureAsync(testFixture);
+                            testFixture.OpenForExecute = false;
                         }
 
                         await this.TestRunner.OneTimeSetUp(testFixture.TestFixture);
@@ -1022,7 +1034,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
                 if (!testCaseVM.IsOpenForEdit)
                 {
+                    testCaseVM.OpenForExecute = true;
                     await OpenTestCaseAsync(testCaseVM);
+                    testCaseVM.OpenForExecute = false;
                 }
              
                 System.Action clearTestResults = () => testCaseVM.TestResults.Clear();   
