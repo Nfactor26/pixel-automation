@@ -11,6 +11,8 @@ namespace Pixel.Automation.Designer.Views
     /// </summary>
     public partial class PrefabEditorView : UserControl, INotifyPropertyChanged
     {
+        private double zoomFactor = 0.10;
+
         double scaleX = 1.0;
         public double ScaleX
         {
@@ -103,14 +105,14 @@ namespace Pixel.Automation.Designer.Views
 
         private void ZoomIn_Click(object sender, RoutedEventArgs e)
         {
-            this.ScaleX += 0.25;
-            this.ScaleY += 0.25;
+            this.ScaleX += zoomFactor;
+            this.ScaleY += zoomFactor;
         }
 
         private void ZoomOut_Click(object sender, RoutedEventArgs e)
         {
-            this.ScaleX -= 0.25;
-            this.ScaleY -= 0.25;
+            this.ScaleX -= zoomFactor;
+            this.ScaleY -= zoomFactor;
         }
 
         #region INotifyPropertyChanged
