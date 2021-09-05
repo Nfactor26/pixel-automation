@@ -935,6 +935,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         {
                             if (test.IsSelected)
                             {
+                                System.Action clearTestResults = () => test.TestResults.Clear();
+                                platformProvider.OnUIThread(clearTestResults);
+
                                 //open fixture if not already open
                                 bool isFixtureAlreadyOpenForEdit = testFixture.IsOpenForEdit;
                                 if (!testFixture.IsOpenForEdit)
@@ -986,6 +989,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
+                    System.Action clearTestResults = () =>
+                    {
+                        var tests = this.TestFixtures.SelectMany(t => t.Tests);
+                        foreach (var test in tests)
+                        {
+                            test.TestResults.Clear();
+                        }
+                    };
+                    platformProvider.OnUIThread(clearTestResults);
+
                     this.IsExecutionInProgress = true;
                     foreach (var testFixture in this.TestFixtures.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
                     {
@@ -1059,10 +1072,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     testCaseVM.OpenForExecute = true;
                     await OpenTestCaseAsync(testCaseVM);
                     testCaseVM.OpenForExecute = false;
-                }
-             
-                System.Action clearTestResults = () => testCaseVM.TestResults.Clear();   
-                platformProvider.OnUIThread(clearTestResults);
+                }             
 
                 var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
                 await foreach (var result in this.TestRunner.RunTestAsync(parentFixture.TestFixture, testCaseVM.TestCase))
