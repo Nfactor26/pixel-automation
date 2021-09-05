@@ -739,7 +739,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 if (string.IsNullOrEmpty(testCaseVM.ScriptFile))
                 {
                     testCaseVM.ScriptFile = testCaseFileSystem.GetRelativePath(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
-                    testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, testCaseVM.ScriptFile, string.Empty);
+                    testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseVM.ScriptFile), string.Empty);
                 }
 
                 //e.g. while assigning test data source , test case is not open for edit and hence will have
