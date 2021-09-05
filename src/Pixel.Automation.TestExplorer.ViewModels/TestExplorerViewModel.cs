@@ -1015,7 +1015,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             bool isAlreadyOpenForEdit = testCaseVM.IsOpenForEdit;
             try
             {
-                if (testCaseVM.IsMuted)
+                if (testCaseVM.IsMuted || string.IsNullOrEmpty(testCaseVM.TestDataId))
                 {
                     return await Task.FromResult(false);
                 }
