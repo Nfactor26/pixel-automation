@@ -133,8 +133,8 @@ namespace Pixel.Automation.Core.Components.Processors
                                 }
                                 else
                                 {
-                                    await component.BeforeProcessAsync();
                                     entitiesBeingProcessed.Push(component as Entity);
+                                    await component.BeforeProcessAsync();                                   
                                 }
                                 break;
                         }

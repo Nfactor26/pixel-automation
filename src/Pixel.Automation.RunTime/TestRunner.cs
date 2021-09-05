@@ -535,8 +535,8 @@ namespace Pixel.Automation.RunTime
                                 }
                                 else
                                 {
-                                    await entity.BeforeProcessAsync();
                                     this.entitiesBeingProcessed.Push(entity);
+                                    await entity.BeforeProcessAsync();                                    
                                 }
                                 break;
                         }
