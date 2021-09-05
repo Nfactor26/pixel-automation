@@ -842,12 +842,24 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             }
         }
 
+        bool isExecutionInProgress;
+        public bool IsExecutionInProgress
+        {
+            get => isExecutionInProgress;
+            set
+            {
+                isExecutionInProgress = value;
+                NotifyOfPropertyChange(() => CanRunTests);
+                NotifyOfPropertyChange(() => CanTearDownEnvironment);
+            }
+        }
+
         /// <summary>
         /// Guard method to check whether tests can be executed
         /// </summary>
         public bool CanRunTests
         {
-            get => IsSetupComplete;
+            get => IsSetupComplete && !isExecutionInProgress;
         }
 
         /// <summary>
@@ -876,7 +888,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         public bool CanTearDownEnvironment
         {
-            get => isSetupComplete;
+            get => isSetupComplete  && !isExecutionInProgress;
         }
 
         /// <summary>
@@ -916,6 +928,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
+                    this.IsExecutionInProgress = true;
                     foreach (var testFixture in this.TestFixtures)
                     {
                         foreach (var test in testFixture.Tests)
@@ -949,6 +962,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     logger.Error(ex.Message, ex);
                 }
+                finally
+                {
+                    this.IsExecutionInProgress = false;
+                }
             });
             runTestCasesTask.Start();
             await runTestCasesTask;
@@ -969,6 +986,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
+                    this.IsExecutionInProgress = true;
                     foreach (var testFixture in this.TestFixtures.OrderBy(t => t.Order).ThenBy(t => t.DisplayName))
                     {
                         //open fixture if not already open
@@ -1001,6 +1019,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 catch (Exception ex)
                 {
                     logger.Error(ex, ex.Message);
+                }
+                finally
+                {
+                    this.IsExecutionInProgress = false;
                 }
             });
             runTestCasesTask.Start();
