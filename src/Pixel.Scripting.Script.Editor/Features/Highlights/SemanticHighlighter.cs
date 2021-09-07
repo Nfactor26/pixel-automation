@@ -180,8 +180,8 @@ namespace Pixel.Scripting.Script.Editor.Features
 
         protected virtual void Dispose(bool isDisposing)
         {
-            bufferedSubscription.Dispose();
-            intervalSubscription.Dispose();
+            bufferedSubscription?.Dispose();
+            intervalSubscription?.Dispose();
         }
 
         public void Dispose()
