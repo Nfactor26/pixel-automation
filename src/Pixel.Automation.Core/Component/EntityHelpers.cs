@@ -231,18 +231,18 @@ namespace Pixel.Automation.Core
                 case SearchScope.Children:
 
                     components = rootEntity.Components.Where(c => c.GetType().GetCustomAttributes(true).Any(a => a is T));                 
-                    return components; 
+                    return components ?? Enumerable.Empty<IComponent>(); 
 
                 case SearchScope.Descendants:
                     components = GetAllComponents(rootEntity);
                     components = components.Where(c => c.GetType().GetCustomAttributes(true).Any(a => a is T));
-                    return components;
+                    return components ?? Enumerable.Empty<IComponent>();
                
                 default:
                     throw new ArgumentException($"SearchScope - {searchScope} is not supported by operation {nameof(GetComponentsWithAttribute)}");
             }
         }
-
+       
         /// <summary>
         /// 
         /// </summary>

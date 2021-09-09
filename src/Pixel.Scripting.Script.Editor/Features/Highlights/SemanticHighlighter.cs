@@ -41,13 +41,19 @@ namespace Pixel.Scripting.Script.Editor.Features
             this.classificationHighlightColors = classificationHighlightColors;
             this.DefaultTextColor = classificationHighlightColors.DefaultBrush;
             this.highLightCache = new HighlightCache();
-            synchonizationContext = SynchronizationContext.Current;
-
-            Subscribe();
+            synchonizationContext = SynchronizationContext.Current;            
+        }
+              
+        public void SuspendHighlight()
+        {
+            bufferedSubscription?.Dispose();
+            intervalSubscription?.Dispose();
         }
 
-        private void Subscribe()
+        public void ResumeHighlight()
         {
+            SuspendHighlight();
+
             var bufferedObservable = highlightRequests.Buffer<IDocumentLine>(TimeSpan.FromMilliseconds(400), 4).DistinctUntilChanged();
             bufferedSubscription = bufferedObservable.Subscribe(lines =>
             {
@@ -62,18 +68,6 @@ namespace Pixel.Scripting.Script.Editor.Features
             {
                 RequestHighlightAsync(Document.GetLineByNumber(textView.HighlightedLine));
             });
-        }
-
-
-        public void SuspendHighlight()
-        {
-            bufferedSubscription.Dispose();
-            intervalSubscription.Dispose();
-        }
-
-        public void ResumeHighlight()
-        {
-            Subscribe();
         }
 
         public event HighlightingStateChangedEventHandler HighlightingStateChanged;
@@ -186,8 +180,8 @@ namespace Pixel.Scripting.Script.Editor.Features
 
         protected virtual void Dispose(bool isDisposing)
         {
-            bufferedSubscription.Dispose();
-            intervalSubscription.Dispose();
+            bufferedSubscription?.Dispose();
+            intervalSubscription?.Dispose();
         }
 
         public void Dispose()

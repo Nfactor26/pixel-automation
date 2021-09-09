@@ -50,6 +50,11 @@ namespace Pixel.Scripting.Script.Editor.Script
             logger.Debug($"Created a new instance of {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
         }
 
+        ~InlineScriptEditorViewModel()
+        {
+            Dispose(true);
+        }
+
         public void SetEditorOptions(EditorOptions editorOptions)
         {
             this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
@@ -115,9 +120,9 @@ namespace Pixel.Scripting.Script.Editor.Script
             {
                 this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);
                 this.editorService.SetContent(targetDocument, ownerProject, fileContents);
-            }          
-            this.Editor.OpenDocument(targetDocument, ownerProject);
+            }
             this.Editor.Text = fileContents;
+            this.Editor.OpenDocument(targetDocument, ownerProject);           
         }
 
 
@@ -157,7 +162,7 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
             this.Editor.LostFocus -= OnLostFocus;
             this.Editor.GotFocus -= OnFocus;
-            (this.Editor as IDisposable)?.Dispose();
+            this.Editor.Dispose();
             this.Editor = null;
             this.PropertyChanged = null;          
             logger.Debug($"{nameof(InlineScriptEditorViewModel)} with Id : {Identifier} is disposed now.");
@@ -165,7 +170,8 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         public void Dispose()
         {
-            Dispose(true);           
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #region INotifyPropertyChanged

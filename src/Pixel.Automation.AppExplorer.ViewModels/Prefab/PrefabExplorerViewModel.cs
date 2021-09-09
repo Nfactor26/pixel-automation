@@ -3,7 +3,6 @@ using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.DragDropHandler;
-using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;

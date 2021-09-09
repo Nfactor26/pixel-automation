@@ -50,15 +50,16 @@ namespace Pixel.Scripting.Script.Editor.REPL
             this.documentName = Path.GetRandomFileName();
             this.projectName = Guid.NewGuid().ToString();
             this.editorService.CreateFileIfNotExists(documentName, string.Empty);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
-
+            
             if (!this.editorService.HasDocument(documentName, projectName))
             {
                 this.editorService.AddDocument(documentName, projectName, string.Empty);
             }
             this.editorService.TryOpenDocument(documentName, projectName);
+            this.Editor.Text = this.editorService.GetFileContentFromDisk(documentName);
             this.Editor.OpenDocument(documentName, projectName);
-        }      
+            this.Editor.ResumeEditorUpdates();
+        }
 
         public void SetGlobals(object globals)
         {           

@@ -169,15 +169,17 @@ namespace Pixel.Automation.Designer.ViewModels
                 scriptEditorFactory.AddProject(this.CurrentProject.GetProjectName(), new string[] {}, this.EntityManager.Arguments.GetType());
                 scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), File.ReadAllText(scriptFile));
                 //Create script editor and open the document to edit
-                IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor();
-                scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), string.Empty);
-                var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
-                if (result.HasValue && result.Value)
+                using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
                 {
-                    var scriptEngine = entityManager.GetScriptEngine();
-                    scriptEngine.ClearState();
-                    await scriptEngine.ExecuteFileAsync(scriptFile);
-                }
+                    scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), string.Empty);
+                    var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                    if (result.HasValue && result.Value)
+                    {
+                        var scriptEngine = entityManager.GetScriptEngine();
+                        scriptEngine.ClearState();
+                        await scriptEngine.ExecuteFileAsync(scriptFile);
+                    }
+                }             
             }
             catch (Exception ex)
             {

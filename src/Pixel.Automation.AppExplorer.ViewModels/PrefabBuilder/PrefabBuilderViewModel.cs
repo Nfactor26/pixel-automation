@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
-    public class PrefabBuilderViewModel : Wizard
+    public class PrefabBuilderViewModel : Wizard, IPrefabBuilder
     {
         private readonly ILogger logger = Log.ForContext<PrefabBuilderViewModel>();
 

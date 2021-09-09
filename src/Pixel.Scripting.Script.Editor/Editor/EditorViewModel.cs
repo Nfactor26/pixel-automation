@@ -42,8 +42,10 @@ namespace Pixel.Scripting.Script.Editor
 
             }
             this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);
-            this.Editor.OpenDocument(targetDocument, ownerProject);
             this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
+            this.Editor.OpenDocument(targetDocument, ownerProject);
+            this.Editor.ResumeEditorUpdates();
+         
         }
 
         public void SetContent(string targetDocument, string documentContent, string ownerProject)
@@ -121,6 +123,7 @@ namespace Pixel.Scripting.Script.Editor
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

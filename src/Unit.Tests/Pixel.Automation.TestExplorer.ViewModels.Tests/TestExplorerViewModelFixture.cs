@@ -3,7 +3,9 @@ using NSubstitute;
 using NSubstitute.Core;
 using NUnit.Framework;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Loops;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -114,6 +116,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         TestFixtureViewModel CreateTestFixtureViewModel(bool isOpenForEdit)
         {
             var fixtureEntity = new TestFixtureEntity() { EntityManager = fixtureEntityManager };
+            var seqeunceEntity = new SequenceEntity();
+            fixtureEntity.AddComponent(seqeunceEntity);
+            // WhileLoopEntity has Scriptable Attribute. We need this to assert a condition while closing test case
+            var whileLoopEntity = new WhileLoopEntity() { ScriptFile = "Script.csx" };
+            seqeunceEntity.AddComponent(whileLoopEntity);
+         
             TestFixture testFixture = new TestFixture()
             {
                 DisplayName = $"Fixture#1",
@@ -273,10 +281,18 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             }          
 
             int expected = isOpenForEdit ? 1 : 0;         
-            await testRunner.Received(expected).TryCloseTestFixture(Arg.Is<TestFixture>(testFixture));
-            fixtureEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
+            await testRunner.Received(expected).TryCloseTestFixture(Arg.Is<TestFixture>(testFixture));         
             scriptEditorFactory.Received(expected).RemoveProject(Arg.Is<string>(fixtureViewModel.Id));
-         
+            if (isOpenForEdit)
+            {
+                fixtureEntityManager.Received(2).GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.Received(1).RemoveInlineScriptEditor(Arg.Any<string>()); // 1 when open for edit because of presence of while loop entity
+            }
+            else
+            {
+                fixtureEntityManager.Received(0).GetServiceOfType<IScriptEditorFactory>();
+            }
+
         }
 
         /// <summary>
@@ -401,9 +417,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             projectFileSystem.CreateTestCaseFileSystemFor(Arg.Any<string>()).Returns(testCaseFileSystem);
             testCaseFileSystem.FixtureDirectory.Returns(Environment.CurrentDirectory);
-            testCaseFileSystem.GetRelativePath(Arg.Any<string>()).Returns(Path.Combine("TestId", testScriptFile));
+            testCaseFileSystem.GetRelativePath(Arg.Any<string>()).Returns(Path.Combine("FixtureId", testScriptFile));
             testCaseFileSystem.GetTestProcessFile(Arg.Any<string>()).Returns(testProcessFile);
-            testCaseFileSystem.GetTestScriptFile(Arg.Any<string>()).Returns(testScriptFile);
+            testCaseFileSystem.GetTestScriptFile(Arg.Any<string>()).Returns(Path.Combine(Environment.CurrentDirectory, "FixutreId", testScriptFile));
             testCaseFileSystem.When(x => x.CreateOrReplaceFile(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             testCaseFileSystem.When(x => x.SaveToFile<TestCase>(Arg.Any<TestCase>(), Arg.Any<string>())).Do(DoNothing);
             testCaseFileSystem.When(x => x.SaveToFile<Entity>(Arg.Any<Entity>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);          
@@ -453,6 +469,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         TestCaseViewModel CreateTestCaseViewModel(TestFixture parentFixture, bool isOpenForEdit)
         {
             var testEntity = new TestCaseEntity() { EntityManager = testEntityManager };
+            var seqeunceEntity = new SequenceEntity();
+            testEntity.AddComponent(seqeunceEntity);
+            // WhileLoopEntity has Scriptable Attribute. We need this to assert a condition while closing test case
+            var whileLoopEntity = new WhileLoopEntity() { ScriptFile = "Script.csx" }; 
+            seqeunceEntity.AddComponent(whileLoopEntity);
+
             TestCase testCase = new TestCase()
             {
                 FixtureId = parentFixture.Id,
@@ -604,9 +626,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             int expected = isOpenForEdit ? 1 : 0;
             await testRunner.Received(expected).TryCloseTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase));
-            testEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
             scriptEditorFactory.Received(expected).RemoveProject(Arg.Is<string>(testCaseViewModel.Id));
-
+            if (isOpenForEdit)
+            {
+                testEntityManager.Received(2).GetServiceOfType<IScriptEditorFactory>();
+                scriptEditorFactory.Received(1).RemoveInlineScriptEditor(Arg.Any<string>()); // 1 when open for edit because of presence of while loop entity
+            }
+            else
+            {
+                testEntityManager.Received(0).GetServiceOfType<IScriptEditorFactory>();
+            }           
+         
         }
 
         /// <summary>
@@ -675,8 +705,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             projectFileSystem.Received(1).CreateTestCaseFileSystemFor(Arg.Is<string>(fixtureViewModel.Id));
             testCaseFileSystem.Received(1).GetTestScriptFile(Arg.Is<string>(testCaseViewModel.Id));
-            testCaseFileSystem.Received(1).GetRelativePath(Arg.Is<string>(testScriptFile));
-            testCaseFileSystem.Received(1).CreateOrReplaceFile(Arg.Any<string>(), Arg.Is<string>(testCaseViewModel.ScriptFile), Arg.Is<string>(string.Empty));
+            testCaseFileSystem.Received(1).GetRelativePath(Arg.Is<string>(Path.Combine(Environment.CurrentDirectory, "FixutreId", testScriptFile)));
+            testCaseFileSystem.Received(1).CreateOrReplaceFile(Arg.Is<string>(Environment.CurrentDirectory), Arg.Is<string>(Path.GetFileName(testCaseViewModel.ScriptFile)), Arg.Is<string>(string.Empty));
             testCaseFileSystem.Received(1).SaveToFile<TestCase>(Arg.Is<TestCase>(testCaseViewModel.TestCase), Arg.Is(Environment.CurrentDirectory));
 
             int expectedWhenSaveFixtureEntity = shouldSaveTestEntity ? 1 : 0;

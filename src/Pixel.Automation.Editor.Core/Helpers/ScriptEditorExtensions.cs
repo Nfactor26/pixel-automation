@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Helpers
@@ -42,8 +43,8 @@ namespace Pixel.Automation.Editor.Core.Helpers
             Guard.Argument(forComponent).NotNull();
             Guard.Argument(scriptFile).NotNull().NotEmpty();
             Guard.Argument(initialScriptContentGetter).NotNull();
-
-            var scriptEditor = editorFactory.CreateInlineScriptEditor();
+            var cacheKey = $"{forComponent.Id}-{Path.GetFileNameWithoutExtension(scriptFile)}";
+            var scriptEditor = editorFactory.CreateInlineScriptEditor(cacheKey);
             AddProject(editorFactory, forComponent);
             string initialContent = initialScriptContentGetter(forComponent);
             editorFactory.AddDocument(scriptFile, forComponent.Id, initialContent);

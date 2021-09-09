@@ -74,6 +74,26 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         IInlineScriptEditor CreateInlineScriptEditor();
 
 
+
+        /// <summary>
+        /// Get an existing inline script editor with given identifer or create a new one.
+        /// Inline Editors created using this overload are cached. Component views which provide
+        /// inline editors are frequently unloaded and created again. When a new view is created,
+        /// it tries to create a new inline editor again and we should reuse last created inline 
+        /// editor for same component.
+        /// </summary>
+        /// <param name="cacheKey">Key used to cache the instance</param>
+        /// <returns></returns>
+        IInlineScriptEditor CreateInlineScriptEditor(string cacheKey);
+
+
+        /// <summary>
+        /// Dispose and remove cahced inline script editor from cache
+        /// </summary>
+        /// <param name="identifier"></param>
+        void RemoveInlineScriptEditor(string identifier);
+
+
         /// <summary>
         /// Add additional locations from which #r assemblies can be resolved from.
         /// </summary>
