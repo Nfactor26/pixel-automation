@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
@@ -10,7 +11,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="workingDirectory"></param>
         /// <param name="editorReferences"></param>
-        void Initialize(string workingDirectory, string[] editorReferences);
+        void Initialize(string workingDirectory, IEnumerable<string> editorReferences);
 
         /// <summary>
         /// Update the Editor to use a new working directory
@@ -18,10 +19,25 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="workingDirectory">New working directory</param>
         void SwitchWorkingDirectory(string workingDirectory);
 
+        /// <summary>
+        /// Add a new document to project
+        /// </summary>
+        /// <param name="documentName"></param>
+        /// <param name="projectName"></param>
+        /// <param name="documentContent"></param>
         void AddDocument(string documentName, string projectName, string documentContent);
 
+        /// <summary>
+        /// Remove an existing document from project
+        /// </summary>
+        /// <param name="documentName"></param>
+        /// <param name="projectName"></param>
         void RemoveDocument(string documentName, string projectName);
 
+        /// <summary>
+        /// Remove project from solution
+        /// </summary>
+        /// <param name="projectName"></param>
         void RemoveProject(string projectName);
     }
 
@@ -53,6 +69,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <returns></returns>
         IMultiEditor CreateMultiCodeEditorControl();       
 
+        /// <summary>
+        /// Compile a project given it's name
+        /// </summary>
+        /// <param name="projectName">Name of the project to be compiled</param>
+        /// <param name="outputAssemblyName">Desired name of the output assembly</param>
+        /// <returns>CompilationResult</returns>
         CompilationResult CompileProject(string projectName, string outputAssemblyName);
     }
 
@@ -64,16 +86,13 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// Create a script editor
         /// </summary>
         /// <returns></returns>
-        IScriptEditorScreen CreateScriptEditor();
-       
+        IScriptEditorScreen CreateScriptEditor();       
 
         /// <summary>
         /// Create an inline script editor
         /// </summary>
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor();
-
-
 
         /// <summary>
         /// Get an existing inline script editor with given identifer or create a new one.
@@ -86,13 +105,11 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor(string cacheKey);
 
-
         /// <summary>
         /// Dispose and remove cahced inline script editor from cache
         /// </summary>
         /// <param name="identifier"></param>
         void RemoveInlineScriptEditor(string identifier);
-
 
         /// <summary>
         /// Add additional locations from which #r assemblies can be resolved from.
@@ -110,7 +127,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
     public interface IREPLEditorFactory : IEditorFactory
     {
-        void Initialize(string workingDirectory, Type globalsType, string[] editorReferences);
+        void Initialize(string workingDirectory, Type globalsType, IEnumerable<string> editorReferences);
 
         IREPLScriptEditor CreateREPLEditor<T>(T globals);
     }

@@ -141,7 +141,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             object dataModelInstance = Activator.CreateInstance(dataModelType);
 
-            scriptEngineFactory.WithAdditionalAssemblyReferences(prefabFileSystem.GetAssemblyReferences());
+            scriptEngineFactory.WithAdditionalAssemblyReferences(prefabFileSystem.ReferenceManager.GetScriptRunTimeReferences());
             scriptEngineFactory.WithAdditionalAssemblyReferences(dataModelAssembly);
             var scriptEngine = scriptEngineFactory.CreateScriptEngine(prefabFileSystem.WorkingDirectory);
             scriptEngine.SetWorkingDirectory(prefabFileSystem.WorkingDirectory);

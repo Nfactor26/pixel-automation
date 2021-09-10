@@ -2,6 +2,7 @@
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Script.Editor.REPL;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Pixel.Scripting.Script.Editor
@@ -18,7 +19,7 @@ namespace Pixel.Scripting.Script.Editor
             this.scriptEngine = scriptEngineFactory.CreateInteractiveScriptEngine(); ;
         }
 
-        public void Initialize(string workingDirectory, Type globalsType, string[] editorReferences)
+        public void Initialize(string workingDirectory, Type globalsType, IEnumerable<string> editorReferences)
         {
             this.isInitialized = true;
             this.editorService.Initialize(new WorkspaceOptions()
@@ -70,7 +71,7 @@ namespace Pixel.Scripting.Script.Editor
             throw new NotImplementedException();
         }
 
-        public void Initialize(string workingDirectory, string[] editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
         {
             throw new NotImplementedException();
         }

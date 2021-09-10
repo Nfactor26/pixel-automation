@@ -129,7 +129,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             logger.Information($"Project file system has been initialized.");
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.fileSystem.GetAssemblyReferences());
+            workspaceManager.WithAssemblyReferences(this.fileSystem.ReferenceManager.GetCodeEditorReferences());
             workspaceManager.AddProject(this.automationProject.Name, $"Pixel.Automation.{this.automationProject.GetProjectName()}",  Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())

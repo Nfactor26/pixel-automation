@@ -38,10 +38,6 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             }
             ProjectId id = ProjectId.CreateNewId();
 
-            var defaultMetaDataReferences = ProjectReferences.DesktopRefsDefault.GetReferences(DocumentationProviderFactory);
-            var additionalProjectReferences = ProjectReferences.Empty.With(assemblyReferences: this.additionalReferences);
-            var additionalMetaDataReferences = additionalProjectReferences.GetReferences(DocumentationProviderFactory);
-       
             var otherProjectReferences = new List<ProjectReference>();
             foreach (var reference in projectReferences)
             {
@@ -55,7 +51,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                {
                     MetadataReference.CreateFromFile(globalsType.Assembly.Location)
                }
-               .Concat(defaultMetaDataReferences).Concat(additionalMetaDataReferences)
+               .Concat(this.additionalReferences)
                )
                .WithCompilationOptions(compilationOptions);
 
@@ -94,7 +90,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         protected override CSharpCompilationOptions CreateCompilationOptions()
         {
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopDefault.Imports);
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);
             compilationOptions = compilationOptions.WithMetadataReferenceResolver(CreateMetaDataResolver());
             //SourceFileResolver is required so that #load directive can be used in script
             compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
@@ -102,15 +98,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         private MetadataReferenceResolver CreateMetaDataResolver()
-        {
-            var scriptEnvironmentService = workspace.Services.GetService<IScriptEnvironmentService>();          
+        {            
             var metaDataResolver = ScriptMetadataResolver.Default;
-            metaDataResolver = metaDataResolver.WithBaseDirectory(scriptEnvironmentService.BaseDirectory);
-            var scriptReferencesLocation = ImmutableArray<string>.Empty;
-            scriptReferencesLocation = scriptReferencesLocation.AddRange(scriptEnvironmentService.MetadataReferenceSearchPaths);
+            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
+            var scriptReferencesLocation = ImmutableArray<string>.Empty;         
             scriptReferencesLocation = scriptReferencesLocation.AddRange(this.searchPaths);
             metaDataResolver = metaDataResolver.WithSearchPaths(scriptReferencesLocation);
-          
+
             return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
         }
 

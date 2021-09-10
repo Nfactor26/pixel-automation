@@ -34,17 +34,24 @@ namespace Pixel.Scripting.Engine.CSharp
 
         private readonly object locker = new object();
 
+        /// <summary>
+        /// Allowed assemblies to be resolved by MetaDataResolver
+        /// </summary>
+        private readonly List<string> whiteListedReferences = new List<string>();
+       
+
         #endregion data members
 
-        public ScriptEngineFactory()
+        public ScriptEngineFactory(ApplicationSettings applicationSettings)
         {
+            this.whiteListedReferences.AddRange(applicationSettings.WhiteListedReferences ?? Enumerable.Empty<string>());
             this.metaDataReferenceResolver = CreateScriptMetaDataResolver();
             this.scriptOptions = this.scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            this.scriptOptions = this.scriptOptions.AddReferences(ProjectReferences.DesktopDefault.GetReferences());
-            this.scriptOptions = this.scriptOptions.WithImports(ProjectReferences.NamespaceDefault.Imports);
+            this.scriptOptions = this.scriptOptions.AddReferences(ScriptReferences.DesktopDefault.GetReferences());
+            this.scriptOptions = this.scriptOptions.WithImports(ScriptReferences.NamespaceDefault.Imports);
             this.scriptOptions = this.scriptOptions.WithFileEncoding(System.Text.Encoding.UTF8);
             this.scriptOptions = this.scriptOptions.WithEmitDebugInformation(true);
-
+                
             logger.Information($"{nameof(ScriptEngineFactory)} created and initialized.");
         }
 
@@ -55,11 +62,16 @@ namespace Pixel.Scripting.Engine.CSharp
         /// </summary>
         /// <returns></returns>
         private MetadataReferenceResolver CreateScriptMetaDataResolver()
-        {           
+        {
             scriptMetaDataResolver = ScriptMetadataResolver.Default;
             scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
             scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-            return new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);
+            var resolver = new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);   
+            foreach(var item in whiteListedReferences)
+            {
+                resolver.WithWhiteListedReference(item);
+            }
+            return resolver;
         }
 
         public IScriptEngineFactory WithSearchPaths(string baseDirectory, params string[] searchPaths)
@@ -86,7 +98,7 @@ namespace Pixel.Scripting.Engine.CSharp
         {
             if (string.IsNullOrEmpty(this.baseDirectory))
             {
-                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithAdditionalSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
+                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
             }
 
             lock (locker)
@@ -130,7 +142,7 @@ namespace Pixel.Scripting.Engine.CSharp
                 this.namespaces = this.namespaces.Except(namespaces).ToList<string>();
                 scriptOptions = scriptOptions.WithImports(this.namespaces);
             }
-        }
+        }    
 
         public IScriptEngineFactory WithAdditionalAssemblyReferences(params Assembly[] references)
         {
@@ -141,14 +153,14 @@ namespace Pixel.Scripting.Engine.CSharp
                     if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                     {
                         continue;
-                    }
+                    }                   
                     scriptOptions = scriptOptions.AddReferences(assembly);
                 }
                 return this;
             }
         }
 
-        public IScriptEngineFactory WithAdditionalAssemblyReferences(string[] assemblyReferences)
+        public IScriptEngineFactory WithAdditionalAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
 
@@ -174,12 +186,9 @@ namespace Pixel.Scripting.Engine.CSharp
                     if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                     {
                         continue;
-                    }
-
+                    }                  
                     scriptOptions = scriptOptions.AddReferences(assembly);
-
                 }
-
                 return this;
             }
         }

@@ -96,7 +96,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected virtual void ConfigureCodeEditor()
         {
             logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
-            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.GetAssemblyReferences());       
+            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.ReferenceManager.GetCodeEditorReferences());       
             logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
 
         }
@@ -113,7 +113,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected virtual void ConfigureScriptEditor()
         {      
             logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
-            var assemblyReferences = new List<string>(this.fileSystem.GetAssemblyReferences());
+            var assemblyReferences = new List<string>(this.fileSystem.ReferenceManager.GetScriptEditorReferences());
             assemblyReferences.Add(this.entityManager.Arguments.GetType().Assembly.Location);
             this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences.ToArray());      
             logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");

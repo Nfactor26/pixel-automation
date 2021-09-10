@@ -71,5 +71,30 @@ namespace Pixel.Automation.Core
         /// </summary>
         [DataMember]
         public int DelayFactor { get; set; }
+
+        /// <summary>
+        /// Default assembly references for code and script editor.
+        /// These must come from .\\refs assembly if dll is present there.
+        /// </summary>
+        [DataMember]
+        public string[] DefaultEditorReferences { get; set; }
+
+        /// <summary>
+        /// Default References for the code editor.       
+        /// </summary>
+        [DataMember]
+        public string[] DefaultCodeReferences { get; set; }
+
+        /// <summary>
+        /// Default References for the script editor and script engine for runtime.       
+        /// </summary>
+        [DataMember]
+        public string[] DefaultScriptReferences { get; set; }
+
+        /// <summary>
+        /// For script engine, MetaDataResolver will resolve only those assemblies which are white listed.
+        /// </summary>
+        [DataMember]
+        public string[] WhiteListedReferences { get; set; }
     }
 }

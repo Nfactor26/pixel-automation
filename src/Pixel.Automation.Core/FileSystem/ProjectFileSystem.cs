@@ -9,6 +9,7 @@ namespace Pixel.Automation.Core
 {
     public class ProjectFileSystem : VersionedFileSystem, IProjectFileSystem
     {      
+
         public string ProjectId { get; private set; }
 
         public string ProjectFile { get; private set; }
@@ -20,7 +21,7 @@ namespace Pixel.Automation.Core
         public string TestCaseRepository { get; protected set; }
 
         public string TestDataRepository { get; protected set; }
-     
+        
         public ProjectFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
@@ -44,10 +45,13 @@ namespace Pixel.Automation.Core
             if (!Directory.Exists(TestDataRepository))
             {
                 Directory.CreateDirectory(TestDataRepository);
-            }
-
+            }          
+          
             base.Initialize();
-        }       
+         
+            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
+
+        }
 
         public override void SwitchToVersion(VersionInfo version)
         {
@@ -56,7 +60,10 @@ namespace Pixel.Automation.Core
 
         public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId)
         {
-            var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings);
+            var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings)
+            {
+                ReferenceManager = this.ReferenceManager
+            };
             fileSystem.Initialize(this.WorkingDirectory, testFixtureId);
             return fileSystem;
         }
@@ -72,6 +79,5 @@ namespace Pixel.Automation.Core
             }
             yield break;
         }
-
     }
 }

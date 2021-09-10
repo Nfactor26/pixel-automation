@@ -1,25 +1,61 @@
 ﻿using Microsoft.CodeAnalysis;
 using Roslyn.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Pixel.Scripting.Common.CSharp
+namespace Pixel.Scripting.Engine.CSharp
 {
-    public class ProjectReferences
-    {       
-       
-        public static ProjectReferences Empty { get; } = new ProjectReferences(
-            ImmutableArray<MetadataReference>.Empty,
+    /// <summary>
+    /// Runtime references for Script Engine
+    /// </summary>
+    public class ScriptReferences
+    {     
+      
+        public static ScriptReferences Empty { get; } = new ScriptReferences(ImmutableArray<MetadataReference>.Empty,
             ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.OrdinalIgnoreCase),
             ImmutableArray<string>.Empty);
-               
+
+
+        private static readonly Lazy<ScriptReferences> _desktopDefault = new Lazy<ScriptReferences>(() =>
+        {
+            var result = Empty.With(typeNamespaceImports: new[]
+            {
+                typeof(object),
+                typeof(Thread),
+                typeof(Task),
+                typeof(List<>),
+                typeof(Regex),
+                typeof(StringBuilder),
+                typeof(Uri),
+                typeof(Enumerable),
+                typeof(IEnumerable),
+                typeof(Path),
+                typeof(Assembly)
+            }, assemblyReferences: new[]
+            {
+                typeof(Microsoft.CSharp.RuntimeBinder.Binder).Assembly
+            });
+            return result;
+        });
+
+        /// <summary>
+        /// Returns desired defaults for .Net Core Runtime (Use Runtime for scripting)
+        /// </summary>
+        public static ScriptReferences DesktopDefault => _desktopDefault.Value;
+              
         /// <summary>
         /// Returns namespace-only (no assemblies) defaults that fit all frameworks.
         /// </summary>
-        public static ProjectReferences NamespaceDefault { get; } = Empty.With(imports: new[]{
+        public static ScriptReferences NamespaceDefault { get; } = Empty.With(imports: new[]{
             "System",
             "System.Threading",
             "System.Threading.Tasks",
@@ -32,7 +68,7 @@ namespace Pixel.Scripting.Common.CSharp
             "System.Reflection",
         });
      
-        public ProjectReferences With(IEnumerable<MetadataReference> references = null, IEnumerable<string> imports = null,
+        public ScriptReferences With(IEnumerable<MetadataReference> references = null, IEnumerable<string> imports = null,
             IEnumerable<Assembly> assemblyReferences = null, IEnumerable<string> assemblyPathReferences = null, IEnumerable<Type> typeNamespaceImports = null)
         {
             var referenceLocations = _referenceLocations;
@@ -54,16 +90,16 @@ namespace Pixel.Scripting.Common.CSharp
                 referenceLocations = referenceLocations.SetItem(location, string.Empty);
             }  
 
-            return new ProjectReferences(
-                _references.AddRange(references ?? Enumerable.Empty<MetadataReference>()),
-                referenceLocations,
-                importsArray);
+            return new ScriptReferences(_references.AddRange(references ?? Enumerable.Empty<MetadataReference>()), referenceLocations, importsArray);
         }
 
-        private ProjectReferences(
-            ImmutableArray<MetadataReference> references,
-            ImmutableDictionary<string, string> referenceLocations,
-            ImmutableArray<string> imports)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="references"></param>
+        /// <param name="referenceLocations"></param>
+        /// <param name="imports"></param>
+        private ScriptReferences(ImmutableArray<MetadataReference> references, ImmutableDictionary<string, string> referenceLocations, ImmutableArray<string> imports)
         {
             _references = references;
             _referenceLocations = referenceLocations;
@@ -79,6 +115,7 @@ namespace Pixel.Scripting.Common.CSharp
         public ImmutableArray<MetadataReference> GetReferences(Func<string, DocumentationProvider> documentationProviderFactory = null) =>
             Enumerable.Concat(_references, Enumerable.Select(_referenceLocations, c => MetadataReference.CreateFromFile(c.Key, documentation: documentationProviderFactory?.Invoke(c.Key))))
                 .ToImmutableArray();
+
        
     }
 }

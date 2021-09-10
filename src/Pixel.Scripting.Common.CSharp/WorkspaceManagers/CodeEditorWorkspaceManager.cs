@@ -34,11 +34,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
             var compilationOptions = CreateCompilationOptions();
             ProjectId id = ProjectId.CreateNewId();
-
-            var defaultMetaDataReferences = ProjectReferences.DesktopRefsDefault.GetReferences(DocumentationProviderFactory);
-            var additionalProjectReferences = ProjectReferences.Empty.With(assemblyReferences: this.additionalReferences);
-            var additionalMetaDataReferences = additionalProjectReferences.GetReferences(DocumentationProviderFactory);
-
+           
             var otherProjectReferences = new List<ProjectReference>();
             foreach (var reference in projectReferences)
             {
@@ -48,7 +44,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
             var projectInfo = ProjectInfo.Create(id, VersionStamp.Create(), projectName,
                 Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences: otherProjectReferences, isSubmission: false)
-               .WithMetadataReferences(defaultMetaDataReferences.Concat(additionalMetaDataReferences))
+               .WithMetadataReferences(this.additionalReferences)
                .WithCompilationOptions(compilationOptions);
             projectInfo = projectInfo.WithDefaultNamespace(defaultNameSpace);
 

@@ -4,6 +4,7 @@ using Pixel.Scripting.Script.Editor.Code;
 using Pixel.Scripting.Script.Editor.MultiEditor;
 using Serilog;
 using System;
+using System.Collections.Generic;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -22,7 +23,7 @@ namespace Pixel.Scripting.Script.Editor
             logger.Debug($"Create a new instance of {nameof(CodeEditorFactory)} with Id : {Identifier}");
         }
 
-        public void Initialize(string workingDirectory, string[] editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
            
