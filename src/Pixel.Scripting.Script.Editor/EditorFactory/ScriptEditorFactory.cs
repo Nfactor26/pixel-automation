@@ -31,7 +31,7 @@ namespace Pixel.Scripting.Script.Editor
         }
 
 
-        public void Initialize(string workingDirectory, string[] editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
          

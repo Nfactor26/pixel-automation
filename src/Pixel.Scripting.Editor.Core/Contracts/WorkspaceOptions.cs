@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
@@ -12,7 +12,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         public bool EnableDiagnostics { get; set; } = true;
 
-        public string[] AssemblyReferences { get; set; } 
+        public IEnumerable<string> AssemblyReferences { get; set; } 
 
         public WorkspaceType WorkspaceType { get; set; }
     }

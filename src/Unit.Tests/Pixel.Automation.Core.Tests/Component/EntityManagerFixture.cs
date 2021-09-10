@@ -36,7 +36,7 @@ namespace Pixel.Automation.Core.Tests
             this.fileSystem = Substitute.For<IFileSystem>(); 
             this.serializer = Substitute.For<ISerializer>();
 
-            
+            this.fileSystem.ReferenceManager.Returns(new AssemblyReferenceManager(new ApplicationSettings(), string.Empty, string.Empty));
 
             this.scriptEngineFactory = Substitute.For<IScriptEngineFactory>();
             this.scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns((a) => { return CreateScriptEngine(); });

@@ -19,8 +19,7 @@ namespace Pixel.Automation.Core
         public string PrefabFile { get; private set; }
 
         public string TemplateFile { get; private set; }
-
-     
+    
         public PrefabFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
@@ -37,8 +36,11 @@ namespace Pixel.Automation.Core
             this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, $"{prefabId}.dat");
             this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabEntityFileName);
             this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
-
+            
             base.Initialize();
+
+            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
+
         }
 
         public void Initialize(string applicationId, string prefabId)

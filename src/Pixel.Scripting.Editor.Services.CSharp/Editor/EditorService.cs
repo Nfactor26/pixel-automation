@@ -114,7 +114,7 @@ namespace Pixel.Script.Editor.Services.CSharp
                         ProjectName = project.Name
                     };                   
                     List<DiagnosticLocation> quickFixes = new List<DiagnosticLocation>();
-                    foreach (var diagnosticData in diagnosticEventData.Diagnostics)
+                    foreach (var diagnosticData in diagnosticEventData.GetAllDiagnosticsRegardlessOfPushPullSetting())
                     {
                         var diagnostic = diagnosticData.ToDiagnosticAsync(project, CancellationToken.None).Result;
                         var diagnosticLocation = diagnostic.ToDiagnosticLocation();

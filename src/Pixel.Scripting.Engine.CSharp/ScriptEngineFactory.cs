@@ -20,9 +20,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         private ScriptOptions scriptOptions = ScriptOptions.Default;
 
-        private ScriptMetadataResolver scriptMetaDataResolver;
-
-        private MetadataReferenceResolver metaDataReferenceResolver;
+        private CachedScriptMetadataResolver metaDataReferenceResolver;
 
         private string baseDirectory = Environment.CurrentDirectory;
 
@@ -34,17 +32,24 @@ namespace Pixel.Scripting.Engine.CSharp
 
         private readonly object locker = new object();
 
+        /// <summary>
+        /// Allowed assemblies to be resolved by MetaDataResolver
+        /// </summary>
+        private readonly List<string> whiteListedReferences = new List<string>();
+       
+
         #endregion data members
 
-        public ScriptEngineFactory()
+        public ScriptEngineFactory(ApplicationSettings applicationSettings)
         {
+            this.whiteListedReferences.AddRange(applicationSettings.WhiteListedReferences ?? Enumerable.Empty<string>());
             this.metaDataReferenceResolver = CreateScriptMetaDataResolver();
             this.scriptOptions = this.scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            this.scriptOptions = this.scriptOptions.AddReferences(ProjectReferences.DesktopDefault.GetReferences());
-            this.scriptOptions = this.scriptOptions.WithImports(ProjectReferences.NamespaceDefault.Imports);
+            this.scriptOptions = this.scriptOptions.AddReferences(ScriptReferences.DesktopDefault.GetReferences());
+            this.scriptOptions = this.scriptOptions.WithImports(ScriptReferences.NamespaceDefault.Imports);
             this.scriptOptions = this.scriptOptions.WithFileEncoding(System.Text.Encoding.UTF8);
             this.scriptOptions = this.scriptOptions.WithEmitDebugInformation(true);
-
+                
             logger.Information($"{nameof(ScriptEngineFactory)} created and initialized.");
         }
 
@@ -54,12 +59,17 @@ namespace Pixel.Scripting.Engine.CSharp
         /// baseDirectory : Directory used when resolving relative paths
         /// </summary>
         /// <returns></returns>
-        private MetadataReferenceResolver CreateScriptMetaDataResolver()
-        {           
-            scriptMetaDataResolver = ScriptMetadataResolver.Default;
+        private CachedScriptMetadataResolver CreateScriptMetaDataResolver()
+        {
+            var scriptMetaDataResolver = ScriptMetadataResolver.Default;
             scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
             scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-            return new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);
+            var resolver = new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);   
+            foreach(var item in whiteListedReferences)
+            {
+                resolver.WithWhiteListedReference(item);
+            }
+            return resolver;
         }
 
         public IScriptEngineFactory WithSearchPaths(string baseDirectory, params string[] searchPaths)
@@ -70,34 +80,22 @@ namespace Pixel.Scripting.Engine.CSharp
             {
                 this.baseDirectory = baseDirectory;
                 this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
-
-                metaDataReferenceResolver = CreateScriptMetaDataResolver();
-                scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-
-                //for #load references
-                scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
-
+                UpdateScriptOptions();
                 return this;
             }
-
-        }
+        }     
 
         public IScriptEngineFactory WithAdditionalSearchPaths(params string[] searchPaths)
         {
             if (string.IsNullOrEmpty(this.baseDirectory))
             {
-                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithAdditionalSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
+                throw new InvalidOperationException($"BaseDirectory is not yet initialized. {nameof(WithSearchPaths)} must be called atleast once before {nameof(WithAdditionalSearchPaths)} can be called");
             }
 
             lock (locker)
             {
                 this.searchPaths = this.searchPaths.Union(searchPaths).ToList<string>();
-                metaDataReferenceResolver = CreateScriptMetaDataResolver();
-                scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-
-                //for #load references
-                scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
-
+                UpdateScriptOptions();
                 return this;
             }
         }
@@ -107,10 +105,21 @@ namespace Pixel.Scripting.Engine.CSharp
             lock (locker)
             {
                 this.searchPaths = this.searchPaths.Except(searchPaths).ToList<string>();
-                metaDataReferenceResolver = CreateScriptMetaDataResolver();
-                scriptOptions = scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-                scriptOptions = scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
+                UpdateScriptOptions();
             }
+        }
+
+        void UpdateScriptOptions()
+        {
+            var scriptMetaDataResolver = ScriptMetadataResolver.Default;
+            scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(this.baseDirectory);
+            scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
+
+            this.metaDataReferenceResolver = this.metaDataReferenceResolver.WithScriptMetaDataResolver(scriptMetaDataResolver);
+            this.scriptOptions = this.scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
+
+            //for #load references
+            this.scriptOptions = this.scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
         }
 
         public IScriptEngineFactory WithAdditionalNamespaces(params string[] namespaces)
@@ -128,9 +137,9 @@ namespace Pixel.Scripting.Engine.CSharp
             lock (locker)
             {
                 this.namespaces = this.namespaces.Except(namespaces).ToList<string>();
-                scriptOptions = scriptOptions.WithImports(this.namespaces);
+                this.scriptOptions = this.scriptOptions.WithImports(this.namespaces);
             }
-        }
+        }    
 
         public IScriptEngineFactory WithAdditionalAssemblyReferences(params Assembly[] references)
         {
@@ -138,17 +147,17 @@ namespace Pixel.Scripting.Engine.CSharp
             {
                 foreach (var assembly in references)
                 {
-                    if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
+                    if (this.scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                     {
                         continue;
-                    }
-                    scriptOptions = scriptOptions.AddReferences(assembly);
+                    }                   
+                    this.scriptOptions = this.scriptOptions.AddReferences(assembly);
                 }
                 return this;
             }
         }
 
-        public IScriptEngineFactory WithAdditionalAssemblyReferences(string[] assemblyReferences)
+        public IScriptEngineFactory WithAdditionalAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
 
@@ -171,15 +180,12 @@ namespace Pixel.Scripting.Engine.CSharp
                         assembly = Assembly.LoadFrom(reference);
                     }
 
-                    if (scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
+                    if (this.scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                     {
                         continue;
-                    }
-
-                    scriptOptions = scriptOptions.AddReferences(assembly);
-
+                    }                  
+                    this.scriptOptions = this.scriptOptions.AddReferences(assembly);
                 }
-
                 return this;
             }
         }
@@ -199,8 +205,8 @@ namespace Pixel.Scripting.Engine.CSharp
                     }
                     referencesToKeep.Add(metaDataReference);
                 }
-                scriptOptions = scriptOptions.WithReferences(new Assembly[] { });
-                scriptOptions = scriptOptions.AddReferences(referencesToKeep);
+                this.scriptOptions = this.scriptOptions.WithReferences(new Assembly[] { });
+                this.scriptOptions = this.scriptOptions.AddReferences(referencesToKeep);
 
                 List<WeakReference<IScriptEngine>> itemsToRemove = new List<WeakReference<IScriptEngine>>();
                 //Clear the state of each script engine since scriptOptions don't match with ScriptState anymore

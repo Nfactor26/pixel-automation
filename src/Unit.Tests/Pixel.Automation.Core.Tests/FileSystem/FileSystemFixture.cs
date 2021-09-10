@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Pixel.Automation.Core.Tests.FileSystem
 {
@@ -76,8 +75,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             Assert.AreEqual(Path.Combine(workingdirectory, "Scripts"), fileSystem.ScriptsDirectory);
             Assert.AreEqual(Path.Combine(workingdirectory, "Temp"), fileSystem.TempDirectory);
             Assert.AreEqual(Path.Combine(workingdirectory, "DataModel"), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);
-            Assert.AreEqual(Path.Combine(fileSystem.DataModelDirectory, "AssemblyReferences.dat"), fileSystem.ReferencesFile);
+            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);           
             Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));
@@ -100,45 +98,14 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             Assert.AreEqual(Path.Combine(workingdirectory, "Scripts"), fileSystem.ScriptsDirectory);
             Assert.AreEqual(Path.Combine(workingdirectory, "Temp"), fileSystem.TempDirectory);
             Assert.AreEqual(Path.Combine(workingdirectory, "DataModel"), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);
-            Assert.AreEqual(Path.Combine(fileSystem.DataModelDirectory, "AssemblyReferences.dat"), fileSystem.ReferencesFile);
+            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);          
             Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.ReferencesDirectory));
-        }
+        } 
 
-        [Test]
-        [Order(30)]
-        public void ValidateThatFileSystemCanProvideAssemblyReferencesWhenAssemblyReferenceFileDoesNotExist()
-        {
-            var assemblyReferences = fileSystem.GetAssemblyReferences();
-            Assert.IsTrue(assemblyReferences.Any());
-            serializer.Received(1).Serialize<AssemblyReferences>(Arg.Any<string>(), Arg.Any<AssemblyReferences>());            
-        }
-
-        [Test]
-        [Order(40)]
-        public void ValidateThatFileSystemCanProvideAssemblyReferencesWhenAssemblyReferenceFileExists()
-        {
-            //create a empty references file and mock serializer to return a new instance of AssemblyReferences
-            using (File.Create(fileSystem.ReferencesFile))
-            serializer.Deserialize<AssemblyReferences>(Arg.Any<string>()).Returns(new AssemblyReferences());
-
-            var assemblyReferences = fileSystem.GetAssemblyReferences();
-            Assert.IsTrue(assemblyReferences.Any());
-            serializer.Received(1).Deserialize<AssemblyReferences>(Arg.Any<string>(), Arg.Any<List<Type>>());
-        }
-
-        [Test]
-        [Order(50)]
-        public void ValidateThatAssemblyReferencesCanBeUpdatedUsingFileSystem()
-        {
-            fileSystem.UpdateAssemblyReferences(new[] { "Assembly.dll" });
-            Assert.IsTrue(fileSystem.GetAssemblyReferences().Contains("Assembly.dll"));
-            serializer.Received(1).Serialize<AssemblyReferences>(Arg.Any<string>(), Arg.Any<AssemblyReferences>());
-        }
-
+    
         [Test]
         [Order(60)]
         public void ValidateThatFileSystemCanBeUsedToLoadDataFromAFileOfSpecifiedType()

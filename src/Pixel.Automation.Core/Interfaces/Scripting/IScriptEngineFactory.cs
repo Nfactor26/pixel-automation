@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace Pixel.Automation.Core
 {
@@ -46,7 +47,7 @@ namespace Pixel.Automation.Core
         /// Assembly location must be a rooted path or relative to working directory.
         /// </summary>
         /// <param name="assemblyReferences"></param>
-        IScriptEngineFactory WithAdditionalAssemblyReferences(string[] assemblyReferences);
+        IScriptEngineFactory WithAdditionalAssemblyReferences(IEnumerable<string> assemblyReferences);
 
         /// <summary>
         /// Remove one or more default assembly references to be made available to the script

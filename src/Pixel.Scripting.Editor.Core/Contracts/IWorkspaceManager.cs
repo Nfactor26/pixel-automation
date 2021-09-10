@@ -111,7 +111,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         Task ChangeBufferAsync(ChangeBufferRequest changeBufferRequest);
 
-        void WithAssemblyReferences(string[] assemblyReferences);
+        void WithAssemblyReferences(IEnumerable<string> assemblyReferences);
 
         void WithAssemblyReferences(Assembly[] assemblyReferences);
 

@@ -68,8 +68,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
        
-            var references = new AssemblyReferences().GetReferencesOrDefault();            
-            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references.ToArray());  
+            var references = prefabFileSystem.ReferenceManager.GetCodeEditorReferences();            
+            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references);  
             var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabToolBoxItem, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
          

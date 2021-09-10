@@ -5,7 +5,6 @@ using System.Reflection;
 
 namespace Pixel.Automation.Core.Interfaces
 {
-
     public interface IFileSystem
     {      
         /// <summary>
@@ -33,14 +32,14 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string ReferencesDirectory { get;  }
 
+        AssemblyReferenceManager ReferenceManager { get; }
+
         /// <summary>
         /// Returns path relative to working directory of file system for a given path.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        string GetRelativePath(string path);
-
-        string[] GetAssemblyReferences();
+        string GetRelativePath(string path); 
 
         T LoadFile<T>(string targetFile) where T : new();
 
@@ -63,7 +62,6 @@ namespace Pixel.Automation.Core.Interfaces
 
         void SwitchToVersion(VersionInfo version);
     }
-
 
     public interface IProjectFileSystem : IVersionedFileSystem
     {

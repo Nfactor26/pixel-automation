@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
@@ -29,7 +30,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         private string workingDirectory;
         protected AdhocWorkspace workspace = default;              
       
-        protected List<Assembly> additionalReferences;
+        protected List<MetadataReference> additionalReferences;
 
         public AdhocWorkspaceManager(string workingDirectory)
         {
@@ -45,13 +46,15 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             InitializeCompositionHost();
 
             workspace = new AdhocWorkspace(HostServices);
-            workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(), VersionStamp.Create()));
-            this.additionalReferences = new List<Assembly>();
+            var solution = workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(), VersionStamp.Create()));
+            solution = solution.AddAnalyzerReferences(GetSolutionAnalyzerReferences());
+            workspace.TryApplyChanges(solution);
+            this.additionalReferences = new List<MetadataReference>();
         }
 
         protected virtual CSharpCompilationOptions CreateCompilationOptions()
         {
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.DesktopRefsDefault.Imports);
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);
             return compilationOptions;
         }
 
@@ -329,19 +332,24 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
        
-        public void WithAssemblyReferences(string[] assemblyReferences)
+        public void WithAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();          
             int index = 0;
             foreach (var reference in assemblyReferences)
             {
-                if(!Path.IsPathRooted(reference))
+                if(!Path.IsPathRooted(reference) && !File.Exists(Path.GetFullPath(reference)))
                 {
-                    this.additionalReferences.Add(Assembly.LoadFrom(reference));
+                    //when we have a relative path which doesn't belong to working directory, get the assembly first so that assembly can be resolved by name as well.
+                    var assembly = Assembly.LoadFrom(reference);
+                    var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: DocumentationProviderFactory.Invoke(assembly.Location));
+                    this.additionalReferences.Add(metaDataReference);
                 }
                 else
                 {
-                    this.additionalReferences.Add(Assembly.LoadFile(reference));
+                    //when we have an absolute path, create reference directly from file
+                    var metaDataReference = MetadataReference.CreateFromFile(reference, documentation: DocumentationProviderFactory.Invoke(reference));
+                    this.additionalReferences.Add(metaDataReference);
                 }
                 index++;
             }
@@ -351,7 +359,11 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         public void WithAssemblyReferences(Assembly[] assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
-            this.additionalReferences.AddRange(assemblyReferences);
+            foreach (var assembly in assemblyReferences)
+            {
+                var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: DocumentationProviderFactory.Invoke(assembly.Location));
+                this.additionalReferences.Add(metaDataReference);
+            }
         }
     
 
@@ -406,6 +418,15 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         protected virtual IEnumerable<Assembly> GetDefaultCompositionAssemblies()
         {
             return DefaultCompositionAssemblies;
+        }
+
+        protected virtual IEnumerable<AnalyzerReference> GetSolutionAnalyzerReferences()
+        {
+            var loader = GetService<IAnalyzerAssemblyLoader>();
+            yield return new AnalyzerFileReference(typeof(Compilation).Assembly.Location, loader);
+            yield return new AnalyzerFileReference(typeof(CSharpResources).Assembly.Location, loader);
+            yield return new AnalyzerFileReference(typeof(FeaturesResources).Assembly.Location, loader);
+            yield return new AnalyzerFileReference(typeof(CSharpFeaturesResources).Assembly.Location, loader);
         }
 
         #endregion Host Services

@@ -28,33 +28,11 @@ namespace Pixel.Scripting.Common.CSharp
         {
             var finalPath = Path.ChangeExtension(location, "xml");
 
-            return _assemblyPathToDocumentationProviderMap.GetOrAdd(location,
-                _ =>
-                {
-                    if (!File.Exists(finalPath))
-                    {
-                        finalPath = GetFilePath(ProjectReferences.ReferenceAssembliesPath.docPath, finalPath) ??
-                                    GetFilePath(ProjectReferences.ReferenceAssembliesPath.assemblyPath, finalPath);
-                    }
-
+            return _assemblyPathToDocumentationProviderMap.GetOrAdd(location, _ =>
+                {                   
                     return finalPath == null ? null : XmlDocumentationProvider.CreateFromFile(finalPath);
                 });
-        }
-
-        private static string GetFilePath(string path, string location)
-        {
-            if (path != null)
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                var referenceLocation = Path.Combine(path, Path.GetFileName(location));
-                if (File.Exists(referenceLocation))
-                {
-                    return referenceLocation;
-                }
-            }
-
-            return null;
-        }
+        }   
     }
 
 }

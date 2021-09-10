@@ -13,9 +13,7 @@ namespace Pixel.Automation.Core
     {
         protected readonly ISerializer serializer;
 
-        protected readonly ApplicationSettings applicationSettings;
-
-        public string ReferencesFile => Path.Combine(this.DataModelDirectory, "AssemblyReferences.dat");
+        protected readonly ApplicationSettings applicationSettings;   
 
         public string WorkingDirectory { get; protected set; }
 
@@ -25,7 +23,10 @@ namespace Pixel.Automation.Core
 
         public string DataModelDirectory { get; protected set; }
 
-        public string ReferencesDirectory { get; protected set; }      
+        public string ReferencesDirectory { get; protected set; }
+
+        public AssemblyReferenceManager ReferenceManager { get; internal protected set; }
+
 
         public FileSystem(ISerializer serializer, ApplicationSettings applicationSettings)
         {
@@ -69,35 +70,7 @@ namespace Pixel.Automation.Core
             {
                 Directory.CreateDirectory(ReferencesDirectory);
             }
-        }    
-       
-        private AssemblyReferences editorReferences;
-
-        public string[] GetAssemblyReferences()
-        {
-            if (File.Exists(ReferencesFile))
-            {
-                this.editorReferences = serializer.Deserialize<AssemblyReferences>(ReferencesFile, null);
-            }
-            else
-            {
-                this.editorReferences = new AssemblyReferences();
-                this.editorReferences.GetReferencesOrDefault();
-                serializer.Serialize<AssemblyReferences>(ReferencesFile, this.editorReferences);
-
-            }
-            return this.editorReferences.GetReferencesOrDefault();
-        }
-
-        public void UpdateAssemblyReferences(IEnumerable<string> references)
-        {
-            if(this.editorReferences == null)
-            {
-                GetAssemblyReferences();
-            }
-            this.editorReferences.AddReferences(references);
-            serializer.Serialize<AssemblyReferences>(ReferencesFile, this.editorReferences);
-        }       
+        }               
 
         public T LoadFile<T>(string fileName) where T: new()
         {

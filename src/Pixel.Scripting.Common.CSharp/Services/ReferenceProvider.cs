@@ -3,15 +3,15 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.Options;
-using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Text;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Common.CSharp.Services
-{
+{    
     [ExportCompletionProvider("DllReferenceProvider", LanguageNames.CSharp)]
     public class DllReferenceProvider : CompletionProvider
     {
@@ -22,8 +22,8 @@ namespace Pixel.Scripting.Common.CSharp.Services
             enterKeyRule: EnterKeyRule.Never,
             selectionBehavior: CompletionItemSelectionBehavior.SoftSelection);
         public override bool ShouldTriggerCompletion(SourceText text, int caretPosition, CompletionTrigger trigger, OptionSet options)
-         {
-            
+        {
+
             return true;
         }
 
@@ -79,7 +79,7 @@ namespace Pixel.Scripting.Common.CSharp.Services
             //}           
             //if (tokenAtContextPosition.Parent != null)
             //{
-               
+
             //    if (tokenAtContextPosition.Parent.Kind().Equals(SyntaxKind.ReferenceDirectiveTrivia) && tokenAtContextPosition.Parent.ToString().Equals("#r \""))
             //    {
             //        if (completionItems == null)
@@ -94,23 +94,23 @@ namespace Pixel.Scripting.Common.CSharp.Services
 
             //}
 
-            return;         
+            return;
         }
-       
+
         private async Task InitializeReferenceDlls(Document document)
         {
             await Task.Run(() =>
-            {              
-                var scriptEnvironmentService = document.Project.Solution.Workspace.Services.GetService<IScriptEnvironmentService>();
+            {
+                var scriptEnvironmentService = document.Project.Solution.Workspace.Services.GetService<IWorkspaceOptionService>();
 
-                foreach (var directory in scriptEnvironmentService.MetadataReferenceSearchPaths)
+                foreach (var directory in new[] { Environment.CurrentDirectory })
                 {
                     var dlls = Directory.EnumerateFiles(directory, "*.dll");
                     foreach (var dll in dlls)
                     {
                         var completionItem = CompletionItem.Create(Path.GetFileName(dll));
                         //Hack : DisplayTextSuffix string is used for filtering with wordToComplete in IntelliSenseService
-                        completionItem = completionItem.WithDisplayTextSuffix("");                      
+                        completionItem = completionItem.WithDisplayTextSuffix("");
                         completionItem = completionItem.WithRules(completionRules);
                         this.completionItems.Add(completionItem);
                     }
