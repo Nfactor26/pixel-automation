@@ -20,6 +20,10 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
     {      
         private List<string> searchPaths = new List<string>();
+        private CachedScriptMetadataResolver metaDataReferenceResolver;
+        private CSharpCompilationOptions scriptCompilationOptions;
+
+
         public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
         {         
             DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.ScriptSemantic);
@@ -32,9 +36,9 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             Guard.Argument(projectReferences).NotNull();         
             Guard.Argument(globalsType).NotNull();
 
-            if (compilationOptions == null)
+            if (scriptCompilationOptions == null)
             {
-                compilationOptions = CreateCompilationOptions();
+                scriptCompilationOptions = CreateCompilationOptions();
             }
             ProjectId id = ProjectId.CreateNewId();
 
@@ -53,7 +57,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                }
                .Concat(this.additionalReferences)
                )
-               .WithCompilationOptions(compilationOptions);
+               .WithCompilationOptions(scriptCompilationOptions);
 
             workspace.AddProject(scriptProjectInfo);
 
@@ -85,25 +89,23 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
             logger.Information($"Added document {targetDocument} to project {addToProject}");
         }              
-
-        private CSharpCompilationOptions compilationOptions = default;
-
+     
         protected override CSharpCompilationOptions CreateCompilationOptions()
         {
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);
-            compilationOptions = compilationOptions.WithMetadataReferenceResolver(CreateMetaDataResolver());
+            this.metaDataReferenceResolver = CreateMetaDataResolver();
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);           
+            compilationOptions = compilationOptions.WithMetadataReferenceResolver(metaDataReferenceResolver);
+           
             //SourceFileResolver is required so that #load directive can be used in script
-            compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
+            this.scriptCompilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
             return compilationOptions;
         }
 
-        private MetadataReferenceResolver CreateMetaDataResolver()
+        private CachedScriptMetadataResolver CreateMetaDataResolver()
         {            
             var metaDataResolver = ScriptMetadataResolver.Default;
-            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
-            var scriptReferencesLocation = ImmutableArray<string>.Empty;         
-            scriptReferencesLocation = scriptReferencesLocation.AddRange(this.searchPaths);
-            metaDataResolver = metaDataResolver.WithSearchPaths(scriptReferencesLocation);
+            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);           
+            metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
 
             return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
         }
@@ -111,13 +113,23 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         public void AddSearchPaths(params string[] searchPaths)
         {
             this.searchPaths = this.searchPaths.Union(searchPaths).ToList();
-            this.compilationOptions = CreateCompilationOptions();
-        }
+            UpdateCompilationOptions();
+        }     
 
         public void RemoveSearchPaths(params string[] searchPaths)
         {
             this.searchPaths = this.searchPaths.Except(searchPaths).ToList();
-            this.compilationOptions = CreateCompilationOptions();
+            UpdateCompilationOptions();
+        }
+
+        void UpdateCompilationOptions()
+        {
+            var metaDataResolver = ScriptMetadataResolver.Default;
+            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
+            metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
+
+            this.metaDataReferenceResolver = metaDataReferenceResolver.WithScriptMetaDataResolver(metaDataResolver);
+            this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver);
         }
     }
 }

@@ -9,24 +9,24 @@ namespace Pixel.Scripting.Common.CSharp
 {
     public class CachedScriptMetadataResolver : MetadataReferenceResolver
     {
-        private readonly ScriptMetadataResolver _inner;
-        private readonly ConcurrentDictionary<string, ImmutableArray<PortableExecutableReference>> _cache;
-        private readonly List<string> _whiteListedReferences = new List<string>();
+        private ScriptMetadataResolver resolver;
+        private readonly ConcurrentDictionary<string, ImmutableArray<PortableExecutableReference>> cache;
+        private readonly List<string> whiteListedReferences = new List<string>();
 
         public CachedScriptMetadataResolver(ScriptMetadataResolver scriptMetaDataResolver, bool useCache = false)
         {
-            _inner = scriptMetaDataResolver;
+            resolver = scriptMetaDataResolver;
             if (useCache)
             {
-                _cache = new ConcurrentDictionary<string, ImmutableArray<PortableExecutableReference>>();
+                cache = new ConcurrentDictionary<string, ImmutableArray<PortableExecutableReference>>();
             }
         }
 
-        public override bool Equals(object other) => _inner.Equals(other);
+        public override bool Equals(object other) => resolver.Equals(other);
 
-        public override int GetHashCode() => _inner.GetHashCode();
+        public override int GetHashCode() => resolver.GetHashCode();
 
-        public override bool ResolveMissingAssemblies => _inner.ResolveMissingAssemblies;
+        public override bool ResolveMissingAssemblies => resolver.ResolveMissingAssemblies;
 
         /// <summary>
         /// Tries to resolve dependencies for primary references. This goes crazy and loads like few hunder assemblies which takes like additional 50-60 mb
@@ -38,18 +38,18 @@ namespace Pixel.Scripting.Common.CSharp
         /// <returns></returns>
         public override PortableExecutableReference ResolveMissingAssembly(MetadataReference definition, AssemblyIdentity referenceIdentity)
         {
-            if (!_whiteListedReferences.Contains(referenceIdentity.Name))
+            if (!whiteListedReferences.Contains(referenceIdentity.Name))
             {
                 return null;
             }
 
-            if (_cache == null)
+            if (cache == null)
             {
-                return _inner.ResolveMissingAssembly(definition, referenceIdentity);
+                return resolver.ResolveMissingAssembly(definition, referenceIdentity);
             }
 
-            return _cache.GetOrAdd(referenceIdentity.ToString(),
-                _ => ImmutableArray.Create(_inner.ResolveMissingAssembly(definition, referenceIdentity))).FirstOrDefault();
+            return cache.GetOrAdd(referenceIdentity.ToString(),
+                _ => ImmutableArray.Create(resolver.ResolveMissingAssembly(definition, referenceIdentity))).FirstOrDefault();
           
         }
 
@@ -63,28 +63,35 @@ namespace Pixel.Scripting.Common.CSharp
         /// <returns></returns>
         public override ImmutableArray<PortableExecutableReference> ResolveReference(string reference, string baseFilePath, MetadataReferenceProperties properties)
         {            
-            if (_cache == null)
+            if (cache == null)
             {
-                return _inner.ResolveReference(reference, baseFilePath, properties);
+                return resolver.ResolveReference(reference, baseFilePath, properties);
             }
 
-            if (!_cache.TryGetValue(reference, out var result))
+            if (!cache.TryGetValue(reference, out var result))
             {
-                result = _inner.ResolveReference(reference, baseFilePath, properties);
+                result = resolver.ResolveReference(reference, baseFilePath, properties);
                 if (!result.IsDefaultOrEmpty)
                 {
-                    _cache.TryAdd(reference, result);
+                    cache.TryAdd(reference, result);
                 }
             }
 
             return result;
         }
 
-        public MetadataReferenceResolver WithWhiteListedReference(string assemblyName)
+
+        public CachedScriptMetadataResolver WithScriptMetaDataResolver(ScriptMetadataResolver scriptMetaDataResolver)
         {
-            if(!_whiteListedReferences.Contains(assemblyName))
+            this.resolver = scriptMetaDataResolver;
+            return this;
+        }
+
+        public CachedScriptMetadataResolver WithWhiteListedReference(string assemblyName)
+        {
+            if(!whiteListedReferences.Contains(assemblyName))
             {
-                _whiteListedReferences.Add(assemblyName);
+                whiteListedReferences.Add(assemblyName);
             }
             return this;
         }
