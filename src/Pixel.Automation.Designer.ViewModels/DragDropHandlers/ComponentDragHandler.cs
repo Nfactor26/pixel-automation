@@ -207,46 +207,24 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         {
             var sourceItem = dropInfo.Data as IComponent;
             var targetItem = dropInfo.TargetItem as IComponent;
-
-
+            
             //Rearrange if the parents are same updating process order in the order
             if (sourceItem.Parent == targetItem.Parent)
             {
                 Entity parentEntity = targetItem.Parent;
 
-                int desiredPosition = dropInfo.InsertIndex;
-                if (desiredPosition > parentEntity.Components.Count)
+                int currentPosition = sourceItem.ProcessOrder - 1;
+                int desiredPosition = dropInfo.InsertIndex;     
+                if(desiredPosition > currentPosition)
                 {
                     desiredPosition = desiredPosition - 1;
                 }
-                int currentPosition = sourceItem.ProcessOrder - 1;
 
                 if (desiredPosition == currentPosition)
                 {
                     return;
                 }
-                else if (desiredPosition > currentPosition)
-                {
-                    while (desiredPosition > currentPosition)
-                    {
-                        parentEntity.Components.ElementAt(desiredPosition - 1).ProcessOrder--;
-                        desiredPosition--;
-                    }
-                    sourceItem.ProcessOrder = dropInfo.InsertIndex > parentEntity.Components.Count ? dropInfo.InsertIndex - 1 : dropInfo.InsertIndex;
-                    parentEntity.RefereshComponents();
-                    return;
-                }
-                else
-                {
-                    while (desiredPosition < currentPosition)
-                    {
-                        parentEntity.Components.ElementAt(desiredPosition).ProcessOrder++;
-                        desiredPosition++;
-                    }
-                    sourceItem.ProcessOrder = dropInfo.InsertIndex + 1;
-                    parentEntity.RefereshComponents();
-                    return;
-                }
+                parentEntity.MoveComponent(sourceItem, currentPosition, desiredPosition);               
             }
         }
 
@@ -263,27 +241,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 stream.Seek(0, SeekOrigin.Begin);
                 copyOfSourceItem = (IComponent)formatter.Deserialize(stream);
             }
-
-            //Entity with same name can exist inside same parent. However, components can't.
-            //if(!(sourceItem is Entity))
-            //{
-            //    int copyNumber = 1;
-            //    string copyName = string.Empty;
-            //    while(true)
-            //    {
-            //        copyName = $"{copyOfSourceItem.Name.Split(new char[] {'-'})[0]}-{copyNumber}";
-            //        if(targetItem.Components.Any(a=>a.Name.Equals(copyName)))
-            //        {
-            //            copyNumber++;
-            //            continue;
-            //        }
-            //        break;
-            //    }
-            //    copyOfSourceItem.Name = copyName;
-            //}
-
-            targetItem.AddComponent(copyOfSourceItem);
-            targetItem.RefereshComponents();
+            targetItem.AddComponent(copyOfSourceItem);           
             return;
         }
 

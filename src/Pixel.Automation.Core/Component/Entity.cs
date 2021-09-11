@@ -9,6 +9,9 @@ using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Entity is a <see cref="IComponent"/> which can have a collection of <see cref="IComponent"/> as it's child
+    /// </summary>
     [DataContract]
     [Serializable]
     public class Entity : Component
@@ -32,48 +35,45 @@ namespace Pixel.Automation.Core
             }
         }
 
+        protected ObservableCollection<IComponent> componentCollection;
+        /// <summary>
+        /// This is bound in view
+        /// </summary>
         [Browsable(false)]
         public virtual ObservableCollection<IComponent> ComponentCollection
         {
             get
             {
-                return new ObservableCollection<IComponent>(Components.OrderBy(c=>c.ProcessOrder));
-
+                if(componentCollection == null)
+                {
+                    componentCollection = new ObservableCollection<IComponent>(this.Components);
+                }
+                return componentCollection;
             }
-        }
+        }       
 
-
-        [Browsable(false)]
         /// <summary>
-        /// Get all the ActorComponents added to entity in sorted order by ProcessOrder
+        /// Get all child components of type Entity
         /// </summary>
-        public IEnumerable<ActorComponent> ActorComponents
-        {
-            get
-            {
-                var actors = components.OfType<ActorComponent>();                
-                return actors ?? new List<ActorComponent>();
-            }
-        }
-
         [Browsable(false)]
-        public IEnumerable<Entity> Entities
-        {
-            get
-            {
-                var entities = components.OfType<Entity>();           
-                return entities ?? new List<Entity>();
-            }
-        }
+        public IEnumerable<Entity> Entities => components.OfType<Entity>() ?? Enumerable.Empty<Entity>();
 
 
         #region Constructor
-      
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Entity() : base(string.Empty, string.Empty)
         {
           
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="name">Name of the entity</param>
+        /// <param name="tag">Tag assigned to entity</param>
         public Entity(string name="", string tag="") : base(name:name, tag:tag)
         {
            
@@ -110,15 +110,16 @@ namespace Pixel.Automation.Core
                         component.ResolveDependencies();
                     }
 
-
                     if (this.components.Count>0)
                     {
                         component.ProcessOrder = this.components.Last().ProcessOrder + 1;
                     }
-                    this.components.Add(component);
-
-                    OnPropertyChanged(nameof(ComponentCollection));
-
+                  
+                    this.Components.Add(component);
+                    if(!this.ComponentCollection.Contains(component))
+                    {
+                        this.ComponentCollection.Add(component);
+                    }
                     component.ValidateComponent();
                         
                 }
@@ -142,7 +143,12 @@ namespace Pixel.Automation.Core
         {           
             if (component != null && this.components.Contains(component))
             {                
-                this.components.Remove(component);
+                this.Components.Remove(component);
+                if(this.ComponentCollection.Contains(component))
+                {
+                    this.ComponentCollection.Remove(component);
+                }
+
                 component.Parent = null;
                 component.EntityManager = null;
                
@@ -155,20 +161,39 @@ namespace Pixel.Automation.Core
                 if (dispose && component is IDisposable disposable)
                 {
                     disposable.Dispose();
-                }
-              
-                OnPropertyChanged(nameof(ComponentCollection));
-               
+                }               
             }
                
         }
 
-        public void RefereshComponents()
+        /// <summary>
+        /// Move an existing component to a new position.
+        /// This process will update the ProcessOrder for all siblings.
+        /// </summary>
+        /// <param name="target">Component to be moved to a new index</param>
+        /// <param name="oldIndex">Old index of the component</param>
+        /// <param name="newIndex">New index of the component</param>
+        public void MoveComponent(IComponent target, int oldIndex, int newIndex)
         {
-            this.Components = this.Components.OrderBy(c => c.ProcessOrder).ToList();
-            OnPropertyChanged(nameof(ComponentCollection));
+            //int count = this.ComponentCollection.Count;
+            if(this.ComponentCollection.Contains(target))
+            {
+                this.ComponentCollection.Move(oldIndex, newIndex);
+                int processOrder = 1;
+                foreach (var component in this.ComponentCollection)
+                {
+                    component.ProcessOrder = processOrder;
+                    processOrder++;
+                }
+
+                this.Components = this.Components.OrderBy(c => c.ProcessOrder).ToList();
+            }
         }
 
+        /// <summary>
+        /// Get the next component (breadth - first) to process based on ProcessOrder of the components.
+        /// </summary>
+        /// <returns></returns>
         public virtual IEnumerable<IComponent> GetNextComponentToProcess()
         {
             foreach (var component in this.ComponentCollection)
@@ -177,7 +202,6 @@ namespace Pixel.Automation.Core
                 {
                     continue;
                 }
-
 
                 if (component is IEntityProcessor)
                 {

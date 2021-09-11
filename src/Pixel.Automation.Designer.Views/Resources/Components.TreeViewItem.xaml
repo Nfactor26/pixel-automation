@@ -54,8 +54,14 @@
                         <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" 
                                    VerticalAlignment="Stretch" SnapsToDevicePixels="False" Margin="0,23,0,-23">
                             <Rectangle.Width>
-                                <Binding Mode="OneWay" Converter="{StaticResource vertLineConv}" ConverterParameter="bottom" RelativeSource="{RelativeSource  AncestorLevel=1, 
-                                        AncestorType={x:Type TreeViewItem}}"/>
+                                <MultiBinding Converter="{StaticResource vertLineConv}">
+                                    <Binding Path="DataContext.ComponentCollection.Count" Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=2, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" Path="DataContext.ProcessOrder" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                </MultiBinding>
                             </Rectangle.Width>
                         </Rectangle>
 
@@ -135,8 +141,14 @@
                         <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" 
                                    VerticalAlignment="Stretch" SnapsToDevicePixels="False" Margin="0,23,0,-23">
                             <Rectangle.Width>
-                                <Binding Mode="OneWay" Converter="{StaticResource vertLineConv}" ConverterParameter="bottom" RelativeSource="{RelativeSource  AncestorLevel=1, 
-                                        AncestorType={x:Type TreeViewItem}}"/>
+                                <MultiBinding Converter="{StaticResource vertLineConv}">
+                                    <Binding Path="DataContext.ComponentCollection.Count" Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=2, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" Path="DataContext.ProcessOrder" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                </MultiBinding>
                             </Rectangle.Width>
                         </Rectangle>
 
