@@ -158,8 +158,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 RequiredProperties.Add(new ParameterDescription(scriptVariable.PropertyName, scriptVariable.PropertyType));
             }
-
-
         }
 
         private void MarkRequiredProperties()

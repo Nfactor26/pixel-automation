@@ -243,7 +243,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public override object GetProcessedResult()
         {
-            return this.TestDataSource;
+            return new TestDataSourceResult(this.TestDataSource, this.TypeDefinition.ActualType);
         }
 
         #region INotifyDataErrorInfo

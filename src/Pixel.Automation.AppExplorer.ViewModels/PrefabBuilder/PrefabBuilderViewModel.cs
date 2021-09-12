@@ -11,7 +11,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -59,8 +58,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
             prefabFileSystem.Initialize(applicationDescriptionViewModel.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
 
-            var prefabToolBoxViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
-            this.stagedScreens.Add(prefabToolBoxViewModel);
+            var newPreafabViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
+            this.stagedScreens.Add(newPreafabViewModel);
 
             //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
             IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetScriptEngine();
@@ -77,8 +76,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 new ScriptExtractor(new ArgumentExtractor()), new ArgumentExtractor(), prefabFileSystem, scriptEngineFactory);
             this.stagedScreens.Add(prefabScriptImporterViewModel);
 
-            prefabToolBoxViewModel.NextScreen = prefabDataModelBuilderViewModel;
-            prefabDataModelBuilderViewModel.PreviousScreen = prefabToolBoxViewModel;
+            newPreafabViewModel.NextScreen = prefabDataModelBuilderViewModel;
+            prefabDataModelBuilderViewModel.PreviousScreen = newPreafabViewModel;
             prefabDataModelBuilderViewModel.NextScreen = prefabDataModelEditorViewModel;
             prefabDataModelEditorViewModel.PreviousScreen = prefabDataModelBuilderViewModel;
             prefabDataModelEditorViewModel.NextScreen = prefabScriptImporterViewModel;

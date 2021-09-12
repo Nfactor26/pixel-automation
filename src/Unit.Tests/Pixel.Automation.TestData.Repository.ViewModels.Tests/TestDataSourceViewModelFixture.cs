@@ -31,6 +31,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             fileSystem.WorkingDirectory.Returns(Environment.CurrentDirectory);
             fileSystem.TestDataRepository.Returns(Path.Combine(Environment.CurrentDirectory, "TestDataRepository"));
+
+            windowManager.ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>()).Returns(true);
+          
+            var typeDefinition = new Editor.Core.TypeDefinition(typeof(Empty));
+            typeBrowser.GetCreatedType().Returns(typeDefinition);
         }
 
         [TearDown]
@@ -87,18 +92,18 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [Test]       
         public async Task ValidateThatCanSelectDataType()
         {
-            //Arrange
-            windowManager.ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>()).Returns(true);
-            var typeDefinition = new Editor.Core.TypeDefinition(typeof(Empty));
-            typeBrowser.GetCreatedType().Returns(typeDefinition);
-            var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, DataSource.Code, Enumerable.Empty<string>(), typeBrowser);
+            //Arrange           
+            var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, DataSource.Code, 
+                Enumerable.Empty<string>(), typeBrowser);
 
             //Act
             testDataSourceViewModel.SelectTestDataType();
 
             //Assert
-            Assert.AreSame(typeDefinition, testDataSourceViewModel.TypeDefinition);
+            var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
+            Assert.AreEqual(typeof(Empty), result.DataSourceType);
             Assert.AreEqual("Empty", testDataSourceViewModel.TestDataType);
+        
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>());
             typeBrowser.Received(1).GetCreatedType();           
         }
@@ -108,15 +113,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             //Arrange           
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, DataSource.Code, Enumerable.Empty<string>(), typeBrowser);
-
+            testDataSourceViewModel.SelectTestDataType();
+           
             //Act
             var couldProcessStage = testDataSourceViewModel.TryProcessStage(out string errors);
-            var result = testDataSourceViewModel.GetProcessedResult();
+            var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
 
             //Assert
             Assert.IsEmpty(errors);
             Assert.IsTrue(couldProcessStage);
-            Assert.AreSame(testDataSourceViewModel.TestDataSource, result);
+            Assert.AreSame(testDataSourceViewModel.TestDataSource, result.TestDataSource);
+            Assert.AreEqual(typeof(Empty), result.DataSourceType);
         }
 
         [TestCase(DataSource.Code, "EmptyDataSource", "Empty", "", "", true)]

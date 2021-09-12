@@ -48,16 +48,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private bool TryGenerateDataModelCode(out string generatedCode, out string errorDescription)
         {
             generatedCode = string.Empty;
-            errorDescription = string.Empty;
-
-            TestDataSourceViewModel testDataSourceViewModel = this.PreviousScreen as TestDataSourceViewModel;
-            if(testDataSourceViewModel == null)
-            {
-                return false;
-            }
-
-            testDataSource = testDataSourceViewModel.TestDataSource;
-            Type dataSourceType = testDataSourceViewModel.TypeDefinition.ActualType;
+           
+            Type dataSourceType;
+            var result = this.PreviousScreen.GetProcessedResult() as TestDataSourceResult;
+            (testDataSource, dataSourceType) = result;
 
             switch (testDataSource.DataSource)
             {
