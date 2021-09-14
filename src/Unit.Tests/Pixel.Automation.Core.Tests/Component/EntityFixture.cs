@@ -83,13 +83,11 @@ namespace Pixel.Automation.Core.Tests
             var entityComponent = new Entity("ChildEntity", "Entity");
 
             Entity entity = new Entity("EntityName", "EntityTag") { EntityManager = entityManager };
-            Assert.AreEqual(0, entity.ActorComponents.Count());
-
+        
             entity.AddComponent(actorComponent);
             entity.AddComponent(dataComponent);
             entity.AddComponent(entityComponent);
-
-            Assert.AreEqual(1, entity.ActorComponents.Count());
+         
         }
 
         /// <summary>

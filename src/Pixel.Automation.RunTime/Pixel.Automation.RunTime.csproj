@@ -25,9 +25,6 @@
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj">
-      <Private>false</Private>
-    </ProjectReference>
   </ItemGroup>
 
 </Project>

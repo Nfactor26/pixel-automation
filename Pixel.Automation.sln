@@ -61,19 +61,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.V
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Script.Editor", "src\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj", "{E68A9169-63D0-4913-BE05-54A9BCA38E82}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7FAAFBB0-7D80-4076-ABA8-42AAACCC37E9}"
-	ProjectSection(SolutionItems) = preProject
-		BuildScripts\Arguments.cake = BuildScripts\Arguments.cake
-		build.cake = build.cake
-		BuildScripts\Components.cake = BuildScripts\Components.cake
-		BuildScripts\Core.cake = BuildScripts\Core.cake
-		BuildScripts\DirectoryStructure.cake = BuildScripts\DirectoryStructure.cake
-		BuildScripts\Editors.cake = BuildScripts\Editors.cake
-		BuildScripts\Projects.cake = BuildScripts\Projects.cake
-		BuildScripts\Scrappers.cake = BuildScripts\Scrappers.cake
-		BuildScripts\Windows.cake = BuildScripts\Windows.cake
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels", "src\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj", "{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Components", "src\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj", "{0D040153-2183-4D25-861D-B3AD74953A4E}"
@@ -159,7 +146,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Portal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.TestData.Repository.ViewModels.Tests\Pixel.Automation.TestData.Repository.ViewModels.Tests.csproj", "{741037BE-4A8A-45B3-BF74-B28331982FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.AppExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests.csproj", "{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests.csproj", "{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

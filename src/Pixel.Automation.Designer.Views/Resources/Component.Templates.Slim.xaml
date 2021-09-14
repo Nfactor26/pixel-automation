@@ -429,12 +429,11 @@
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Horizontal line to the left -->
-                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,30,0,0"
+                        <Rectangle x:Name="LeftConnector" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Width="40" Margin="0,23,0,0"
                             Stroke="{DynamicResource MahApps.Brushes.Accent}" SnapsToDevicePixels="False" Visibility="Collapsed">
                             <Rectangle.Height>
                                 <Binding  Mode="OneWay" Converter="{StaticResource horzLineConv}"   ConverterParameter="left" 
@@ -444,34 +443,32 @@
 
                         <!-- Vertical line below node -->
                         <Rectangle x:Name="VerticalBottomLine"  Grid.Column="0"  Height="Auto"   Stroke="{DynamicResource MahApps.Brushes.Accent}" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                            SnapsToDevicePixels="False" Margin="0,30,0,-30">
+                            SnapsToDevicePixels="False" Margin="0,23,0,-23">
                             <Rectangle.Width>
-                                <Binding Mode="OneWay" 
-                                    Converter="{StaticResource vertLineConv}" 
-                                    ConverterParameter="bottom" 
-                                    RelativeSource="{RelativeSource  AncestorLevel=1,AncestorType={x:Type TreeViewItem}}"/>
+                                <MultiBinding Converter="{StaticResource vertLineConv}">
+                                    <Binding Path="DataContext.ComponentCollection.Count" Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=2, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" Path="DataContext.ProcessOrder" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                    <Binding Mode="OneWay" RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                        AncestorLevel=1, AncestorType={x:Type TreeViewItem}}" FallbackValue="1"/>
+                                </MultiBinding>
                             </Rectangle.Width>
                         </Rectangle>
 
-                        <!--This can be dragged -->
                         <Border x:Name="ComponentControl" Tag="Component" dd:DragDrop.IsDragSource="True" Grid.Column="1" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
-                                CornerRadius="2" Margin="0,4,0,8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                
-                                MinWidth="200" Height="Auto" Background="{DynamicResource MahApps.Brushes.Control.Background}">
-                            <Grid IsHitTestVisible="True" HorizontalAlignment="Stretch" Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition Height="2"></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <DockPanel Grid.Row="0" LastChildFill="True" Margin="4,4,4,0" MinWidth="165" HorizontalAlignment="Stretch"
-                                        IsHitTestVisible="True">
+                                Margin="0,4,0,8" MinWidth="220" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                            <DockPanel>
+                                <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                                            IsHitTestVisible="True" DockPanel.Dock="Top">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
                                             ToolTip="Control">
                                         <iconPacks:PackIconSimpleIcons Kind="UIkit" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     </StackPanel>
-                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
-                                                HorizontalAlignment="Right" Orientation="Horizontal">
+                                            HorizontalAlignment="Right" Orientation="Horizontal">
                                         <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" Height="20" Width="20" ToolTip="Run" DataContext="{Binding GroupActor}"
                                             cal:Message.Attach="[Action RunComponent($dataContext)]" Style="{DynamicResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight Play}"/>
@@ -487,30 +484,31 @@
                                           Content="{iconPacks:Material CloseCircleOutline}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <Border x:Name="ContentSeperator" BorderThickness="1" Height="1" Grid.Row="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}"
-                                    HorizontalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Control.Background}" Visibility="Collapsed"/>
-                                <Grid x:Name="ContentHost" HorizontalAlignment="Stretch" Margin="0" Visibility="Collapsed" Grid.Row="2">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition></RowDefinition>
-                                        <RowDefinition></RowDefinition>
-                                    </Grid.RowDefinitions>
-                                    <ItemsPresenter x:Name="ItemsHost" Grid.Row="0"  MinWidth="200"
-                                                 Margin="2" dd:DragDrop.IsDropTarget="False"
-                                                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                                    <ContentPresenter x:Name="ItemContent" Grid.Row="1" ContentSource="Header" 
-                                                MinWidth="200"
-                                                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                                <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Orientation="Vertical">
+                                    <Border x:Name="Seperator" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}"
+                                            DockPanel.Dock="Top" Margin="0,0,0,2" Visibility="Collapsed"/>
+                                    <Grid x:Name="ContentHost" DockPanel.Dock="Top" Margin="0" Visibility="Collapsed">
+                                        <Border x:Name="EmptyMessageBorder"  BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
+                                                        CornerRadius="2" Margin="8" HorizontalAlignment="Stretch" Visibility="Collapsed"
+                                                        VerticalAlignment="Center" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                                            <Label x:Name="EmptyMessage" Content="Drop Components here" HorizontalAlignment="Center"
+                                                        FontSize="12" VerticalAlignment="Center" Visibility="Collapsed"/>
+                                        </Border>
 
-                                </Grid>
-                            </Grid>
-                        </Border>
+                                        <ItemsPresenter x:Name="ItemsHost" MinWidth="200" Margin="8" Visibility="Visible"                                               
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>                      
+                      
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="pnlActions" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsExpanded"  Value="True">
-                            <Setter TargetName="ContentSeperator"   Property="Visibility"  Value="Visible"/>
+                            <Setter TargetName="Seperator"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ComponentControl"   Property="MinWidth"  Value="460"/>
                         </Trigger>
