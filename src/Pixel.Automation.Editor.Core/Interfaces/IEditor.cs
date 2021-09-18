@@ -14,7 +14,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Manage different versions of project and their deployment
         /// </summary>
-        Task Manage();
+        Task ManageProjectVersionAsync();
 
         /// <summary>
         /// Remove component from its parent

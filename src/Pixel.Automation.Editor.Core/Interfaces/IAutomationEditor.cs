@@ -24,5 +24,8 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <returns></returns>
         Task EditScriptAsync();
 
+
+        Task ManagePrefabReferencesAsync();
+
     }
 }

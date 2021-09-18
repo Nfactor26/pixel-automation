@@ -87,7 +87,10 @@
             </MenuItem>
             
             <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
-                <MenuItem x:Name="Manage" Header="Manage" ToolTip="Manage versions and their deployment"/>               
+                <MenuItem x:Name="Manage" Header="Manage">
+                    <MenuItem x:Name="ManageProjectVersionAsync" Header="Project Version" ToolTip="Manage versions and their deployment"/>
+                    <MenuItem x:Name="ManagePrefabReferencesAsync" Header="Prefab References" ToolTip="Manage prefab versions in use"/>
+                </MenuItem>
                 <MenuItem x:Name="EditDataModelAsync" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"/>
                 <MenuItem x:Name="EditScriptAsync" Header="Edit Script" ToolTip="Open default initialization script for editing"/>
             </MenuItem>

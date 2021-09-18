@@ -17,7 +17,7 @@ namespace Pixel.Automation.RunTime
     /// PrefabLoader is responsible for loading and configuring a prefab process.
     /// This is registered in Thread Scope with DI container to enable parallel execution of same Prefab process.
     /// </summary>
-    public class PrefabLoader : IPrefabLoader
+    public class PrefabLoader : IPrefabLoader, IDisposable
     {
         private readonly ILogger logger = Log.ForContext<PrefabLoader>();
         private readonly IProjectFileSystem projectFileSystem;
@@ -74,6 +74,16 @@ namespace Pixel.Automation.RunTime
             }
         }
 
+        public void ClearCache()
+        {
+            foreach(var prefab in this.Prefabs)
+            {
+                prefab.Value.Dispose();
+            }
+            this.Prefabs.Clear();
+            logger.Information("Prefab loader cached was cleared");
+        }
+
         private PrefabInstance LoadPrefab(string applicationId, string prefabId, IEntityManager parentEntityManager)
         {
             Guard.Argument(applicationId).NotEmpty().NotNull();
@@ -106,7 +116,7 @@ namespace Pixel.Automation.RunTime
                     $"and preafbId : {prefabId}");
             }
 
-            PrefabInstance prefabInstance = new PrefabInstance(parentEntityManager, prefabEntityManager, prefabFileSystem, dataModelType);
+            PrefabInstance prefabInstance = new PrefabInstance(prefabEntityManager, prefabFileSystem, dataModelType);
             return prefabInstance;
         }
 
@@ -123,6 +133,26 @@ namespace Pixel.Automation.RunTime
           //We load this each time since this can change at design time
           return  this.projectFileSystem.LoadFile<PrefabReferences>(this.projectFileSystem.PrefabReferencesFile);
         }
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if(isDisposing)
+            {
+                foreach (var prefab in this.Prefabs)
+                {
+                    prefab.Value.Dispose();
+                }
+                this.Prefabs.Clear();
+            }
+            logger.Information("Prefab loader was disposed");
+        }
+
     }
     
 }

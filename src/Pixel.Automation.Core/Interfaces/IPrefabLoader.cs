@@ -23,6 +23,10 @@ namespace Pixel.Automation.Core.Interfaces
         /// <returns></returns>
         Type GetPrefabDataModelType(string applicationId, string prefabId, IEntityManager primaryEntityManager);
 
+        /// <summary>
+        /// Clear the prefab loader cache.     
+        /// </summary>
+        void ClearCache();
 
     }
 }
