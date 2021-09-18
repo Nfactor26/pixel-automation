@@ -7,16 +7,14 @@ namespace Pixel.Automation.Core.Components.Prefabs
     /// <summary>
     /// PrefabInstance is a fully configured ready to use instance of a Prefab process.
     /// </summary>
-    public class PrefabInstance
-    {
-        private readonly IEntityManager parentEntityManager;
+    public class PrefabInstance : IDisposable
+    {       
         private readonly IEntityManager prefabEntityManager;
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly Type dataModelType;
 
-        public PrefabInstance(IEntityManager parentEntityManager, IEntityManager prefabEntityManager, IPrefabFileSystem prefabFileSystem, Type dataModelType)
-        {
-            this.parentEntityManager = Guard.Argument(parentEntityManager).NotNull().Value;
+        public PrefabInstance(IEntityManager prefabEntityManager, IPrefabFileSystem prefabFileSystem, Type dataModelType)
+        {          
             this.prefabEntityManager = Guard.Argument(prefabEntityManager).NotNull().Value;
             this.prefabFileSystem = Guard.Argument(prefabFileSystem).NotNull().Value;
             this.dataModelType = Guard.Argument(dataModelType).NotNull().Value;
@@ -44,6 +42,21 @@ namespace Pixel.Automation.Core.Components.Prefabs
         public Type GetDataModelType()
         {
             return this.dataModelType;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if(isDisposing)
+            {
+                var scriptEngineFactory = this.prefabEntityManager.GetServiceOfType<IScriptEngineFactory>();
+                scriptEngineFactory.RemoveReferences(this.dataModelType.Assembly);
+                this.prefabEntityManager.Dispose();
+            }
         }
     }
 }

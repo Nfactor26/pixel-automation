@@ -86,7 +86,7 @@ namespace Pixel.Automation.Designer.ViewModels
             await projectManager.Save();           
         }
 
-        public async override Task Manage()
+        public async override Task ManageProjectVersionAsync()
         {
             await DoSave();
 

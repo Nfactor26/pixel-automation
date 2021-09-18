@@ -227,25 +227,55 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public async override Task Manage()
+        public async override Task ManageProjectVersionAsync()
         {
-            await DoSave();
-            var versionManager = this.versionManagerFactory.CreateProjectVersionManager(this.CurrentProject);        
-            var result = await this.windowManager.ShowDialogAsync(versionManager);
-
-            if (result.HasValue && result.Value)
+            try
             {
-                var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-                fileSystem.SwitchToVersion(this.CurrentProject.ActiveVersion);
+                await DoSave();
+                var versionManager = this.versionManagerFactory.CreateProjectVersionManager(this.CurrentProject);
+                var result = await this.windowManager.ShowDialogAsync(versionManager);
 
-                //This will update Code editor and script editor to point to the new workspace directory
-                var codeEditorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-                codeEditorFactory.SwitchWorkingDirectory(fileSystem.DataModelDirectory);
-                var scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.SwitchWorkingDirectory(fileSystem.WorkingDirectory);
-             
-            }        
-        }      
+                if (result.HasValue && result.Value)
+                {
+                    var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
+                    fileSystem.SwitchToVersion(this.CurrentProject.ActiveVersion);
+
+                    //This will update Code editor and script editor to point to the new workspace directory
+                    var codeEditorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                    codeEditorFactory.SwitchWorkingDirectory(fileSystem.DataModelDirectory);
+                    var scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
+                    scriptEditorFactory.SwitchWorkingDirectory(fileSystem.WorkingDirectory);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Change the prefab version used in project.
+        /// This requires application restart to take effect.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ManagePrefabReferencesAsync()
+        {
+            try
+            {
+                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                var result = await this.windowManager.ShowDialogAsync(versionManager);
+                //if (result.HasValue && result.Value)
+                //{
+                //    var prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();
+                //    prefabLoader.ClearCache();
+                //}
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
 
         #endregion Save project
 
