@@ -18,16 +18,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual(26, inArgument.DefaultValue);         
             Assert.IsTrue(inArgument.IsConfigured());
             Assert.AreEqual(26, inArgument.GetDefaultValue());
-            Assert.AreEqual(typeof(int), inArgument.GetArgumentType());
-
-            //Assert.IsFalse(inArgument.CanChangeMode);
-            //Assert.IsFalse(inArgument.CanChangeType);
-            //Assert.IsTrue(string.IsNullOrEmpty(inArgument.ScriptFile));
-            //Assert.IsTrue(string.IsNullOrEmpty(inArgument.PropertyPath));          
-            //Assert.AreEqual("int", inArgument.ArgumentType);
-
-            var copyOfInArgument = inArgument.Clone() as InArgument<int>;
-            Assert.AreEqual(inArgument, copyOfInArgument);
+            Assert.AreEqual(typeof(int), inArgument.GetArgumentType());            
         }
 
         [Test]
@@ -41,11 +32,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual(string.Empty, inArgument.GetDefaultValue());
             Assert.IsTrue(inArgument.IsConfigured());             
             Assert.AreEqual(typeof(string), inArgument.GetArgumentType());
-            //Assert.AreEqual("string", inArgument.ArgumentType);
-
-            //we don't allow two arguments to point to the same script file. Hence, two scripted arguments can't be equal.
-            var copyOfInArgument = inArgument.Clone() as InArgument<string>;
-            Assert.AreNotEqual(inArgument, copyOfInArgument);
+            Assert.AreEqual("String", inArgument.ArgumentType);        
         }
 
         [Test]
@@ -58,13 +45,23 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.IsNotNull(inArgument.DefaultValue);
             Assert.IsNotNull(inArgument.GetDefaultValue());
             Assert.IsTrue(inArgument.IsConfigured());
-            Assert.AreEqual(typeof(Person), inArgument.GetArgumentType());
-            
-            //Assert.IsTrue(string.IsNullOrEmpty(inArgument.ScriptFile));           
-            //Assert.AreEqual("Person", inArgument.ArgumentType);
+            Assert.AreEqual(typeof(Person), inArgument.GetArgumentType());            
+            Assert.IsTrue(string.IsNullOrEmpty(inArgument.ScriptFile));           
+            Assert.AreEqual("Person", inArgument.ArgumentType);
+        }
 
-            var copyOfInArgument = inArgument.Clone() as InArgument<Person>;
-            Assert.AreEqual(inArgument, copyOfInArgument);
+        [Test]
+        public void ValidateThatInArgumentCanBeCloned()
+        {
+            var inArgument = new InArgument<Person>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age", ScriptFile = "ArgumentScript.csx" };
+            var clone = inArgument.Clone() as InArgument<Person>;
+           
+            Assert.AreEqual(inArgument.Mode, clone.Mode);
+            Assert.AreEqual(inArgument.PropertyPath, clone.PropertyPath);
+            Assert.AreEqual(inArgument.DefaultValue, clone.DefaultValue);           
+            Assert.AreEqual(inArgument.GetArgumentType(), clone.GetArgumentType());
+            Assert.AreEqual(inArgument.ScriptFile, clone.ScriptFile);
+            Assert.AreEqual(inArgument.ArgumentType, clone.ArgumentType);
         }
     }
 }

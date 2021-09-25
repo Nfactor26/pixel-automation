@@ -20,6 +20,9 @@ namespace Pixel.Automation.Core.Arguments
 
         T defaultValue;
         [DataMember(IsRequired = false)]
+        /// <summary>
+        /// Default value of the argument
+        /// </summary>
         public T DefaultValue
         {
             get
@@ -44,68 +47,54 @@ namespace Pixel.Automation.Core.Arguments
             set
             {
                 defaultValue = value;
-                OnPropertyChanged("DefaultValue");
+                OnPropertyChanged();
             }
         }      
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public InArgument()
         {
             this.Mode = ArgumentMode.Default;
         }
 
+        /// <summary>
+        /// Get the default value of the argument
+        /// </summary>
+        /// <returns></returns>
         public T GetDefaultValue()
         {
             return DefaultValue;
         }
 
+        /// <inheritdoc/>
         public override Type GetArgumentType()
         {
             return typeof(T);
         }
 
+
+        /// <inheritdoc/>
         public override bool IsConfigured()
         {
-            return base.IsConfigured() || (this.Mode == ArgumentMode.Default && this.DefaultValue != null);
+           return base.IsConfigured() || (this.Mode == ArgumentMode.Default && this.DefaultValue != null);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is InArgument<T> other)
-            {
-                if(other.ArgumentType.Equals(this.ArgumentType))
-                {
-                    switch(other.Mode)
-                    {
-                        case ArgumentMode.DataBound:
-                            if (this.Mode == ArgumentMode.DataBound && this.PropertyPath.Equals(other.PropertyPath))
-                                return true;
-                            break;
-                        case ArgumentMode.Default:
-                            if (this.Mode == ArgumentMode.Default && this.defaultValue.Equals(other.defaultValue))
-                                return true;
-                            return false;                           
-                        case ArgumentMode.Scripted:
-                            return false;                            
-                    }
-                }
-            }
-            return false;
-        }
-
+        /// <inheritdoc/>
         public override object Clone()
         {
             InArgument<T> clone = new InArgument<T>()
             {
-               Mode = this.Mode,
-               DefaultValue = this.DefaultValue,
-               PropertyPath = this.PropertyPath,
-               CanChangeMode = this.CanChangeMode,
-               CanChangeType = this.CanChangeType
+                Mode = this.Mode,
+                DefaultValue = this.DefaultValue,
+                PropertyPath = this.PropertyPath,
+                CanChangeMode = this.CanChangeMode,
+                CanChangeType = this.CanChangeType,
+                ScriptFile = this.ScriptFile
             };
             return clone;
         }
-
-      
     }
  
 }
