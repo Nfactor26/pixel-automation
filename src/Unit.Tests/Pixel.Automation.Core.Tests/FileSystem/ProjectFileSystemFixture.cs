@@ -11,7 +11,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
     {
         private ApplicationSettings appSettings;    
         private ProjectFileSystem projectFileSystem;
-        private string projectId = Guid.NewGuid().ToString();
+        private string projectId = "Project-Id";
         private string workingDirectory;
 
         [OneTimeSetUp]
@@ -36,15 +36,15 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             var versionInfo = Substitute.For<VersionInfo>();
             versionInfo.Version = new Version(1, 0);
-            projectFileSystem.Initialize(projectId, versionInfo);
+            var project = new AutomationProject() { ProjectId = projectId };
+            projectFileSystem.Initialize(project, versionInfo);
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, versionInfo.ToString());
-
-            Assert.AreEqual(projectId, projectFileSystem.ProjectId);
+           
             Assert.AreEqual(Path.Combine(workingDirectory, "TestCases"), projectFileSystem.TestCaseRepository);
             Assert.AreEqual(Path.Combine(workingDirectory, "TestDataRepository"), projectFileSystem.TestDataRepository);
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, $"{projectId}.proc"), projectFileSystem.ProcessFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);
             Assert.AreEqual(Path.Combine(workingDirectory, "PrefabReferences.ref"), projectFileSystem.PrefabReferencesFile);
 
             Assert.IsTrue(Directory.Exists(workingDirectory));
@@ -63,12 +63,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, versionInfo.ToString());
 
             projectFileSystem.SwitchToVersion(versionInfo);
-
-            Assert.AreEqual(projectId, projectFileSystem.ProjectId);
+          
             Assert.AreEqual(Path.Combine(workingDirectory, "TestCases"), projectFileSystem.TestCaseRepository);
             Assert.AreEqual(Path.Combine(workingDirectory, "TestDataRepository"), projectFileSystem.TestDataRepository);
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, $"{projectId}.proc"), projectFileSystem.ProcessFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);
             Assert.AreEqual(Path.Combine(workingDirectory, "PrefabReferences.ref"), projectFileSystem.PrefabReferencesFile);
 
             Assert.IsTrue(Directory.Exists(workingDirectory));
@@ -86,7 +85,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         public void ProjectFileSystemCanCreateTestCaseFileSystem()
         {
             //project file system is using v 2.0 working directory from previous test case.
-            string fixtureId = Guid.NewGuid().ToString();
+            string fixtureId = "Fixture - Id";
             var testCaseFileSystem = projectFileSystem.CreateTestCaseFileSystemFor(fixtureId);
             Assert.IsNotNull(testCaseFileSystem);
             Assert.AreEqual(Path.Combine(workingDirectory, "TestCases", fixtureId), testCaseFileSystem.FixtureDirectory);

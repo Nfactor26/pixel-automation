@@ -37,13 +37,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.activeProject = activeProject;
             this.loadedVersion = versionToLoad;
             await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
-            this.projectFileSystem.Initialize(activeProject.Name, versionToLoad);
+            this.projectFileSystem.Initialize(activeProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
 
             await CreateDataModelFile();
             ConfigureCodeEditor();
 
-            this.entityManager.Arguments  = CompileAndCreateDataModel(Constants.ProcessDataModelName);
+            this.entityManager.Arguments  = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
           
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             await ExecuteInitializationScript();
@@ -57,9 +57,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
             if (!dataModelFiles.Any())
             {
-                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.ProcessDataModelName, $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
+                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.AutomationProcessDataModelName, $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
-                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, $"{Constants.ProcessDataModelName}.cs");
+                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, $"{Constants.AutomationProcessDataModelName}.cs");
                 await File.WriteAllTextAsync(dataModelFile, dataModelInitialContent);
                 logger.Information($"Created data model file : {dataModelFile}");
             }             
@@ -143,7 +143,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {        
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
-            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.ProcessDataModelName);
+            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
          
             ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
             await ExecuteInitializationScript();

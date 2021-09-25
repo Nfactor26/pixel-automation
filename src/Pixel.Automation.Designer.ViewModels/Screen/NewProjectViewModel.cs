@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -18,6 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels
            
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IApplicationFileSystem fileSystem;
         private List<AutomationProject> existingProjects = new List<AutomationProject>();
 
         public AutomationProject NewProject { get; }
@@ -34,12 +36,13 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        public NewProjectViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager)
+        public NewProjectViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager, IApplicationFileSystem fileSystem)
         {           
             this.DisplayName = "Create New Project";
            
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
 
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject();
@@ -55,8 +58,8 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 this.NewProject.LastOpened = DateTime.Now;
 
-                //create a directory inside projects directory with name equal to newProject name
-                string projectFolder = this.applicationDataManager.GetProjectDirectory(this.NewProject);
+                //create a directory inside projects directory with name equal to newProject identifier
+                string projectFolder = this.fileSystem.GetAutomationProjectDirectory(this.NewProject);
                 if (Directory.Exists(projectFolder))
                 {
                     throw new InvalidOperationException($"Project with name : {NewProject.Name} already exists");
@@ -64,7 +67,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 Directory.CreateDirectory(projectFolder);
 
                 //create and save the project file
-                string projectFile = this.applicationDataManager.GetProjectFile(this.NewProject);
+                string projectFile = this.fileSystem.GetAutomationProjectFile(this.NewProject);
                 serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
                 await this.applicationDataManager.AddOrUpdateProjectAsync(this.NewProject, null);
                 logger.Information($"Created new project : {this.Name}");

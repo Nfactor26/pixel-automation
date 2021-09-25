@@ -36,7 +36,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public Entity Load(PrefabProject prefabProject, VersionInfo versionInfo)
         {
             this.prefabProject = prefabProject;
-            this.prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, versionInfo);
+            this.prefabFileSystem.Initialize(prefabProject, versionInfo);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
 
             ConfigureCodeEditor();

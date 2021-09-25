@@ -12,15 +12,20 @@ namespace Pixel.Automation.Core.Tests.FileSystem
     {
         private ApplicationSettings appSettings;
         private PrefabFileSystem prefabFileSystem;
-        private string prefabId = Guid.NewGuid().ToString();
-        private string applicationId = Guid.NewGuid().ToString();
+        private string prefabId = "Prefab-Id";     
+        private string applicationId = "Application-Id";
         private string workingDirectory;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {           
             var serializer = Substitute.For<ISerializer>();
-            appSettings = new ApplicationSettings() { IsOfflineMode = true, ApplicationDirectory = "Applications", AutomationDirectory = "Automations" };
+            appSettings = new ApplicationSettings() 
+            { 
+                IsOfflineMode = true, 
+                ApplicationDirectory = "Applications", 
+                AutomationDirectory = "Automations"
+            };
 
             prefabFileSystem = new PrefabFileSystem(serializer, appSettings);
         }
@@ -38,12 +43,13 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             var versionInfo = Substitute.For<VersionInfo>();
             versionInfo.Version = new Version(1, 0);
-            prefabFileSystem.Initialize(applicationId, prefabId, versionInfo);
+            var prefabProject = new PrefabProject() { ApplicationId = applicationId, PrefabId = prefabId };
+            prefabFileSystem.Initialize(prefabProject, versionInfo);
 
-            workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, versionInfo.ToString());
+            workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
             
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, $"{prefabId}.dat"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabEntityFileName), prefabFileSystem.PrefabFile);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), prefabFileSystem.PrefabDescriptionFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), prefabFileSystem.PrefabFile);
             Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);            
 
         }
@@ -55,11 +61,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             var versionInfo = Substitute.For<VersionInfo>();
             versionInfo.Version = new Version(2, 0);
 
-            workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, versionInfo.ToString());
+            workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
             prefabFileSystem.SwitchToVersion(versionInfo);
 
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, "Prefabs", prefabId, $"{prefabId}.dat"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabEntityFileName), prefabFileSystem.PrefabFile);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), prefabFileSystem.PrefabDescriptionFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), prefabFileSystem.PrefabFile);
             Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);
         }
     }

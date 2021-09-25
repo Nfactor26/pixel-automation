@@ -17,10 +17,6 @@ namespace Pixel.Persistence.Services.Client
     {
         private readonly ILogger logger = Log.ForContext<ApplicationDataManager>();
 
-        private readonly string controlsDirectory = "Controls";
-        private readonly string prefabsDirectory = "Prefabs";
-      
-
         private readonly IApplicationRepositoryClient appRepositoryClient;
         private readonly IControlRepositoryClient controlRepositoryClient;
         private readonly IProjectRepositoryClient projectRepositoryClient;
@@ -29,6 +25,7 @@ namespace Pixel.Persistence.Services.Client
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
         private readonly ApplicationSettings applicationSettings;
+        private readonly IApplicationFileSystem applicationFileSystem;
 
         bool IsOnlineMode
         {
@@ -40,7 +37,7 @@ namespace Pixel.Persistence.Services.Client
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
             IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
             IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, 
-            ApplicationSettings applicationSettings)
+            ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
         {
             this.serializer = Guard.Argument(serializer).NotNull().Value;
             this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;
@@ -50,9 +47,9 @@ namespace Pixel.Persistence.Services.Client
             this.projectRepositoryClient = Guard.Argument(projectRepositoryClient).NotNull().Value;
             this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
-
+            this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
+            
             CreateLocalDataDirectories();
-
         }
 
         void CreateLocalDataDirectories()
@@ -61,14 +58,11 @@ namespace Pixel.Persistence.Services.Client
             {
                 Directory.CreateDirectory(applicationSettings.ApplicationDirectory);
             }
-
             if (!Directory.Exists(applicationSettings.AutomationDirectory))
             {
                 Directory.CreateDirectory(applicationSettings.AutomationDirectory);
-            }
+            }           
         }
-
-        #endregion Constructor
 
         public void CleanLocalData()
         {
@@ -77,18 +71,17 @@ namespace Pixel.Persistence.Services.Client
                 Directory.Delete(applicationSettings.ApplicationDirectory, true);
                 logger.Information($"Delted local application data directory {applicationSettings.ApplicationDirectory}.");
             }
-
             if (Directory.Exists(applicationSettings.AutomationDirectory))
             {
                 Directory.Delete(applicationSettings.AutomationDirectory, true);
                 logger.Information($"Delte local automation data directory {applicationSettings.AutomationDirectory}.");
-            }
-
+            }           
             CreateLocalDataDirectories();
         }
 
-        #region Applications 
+        #endregion Constructor
 
+        #region Applications 
 
         /// <summary>
         /// Get all the applications available on disk
@@ -105,7 +98,6 @@ namespace Pixel.Persistence.Services.Client
             yield break;
         }
 
-
         /// <summary>
         /// Saves a new application to database
         /// </summary>
@@ -113,8 +105,7 @@ namespace Pixel.Persistence.Services.Client
         public async Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription)
         {
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId));
-            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, controlsDirectory));
-            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, prefabsDirectory));
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory));           
 
             SaveApplicationToDisk(applicationDescription);
             
@@ -176,12 +167,12 @@ namespace Pixel.Persistence.Services.Client
                             var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
                             foreach (var entry in zipArchive.Entries)
                             {
-                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName);
+                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, Constants.ControlsDirectory, entry.FullName);
                                 if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
                                 {
                                     Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
                                 }
-                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, controlsDirectory, entry.FullName), true);
+                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, Constants.ControlsDirectory, entry.FullName), true);
                             }
                         }
                         logger.Information("Updated local copy for {count} controls for application : {applicationName} with Id : {applicationId}.",
@@ -200,16 +191,17 @@ namespace Pixel.Persistence.Services.Client
                         foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
                         {
                             var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
+                            var prefabProject = new PrefabProject() { ApplicationId = serverPrefabMetaData.ApplicationId, PrefabId = serverPrefabMetaData.PrefabId };
                             if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
                             {
-                                await DownloadPrefabDataAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId, serverPrefabVersionMetaData.Version);
+                                await DownloadPrefabDataAsync(prefabProject, serverPrefabVersionMetaData.Version);
                                 logger.Information($"Prefab data files for version {serverPrefabVersionMetaData.Version} of prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} have been updated.");
                             }
                         }
                     }
                     CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
                 }
-            }
+            }          
         }
 
         /// <summary>
@@ -218,14 +210,13 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="application"></param>
         private string SaveApplicationToDisk(ApplicationDescription application)
         {
-
-            string appDirectory = GetApplicationDirectory(application);
+            string appDirectory = this.applicationFileSystem.GetApplicationDirectory(application);
             if (!Directory.Exists(appDirectory))
             {
                 Directory.CreateDirectory(appDirectory);
             }
 
-            string appFile = GetApplicationFile(application);
+            string appFile = this.applicationFileSystem.GetApplicationFile(application);
             if (File.Exists(appFile))
             {
                 File.Delete(appFile);
@@ -233,18 +224,7 @@ namespace Pixel.Persistence.Services.Client
 
             serializer.Serialize(appFile, application, typeProvider.KnownTypes["Default"]);
             return appFile;
-        }
-
-
-        private string GetApplicationDirectory(ApplicationDescription application)
-        {
-            return Path.Combine(applicationSettings.ApplicationDirectory, application.ApplicationId);
-        }
-
-        private string GetApplicationFile(ApplicationDescription application)
-        {
-            return Path.Combine(applicationSettings.ApplicationDirectory, application.ApplicationId, $"{application.ApplicationId}.app");
-        }
+        }    
 
         #endregion Applications
 
@@ -282,7 +262,7 @@ namespace Pixel.Persistence.Services.Client
         {
             foreach (var controlId in applicationDescription.AvailableControls)
             {
-                string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, "Controls", controlId, $"{controlId}.dat");
+                string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
 
                 if (File.Exists(controlFile))
                 {
@@ -305,37 +285,20 @@ namespace Pixel.Persistence.Services.Client
             return fileToCreate;
         }
 
-
         private string GetControlFile(ControlDescription controlItem)
         {
             return Path.Combine(GetControlDirectory(controlItem), $"{controlItem.ControlId}.dat");
         }
-      
 
         private string GetControlDirectory(ControlDescription controlItem)
         {
-            return Path.Combine(applicationSettings.ApplicationDirectory, controlItem.ApplicationId, controlsDirectory, controlItem.ControlId);
+            return Path.Combine(applicationSettings.ApplicationDirectory, controlItem.ApplicationId, Constants.ControlsDirectory, controlItem.ControlId);
         }
 
         #endregion Controls
 
         #region Project
-
-        public string GetProjectsRootDirectory()
-        {
-            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory);
-        }
-
-        public string GetProjectDirectory(AutomationProject automationProject)
-        {
-            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory, automationProject.Name);
-        }
-
-        public string GetProjectFile(AutomationProject automationProject)
-        {
-            return Path.Combine(Environment.CurrentDirectory, this.applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.atm");
-        }
-
+       
         public IEnumerable<AutomationProject> GetAllProjects()
         {          
             foreach (var item in Directory.EnumerateDirectories(this.applicationSettings.AutomationDirectory))
@@ -356,16 +319,16 @@ namespace Pixel.Persistence.Services.Client
         {
             if(IsOnlineMode)
             {
-                string projectFileLocation = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.atm");
+                string projectFileLocation = this.applicationFileSystem.GetAutomationProjectFile(automationProject);
                 await this.projectRepositoryClient.AddOrUpdateProject(automationProject, projectFileLocation);
                 if (projectVersion != null)
                 {
-                    string versionDirectory = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, projectVersion.ToString());
+                    string versionDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion));
                     if (!Directory.Exists(versionDirectory))
                     {
-                        throw new ArgumentException($"Save project version data failed.{projectVersion.ToString()} directory doesn't exist for project : {automationProject.Name}");
+                        throw new ArgumentException($"Save project version data failed.{projectVersion} directory doesn't exist for project : {automationProject.Name}");
                     }
-                    string zipLocation = Path.Combine(applicationSettings.AutomationDirectory, automationProject.Name, $"{automationProject.Name}.zip");
+                    string zipLocation = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), $"{automationProject.ProjectId}.zip");
                     if (File.Exists(zipLocation))
                     {
                         File.Delete(zipLocation);
@@ -375,6 +338,36 @@ namespace Pixel.Persistence.Services.Client
                     File.Delete(zipLocation);
                 }
             }         
+        }
+
+        public async Task DownloadProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion)
+        {
+            if (IsOnlineMode)
+            {
+                var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
+                var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject);
+
+                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
+                    a.Version.Equals(projectVersion.ToString()));
+                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
+                    a.Version.Equals(projectVersion.ToString()));
+
+                if (serverVersion?.LastUpdated > (localVersion?.LastUpdated ?? DateTime.MinValue))
+                {
+                    var zippedContent = await this.projectRepositoryClient.GetProjectDataFiles(automationProject.ProjectId, projectVersion.ToString());
+                    string versionDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion);
+                    using (var memoryStream = new MemoryStream(zippedContent, false))
+                    {
+                        var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                        zipArchive.ExtractToDirectory(versionDirectory, true);
+                    }
+
+                    //append only entry for the projectVersion being downloaded to local copy of metadata.
+                    var updatedLocalMetaDataCollection = new List<ProjectMetaData>(localProjectsMetaDataCollection);
+                    updatedLocalMetaDataCollection.Add(serverVersion);
+                    CreateOrUpdateProjectVersionMetaData(automationProject, updatedLocalMetaDataCollection);
+                }
+            }
         }
 
         public async Task DownloadProjectsAsync()
@@ -396,59 +389,28 @@ namespace Pixel.Persistence.Services.Client
             }           
         }
 
-        private string SaveProjectToDisk(AutomationProject automationProject)
+        private void SaveProjectToDisk(AutomationProject automationProject)
         {
-
-            string projectDirectory = Path.Combine(this.applicationSettings.AutomationDirectory, automationProject.Name);
+            string projectDirectory = this.applicationFileSystem.GetAutomationProjectDirectory(automationProject);
             if (!Directory.Exists(projectDirectory))
             {
                 Directory.CreateDirectory(projectDirectory);
             }
 
-            string projectFile = Path.Combine(projectDirectory, $"{automationProject.Name}.atm");
+            string projectFile = this.applicationFileSystem.GetAutomationProjectFile(automationProject);
             if (File.Exists(projectFile))
             {
                 File.Delete(projectFile);
             }
 
-            serializer.Serialize(projectFile, automationProject, typeProvider.KnownTypes["Default"]);
-            return projectFile;
+            serializer.Serialize(projectFile, automationProject, typeProvider.KnownTypes["Default"]);          
         }
-
-        public async Task DownloadProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion)
-        {
-            if(IsOnlineMode)
-            {
-                var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
-                var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject.Name);
-
-                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
-                    a.Version.Equals(projectVersion.ToString()));
-                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
-                    a.Version.Equals(projectVersion.ToString()));
-
-                if (serverVersion?.LastUpdated > (localVersion?.LastUpdated ?? DateTime.MinValue))
-                {
-                    var zippedContent = await this.projectRepositoryClient.GetProjectDataFiles(automationProject.ProjectId, projectVersion.ToString());
-                    string versionDirectory = Path.Combine(this.applicationSettings.AutomationDirectory, automationProject.Name, projectVersion.ToString());
-                    using (var memoryStream = new MemoryStream(zippedContent, false))
-                    {
-                        var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                        zipArchive.ExtractToDirectory(versionDirectory, true);
-                    }
-                    
-                    //append only entry for the projectVersion being downloaded to local copy of metadata.
-                    var updatedLocalMetaDataCollection = new List<ProjectMetaData>(localProjectsMetaDataCollection);
-                    updatedLocalMetaDataCollection.Add(serverVersion);
-                    CreateOrUpdateProjectVersionMetaData(automationProject.Name, updatedLocalMetaDataCollection);
-                }
-            }          
-        }
-
+      
         #endregion Project
 
         #region Prefabs
 
+        private readonly Dictionary<string, List<PrefabProject>> prefabsCache = new ();
 
         /// <summary>
         /// Get all the applications available on disk
@@ -456,61 +418,63 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
         {
-            var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory);
-            if(!Directory.Exists(prefabDirectory))
+            if(!prefabsCache.ContainsKey(applicationId))
             {
-                yield break;
+                prefabsCache.Add(applicationId, LoadPrefabsFromLocalStorage(applicationId));
             }
-            foreach (var prefab in Directory.GetDirectories(prefabDirectory))
-            {
-                string prefabFile = Directory.GetFiles(prefab, "*.dat", SearchOption.TopDirectoryOnly).FirstOrDefault();             
-                if (File.Exists(prefabFile))
-                {
-                    PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabFile);
-                    yield return prefabProject;
-                    continue;
-                }
-                logger.Warning("Prefab file : {0} doesn't exist", prefabFile);
-            }
-            yield break;
+            return prefabsCache[applicationId];
         }
 
+        public PrefabProject GetPrefab(string applicationId, string prefabId)
+        {           
+           var prefab = GetAllPrefabs(applicationId).FirstOrDefault(p => p.PrefabId.Equals(prefabId));
+           return prefab ?? throw new ArgumentException($"No Prefab exists with applicationId {applicationId} and prefabId {prefabId}");
+        }
 
         public async Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             if (IsOnlineMode)
             {
-                var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
-                prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, prefabVersion);           
-                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabProject, prefabFileSystem.PrefabDescriptionFile);
-                var applicationMetaData = GetLocalApplicationMetaData().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
-                applicationMetaData.AddOrUpdatePrefabMetaData(prefabProject.PrefabId, prefabVersion.ToString(), prefabVersion.IsDeployed);
-
+                string prefabProjectFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
+                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabProject, prefabProjectFile);              
             }
+           
+            //when a new prefab is created , add it to the prefabs cache
+            if(prefabsCache.ContainsKey(prefabProject.ApplicationId))
+            {
+                var prefabsForApplicationId = prefabsCache[prefabProject.ApplicationId];
+                if (!prefabsForApplicationId.Any(p =>  p.PrefabId.Equals(prefabProject.PrefabId)))
+                {
+                    prefabsForApplicationId.Add(prefabProject);
+                }
+            }
+            else
+            {
+                prefabsCache.Add(prefabProject.ApplicationId, new List<PrefabProject>() { prefabProject });
+            }         
         }
 
         public async Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
+            Guard.Argument(prefabProject).NotNull();
+            Guard.Argument(prefabVersion).NotNull();
             if(IsOnlineMode)
             {
-                if (prefabVersion != null)
+                string prefabWorkingDirectory = this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, prefabVersion);
+                string prefabDirectory = this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject);
+                if (!Directory.Exists(prefabWorkingDirectory))
                 {
-                    var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
-                    prefabFileSystem.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, prefabVersion);
-                    if (!Directory.Exists(prefabFileSystem.WorkingDirectory))
-                    {
-                        throw new ArgumentException($"Version {prefabVersion.ToString()} data directory doesn't exist for prefab : {prefabProject.PrefabName}");
-                    }
-                    string prefabsDirectory = Path.GetDirectoryName(prefabFileSystem.PrefabDescriptionFile);
-                    string zipLocation = Path.Combine(prefabsDirectory, $"{prefabProject.PrefabId}.zip");
-                    if (File.Exists(zipLocation))
-                    {
-                        File.Delete(zipLocation);
-                    }
-                    ZipFile.CreateFromDirectory(prefabFileSystem.WorkingDirectory, zipLocation);
-                    await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabVersion, zipLocation);
+                    throw new ArgumentException($"Version {prefabVersion} data directory doesn't exist for prefab : {prefabProject.PrefabName}");
+                }
+
+                string zipLocation = Path.Combine(prefabDirectory, $"{prefabProject.PrefabId}.zip");
+                if (File.Exists(zipLocation))
+                {
                     File.Delete(zipLocation);
                 }
+                ZipFile.CreateFromDirectory(prefabWorkingDirectory, zipLocation);
+                await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabVersion, zipLocation);
+                File.Delete(zipLocation);
             }
         }
 
@@ -519,29 +483,49 @@ namespace Pixel.Persistence.Services.Client
             if (IsOnlineMode)
             {
                 var prefabProject = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
-                var prefabDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId);
-                var prefabDescriptionFile = Path.Combine(prefabDirectory, $"{prefabId}.dat");
+                string prefabDirectory = this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject);
+                var prefabProjectFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
                 if(!Directory.Exists(prefabDirectory))
                 {
                     Directory.CreateDirectory(prefabDirectory);
                 }
-                this.serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
+                this.serializer.Serialize<PrefabProject>(prefabProjectFile, prefabProject);
             }         
         }
        
-        public async Task DownloadPrefabDataAsync(string applicationId, string prefabId, string version)
+        public async Task DownloadPrefabDataAsync(PrefabProject prefabProject, string version)
         {
             if (IsOnlineMode)
-            {
-                var prefabFileSystem = new PrefabFileSystem(this.serializer, this.applicationSettings);
-                prefabFileSystem.Initialize(applicationId, prefabId, new PrefabVersion(version));
-                var zippedContent = await this.prefabRepositoryClient.GetPrefabDataFilesAsync(prefabId, version);               
+            {               
+                var prefabWorkingDirectory = this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, version);                
+                var zippedContent = await this.prefabRepositoryClient.GetPrefabDataFilesAsync(prefabProject.PrefabId, version);         
                 using (var memoryStream = new MemoryStream(zippedContent, false))
                 {
                     var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                    zipArchive.ExtractToDirectory(prefabFileSystem.WorkingDirectory, true);
+                    zipArchive.ExtractToDirectory(prefabWorkingDirectory, true);
                 }               
             }
+        }
+
+        private List<PrefabProject> LoadPrefabsFromLocalStorage(string applicationId)
+        {
+            List<PrefabProject> prefabProjects = new ();
+            var prefabDirectory = this.applicationFileSystem.GetApplicationPrefabsDirectory(applicationId);
+            if(Directory.Exists(prefabDirectory))
+            {
+                foreach (var prefab in Directory.GetDirectories(prefabDirectory))
+                {
+                    string prefabProjectFile = Directory.GetFiles(prefab, "*.atm", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                    if (File.Exists(prefabProjectFile))
+                    {
+                        PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabProjectFile);
+                        prefabProjects.Add(prefabProject);
+                        continue;
+                    }
+                    logger.Warning("Prefab project file : {0} doesn't exist", prefabProjectFile);
+                }
+            }
+            return prefabProjects;
         }
 
         #endregion Prefabs
@@ -550,7 +534,7 @@ namespace Pixel.Persistence.Services.Client
 
         private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
         {
-            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, "Applications.meta");
+            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
             if (File.Exists(metaDataFile))
             {
                 return this.serializer.Deserialize<List<ApplicationMetaData>>(metaDataFile);
@@ -558,49 +542,9 @@ namespace Pixel.Persistence.Services.Client
             return Array.Empty<ApplicationMetaData>();
         }
 
-        private IEnumerable<ProjectMetaData> GetLocalProjectsMetaData()
-        {
-            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, "Projects.meta");
-            if (File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
-            }
-            return Array.Empty<ProjectMetaData>();
-        }
-
-        private IEnumerable<ProjectMetaData> GetLocalProjectVersionMetaData(string projectName)
-        {
-            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, projectName, "Versions.meta");
-            if (File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
-            }
-            return Array.Empty<ProjectMetaData>();
-        }
-
-        private void CreateOrUpdateProjectsMetaData(IEnumerable<ProjectMetaData> projects)
-        {
-            string metaDataFile = Path.Combine(this.applicationSettings.AutomationDirectory, "Projects.meta");
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
-        }
-
-        private void CreateOrUpdateProjectVersionMetaData(string projectName, IEnumerable<ProjectMetaData> projects)
-        {
-            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, projectName, "Versions.meta");
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
-        }
-
         private void CreateOrUpdateApplicationMetaData(IEnumerable<ApplicationMetaData> applicationMetaDatas)
         {
-            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, "Applications.meta");
+            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
             if (File.Exists(metaDataFile))
             {
                 File.Delete(metaDataFile);
@@ -608,6 +552,46 @@ namespace Pixel.Persistence.Services.Client
             this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
             logger.Information("Local application metadata has been updated.");
         }
+
+        private IEnumerable<ProjectMetaData> GetLocalProjectsMetaData()
+        {
+            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, Constants.ProjectsMeta);
+            if (File.Exists(metaDataFile))
+            {
+                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
+            }
+            return Array.Empty<ProjectMetaData>();
+        }     
+      
+        private void CreateOrUpdateProjectsMetaData(IEnumerable<ProjectMetaData> projects)
+        {
+            string metaDataFile = Path.Combine(this.applicationSettings.AutomationDirectory, Constants.ProjectsMeta);
+            if (File.Exists(metaDataFile))
+            {
+                File.Delete(metaDataFile);
+            }
+            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
+        }
+
+        private IEnumerable<ProjectMetaData> GetLocalProjectVersionMetaData(AutomationProject automationProject)
+        {
+            string metaDataFile = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), Constants.VersionsMeta);
+            if (File.Exists(metaDataFile))
+            {
+                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
+            }
+            return Array.Empty<ProjectMetaData>();
+        }
+
+        private void CreateOrUpdateProjectVersionMetaData(AutomationProject automationProject, IEnumerable<ProjectMetaData> projects)
+        {
+            string metaDataFile = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), Constants.VersionsMeta);
+            if (File.Exists(metaDataFile))
+            {
+                File.Delete(metaDataFile);
+            }
+            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
+        }     
 
         #endregion Metadata
     }

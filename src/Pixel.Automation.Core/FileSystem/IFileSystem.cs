@@ -41,48 +41,115 @@ namespace Pixel.Automation.Core.Interfaces
         /// <returns></returns>
         string GetRelativePath(string path); 
 
+        /// <summary>
+        /// Deserialize a given file to type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="targetFile"></param>
+        /// <returns></returns>
         T LoadFile<T>(string targetFile) where T : new();
 
+        /// <summary>
+        /// Deserialiize all the files in a directory to type T and return as a collection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="directory"></param>
+        /// <returns></returns>
         IEnumerable<T> LoadFiles<T>(string directory) where T : new();
 
+        /// <summary>
+        /// Serialize the specified model and save in specified directory.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="directory"></param>
         void SaveToFile<T>(T model, string directory) where T : new();
 
+        /// <summary>
+        /// Serialize the specified model and save it with specified file name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="directory"></param>
+        /// <param name="fileName"></param>
         void SaveToFile<T>(T model, string directory, string fileName) where T : new();
 
+        /// <summary>
+        /// Save the string contents in to specified file name
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="fileName"></param>
+        /// <param name="content"></param>
         void CreateOrReplaceFile(string directory, string fileName, string content);
 
+        /// <summary>
+        /// Check if a path exists
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         bool Exists(string path);
 
+        /// <summary>
+        /// Read all the text from specified file
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         string ReadAllText(string path);
     }
 
     public interface IVersionedFileSystem : IFileSystem
     {
+        /// <summary>
+        /// Target version
+        /// </summary>
         VersionInfo ActiveVersion { get; }
 
+        /// <summary>
+        /// Switch to a new target version
+        /// </summary>
+        /// <param name="version"></param>
         void SwitchToVersion(VersionInfo version);
     }
 
     public interface IProjectFileSystem : IVersionedFileSystem
     {
+        /// <summary>
+        /// Identifier of the project 
+        /// </summary>
         string ProjectId { get; }
 
+        /// <summary>
+        /// Path to project file of the project
+        /// </summary>
         string ProjectFile { get; }
 
+        /// <summary>
+        /// Path to process file for the project
+        /// </summary>
         string ProcessFile { get; }
 
+        /// <summary>
+        /// Prefab references file path which maintains details of all the
+        /// prefabs used in the automation project
+        /// </summary>
         string PrefabReferencesFile { get; }
 
+        /// <summary>
+        /// Directory containing the test cases
+        /// </summary>
         string TestCaseRepository { get; }
 
+        /// <summary>
+        /// Directory containing the test data files
+        /// </summary>
         string TestDataRepository { get; }
 
         /// <summary>
-        /// Initialize the file system by providing workingdirectory and projectname
-        /// </summary>
-        /// <param name="workingDirectory"></param>
-        /// <param name="projectId"></param>
-        void Initialize(string projectId, VersionInfo versionInfo);
+        /// Initialize the project file system given automation project and version information
+        /// </summary>       
+        /// <param name="automationProject">Automation project</param>
+        ///<param name="versionInfo">Target version of the project</param>
+        void Initialize(AutomationProject automationProject, VersionInfo versionInfo);      
 
         /// <summary>
         /// Create ITestCaseFileSystem for a given fixtureId
@@ -116,21 +183,31 @@ namespace Pixel.Automation.Core.Interfaces
         /// While editing a prefab , Prefab is embedded in to this template.
         /// Single template exists irrespective of version of prefab
         /// </summary>
-        string TemplateFile { get; }     
-
-        void Initialize(string applicationId, string prefabId, VersionInfo prefabVersion);
+        string TemplateFile { get; }
 
         /// <summary>
-        /// Initialize prefab file system for deployed version
+        /// Initialize the prefab file system given prefab project and version information
         /// </summary>
-        /// <param name="applicationId"></param>
-        /// <param name="prefabId"></param>
-        void Initialize(string applicationId, string prefabId);
+        /// <param name="prefabProject">Prefab project</param>
+        /// <param name="prefabVersion">Target version of the prefab</param>
+        void Initialize(PrefabProject prefabProject, VersionInfo prefabVersion);            
 
+        /// <summary>
+        /// Get the data model assembly for the prefab
+        /// </summary>
+        /// <returns></returns>
         Assembly GetDataModelAssembly();
         
+        /// <summary>
+        /// Check if data model assembly has been updated
+        /// </summary>
+        /// <returns></returns>
         bool HasDataModelAssemblyChanged();
 
+        /// <summary>
+        /// Get the process entity for the prefab
+        /// </summary>
+        /// <returns></returns>
         Entity GetPrefabEntity();
 
         /// <summary>
@@ -141,8 +218,16 @@ namespace Pixel.Automation.Core.Interfaces
         /// <returns></returns>
         Entity GetPrefabEntity(Assembly withDataModelAssembly);
 
+        /// <summary>
+        /// Save the specified entity as the prefab template
+        /// </summary>
+        /// <param name="templateRoot"></param>
         void CreateOrReplaceTemplate(Entity templateRoot);
 
+        /// <summary>
+        /// Get the available template if any for the prefab
+        /// </summary>
+        /// <returns></returns>
         Entity GetTemplate();
 
     }
@@ -158,7 +243,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// Path of the test fixture file
         /// </summary>
         string FixtureFile { get; }
-
 
         /// <summary>
         /// Path of the test fixture process file

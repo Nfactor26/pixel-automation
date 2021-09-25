@@ -2,6 +2,7 @@
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
@@ -10,9 +11,11 @@ namespace Pixel.Automation.Test.Runner
     {
         private readonly ITemplateClient templateClient;
         private readonly ProjectManager projectManager;
+        private readonly IApplicationDataManager applicationDataManager;
 
-        public TemplateManager(ProjectManager projectManager, ITemplateClient templateClient)
+        public TemplateManager(ProjectManager projectManager, IApplicationDataManager applicationDataManager, ITemplateClient templateClient)
         {
+            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
             this.templateClient = Guard.Argument(templateClient).NotNull().Value ;
             this.projectManager = Guard.Argument(projectManager).NotNull();
         }
@@ -51,7 +54,10 @@ namespace Pixel.Automation.Test.Runner
                 Selector = selector,
                 InitializeScript = initializeScript
             };
-            template.ProjectId = await projectManager.LoadProjectAsync(template);
+            var availableProjects = this.applicationDataManager.GetAllProjects();
+            var targetProject = availableProjects.FirstOrDefault(a => a.Name.Equals(projectName)) ?? throw new ArgumentException($"Project with name :" +
+                $" {projectName} doesn't exist");
+            template.ProjectId = targetProject.ProjectId;
             projectManager.LoadTestCases();
             await projectManager.ListAllAsync(template.Selector);
 

@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Microsoft.Win32;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -25,6 +26,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ISerializer serializer;
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IApplicationFileSystem fileSystem;
         private readonly List<AutomationProject> openProjects = new List<AutomationProject>();
 
         BindableCollection<AutomationProject> recentProjects = new BindableCollection<AutomationProject>();
@@ -42,7 +44,8 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
 
-        public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager)
+        public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager,
+            IApplicationFileSystem fileSystem)
         {
             this.DisplayName = "Home";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
@@ -50,6 +53,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;       
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             LoadRecentProjects();
         }
 
@@ -89,11 +93,7 @@ namespace Pixel.Automation.Designer.ViewModels
                     {
                         case ".atm":
                             automationProject = serializer.Deserialize<AutomationProject>(fileToOpen, null);
-                            break;
-                        case ".proc":
-                            string projectFileName = Path.GetFileNameWithoutExtension(fileToOpen);
-                            automationProject = serializer.Deserialize<AutomationProject>(this.applicationDataManager.GetProjectFile(automationProject), null);
-                            break;
+                            break;                    
                     }
                 }
 
@@ -128,8 +128,8 @@ namespace Pixel.Automation.Designer.ViewModels
         private string ShowOpenFileDialog()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Automation Project (*.atm)|*.atm|Process Files(*.proc)|*.proc";
-            openFileDialog.InitialDirectory = this.applicationDataManager.GetProjectsRootDirectory();
+            openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
+            openFileDialog.InitialDirectory = this.fileSystem.GetAutomationsDirectory();
             if (openFileDialog.ShowDialog() == true)
             {
                 return openFileDialog.FileName;

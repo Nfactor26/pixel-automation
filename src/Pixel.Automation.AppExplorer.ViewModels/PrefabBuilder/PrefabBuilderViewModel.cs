@@ -56,7 +56,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             };
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
-            prefabFileSystem.Initialize(applicationDescriptionViewModel.ApplicationId, prefabToolBoxItem.PrefabId, prefabVersion);
+            prefabFileSystem.Initialize(prefabToolBoxItem, prefabVersion);
 
             var newPreafabViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
             this.stagedScreens.Add(newPreafabViewModel);

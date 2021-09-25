@@ -57,7 +57,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     //Create a new active version from selected version
                     ProjectVersion newVersion = projectVersionViewModel.Clone();
                     IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
-                    projectFileSystem.Initialize(this.automationProject.Name, newVersion);
+                    projectFileSystem.Initialize(this.automationProject, newVersion);
 
                     //Deploy the selected version
                     projectVersionViewModel.Deploy(this.workspaceManagerFactory);                   

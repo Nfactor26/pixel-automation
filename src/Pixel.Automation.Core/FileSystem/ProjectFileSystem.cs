@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using System;
@@ -8,8 +9,7 @@ using System.IO;
 namespace Pixel.Automation.Core
 {
     public class ProjectFileSystem : VersionedFileSystem, IProjectFileSystem
-    {      
-
+    {       
         public string ProjectId { get; private set; }
 
         public string ProjectFile { get; private set; }
@@ -22,21 +22,34 @@ namespace Pixel.Automation.Core
 
         public string TestDataRepository { get; protected set; }
         
-        public ProjectFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
+        public ProjectFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) 
+            : base(serializer, applicationSettings)
         {
-
+         
         }
 
-        public void Initialize(string projectId, VersionInfo versionInfo)
+        public void Initialize(AutomationProject automationProject, VersionInfo versionInfo)
         {
-            this.ActiveVersion = versionInfo;
-            this.ProjectId = projectId;
-            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());
+            Guard.Argument(automationProject).NotNull();           
+            this.Initialize(automationProject.ProjectId, versionInfo);
+        }
+
+        public override void SwitchToVersion(VersionInfo versionInfo)
+        {
+            Initialize(this.ProjectId, versionInfo);
+        }
+
+        void Initialize(string projectId, VersionInfo versionInfo)
+        {
+            this.ProjectId  = Guard.Argument(projectId).NotNull().NotEmpty();
+            this.ActiveVersion = Guard.Argument(versionInfo).NotNull();        
+          
+            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());       
+            this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
+            this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);
+            this.PrefabReferencesFile = Path.Combine(this.WorkingDirectory, "PrefabReferences.ref");
             this.TestCaseRepository = Path.Combine(this.WorkingDirectory, "TestCases");
             this.TestDataRepository = Path.Combine(this.WorkingDirectory, "TestDataRepository");
-            this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
-            this.ProcessFile = Path.Combine(this.WorkingDirectory, $"{projectId}.proc");
-            this.PrefabReferencesFile = Path.Combine(this.WorkingDirectory, "PrefabReferences.ref");
 
             if (!Directory.Exists(TestCaseRepository))
             {
@@ -45,18 +58,13 @@ namespace Pixel.Automation.Core
             if (!Directory.Exists(TestDataRepository))
             {
                 Directory.CreateDirectory(TestDataRepository);
-            }          
-          
+            }
+
             base.Initialize();
-         
+
             this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
 
-        }
-
-        public override void SwitchToVersion(VersionInfo version)
-        {
-            Initialize(this.ProjectId, version);            
-        }
+        }        
 
         public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId)
         {
