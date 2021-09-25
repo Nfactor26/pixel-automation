@@ -21,8 +21,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     {
         /// <summary>
         /// Owner application that is interacted with
-        /// </summary>
-        [RequiredComponent]
+        /// </summary>      
         [Browsable(false)]
         public WebApplication ApplicationDetails
         {

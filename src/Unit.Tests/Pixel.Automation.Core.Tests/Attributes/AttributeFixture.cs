@@ -25,8 +25,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
         }
 
         [TestCase(typeof(InjectedAttribute))]
-        [TestCase(typeof(ParameterUsageAttribute))]
-        [TestCase(typeof(RequiredComponentAttribute))]
+        [TestCase(typeof(ParameterUsageAttribute))]   
         public void ValidateThatAttributeHasPropertyUsageFlag(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
@@ -42,8 +41,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
         [TestCase(typeof(ControlLocatorAttribute))]
         [TestCase(typeof(FileDescriptionAttribute))]
         [TestCase(typeof(InjectedAttribute))]
-        [TestCase(typeof(ParameterUsageAttribute))]
-        [TestCase(typeof(RequiredComponentAttribute))]
+        [TestCase(typeof(ParameterUsageAttribute))]      
         [TestCase(typeof(ScriptableAttribute))]
         [TestCase(typeof(ToolBoxItemAttribute))]
         public void ValidateThatAttributeHasAllowMultipleFalse(Type attributeType)
