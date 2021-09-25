@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using Pixel.Automation.Core.Args;
+using Pixel.Automation.Core;
 
-namespace Pixel.Automation.Core.Tests.Args
+namespace Pixel.Automation.Editor.Core.Tests
 {
     class PropertyGridObjectEventArgsFixture
     {

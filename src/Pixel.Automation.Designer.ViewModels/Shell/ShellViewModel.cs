@@ -1,7 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Microsoft.Win32;
-using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;

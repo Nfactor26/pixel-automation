@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using Pixel.Automation.Core.Args;
 
-namespace Pixel.Automation.Core.Tests.Args
+namespace Pixel.Automation.Editor.Core.Tests
 {
     class RepositoryApplicationOpenedEventArgsFixture
     {

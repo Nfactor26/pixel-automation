@@ -1,13 +1,13 @@
 ﻿using Caliburn.Micro;
-using Pixel.Automation.Core.Args;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Editor.Core;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace Pixel.Automation.Web.Scrapper
 {

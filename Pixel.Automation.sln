@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7E4532E6-7928-4E6F-8874-15482508447F}"
 EndProject
@@ -147,6 +147,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.TestData.Repository.ViewModels.Tests\Pixel.Automation.TestData.Repository.ViewModels.Tests.csproj", "{741037BE-4A8A-45B3-BF74-B28331982FC8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.AppExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests\Pixel.Automation.AppExplorer.ViewModels.Tests.csproj", "{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.Editor.Core.Tests", "src\Unit.Tests\Pixel.Automation.Editor.Core.Tests\Pixel.Automation.Editor.Core.Tests.csproj", "{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -366,6 +368,10 @@ Global
 		{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -429,6 +435,7 @@ Global
 		{73F57B0C-921B-4EE7-AF11-8678384178DE} = {AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}
 		{741037BE-4A8A-45B3-BF74-B28331982FC8} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
+		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}
