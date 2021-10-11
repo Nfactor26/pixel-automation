@@ -4,13 +4,17 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Core.Arguments
 {
     /// <summary>
-    /// Not actually an argument. Just a place holder to defined filter/predicate scripts
+    /// Predicate argument is a script based argument that evaluates to a boolean value.
+    /// This is used for decision making by some components.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DataContract]
     [Serializable]
     public class PredicateArgument<T> : Argument
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public PredicateArgument()
         {
             this.Mode = ArgumentMode.Scripted;
@@ -18,23 +22,21 @@ namespace Pixel.Automation.Core.Arguments
             this.CanChangeMode = false;
         }
 
+        /// <inheritdoc/>
         public override Type GetArgumentType()
         {
             return typeof(T);
         }
 
-        public override bool Equals(object obj)
-        {           
-            return false;
-        }
-       
+        /// <inheritdoc/>
         public override object Clone()
         {
             PredicateArgument<T> clone = new PredicateArgument<T>()
             {
                 Mode = this.Mode,            
                 CanChangeMode = this.CanChangeMode,
-                CanChangeType = this.CanChangeType
+                CanChangeType = this.CanChangeType,
+                ScriptFile = this.ScriptFile
             };
             return clone;
         }

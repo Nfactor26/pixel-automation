@@ -17,6 +17,12 @@ namespace Pixel.Automation.Core
         private static readonly string predicateScriptTemplate = "bool IsMatch(IComponent current, {0} argument){1}{{{1}    return false;{1}}}";
         private static readonly string predicateDelegate = "return ((Func<IComponent, {0}, bool>)IsMatch);";
 
+        /// <summary>
+        /// Get the value of the argument
+        /// </summary>
+        /// <param name="argument">Argument whose value needs to be retrieved</param>
+        /// <param name="argumentProcessor"><see cref="IArgumentProcessor"/> instance that can retrieve the value of argument</param>
+        /// <returns></returns>
         public static object GetValue(this Argument argument, IArgumentProcessor argumentProcessor)
         {
             MethodInfo getValueMethod = argumentProcessor.GetType().GetMethod("GetValue");
@@ -25,6 +31,12 @@ namespace Pixel.Automation.Core
             return value;
         }
 
+        /// <summary>
+        /// Set value of the argument
+        /// </summary>
+        /// <param name="argument">Argument whose value needs to be set</param>
+        /// <param name="argumentProcessor"><see cref="IArgumentProcessor"/> instance that can set the value of argument</param>
+        /// <param name="value">Value to be set</param>
         public static void SetValue(this Argument argument, IArgumentProcessor argumentProcessor, object value)
         {
             MethodInfo setValueMethod = argumentProcessor.GetType().GetMethod("SetValue");

@@ -27,8 +27,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement, ISearchContext>, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
-
-        [RequiredComponent]
+    
         [IgnoreDataMember]
         [Browsable(false)]
         public WebApplication ApplicationDetails

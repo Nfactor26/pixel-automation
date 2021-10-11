@@ -73,12 +73,21 @@ namespace Pixel.Automation.Core.Arguments
 
         [DataMember]
         [Browsable(false)]
+        /// <summary>
+        /// Indicates whether it is possible to change type for this argument
+        /// </summary>
         public bool CanChangeType { get; set; } = false;
 
         [DataMember]
         [Browsable(false)]
+        /// <summary>
+        /// Indicates whether it is possible to change the mode for this argument
+        /// </summary>
         public bool CanChangeMode { get; set; } = true;
 
+        /// <summary>
+        /// Display name of the argument type
+        /// </summary>
         public string ArgumentType
         {
             get
@@ -87,18 +96,32 @@ namespace Pixel.Automation.Core.Arguments
             }
         }
 
+        /// <summary>
+        /// Get the display name of the specified type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         protected string GetDisplayName(Type type)
         {
             return type.GetDisplayName();
         }
 
+        /// <summary>
+        /// Get the <see cref="Type"/> of the argument
+        /// </summary>
+        /// <returns></returns>
         public abstract Type GetArgumentType();
 
+        /// <summary>
+        /// Indicates whether this argument is configured 
+        /// </summary>
+        /// <returns></returns>
         public virtual bool IsConfigured()
         {
             return (this.Mode == ArgumentMode.DataBound && !string.IsNullOrEmpty(PropertyPath)) || (this.Mode == ArgumentMode.Scripted && !string.IsNullOrEmpty(ScriptFile));
         }           
 
+        /// <inheritdoc/>
         public abstract object Clone();
     }
 }

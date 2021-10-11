@@ -1,17 +1,15 @@
 ﻿extern alias uiaComWrapper;
 using Caliburn.Micro;
 using Gma.System.MouseKeyHook;
-using Pixel.Automation.Core.Args;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core;
 using Pixel.Automation.UIA.Components;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;

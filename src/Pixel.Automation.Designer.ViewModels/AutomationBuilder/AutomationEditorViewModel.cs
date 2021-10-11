@@ -111,8 +111,8 @@ namespace Pixel.Automation.Designer.ViewModels
                         await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
                     }
 
-                    await editor.AddDocumentAsync($"{Constants.ProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
-                    await editor.OpenDocumentAsync($"{Constants.ProcessDataModelName}.cs", this.CurrentProject.Name);                 
+                    await editor.AddDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
+                    await editor.OpenDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name);                 
               
                     bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
                     if (hasChanges.HasValue && !hasChanges.Value)

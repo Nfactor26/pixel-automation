@@ -90,7 +90,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 IsDeployed = false
             };
 
-            this.fileSystem.Initialize(this.automationProject.Name, this.ProjectVersion);
+            this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
             Directory.CreateDirectory(newWorkingDirectory);
@@ -125,7 +125,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
         {          
 
-            this.fileSystem.Initialize(this.automationProject.Name, this.ProjectVersion);
+            this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
             logger.Information($"Project file system has been initialized.");
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);

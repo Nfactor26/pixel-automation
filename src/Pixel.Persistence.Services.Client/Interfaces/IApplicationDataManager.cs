@@ -53,27 +53,7 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="controlDescription"></param>
         /// <param name="stream"></param>      
         /// <returns></returns>
-        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream);
-
-        /// <summary>
-        /// Get the automation project root directory
-        /// </summary>
-        /// <returns></returns>
-        string GetProjectsRootDirectory();
-
-        /// <summary>
-        /// Get the project directory for a given automation project
-        /// </summary>
-        /// <param name="automationProject"></param>
-        /// <returns></returns>
-        string GetProjectDirectory(AutomationProject automationProject);
-
-        /// <summary>
-        /// Get the path to automation project file (.atm) for a given automation project
-        /// </summary>
-        /// <param name="automationProject"></param>
-        /// <returns></returns>
-        string GetProjectFile(AutomationProject automationProject);
+        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream);       
 
         /// <summary>
         /// Load all the automatin project from disk and return loaded projects
@@ -111,13 +91,21 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         IEnumerable<PrefabProject> GetAllPrefabs(string applicationId);
 
+        /// <summary>
+        /// Find and load PrefabProject from local storage
+        /// </summary>
+        /// <param name="applicationId">applicationId of the prefab</param>
+        /// <param name="prefabId">string prefabId of the prefab</param>
+        /// <returns></returns>
+        PrefabProject GetPrefab(string applicationId, string prefabId);
+
         Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
         Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
         Task DownloadPrefabFileAsync(string applicationId, string prefabId);
 
-        Task DownloadPrefabDataAsync(string applicationId, string prefabId, string version);
+        Task DownloadPrefabDataAsync(PrefabProject prefabProject, string version);
     }
 
 }

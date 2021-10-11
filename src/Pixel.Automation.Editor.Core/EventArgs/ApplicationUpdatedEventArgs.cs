@@ -1,7 +1,7 @@
 ﻿using Dawn;
 using System;
 
-namespace Pixel.Automation.Core.Args
+namespace Pixel.Automation.Editor.Core
 {
     public class ApplicationUpdatedEventArgs : EventArgs
     {

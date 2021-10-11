@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.IO;
@@ -9,11 +10,10 @@ using System.Text.RegularExpressions;
 namespace Pixel.Automation.Core
 {
     public class PrefabFileSystem : VersionedFileSystem, IPrefabFileSystem
-    {      
-        private readonly string prefabsDirectory = "Prefabs";
+    {
         private string applicationId;
-        private string prefabId;     
-     
+        private string prefabId;
+
         public string PrefabDescriptionFile { get; private set; }
 
         public string PrefabFile { get; private set; }
@@ -25,41 +25,33 @@ namespace Pixel.Automation.Core
 
         }
 
-
-        public void Initialize(string applicationId, string prefabId, VersionInfo version)
+        public void Initialize(PrefabProject prefabProject, VersionInfo versionInfo)
         {
-            this.ActiveVersion = version;
-            this.applicationId = applicationId;
-            this.prefabId = prefabId;        
-
-            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, version.ToString());    
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, $"{prefabId}.dat");
-            this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabEntityFileName);
-            this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
-            
-            base.Initialize();
-
-            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
-
-        }
-
-        public void Initialize(string applicationId, string prefabId)
-        {
-            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, prefabsDirectory, prefabId, $"{prefabId}.dat");
-            PrefabProject prefabProject = this.serializer.Deserialize<PrefabProject>(this.PrefabDescriptionFile);
-            var deployedVersions = prefabProject.DeployedVersions.OrderBy(a => a.Version);
-            var latestVersion = deployedVersions.LastOrDefault();
-            if (latestVersion == null)
-            {
-                throw new InvalidOperationException($"There is no deployed version for prefab : {prefabProject.PrefabName}");
-            }
-            Initialize(applicationId, prefabId, latestVersion);
+            Guard.Argument(prefabProject).NotNull();
+            this.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, versionInfo);
         }
 
         public override void SwitchToVersion(VersionInfo version)
         {
-            Initialize(applicationId, prefabId, version);
+            Initialize(this.applicationId, this.prefabId, version);
         }
+
+        void Initialize(string applicationId, string prefabId, VersionInfo versionInfo)
+        {          
+            this.applicationId = Guard.Argument(applicationId).NotNull().NotEmpty();
+            this.prefabId = Guard.Argument(prefabId).NotNull().NotEmpty();
+            this.ActiveVersion = Guard.Argument(versionInfo).NotNull();
+
+            this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
+            this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm");                    
+            this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabProcessFileName);
+            this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
+
+            base.Initialize();
+
+            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
+
+        }     
 
         public Entity GetPrefabEntity()
         {

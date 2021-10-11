@@ -150,6 +150,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     string documentName = Path.GetFileName(dataModelFile);
                     this.codeEditorFactory.AddDocument(documentName, this.GetProjectName(), File.ReadAllText(dataModelFile));
                 }
+                try
+                {
+                    //Delete assemblies accumulated from old sessions
+                    //This can throw exception if any assembly is already loaded.
+                    Directory.Delete(fileSystem.TempDirectory, true);
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    Directory.CreateDirectory(fileSystem.TempDirectory);
+                }
 
                 using (var compilationResult = this.codeEditorFactory.CompileProject(this.GetProjectName(), GetNewDataModelAssemblyName()))
                 {

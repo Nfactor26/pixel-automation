@@ -84,7 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 IsDeployed = false
             };
 
-            this.fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
             Directory.CreateDirectory(newWorkingDirectory);
@@ -119,7 +119,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public void Deploy(IWorkspaceManagerFactory workspaceFactory)
         {           
            
-            this.fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, this.prefabVersion);
+            this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
 
             string prefabProjectName = this.prefabProject.GetPrefabName();
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);

@@ -90,14 +90,14 @@ namespace Pixel.Automation.RunTime
             Guard.Argument(prefabId).NotEmpty().NotNull();
             Guard.Argument(parentEntityManager).NotNull();
 
-
+            var prefabProject = new PrefabProject() { ApplicationId = applicationId, PrefabId = prefabId };
             var prefabReferences = GetPrefabReferences();
-            PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(new PrefabProject() { ApplicationId = applicationId, PrefabId = prefabId });
+            PrefabVersion versionToLoad = prefabReferences.GetPrefabVersionInUse(prefabProject);
 
             IEntityManager prefabEntityManager = new EntityManager(parentEntityManager);
             prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
             IPrefabFileSystem prefabFileSystem = prefabEntityManager.GetServiceOfType<IPrefabFileSystem>();
-            prefabFileSystem.Initialize(applicationId, prefabId, versionToLoad);
+            prefabFileSystem.Initialize(prefabProject, versionToLoad);
             prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);
           
             ConfigureServices(parentEntityManager, prefabFileSystem);    

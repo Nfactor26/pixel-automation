@@ -90,10 +90,8 @@ namespace Pixel.Automation.UIA.Components
                     retrySequence.Add(TimeSpan.FromSeconds(value));
                 }
             }
-        }
-      
+        }      
 
-        [RequiredComponent]
         [IgnoreDataMember]
         [Browsable(false)]
         public WinApplication TargetApplication

@@ -57,7 +57,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     PrefabVersion newVersion = prefabVersionViewModel.Clone();
 
                     IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                    fileSystem.Initialize(this.prefabProject.ApplicationId, this.prefabProject.PrefabId, newVersion);                  
+                    fileSystem.Initialize(this.prefabProject, newVersion);                  
 
                     //Deploy the selected version
                     prefabVersionViewModel.Deploy(this.workspaceManagerFactory);

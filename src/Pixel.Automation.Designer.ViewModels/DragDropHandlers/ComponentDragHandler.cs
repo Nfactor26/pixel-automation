@@ -304,6 +304,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
             var prefabEntity = new PrefabEntity()
             {
+                Name= sourceItem.PrefabName,
                 PrefabId = sourceItem.PrefabId,
                 ApplicationId = sourceItem.ApplicationId
             };
@@ -313,20 +314,17 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
             PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, sourceItem, prefabEntity.Id, testCaseEntity?.Id);
             IWindowManager windowManager = targetItem.EntityManager.GetServiceOfType<IWindowManager>();
             var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
-            result.ContinueWith(a =>
+            if(result.GetAwaiter().GetResult().GetValueOrDefault())
             {
-                if (a.Result.HasValue && a.Result.Value)
+                var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
+                foreach (var intializer in initializers)
                 {
-                    var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
-                    foreach (var intializer in initializers)
-                    {
-                        IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
-                        componentInitializer.IntializeComponent(prefabEntity, targetItem.EntityManager);
-                    }
-                    targetItem.AddComponent(prefabEntity);
+                    IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
+                    componentInitializer.IntializeComponent(prefabEntity, targetItem.EntityManager);
                 }
-            });
-
+                targetItem.AddComponent(prefabEntity);
+            }
+           
         }
 
         void HandleControlDrop(IDropInfo dropInfo)

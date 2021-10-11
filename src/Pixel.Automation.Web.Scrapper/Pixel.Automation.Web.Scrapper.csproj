@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj">
       <Private>false</Private>
     </ProjectReference>

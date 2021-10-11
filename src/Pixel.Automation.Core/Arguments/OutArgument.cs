@@ -11,38 +11,21 @@ namespace Pixel.Automation.Core.Arguments
     [Serializable]
     public class OutArgument<T> : Argument
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public OutArgument()
         {
             this.Mode = ArgumentMode.DataBound;
         }
-
+       
+        /// <inheritdoc/>
         public override Type GetArgumentType()
         {
             return typeof(T);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is OutArgument<T> other)
-            {
-                if (other.ArgumentType.Equals(this.ArgumentType))
-                {
-                    switch (other.Mode)
-                    {
-                        case ArgumentMode.DataBound:
-                            if (this.Mode == ArgumentMode.DataBound && this.PropertyPath.Equals(other.PropertyPath))
-                                return true;
-                            break;
-                        case ArgumentMode.Default:                         
-                            return false; //OutArgument doesn't support Default mode
-                        case ArgumentMode.Scripted:
-                            return false;
-                    }
-                }
-            }
-            return false;
-        }
-     
+        /// <inheritdoc/>
         public override object Clone()
         {
             OutArgument<T> clone = new OutArgument<T>()
@@ -50,7 +33,8 @@ namespace Pixel.Automation.Core.Arguments
                 Mode = this.Mode,
                 PropertyPath = this.PropertyPath,              
                 CanChangeMode = this.CanChangeMode,
-                CanChangeType = this.CanChangeType
+                CanChangeType = this.CanChangeType,
+                ScriptFile = this.ScriptFile
             };
             return clone;
         }

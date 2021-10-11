@@ -26,8 +26,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
       
         /// <summary>
         /// Owner application entity
-        /// </summary>
-        [RequiredComponent]
+        /// </summary>   
         [Browsable(false)]
         public IApplicationEntity ApplicationEntity
         {

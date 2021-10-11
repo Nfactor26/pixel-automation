@@ -85,8 +85,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 }
             }
         }
-
-        [RequiredComponent]
+     
         [Browsable(false)]
         [IgnoreDataMember]
         public IApplication TargetApplication
