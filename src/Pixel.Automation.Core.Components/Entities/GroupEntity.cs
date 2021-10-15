@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace Pixel.Automation.Core.Components
 {
     [DataContract]
     [Serializable]
+    [NoDropTarget]
     public class GroupEntity : Entity
     {
         private ActorComponent groupActorComponent;
@@ -79,9 +81,8 @@ namespace Pixel.Automation.Core.Components
         }
 
           
-        public override Entity AddComponent(Core.Interfaces.IComponent component)
+        public override Entity AddComponent(Interfaces.IComponent component)
         {
-            this.GroupPlaceHolder?.AddComponent(component);
             return this;
         }
     }

@@ -80,8 +80,7 @@ namespace Pixel.Automation.Designer.Views
 
         public AutomationEditorView()
         {
-            InitializeComponent();
-            WorkFlowRoot.RequestBringIntoView += WorkFlowRoot_RequestBringIntoView;           
+            InitializeComponent();              
         }      
 
         private void OnScroll(object sender, MouseWheelEventArgs e)
@@ -95,11 +94,6 @@ namespace Pixel.Automation.Designer.Views
             }
 
             this.TransformY += e.Delta/5;          
-        }
-
-        private void WorkFlowRoot_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
-        {
-            e.Handled = true;
         }
         
         private void ZoomIn_Click(object sender, RoutedEventArgs e)

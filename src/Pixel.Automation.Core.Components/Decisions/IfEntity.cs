@@ -14,6 +14,7 @@ namespace Pixel.Automation.Core.Components.Decisions
     [ToolBoxItem("If", "Decisions", iconSource: null, description: "Wraps a group of automation entity that are processed only if the if criteria is satisfied ", tags: new string[] { "Deicsion", "DecisionGroup", "Entity" })]
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
+    [NoDropTarget]
     public class IfEntity : Entity
     {
         protected string scriptFile;
@@ -72,10 +73,14 @@ namespace Pixel.Automation.Core.Components.Decisions
             PlaceHolderEntity thenBlock = new PlaceHolderEntity("Then");
             PlaceHolderEntity elseBlock = new PlaceHolderEntity("Else");  
                     
-            this.AddComponent(thenBlock);
-            this.AddComponent(elseBlock);          
+            base.AddComponent(thenBlock);
+            base.AddComponent(elseBlock);          
         }
 
+        public override Entity AddComponent(Interfaces.IComponent component)
+        {
+            return this;
+        }
 
     }
 }

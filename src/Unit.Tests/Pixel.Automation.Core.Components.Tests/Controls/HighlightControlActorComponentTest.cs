@@ -48,7 +48,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var containerEntity = componentBuilder.CreateComponent() as GroupEntity;
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
-            containerEntity.AddComponent(controlEntity);
+            containerEntity.GroupPlaceHolder.AddComponent(controlEntity);
           
             containerEntity.GroupActor.Act();       
 

@@ -22,6 +22,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
             Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
             Kernel.Bind<ITestDataRepository>().To<TestDataRepositoryViewModel>();
+            Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
 
             Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
             Kernel.Bind<IPrefabProjectManager>().To<PrefabProjectManager>().InSingletonScope();

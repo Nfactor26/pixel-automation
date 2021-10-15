@@ -17,6 +17,7 @@ namespace Pixel.Automation.Core.Components.Loops
     [ToolBoxItem("For Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for loop", tags: new string[] { "for loop" })]
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
+    [NoDropTarget]
     public class ForLoopEntity : Entity, ILoop
     {
 
@@ -135,9 +136,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public override Entity AddComponent(Interfaces.IComponent component)
-        {
-            var placeHolderEntity =  this.GetFirstComponentOfType<PlaceHolderEntity>();
-            placeHolderEntity.AddComponent(component);
+        {        
             return this;
         }
     }

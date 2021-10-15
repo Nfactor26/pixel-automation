@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core.Components.Processors;
+using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -28,10 +29,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
             processor.EntityManager = entityManager;
-            processor.AddParallelBlock();
-            processor.AddParallelBlock();
-        
-                     
+            processor.ResolveDependencies();
+
+
             Assert.AreEqual(2, processor.Components.Count);
 
             var parallelBlockOne = processor.Components[0] as Entity;
@@ -75,9 +75,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
             processor.EntityManager = entityManager;
-            processor.AddParallelBlock();
-            processor.AddParallelBlock();
-          
+            processor.ResolveDependencies();
+
             Assert.AreEqual(2, processor.Components.Count);
 
 

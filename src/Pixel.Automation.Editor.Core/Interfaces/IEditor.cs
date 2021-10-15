@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Editor.Core.ViewModels;
 using System;
 using System.Threading.Tasks;
 
@@ -17,10 +18,10 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         Task ManageProjectVersionAsync();
 
         /// <summary>
-        /// Remove component from its parent
+        /// Remove a component from view
         /// </summary>
-        /// <param name="component"></param>
-        void DeleteComponent(IComponent component);
+        /// <param name="componentViewModel"></param>
+        void DeleteComponent(ComponentViewModel componentViewModel);
 
         /// <summary>
         /// Open code editor that can be used to add , remove or modify existing data models for the project

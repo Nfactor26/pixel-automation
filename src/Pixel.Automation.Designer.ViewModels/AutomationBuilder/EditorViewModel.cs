@@ -5,8 +5,8 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
-using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -34,10 +34,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public IEntityManager EntityManager { get; private set; }
 
-        public IDropTarget ComponentDropHandler { get; protected set; }        
+        public IDropTarget ComponentDropHandler { get; protected set; }           
       
-        public BindableCollection<Entity> WorkFlowRoot { get; set; } = new BindableCollection<Entity>();
-
+        public BindableCollection<EntityComponentViewModel> WorkFlowRoot { get; private set; } = new ();
 
         #endregion data members
 
@@ -63,23 +62,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
-        public virtual void DeleteComponent(IComponent component)
+        public virtual void DeleteComponent(ComponentViewModel componentViewModel)
         {
             //TODO : Disable delete button on the root entity
-            if (component.Tag.Equals("Root"))
+            if (componentViewModel.Model.Tag.Equals("Root"))
             {
                 logger.Warning("Root entity can't be deleted");
                 return;
             }
 
-            IEnumerable<Editor.Core.ViewModels.ScriptStatus> scripts = default;
-            if (component is Entity entity)
+            IEnumerable<ScriptStatus> scripts = default;
+            if (componentViewModel.Model is Entity entity)
             {
                 scripts = this.scriptExtractor.ExtractScripts(entity).ToList();
             }
             else
             {
-                scripts = this.scriptExtractor.ExtractScripts(component).ToList();
+                scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
             }
 
             StringBuilder sb = new StringBuilder();
@@ -87,7 +86,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             if(scripts?.Any() ?? false)
             {
                 sb.AppendLine();
-                sb.AppendLine("Following scripts will be deleted?");
+                sb.AppendLine("Below scripts will be deleted : ");
                 foreach (var script in scripts)
                 {
                     sb.AppendLine(script.ScriptName);
@@ -98,9 +97,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             if (result != MessageBoxResult.OK)
             {
                 return;
-            }
-
-            component.DisposeEditors();
+            }           
 
             if (scripts?.Any() ?? false)
             {
@@ -113,23 +110,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     }
                     catch (Exception ex)
                     {
-                        logger.Warning($"There was an error while trying to delete file : {script.ScriptName}");
-                        logger.Error(ex.Message, ex);
+                        logger.Error($"There was an error while trying to delete file : {script.ScriptName}", ex);                        
                     }
                 }
-            }            
+            }
 
-            if (component.Parent != null)
-            {
-               if(component is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-                component.Parent.RemoveComponent(component);
-                logger.Information($"Component : {component.Name} has been deleted");
-                return;
-            }          
-          
+            componentViewModel.Parent.RemoveComponent(componentViewModel);
+            logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
+
         }
 
         private bool isRunInProgress = false;
@@ -141,7 +129,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-        public void RunComponent(IComponent component)
+        public void RunComponent(ComponentViewModel componentViewModel)
         {
             Task componentRunner = new Task(async () =>
             {
@@ -150,7 +138,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     isRunInProgress = true;
                     NotifyOfPropertyChange(() => CanRunComponent);
                     NotifyOfPropertyChange(() => CanResetProcessorComponents);
-
+                    var component = componentViewModel.Model; 
                     if (component is ActorComponent actorComponent)
                     {
                         actorComponent.Act();
@@ -228,35 +216,45 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected void UpdateWorkFlowRoot()
         {
             this.WorkFlowRoot.Clear();
-            this.WorkFlowRoot.Add(this.EntityManager.RootEntity);
+            this.WorkFlowRoot.Add(new EntityComponentViewModel(this.EntityManager.RootEntity));
+            this.BuildWorkFlow(this.WorkFlowRoot[0]);
             this.BreadCrumbItems.Clear();
-            this.BreadCrumbItems.Add(this.EntityManager.RootEntity);
+            this.BreadCrumbItems.Add(this.WorkFlowRoot[0]);
         }
 
+        protected virtual void BuildWorkFlow(EntityComponentViewModel root)
+        {            
+            foreach (var component in this.EntityManager.RootEntity.Components)
+            {
+                root.AddComponent(component);
+            }
+        }
 
         #endregion Automation Project
 
         #region Utilities
 
-        public BindableCollection<IComponent> BreadCrumbItems { get; set; } = new BindableCollection<IComponent>();
+        public BindableCollection<EntityComponentViewModel> BreadCrumbItems { get; set; } = new();
      
-        public void ZoomInToEntity(Entity entity)
+        public void ZoomInToEntity(EntityComponentViewModel entityComponentViewModel)
         {
-            if (this.BreadCrumbItems.Contains(entity))
+            if (this.BreadCrumbItems.Contains(entityComponentViewModel))
             {
                 return;
             }
-            this.BreadCrumbItems.Add(entity);
-            this.WorkFlowRoot[0] = entity;
+            this.BreadCrumbItems.Add(entityComponentViewModel);
+            this.WorkFlowRoot.Clear();
+            this.WorkFlowRoot.Add(entityComponentViewModel);
         }
 
-        public void ZoomOutToEntity(Entity entity)
+        public void ZoomOutToEntity(EntityComponentViewModel entityComponentViewModel)
         {
-            while (BreadCrumbItems.Last() != entity)
+            while (BreadCrumbItems.Last() != entityComponentViewModel)
             {
                 BreadCrumbItems.RemoveAt(BreadCrumbItems.Count() - 1);
             }
-            this.WorkFlowRoot[0] = entity;
+            this.WorkFlowRoot.Clear();
+            this.WorkFlowRoot.Add(entityComponentViewModel);
         }
 
         #endregion Utilities
@@ -285,18 +283,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async Task SetSelectedItem(Object obj)
         {
-            if(obj is GroupEntity groupEntity)
+            if(obj is ComponentViewModel componentViewModel)
             {
-                await globalEventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(groupEntity.GroupActor));                
-            }
-            else
-            {
-                await globalEventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(obj));
-            }
+                if (componentViewModel.Model is GroupEntity groupEntity)
+                {
+                    await globalEventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(groupEntity.GroupActor));
+                    return;
+                }
+                await globalEventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(componentViewModel.Model));
+            }           
         }
 
         #endregion property grid
 
+        #region IHandle<T>
 
         public async Task HandleAsync(ControlUpdatedEventArgs updatedControl, CancellationToken cancellationToken)
         {
@@ -336,6 +336,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        #endregion IHandle<T>
 
         #region IDisposable
 

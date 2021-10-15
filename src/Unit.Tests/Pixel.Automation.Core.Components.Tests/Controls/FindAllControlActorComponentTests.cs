@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var containerEntity = findAllControlActorComponentBuilder.CreateComponent() as GroupEntity;
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
-            containerEntity.AddComponent(controlEntity);
+            containerEntity.GroupPlaceHolder.AddComponent(controlEntity);
 
             List<UIControl> foundControls = default;
             int foundControlsCount = 0;

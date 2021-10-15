@@ -24,10 +24,7 @@ namespace Pixel.Automation.Core
         /// <inheritdoc/>
         public virtual string Id
         {
-            get
-            {
-                return id;
-            }
+            get => this.id;
             protected set
             {
                 id = value;
@@ -41,11 +38,7 @@ namespace Pixel.Automation.Core
         /// <inheritdoc/>
         public virtual string Name
         {
-            get
-            {
-                return this.name;
-            }
-
+            get => this.name;
             set
             {
                 this.name = value;
@@ -60,13 +53,9 @@ namespace Pixel.Automation.Core
         /// <inheritdoc/>
         public virtual string Tag
         {
-            get
-            {
-                return tag;
-            }
-
+            get => this.tag;
             set
-            {                
+            {
                 this.tag = value;
                 OnPropertyChanged();
             }
@@ -78,29 +67,22 @@ namespace Pixel.Automation.Core
         /// <inheritdoc/>
         public bool IsEnabled
         {
-            get
-            {
-                return isEnabled;
-            }
+            get => this.isEnabled;
             set
             {
-                isEnabled = value;
+                this.isEnabled = value;
                 OnPropertyChanged();
             }
         }
 
-        int processOrder=1;
+        int processOrder = 1;
         [DataMember(Name= "ProcessOrder", Order =50,IsRequired =true)] 
         [Display(Name = "Order", Order = 40, GroupName = "Component", Description ="Process order of the component")]
         [ReadOnly(true)]
         /// <inheritdoc/>
         public int ProcessOrder
         {
-            get
-            {
-                return processOrder;
-            }
-
+            get => this.processOrder;
             set
             {
                 this.processOrder = value;
@@ -115,15 +97,12 @@ namespace Pixel.Automation.Core
         /// <inheritdoc/>
         public Entity Parent
         {
-            get
-            {
-                return parent;
-            }         
+            get => this.parent;
             set
             {
-              parent = value;
+                this.parent = value;
             }
-        }       
+        }
 
         [NonSerialized]
         IEntityManager entityManager;
@@ -131,40 +110,26 @@ namespace Pixel.Automation.Core
         [IgnoreDataMember]     
         public IEntityManager EntityManager
         {
-            get
-            {               
-                return this.entityManager;
-            }
-
+            get => this.entityManager;
             set
-            {            
+            {
                 this.entityManager = value;
                 OnPropertyChanged();
             }
         }
 
         [Browsable(false)]
-        public IArgumentProcessor ArgumentProcessor
-        {
-            get
-            {
-                return this.EntityManager.GetArgumentProcessor();
-            }
-        }
-
-
+        public IArgumentProcessor ArgumentProcessor  => this.EntityManager.GetArgumentProcessor();
+       
         [NonSerialized]
-        protected bool isValid=true;   
+        protected bool isValid = true;   
         [Browsable(false)]
         public bool IsValid
         {
-            get
-            {
-                return isValid;
-            }
+            get => this.isValid;
             protected set
             {
-                isValid = value;
+                this.isValid = value;
                 OnPropertyChanged();
             }
         }
@@ -179,13 +144,10 @@ namespace Pixel.Automation.Core
         [IgnoreDataMember]
         public bool IsFaulted
         {
-            get
-            {
-                return isFaulted;
-            }
+            get => this.isFaulted;
             set
             {
-                isFaulted = value;
+                this.isFaulted = value;
                 OnPropertyChanged();
             }
         }
@@ -198,7 +160,7 @@ namespace Pixel.Automation.Core
             this.Tag = GetType().Name;
         }
 
-        public Component(string name="", string tag="")
+        public Component(string name = "", string tag = "")
         {
             this.Id = Guid.NewGuid().ToString();
             this.IsEnabled = true;
@@ -246,7 +208,8 @@ namespace Pixel.Automation.Core
         public virtual void ResetComponent()
         {
             
-        }      
+        }   
+        
         /// <inheritdoc/>
         public virtual void ResolveDependencies()
         {
@@ -318,7 +281,7 @@ namespace Pixel.Automation.Core
       
 
         [NonSerialized]
-        private List<string> errorMessages = new List<string>();
+        private List<string> errorMessages = new ();
         [Browsable(false)]
         [IgnoreDataMember]
         public List<string> ErrorMessages
@@ -334,7 +297,7 @@ namespace Pixel.Automation.Core
 
         }
 
-        public ActorComponent(string name = "", string tag = "") : base(name,tag)
+        public ActorComponent(string name = "", string tag = "") : base(name, tag)
         {
 
         }
@@ -397,7 +360,7 @@ namespace Pixel.Automation.Core
         }        
 
         [NonSerialized]
-        private List<string> errorMessages = new List<string>();
+        private List<string> errorMessages = new ();
         [Browsable(false)]
         [IgnoreDataMember]
         public List<string> ErrorMessages
@@ -450,7 +413,7 @@ namespace Pixel.Automation.Core
 
         }
 
-        public ServiceComponent(string name = "", string tag = ""):base(name,tag)
+        public ServiceComponent(string name = "", string tag = ""):base(name, tag)
         {
 
         }

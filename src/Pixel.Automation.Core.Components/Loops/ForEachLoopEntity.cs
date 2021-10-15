@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.Components.Loops
     [DataContract]
     [Serializable]
     [ToolBoxItem("For..Each Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for each loop", tags: new string[] { "foreach loop" })]
-
+    [NoDropTarget]
     public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
     {
 
@@ -125,9 +125,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public override Entity AddComponent(Interfaces.IComponent component)
-        {
-            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
-            placeHolderEntity.AddComponent(component);
+        {         
             return this;
         }
 

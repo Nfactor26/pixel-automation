@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -16,8 +15,7 @@ namespace Pixel.Automation.Core
     [Serializable]
     public class Entity : Component
     {
-        protected List<IComponent> components = new List<IComponent>();
-       
+        protected List<IComponent> components = new ();       
         /// <summary>
         /// List of all components added to Entity
         /// </summary>
@@ -34,24 +32,7 @@ namespace Pixel.Automation.Core
                 components = value;
             }
         }
-
-        protected ObservableCollection<IComponent> componentCollection;
-        /// <summary>
-        /// This is bound in view
-        /// </summary>
-        [Browsable(false)]
-        public virtual ObservableCollection<IComponent> ComponentCollection
-        {
-            get
-            {
-                if(componentCollection == null)
-                {
-                    componentCollection = new ObservableCollection<IComponent>(this.Components);
-                }
-                return componentCollection;
-            }
-        }       
-
+       
         /// <summary>
         /// Get all child components of type Entity
         /// </summary>
@@ -74,7 +55,7 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="name">Name of the entity</param>
         /// <param name="tag">Tag assigned to entity</param>
-        public Entity(string name="", string tag="") : base(name:name, tag:tag)
+        public Entity(string name = "", string tag = "") : base(name :name, tag:tag)
         {
            
         }
@@ -115,11 +96,7 @@ namespace Pixel.Automation.Core
                         component.ProcessOrder = this.components.Last().ProcessOrder + 1;
                     }
                   
-                    this.Components.Add(component);
-                    if(!this.ComponentCollection.Contains(component))
-                    {
-                        this.ComponentCollection.Add(component);
-                    }
+                    this.Components.Add(component);                  
                     component.ValidateComponent();
                         
                 }
@@ -139,16 +116,11 @@ namespace Pixel.Automation.Core
         /// Remove component from this entity and set component's parent to null 
         /// </summary>
         /// <param name="component"></param>
-        public virtual void RemoveComponent(IComponent component,bool dispose=true)
+        public virtual void RemoveComponent(IComponent component, bool dispose = true)
         {           
             if (component != null && this.components.Contains(component))
             {                
-                this.Components.Remove(component);
-                if(this.ComponentCollection.Contains(component))
-                {
-                    this.ComponentCollection.Remove(component);
-                }
-
+                this.components.Remove(component);               
                 component.Parent = null;
                 component.EntityManager = null;
                
@@ -173,20 +145,15 @@ namespace Pixel.Automation.Core
         /// <param name="target">Component to be moved to a new index</param>
         /// <param name="oldIndex">Old index of the component</param>
         /// <param name="newIndex">New index of the component</param>
-        public void MoveComponent(IComponent target, int oldIndex, int newIndex)
+        public void MoveComponent(int oldIndex, int newIndex)
         {
-            //int count = this.ComponentCollection.Count;
-            if(this.ComponentCollection.Contains(target))
+            var componentToMove = this.Components.ElementAt(oldIndex);
+            this.Components.RemoveAt(oldIndex);
+            this.Components.Insert(newIndex, componentToMove);
+            int i = 1;
+            foreach (var c in this.components)
             {
-                this.ComponentCollection.Move(oldIndex, newIndex);
-                int processOrder = 1;
-                foreach (var component in this.ComponentCollection)
-                {
-                    component.ProcessOrder = processOrder;
-                    processOrder++;
-                }
-
-                this.Components = this.Components.OrderBy(c => c.ProcessOrder).ToList();
+                c.ProcessOrder = i++;
             }
         }
 
@@ -196,7 +163,7 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         public virtual IEnumerable<IComponent> GetNextComponentToProcess()
         {
-            foreach (var component in this.ComponentCollection)
+            foreach (var component in this.components)
             {
                 if (!component.IsEnabled)
                 {

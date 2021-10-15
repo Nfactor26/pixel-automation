@@ -27,9 +27,12 @@ namespace Pixel.Automation.Core.Components.Tests
             var whileLoopEntity = new WhileLoopEntity() { ScriptFile = Guid.NewGuid().ToString() };
             whileLoopEntity.EntityManager = entityManager;
             whileLoopEntity.ResolveDependencies();
+            var placeHolderEntity = whileLoopEntity.Components[0] as PlaceHolderEntity;
+
+            Assert.IsNotNull(placeHolderEntity);
 
             var actorComponent = Substitute.For<ActorComponent>();
-            whileLoopEntity.AddComponent(actorComponent);
+            placeHolderEntity.AddComponent(actorComponent);
 
             var iterationResult = whileLoopEntity.GetNextComponentToProcess().ToList();
 
@@ -57,14 +60,16 @@ namespace Pixel.Automation.Core.Components.Tests
             var whileLoopEntity = new WhileLoopEntity() { ScriptFile = Guid.NewGuid().ToString() };
             whileLoopEntity.EntityManager = entityManager;
             whileLoopEntity.ResolveDependencies();
-
+            var placeHolderEntity = whileLoopEntity.Components[0] as PlaceHolderEntity;           
+            Assert.IsNotNull(placeHolderEntity);
+          
             var actorComponent = Substitute.For<ActorComponent>();
             var nestedLoopEntity = Substitute.For<Entity, ILoop>();
             //Entity.IsEnabled and ILoop.IsEnabled are differnt. We need to typecast to ILoop and mock it
             //This is because GetNextComponentProcess checks IComponent.IsEnabled to decide if component should be processed.
             (nestedLoopEntity as ILoop).IsEnabled.Returns(true);
 
-            whileLoopEntity.AddComponent(nestedLoopEntity);
+            placeHolderEntity.AddComponent(nestedLoopEntity);
             nestedLoopEntity.GetNextComponentToProcess().Returns(new List<IComponent>() { actorComponent });
             nestedLoopEntity.Components.Returns(new List<IComponent>() { actorComponent });
 

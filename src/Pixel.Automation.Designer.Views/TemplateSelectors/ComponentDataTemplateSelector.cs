@@ -1,52 +1,53 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Processors;
+using Pixel.Automation.Editor.Core.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Pixel.Automation.Designer.Views
 {
+    /// <summary>
+    /// DataTempalteSelector resonsible for selecting the correct data template for a given component.
+    /// Mapping is stored in TemplateMapping.xml. If no mapping exists, default template is provided.
+    /// </summary>
     public class ComponentDataTemplateSelector : DataTemplateSelector
-    {
-      
+    {      
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            FrameworkElement element = container as FrameworkElement;           
-            if (element != null && item != null)
+            if (item is ComponentViewModel cvm && container is FrameworkElement element)
             {
-               
-                string typeName = item.GetType().Name;
+                string typeName = cvm.Model.GetType().Name;
                 string dataTemplateKey = TemplateMapper.GetDataTemplateKey(typeName);
-                if(!string.IsNullOrEmpty(dataTemplateKey))
+                if (!string.IsNullOrEmpty(dataTemplateKey))
                 {
                     DataTemplate componentTemplate = element.TryFindResource(dataTemplateKey) as DataTemplate;
                     return componentTemplate;
-                }           
+                }
 
                 string templateKey = "Entity"; //default
-                if (item is EntityProcessor)
+                if (cvm.Model is EntityProcessor)
                 {
                     templateKey = nameof(EntityProcessor);
                 }
-                else if (item is Entity)
+                else if (cvm.Model is Entity)
                 {
                     templateKey = nameof(Entity);
-                }                   
-                else if (item is ActorComponent)
+                }
+                else if (cvm.Model is ActorComponent)
                 {
                     templateKey = nameof(ActorComponent);
                 }
-                else if (item is DataComponent)
+                else if (cvm.Model is DataComponent)
                 {
                     templateKey = nameof(DataComponent);
                 }
-                else if (item is ServiceComponent)
+                else if (cvm.Model is ServiceComponent)
                 {
                     templateKey = nameof(ServiceComponent);
-                }                
+                }
                 DataTemplate defaultTemplate = element.FindResource(templateKey) as DataTemplate;
                 return defaultTemplate;
-            }            
-
+            }
             return null;
         }
     }

@@ -32,23 +32,22 @@ namespace Pixel.Automation.Core.Components
 
         public override Entity AddComponent(IComponent component)
         {
-            if(component.GetType().GetInterface(AllowedComponentsType) == null)
+            if(!this.Components.Contains(component))
             {
-                throw new ArgumentException($"Only components of type {AllowedComponentsType} can be added");
-            }
-          
-            if(this.MaxComponentsCount.HasValue)
-            {              
-                if (this.Components.Count < MaxComponentsCount)
+                if (component.GetType().GetInterface(AllowedComponentsType) == null)
                 {
-                    return base.AddComponent(component);
+                    throw new ArgumentException($"Only components of type {AllowedComponentsType} can be added");
                 }
-                else
+
+                if (this.MaxComponentsCount.HasValue)
                 {
+                    if (this.Components.Count < MaxComponentsCount)
+                    {
+                        return base.AddComponent(component);
+                    }
                     throw new InvalidOperationException($"Allowed capacity of {MaxComponentsCount} already reached. Can't add any more child component to {this}");
                 }
-            }           
-
+            }
             return this;
         }
 

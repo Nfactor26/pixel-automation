@@ -194,10 +194,10 @@
                         <DataTrigger Binding="{Binding ElementName=LeftConnector, Path=Height}" Value="1">
                             <Setter TargetName="LeftConnector"  Property="Visibility" Value="Visible" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">

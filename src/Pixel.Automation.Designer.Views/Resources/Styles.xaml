@@ -97,7 +97,7 @@
             <Setter.Value>
                 <DataTemplate>
                     <StackPanel Background="{Binding TemplatedParent}"  DataContext="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type GroupBox}}}"  Orientation="Horizontal">
-                        <Label  Content="{Binding Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <Label  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
 
                         <Button Margin="0,0,2,0" HorizontalAlignment="Right" x:Name="btnEditControl" 
                             Height="20"
@@ -130,7 +130,7 @@
             <Setter.Value>
                 <DataTemplate>
                     <DockPanel  DataContext="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type GroupBox}}}" LastChildFill="True">
-                        <Label  Content="{Binding Name}"  Width="Auto" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <Label  Content="{Binding Model.Name}"  Width="Auto" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                         <!--<Button x:Name="btnDeleteComponent" DockPanel.Dock="Right" Width="20"  Height="20" Margin="5,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}"
                                 cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]">
                             <Rectangle Width="10"  Height="10"  Fill="{Binding Path=Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}">
@@ -190,7 +190,7 @@
                         <Button x:Name="ZoomOutToEntity" Style="{StaticResource BreadCrumbLink}" 
                             Margin="5"
                             cal:Message.Attach="[Event Click] = [Action ZoomOutToEntity($dataContext)]"
-                            Content="{Binding Name}"/>
+                            Content="{Binding Model.Name}"/>
                         <iconPacks:PackIconMaterial Kind="ChevronRight" Margin="0,4,0,0" HorizontalAlignment="Center"
                                                     VerticalAlignment="Center" Height="10"
                                                     Foreground="{DynamicResource MahApps.Brushes.Accent4}" />
