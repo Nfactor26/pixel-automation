@@ -19,8 +19,8 @@
                             ToolTip="C# Script">
                     <iconPacks:MaterialLight Kind="Script"/>
                 </StackPanel>
-              
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" HorizontalAlignment="Right" 
                             Orientation="Horizontal" Visibility="Collapsed">                  
@@ -29,7 +29,7 @@
                             cal:Message.Attach="[Action RunComponent($dataContext)]"                   
                             Style="{DynamicResource EditControlButtonStyle}"
                             Content="{iconPacks:MaterialLight Play}"/>                 
-                    <editors:ScriptEditorButton x:Name="btnEditScript" ScriptFile="{Binding ScriptFile}" ActorComponent="{Binding}" HorizontalAlignment="Right" Margin="0,0,2,0"/>
+                    <editors:ScriptEditorButton x:Name="btnEditScript" ScriptFile="{Binding Model.ScriptFile}" ActorComponent="{Binding Model}" HorizontalAlignment="Right" Margin="0,0,2,0"/>
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
@@ -41,16 +41,16 @@
             <Trigger Property="IsMouseOver"  Value="true">              
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsExecuting}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsExecuting}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsFaulted}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
             <DataTrigger Binding="{Binding
@@ -75,11 +75,10 @@
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0" LastChildFill="True" Margin="4,4,4,0" MinWidth="165" HorizontalAlignment="Stretch"
                        IsHitTestVisible="True">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
-                                ToolTip="C# Script">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2" ToolTip="C# Script">
                         <iconPacks:MaterialLight Kind="Script"/>
                     </StackPanel>
-                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                    <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" HorizontalAlignment="Right"
                                 Orientation="Horizontal" Visibility="Collapsed">
                         <Button x:Name="btnExecuteScript"  Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -98,30 +97,26 @@
                     HorizontalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
                 <se:InlineScriptEditorUserControl Grid.Row="2" VerticalContentAlignment="Center"  Margin="2"     
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" dd:DragDrop.DragSourceIgnore="true"
-                    OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
+                    OwnerComponent="{Binding Model}" ScriptFile="{Binding Model.ScriptFile}"/>
             </Grid>
         </Border>
         <DataTemplate.Triggers>
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsExecuting}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsExecuting}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsFaulted}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
-                                Mode=FindAncestor,
-                                AncestorType={x:Type TreeViewItem}},
-                                Path=IsSelected}" Value="True">
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}, Path=IsSelected}" Value="True">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
             </DataTrigger>
         </DataTemplate.Triggers>

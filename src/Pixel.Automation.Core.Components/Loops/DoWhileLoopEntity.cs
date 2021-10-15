@@ -16,6 +16,7 @@ namespace Pixel.Automation.Core.Components.Loops
     [ToolBoxItem("Do..While Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a while loop", tags: new string[] { "while loop" })]
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
+    [NoDropTarget]
     public class DoWhileLoopEntity : Entity, ILoop
     {
 
@@ -109,9 +110,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         public override Entity AddComponent(Interfaces.IComponent component)
-        {
-            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
-            placeHolderEntity.AddComponent(component);
+        {           
             return this;
         }
     }

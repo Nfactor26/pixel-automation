@@ -14,21 +14,20 @@
             <Label Content="Condition" Padding="4,0,4,0" FontSize="12" VerticalContentAlignment="Center"></Label>
             <se:InlineScriptEditorUserControl VerticalContentAlignment="Center" Margin="2"  
                     HorizontalAlignment="Stretch"       
-                    OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
+                    OwnerComponent="{Binding Model}" ScriptFile="{Binding Model.ScriptFile}"/>
         </StackPanel>
     </HierarchicalDataTemplate>
     
     <HierarchicalDataTemplate x:Key="ForEachTemplate" ItemsSource="{Binding ComponentCollection}">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="0" Margin="6,6,6,2">
             <Label Content="Foreach" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
-            <ae:OutArgumentUserControl x:Name="CurrentObjectArgument" Argument="{Binding Current}"                                                                   
-                                      OwnerComponent="{Binding}"  MinWidth="180" Height="37.26" 
+            <ae:OutArgumentUserControl x:Name="CurrentObjectArgument" MinWidth="180" Height="37.26"                                                                  
+                                      OwnerComponent="{Binding Model}" Argument="{Binding Model.Current}"   
                                       HorizontalAlignment="Left" VerticalAlignment="Center"
                                       DockPanel.Dock="Left"/>
             <Label Content="in" Margin="2,0,2,0" Padding="4,0,4,0" FontSize="10" VerticalContentAlignment="Center"></Label>
-            <ae:InArgumentUserControl  x:Name="TargetCollectionArgument" Argument="{Binding TargetCollection}" 
-                                       MinWidth="180" Height="37.26" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                       OwnerComponent="{Binding}" DockPanel.Dock="Left"/>
+            <ae:InArgumentUserControl  x:Name="TargetCollectionArgument"  MinWidth="180" Height="37.26" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                       OwnerComponent="{Binding Model}" Argument="{Binding Model.TargetCollection}"  DockPanel.Dock="Left"/>
         </StackPanel>
     </HierarchicalDataTemplate>
 
@@ -37,7 +36,7 @@
             <Label Content="Condition" Padding="4,0,4,0" FontSize="12" VerticalContentAlignment="Center"></Label>
             <se:InlineScriptEditorUserControl VerticalContentAlignment="Center"  Margin="2"
                     HorizontalContentAlignment="Stretch"
-                    OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
+                    OwnerComponent="{Binding Model}" ScriptFile="{Binding Model.ScriptFile}"/>
         </StackPanel>
     </HierarchicalDataTemplate>
 
@@ -46,12 +45,12 @@
             <Label Content="Condition" Padding="4,0,4,0" FontSize="12" HorizontalAlignment="Stretch" VerticalContentAlignment="Center"></Label>
             <se:InlineScriptEditorUserControl VerticalContentAlignment="Center"  Margin="2,2,2,6"   HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"                                              
-                    OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
+                    OwnerComponent="{Binding Model}" ScriptFile="{Binding Model.ScriptFile}"/>
         </StackPanel>
     </HierarchicalDataTemplate>    
 
     <Style TargetType="TreeViewItem" x:Key="LoopStyle">
-        <Setter Property="IsExpanded" Value="True"/>
+        <Setter Property="IsExpanded" Value="True"/>       
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -97,7 +96,7 @@
                                             ToolTip="Control">
                                         <iconPacks:PackIconModern Kind="Repeat" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     </StackPanel>
-                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
                                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">
                                         <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -140,10 +139,10 @@
                             <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ComponentControl"   Property="MinWidth"  Value="460"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">
@@ -168,7 +167,7 @@
     </Style>
 
     <Style TargetType="TreeViewItem" x:Key="DoWhileStyle">
-        <Setter Property="IsExpanded" Value="True"/>
+        <Setter Property="IsExpanded" Value="True"/>  
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -218,7 +217,7 @@
                                             ToolTip="Control">
                                         <iconPacks:PackIconModern Kind="Repeat" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     </StackPanel>
-                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
                                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">                                       
                                         <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -260,10 +259,10 @@
                             <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ComponentControl"   Property="MinWidth"  Value="460"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">
@@ -290,7 +289,7 @@
     <Style TargetType="TreeViewItem" x:Key="PlaceHolderStyle">
         <Setter Property="IsExpanded" Value="True"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>       
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -300,7 +299,7 @@
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
-                        <Label x:Name="Name" Content="{Binding Name}" Grid.Row="0" HorizontalAlignment="Stretch"/>
+                        <Label x:Name="Name" Content="{Binding Model.Name}" Grid.Row="0" HorizontalAlignment="Stretch"/>
                         <Border x:Name="ComponentControl" Grid.Row="1" BorderThickness="1"
                                 BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
                                 CornerRadius="2" Margin="4,4,4,8" HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -330,10 +329,10 @@
                             <Setter TargetName="EmptyMessage"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ItemsHost"   Property="Visibility"  Value="Collapsed"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">

@@ -70,9 +70,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var containerEntity = findFirstControlActorComponentBuilder.CreateComponent() as GroupEntity;
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
-            containerEntity.AddComponent(firstControlEntity);
-            containerEntity.AddComponent(secondControlEntity);
-
+            containerEntity.GroupPlaceHolder.AddComponent(firstControlEntity);
+            containerEntity.GroupPlaceHolder.AddComponent(secondControlEntity);
+      
             UIControl foundControl = default;
             bool wasLocated = false;
 

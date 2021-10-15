@@ -36,6 +36,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         private readonly IProjectFileSystem fileSystem;
         private readonly IProjectManager projectManager;
+        private readonly IComponentViewBuilder componentViewBuilder;
         private readonly IEventAggregator eventAggregator;
         private readonly IWindowManager windowManager;
         private readonly IPlatformProvider platformProvider;
@@ -82,9 +83,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <param name="windowManager"></param>
         /// <param name="applicationSettings"></param>
         public TestExplorerViewModel(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, 
-            IWindowManager windowManager, IPlatformProvider platformProvider, ApplicationSettings applicationSettings)
+            IComponentViewBuilder componentViewBuilder, IWindowManager windowManager, IPlatformProvider platformProvider, ApplicationSettings applicationSettings)
         {
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
+            this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.TestRunner = Guard.Argument(testRunner).NotNull().Value;
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
@@ -248,9 +250,18 @@ namespace Pixel.Automation.TestExplorer.ViewModels
               
                 if (await this.TestRunner.TryOpenTestFixture(fixtureVM.TestFixture))
                 {
+                    OpenInEditor();
                     SetupScriptEditor();
                     fixtureVM.IsOpenForEdit = true;
                     NotifyOfPropertyChange(nameof(CanSaveAll));
+                }
+
+                void OpenInEditor()
+                {
+                    if(!fixtureVM.OpenForExecute)
+                    {
+                        this.componentViewBuilder.OpenTestFixture(fixtureVM.TestFixture);
+                    }
                 }
 
                 void SetupScriptEditor()
@@ -315,17 +326,33 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     await CloseTestCaseAsync(testCase, autoSave);
                 }
 
-                var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
-                IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.RemoveProject(fixtureVM.Id);
-                fixtureVM.TestFixtureEntity.DisposeEditors();
+                CleanUpScriptEditor();
+                RemoveFromEditor();
 
                 await this.TestRunner.TryCloseTestFixture(fixtureVM.TestFixture);
-
                 fixtureVM.TestFixtureEntity = null;
                 fixtureVM.IsOpenForEdit = false;
+
                 logger.Information("Test fixture {0} has been closed.", fixtureVM.DisplayName);
 
+                void CleanUpScriptEditor()
+                {
+                    if (!fixtureVM.OpenForExecute)
+                    {
+                        var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
+                        IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
+                        scriptEditorFactory.RemoveProject(fixtureVM.Id);
+                        fixtureVM.TestFixtureEntity.DisposeEditors();
+                    }
+                }
+
+                void RemoveFromEditor()
+                {
+                    if (!fixtureVM.OpenForExecute)
+                    {
+                        this.componentViewBuilder.CloseTestFixture(fixtureVM.TestFixture);
+                    }
+                }
             }
             NotifyOfPropertyChange(nameof(CanSaveAll));
         }
@@ -571,6 +598,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
                 if (await this.TestRunner.TryOpenTestCase(parentFixture.TestFixture, testCaseVM.TestCase))
                 {
+                    OpenForEdit();
                     SetupScriptEditor();
                     testCaseVM.IsOpenForEdit = true;
                     NotifyOfPropertyChange(nameof(CanSaveAll));
@@ -580,6 +608,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     logger.Warning("Failed to open TestCase {0} for edit.", testCaseVM.DisplayName);
                 }
+
+                void OpenForEdit()
+                {
+                    if (!testCaseVM.OpenForExecute)
+                    {
+                        this.componentViewBuilder.OpenTestCase(testCaseVM.TestCase);
+                    }
+                }
+               
                 void SetupScriptEditor()
                 {
                     if(!testCaseVM.OpenForExecute)
@@ -644,17 +681,34 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     }
                     var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
 
-                    //Remove the script editor project that was added while opening the test case
-                    var entityManager = testCaseVM.TestCaseEntity.EntityManager;
-                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                    scriptEditorFactory.RemoveProject(testCaseVM.Id);
-                    testCaseVM.TestCaseEntity.DisposeEditors();
+                    CleanUpScriptEditor();
+                    RemoveFromEditor();                    
 
                     await this.TestRunner.TryCloseTestCase(parentFixture.TestFixture, testCaseVM.TestCase);
-
                     testCaseVM.TestCaseEntity = null;
                     testCaseVM.IsOpenForEdit = false;
+
                     logger.Information("TestCase {0} was closed", testCaseVM.DisplayName);
+
+                    void RemoveFromEditor()
+                    {
+                        if (!testCaseVM.OpenForExecute)
+                        {
+                            this.componentViewBuilder.CloseTestCase(testCaseVM.TestCase);
+                        }
+                    }
+
+                    void CleanUpScriptEditor()
+                    {
+                        if (!testCaseVM.OpenForExecute)
+                        {
+                            //Remove the script editor project that was added while opening the test case
+                            var entityManager = testCaseVM.TestCaseEntity.EntityManager;
+                            var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                            scriptEditorFactory.RemoveProject(testCaseVM.Id);
+                            testCaseVM.TestCaseEntity.DisposeEditors();
+                        }
+                    }
 
                 }
                 NotifyOfPropertyChange(nameof(CanSaveAll));

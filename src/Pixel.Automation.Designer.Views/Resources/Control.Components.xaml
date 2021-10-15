@@ -12,7 +12,7 @@
     <HierarchicalDataTemplate x:Key="ControlTemplate" ItemsSource="{Binding ComponentCollection}">        
                 <DockPanel LastChildFill="True" MinWidth="220" Width="220" Grid.Row="2"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="True">
-            <Image DockPanel.Dock="Left" Margin="10" Source="{Binding ControlDescription.ControlImage, Converter={StaticResource bitMapConverter}}"
+            <Image DockPanel.Dock="Left" Margin="10" Source="{Binding Model.ControlDescription.ControlImage, Converter={StaticResource bitMapConverter}}"
                         HorizontalAlignment="Center" Stretch="Uniform" 
                         Height="50">              
             </Image>
@@ -40,7 +40,7 @@
                                             ToolTip="Control">
                                         <iconPacks:PackIconModern Kind="ControllerSnes" Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
                                     </StackPanel>
-                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"></Label>
                                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">                                       
                                         <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -76,11 +76,11 @@
                         </Trigger>
                         <Trigger Property="HasItems"  Value="false">
                             <Setter TargetName="ItemsHost"   Property="Visibility"  Value="Collapsed"/>
-                        </Trigger>                      
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">

@@ -16,24 +16,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
-                    <Grid
-          Width="15"
-          Height="13"
-          Background="Transparent">
-                        <Path x:Name="ExpandPath"
-            HorizontalAlignment="Left" 
-            VerticalAlignment="Center" 
-            Margin="1,1,1,1"
-            Fill="{StaticResource GlyphBrush}"
-            Data="M 4 0 L 8 4 L 4 8 Z"/>
-                        <!--<Ellipse x:Name="ExpandPath" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource GlyphBrush}"></Ellipse>-->
+                    <Grid Width="15" Height="13" Background="Transparent">
+                        <Path x:Name="ExpandPath" HorizontalAlignment="Left" 
+                                VerticalAlignment="Center" Margin="1,1,1,1"
+                                Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked"
-               Value="True">
-                            <Setter Property="Data"
-                TargetName="ExpandPath"
-                Value="M 0 4 L 8 4 L 4 8 Z"/>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Data"  TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

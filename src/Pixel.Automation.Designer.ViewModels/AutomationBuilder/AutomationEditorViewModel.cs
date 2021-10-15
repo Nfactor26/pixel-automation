@@ -10,6 +10,7 @@ using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Notfications;
+using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -28,7 +29,8 @@ namespace Pixel.Automation.Designer.ViewModels
         #region data members        
 
         private readonly ILogger logger = Log.ForContext<AutomationEditorViewModel>();
-        private readonly IAutomationProjectManager projectManager;    
+        private readonly IAutomationProjectManager projectManager;
+        private readonly IComponentViewBuilder componentViewBuilder;
         private readonly IServiceResolver serviceResolver;
         private readonly ITestExplorer testExplorer;
         private readonly ITestExplorerHost testExplorerHost;        
@@ -41,13 +43,14 @@ namespace Pixel.Automation.Designer.ViewModels
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
-            IAutomationProjectManager projectManager, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
+            IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
             : base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
 
             this.serviceResolver = Guard.Argument(serviceResolver).NotNull().Value;
-            this.projectManager = Guard.Argument(projectManager).NotNull().Value;           
+            this.projectManager = Guard.Argument(projectManager).NotNull().Value;
+            this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
             this.testExplorer = Guard.Argument(testExplorer).NotNull().Value;
             this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;
             Guard.Argument(anchorables).NotNull().NotEmpty().DoesNotContainNull();
@@ -186,7 +189,13 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Error(ex, ex.Message);
             }
         }
-     
+
+        protected override void BuildWorkFlow(EntityComponentViewModel root)
+        {
+            base.BuildWorkFlow(root);
+            this.componentViewBuilder.SetRoot(root);
+        }
+
         #endregion Automation Project
 
         #region OnLoad

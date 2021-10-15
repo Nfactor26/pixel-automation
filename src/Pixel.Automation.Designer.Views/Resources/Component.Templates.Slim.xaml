@@ -25,7 +25,7 @@
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}" MaxWidth="160" 
                        HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
@@ -45,14 +45,13 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding  RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -67,7 +66,7 @@
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}" MaxWidth="160" 
                        HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
@@ -83,14 +82,13 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -104,8 +102,8 @@
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
-                       IsHitTestVisible="True">               
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                       IsHitTestVisible="True">
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
@@ -128,14 +126,13 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -151,7 +148,7 @@
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
 
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
@@ -171,20 +168,19 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsExecuting}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsExecuting}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Green"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsFaulted}" Value="true">
+            <DataTrigger Binding="{Binding Model.IsFaulted}" Value="true">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -199,7 +195,7 @@
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        IsHitTestVisible="True">
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
@@ -216,14 +212,13 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -241,19 +236,19 @@
                                             ToolTip="Control">
                     <iconPacks:PackIconSimpleIcons Kind="Buffer" Foreground="{DynamicResource MahApps.Brushes.Accent}" Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
                 </StackPanel>
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
-                    <prefabs:InputMappingButton ScriptFile="{Binding InputMappingScriptFile, Mode=OneWay}"
-                                                AssignFrom="{Binding DataModelType, Mode=OneWay}"
-                                                OwnerComponent="{Binding}"
-                                                EntityManager="{Binding EntityManager, Mode=OneWay}"
-                                                AssignTo="{Binding PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
-                    <prefabs:OutputMappingButton ScriptFile="{Binding OutputMappingScriptFile, Mode=OneWay}" 
-                                                AssignFrom="{Binding PrefabDataModelType, Mode=OneWay}" 
-                                                OwnerComponent="{Binding}"
-                                                EntityManager="{Binding EntityManager, Mode=OneWay}"
-                                                AssignTo="{Binding DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>
+                    <prefabs:InputMappingButton ScriptFile="{Binding Model.InputMappingScriptFile, Mode=OneWay}"
+                                                AssignFrom="{Binding Model.DataModelType, Mode=OneWay}"
+                                                OwnerComponent="{Binding Model}"
+                                                EntityManager="{Binding Model.EntityManager, Mode=OneWay}"
+                                                AssignTo="{Binding Model.PrefabDataModelType, Mode=OneWay}"></prefabs:InputMappingButton>
+                    <prefabs:OutputMappingButton ScriptFile="{Binding Model.OutputMappingScriptFile, Mode=OneWay}" 
+                                                AssignFrom="{Binding Model.PrefabDataModelType, Mode=OneWay}" 
+                                                OwnerComponent="{Binding Model}"
+                                                EntityManager="{Binding Model.EntityManager, Mode=OneWay}"
+                                                AssignTo="{Binding Model.DataModelType, Mode=OneWay}"></prefabs:OutputMappingButton>
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
@@ -268,14 +263,13 @@
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
             </Trigger>
-            <DataTrigger Binding="{Binding IsValid}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
             </DataTrigger>
-            <DataTrigger Binding="{Binding
-                            RelativeSource={RelativeSource
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
                                 Mode=FindAncestor,
                                 AncestorType={x:Type TreeViewItem}},
                                 Path=IsSelected}" Value="True">
@@ -286,15 +280,15 @@
 
     <HierarchicalDataTemplate x:Key="ParallelProcessorTemplate"  ItemsSource="{Binding ComponentCollection}">
         <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" Margin="4" 
-                   Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">          
-            <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                   Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
+            <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,2,0"
                                                     cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
                                                     Style="{DynamicResource EditControlButtonStyle}" ToolTip="Run" 
                                                     Content="{iconPacks:FontAwesome PlayCircleSolid}"/>
                 <Button x:Name="AddParallelBlock" Margin="0,0,2,0" HorizontalAlignment="Right" 
-                                            Height="20" Width="20" ToolTip="Edit Script"
+                                            Height="20" Width="20" ToolTip="Add parallel block"                                         
                                             cal:Message.Attach="[Event Click] = [Action AddParallelBlock()]"                   
                                             Style="{DynamicResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight PlusCircle}"/>
@@ -322,7 +316,7 @@
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
-                <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,2,0"
                                                     cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
@@ -354,7 +348,7 @@
                 <iconPacks:PackIconMaterial Kind="ViewSequential" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                                                   Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
             </StackPanel>
-            <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
             <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -385,7 +379,7 @@
                 <iconPacks:PackIconMaterial Kind="Application"  Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                                                   Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
             </StackPanel>
-            <Label DockPanel.Dock="Left"  Content="{Binding Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
             <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -422,7 +416,7 @@
     </HierarchicalDataTemplate>
   
     <Style TargetType="TreeViewItem" x:Key="GroupedStyle">
-        <Setter Property="IsExpanded" Value="True"/>
+        <Setter Property="IsExpanded" Value="True"/>       
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -465,11 +459,11 @@
                                             ToolTip="Control">
                                         <iconPacks:PackIconSimpleIcons Kind="UIkit" Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                     </StackPanel>
-                                    <Label DockPanel.Dock="Left"  Content="{Binding Name}" MaxWidth="160" 
+                                    <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}" MaxWidth="160" 
                                             HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                                     <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                                             HorizontalAlignment="Right" Orientation="Horizontal">
-                                        <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" Height="20" Width="20" ToolTip="Run" DataContext="{Binding GroupActor}"
+                                        <Button x:Name="Run" Margin="0,0,2,0" HorizontalAlignment="Right" Height="20" Width="20" ToolTip="Run" DataContext="{Binding Model.GroupActor}"
                                             cal:Message.Attach="[Action RunComponent($dataContext)]" Style="{DynamicResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight Play}"/>
                                         <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
@@ -496,12 +490,11 @@
                                         </Border>
 
                                         <ItemsPresenter x:Name="ItemsHost" MinWidth="200" Margin="8" Visibility="Visible"                                               
-                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                                     </Grid>
                                 </StackPanel>
                             </DockPanel>
-                        </Border>                      
-                      
+                        </Border>                     
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -512,19 +505,19 @@
                             <Setter TargetName="ContentHost"   Property="Visibility"  Value="Visible"/>
                             <Setter TargetName="ComponentControl"   Property="MinWidth"  Value="460"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding GroupActor.IsValid}" Value="false">
+                        <DataTrigger Binding="{Binding Model.GroupActor.IsValid}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding GroupActor.IsExecuting}" Value="true">
+                        <DataTrigger Binding="{Binding Model.GroupActor.IsExecuting}" Value="true">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Green"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding GroupActor.IsFaulted}" Value="true">
+                        <DataTrigger Binding="{Binding Model.GroupActor.IsFaulted}" Value="true">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Red"></Setter>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding IsEnabled}" Value="false">
+                        <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
                             <Setter TargetName="ComponentControl" Property="BorderBrush" Value="Gray"></Setter>
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="true">

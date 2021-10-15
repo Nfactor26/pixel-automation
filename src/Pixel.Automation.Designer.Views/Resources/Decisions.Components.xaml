@@ -15,7 +15,7 @@
             <StackPanel Orientation="Vertical" Grid.Row="0">
             <Label Content="Condition" Padding="4,0,4,0" FontSize="10"></Label>
             <se:InlineScriptEditorUserControl VerticalContentAlignment="Center"  Margin="2"          
-                    OwnerComponent="{Binding}" ScriptFile="{Binding ScriptFile}"/>
+                    OwnerComponent="{Binding Model}" ScriptFile="{Binding Model.ScriptFile}"/>
         </StackPanel>         
     </HierarchicalDataTemplate>  
 
