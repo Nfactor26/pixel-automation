@@ -1,5 +1,5 @@
 ﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components.Sequences;
+using Pixel.Automation.Core.Components;
 using System.Linq;
 
 namespace Pixel.Automation.Editor.Core.ViewModels
@@ -17,7 +17,7 @@ namespace Pixel.Automation.Editor.Core.ViewModels
 
         public void AddParallelBlock()
         {
-            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{(this.Model as Entity).Components.Count() + 1}" });
+            base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{(this.Model as Entity).Components.Count() + 1}" });
         }
     }
 }
