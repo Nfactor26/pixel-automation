@@ -10,7 +10,7 @@
     <converters:BitmapConverter x:Key="bitMapConverter"/>
    
     <HierarchicalDataTemplate x:Key="ControlTemplate" ItemsSource="{Binding ComponentCollection}">        
-                <DockPanel LastChildFill="True" MinWidth="220" Width="220" Grid.Row="2"
+                <DockPanel LastChildFill="True" MinWidth="220" Width="224" Grid.Row="2"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="True">
             <Image DockPanel.Dock="Left" Margin="10" Source="{Binding Model.ControlDescription.ControlImage, Converter={StaticResource bitMapConverter}}"
                         HorizontalAlignment="Center" Stretch="Uniform" 
