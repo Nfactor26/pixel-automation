@@ -69,7 +69,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         }
 
 
-        Argument attachTarget = new InArgument<ApplicationWindow>();
+        Argument attachTarget = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = string.Empty };
         /// <summary>
         /// Details of the target application to be attached to. Details will vary based on AttachMode.
         /// For e.g. if AttachMode is AttachToExecutable, you need to specify the name of the executable. However, if AttachMode is AttachToWindow, 

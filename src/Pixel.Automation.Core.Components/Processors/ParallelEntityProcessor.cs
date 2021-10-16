@@ -56,13 +56,13 @@ namespace Pixel.Automation.Core.Components.Processors
                 return;
             }
 
-            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
-            base.AddComponent(new SequenceEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+            base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+            base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
         }
 
         public override Entity AddComponent(IComponent component)
         {
-            if(component is SequenceEntity sequenceEntity)
+            if(component is PlaceHolderEntity sequenceEntity)
             {
                 base.AddComponent(sequenceEntity);
             }

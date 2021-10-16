@@ -21,7 +21,7 @@
     
     <HierarchicalDataTemplate x:Key="Entity" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
@@ -62,7 +62,7 @@
 
     <HierarchicalDataTemplate x:Key="EntityNoDelete" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
@@ -99,7 +99,7 @@
 
     <HierarchicalDataTemplate x:Key="EntityProcessor" ItemsSource="{Binding ComponentCollection}">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        IsHitTestVisible="True">
@@ -143,7 +143,7 @@
 
     <DataTemplate x:Key="ActorComponent">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
@@ -191,7 +191,7 @@
 
     <DataTemplate x:Key="ServiceComponent" >
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" dd:DragDrop.IsDragSource="True"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
                 Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel Grid.Row="0" LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        IsHitTestVisible="True">
@@ -229,7 +229,7 @@
 
     <DataTemplate x:Key="PrefabTemplate">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="220" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        Background="White" IsHitTestVisible="True">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
@@ -282,7 +282,7 @@
         <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" Margin="4" 
                    Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
             <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal">
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,0,4,0">
                 <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,2,0"
                                                     cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
                                                     Style="{DynamicResource EditControlButtonStyle}" ToolTip="Run" 
@@ -317,7 +317,7 @@
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                       IsHitTestVisible="True">
                 <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal">
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,0,4,0">
                     <Button x:Name="RunProcessor" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,2,0"
                                                     cal:Message.Attach="[Event Click] = [Action RunComponent($dataContext)]" 
                                                     Style="{DynamicResource EditControlButtonStyle}" ToolTip="Run" 
@@ -349,7 +349,7 @@
                                                                   Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
             </StackPanel>
             <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" Margin="0,0,4,0"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
                                             Height="20" Width="20" ToolTip="Drill In"
@@ -380,7 +380,7 @@
                                                                   Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
             </StackPanel>
             <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" Margin="0,0,4,0"
                                                 HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
                                             Height="20" Width="20" ToolTip="Drill In"

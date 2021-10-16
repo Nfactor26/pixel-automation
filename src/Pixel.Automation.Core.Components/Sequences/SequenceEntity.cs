@@ -14,7 +14,6 @@ namespace Pixel.Automation.Core.Components.Sequences
 {
     [DataContract]
     [Serializable]
-    [ToolBoxItem("Sequence", "Sequences", iconSource: null, description: "Represents a sequence of  steps within an application", tags: new string[] { "Automation Sequence" })]
     public class SequenceEntity : Entity , IApplicationContext , IDisposable
     {
         private readonly ILogger logger = Log.ForContext<SequenceEntity>();
