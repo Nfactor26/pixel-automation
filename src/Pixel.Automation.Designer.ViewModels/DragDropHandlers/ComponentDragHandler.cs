@@ -49,7 +49,19 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     switch (System.Windows.Forms.Control.ModifierKeys)
                     {
                         case System.Windows.Forms.Keys.Alt:
-                            if (targetItem is EntityComponentViewModel && (sourceItem.Model.EntityManager == targetItem.Model.EntityManager))
+                            //It should not be possible to drag an item to one of it's child
+                            var current = targetItem;
+                            while(current.Parent != null)
+                            {
+                                current = current.Parent;
+                                if(current == sourceItem)
+                                {
+                                    return;
+                                }
+                            }
+                            //It should not be possible to drag an item if the targetItem doesn't allow drop or source and target have different EntityManager
+                            if (targetItem is EntityComponentViewModel entityTarget && entityTarget.IsDropTarget && 
+                                (sourceItem.Model.EntityManager == targetItem.Model.EntityManager) && (sourceItem.Parent != targetItem))
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                                 dropInfo.Effects = DragDropEffects.Move;
@@ -65,6 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     }
                     return;
                 }
+
 
                 if (dropInfo.TargetItem is EntityComponentViewModel entityComponentViewModel && !entityComponentViewModel.IsDropTarget)
                 {
