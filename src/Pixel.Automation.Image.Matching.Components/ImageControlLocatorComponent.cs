@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using OpenCvSharp;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
@@ -97,6 +98,12 @@ namespace Pixel.Automation.Image.Matching.Components
             }
         }
 
+        /// <summary>
+        /// Set the theme used by the application. Target image will be retrieved based on the matching theme.
+        /// </summary>
+        [DataMember]
+        public Argument Theme { get; set; } = new InArgument<string>() { CanChangeType = false, CanChangeMode = true, DefaultValue = string.Empty, Mode = ArgumentMode.DataBound };
+
         [NonSerialized]
         private RetryPolicy policy;
 
@@ -105,10 +112,7 @@ namespace Pixel.Automation.Image.Matching.Components
 
         [NonSerialized]
         private IHighlightRectangle highlightRectangle;
-
-        [NonSerialized]
-        private IScreenCapture screenCapture;
-
+      
         public ImageControlLocatorComponent() : base("Image Control Locator", "ImageControlLocator")
         {
             retrySequence = new List<TimeSpan>();
@@ -180,13 +184,7 @@ namespace Pixel.Automation.Image.Matching.Components
 
         private BoundingBox TryFindMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
         {
-            //Make sure the template file exists
-            string templateFile = controlDetails.GetTemplateImage(System.Drawing.Size.Empty);
-            if (!File.Exists(templateFile))
-            {
-                throw new FileNotFoundException($"{templateFile} doesn't exist.");
-            }
-
+            string templateFile = GetTemplateFile(controlDetails);
             CaptureRegionOfInterest(searchArea);
 
             OpenCvSharp.Point matchingPoint;
@@ -222,14 +220,8 @@ namespace Pixel.Automation.Image.Matching.Components
         }
 
         private IEnumerable<BoundingBox> TryFindAllMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
-        {
-            //Make sure the template file exists
-            string templateFile = controlDetails.ControlImage;
-            if (!File.Exists(templateFile))
-            {
-                throw new FileNotFoundException($"{templateFile} doesn't exist.");
-            }
-
+        {         
+            string templateFile = GetTemplateFile(controlDetails);
             CaptureRegionOfInterest(searchArea);
 
             using (Mat templateImg = Cv2.ImRead(templateFile, ImreadModes.Grayscale))
@@ -256,6 +248,39 @@ namespace Pixel.Automation.Image.Matching.Components
 
         }
 
+        private string GetTemplateFile(ImageControlIdentity controlDetails)
+        {
+            var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
+            var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
+          
+            (short width, short height) = screenCapture.GetScreenResolution();            
+
+            string theme = string.Empty;
+            if (this.Theme.IsConfigured())
+            {
+                theme = argumentProcessor.GetValue<string>(this.Theme);
+                logger.Information($"Configured theme is {theme}");
+            }
+            var images = controlDetails.GetImages();
+            ImageDescription targetImage;
+            if(!string.IsNullOrEmpty(theme))
+            {
+                targetImage = images.FirstOrDefault(a => a.Theme.Equals(theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height));                   
+            }
+            else
+            {
+                targetImage = images.FirstOrDefault(a => string.IsNullOrEmpty(a.Theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height));
+            }
+            targetImage = targetImage ?? images.FirstOrDefault(a => a.IsDefault);
+           
+            string templateFile = targetImage?.ControlImage ?? throw new ConfigurationException($"No template image could be located for theme : {theme}, " +
+                $"screen width : {width}, screen height : {height} and default image is not configured.");;
+            if (!File.Exists(templateFile))
+            {
+                throw new FileNotFoundException($"{templateFile} doesn't exist.");
+            }
+            return templateFile;
+        }
 
         private OpenCvSharp.Point GetMatchingPoint(Mat matchData, TemplateMatchModes matchMode, float threshHold)
         {
@@ -321,17 +346,14 @@ namespace Pixel.Automation.Image.Matching.Components
 
         private void CaptureRegionOfInterest(BoundingBox searchArea)
         {
-            if (this.screenCapture == null)
-            {
-                this.screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
-            }
+            var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
             if (searchArea != null)
             {
-                this.screenCapture.CaptureArea(searchArea.GetBoundingBoxAsRectangle()).Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
+                screenCapture.CaptureArea(searchArea.GetBoundingBoxAsRectangle()).Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
             }
             else
             {
-                this.screenCapture.CaptureDesktop().Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
+                screenCapture.CaptureDesktop().Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
             }
         }
 

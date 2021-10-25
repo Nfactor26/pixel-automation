@@ -1,11 +1,14 @@
-﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
-using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Image.Matching.Components
@@ -13,16 +16,80 @@ namespace Pixel.Automation.Image.Matching.Components
     [DataContract]
     [Serializable]
     [ContainerEntity(typeof(ImageControlEntity))]
-    public class ImageControlIdentity : ControlIdentity, IImageControlIdentity
+    public class ImageControlIdentity : NotifyPropertyChanged, IImageControlIdentity
     {
-        [DataMember(Order = 210)]
-        [Description("Name of the source image")]
+        #region  General 
+
+        [DataMember(Order = 10)]
         [Browsable(false)]
-        public string ControlImage { get; set; }
+        public string ApplicationId { get; set; }
+
+        [DataMember(Order = 20)]
+        [Browsable(false)]
+        public string Name { get; set; }
+
+        protected Rectangle boundingBox;
+        [DataMember(Order = 40)]       
+        [Browsable(false)]
+        public Rectangle BoundingBox
+        {
+            get => boundingBox;
+            set => boundingBox = value;
+        }
+
+        #endregion General
+
+        #region Retry Attempts
+
+        [DataMember(Order = 50)]
+        [Description("Number of times to retry if control can't be located in first attempt")]
+        [Display(Name = "Retry Attempts", Order = 10, GroupName = "Retry Settings")]
+        public int RetryAttempts { get; set; } = 5;
+
+        [DataMember(Order = 60)]
+        [Description("Interval in seconds between each retry attempt")]
+        [Display(Name = "Retry Interval", Order = 20, GroupName = "Retry Settings")]
+        public int RetryInterval { get; set; } = 2;
+
+        #endregion Retry Attempts
+
+        #region Clickable Point Offset
+      
+        [DataMember(Order = 70, IsRequired = false)]
+        [Browsable(false)]
+        public  Pivots PivotPoint { get; set; }     
+
+       
+        [DataMember(Order = 80, IsRequired = false)]
+        [Browsable(false)]
+        public double XOffSet { get; set; } 
+
+       
+        [DataMember(Order = 90, IsRequired = false)]
+        [Browsable(false)]
+        public  double YOffSet { get; set; }
+        
+        #endregion Clickable Point Offset
+
+        #region Search Strategy
+
+        [DataMember(Order = 100, IsRequired = false)]
+        [Browsable(false)]
+        public LookupType LookupType { get; set; } = LookupType.Default;
+
+        [DataMember(Order = 110, IsRequired = false)]
+        [Browsable(false)]
+        public SearchScope SearchScope { get; set; } = SearchScope.Descendants;
+
+        [DataMember(Order = 120, IsRequired = false)]
+        [Browsable(false)]
+        public int Index { get; set; } = 1;
+
+        #endregion Search Strategy
 
         [NonSerialized]
         OpenCvSharp.TemplateMatchModes matchStrategy = OpenCvSharp.TemplateMatchModes.CCoeffNormed;
-        [DataMember(Order = 220)]
+        [DataMember(Order = 210)]
         [Display(Name = "Match Strategy", GroupName = "Configuration")]
         [Description("Specifies the way the template must be compared with image regions")]
         public OpenCvSharp.TemplateMatchModes MatchStrategy
@@ -32,7 +99,7 @@ namespace Pixel.Automation.Image.Matching.Components
         }
 
         float thresHold = 0.9f;
-        [DataMember(Order = 230)]
+        [DataMember(Order = 220)]
         [Display(Name = "Threshold", GroupName = "Configuration")]
         [Description("Minimum match percentage for acceptance")]    
         public float ThreshHold
@@ -41,28 +108,52 @@ namespace Pixel.Automation.Image.Matching.Components
             set => thresHold = value;
         }
 
+        [DataMember(Order = 230)]
+        [Browsable(false)]
+        public List<ImageDescription> ControlImages { get; set; } = new ();
+
+        [DataMember(Order = 1000, IsRequired = false)]
+        [Browsable(false)]
+        public IControlIdentity Next { get; set; }
+
         public ImageControlIdentity() : base()
         {
 
         }
 
-        /// <summary>
-        /// Get the template image for a given screen resolution
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        public string GetTemplateImage(Size size)
+        public IEnumerable<ImageDescription> GetImages()
         {
-            return this.ControlImage;
+            return this.ControlImages;
         }
 
-        public override object Clone()
+        public void AddImage(ImageDescription imageDescription)
+        {            
+            if(!this.ControlImages.Any(a => a.ControlImage.Equals(imageDescription.ControlImage)))
+            {
+                this.ControlImages.Add(imageDescription);
+            }
+        }
+
+        public void DeleteImage(ImageDescription imageDescription)
+        {
+            var imageToDelete = this.ControlImages.FirstOrDefault(a => a.ControlImage.Equals(imageDescription.ControlImage));
+            if(imageToDelete != null)
+            {
+                this.ControlImages.Remove(imageToDelete);
+            }
+        }
+
+        public string GetControlName()
+        {
+            return this.Name;
+        }
+
+        public object Clone()
         {
             ImageControlIdentity clone = new ImageControlIdentity()
             {
                 Name = this.Name,
-                ApplicationId = this.ApplicationId,
-                ControlImage = this.ControlImage,
+                ApplicationId = this.ApplicationId,              
                 BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
@@ -72,16 +163,19 @@ namespace Pixel.Automation.Image.Matching.Components
                 SearchScope = this.SearchScope,
                 MatchStrategy = this.MatchStrategy,
                 ThreshHold = this.ThreshHold,
-                Next = this.Next?.Clone() as ImageControlIdentity
-
+                ControlImages = new List<ImageDescription>()
             };
+            foreach(var imageDescription in this.ControlImages)
+            {
+                clone.ControlImages.Add(imageDescription.Clone() as ImageDescription);
+            }
+
             return clone;
         }
 
         public override string ToString()
         {
-            return $"{this.Name} -> MatchStrategy:{this.matchStrategy}|Threshold:{this.thresHold}|ControlImage:{Path.GetFileName(this.ControlImage)}";
-        }
-
+            return $"{this.Name} -> MatchStrategy:{this.matchStrategy}|Threshold:{this.thresHold}";
+        }       
     }
 }

@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -30,7 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
     public class ControlExplorerViewModel : Screen, IApplicationAware, IHandle<IEnumerable<ScrapedControl>>
     {
         private readonly ILogger logger = Log.ForContext<ControlExplorerViewModel>();
-        private readonly IControlEditor controlEditor;
+        private readonly IControlEditorFactory controlEditorFactory;     
         private readonly IEventAggregator eventAggregator;
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
@@ -65,14 +66,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="eventAggregator"></param>
         /// <param name="controlEditor"></param>
         /// <param name="applicationDataManager"></param>
-        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditor controlEditor,
+        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditorFactory controlEditorFactory,
             IApplicationDataManager applicationDataManager)
         {
             this.DisplayName = "Control Explorer";
             this.windowManager = windowManager;           
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnPublishedThread(this);
-            this.controlEditor = controlEditor;
+            this.controlEditorFactory = controlEditorFactory;
             this.applicationDataManager = applicationDataManager;
 
             CreateCollectionView();
@@ -219,6 +220,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             
             //Make a copy of ControlDescription that is opened for edit
             var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
+            copyOfControlToEdit.ControlId = controlToEdit.ControlId;
+            var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
             controlEditor.Initialize(copyOfControlToEdit);
             var result = await windowManager.ShowDialogAsync(controlEditor);
             //if save was clicked, assign back changes in ControlDetails to controlToEdit.
@@ -334,6 +337,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(stream);
                     controlDescription.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(controlDescription, stream);
+                    if (controlDescription.ControlDetails is IImageControlIdentity imageControlIdentity)
+                    {
+                        var imageDescription = new ImageDescription()
+                        {
+                            ControlImage = controlDescription.ControlImage,
+                            PivotPoint = Core.Enums.Pivots.Center,
+                            ScreenWidth = (short)SystemParameters.PrimaryScreenWidth, 
+                            ScreenHeight = (short)SystemParameters.PrimaryScreenHeight
+                        };
+                        imageControlIdentity.AddImage(imageDescription);
+                    }
                 }
                 return;
             }
@@ -379,10 +393,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         var controlDescription = new ControlDescription(control);
                         ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
                         controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);            
 
                         //save the captured control details                        
-                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);                      
                         await SaveControlDetails(controlDescriptionViewModel, false);
                         this.Controls.Add(controlDescriptionViewModel);
 

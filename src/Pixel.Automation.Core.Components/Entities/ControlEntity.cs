@@ -37,7 +37,7 @@ namespace Pixel.Automation.Core.Components
         [DisplayName("Search Root")]
         [Category("Control Details")]
         [Browsable(true)]
-        public Argument SearchRoot { get; set; } = new InArgument<UIControl>()
+        public virtual Argument SearchRoot { get; set; } = new InArgument<UIControl>()
         {
             Mode = ArgumentMode.DataBound,
             CanChangeType = false

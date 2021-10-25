@@ -94,7 +94,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         /// <summary>
-        /// Sae the control image in database
+        /// Save the control image in database
         /// </summary>
         /// <param name="controlImage">Metadata for the image</param>
         /// <param name="imageFile">Image file</param>
@@ -120,5 +120,25 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete an image from the database
+        /// </summary>
+        /// <param name="controlImage"></param>
+        /// <returns></returns>
+        [Route("image/delete")]
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] ControlImageMetaData controlImage)
+        {
+            try
+            {
+                await controlRepository.DeleteImageAsync(controlImage);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

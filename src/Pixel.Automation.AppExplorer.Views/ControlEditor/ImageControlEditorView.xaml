@@ -1,0 +1,173 @@
+﻿<Controls:MetroWindow x:Class="Pixel.Automation.AppExplorer.Views.ControlEditor.ImageControlEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.AppExplorer.Views.ControlEditor"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:cal="http://www.caliburnproject.org" cal:Bind.AtDesignTime="True"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" ResizeMode="NoResize"
+             mc:Ignorable="d"  WindowStartupLocation="CenterScreen"  GlowBrush="{DynamicResource AccentColorBrush}"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Controls:MetroWindow.Resources>
+
+        <ResourceDictionary>
+
+            <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
+            <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
+
+            <DataTemplate x:Key="ImageDescriptionTemplate">
+                <Border x:Name="brdContainer"  BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" Background="{x:Null}" Width="180" Height="60" Margin="0,0,0,15">
+                    <Label Content="{Binding DisplayName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <DataTemplate.Triggers>                    
+                    <DataTrigger Binding="{Binding
+                            RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type ListBoxItem}},
+                                Path=IsSelected}" Value="True">
+                        <Setter TargetName="brdContainer" Property="Background" Value="{DynamicResource MahApps.Brushes.Accent4}"/>
+                        <Setter TargetName="brdContainer" Property="BorderThickness" Value="2"/>                                       
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=IsLoopAware}" Value="True">
+                        <Setter TargetName="brdContainer" Property="Background" Value="{DynamicResource MahApps.Brushes.Accent3}"/>
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+            
+        </ResourceDictionary>
+
+    </Controls:MetroWindow.Resources>
+
+    <Grid Background="{DynamicResource MahApps.Brushes.Control.Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="7*"></ColumnDefinition>
+                <ColumnDefinition Width="2"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="2"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+
+                <StackPanel Orientation="Vertical" Grid.Column="0">
+                    <Label Content="Control Images" Padding="0" Margin="10,5,0,5"/>
+                    <StackPanel x:Name="ToolBar" Orientation="Horizontal" Margin="5,5,5,0" Grid.Row="0">                    
+                        <Button x:Name="AddImageFromFile" Margin="4,0,4,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Add image from file"
+                                            cal:Message.Attach="[Event Click] = [Action AddImageFromFile()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:BoxIcons RegularImageAdd}"/>
+                        <!--<Button x:Name="AddImageFromSnapShot" Margin="0,0,4,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Capture imgae"
+                                            cal:Message.Attach="[Event Click] = [Action AddImageFromSnapShot()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Unicons CameraPlus}"/>-->                       
+                        <Button x:Name="DeleteImage" Margin="0,0,4,0" HorizontalAlignment="Right" 
+                                            Height="20" Width="20" ToolTip="Delete Image"
+                                            cal:Message.Attach="[Event Click] = [Action DeleteImage()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Unicons ImageMinus}" IsEnabled="{Binding CanDeleteImage}"/>
+                        <Button x:Name="ConfigureControl" Margin="0,0,4,0" HorizontalAlignment="Right"
+                                 Height="20" Width="20" ToolTip="Configure Control"
+                                            cal:Message.Attach="[Event Click] = [Action ConfigureControl()]"                       
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material CogOutline}"/>                             
+                    </StackPanel>                  
+                    <ListBox x:Name="ControlImages" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
+                                 ItemTemplate="{StaticResource ImageDescriptionTemplate}" SelectedItem="{Binding SelectedImage}" ScrollViewer.PanningMode="VerticalOnly" ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      Grid.Column="0" Margin="10">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"  IsItemsHost="True" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                                Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+
+                </StackPanel>
+
+
+                <Border Grid.Column="1" Width="2" BorderThickness="2" BorderBrush="#FFF0F0F0" VerticalAlignment="Stretch"></Border>
+
+                <Canvas x:Name="DesignerCanvas" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource MahApps.Brushes.Control.Background}"  cal:Message.Attach="[Event MouseLeftButtonDown] = [Action ChangeOffset($eventArgs, $source)]"
+                        DataContext="{Binding}" ClipToBounds="True" Tag="{Binding Path=DataContext,RelativeSource={RelativeSource Self}}" SnapsToDevicePixels="True">
+
+                    <Canvas.ContextMenu>
+                        <ContextMenu x:Name="CanvasMenu" cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+
+                            <MenuItem x:Name="changePivot" Header="Change Pivot">
+                                <MenuItem x:Name="Center" Header="Center"   cal:Message.Attach="ChangePivotPoint('Center')"></MenuItem>
+                                <MenuItem x:Name="TopLeft" Header="Top Left" cal:Message.Attach="ChangePivotPoint('TopLeft')"></MenuItem>
+                                <MenuItem x:Name="TopRight" Header="Top Right" cal:Message.Attach="ChangePivotPoint('TopRight')"></MenuItem>
+                                <MenuItem x:Name="BottomLeft" Header="Bottom Left" cal:Message.Attach="ChangePivotPoint('BottomLeft')"></MenuItem>
+                                <MenuItem x:Name="BottomRight" Header="Bottom Right" cal:Message.Attach="ChangePivotPoint('BottomRight')"></MenuItem>
+                            </MenuItem>
+                        </ContextMenu>
+                    </Canvas.ContextMenu>
+
+                    <Grid Width="{Binding ActualWidth, ElementName=DesignerCanvas}"  Height="{Binding ActualHeight, ElementName=DesignerCanvas}">
+                        <StackPanel x:Name="ImageHolder"  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Visibility="{Binding IsImageSelected, Converter={StaticResource boolToVisibilityConverter}}" >
+                            <Border x:Name="ControlBorder" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="2" CornerRadius="4">
+                                <Image x:Name="ControlImage" Source="{Binding SelectedImage.ImageSource}" Stretch="None" Margin="5" 
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <ContentControl x:Name="OffsetPointer" Width="32" MaxWidth="32" Panel.ZIndex="1000" Visibility="{Binding IsOffsetPoiniterVisible}"
+                      Height="32"  MaxHeight="32"
+                      Canvas.Left="{Binding Offset.X}"
+                      Canvas.Top="{Binding Offset.Y}"
+                      Padding="0" ToolTip="Offset">
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="Transparent" BorderThickness="2">
+                            <Image IsHitTestVisible="False"  Source="/Pixel.Automation.Designer.Views;component/Images/OffsetPicker.Png" />
+                        </Border>
+                    </ContentControl>
+
+                </Canvas>
+
+            </Grid>
+
+            <Border Grid.Column="1" Width="2" BorderThickness="2" BorderBrush="#FFF0F0F0" VerticalAlignment="Stretch" Margin="0,10,0,10"></Border>
+
+            <Grid Grid.Column="2" Margin="5,0,0,0">
+                <xctk:PropertyGrid x:Name="propertyGrid" SelectedObject="{Binding SelectedObject}"  ShowSortOptions="True" IsCategorized="True"
+                                   PropertyContainerStyle="{StaticResource PropertyItemStyle}" Style="{StaticResource PropertyGridStyle}"
+                                   BorderThickness="0"  ShowSearchBox="True"/>
+            </Grid>
+
+        </Grid>
+
+        <DockPanel Grid.Row="1" LastChildFill="False">
+            <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Button x:Name="Cancel" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
+            <Button x:Name="Save" Content="SAVE" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
+        </DockPanel>
+    </Grid>
+</Controls:MetroWindow>

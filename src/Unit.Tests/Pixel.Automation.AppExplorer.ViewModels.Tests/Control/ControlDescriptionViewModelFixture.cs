@@ -15,9 +15,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatControlDescriptionViewModelCanBeCorrectlyInitialized()
         {
-            var controlIdentity = Substitute.For<IImageControlIdentity>();
-            controlIdentity.ApplicationId.Returns("application-id");
-            controlIdentity.ControlImage.Returns("SaveButton.Png");
+            var controlIdentity = Substitute.For<IControlIdentity>();
+            controlIdentity.ApplicationId.Returns("application-id");         
             var controlDescription = new ControlDescription(controlIdentity)
             {
                 ControlName = "SaveButton",

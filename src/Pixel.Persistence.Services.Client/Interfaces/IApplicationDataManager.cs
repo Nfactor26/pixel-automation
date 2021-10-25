@@ -48,12 +48,20 @@ namespace Pixel.Persistence.Services.Client
         Task AddOrUpdateControlAsync(ControlDescription controlDescription);
       
         /// <summary>
-        /// Add or update control image with a given resolution
+        /// Add or update control image for control
         /// </summary>
         /// <param name="controlDescription"></param>
         /// <param name="stream"></param>      
         /// <returns></returns>
-        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream);       
+        Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream);
+
+        /// <summary>
+        /// Delete specified imageFile for control
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <param name="imageFile"></param>
+        /// <returns></returns>
+        Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile);
 
         /// <summary>
         /// Load all the automatin project from disk and return loaded projects

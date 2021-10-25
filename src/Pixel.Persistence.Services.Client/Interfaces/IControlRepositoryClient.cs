@@ -28,5 +28,13 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="resolution"></param>
         /// <returns></returns>
         Task AddOrUpdateControlImage(ControlDescription controlDescription, string imageFile);
+
+        /// <summary>
+        /// Delete specified control image for a control
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <param name="imageFile"></param>
+        /// <returns></returns>
+        Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile);
     }
 }

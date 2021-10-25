@@ -258,6 +258,19 @@ namespace Pixel.Persistence.Services.Client
             return saveLocation;
         }
 
+        public async Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile)
+        {
+           if(!File.Exists(imageFile))
+           {
+                throw new FileNotFoundException($"{imageFile} doesn't exist");
+           }
+           File.Delete(imageFile);
+           if (IsOnlineMode)
+           {
+                await controlRepositoryClient.DeleteControlImageAsync(controlDescription, imageFile);
+           }
+        }
+
         public IEnumerable<ControlDescription> GetAllControls(ApplicationDescription applicationDescription)
         {
             foreach (var controlId in applicationDescription.AvailableControls)

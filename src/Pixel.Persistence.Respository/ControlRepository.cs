@@ -83,7 +83,7 @@ namespace Pixel.Persistence.Respository
         public async Task DeleteImageAsync(ControlImageMetaData imageMetaData)
         {
             Guard.Argument(imageMetaData, nameof(imageMetaData)).NotNull();
-            var filter = CreateImageFilter(imageMetaData.ApplicationId, imageMetaData.ControlId);
+            var filter = CreateImageFilter(imageMetaData.FileName, imageMetaData.ApplicationId, imageMetaData.ControlId);
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
             {
@@ -188,6 +188,21 @@ namespace Pixel.Persistence.Respository
         {
             var filterBuilder = Builders<GridFSFileInfo>.Filter;
             var filter = filterBuilder.Eq(x => x.Metadata["applicationId"], applicationId);
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["controlId"], controlId));
+            return filter;
+        }
+
+        /// <summary>
+        /// Create filter condition for image with given applicationId and controlId.        
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="controlId"></param>
+        /// <returns></returns>
+        private FilterDefinition<GridFSFileInfo> CreateImageFilter(string imageName, string applicationId, string controlId)
+        {
+            var filterBuilder = Builders<GridFSFileInfo>.Filter;
+            var filter = filterBuilder.Eq(x => x.Filename, imageName);
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["applicationId"], applicationId));
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["controlId"], controlId));
             return filter;
         }

@@ -1,5 +1,7 @@
 ﻿using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.Models;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Pixel.Automation.Core.Interfaces
@@ -96,9 +98,10 @@ namespace Pixel.Automation.Core.Interfaces
 
     public interface IImageControlIdentity : IControlIdentity
     {
-        /// <summary>
-        /// Relative path of the ControlImage for the control
-        /// </summary>
-        string ControlImage { get; set; }
+        void AddImage(ImageDescription imageDescription);
+
+        void DeleteImage(ImageDescription imageDescription);
+
+        IEnumerable<ImageDescription> GetImages();
     }
 }
