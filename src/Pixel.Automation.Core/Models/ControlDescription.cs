@@ -40,11 +40,7 @@ namespace Pixel.Automation.Core.Models
             get => controlImage;
             set
             {
-                controlImage = value;  
-                if(ControlDetails is IImageControlIdentity imageControl)
-                {
-                    imageControl.ControlImage = value;
-                }
+                controlImage = value;                  
             }
         }
 

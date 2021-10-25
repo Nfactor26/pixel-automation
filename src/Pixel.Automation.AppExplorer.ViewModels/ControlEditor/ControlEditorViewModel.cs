@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
 {
-    public class ControlEditorViewModel : Screen, IControlEditor
+    public class ControlEditorViewModel : ControlEditorBaseViewModel, IControlEditor
     {
 
         IControlIdentity rootControl;
@@ -71,33 +71,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
                 NotifyOfPropertyChange(() => ImageSource);
             }
         }
-
-        FrameworkElement view;
-
-        System.Drawing.Point pivotPoint;
-        System.Drawing.Point offset;
-        System.Drawing.Point absOffset;
-        public System.Drawing.Point Offset
-        {
-            get
-            {
-                return absOffset;
-            }
-        }
-
-        Rectangle templateBoundingBox;
-
-        Visibility isOffsetPointerVisible = Visibility.Collapsed;
-        public Visibility IsOffsetPoiniterVisible
-        {
-            get => isOffsetPointerVisible;
-            set
-            {
-                isOffsetPointerVisible = value;
-                NotifyOfPropertyChange(() => IsOffsetPoiniterVisible);
-            }
-        }
-
+      
         public ControlEditorViewModel()
         {
             this.DisplayName = "Control Editor";
@@ -128,10 +102,33 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             }
         }
 
+        protected override (double width, double height) GetImageDimension()
+        {
+            return (ImageSource.Width, ImageSource.Height);
+        }
+
+        protected override System.Drawing.Point GetOffSet()
+        {
+            return new System.Drawing.Point((int)this.rootControl.XOffSet, (int)this.rootControl.YOffSet);
+        }
+
+        protected override void SetOffSet(System.Drawing.Point offSet)
+        {
+            this.rootControl.XOffSet = offSet.X;
+            this.rootControl.YOffSet = offSet.Y;
+        }
+
+        protected override Pivots GetPivotPoint()
+        {
+            return this.rootControl.PivotPoint;
+        }
+
+        protected override void SetPivotPoint(Pivots pivotPoint)
+        {
+            this.rootControl.PivotPoint = pivotPoint;
+        }
 
         #region Control Hierarchy
-
-
 
         public void RemoveFromControlHierarchy(IControlIdentity controlToRemove)
         {
@@ -201,138 +198,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
         }
 
         #endregion Control Hierarchy
-
-        #region Offset Editor
-
-        private void ShowOffSetPointer()
-        {
-            FrameworkElement canvas = this.view.FindName("DesignerCanvas") as FrameworkElement;
-            FrameworkElement imageHolder = this.view.FindName("ControlImage") as FrameworkElement;
-
-            this.templateBoundingBox = new Rectangle(Convert.ToInt32((canvas.ActualWidth - imageSource.Width) / 2), Convert.ToInt32((canvas.ActualHeight - imageSource.Height) / 2), Convert.ToInt32(imageSource.Width), Convert.ToInt32(imageSource.Height));
-
-            this.offset = new System.Drawing.Point((int)leafControl.XOffSet, (int)leafControl.YOffSet);
-            UpdatePivotPoint();
-            this.absOffset = new System.Drawing.Point(pivotPoint.X + offset.X - 16, pivotPoint.Y + offset.Y - 16);
-            NotifyOfPropertyChange(() => Offset);
-        }
-
-        private void UpdatePivotPoint()
-        {
-            //Note : Don't delete 
-
-            //Use this if you want to allow offset within the bounds of control
-            //switch (leafControl.PivotPoint)
-            //{
-            //    case TestSuite.Models.Pivots.Center:
-            //        this.pivotPoint = new System.Drawing.Point((this.templateBoundingBox.X + this.templateBoundingBox.Width / 2), (this.templateBoundingBox.Y + this.templateBoundingBox.Height / 2));
-            //        break;
-            //    case TestSuite.Models.Pivots.TopLeft:
-            //        this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X, this.templateBoundingBox.Y);
-            //        break;
-            //    case TestSuite.Models.Pivots.TopRight:
-            //        this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X + this.templateBoundingBox.Width, this.templateBoundingBox.Y);
-            //        break;
-            //    case TestSuite.Models.Pivots.BottomLeft:
-            //        this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X, this.templateBoundingBox.Y + this.templateBoundingBox.Height);
-            //        break;
-            //    case TestSuite.Models.Pivots.BottomRight:
-            //        this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X + this.templateBoundingBox.Width, this.templateBoundingBox.Y + this.templateBoundingBox.Height);
-            //        break;
-            //}
-
-            switch (leafControl.PivotPoint)
-            {
-                case Pivots.Center:
-                    this.pivotPoint = new System.Drawing.Point((this.templateBoundingBox.X + this.templateBoundingBox.Width / 2), (this.templateBoundingBox.Y + this.templateBoundingBox.Height / 2));
-                    break;
-                case Pivots.TopLeft:
-                    this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X, this.templateBoundingBox.Y);
-                    break;
-                case Pivots.TopRight:
-                    this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X + this.templateBoundingBox.Width, this.templateBoundingBox.Y);
-                    break;
-                case Pivots.BottomLeft:
-                    this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X, this.templateBoundingBox.Y + this.templateBoundingBox.Height);
-                    break;
-                case Pivots.BottomRight:
-                    this.pivotPoint = new System.Drawing.Point(this.templateBoundingBox.X + this.templateBoundingBox.Width, this.templateBoundingBox.Y + this.templateBoundingBox.Height);
-                    break;
-            }
-
-        }
-
-        public void ChangePivotPoint(string name)
-        {
-            Guard.Argument(name).NotNull().NotEmpty();
-            switch (name)
-            {
-                case "Center":
-                    leafControl.PivotPoint = Pivots.Center;
-                    break;
-                case "TopLeft":
-                    leafControl.PivotPoint = Pivots.TopLeft;
-                    break;
-                case "TopRight":
-                    leafControl.PivotPoint = Pivots.TopRight;
-                    break;
-                case "BottomLeft":
-                    leafControl.PivotPoint = Pivots.BottomLeft;
-                    break;
-                case "BottomRight":
-                    leafControl.PivotPoint = Pivots.BottomRight;
-                    break;
-
-            }
-            offset.X = 0;
-            offset.Y = 0;
-
-            UpdatePivotPoint();
-
-            absOffset.X = pivotPoint.X + offset.X - 16;
-            absOffset.Y = pivotPoint.Y + offset.Y - 16;
-
-
-            leafControl.XOffSet = offset.X;
-            leafControl.YOffSet = offset.Y;
-
-            FrameworkElement offsetPointer = view.FindName("OffsetPointer") as FrameworkElement;
-            offsetPointer.SetValue(Canvas.LeftProperty, (double)this.Offset.X);
-            offsetPointer.SetValue(Canvas.TopProperty, (double)this.Offset.Y);
-
-
-        }
-
-        public void ChangeOffset(MouseEventArgs args, IInputElement sender)
-        {
-            System.Windows.Point mouseDownPoint = args.GetPosition(sender);
-
-            //Note : Don't delete 
-
-            //Use this if you want to allow offset within the bounds of control
-            //offset.X = this.templateBoundingBox.X + (int)mouseDownPoint.X - pivotPoint.X;
-            //offset.Y = this.templateBoundingBox.Y + (int)mouseDownPoint.Y - pivotPoint.Y;
-
-            offset.X = (int)mouseDownPoint.X - pivotPoint.X;
-            offset.Y = (int)mouseDownPoint.Y - pivotPoint.Y;
-
-
-            leafControl.XOffSet = offset.X;
-            leafControl.YOffSet = offset.Y;
-
-
-
-            absOffset.X = pivotPoint.X + offset.X - 16;
-            absOffset.Y = pivotPoint.Y + offset.Y - 16;
-            NotifyOfPropertyChange(() => Offset);
-
-            FrameworkElement offsetPointer = view.FindName("OffsetPointer") as FrameworkElement;
-            offsetPointer.SetValue(Canvas.LeftProperty, (double)this.Offset.X);
-            offsetPointer.SetValue(Canvas.TopProperty, (double)this.Offset.Y);
-        }
-
-        #endregion Offset Editor
-
+            
         public async void Save()
         {
             CleanUp();
@@ -352,6 +218,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             this.rootControl = null;
             this.selectedControl = null;
             this.imageSource = null;
-        }
+        }     
     }
 }

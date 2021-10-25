@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 {
-    class MockControlIdentity : IImageControlIdentity
+    class MockControlIdentity : IControlIdentity
     {
         public string ControlImage { get; set; }
         public string ApplicationId { get; set; }

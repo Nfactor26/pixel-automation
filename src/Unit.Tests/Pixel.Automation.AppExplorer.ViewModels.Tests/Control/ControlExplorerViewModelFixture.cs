@@ -20,6 +20,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
     [TestFixture]
     public class ControlExplorerViewModelFixture
     {
+        private IControlEditorFactory controlEditorFactory;
         private IControlEditor controlEditor;
         private IEventAggregator eventAggregator;
         private IWindowManager windowManager;
@@ -28,10 +29,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
+            controlEditorFactory = Substitute.For<IControlEditorFactory>();
             controlEditor = Substitute.For<IControlEditor>();
             eventAggregator = Substitute.For<IEventAggregator>();
             windowManager = Substitute.For<IWindowManager>();
-            applicationDataManager = Substitute.For<IApplicationDataManager>();         
+            applicationDataManager = Substitute.For<IApplicationDataManager>();
+            controlEditorFactory.CreateControlEditor(Arg.Any<IControlIdentity>()).Returns(controlEditor);
                       
             var controlDescription = CreateControl("SaveButton");
             applicationDataManager.GetAllControls(Arg.Any<ApplicationDescription>()).Returns(new [] { controlDescription });
@@ -53,7 +56,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatControlExplorerViewModelCanBeInitializedCorrectly()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
 
             Assert.AreEqual(0, controlExplorer.Controls.Count);
             Assert.IsNull(controlExplorer.SelectedControl);
@@ -65,7 +68,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanToggleRename()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
             var controlToRename = controlExplorer.Controls.First();
@@ -84,7 +87,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatControlsAreLoadedWhenApplicationIsActivated()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
 
@@ -108,7 +111,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {         
             windowManager.ShowDialogAsync(Arg.Any<IControlEditor>()).Returns(wasSaved);
 
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
             var controlToConfigure = controlExplorer.Controls.First();
@@ -131,7 +134,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatPropertyGridDisplayControlDetailsToBeEditedWhenEditOptionIsSelected()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
@@ -148,7 +151,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatExistingControlCanBeCloned()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
@@ -169,7 +172,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatControlExplorerCanProcessScrapedControls()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
 
@@ -200,7 +203,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatCanSaveControlDetails()
         {
-            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditor, applicationDataManager);
+            var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();

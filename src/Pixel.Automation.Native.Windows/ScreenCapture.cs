@@ -49,7 +49,7 @@ namespace Pixel.Automation.Native.Windows
             var hBmp = CreateCompatibleBitmap(hSrce, sz.Width, sz.Height);
             var hOldBmp = SelectObject(hDest, hBmp);
             BitBlt(hDest, 0, 0, sz.Width, sz.Height, hSrce, 0, 0, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
-            Bitmap bmp = System.Drawing.Image.FromHbitmap(hBmp);
+            Bitmap bmp =  Image.FromHbitmap(hBmp);
             SelectObject(hDest, hOldBmp);
             DeleteObject(hBmp);
             DeleteDC(hDest);
@@ -60,10 +60,16 @@ namespace Pixel.Automation.Native.Windows
         public virtual Bitmap CaptureArea(Rectangle rectangle)
         {
             var bmp = new Bitmap(rectangle.Width, rectangle.Height, PixelFormat.Format32bppArgb);
-            var graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(rectangle.Left, rectangle.Top, 0, 0, new Size(rectangle.Width, rectangle.Height), CopyPixelOperation.SourceCopy);
+            using (var graphics = Graphics.FromImage(bmp))
+            {
+                graphics.CopyFromScreen(rectangle.Left, rectangle.Top, 0, 0, new Size(rectangle.Width, rectangle.Height), CopyPixelOperation.SourceCopy);
+            }
             return bmp;
         }
 
+        public (short width, short height) GetScreenResolution()
+        {
+            return ((short)System.Windows.SystemParameters.PrimaryScreenWidth, (short)System.Windows.SystemParameters.PrimaryScreenHeight);
+        }
     }
 }

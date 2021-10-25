@@ -26,7 +26,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<INewProject>().To<NewProjectViewModel>();
             Kernel.Bind<IEditorFactory>().To<EditorFactory>();        
           
-            Kernel.Bind<IControlEditor>().To<ControlEditorViewModel>();
+            Kernel.Bind<IControlEditorFactory>().To<ControlEditorFactory>();
            
             Kernel.Bind<IPrefabBuilder>().To<PrefabBuilderViewModel>();
             Kernel.Bind<IPrefabBuilderFactory>().ToFactory();

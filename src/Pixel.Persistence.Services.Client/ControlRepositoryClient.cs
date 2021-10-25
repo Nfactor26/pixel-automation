@@ -80,5 +80,25 @@ namespace Pixel.Persistence.Services.Client
             var result = await client.ExecuteAsync(restRequest);
             result.EnsureSuccess();
         }
+
+        public async Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile)
+        {
+            Guard.Argument(controlDescription).NotNull();
+            Guard.Argument(imageFile).NotNull().NotEmpty();
+            string fileName = Path.GetFileName(imageFile);
+            logger.Debug("Delete control image {0} for control : {1} with Id : {2}", fileName, controlDescription.ControlName, controlDescription.ControlId);
+
+            RestRequest restRequest = new RestRequest("control/image/delete") { Method = Method.POST };
+            var controlImageMetaData = new ControlImageMetaData()
+            {
+                ApplicationId = controlDescription.ApplicationId,
+                ControlId = controlDescription.ControlId,
+                FileName = fileName
+            };
+            restRequest.AddJsonBody(serializer.Serialize<ControlImageMetaData>(controlImageMetaData));    
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest);
+            result.EnsureSuccess();
+        }
     }
 }

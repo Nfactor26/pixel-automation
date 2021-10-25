@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
@@ -26,6 +25,14 @@ namespace Pixel.Automation.Image.Matching.Components
     [Serializable]    
     public class ImageControlEntity : ControlEntity
     {
+        [DataMember]      
+        [Browsable(false)]
+        public override Argument SearchRoot
+        {
+            get => base.SearchRoot;
+            set => base.SearchRoot = value;
+        }
+
         private ImageSearchScope imageSearchScope = ImageSearchScope.Application;
         [DataMember]
         [Display(Name = "Search scope", GroupName = "Search Strategy", Order = 5)]
@@ -57,8 +64,7 @@ namespace Pixel.Automation.Image.Matching.Components
                 this.imageSearchScope = value;              
                 OnPropertyChanged();
             }
-        }
-        
+        }       
                 
 
         /// <summary>
