@@ -1,5 +1,5 @@
 ﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

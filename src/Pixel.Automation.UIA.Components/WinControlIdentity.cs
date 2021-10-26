@@ -1,12 +1,12 @@
 ﻿extern alias uiaComWrapper;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.UIA.Components.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 
 namespace Pixel.Automation.UIA.Components
 {

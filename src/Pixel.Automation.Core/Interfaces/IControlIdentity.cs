@@ -1,5 +1,5 @@
-﻿using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

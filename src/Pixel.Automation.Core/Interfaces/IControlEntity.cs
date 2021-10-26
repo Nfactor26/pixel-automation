@@ -1,6 +1,6 @@
 ﻿using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
 using System.Collections.Generic;
 
 namespace Pixel.Automation.Core.Interfaces

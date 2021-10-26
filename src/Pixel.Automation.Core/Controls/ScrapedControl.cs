@@ -2,7 +2,7 @@
 using System;
 using System.Drawing;
 
-namespace Pixel.Automation.Core.Models
+namespace Pixel.Automation.Core.Controls
 {
     public class ScrapedControl : IDisposable
     {

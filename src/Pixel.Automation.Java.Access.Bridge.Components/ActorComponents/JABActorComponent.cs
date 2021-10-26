@@ -1,7 +1,7 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Exceptions;
-using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;

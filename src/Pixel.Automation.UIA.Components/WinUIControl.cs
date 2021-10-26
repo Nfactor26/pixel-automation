@@ -1,10 +1,9 @@
 ﻿extern alias uiaComWrapper;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using System.Drawing;
-
+using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {

@@ -2,7 +2,7 @@
 using OpenQA.Selenium.Interactions;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.Controls;
 using Serilog;
 using System;
 using System.ComponentModel;

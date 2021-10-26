@@ -1,8 +1,8 @@
 ﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Polly;
 using Serilog;
 using System;

@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;

@@ -2,6 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;

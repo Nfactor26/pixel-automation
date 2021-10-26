@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

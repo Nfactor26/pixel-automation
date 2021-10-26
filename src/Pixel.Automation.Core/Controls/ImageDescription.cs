@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Core.Models
+namespace Pixel.Automation.Core.Controls
 {
     [DataContract]
     [Serializable]

@@ -1,6 +1,6 @@
 ﻿using Dawn;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
