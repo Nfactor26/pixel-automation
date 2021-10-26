@@ -1,14 +1,13 @@
 ﻿extern alias uiaComWrapper;
-using System.Collections.Generic;
-using uiaComWrapper::System.Windows.Automation;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.Components;
-using System;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
-using System.ComponentModel.DataAnnotations;
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {

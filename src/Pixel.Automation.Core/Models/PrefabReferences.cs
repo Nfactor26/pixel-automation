@@ -10,11 +10,11 @@ namespace Pixel.Automation.Core.Models
     /// </summary>
     [DataContract]
     public class PrefabReferences
-    {       
+    {
         /// <summary>
         /// Collection of PrefabReference i.e. Prefabs in use by AutomationProject
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 10)]
         public List<PrefabReference> References { get; set; } = new List<PrefabReference>();
 
         /// <summary>
@@ -97,19 +97,19 @@ namespace Pixel.Automation.Core.Models
         /// <summary>
         /// ApplicationId to which Prefab belongs
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 10)]
         public string ApplicationId { get; set; }
 
         /// <summary>
         /// Identifier of Prefab
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 20)]
         public string PrefabId { get; set; }
 
         /// <summary>
         /// Version of Prefab in use
         /// </summary>
-        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        [DataMember(IsRequired = false, EmitDefaultValue = false , Order = 30)]
         public PrefabVersion Version { get; set; }
 
         /// <summary>

@@ -5,6 +5,9 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Models
 {
+    /// <summary>
+    /// Project details for the automation project
+    /// </summary>
     [Serializable]
     [DataContract]
     public class AutomationProject
@@ -31,11 +34,18 @@ namespace Pixel.Automation.Core.Models
             get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
         public AutomationProject()
         {
            
         }
 
+        /// <summary>
+        /// Get the name of the project. Spaces are replaced by _ .
+        /// </summary>
+        /// <returns></returns>
         public string GetProjectName()
         {
             return this.Name.Trim().Replace(' ','_');

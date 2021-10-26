@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Web.Selenium.Components;
 using Serilog;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;

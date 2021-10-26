@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pixel.Automation.Core.TestData
+﻿namespace Pixel.Automation.Core.TestData
 {
+    /// <summary>
+    /// Empty data model class with no fields
+    /// </summary>
     public class Empty
     {
     }

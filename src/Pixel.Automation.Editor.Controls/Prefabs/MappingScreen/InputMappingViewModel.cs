@@ -2,7 +2,7 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -2,8 +2,8 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents

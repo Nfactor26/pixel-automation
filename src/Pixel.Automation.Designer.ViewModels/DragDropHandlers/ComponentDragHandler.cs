@@ -2,6 +2,7 @@
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -10,7 +11,6 @@ using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
@@ -109,7 +109,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 }
 
                 //Handle dragging of prefab
-                if (dropInfo.Data is PrefabProject prefabProject && dropInfo.TargetItem is EntityComponentViewModel)
+                if (dropInfo.Data is PrefabProjectViewModel prefabProject && dropInfo.TargetItem is EntityComponentViewModel)
                 {
                     if (dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
                     {
@@ -178,7 +178,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
               
 
-                if (dropInfo.Data is PrefabProject)
+                if (dropInfo.Data is PrefabProjectViewModel)
                 {                  
                     HandlerPrefabDrop(dropInfo);
                     return;
@@ -275,17 +275,17 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         void HandlerPrefabDrop(IDropInfo dropInfo)
         {
-            if(dropInfo.Data is PrefabProject sourceItem && dropInfo.TargetItem is EntityComponentViewModel targetItem)
+            if(dropInfo.Data is PrefabProjectViewModel prefabProjectViewModel && dropInfo.TargetItem is EntityComponentViewModel targetItem)
             {
                 var prefabEntity = new PrefabEntity()
                 {
-                    Name = sourceItem.PrefabName,
-                    PrefabId = sourceItem.PrefabId,
-                    ApplicationId = sourceItem.ApplicationId
+                    Name = prefabProjectViewModel.PrefabName,
+                    PrefabId = prefabProjectViewModel.PrefabId,
+                    ApplicationId = prefabProjectViewModel.ApplicationId
                 };
 
                 targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
-                PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.Model.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, sourceItem, prefabEntity.Id, testCaseEntity?.Id);
+                PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.Model.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, prefabProjectViewModel.PrefabProject, prefabEntity.Id, testCaseEntity?.Id);
                 IWindowManager windowManager = targetItem.Model.EntityManager.GetServiceOfType<IWindowManager>();
                 var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
                 result.ContinueWith(a =>
@@ -300,7 +300,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         }
                         targetItem.AddComponent(prefabEntity);
                     }
-                });             
+                }, scheduler: System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());             
             }          
         }
 

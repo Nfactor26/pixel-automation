@@ -10,7 +10,7 @@ namespace Pixel.Automation.Core.Models
     /// </summary>
     [Serializable]
     [DataContract]
-    public class ApplicationDescription : NotifyPropertyChanged
+    public class ApplicationDescription
     {
         /// <summary>
         /// Unique identifier for the application

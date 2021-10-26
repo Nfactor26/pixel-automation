@@ -1,11 +1,11 @@
 ﻿using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Enums;
+using Serilog;
 using System;
 using System.Collections.Generic;
-using Serilog;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components

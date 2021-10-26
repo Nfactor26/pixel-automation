@@ -1,15 +1,11 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 

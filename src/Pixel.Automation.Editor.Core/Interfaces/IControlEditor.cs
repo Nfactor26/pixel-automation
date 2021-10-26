@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core.Models;
+﻿using Pixel.Automation.Core.Controls;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {

@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.Controls;
 
 namespace Pixel.Automation.Core.Tests.Models
 {

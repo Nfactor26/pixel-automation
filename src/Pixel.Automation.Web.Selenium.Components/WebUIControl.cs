@@ -1,9 +1,9 @@
-﻿using System.Drawing;
-using Dawn;
+﻿using Dawn;
 using OpenQA.Selenium;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
+using System.Drawing;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {

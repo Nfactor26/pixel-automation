@@ -4,10 +4,12 @@ using System.Reflection;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Converter for enums to provide friendly display names
+    /// </summary>
     public class EnumDescriptionTypeConverter : EnumConverter
     {
-        public EnumDescriptionTypeConverter(Type type)
-            : base(type)
+        public EnumDescriptionTypeConverter(Type type) : base(type)
         {
         }
 

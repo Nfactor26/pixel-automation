@@ -6,22 +6,13 @@ using System.IO;
 
 namespace Pixel.Automation.Core
 {
+
+    /// <summary>
+    /// Captures the details of a running application such as process details, name, etc.
+    /// </summary>
     public class ApplicationProcess
     {
-        [NonSerialized]
-        Process process;
-        public Process Process
-        {
-            get
-            {
-                return process;
-            }
-
-            set
-            {
-                process = value;
-            }
-        }
+        public Process Process { get; set; }     
 
         /// <summary>
         /// Name of the process
@@ -62,11 +53,17 @@ namespace Pixel.Automation.Core
             }
         }
 
-
+        /// <summary>
+        /// constructor
+        /// </summary>
         protected ApplicationProcess()
         {
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="process"></param>
         private ApplicationProcess(Process process)
         {
             this.Process = process;
@@ -156,7 +153,7 @@ namespace Pixel.Automation.Core
             if (processes.Length == 0) return Launch(processStartInfo);
             return Attach(processes[0]);
         }
-
+       
         private static string ReplaceLast(string replaceIn, string replace, string with)
         {
             int index = replaceIn.LastIndexOf(replace);
@@ -202,8 +199,9 @@ namespace Pixel.Automation.Core
                 Process.WaitForExit();
                 Process.Dispose();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex, ex.Message);
             }
         }
 

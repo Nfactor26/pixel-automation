@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Core.Components
+namespace Pixel.Automation.Core.Controls
 {
     [DataContract]
     [Serializable]
@@ -101,7 +101,6 @@ namespace Pixel.Automation.Core.Components
 
         #endregion Clickable Point Offset
 
-
         #region Search Strategy
 
         [DataMember(Order = 100)]
@@ -121,7 +120,6 @@ namespace Pixel.Automation.Core.Components
         public int Index { get; set; } = 1;
 
         #endregion Search Strategy
-
 
         [DataMember(Order = 1000)]
         [Browsable(false)]

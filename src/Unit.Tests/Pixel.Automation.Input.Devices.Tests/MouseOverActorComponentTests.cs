@@ -2,9 +2,9 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
