@@ -300,7 +300,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                         }
                         targetItem.AddComponent(prefabEntity);
                     }
-                });             
+                }, scheduler: System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());             
             }          
         }
 
