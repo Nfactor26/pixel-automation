@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Pixel.Automation.Core;
+using System;
 
-namespace Pixel.Automation.Core.Models
+namespace Pixel.Automation.Editor.Core
 {
     public class PropertyMap : NotifyPropertyChanged
     {

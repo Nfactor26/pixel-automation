@@ -1,6 +1,6 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core;
 
 namespace Pixel.Automation.Editor.Controls.Prefabs
 {

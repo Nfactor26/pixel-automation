@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using Pixel.Automation.Core.Models;
 
-namespace Pixel.Automation.Core.Tests.Models
+namespace Pixel.Automation.Editor.Core.Tests
 {
     public class PropertyMapFixture
     {
