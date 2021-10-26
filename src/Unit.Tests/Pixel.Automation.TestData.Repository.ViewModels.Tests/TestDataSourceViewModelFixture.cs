@@ -34,7 +34,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             windowManager.ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>()).Returns(true);
           
-            var typeDefinition = new Editor.Core.TypeDefinition(typeof(Empty));
+            var typeDefinition = new Editor.Core.TypeDefinition(typeof(EmptyModel));
             typeBrowser.GetCreatedType().Returns(typeDefinition);
         }
 
@@ -79,7 +79,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                 ScriptFile = "CodeDataSource.csx",
                 MetaData = new DataSourceConfiguration()
                 {
-                    TargetTypeName = typeof(Empty).Name
+                    TargetTypeName = typeof(EmptyModel).Name
                 }
             };
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, codeDataSource);
@@ -101,8 +101,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             //Assert
             var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
-            Assert.AreEqual(typeof(Empty), result.DataSourceType);
-            Assert.AreEqual("Empty", testDataSourceViewModel.TestDataType);
+            Assert.AreEqual(typeof(EmptyModel), result.DataSourceType);
+            Assert.AreEqual(nameof(EmptyModel), testDataSourceViewModel.TestDataType);
         
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>());
             typeBrowser.Received(1).GetCreatedType();           
@@ -123,7 +123,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             Assert.IsEmpty(errors);
             Assert.IsTrue(couldProcessStage);
             Assert.AreSame(testDataSourceViewModel.TestDataSource, result.TestDataSource);
-            Assert.AreEqual(typeof(Empty), result.DataSourceType);
+            Assert.AreEqual(typeof(EmptyModel), result.DataSourceType);
         }
 
         [TestCase(DataSource.Code, "EmptyDataSource", "Empty", "", "", true)]

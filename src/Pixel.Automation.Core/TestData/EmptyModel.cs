@@ -3,7 +3,7 @@
     /// <summary>
     /// Empty data model class with no fields
     /// </summary>
-    public class Empty
+    public class EmptyModel
     {
     }
 }

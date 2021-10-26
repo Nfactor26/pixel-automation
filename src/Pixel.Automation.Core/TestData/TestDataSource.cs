@@ -20,25 +20,25 @@ namespace Pixel.Automation.Core.TestData
         /// <summary>
         /// Name of the data source
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 20)]
         public string Name { get; set; }
 
         /// <summary>
         /// Script file that is executed to retrieve the data.
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 30)]
         public string ScriptFile { get; set; }
 
         /// <summary>
         /// Identifies the source of the data e.g. code based, csv based
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 40)]
         public DataSource DataSource { get; set; } = DataSource.Code;
 
         /// <summary>
         /// Metadata based on the selected DataSource
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 50)]
         public DataSourceConfiguration MetaData { get; set; }
     }
 
@@ -52,7 +52,7 @@ namespace Pixel.Automation.Core.TestData
         /// <summary>
         /// Name of the data type returned by data source
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 10)]
         public string TargetTypeName { get; set; }
 
     }
@@ -64,14 +64,15 @@ namespace Pixel.Automation.Core.TestData
     [Serializable]
     public class CsvDataSourceConfiguration : DataSourceConfiguration
     {
-        [DataMember]
-        public string TargetFile { get; set; }
+        [DataMember(IsRequired = true, Order = 20)]
+        public bool HasHeaders { get; set; } = true;
 
-        [DataMember]        
+        [DataMember(IsRequired = true, Order = 30)]
         public string Delimiter { get; set; } = ",";
 
-        [DataMember]
-        public bool HasHeaders { get; set; } = true;
+        [DataMember(IsRequired = true, Order = 40)]
+        public string TargetFile { get; set; }
+         
     }
 
     public enum DataSource
