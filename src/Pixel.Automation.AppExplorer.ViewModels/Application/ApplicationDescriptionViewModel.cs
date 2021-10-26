@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -84,12 +85,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <summary>
         /// Controls belonging to the application
         /// </summary>
-        public List<ControlDescriptionViewModel> ControlsCollection { get; set; } = new List<ControlDescriptionViewModel>();
+        public List<ControlDescriptionViewModel> ControlsCollection { get; set; } = new ();
 
         /// <summary>
         /// Prefabs belonging to the application
         /// </summary>
-        public List<PrefabProject> PrefabsCollection { get; set; } = new List<PrefabProject>();
+        public List<PrefabProjectViewModel> PrefabsCollection { get; set; } = new ();
 
         /// <summary>
         /// constructor
@@ -136,7 +137,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// Add a new prefab to the application
         /// </summary>
         /// <param name="prefabProject"></param>
-        public void AddPrefab(PrefabProject prefabProject)
+        public void AddPrefab(PrefabProjectViewModel prefabProject)
         {
             if (!this.AvailablePrefabs.Contains(prefabProject.PrefabId))
             {
@@ -152,7 +153,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// Remove an existing prefab from the application
         /// </summary>
         /// <param name="prefabProject"></param>
-        public void DeletePrefab(PrefabProject prefabProject)
+        public void DeletePrefab(PrefabProjectViewModel prefabProject)
         {
             if (this.AvailablePrefabs.Contains(prefabProject.PrefabId))
             {

@@ -1,6 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -77,12 +78,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             };
 
             var prefab = new PrefabProject() { ApplicationId = "application-id", PrefabId = "prefab-id" };
-            applicationDescriptionViewModel.AddPrefab(prefab);
+            var prefabViewModel = new PrefabProjectViewModel(prefab);
+            applicationDescriptionViewModel.AddPrefab(prefabViewModel);
 
             Assert.AreEqual(1, applicationDescriptionViewModel.AvailablePrefabs.Count);           
             Assert.AreEqual(1, applicationDescriptionViewModel.PrefabsCollection.Count);
 
-            applicationDescriptionViewModel.DeletePrefab(prefab);
+            applicationDescriptionViewModel.DeletePrefab(prefabViewModel);
 
             Assert.AreEqual(0, applicationDescriptionViewModel.AvailablePrefabs.Count);
             Assert.AreEqual(0, applicationDescriptionViewModel.PrefabsCollection.Count);
