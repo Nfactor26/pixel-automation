@@ -9,13 +9,7 @@ namespace Pixel.Automation.Core
     /// Base class for all the application types
     /// </summary>
     public class Application : NotifyPropertyChanged, IApplication
-    {
-        /// <summary>
-        /// Target application details
-        /// </summary>
-        [Browsable(false)]
-        public ApplicationProcess TargetApplication { get; set; }
-       
+    {     
         /// <summary>
         /// Unique identifier for the application
         /// </summary>
@@ -41,6 +35,13 @@ namespace Pixel.Automation.Core
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Target application details
+        /// </summary>
+        [Browsable(false)]
+        public ApplicationProcess TargetApplication { get; set; }
+
 
         /// <summary>
         /// ProcessId of the target application

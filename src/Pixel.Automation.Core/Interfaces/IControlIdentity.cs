@@ -6,21 +6,32 @@ using System.Drawing;
 
 namespace Pixel.Automation.Core.Interfaces
 {
+    /// <summary>
+    /// Captures the details of a control that can be used to locate it at runtime
+    /// </summary>
     public interface IControlIdentity : ICloneable
     {      
-
+        /// <summary>
+        /// Identifier of the owner application
+        /// </summary>
         string ApplicationId
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Name of the control
+        /// </summary>
         string Name
         {
             get;
             set;
         }
         
+        /// <summary>
+        /// Bounding box of the control captured at design time
+        /// </summary>
         Rectangle BoundingBox
         {
             get;
@@ -96,12 +107,29 @@ namespace Pixel.Automation.Core.Interfaces
         }
     }
 
+    /// <summary>
+    /// Captures the image that can be treated as a control for automation using image matching
+    /// </summary>
     public interface IImageControlIdentity : IControlIdentity
     {
+        /// <summary>
+        /// Add a new image. There can be multiple image associate with a ImageControlIdentity with
+        /// different configuration based on resolution and theme that will be matched at runtime to 
+        /// pick the correct image for that environment.
+        /// </summary>
+        /// <param name="imageDescription"></param>
         void AddImage(ImageDescription imageDescription);
 
+        /// <summary>
+        /// Delete an image
+        /// </summary>
+        /// <param name="imageDescription"></param>
         void DeleteImage(ImageDescription imageDescription);
 
+        /// <summary>
+        /// Get all the available images
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<ImageDescription> GetImages();
     }
 }

@@ -5,6 +5,10 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Implementation of <see cref="INotifyPropertyChanged"/>. This acts as a base class for lot of 
+    /// data models which are made available on property grid for configuration.
+    /// </summary>
     [DataContract]
     [Serializable]
     public class NotifyPropertyChanged : INotifyPropertyChanged

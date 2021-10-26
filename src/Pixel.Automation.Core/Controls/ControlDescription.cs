@@ -7,7 +7,7 @@ namespace Pixel.Automation.Core.Controls
 {
     [DataContract]
     [Serializable]
-    public class ControlDescription : NotifyPropertyChanged , ICloneable
+    public class ControlDescription : ICloneable
     {
         [DataMember(Order = 10)]
         public string ApplicationId { get; set; }
@@ -18,31 +18,11 @@ namespace Pixel.Automation.Core.Controls
         [DataMember(Order = 30)]
         public string ControlName { get; set; }
 
-        string groupName = "Default";
         [DataMember(Order = 40)]
-        public string GroupName
-        {
-            get
-            {
-                return groupName;
-            }
-            set
-            {
-                groupName = value;
-                OnPropertyChanged();
-            }
-        }
-               
-        private string controlImage;
+        public string GroupName { get; set; } = "Default";              
+       
         [DataMember(Order = 50)]
-        public string ControlImage
-        {
-            get => controlImage;
-            set
-            {
-                controlImage = value;                  
-            }
-        }
+        public string ControlImage { get; set; }      
 
         [DataMember(Order = 100)]
         public IControlIdentity ControlDetails { get; set; }

@@ -10,30 +10,30 @@ namespace Pixel.Automation.Core.Models
     [Serializable]
     public class PrefabProject : NotifyPropertyChanged, ICloneable
     {
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 10)]
         [Browsable(false)]
         public string ApplicationId { get; set; }
 
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 20)]
         [Browsable(false)]
         public string PrefabId { get; set; }
 
         /// <summary>
         /// Display name that should be visible in Prefab Repository
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 30)]
         public string PrefabName { get; set; }
 
         /// <summary>
         /// NameSpace for generated models. NameSpace must be unique
         /// </summary>
-        [DataMember]
+        [DataMember(IsRequired = true, Order = 40)]
         public string NameSpace { get; set; }
 
         /// <summary>
         /// Get all the versions created for this Prefab
         /// </summary>
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, Order = 50)]
         public List<PrefabVersion> AvailableVersions { get; set; } = new List<PrefabVersion>();
         
         /// <summary>
@@ -44,13 +44,13 @@ namespace Pixel.Automation.Core.Models
         public PrefabVersion ActiveVersion 
         {
             get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
-        }  
+        }
 
-        [DataMember]
+        [DataMember(Order = 60)]
         public string Description { get; set; }
 
         string groupName = "Default";
-        [DataMember]
+        [DataMember(Order = 70)]
         public string GroupName
         {
             get
