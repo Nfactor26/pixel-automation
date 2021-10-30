@@ -270,7 +270,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                         IScriptEditorFactory editorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                        editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(Empty));
+                        editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(EmptyModel));
                         string fixtureScriptContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
                         editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.Id, fixtureScriptContent);
                     }                    

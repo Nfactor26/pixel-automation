@@ -43,7 +43,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                 ScriptFile = "CodeDataSource.csx",
                 MetaData = new DataSourceConfiguration()
                 {
-                     TargetTypeName = typeof(Empty).Name
+                     TargetTypeName = typeof(EmptyModel).Name
                 }
             };
 
@@ -54,7 +54,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                 ScriptFile = "CsvDataSource.csx",
                 MetaData = new CsvDataSourceConfiguration()
                 {
-                    TargetTypeName = typeof(Empty).Name,
+                    TargetTypeName = typeof(EmptyModel).Name,
                     TargetFile = "Empty.csv"
                 }
             };

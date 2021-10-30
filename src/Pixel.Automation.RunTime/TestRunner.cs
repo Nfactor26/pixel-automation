@@ -288,7 +288,7 @@ namespace Pixel.Automation.RunTime
                     TestFixtureEntity fixtureEntity = fixture.TestFixtureEntity as TestFixtureEntity;
                     EntityManager fixtureEntityManager = new EntityManager(this.entityManager);
                     fixtureEntityManager.SetIdentifier($"Fixture - {fixture.DisplayName}");
-                    fixtureEntityManager.Arguments = new Empty();
+                    fixtureEntityManager.Arguments = new EmptyModel();
                     fixtureEntity.EntityManager = fixtureEntityManager;
                     this.entityManager.RootEntity.AddComponent(fixture.TestFixtureEntity);                 
                     

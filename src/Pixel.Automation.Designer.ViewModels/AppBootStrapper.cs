@@ -40,34 +40,36 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
-            var resetEvent = new ManualResetEvent(false);
             var applicationSettings = IoC.Get<ApplicationSettings>();
-            if(!applicationSettings.IsOfflineMode)
+            if (!applicationSettings.IsOfflineMode)
             {
-                var downloadApplicationDataTask = new Task(async () =>
+                using (var resetEvent = new ManualResetEvent(false))
                 {
-                    try
+                    var downloadApplicationDataTask = new Task(async () =>
                     {
-                        var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                        logger.Information("Downloading application data now");
-                        await applicationDataManger.DownloadApplicationsDataAsync();
-                        logger.Information("Download of application data completed");
-                        logger.Information("Downloading project information now");
-                        await applicationDataManger.DownloadProjectsAsync();
-                        logger.Information("Download of project information completed");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex.Message, ex);
-                    }
-                    finally
-                    {
-                        resetEvent.Set();
-                    }                  
-                });
-                downloadApplicationDataTask.Start();
-                logger.Information("Waiting for data download");
-                resetEvent.WaitOne();
+                        try
+                        {
+                            var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                            logger.Information("Downloading application data now");
+                            await applicationDataManger.DownloadApplicationsDataAsync();
+                            logger.Information("Download of application data completed");
+                            logger.Information("Downloading project information now");
+                            await applicationDataManger.DownloadProjectsAsync();
+                            logger.Information("Download of project information completed");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex.Message, ex);
+                        }
+                        finally
+                        {
+                            resetEvent.Set();
+                        }
+                    });
+                    downloadApplicationDataTask.Start();
+                    logger.Information("Waiting for data download");
+                    resetEvent.WaitOne();
+                }
             }
             else
             {

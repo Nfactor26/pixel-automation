@@ -141,7 +141,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }            
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {                
-                editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(Empty));
+                editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(EmptyModel));
                 this.ScriptEditor.OpenDocument(this.testDataSource.ScriptFile, testDataSource.Name, generatedCode.ToString()); //File is saved to disk as well 
                 this.ScriptEditor.Activate();
             }

@@ -11,6 +11,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -66,8 +67,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
-            this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;     
             CreateCollectionView();
         }
 
@@ -79,7 +80,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
             {               
                 this.TestDataSourceCollection.Add(testDataSource);
-            }
+            }            
         }
 
         #endregion Constructor
@@ -130,16 +131,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public void CreateCodedTestDataSource()
         {
-            CreateDataSource(DataSource.Code);            
+            _ = CreateDataSource(DataSource.Code);            
         }
 
         ///<inheritdoc/>
         public void CreateCsvTestDataSource()
         {
-            CreateDataSource(DataSource.CsvFile);
+            _ = CreateDataSource(DataSource.CsvFile);
         }
      
-        private async void CreateDataSource(DataSource dataSourceType)
+        private async Task CreateDataSource(DataSource dataSourceType)
         {
             try
             {
@@ -166,6 +167,39 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             {
                 logger.Error(ex, ex.Message);
             }
+        }
+
+        private void CreateEmptyDataSource()
+        {
+            string testDataId = Guid.NewGuid().ToString();
+            var testDataSource = new TestDataSource()
+            {
+                Id = testDataId,
+                Name = "EmptyDataSource",
+                ScriptFile = $"TestDataRepository\\{testDataId}.csx",
+                DataSource = DataSource.Code,
+                MetaData = new DataSourceConfiguration()
+                {
+                    TargetTypeName = "EmptyModel"
+                }
+            };
+            serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.dat"), testDataSource);
+            StringBuilder scriptTextBuilder = new StringBuilder();
+            scriptTextBuilder.Append("using System;");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("using System.Collections.Generic;");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("using Pixel.Automation.Core.TestData;");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("IEnumerable<EmptyModel> GetDataRows()");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("{");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("   yield return new EmptyModel();");
+            scriptTextBuilder.Append(Environment.NewLine);
+            scriptTextBuilder.Append("}");
+            File.WriteAllText(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.csx"), scriptTextBuilder.ToString());
         }
 
         #endregion Create Test Data Source       
@@ -201,7 +235,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
             string projectName = testDataSource.Id;          
-            this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(Empty));
+            this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(EmptyModel));
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
             {
                 scriptEditor.OpenDocument(testDataSource.ScriptFile, projectName, string.Empty); //File contents will be fetched from disk         
@@ -238,7 +272,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <returns></returns>
         protected override Task OnInitializeAsync(CancellationToken cancellationToken)
         {
-            LoadDataSources();               
+            LoadDataSources();
+            if (this.TestDataSourceCollection.Count == 0)
+            {
+                CreateEmptyDataSource();
+                LoadDataSources();
+            }
             return base.OnInitializeAsync(cancellationToken);
         }
 

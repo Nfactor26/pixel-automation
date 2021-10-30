@@ -49,7 +49,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase(DataSource.CsvFile, false)]
         public void ValidateThatCanGenerateCodeVariousDataSources(DataSource dataSource, bool wasCancelled)
         {         
-            var typeDefinition = new Editor.Core.TypeDefinition(typeof(Empty));         
+            var typeDefinition = new Editor.Core.TypeDefinition(typeof(EmptyModel));         
             var testDataSourceViewModel = Substitute.For<IStagedScreen>();
             testDataSourceViewModel.GetProcessedResult().Returns(new TestDataSourceResult(new TestDataSource() { Id = Guid.NewGuid().ToString() }, typeDefinition.ActualType));
 
@@ -61,7 +61,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             testDataModelEditorViewModel.ActivateAsync();
             scriptEditorFactory.Received(1).CreateInlineScriptEditor();
-            scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(Empty)));
+            scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(EmptyModel)));
             scriptEditor.Received(1).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
             scriptEditor.Received(1).Activate();           
 

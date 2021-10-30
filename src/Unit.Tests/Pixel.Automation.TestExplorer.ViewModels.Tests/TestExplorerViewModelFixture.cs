@@ -108,7 +108,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCaseFileSystem.ReadAllText(Arg.Is<string>(fixtureScriptFile)).Returns(string.Empty);
 
 
-            scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Is<string[]>(Array.Empty<string>()), Arg.Is<Type>(typeof(Empty)))).Do(DoNothing);
+            scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Is<string[]>(Array.Empty<string>()), Arg.Is<Type>(typeof(EmptyModel)))).Do(DoNothing);
             scriptEditorFactory.When(x => x.AddDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(DoNothing);
             fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>().Returns(scriptEditorFactory);          
@@ -248,7 +248,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             await testRunner.Received(expected).TryOpenTestFixture(Arg.Is<TestFixture>(testFixture));
             componentViewBuilder.Received(expected).OpenTestFixture(Arg.Is<TestFixture>(testFixture));
             fixtureEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.Received(expected).AddProject(Arg.Any<string>(), Arg.Is<string[]>(Array.Empty<string>()), Arg.Is<Type>(typeof(Empty)));
+            scriptEditorFactory.Received(expected).AddProject(Arg.Any<string>(), Arg.Is<string[]>(Array.Empty<string>()), Arg.Is<Type>(typeof(EmptyModel)));
             scriptEditorFactory.Received(expected).AddDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
 
@@ -587,7 +587,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testRunner.TryOpenTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase)).Returns(true).AndDoes(
                         x =>
                         {
-                            x.ArgAt<TestCase>(1).TestCaseEntity.EntityManager.Arguments = new Empty();
+                            x.ArgAt<TestCase>(1).TestCaseEntity.EntityManager.Arguments = new EmptyModel();
                         });
 
             //Act
@@ -606,7 +606,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             await testRunner.Received(expected).TryOpenTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase));
             componentViewBuilder.Received(expected).OpenTestCase(Arg.Is<TestCase>(testCaseViewModel.TestCase));
             testEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.Received(expected).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(Empty)));
+            scriptEditorFactory.Received(expected).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(EmptyModel)));
             scriptEditorFactory.Received(expected).AddDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
 
@@ -799,7 +799,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(DoNothing);
            
             testEntityManager.GetServiceOfType<IScriptEditorFactory>().Returns(scriptEditorFactory);
-            testEntityManager.Arguments.Returns(new Empty());
+            testEntityManager.Arguments.Returns(new EmptyModel());
 
             testRunner.TryOpenTestFixture(Arg.Any<TestFixture>()).Returns(true);
             testRunner.TryOpenTestCase(Arg.Any<TestFixture>(), Arg.Any<TestCase>()).Returns(true);
