@@ -29,7 +29,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly IScriptEditorFactory scriptEditorFactory;
         private readonly ISerializer serializer;      
         private readonly IArgumentTypeBrowserFactory typeBrowserFactory;
-        private readonly IWindowManager windowManager;      
+        private readonly IWindowManager windowManager;
+        private readonly IEventAggregator eventAggregator;
 
         /// <summary>
         /// Collection of TestDataSource available for the associated automation project
@@ -62,14 +63,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="typeProvider"></param>
         /// <param name="typeBrowserFactory"></param>
         public TestDataRepositoryViewModel(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
-            IWindowManager windowManager, IArgumentTypeBrowserFactory typeBrowserFactory)
+            IWindowManager windowManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
-            this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;     
-            CreateCollectionView();
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
+            this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
+           
+            this.eventAggregator.SubscribeOnPublishedThread(this);
+            CreateCollectionView();          
         }
 
         /// <summary>
@@ -307,13 +311,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task HandleAsync(ShowTestDataSourceNotification message, CancellationToken cancellationToken)
+        public async Task HandleAsync(ShowTestDataSourceNotification message, CancellationToken cancellationToken)
         {
             if (message != null)
             {                
                 this.FilterText = message.TestDataId ?? string.Empty; 
             }
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         #endregion Notifications
