@@ -37,12 +37,11 @@ namespace Pixel.Scripting.Script.Editor
 
             if (!this.editorService.HasDocument(targetDocument, ownerProject))
             {
-                this.editorService.AddDocument(targetDocument, ownerProject, fileContents);
-                this.editorService.SetContent(targetDocument, ownerProject, fileContents);
-
+                this.editorService.AddDocument(targetDocument, ownerProject, fileContents);                
             }
+            this.editorService.SetContent(targetDocument, ownerProject, fileContents);
             this.editorService.TryOpenDocument(this.targetDocument, this.ownerProject);
-            this.Editor.Text = this.editorService.GetFileContentFromDisk(targetDocument);
+            this.Editor.Text = fileContents;
             this.Editor.OpenDocument(targetDocument, ownerProject);
             this.Editor.ResumeEditorUpdates();
          
@@ -122,8 +121,7 @@ namespace Pixel.Scripting.Script.Editor
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Dispose(true);            
         }
     }
 }
