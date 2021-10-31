@@ -109,7 +109,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             {
                 return Argument.GenerateInitialScript();
             };
-            await editorFactory.CreateAndShowDialogAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);          
+            await editorFactory.CreateAndShowScriptEditorScreenAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);          
         }
 
         public async void ChangeArgumentType(object sender, RoutedEventArgs e)

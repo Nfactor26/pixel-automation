@@ -21,16 +21,10 @@ namespace Pixel.Scripting.Script.Editor.Script
             logger.Debug($"Created a new instance of {nameof(ScriptEditorScreenViewModel)} with Id : {Identifier}");
 
         }
-
-        ~ScriptEditorScreenViewModel()
-        {
-            Dispose(true);
-        }
-
+               
         public override void OpenDocument(string documentName, string ownerProject, string initialContent)
         {
             base.OpenDocument(documentName, ownerProject, initialContent ?? string.Empty);           
-        }
-        
+        }        
     }
 }

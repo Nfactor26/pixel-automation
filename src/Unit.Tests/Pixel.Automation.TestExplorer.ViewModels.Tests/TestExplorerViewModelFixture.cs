@@ -326,7 +326,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testEntityManager.GetScriptEngine().Returns(testScriptEngine);
 
             var scriptEditorScreen = Substitute.For<IScriptEditorScreen>();
-            scriptEditorFactory.CreateScriptEditor().Returns(scriptEditorScreen);
+            scriptEditorFactory.CreateScriptEditorScreen().Returns(scriptEditorScreen);
             scriptEditorScreen.When(x => x.OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty))).Do(DoNothing);
             windowManager.ShowDialogAsync(Arg.Any<IScriptEditorScreen>()).Returns(dialogResult);
 
@@ -343,7 +343,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Assert
             int expected = isOpenForEdit ? 1 : 0;
             fixtureEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.Received(expected).CreateScriptEditor();
+            scriptEditorFactory.Received(expected).CreateScriptEditorScreen();
             scriptEditorScreen.Received(expected).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty));
             await windowManager.Received(expected).ShowDialogAsync(Arg.Any<IScriptEditorScreen>());
 
@@ -674,7 +674,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testEntityManager.GetScriptEngine().Returns(testScriptEngine);
              
             var scriptEditorScreen = Substitute.For<IScriptEditorScreen>();
-            scriptEditorFactory.CreateScriptEditor().Returns(scriptEditorScreen);
+            scriptEditorFactory.CreateScriptEditorScreen().Returns(scriptEditorScreen);
             scriptEditorScreen.When(x => x.OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty))).Do(DoNothing);
             windowManager.ShowDialogAsync(Arg.Any<IScriptEditorScreen>()).Returns(dialogResult);
 
@@ -690,7 +690,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Assert
             int expected = isOpenForEdit ? 1 : 0;
             testEntityManager.Received(expected).GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.Received(expected).CreateScriptEditor();
+            scriptEditorFactory.Received(expected).CreateScriptEditorScreen();
             scriptEditorScreen.Received(expected).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty));
             await windowManager.Received(expected).ShowDialogAsync(Arg.Any<IScriptEditorScreen>());
 

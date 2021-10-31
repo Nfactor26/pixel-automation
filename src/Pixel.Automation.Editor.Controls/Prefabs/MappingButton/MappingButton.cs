@@ -64,7 +64,7 @@ namespace Pixel.Automation.Editor.Controls.Prefabs
 
             IWindowManager windowManager = IoC.Get<IWindowManager>();
             IScriptEditorFactory scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-            using (IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditor())
+            using (IScriptEditorScreen scriptEditor = scriptEditorFactory.CreateScriptEditorScreen())
             {
                 if (OwnerComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
                 {

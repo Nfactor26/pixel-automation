@@ -391,7 +391,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                     IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
+                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
                         scriptEditorScreen.OpenDocument(fixtureVM.ScriptFile, fixtureVM.Id, string.Empty);
                         var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
@@ -763,7 +763,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     var entityManager = testCaseVM.TestCaseEntity.EntityManager;
                     var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
+                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
                         scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.Id, string.Empty);
                         var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);

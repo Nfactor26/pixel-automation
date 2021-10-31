@@ -21,7 +21,7 @@ namespace Pixel.Automation.Core.Components
 
                 foreach(var scriptFile in scriptableAttribute.ScriptFiles)
                 {
-                    string scriptLocation = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid().ToString()}.csx"));
+                    string scriptLocation = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));
                     component.SetPropertyValue<string>(scriptFile, scriptLocation);
                 }
             }               

@@ -235,6 +235,17 @@ namespace Pixel.Script.Editor.Services.CSharp
         }
 
         /// <inheritdoc/>
+        public bool TryRemoveProject(string projectName)
+        {
+            if (this.workspaceManager.HasProject(projectName))
+            {
+                this.workspaceManager.RemoveProject(projectName);
+                return true;
+            }          
+            return false;
+        }
+
+        /// <inheritdoc/>
         public bool HasDocument(string targetDocument, string ownerProject)
         {
             return this.workspaceManager.HasDocument(targetDocument, ownerProject);

@@ -12,7 +12,16 @@ namespace Pixel.Automation.Editor.Core.Helpers
 {
     public static class ScriptEditorExtensions
     {
-        public static async Task CreateAndShowDialogAsync(this IScriptEditorFactory editorFactory, IWindowManager windowManager,
+        /// <summary>
+        /// Create and show a script editor screen. Project lifecyle is manged internally.
+        /// </summary>
+        /// <param name="editorFactory"></param>
+        /// <param name="windowManager"></param>
+        /// <param name="forComponent"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="initialScriptContentGetter"></param>
+        /// <returns></returns>
+        public static async Task CreateAndShowScriptEditorScreenAsync(this IScriptEditorFactory editorFactory, IWindowManager windowManager,
             IComponent forComponent, string scriptFile, Func<IComponent, string> initialScriptContentGetter)
         {
             Guard.Argument(windowManager).NotNull();
@@ -20,7 +29,7 @@ namespace Pixel.Automation.Editor.Core.Helpers
             Guard.Argument(scriptFile).NotNull().NotEmpty();
             Guard.Argument(initialScriptContentGetter).NotNull();
 
-            using (IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditor())
+            using (IScriptEditorScreen scriptEditor = editorFactory.CreateScriptEditorScreen())
             {
                 AddProject(editorFactory, forComponent);
                 string initialContent = initialScriptContentGetter(forComponent);
@@ -37,6 +46,14 @@ namespace Pixel.Automation.Editor.Core.Helpers
             }            
         }
 
+        /// <summary>
+        /// Create a new cached inline script editor. Project lifecycle is internally maintained.
+        /// </summary>
+        /// <param name="editorFactory"></param>
+        /// <param name="forComponent"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="initialScriptContentGetter"></param>
+        /// <returns></returns>
         public static IInlineScriptEditor CreateAndInitializeInilineScriptEditor(this IScriptEditorFactory editorFactory,
             IComponent forComponent, string scriptFile, Func<IComponent, string> initialScriptContentGetter)
         {          

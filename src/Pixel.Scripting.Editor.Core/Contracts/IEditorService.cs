@@ -41,6 +41,11 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <returns></returns>
         IEnumerable<string> GetAvailableDocuments();
 
+        /// <summary>
+        /// Check if a given feature is supported by editor
+        /// </summary>
+        /// <param name="editorFeature"></param>
+        /// <returns></returns>
         bool IsFeatureEnabled(EditorFeature editorFeature);   
 
         /// <summary>
@@ -56,6 +61,13 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="targetFile">Relative path of document to working directory</param>
         /// <returns></returns>
         string GetFileContentFromDisk(string targetFile);
+
+        /// <summary>
+        /// Try to remove project from workspace if it exists
+        /// </summary>
+        /// <param name="projectName">Name of the project to remove</param>    
+        /// <returns>true if project could be removed</returns>
+        bool TryRemoveProject(string projectName);
 
         /// <summary>
         /// Check if the document is already available in underlying workspace

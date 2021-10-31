@@ -252,7 +252,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         }
 
         /// <summary>
-        /// Close document in workspace and remove associated project.
+        /// Close document in workspace.
         /// By default, one document per project is supported.
         /// </summary>
         /// <param name="targetDocument">Relative path of document to working directory</param>

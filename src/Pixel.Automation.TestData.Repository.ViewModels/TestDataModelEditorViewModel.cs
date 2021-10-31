@@ -160,8 +160,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             if(this.ScriptEditor != null)
             {
-                this.ScriptEditor.CloseDocument(false);
-                this.editorFactory.RemoveProject(testDataSource.Name);
+                this.ScriptEditor.CloseDocument(false);              
                 this.ScriptEditor.Dispose();
                 this.ScriptEditor = null;
                 logger.Debug("Operation cancelled by user");
@@ -173,7 +172,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             if (this.ScriptEditor != null)
             {
-                this.editorFactory.RemoveProject(testDataSource.Name);
+                this.ScriptEditor.CloseDocument(true);
                 this.ScriptEditor.Dispose();
                 this.ScriptEditor = null;
                 logger.Debug("Operation completed by user");

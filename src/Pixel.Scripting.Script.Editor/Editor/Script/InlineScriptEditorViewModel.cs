@@ -1,18 +1,17 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Pixel.Scripting.Script.Editor.Script
 {
-    public class InlineScriptEditorViewModel : IInlineScriptEditor, INotifyPropertyChanged
+    public class InlineScriptEditorViewModel : NotifyPropertyChanged, IInlineScriptEditor 
     {
         private readonly ILogger logger = Log.ForContext<InlineScriptEditorViewModel>();
         private readonly string Identifier = Guid.NewGuid().ToString();
@@ -48,13 +47,7 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.editorService.WorkspaceChanged += OnWorkspaceChanged;
 
             logger.Debug($"Created a new instance of {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
-        }
-
-        ~InlineScriptEditorViewModel()
-        {
-            Dispose(true);
-        }
-
+        }        
         public void SetEditorOptions(EditorOptions editorOptions)
         {
             this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
@@ -64,8 +57,6 @@ namespace Pixel.Scripting.Script.Editor.Script
                 this.Editor.FontFamily = new System.Windows.Media.FontFamily(editorOptions.FontFamily);
             }
         }
-
-
         private void OnWorkspaceChanged(object sender, WorkspaceChangedEventArgs e)
         {
             logger.Debug($"Process workspace changed event for {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
@@ -118,9 +109,9 @@ namespace Pixel.Scripting.Script.Editor.Script
             string fileContents = this.editorService.GetFileContentFromDisk(targetDocument);
             if (!this.editorService.HasDocument(this.targetDocument, this.ownerProject))
             {
-                this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);
-                this.editorService.SetContent(targetDocument, ownerProject, fileContents);
+                this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);                
             }
+            this.editorService.SetContent(targetDocument, ownerProject, fileContents);
             this.Editor.Text = fileContents;
             this.Editor.OpenDocument(targetDocument, ownerProject);           
         }
@@ -159,31 +150,18 @@ namespace Pixel.Scripting.Script.Editor.Script
         protected virtual void Dispose(bool isDisposing)
         {
             CloseDocument(false);
+            this.editorService.TryRemoveProject(this.ownerProject);
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
             this.Editor.LostFocus -= OnLostFocus;
             this.Editor.GotFocus -= OnFocus;
             this.Editor.Dispose();
-            this.Editor = null;
-            this.PropertyChanged = null;          
+            this.Editor = null;                   
             logger.Debug($"{nameof(InlineScriptEditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #region INotifyPropertyChanged
-
-        [field: NonSerialized()]
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        protected virtual void OnPropertyChanged([CallerMemberName]string name = "")
-        {
-            this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        #endregion INotifyPropertyChanged
+            Dispose(true);           
+        }      
     }
 }

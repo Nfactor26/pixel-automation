@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Runtime.Serialization;
@@ -12,9 +13,24 @@ namespace Pixel.Automation.Scripting.Components
     /// </summary>
     [DataContract]
     [Serializable]
+    [Scriptable("ScriptFile")]
+    [Initializer(typeof(ScriptFileInitializer))]
     [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
-    public class ExecuteScriptActorComponent : ScriptedComponentBase
+    public class ExecuteScriptActorComponent : AsyncActorComponent
     {
+        protected string scriptFile;
+        [DataMember]
+        [System.ComponentModel.DisplayName("Script File")]
+        [System.ComponentModel.ReadOnly(true)]
+        public string ScriptFile
+        {
+            get => scriptFile;
+            set
+            {
+                scriptFile = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ExecuteScriptActorComponent() : base("Script", "ExecuteScript")
         {

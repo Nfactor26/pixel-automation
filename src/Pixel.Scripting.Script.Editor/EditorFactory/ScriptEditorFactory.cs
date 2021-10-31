@@ -91,7 +91,7 @@ namespace Pixel.Scripting.Script.Editor
             }
         }
 
-        public IScriptEditorScreen CreateScriptEditor()
+        public IScriptEditorScreen CreateScriptEditorScreen()
         {
             EnsureInitialized();
             return new ScriptEditorScreenViewModel(this.editorService);
@@ -118,6 +118,11 @@ namespace Pixel.Scripting.Script.Editor
             logger.Information($"Project {projectName} already exists in workspace");
         }
 
+        public void RemoveProject(string projectName)
+        {
+            this.editorService.TryRemoveProject(projectName);
+        }
+
         public void AddDocument(string documentName, string projectName, string documentContent)
         {
             var workSpaceManager = GetWorkspaceManager();
@@ -139,18 +144,7 @@ namespace Pixel.Scripting.Script.Editor
                 return;
             }
             logger.Information($"Document {documentName} doesn't exists in project {projectName}. Can't remove document.");            
-        }
-
-        public void RemoveProject(string projectName)
-        {
-            var workSpaceManager = GetWorkspaceManager();
-            if (workSpaceManager.HasProject(projectName))
-            {
-                workSpaceManager.RemoveProject(projectName);
-                return;
-            }
-            logger.Information($"Project {projectName} doesn't exists in workspace. Can't remove project.");
-        }
+        }             
 
         public void AddSearchPaths(params string[] searchPaths)
         {

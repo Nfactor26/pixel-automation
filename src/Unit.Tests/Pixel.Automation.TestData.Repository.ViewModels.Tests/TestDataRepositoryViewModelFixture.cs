@@ -130,7 +130,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             //Arrange
             var scriptEditor = Substitute.For<IScriptEditorScreen>();
             scriptEditor.When(x => x.OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty))).Do(x => { });
-            scriptEditorFactory.CreateScriptEditor().Returns(scriptEditor);
+            scriptEditorFactory.CreateScriptEditorScreen().Returns(scriptEditor);
             scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>())).Do(XamlGeneratedNamespace => { });
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(x => { });
 
@@ -143,7 +143,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             //Assert
             serializer.Received(0).Serialize<TestDataSource>(Arg.Any<string>(), Arg.Any<TestDataSource>());
-            scriptEditorFactory.Received(1).CreateScriptEditor();
+            scriptEditorFactory.Received(1).CreateScriptEditorScreen();
             scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>());
             scriptEditor.Received(1).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty));
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IScriptEditorScreen>());
