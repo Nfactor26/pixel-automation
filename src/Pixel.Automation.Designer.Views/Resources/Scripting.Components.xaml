@@ -30,6 +30,7 @@
                             Style="{DynamicResource EditControlButtonStyle}"
                             Content="{iconPacks:MaterialLight Play}"/>                 
                     <editors:ScriptEditorButton x:Name="btnEditScript" ScriptFile="{Binding Model.ScriptFile}" ActorComponent="{Binding Model}" HorizontalAlignment="Right" Margin="0,0,2,0"/>
+                    <editors:BrowseScriptButton x:Name="btnBrowseScript" ScriptFile="{Binding Model.ScriptFile}" ActorComponent="{Binding Model}" HorizontalAlignment="Right" Margin="0,0,2,0"/>
                     <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                       Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
@@ -85,7 +86,7 @@
                             Height="20" Width="20" ToolTip="Execute Script"
                             cal:Message.Attach="[Action RunComponent($dataContext)]"                   
                             Style="{DynamicResource EditControlButtonStyle}"
-                            Content="{iconPacks:MaterialLight Play}"/>                        
+                            Content="{iconPacks:MaterialLight Play}"/>                     
                         <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
                               cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
                               ToolTip="Delete"
