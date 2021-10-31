@@ -115,7 +115,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 {
                     return Argument.GenerateInitialScript();
                 };
-                await editorFactory.CreateAndShowDialogAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);
+                await editorFactory.CreateAndShowScriptEditorScreenAsync(windowManager, OwnerComponent, Argument.ScriptFile, scriptDefaultValueGetter);
             }
             catch (Exception ex)
             {

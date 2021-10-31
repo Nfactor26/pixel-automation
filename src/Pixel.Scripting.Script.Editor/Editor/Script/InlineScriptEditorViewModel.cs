@@ -150,6 +150,7 @@ namespace Pixel.Scripting.Script.Editor.Script
         protected virtual void Dispose(bool isDisposing)
         {
             CloseDocument(false);
+            this.editorService.TryRemoveProject(this.ownerProject);
             this.editorService.WorkspaceChanged -= OnWorkspaceChanged;
             this.Editor.LostFocus -= OnLostFocus;
             this.Editor.GotFocus -= OnFocus;

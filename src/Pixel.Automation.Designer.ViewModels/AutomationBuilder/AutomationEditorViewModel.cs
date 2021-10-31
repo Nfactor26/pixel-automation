@@ -172,7 +172,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 scriptEditorFactory.AddProject(this.CurrentProject.GetProjectName(), new string[] {}, this.EntityManager.Arguments.GetType());
                 scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), File.ReadAllText(scriptFile));
                 //Create script editor and open the document to edit
-                using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditor())
+                using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                 {
                     scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), string.Empty);
                     var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
@@ -182,6 +182,7 @@ namespace Pixel.Automation.Designer.ViewModels
                         scriptEngine.ClearState();
                         await scriptEngine.ExecuteFileAsync(scriptFile);
                     }
+                    scriptEditorFactory.RemoveProject(this.CurrentProject.GetProjectName());
                 }             
             }
             catch (Exception ex)

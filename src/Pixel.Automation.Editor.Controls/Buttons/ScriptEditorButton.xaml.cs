@@ -43,7 +43,7 @@ namespace Pixel.Automation.Editor.Controls
                 var entityManager = this.ActorComponent.EntityManager;
                 IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
                 IScriptEditorFactory editorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                await editorFactory.CreateAndShowDialogAsync(windowManager, this.ActorComponent, this.ScriptFile, GetDefaultScript);
+                await editorFactory.CreateAndShowScriptEditorScreenAsync(windowManager, this.ActorComponent, this.ScriptFile, GetDefaultScript);
             }
 
         }

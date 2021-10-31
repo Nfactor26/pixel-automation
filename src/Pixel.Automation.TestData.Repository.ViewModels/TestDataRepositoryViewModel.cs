@@ -240,7 +240,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             string projectName = testDataSource.Id;          
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(EmptyModel));
-            using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditor())
+            using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditorScreen())
             {
                 scriptEditor.OpenDocument(testDataSource.ScriptFile, projectName, string.Empty); //File contents will be fetched from disk         
                 var result = await windowManager.ShowDialogAsync(scriptEditor);

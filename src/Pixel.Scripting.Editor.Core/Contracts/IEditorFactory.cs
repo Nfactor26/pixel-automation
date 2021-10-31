@@ -83,19 +83,20 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void AddProject(string projectName, string[] projectreferences, Type globalsType);
 
         /// <summary>
-        /// Create a script editor
+        /// Create a script editor screen (shown as a dialog)
         /// </summary>
         /// <returns></returns>
-        IScriptEditorScreen CreateScriptEditor();       
+        IScriptEditorScreen CreateScriptEditorScreen();       
 
         /// <summary>
-        /// Create an inline script editor
+        /// Create an inline script editor that will automatically remove underlying project on dispose
         /// </summary>
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor();
 
         /// <summary>
         /// Get an existing inline script editor with given identifer or create a new one.
+        /// Underlying project will be automatically removed when editor is disposed.
         /// Inline Editors created using this overload are cached. Component views which provide
         /// inline editors are frequently unloaded and created again. When a new view is created,
         /// it tries to create a new inline editor again and we should reuse last created inline 

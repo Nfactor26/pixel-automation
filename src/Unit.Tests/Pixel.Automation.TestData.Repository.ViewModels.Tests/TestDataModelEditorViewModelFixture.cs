@@ -76,15 +76,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                 Assert.IsTrue((bool)result);
 
                 testDataModelEditorViewModel.OnFinished();
-                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);
-                scriptEditorFactory.Received(1).RemoveProject(Arg.Any<string>());
+                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);              
                 scriptEditor.Received(1).Dispose();
             }
             else
             {
                 testDataModelEditorViewModel.OnCancelled();
-                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);
-                scriptEditorFactory.Received(1).RemoveProject(Arg.Any<string>());
+                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);               
                 scriptEditor.Received(1).CloseDocument(Arg.Is(false));
                 scriptEditor.Received(1).Dispose();
             }
