@@ -19,7 +19,8 @@ using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>
+    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>,
+        IHandle<TestEntityRemovedEventArgs>
     {
         #region data members
 
@@ -34,9 +35,22 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public IEntityManager EntityManager { get; private set; }
 
-        public IDropTarget ComponentDropHandler { get; protected set; }           
-      
+        public IDropTarget ComponentDropHandler { get; protected set; }
+
+        private EntityComponentViewModel activeItem;
+        public EntityComponentViewModel ActiveItem
+        {
+            get => activeItem;
+            set
+            {
+                activeItem = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public BindableCollection<EntityComponentViewModel> WorkFlowRoot { get; private set; } = new ();
+
+        public BindableCollection<EntityComponentViewModel> BreadCrumbItems { get; set; } = new ();
 
         #endregion data members
 
@@ -220,6 +234,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.BuildWorkFlow(this.WorkFlowRoot[0]);
             this.BreadCrumbItems.Clear();
             this.BreadCrumbItems.Add(this.WorkFlowRoot[0]);
+            this.ActiveItem = this.WorkFlowRoot[0];
         }
 
         protected virtual void BuildWorkFlow(EntityComponentViewModel root)
@@ -232,29 +247,53 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #endregion Automation Project
 
-        #region Utilities
-
-        public BindableCollection<EntityComponentViewModel> BreadCrumbItems { get; set; } = new();
+        #region Utilities    
      
         public void ZoomInToEntity(EntityComponentViewModel entityComponentViewModel)
         {
-            if (this.BreadCrumbItems.Contains(entityComponentViewModel))
+            try
             {
-                return;
+                if (this.BreadCrumbItems.Contains(entityComponentViewModel))
+                {
+                    return;
+                }
+                List<EntityComponentViewModel> ancestors = new();
+                EntityComponentViewModel current = entityComponentViewModel;
+                while (current != ActiveItem)
+                {
+                    ancestors.Add(current);
+                    current = current.Parent;
+                }
+                for (int i = ancestors.Count() - 1; i >= 0; i--)
+                {
+                    this.BreadCrumbItems.Add(ancestors[i]);
+                }
+                this.WorkFlowRoot.Clear();
+                this.WorkFlowRoot.Add(entityComponentViewModel);
+                this.ActiveItem = entityComponentViewModel;
             }
-            this.BreadCrumbItems.Add(entityComponentViewModel);
-            this.WorkFlowRoot.Clear();
-            this.WorkFlowRoot.Add(entityComponentViewModel);
+            catch (Exception ex)
+            {
+                logger.Error("There was an error trying to change active item", ex);
+            }
         }
 
         public void ZoomOutToEntity(EntityComponentViewModel entityComponentViewModel)
         {
-            while (BreadCrumbItems.Last() != entityComponentViewModel)
+            try
             {
-                BreadCrumbItems.RemoveAt(BreadCrumbItems.Count() - 1);
+                while (BreadCrumbItems.Last() != entityComponentViewModel)
+                {
+                    BreadCrumbItems.RemoveAt(BreadCrumbItems.Count() - 1);
+                }
+                this.WorkFlowRoot.Clear();
+                this.WorkFlowRoot.Add(entityComponentViewModel);
+                this.ActiveItem = entityComponentViewModel;
             }
-            this.WorkFlowRoot.Clear();
-            this.WorkFlowRoot.Add(entityComponentViewModel);
+            catch (Exception ex)
+            {
+                logger.Error("There was an error trying to change active item", ex);
+            }
         }
 
         #endregion Utilities
@@ -336,6 +375,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        /// <summary>
+        /// When a test fixture or test case is closed from test explorer, if the test fixture entity or test case entity or any of their descendant
+        /// are set as the ActiveItem, we need to remove them as ActiveItem and reset the view to RootEntity.
+        /// </summary>
+        /// <param name="removedEntity"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(TestEntityRemovedEventArgs removedEntity, CancellationToken cancellationToken)
+        {
+            foreach(var item in this.BreadCrumbItems)
+            {
+                if(item.Model == removedEntity.RemovedEntity)
+                {
+                    ZoomOutToEntity(this.BreadCrumbItems.First());
+                }
+            }
+            await Task.CompletedTask;
+        }
+
         #endregion IHandle<T>
 
         #region IDisposable
@@ -349,7 +407,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             if(isDisposing)
             {                            
-                this.WorkFlowRoot.Clear();               
+                this.WorkFlowRoot.Clear();
+                this.ActiveItem = null;
             }
         }
        
