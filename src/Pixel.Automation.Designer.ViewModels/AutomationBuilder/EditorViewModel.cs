@@ -19,7 +19,8 @@ using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
-    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>
+    public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>,
+        IHandle<TestEntityRemovedEventArgs>
     {
         #region data members
 
@@ -372,6 +373,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 logger.Error(ex, ex.Message);
             }
+        }
+
+        /// <summary>
+        /// When a test fixture or test case is closed from test explorer, if the test fixture entity or test case entity or any of their descendant
+        /// are set as the ActiveItem, we need to remove them as ActiveItem and reset the view to RootEntity.
+        /// </summary>
+        /// <param name="removedEntity"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(TestEntityRemovedEventArgs removedEntity, CancellationToken cancellationToken)
+        {
+            foreach(var item in this.BreadCrumbItems)
+            {
+                if(item.Model == removedEntity.RemovedEntity)
+                {
+                    ZoomOutToEntity(this.BreadCrumbItems.First());
+                }
+            }
+            await Task.CompletedTask;
         }
 
         #endregion IHandle<T>

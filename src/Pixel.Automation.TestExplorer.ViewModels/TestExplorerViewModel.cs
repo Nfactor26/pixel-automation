@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using Pixel.Automation.Editor.Core.Helpers;
+using Pixel.Automation.Editor.Core;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -351,6 +352,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     if (!fixtureVM.OpenForExecute)
                     {
                         this.componentViewBuilder.CloseTestFixture(fixtureVM.TestFixture);
+                        this.eventAggregator.PublishOnUIThreadAsync(new TestEntityRemovedEventArgs(fixtureVM.TestFixtureEntity));
                     }
                 }
             }
@@ -695,6 +697,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         if (!testCaseVM.OpenForExecute)
                         {
                             this.componentViewBuilder.CloseTestCase(testCaseVM.TestCase);
+                            this.eventAggregator.PublishOnUIThreadAsync(new TestEntityRemovedEventArgs(testCaseVM.TestCaseEntity));
                         }
                     }
 
