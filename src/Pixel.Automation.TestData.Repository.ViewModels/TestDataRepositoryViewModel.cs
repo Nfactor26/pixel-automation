@@ -148,7 +148,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             try
             {
-                var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser();
+                //value types like int, bool , etc. as well as string doesn't make sense for a data source given they can't be accessed.
+                //Valid data sources are custom classes defined by the automation project which expose properties that are visible to scripting engine.
+                //Hence, we create the type browser with showOnlyCustomTypes = true
+                var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser(showOnlyCustomTypes : true);
                 TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
 
                 TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(this.scriptEditorFactory);

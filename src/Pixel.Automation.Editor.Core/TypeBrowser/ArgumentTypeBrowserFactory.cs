@@ -23,5 +23,10 @@ namespace Pixel.Automation.Editor.TypeBrowser
             Guard.Argument(selectedType).NotNull();
             return new ArgumentTypeBrowserViewModel(this.typeProvider, selectedType);
         }
+
+        public IArgumentTypeBrowser CreateArgumentTypeBrowser(bool showOnlyCustomTypes)
+        {
+            return new ArgumentTypeBrowserViewModel(this.typeProvider, showOnlyCustomTypes);
+        }
     }
 }

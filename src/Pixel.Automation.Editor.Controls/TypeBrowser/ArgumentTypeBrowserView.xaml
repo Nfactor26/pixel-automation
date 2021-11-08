@@ -19,7 +19,7 @@
 
         <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
 
-        <Style TargetType="{x:Type GroupItem}" x:Key="NoGroupHeaderStyle">
+        <Style TargetType="{x:Type GroupItem}" x:Key="NoGroupHeaderStyle">         
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type GroupItem}">
@@ -111,7 +111,7 @@
             </StackPanel>
             <DockPanel LastChildFill="False" DockPanel.Dock="Right" IsEnabled="{Binding IsBrowseMode}">
                 <TextBlock Text="Show All" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-                <CheckBox IsChecked="{Binding ShowAll}" DockPanel.Dock="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                <CheckBox IsChecked="{Binding ShowAll}" Visibility="{Binding CanShowAll, Converter={StaticResource BoolToVisConverter}}" DockPanel.Dock="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
             </DockPanel>
         </DockPanel>
 

@@ -28,7 +28,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.ExecuteFileAsync(Arg.Any<string>()).Returns(new ScriptResult());
-            scriptEngine.ExecuteScriptAsync(Arg.Is<string>("GetDataRows()")).Returns(new ScriptResult(new List<string>() { "Hello", "World" }));
+            scriptEngine.ExecuteScriptAsync(Arg.Is<string>("GetDataRows()")).Returns(new ScriptResult(new List<EmptyModel>() { new EmptyModel(), new EmptyModel() }));
 
             var csvDataReader = Substitute.For<IDataReader>();
 
@@ -72,7 +72,7 @@ namespace Pixel.Automation.RunTime.Tests
             var scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.When(x => { x.SetGlobals(Arg.Any<object>()); }).Do((x) => { });
             scriptEngine.ExecuteFileAsync(Arg.Any<string>()).Returns(new ScriptResult());
-            scriptEngine.ExecuteScriptAsync(Arg.Is<string>("GetDataRows(DataSourceArgument, DataReaderArgument)")).Returns(new ScriptResult(new List<string>() { "Hello", "World" }));
+            scriptEngine.ExecuteScriptAsync(Arg.Is<string>("GetDataRows(DataSourceArgument, DataReaderArgument)")).Returns(new ScriptResult(new List<EmptyModel>() { new EmptyModel(), new EmptyModel() }));
 
             var csvDataReader = Substitute.For<IDataReader>();
             csvDataReader.CanProcessFileType("csv").Returns(true);
