@@ -90,14 +90,14 @@ namespace Pixel.Automation.Editor.Core.Helpers
             mappingBuilder.AppendLine("{");
             if (mappings.Any(m => !m.AssignFromType.Equals(m.AssignToType)))
             {
-                mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => ");
-                mappingBuilder.AppendLine("     {");
+                mappingBuilder.AppendLine("    var configuration = new MapperConfiguration(cfg => ");
+                mappingBuilder.AppendLine("    {");
                 foreach (var mapping in mappings.Where(m => m.AssignToType != null && !m.AssignFromType.Equals(m.AssignToType)))
                 {
                     GenerateMap(mappingBuilder, mapping);
                 }
-                mappingBuilder.AppendLine("     });");
-                mappingBuilder.AppendLine("     var mapper = configuration.CreateMapper();");
+                mappingBuilder.AppendLine("    });");
+                mappingBuilder.AppendLine("    var mapper = configuration.CreateMapper();");
                 foreach (var mapping in mappings.Where(m => m.AssignToType != null &&  !m.AssignFromType.Equals(m.AssignToType)))
                 {
                     AssignMap(mappingBuilder, mapping);
@@ -106,8 +106,8 @@ namespace Pixel.Automation.Editor.Core.Helpers
             else
             {
                 //Always add this to generated code so that it is easier to get started if needed.
-                mappingBuilder.AppendLine("     var configuration = new MapperConfiguration(cfg => {});");
-                mappingBuilder.AppendLine("     var mapper = configuration.CreateMapper();");
+                mappingBuilder.AppendLine("    var configuration = new MapperConfiguration(cfg => {});");
+                mappingBuilder.AppendLine("    var mapper = configuration.CreateMapper();");
             }
             foreach (var mapping in mappings)
             {
