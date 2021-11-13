@@ -97,7 +97,7 @@ namespace Pixel.Automation.Editor.TypeBrowser
             }
         }
 
-        bool showAll;
+        bool showAll = false;
         /// <summary>
         /// Toggle between common types and all available types for selection on UI
         /// </summary>
@@ -113,9 +113,23 @@ namespace Pixel.Automation.Editor.TypeBrowser
                         ShowAllAssemblies();
                         break;
                     case false:
-                        ShowCommonTypes();
+                        PopulateAvailableTypes(excludeCommonTypes: false);
                         break;
                 }
+            }
+        }
+
+        bool canShowAll = true;
+        /// <summary>
+        /// Controls the visibility of Show All Chechkbox on UI in addition to acting as a guard for ShowAllAssemblies()
+        /// </summary>
+        public bool CanShowAll
+        {
+            get => canShowAll;
+            set
+            {
+                canShowAll = value;
+                NotifyOfPropertyChange();
             }
         }
 
@@ -123,13 +137,21 @@ namespace Pixel.Automation.Editor.TypeBrowser
         {
             this.argumentTypeProvider = argumentTypeProvider;
             this.DisplayName = "Browse for .NET types";
-            ShowCommonTypes();
+            PopulateAvailableTypes(excludeCommonTypes: false);
+            AddGroupDefinition();
+        }
+
+        public ArgumentTypeBrowserViewModel(IArgumentTypeProvider argumentTypeProvider, bool showOnlyCustomTypes)
+        {
+            this.argumentTypeProvider = argumentTypeProvider;
+            this.DisplayName = "Browse for .NET types";
+            this.CanShowAll = !showOnlyCustomTypes;
+            PopulateAvailableTypes(excludeCommonTypes : true);
             AddGroupDefinition();
         }
 
 
-        public ArgumentTypeBrowserViewModel(IArgumentTypeProvider argumentTypeProvider,
-            TypeDefinition selectedType) : this(argumentTypeProvider)
+        public ArgumentTypeBrowserViewModel(IArgumentTypeProvider argumentTypeProvider, TypeDefinition selectedType) : this(argumentTypeProvider)
         {
             this.SelectedType = selectedType;
             this.IsBrowseMode = false;
@@ -150,18 +172,24 @@ namespace Pixel.Automation.Editor.TypeBrowser
         }
 
 
-        private void ShowCommonTypes()
+        private void PopulateAvailableTypes(bool excludeCommonTypes)
         {
             this.AvailableTypes.Clear();
             this.AvailableTypes.AddRange(argumentTypeProvider.GetCustomDefinedTypes());
-            this.AvailableTypes.AddRange(argumentTypeProvider.GetCommonTypes());
-        }
+            if(!excludeCommonTypes)
+            {
+                this.AvailableTypes.AddRange(argumentTypeProvider.GetCommonTypes());
+            }
+        }      
 
         private void ShowAllAssemblies()
         {
-            this.AvailableTypes.Clear();
-            this.AvailableTypes.AddRange(argumentTypeProvider.GetCustomDefinedTypes());
-            this.AvailableTypes.AddRange(argumentTypeProvider.GetAllKnownTypes());
+            if(this.CanShowAll)
+            {
+                this.AvailableTypes.Clear();
+                this.AvailableTypes.AddRange(argumentTypeProvider.GetCustomDefinedTypes());
+                this.AvailableTypes.AddRange(argumentTypeProvider.GetAllKnownTypes());
+            }            
         }
 
 

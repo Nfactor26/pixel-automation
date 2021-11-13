@@ -208,10 +208,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     compilationIteration = lastIteration;
                 }
             }
-
+            
+            //There are some scenarios where the data model assembly with same name is already loaded in domain e.g. after deploying a version
+            //and trying to open new version for edit.
             compilationIteration++;
-            string dataModelAssemblyName = $"{GetProjectName().Trim().Replace(' ', '_')}_{compilationIteration}";
-            return dataModelAssemblyName;
+            string dataModelAssemblyName = $"{GetProjectName().Trim().Replace(' ', '_')}";
+            string dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            while(loadedAssemblies.Any(a => a.GetName().Name.Equals(dataModelAssemblyNameWithIteration)))
+            {
+                compilationIteration++;
+                dataModelAssemblyNameWithIteration = $"{GetProjectName().Trim().Replace(' ', '_')}_{compilationIteration}";
+            }
+           
+            return dataModelAssemblyNameWithIteration;
         }
 
         protected void RestoreParentChildRelation(Entity entity)

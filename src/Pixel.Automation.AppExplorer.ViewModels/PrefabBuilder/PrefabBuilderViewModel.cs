@@ -3,6 +3,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
@@ -107,6 +108,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         /// <param name="prefabFileSystem"></param>
         private void UpdateAssemblyReferenceAndNameSpace(PrefabProject prefabProject, IPrefabFileSystem prefabFileSystem)
         {
+            //In absence of a custom data model, there is no need to update anything
+            if (prefabProject.PrefabRoot.EntityManager.Arguments.GetType() == typeof(EmptyModel))
+            {
+                return;
+            }
             var oldAssembly = prefabProject.PrefabRoot.EntityManager.Arguments.GetType()
                 .Assembly.GetName();
             var oldNameSpace = prefabProject.PrefabRoot.EntityManager.Arguments.GetType().Namespace;
