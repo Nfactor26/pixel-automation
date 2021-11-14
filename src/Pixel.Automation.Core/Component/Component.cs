@@ -168,24 +168,7 @@ namespace Pixel.Automation.Core
             this.Tag =  string.IsNullOrEmpty(tag) ? GetType().Name : tag;
             
         }
-
-        /// <inheritdoc/>
-        public virtual async Task BeforeProcessAsync()
-        {
-            await Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task OnCompletionAsync()
-        {
-            await Task.CompletedTask;
-        }
-
-        public virtual async Task OnFaultAsync(IComponent faultingComponent)
-        {
-            await Task.CompletedTask;
-        }
-
+     
         /// <inheritdoc/>
         public virtual bool ValidateComponent()
         {           

@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Serilog;
 using System;

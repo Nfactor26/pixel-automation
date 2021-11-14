@@ -44,7 +44,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var retryBlock = retrySequence.GetComponentsByName("Retry").Single() as Entity;
             retryBlock.AddComponent(retryActor);
 
-            await retrySequence.BeginProcess();
+            await retrySequence.BeginProcessAsync();
 
             executeActor.Received(3).Act();
             retryActor.Received(2).Act();

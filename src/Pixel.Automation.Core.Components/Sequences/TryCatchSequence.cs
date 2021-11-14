@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         }
 
-        public override async Task BeginProcess()
+        public override async Task BeginProcessAsync()
         {
             try
             {

@@ -22,8 +22,8 @@ namespace Pixel.Automation.RunTime
         protected readonly IDataSourceReader testDataLoader;
         protected readonly ApplicationSettings applicationSettings;
 
-        protected int preDelay = 0;
-        protected int postDelay = 0;
+        protected int preDelayAmount = 0;
+        protected int postDelayAmount = 0;
         
         public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader, ApplicationSettings applicationSettings)
         {           
@@ -429,24 +429,21 @@ namespace Pixel.Automation.RunTime
 
         #endregion ITestRunner
 
-        protected Stack<Entity> entitiesBeingProcessed = new Stack<Entity>();
-
-
         protected void ConfigureDelays(TestCase testCase)
         {
-            this.preDelay = testCase.DelayFactor * this.applicationSettings.PreDelay;
-            this.postDelay = testCase.DelayFactor * this.applicationSettings.PostDelay;
+            this.preDelayAmount = testCase.DelayFactor * this.applicationSettings.PreDelay;
+            this.postDelayAmount = testCase.DelayFactor * this.applicationSettings.PostDelay;
         }
 
         protected void ResetDelays()
         {
-            this.preDelay  = 0;
-            this.postDelay = 0;
+            this.preDelayAmount = 0;
+            this.postDelayAmount = 0;
         }
-       
+
         protected void AddDelay(int delayAmount)
         {
-            if(delayAmount > 0)
+            if (delayAmount > 0)
             {
                 logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
                 Thread.Sleep(delayAmount);
@@ -455,6 +452,7 @@ namespace Pixel.Automation.RunTime
 
         protected virtual async Task<bool> ProcessEntity(Entity targetEntity)
         {
+            var entitiesBeingProcessed = new Stack<Entity>();
             IComponent actorBeingProcessed = null;
             try
             {
@@ -471,12 +469,10 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    AddDelay(this.preDelay);
-                                    await actor.BeforeProcessAsync();
-                                    actor.IsExecuting = true;                                  
+                                    AddDelay(this.preDelayAmount);
+                                    actor.IsExecuting = true;
                                     actor.Act();
-                                    await actor.OnCompletionAsync();
-                                    AddDelay(this.postDelay);
+                                    AddDelay(this.postDelayAmount);
 
                                 }
                                 catch (Exception ex)
@@ -499,12 +495,10 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    AddDelay(this.preDelay);
-                                    await actor.BeforeProcessAsync();
+                                    AddDelay(this.preDelayAmount);
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
-                                    await actor.OnCompletionAsync();
-                                    AddDelay(this.postDelay);
+                                    AddDelay(this.postDelayAmount);
                                 }
                                 catch (Exception ex)
                                 {
@@ -518,25 +512,27 @@ namespace Pixel.Automation.RunTime
                                         logger.Warning(ex, ex.Message);
                                     }
                                 }
-                                
+
                                 actor.IsExecuting = false;
                                 break;
 
                             case IEntityProcessor processor:
-                                await processor.BeginProcess();
+                                processor.ConfigureDelay(this.preDelayAmount, this.postDelayAmount);
+                                await processor.BeginProcessAsync();
+                                processor.ResetDelay();
                                 break;
 
                             case Entity entity:
                                 //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
-                                if (this.entitiesBeingProcessed.Count() > 0 && this.entitiesBeingProcessed.Peek().Equals(entity))
+                                if (entitiesBeingProcessed.Count() > 0 && entitiesBeingProcessed.Peek().Equals(entity))
                                 {
-                                    var processedEntity = this.entitiesBeingProcessed.Pop();
+                                    var processedEntity = entitiesBeingProcessed.Pop();
                                     await processedEntity.OnCompletionAsync();
                                 }
                                 else
                                 {
-                                    this.entitiesBeingProcessed.Push(entity);
-                                    await entity.BeforeProcessAsync();                                    
+                                    entitiesBeingProcessed.Push(entity);
+                                    await entity.BeforeProcessAsync();
                                 }
                                 break;
                         }
@@ -558,11 +554,11 @@ namespace Pixel.Automation.RunTime
                     currentActor.IsFaulted = true;
                 }
 
-                while (this.entitiesBeingProcessed.Count() > 0)
+                while (entitiesBeingProcessed.Count() > 0)
                 {
                     try
                     {
-                        var entity = this.entitiesBeingProcessed.Pop();
+                        var entity = entitiesBeingProcessed.Pop();
                         await entity.OnFaultAsync(actorBeingProcessed);
                     }
                     catch (Exception faultHandlingExcpetion)
