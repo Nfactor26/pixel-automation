@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core
@@ -39,7 +40,6 @@ namespace Pixel.Automation.Core
         [Browsable(false)]
         public IEnumerable<Entity> Entities => components.OfType<Entity>() ?? Enumerable.Empty<Entity>();
 
-
         #region Constructor
 
         /// <summary>
@@ -61,6 +61,34 @@ namespace Pixel.Automation.Core
         }
 
         #endregion Constructoe  
+
+        #region before proces, after process and on fault hooks
+
+        /// <summary>
+        /// Processor will call BeforeProcess on an Entity before processing it's child components
+        /// </summary>
+        public virtual async Task BeforeProcessAsync()
+        {
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Processor will call OnCompletionAsync on an Entity after processing it's child components
+        /// </summary>
+        public virtual async Task OnCompletionAsync()
+        {
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Processor will call OnFaultAsync on an Entity if one of it's child components runs in to an exception during execution
+        /// </summary>
+        public virtual async Task OnFaultAsync(IComponent faultingComponent)
+        {
+            await Task.CompletedTask;
+        }
+
+        #endregion before proces, after process and on fault hooks
 
         #region Manage Components
 

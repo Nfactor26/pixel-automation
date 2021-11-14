@@ -54,7 +54,7 @@ namespace Pixel.Automation.Core.Components.Processors
           
         protected virtual async Task<bool> ProcessEntity(Entity targetEntity)
         {
-            Stack<Entity> entitiesBeingProcessed = new Stack<Entity>();
+            var entitiesBeingProcessed = new Stack<Entity>();
             IComponent actorBeingProcessed = null;
             try
             {
@@ -71,11 +71,9 @@ namespace Pixel.Automation.Core.Components.Processors
                             case ActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;
-                                    await actor.BeforeProcessAsync();
+                                    actorBeingProcessed = actor;                                   
                                     actor.IsExecuting = true;                                  
-                                    actor.Act();
-                                    await actor.OnCompletionAsync();
+                                    actor.Act();                                   
                                 }
                                 catch (Exception ex)
                                 {
@@ -97,11 +95,9 @@ namespace Pixel.Automation.Core.Components.Processors
                             case AsyncActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;
-                                    await actor.BeforeProcessAsync();
+                                    actorBeingProcessed = actor;                                 
                                     actor.IsExecuting = true;
-                                    await actor.ActAsync();
-                                    await actor.OnCompletionAsync();
+                                    await actor.ActAsync();                                   
                                 }
                                 catch (Exception ex)
                                 {
@@ -126,15 +122,15 @@ namespace Pixel.Automation.Core.Components.Processors
 
                             case Entity entity:
                                 //Entity -> GetNextComponentToProcess yields child entity two times . Before processing its children and after it's children are processed
-                                if (entitiesBeingProcessed.Count() > 0 && entitiesBeingProcessed.Peek().Equals(component as Entity))
+                                if (entitiesBeingProcessed.Count() > 0 && entitiesBeingProcessed.Peek().Equals(entity))
                                 {
                                     var processedEntity = entitiesBeingProcessed.Pop();
                                     await processedEntity.OnCompletionAsync();
                                 }
                                 else
                                 {
-                                    entitiesBeingProcessed.Push(component as Entity);
-                                    await component.BeforeProcessAsync();                                   
+                                    entitiesBeingProcessed.Push(entity);
+                                    await entity.BeforeProcessAsync();                                   
                                 }
                                 break;
                         }

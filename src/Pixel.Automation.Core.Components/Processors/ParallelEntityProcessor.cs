@@ -1,5 +1,4 @@
 ﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
@@ -22,7 +21,6 @@ namespace Pixel.Automation.Core.Components.Processors
         {
 
         }
-
 
         public override async Task BeginProcess()
         {

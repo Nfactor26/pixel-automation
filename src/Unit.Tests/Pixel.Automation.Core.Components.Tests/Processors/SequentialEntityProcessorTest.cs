@@ -51,20 +51,16 @@ namespace Pixel.Automation.Core.Components.Tests
             await processor.BeginProcess();
 
             actorComponent.Received(1).Act();
-            await actorComponent .Received(1).BeforeProcessAsync();
-            await actorComponent .Received(1).OnCompletionAsync();
+            await entity.Received(1).BeforeProcessAsync();
+            await entity.Received(1).OnCompletionAsync();
           
-            await asyncActorComponent.Received(1).ActAsync();
-            await asyncActorComponent .Received(1).BeforeProcessAsync();
-            await asyncActorComponent .Received(1).OnCompletionAsync();
+            await asyncActorComponent.Received(1).ActAsync();         
 
             disabledActorComponent.Received(0).Act();
            
             await entityProcessor.Received(1).BeginProcess();            
             
-            nestedActorComponent.Received(1).Act();
-            await nestedActorComponent .Received(1).BeforeProcessAsync();
-            await nestedActorComponent .Received(1).OnCompletionAsync();
+            nestedActorComponent.Received(1).Act();          
 
             await Task.CompletedTask;
         }
