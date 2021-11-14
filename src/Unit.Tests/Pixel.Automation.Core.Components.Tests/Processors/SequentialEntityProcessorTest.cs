@@ -48,7 +48,7 @@ namespace Pixel.Automation.Core.Components.Tests
             rootEntity.AddComponent(entity);
             entity.AddComponent(nestedActorComponent);
          
-            await processor.BeginProcess();
+            await processor.BeginProcessAsync();
 
             actorComponent.Received(1).Act();
             await entity.Received(1).BeforeProcessAsync();
@@ -58,7 +58,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             disabledActorComponent.Received(0).Act();
            
-            await entityProcessor.Received(1).BeginProcess();            
+            await entityProcessor.Received(1).BeginProcessAsync();            
             
             nestedActorComponent.Received(1).Act();          
 
@@ -88,7 +88,7 @@ namespace Pixel.Automation.Core.Components.Tests
             processor.AddComponent(rootEntity);
             rootEntity.AddComponent(actorComponent);
 
-            Assert.ThrowsAsync<Exception>(async () => { await processor.BeginProcess(); });
+            Assert.ThrowsAsync<Exception>(async () => { await processor.BeginProcessAsync(); });
 
             actorComponent.Received(1).Act();           
 
@@ -119,7 +119,7 @@ namespace Pixel.Automation.Core.Components.Tests
             rootEntity.AddComponent(actorComponent);
             rootEntity.AddComponent(asyncActorComponent);
 
-            await processor.BeginProcess();
+            await processor.BeginProcessAsync();
 
             actorComponent.Received(1).Act();
             await asyncActorComponent.Received(1).ActAsync();
@@ -150,7 +150,7 @@ namespace Pixel.Automation.Core.Components.Tests
             processor.AddComponent(rootEntity);
             rootEntity.AddComponent(asyncActorComponent);
 
-            Assert.ThrowsAsync<Exception>(async () => { await processor.BeginProcess(); });
+            Assert.ThrowsAsync<Exception>(async () => { await processor.BeginProcessAsync(); });
 
             await asyncActorComponent.Received(1).ActAsync();
             await Task.CompletedTask;
@@ -180,7 +180,7 @@ namespace Pixel.Automation.Core.Components.Tests
             rootEntity.AddComponent(asyncActorComponent);
             rootEntity.AddComponent(actorComponent);
 
-            await processor.BeginProcess();
+            await processor.BeginProcessAsync();
 
             await asyncActorComponent.Received(1).ActAsync();
             actorComponent.Received(1).Act();

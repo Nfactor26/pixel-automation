@@ -163,7 +163,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     }
                     else if (component is IEntityProcessor entityProcessor)
                     {
-                        await entityProcessor.BeginProcess();
+                        await entityProcessor.BeginProcessAsync();
                     }
                 }
                 catch (Exception ex)

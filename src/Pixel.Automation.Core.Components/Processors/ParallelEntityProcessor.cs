@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Components.Processors
 
         }
 
-        public override async Task BeginProcess()
+        public override async Task BeginProcessAsync()
         {
             var exceptions = new ConcurrentQueue<Exception>();
 

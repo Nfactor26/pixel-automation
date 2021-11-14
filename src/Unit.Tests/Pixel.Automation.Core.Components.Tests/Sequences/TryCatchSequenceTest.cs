@@ -36,7 +36,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var finallyBlock = tryCatchSequence.GetComponentsByName("Finally").Single() as Entity;
             finallyBlock.AddComponent(finallyActor);
 
-            await tryCatchSequence.BeginProcess();
+            await tryCatchSequence.BeginProcessAsync();
 
             tryActor.Received(1).Act();
             catchActor.Received(0).Act();
@@ -73,7 +73,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var finallyBlock = tryCatchSequence.GetComponentsByName("Finally").Single() as Entity;
             finallyBlock.AddComponent(finallyActor);
 
-            await tryCatchSequence.BeginProcess();
+            await tryCatchSequence.BeginProcessAsync();
 
             tryActor.Received(1).Act();
             catchActor.Received(1).Act();

@@ -1,12 +1,10 @@
-﻿using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -18,10 +16,8 @@ namespace Pixel.Automation.Core.Components.Processors
     {
         private readonly ILogger logger = Log.ForContext<EntityProcessor>();
 
-        [DataMember]
-        [Display(Name = "Processing Delay", GroupName = "Configuration", Order = 10)]
-        [Description("Delay between execution of two actors")]
-        public Argument ProcessingDelay { get; set; } = new InArgument<double>() { DefaultValue = 500, CanChangeType = false };
+        protected int preDelayAmount = 0;
+        protected int postDelayAmount = 0;
 
         public EntityProcessor(string name="",string tag=""):base(name,tag)
         {
@@ -31,8 +27,29 @@ namespace Pixel.Automation.Core.Components.Processors
         [NonSerialized]
         protected bool IsProcessing = false;
         
-        public abstract Task BeginProcess();
-       
+        public abstract Task BeginProcessAsync();
+        
+        public virtual void ConfigureDelay(int preDelayAmount, int postDelayAmount)
+        {
+            this.preDelayAmount = preDelayAmount;
+            this.postDelayAmount = postDelayAmount;
+        }
+
+        public virtual void ResetDelay()
+        {
+            this.preDelayAmount = 0;
+            this.postDelayAmount = 0;
+        }
+
+        protected virtual void AddDelay(int delayAmount)
+        {
+            if (delayAmount > 0)
+            {
+                logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
+                Thread.Sleep(delayAmount);
+            }
+        }
+
         public void ResetComponents()
         {
             logger.Information("Reset initiated for processor :  {this}", this);
@@ -65,15 +82,17 @@ namespace Pixel.Automation.Core.Components.Processors
                     {
                         logger.Information("Component : [{$Id},{$Name}] will be processed next.", component.Id, component.Name);
 
-
                         switch (component)
                         {
                             case ActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;                                   
-                                    actor.IsExecuting = true;                                  
-                                    actor.Act();                                   
+                                    actorBeingProcessed = actor;
+                                    AddDelay(this.preDelayAmount);
+                                    actor.IsExecuting = true;
+                                    actor.Act();
+                                    AddDelay(this.postDelayAmount);
+
                                 }
                                 catch (Exception ex)
                                 {
@@ -87,17 +106,17 @@ namespace Pixel.Automation.Core.Components.Processors
                                         logger.Warning(ex, ex.Message);
                                     }
                                 }
-
-                                //Thread.Sleep(TimeSpan.FromSeconds(this.ProcessingDelay));
                                 actor.IsExecuting = false;
                                 break;
 
                             case AsyncActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;                                 
+                                    actorBeingProcessed = actor;
+                                    AddDelay(this.preDelayAmount);
                                     actor.IsExecuting = true;
-                                    await actor.ActAsync();                                   
+                                    await actor.ActAsync();
+                                    AddDelay(this.postDelayAmount);
                                 }
                                 catch (Exception ex)
                                 {
@@ -111,13 +130,13 @@ namespace Pixel.Automation.Core.Components.Processors
                                         logger.Warning(ex, ex.Message);
                                     }
                                 }
-
-                                //Thread.Sleep(TimeSpan.FromSeconds(this.ProcessingDelay));
                                 actor.IsExecuting = false;
                                 break;
 
                             case IEntityProcessor processor:
-                                await processor.BeginProcess();
+                                processor.ConfigureDelay(this.preDelayAmount, this.postDelayAmount); 
+                                await processor.BeginProcessAsync();
+                                processor.ResetDelay();
                                 break;
 
                             case Entity entity:
@@ -143,7 +162,7 @@ namespace Pixel.Automation.Core.Components.Processors
             }
             catch (Exception ex)
             {
-                Log.Error(ex.Message, ex);
+                logger.Error(ex.Message, ex);
                 if (actorBeingProcessed is ActorComponent)
                 {
                     ActorComponent currentActor = actorBeingProcessed as ActorComponent;

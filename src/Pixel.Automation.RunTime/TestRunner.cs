@@ -22,8 +22,8 @@ namespace Pixel.Automation.RunTime
         protected readonly IDataSourceReader testDataLoader;
         protected readonly ApplicationSettings applicationSettings;
 
-        protected int preDelay = 0;
-        protected int postDelay = 0;
+        protected int preDelayAmount = 0;
+        protected int postDelayAmount = 0;
         
         public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader, ApplicationSettings applicationSettings)
         {           
@@ -428,22 +428,22 @@ namespace Pixel.Automation.RunTime
         }
 
         #endregion ITestRunner
-    
+
         protected void ConfigureDelays(TestCase testCase)
         {
-            this.preDelay = testCase.DelayFactor * this.applicationSettings.PreDelay;
-            this.postDelay = testCase.DelayFactor * this.applicationSettings.PostDelay;
+            this.preDelayAmount = testCase.DelayFactor * this.applicationSettings.PreDelay;
+            this.postDelayAmount = testCase.DelayFactor * this.applicationSettings.PostDelay;
         }
 
         protected void ResetDelays()
         {
-            this.preDelay  = 0;
-            this.postDelay = 0;
+            this.preDelayAmount = 0;
+            this.postDelayAmount = 0;
         }
-       
+
         protected void AddDelay(int delayAmount)
         {
-            if(delayAmount > 0)
+            if (delayAmount > 0)
             {
                 logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
                 Thread.Sleep(delayAmount);
@@ -469,10 +469,10 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    AddDelay(this.preDelay);                                   
-                                    actor.IsExecuting = true;                                  
-                                    actor.Act();                                   
-                                    AddDelay(this.postDelay);
+                                    AddDelay(this.preDelayAmount);
+                                    actor.IsExecuting = true;
+                                    actor.Act();
+                                    AddDelay(this.postDelayAmount);
 
                                 }
                                 catch (Exception ex)
@@ -495,10 +495,10 @@ namespace Pixel.Automation.RunTime
                                 try
                                 {
                                     actorBeingProcessed = actor;
-                                    AddDelay(this.preDelay);                                   
+                                    AddDelay(this.preDelayAmount);
                                     actor.IsExecuting = true;
-                                    await actor.ActAsync();                                 
-                                    AddDelay(this.postDelay);
+                                    await actor.ActAsync();
+                                    AddDelay(this.postDelayAmount);
                                 }
                                 catch (Exception ex)
                                 {
@@ -512,12 +512,14 @@ namespace Pixel.Automation.RunTime
                                         logger.Warning(ex, ex.Message);
                                     }
                                 }
-                                
+
                                 actor.IsExecuting = false;
                                 break;
 
                             case IEntityProcessor processor:
-                                await processor.BeginProcess();
+                                processor.ConfigureDelay(this.preDelayAmount, this.postDelayAmount);
+                                await processor.BeginProcessAsync();
+                                processor.ResetDelay();
                                 break;
 
                             case Entity entity:
@@ -530,7 +532,7 @@ namespace Pixel.Automation.RunTime
                                 else
                                 {
                                     entitiesBeingProcessed.Push(entity);
-                                    await entity.BeforeProcessAsync();                                    
+                                    await entity.BeforeProcessAsync();
                                 }
                                 break;
                         }

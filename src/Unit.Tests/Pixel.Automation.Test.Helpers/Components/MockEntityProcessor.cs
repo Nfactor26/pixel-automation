@@ -17,12 +17,22 @@ namespace Pixel.Automation.Test.Helpers
 
         }
 
-        public Task BeginProcess()
+        public Task BeginProcessAsync()
         {
             return Task.CompletedTask;
         }
 
+        public void ConfigureDelay(int preDelayAmount, int postDelayAmount)
+        {
+            
+        }
+
         public void ResetComponents()
+        {
+            
+        }
+
+        public void ResetDelay()
         {
             
         }

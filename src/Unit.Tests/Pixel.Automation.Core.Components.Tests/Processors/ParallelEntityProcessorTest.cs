@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Components.Tests
             parallelBlockTwo.AddComponent(entityTwo);
             entityTwo.AddComponent(actorTwo);
 
-            await processor.BeginProcess();
+            await processor.BeginProcessAsync();
 
             actorOne.Received(1).Act();          
             actorTwo.Received(1).Act();
@@ -77,7 +77,7 @@ namespace Pixel.Automation.Core.Components.Tests
             parallelBlockOne.AddComponent(entityOne);
             entityOne.AddComponent(actorOne);          
 
-            Assert.ThrowsAsync<AggregateException>(async () => { await processor.BeginProcess(); });
+            Assert.ThrowsAsync<AggregateException>(async () => { await processor.BeginProcessAsync(); });
             await entityOne.Received(1).BeforeProcessAsync();
             await entityOne.Received(1).OnFaultAsync(actorOne);
 
