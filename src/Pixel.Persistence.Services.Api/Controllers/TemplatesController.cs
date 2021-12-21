@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class TemplatesController : ControllerBase

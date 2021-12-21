@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using System.Collections;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectStatisticsController : ControllerBase

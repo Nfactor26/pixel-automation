@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Services;
 using Serilog;
@@ -44,8 +39,24 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<IProjectRepository, ProjectRepository>();
             services.AddTransient<IPrefabRepository, PrefabRepository>();
             services.AddTransient<ITemplateRepository, TemplateRepository>();
-            services.AddControllers(); 
-            //services.AddControllersWithViews();
+                      
+            services.AddAuthentication(OAuth2IntrospectionDefaults.AuthenticationScheme)
+            .AddOAuth2Introspection(options =>
+            {               
+                options.Authority = Configuration["INTROSPECTION_AUTHORITY"];
+                options.ClientId = "pixel-persistence-api";
+                options.ClientSecret = "pixel-secret";                
+            });
+          
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy(Policies.WriteProcessDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
+                options.AddPolicy(Policies.ReadProcessDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
+                options.AddPolicy(Policies.WriteTestDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
+                options.AddPolicy(Policies.ReadTestDataPolicy, policy => policy.RequireRole(Roles.DashboardUserRole, Roles.EditorUserRole));
+            });
+
+            services.AddControllers();
             services.AddRazorPages();
 
             services.AddSwaggerGen();
@@ -69,12 +80,13 @@ namespace Pixel.Persistence.Services.Api
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pixel Persistence V1");
             });
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
