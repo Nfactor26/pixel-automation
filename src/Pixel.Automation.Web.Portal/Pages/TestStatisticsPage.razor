@@ -1,4 +1,5 @@
 ﻿@page "/test-statistics/{TestId?}"
+@attribute [Authorize(Policy = Policies.DashboardUserPolicy)]
 
 <MudGrid Elevation="4" Justify="Justify.Center">
     <MudItem xs="12">
