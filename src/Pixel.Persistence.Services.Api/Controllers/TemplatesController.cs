@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class TemplatesController : ControllerBase
@@ -54,6 +55,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.WriteProcessDataPolicy)]       
         public async Task<IActionResult> Create([FromBody] SessionTemplate template)
         {
             Guard.Argument(template).NotNull();
@@ -67,6 +69,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = Policies.WriteProcessDataPolicy)]      
         public async Task<IActionResult> Update([FromBody] SessionTemplate template)
         {
             Guard.Argument(template).NotNull();
@@ -89,6 +92,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = Policies.WriteProcessDataPolicy)]
         public async Task<IActionResult> Delete(string Id)
         {
            if(await templateRepository.TryDeleteAsync(Id))

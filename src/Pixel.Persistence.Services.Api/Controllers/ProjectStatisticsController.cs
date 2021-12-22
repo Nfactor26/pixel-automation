@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = Policies.ReadTestDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectStatisticsController : ControllerBase
