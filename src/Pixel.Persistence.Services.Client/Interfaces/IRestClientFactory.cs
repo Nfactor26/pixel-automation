@@ -1,5 +1,4 @@
 ﻿using RestSharp;
-using Pixel.Automation.Core;
 
 namespace Pixel.Persistence.Services.Client.Interfaces
 {
@@ -8,6 +7,6 @@ namespace Pixel.Persistence.Services.Client.Interfaces
     /// </summary>
     public interface IRestClientFactory
     {       
-        IRestClient GetOrCreateClient();
+        RestClient GetOrCreateClient();
     }
 }

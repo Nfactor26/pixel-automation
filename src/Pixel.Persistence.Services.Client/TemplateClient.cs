@@ -64,7 +64,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(sessionTemplate).NotNull();
             logger.Debug("Add new template {@SessionTemplate}", sessionTemplate);
 
-            RestRequest restRequest = new RestRequest("templates") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("templates") { Method = Method.Post };
             restRequest.AddJsonBody(sessionTemplate);
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest);
@@ -77,7 +77,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(sessionTemplate).NotNull();
             logger.Debug("Updated template {@SessionTemplate}", sessionTemplate);
 
-            RestRequest restRequest = new RestRequest("templates") { Method = Method.PUT };
+            RestRequest restRequest = new RestRequest("templates") { Method = Method.Put };
             restRequest.AddJsonBody(sessionTemplate);
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest);
@@ -90,7 +90,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(id).NotNull().NotEmpty();
             logger.Debug("Delete SessionTemplate with Id : {0}", id);
 
-            RestRequest restRequest = new RestRequest($"templates/{id}") { Method = Method.DELETE };
+            RestRequest restRequest = new RestRequest($"templates/{id}") { Method = Method.Delete };
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest);
             result.EnsureSuccess();

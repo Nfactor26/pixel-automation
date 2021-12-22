@@ -34,7 +34,7 @@ namespace Pixel.Persistence.Services.Client
             logger.Debug("Get controls for applicationId : {0}", controlDataRequest.ApplicationId);
 
             //Note : RestSharp doesn't support content body in get request. Hence, we are adding as query string
-            RestRequest restRequest = new RestRequest("control") { Method = Method.GET, RequestFormat = DataFormat.Json };
+            RestRequest restRequest = new RestRequest("control") { Method = Method.Get, RequestFormat = DataFormat.Json };
             restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ApplicationId), controlDataRequest.ApplicationId, ParameterType.QueryString);
             foreach(var controlId in controlDataRequest.ControlIdCollection)
             {
@@ -53,10 +53,10 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(controlDescription).NotNull();
             logger.Debug("Add or update {@ControlDescription}", controlDescription);
 
-            RestRequest restRequest = new RestRequest("control") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("control") { Method = Method.Post };
             restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.ExecuteAsync(restRequest, Method.POST);
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
             result.EnsureSuccess();
         }
 
@@ -67,7 +67,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(imageFile).NotNull().NotEmpty();           
             logger.Debug("Add or update control image for control : {0} with Id : {1}", controlDescription.ControlName, controlDescription.ControlId);
 
-            RestRequest restRequest = new RestRequest("control/image") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("control/image") { Method = Method.Post };
             var controlImageMetaData = new ControlImageMetaData()
             {
                 ApplicationId = controlDescription.ApplicationId,
@@ -88,7 +88,7 @@ namespace Pixel.Persistence.Services.Client
             string fileName = Path.GetFileName(imageFile);
             logger.Debug("Delete control image {0} for control : {1} with Id : {2}", fileName, controlDescription.ControlName, controlDescription.ControlId);
 
-            RestRequest restRequest = new RestRequest("control/image/delete") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("control/image/delete") { Method = Method.Post };
             var controlImageMetaData = new ControlImageMetaData()
             {
                 ApplicationId = controlDescription.ApplicationId,

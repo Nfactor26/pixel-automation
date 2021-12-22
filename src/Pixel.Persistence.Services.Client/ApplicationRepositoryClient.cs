@@ -69,10 +69,10 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(applicationDescription).NotNull();
             logger.Debug("Add Or Update {@ApplicationDescription}", applicationDescription);
 
-            RestRequest restRequest = new RestRequest("/application") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("/application") { Method = Method.Post };
             restRequest.AddJsonBody(serializer.Serialize<ApplicationDescription>(applicationDescription));
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.ExecuteAsync(restRequest, Method.POST);
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
             result.EnsureSuccess();
         }
 

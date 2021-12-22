@@ -41,7 +41,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(testSession).NotNull();
             logger.Debug("Updated test session {@TestSession}", testSession);
 
-            RestRequest restRequest = new RestRequest($"testsession/{sessionId}") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest($"testsession/{sessionId}") { Method = Method.Post };
             restRequest.AddJsonBody(testSession);
             var client = this.clientFactory.GetOrCreateClient();
             var result =  await client.ExecuteAsync(restRequest);
@@ -54,7 +54,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(testResult).NotNull();
             logger.Debug("Add test result {@TestResult}", testResult);
 
-            RestRequest restRequest = new RestRequest("testresult") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("testresult") { Method = Method.Post };
             restRequest.AddJsonBody(testResult);
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest);

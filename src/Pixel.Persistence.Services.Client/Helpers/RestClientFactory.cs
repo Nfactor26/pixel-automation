@@ -8,7 +8,7 @@ namespace Pixel.Persistence.Services.Client
     public class RestClientFactory : IRestClientFactory
     {
         private readonly ApplicationSettings applicationSettings;
-        private IRestClient restClient;
+        private RestClient restClient;
 
         /// <summary>
         /// constructor
@@ -20,9 +20,9 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public IRestClient GetOrCreateClient()
+        public RestClient GetOrCreateClient()
         {
-            if(!(restClient?.BaseUrl.Equals(applicationSettings.PersistenceServiceUri) ?? false))
+            if(restClient == null)
             {
                 restClient = new RestClient(applicationSettings.PersistenceServiceUri);
             }           
