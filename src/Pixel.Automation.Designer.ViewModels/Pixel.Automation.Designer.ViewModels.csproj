@@ -10,10 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
-    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />  
     <PackageReference Include="MahApps.Metro" Version="2.4.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />   
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Extensions.ChildKernel" Version="3.3.0" />
     <PackageReference Include="ninject.extensions.conventions" Version="3.3.0" />
@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <ProjectReference Include="..\..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />    
     <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
       <Private>false</Private>
     </ProjectReference>

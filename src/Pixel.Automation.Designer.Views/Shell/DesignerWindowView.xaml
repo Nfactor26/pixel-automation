@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow x:Class="Pixel.Automation.Designer.Views.ShellView"
+﻿<UserControl x:Class="Pixel.Automation.Designer.Views.DesignerWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,13 +6,10 @@
         xmlns:docking="clr-namespace:Pixel.Automation.Editor.Core.Docking;assembly=Pixel.Automation.Editor.Core"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:cal="http://www.caliburnproject.org" 
+        xmlns:cal="http://www.caliburnproject.org" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
         xmlns:avalonTheme="clr-namespace:Xceed.Wpf.AvalonDock.Themes;assembly=Xceed.Wpf.AvalonDock.Themes.MahApps"
-        mc:Ignorable="d" ShowActivated="True" WindowState="Maximized"
-        ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}"
-                       
-         >
-    <Controls:MetroWindow.Resources>
+        mc:Ignorable="d">
+    <UserControl.Resources>
         <ResourceDictionary>
            
             <avalonDock:BoolToVisibilityConverter x:Key="boolToVisConverter"/>
@@ -46,27 +43,9 @@
 
         </ResourceDictionary>
 
-    </Controls:MetroWindow.Resources>
-
-    <Controls:MetroWindow.Flyouts>
-        <Controls:FlyoutsControl x:Name="FlyOuts" ItemsSource="{Binding FlyOuts}" ItemContainerStyle="{StaticResource CustomFlyoutStyle}">
-            <Controls:FlyoutsControl.ItemTemplate>
-                <DataTemplate>
-                    <ContentControl cal:View.Model="{Binding}"  Background="{DynamicResource MahApps.Brushes.Window.Background}"/>
-                </DataTemplate>
-            </Controls:FlyoutsControl.ItemTemplate>
-        </Controls:FlyoutsControl>
-    </Controls:MetroWindow.Flyouts>
-
-    <Controls:MetroWindow.RightWindowCommands>
-        <Controls:WindowCommands>
-            <Button x:Name="Settings" cal:Message.Attach="[Event Click] = [Action ToggleFlyout(0)]"
-                     cal:Action.TargetWithoutContext="{Binding Path=DataContext, 
-                     RelativeSource={RelativeSource AncestorType={x:Type Controls:MetroWindow}}}">Settings</Button>         
-        </Controls:WindowCommands>
-    </Controls:MetroWindow.RightWindowCommands>
-
-    <DockPanel>
+    </UserControl.Resources>
+    
+    <DockPanel>        
         <Menu  VerticalAlignment="Stretch" HorizontalAlignment="Left" DockPanel.Dock="Top">
             
             <MenuItem x:Name="File" Header="File" Style="{StaticResource MahApps.Styles.MenuItem}">
@@ -100,7 +79,6 @@
                           ItemContainerStyle="{StaticResource ScrapperMenuItemStyle}">
             </MenuItem>
         </Menu>
-
         <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Anchorables}"
 							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated">
             <avalonDock:DockingManager.LayoutItemTemplateSelector>
@@ -160,11 +138,9 @@
                 </avalonDock:LayoutPanel>
             </avalonDock:LayoutRoot>
 
-        </avalonDock:DockingManager>
-        
+        </avalonDock:DockingManager>        
         <!--<StatusBar>
             <StatusBarItem Content="{Binding Status}"></StatusBarItem>
-        </StatusBar>-->
-        
+        </StatusBar>-->        
     </DockPanel>
-</Controls:MetroWindow>
+</UserControl>

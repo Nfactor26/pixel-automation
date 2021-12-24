@@ -36,6 +36,22 @@ namespace Pixel.Automation.Core
             }
         }
 
+
+        private string identityServiceUri;
+        /// <summary>
+        /// Service end point for OIDC based identity provider 
+        /// </summary>
+        [DataMember]
+        public string IdentityServiceUri
+        {
+            get => this.identityServiceUri;
+            set
+            {
+                this.identityServiceUri = value;               
+                OnPropertyChanged();
+            }
+        }
+
       
         private bool isOfflineMode;
         /// <summary>

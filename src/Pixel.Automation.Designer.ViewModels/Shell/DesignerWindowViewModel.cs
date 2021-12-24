@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -15,33 +16,32 @@ using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-    public class ShellViewModel : Conductor<IScreen>.Collection.OneActive, IShell, IHandle<PropertyGridObjectEventArgs>, IHandle<ActivateScreenNotification>
+    public class DesignerWindowViewModel : Conductor<IScreen>.Collection.OneActive, IShell, IHandle<PropertyGridObjectEventArgs>, IHandle<ActivateScreenNotification>
     {
-        private readonly ILogger logger = Log.ForContext<ShellViewModel>();
-
-        public BindableCollection<IFlyOut> FlyOuts { get; } = new BindableCollection<IFlyOut>();
-
+        private readonly ILogger logger = Log.ForContext<DesignerWindowViewModel>();
+     
         public BindableCollection<IAnchorable> Anchorables { get; } = new BindableCollection<IAnchorable>();
 
         public BindableCollection<IControlScrapper> ScreenScrappers { get; } = new BindableCollection<IControlScrapper>();
 
         private readonly ISerializer serializer;
+        private readonly ISignInManager signInManager;
 
-        public ShellViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IAnchorable> tools,
-            IEnumerable<IFlyOut> flyOuts, IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
+        public DesignerWindowViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IAnchorable> tools,
+            IEnumerable<IControlScrapper> scrappers, ISignInManager signinManager, IHome homeScreen) : base()
         {
-            Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull();
-            Guard.Argument(tools, nameof(tools)).NotNull().NotEmpty();
-            Guard.Argument(flyOuts, nameof(flyOuts)).NotNull().NotEmpty();
+            Guard.Argument(eventAggregator).NotNull();
+            Guard.Argument(tools).NotNull().NotEmpty();
+        
             Guard.Argument(scrappers, nameof(scrappers)).NotNull().NotEmpty();
-            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;           
+            this.serializer = Guard.Argument(serializer).NotNull().Value;
+            this.signInManager = Guard.Argument(signinManager).NotNull().Value;
          
             DisplayName = "Pixel Automation";        
 
             this.Anchorables.AddRange(tools);
             this.ScreenScrappers.AddRange(scrappers);
-            this.FlyOuts.AddRange(flyOuts);
-
+          
             propertyGrid = this.Anchorables.OfType<PropertyGridViewModel>().FirstOrDefault();
           
             eventAggregator.SubscribeOnUIThread(this);
@@ -51,10 +51,15 @@ namespace Pixel.Automation.Designer.ViewModels
            
         }
 
-        public void ToggleFlyout(int index)
+        protected override void OnViewLoaded(object view)
         {
-            var flyout = this.FlyOuts[index];
-            flyout.IsOpen = !flyout.IsOpen;
+            base.OnViewLoaded(view);
+            if(!this.signInManager.IsUserAuthorized())
+            {
+                MessageBox.Show("Account is not authorized to use this application. Click OK to exit.", "Unauthorized", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.Application.Current.Shutdown();
+            }
         }
 
         public async Task DoNew()

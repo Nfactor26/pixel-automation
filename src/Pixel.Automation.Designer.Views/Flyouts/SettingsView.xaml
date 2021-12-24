@@ -25,8 +25,18 @@
                             <Button x:Name="InfoPersistenceService" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
                                     ToolTip="Service endpoint for data persistence"/>
                         </StackPanel>
-                        <TextBox x:Name="PersistenceServiceUri" Controls:TextBoxHelper.Watermark="Service endpoint" 
+                        <TextBox x:Name="PersistenceServiceUri" Controls:TextBoxHelper.Watermark="Persistence service endpoint" 
                                  Text="{Binding ApplicationSettings.PersistenceServiceUri}" Width="250" HorizontalAlignment="Left"
+                                 Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Identity Service" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
+                            <Button x:Name="IdentityService" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
+                                    ToolTip="OIDC based identity provider"/>
+                        </StackPanel>
+                        <TextBox x:Name="IdentityServiceUri" Controls:TextBoxHelper.Watermark="Identity service endpoint" 
+                                 Text="{Binding ApplicationSettings.IdentityServiceUri}" Width="250" HorizontalAlignment="Left"
                                  Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"  Margin="{StaticResource MarginTop}">

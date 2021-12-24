@@ -1,18 +1,15 @@
 ﻿using Caliburn.Micro;
 using Microsoft.Extensions.Configuration;
 using Ninject;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Designer.ViewModels.Modules;
-using Pixel.Persistence.Services.Client;
+using Pixel.Automation.Designer.ViewModels.Shell;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -40,44 +37,7 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
-            var applicationSettings = IoC.Get<ApplicationSettings>();
-            if (!applicationSettings.IsOfflineMode)
-            {
-                using (var resetEvent = new ManualResetEvent(false))
-                {
-                    var downloadApplicationDataTask = new Task(async () =>
-                    {
-                        try
-                        {
-                            var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                            logger.Information("Downloading application data now");
-                            await applicationDataManger.DownloadApplicationsDataAsync();
-                            logger.Information("Download of application data completed");
-                            logger.Information("Downloading project information now");
-                            await applicationDataManger.DownloadProjectsAsync();
-                            logger.Information("Download of project information completed");
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.Error(ex.Message, ex);
-                        }
-                        finally
-                        {
-                            resetEvent.Set();
-                        }
-                    });
-                    downloadApplicationDataTask.Start();
-                    logger.Information("Waiting for data download");
-                    resetEvent.WaitOne();
-                }
-            }
-            else
-            {
-                logger.Information("Application is configured to run in offline mode.");
-            }
-
-            logger.Information("Initializing Root View now");
-            DisplayRootViewFor<IShell>();
+            DisplayRootViewFor<MainWindowViewModel>();         
         }
 
         /// <summary>
