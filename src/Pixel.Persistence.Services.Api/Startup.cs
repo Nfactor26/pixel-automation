@@ -10,6 +10,7 @@ using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Services;
 using Serilog;
+using System.Security.Claims;
 
 namespace Pixel.Persistence.Services.Api
 {
@@ -50,10 +51,32 @@ namespace Pixel.Persistence.Services.Api
           
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy(Policies.WriteProcessDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
-                options.AddPolicy(Policies.ReadProcessDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
-                options.AddPolicy(Policies.WriteTestDataPolicy, policy => policy.RequireRole(Roles.EditorUserRole));
-                options.AddPolicy(Policies.ReadTestDataPolicy, policy => policy.RequireRole(Roles.DashboardUserRole, Roles.EditorUserRole));
+                options.AddPolicy(Policies.WriteProcessDataPolicy, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole(Roles.EditorUserRole);
+                });
+                options.AddPolicy(Policies.ReadProcessDataPolicy, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireAssertion(context =>
+                    {
+                        return context.User.IsInRole(Roles.EditorUserRole) || context.User.HasClaim("sub", "pixel-test-runner");
+                    });
+                });
+                options.AddPolicy(Policies.WriteTestDataPolicy, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireAssertion(context =>
+                    {
+                        return context.User.IsInRole(Roles.EditorUserRole) || context.User.HasClaim("sub", "pixel-test-runner");
+                    });
+                });
+                options.AddPolicy(Policies.ReadTestDataPolicy, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole(Roles.DashboardUserRole, Roles.EditorUserRole);
+                });
             });
 
             services.AddControllers();

@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.RunTime.Serialization;
+using Pixel.OpenId.Authenticator;
 
 namespace Pixel.Automation.Test.Runner.Modules
 {
@@ -18,6 +19,8 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
             Kernel.Bind<ITestCaseFileSystem>().To<TestCaseFileSystem>();
             Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
+
+            Kernel.Bind<ISignInManager>().To<ClientCredentialSignInManager>().InSingletonScope();
 
             Kernel.Bind<ITypeProvider>().To<KnownTypeProvider>().InSingletonScope();
             Kernel.Bind<IServiceResolver>().To<ServiceResolver>().InSingletonScope();
