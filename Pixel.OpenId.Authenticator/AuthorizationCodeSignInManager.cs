@@ -10,11 +10,12 @@ using System.Net.Http;
 namespace Pixel.OpenId.Authenticator
 {
     /// <summary>
-    /// An OpenID based sign in manager used to authenticate users and control access to application
+    /// An OpenID based sign in manager used to authenticate users and control access to application.
+    /// Use with clients configured for Authorization Code Flow with Proof Key for Code Exchange (PKCE)
     /// </summary>
-    public class SignInManager : ISignInManager
+    public class AuthorizationCodeSignInManager : ISignInManager
     {
-        private readonly ILogger logger = Log.ForContext<SignInManager>();
+        private readonly ILogger logger = Log.ForContext<AuthorizationCodeSignInManager>();
         private readonly ApplicationSettings applicationSettings;
         private readonly string requiredRole = "PixelEditorUser";
 
@@ -27,7 +28,7 @@ namespace Pixel.OpenId.Authenticator
         /// constructor
         /// </summary>
         /// <param name="applicationSettings"></param>
-        public SignInManager(ApplicationSettings applicationSettings)
+        public AuthorizationCodeSignInManager(ApplicationSettings applicationSettings)
         {
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
         }
@@ -64,10 +65,10 @@ namespace Pixel.OpenId.Authenticator
             {
                 var options = new OidcClientOptions()
                 {
-                    Authority = applicationSettings.IdentityServiceUri,
-                    ClientId = "pixel-automation-designer",
-                    Scope = "openid profile roles email offline_access persistence-api",
-                    RedirectUri = "http://127.0.0.1/pixel-automation-designer",
+                    Authority = applicationSettings.OpenIdConnectSettings.Authority,
+                    ClientId = applicationSettings.OpenIdConnectSettings.ClientId,
+                    Scope = applicationSettings.OpenIdConnectSettings.Scope,
+                    RedirectUri = $"http://127.0.0.1/{applicationSettings.OpenIdConnectSettings.ClientId}",
                     Browser = new WebBrowser(webView),
                     Policy = new Policy
                     {

@@ -8,6 +8,7 @@ using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.Shell
 {
@@ -69,7 +70,13 @@ namespace Pixel.Automation.Designer.ViewModels.Shell
 
                 return;
             }
-            logger.Information("User doesn't have required authorization to use application");
+            else
+            {
+                logger.Information("User doesn't have required authorization to use application");
+                MessageBox.Show("Account is not authorized to use this application. Click OK to exit.", "Unauthorized",
+                   MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.Application.Current.Shutdown();
+            }
         }
     }
 }

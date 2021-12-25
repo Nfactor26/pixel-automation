@@ -36,7 +36,7 @@
                                     ToolTip="OIDC based identity provider"/>
                         </StackPanel>
                         <TextBox x:Name="IdentityServiceUri" Controls:TextBoxHelper.Watermark="Identity service endpoint" 
-                                 Text="{Binding ApplicationSettings.IdentityServiceUri}" Width="250" HorizontalAlignment="Left"
+                                 Text="{Binding ApplicationSettings.OpenIdConnectSettings.Authority}" Width="250" HorizontalAlignment="Left"
                                  Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"  Margin="{StaticResource MarginTop}">

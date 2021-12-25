@@ -26,7 +26,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
 
             Kernel.Bind<IShell>().To<DesignerWindowViewModel>();
             Kernel.Bind<IShell>().To<LoginWindowViewModel>();
-            Kernel.Bind<ISignInManager>().To<SignInManager>().InSingletonScope();
+            Kernel.Bind<ISignInManager>().To<AuthorizationCodeSignInManager>().InSingletonScope();
            
             Kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
             Kernel.Bind<INewProject>().To<NewProjectViewModel>();

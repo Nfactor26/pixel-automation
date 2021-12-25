@@ -51,17 +51,6 @@ namespace Pixel.Automation.Designer.ViewModels
            
         }
 
-        protected override void OnViewLoaded(object view)
-        {
-            base.OnViewLoaded(view);
-            if(!this.signInManager.IsUserAuthorized())
-            {
-                MessageBox.Show("Account is not authorized to use this application. Click OK to exit.", "Unauthorized", 
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                System.Windows.Application.Current.Shutdown();
-            }
-        }
-
         public async Task DoNew()
         {
             logger.Debug("DoNew start");
