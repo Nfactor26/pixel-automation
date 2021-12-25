@@ -1,6 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Ninject;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Test.Runner.Modules;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
@@ -52,6 +53,15 @@ namespace Pixel.Automation.Test.Runner
                 }
               
                 var kernel = new StandardKernel(new CommonModule(), new DevicesModule(), new ScopedModules(), new ScriptingModule(), new WindowsModule(), new SettingsModule(), new PersistenceModules());
+
+                var signinManager = kernel.Get<ISignInManager>();
+                await signinManager.SignInAsync();
+                if(!signinManager.IsUserAuthorized())
+                {
+                    Log.Information("Unauthorized access. Application will exit now.");
+                    return await Task.FromResult<int>(1);
+                }
+                
                 var applicationDataManager = kernel.Get<IApplicationDataManager>();
 
                 if (clean.HasValue())

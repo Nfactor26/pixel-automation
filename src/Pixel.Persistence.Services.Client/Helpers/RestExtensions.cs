@@ -9,7 +9,7 @@ namespace Pixel.Persistence.Services.Client
         /// Check whether the respnose is successful. If response is not success, throw exception
         /// </summary>
         /// <param name="response"></param>
-        public static void EnsureSuccess(this IRestResponse response)
+        public static void EnsureSuccess(this RestResponse response)
         {
             if (!response.IsSuccessful)
             {

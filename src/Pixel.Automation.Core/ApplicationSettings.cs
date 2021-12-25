@@ -73,6 +73,13 @@ namespace Pixel.Automation.Core
         public int DelayFactor { get; set; }
 
         /// <summary>
+        /// client configuration for open id connect authentication
+        /// </summary>
+        [DataMember]
+        public OpenIdConnectSettings OpenIdConnectSettings { get; set; }
+                
+
+        /// <summary>
         /// Default assembly references for code and script editor.
         /// These must come from .\\refs assembly if dll is present there.
         /// </summary>
@@ -96,5 +103,68 @@ namespace Pixel.Automation.Core
         /// </summary>
         [DataMember]
         public string[] WhiteListedReferences { get; set; }
+    }
+
+    public class OpenIdConnectSettings : NotifyPropertyChanged
+    {
+        private string authority;
+        /// <summary>
+        /// Service end point for OIDC based identity provider 
+        /// </summary>
+        [DataMember(Order = 10)]
+        public string Authority
+        {
+            get => this.authority;
+            set
+            {
+                this.authority = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string clientId;
+        /// <summary>
+        /// Identifier of the client
+        /// </summary>
+        [DataMember(Order = 20)]
+        public string ClientId
+        {
+            get => this.clientId;
+            set
+            {
+                this.clientId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string clientSecret;
+        /// <summary>
+        /// client secret for confidential clients (e.g. for client credential grant flow)
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 30)]
+        public string ClientSecret
+        {
+            get => this.clientSecret;
+            set
+            {
+                this.clientSecret = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string scope;
+        /// <summary>
+        /// scopes that should be requested
+        /// </summary>
+        [DataMember(Order = 40)]
+        public string Scope
+        {
+            get => this.scope;
+            set
+            {
+                this.scope = value;
+                OnPropertyChanged();
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
 using System;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -79,6 +80,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="projectFile"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Policy = Policies.WriteProcessDataPolicy)]       
         public async Task<ActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ProjectMetaData))] ProjectMetaData projectDescription, [FromForm(Name = "file")] IFormFile projectFile)
         {
             try

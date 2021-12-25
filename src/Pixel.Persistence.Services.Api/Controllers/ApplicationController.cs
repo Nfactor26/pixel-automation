@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using System;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class ApplicationController : ControllerBase
@@ -54,6 +55,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="applicationDescription"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Policy = Policies.WriteProcessDataPolicy)]
         public async Task<IActionResult> Post([FromBody] object applicationDescription)
         {
             try

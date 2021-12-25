@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Core.Models;
@@ -69,7 +68,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(projectFile).NotNull().NotEmpty();
             logger.Debug("Add or update project {@AutomationProject}", automationProject);
 
-            RestRequest restRequest = new RestRequest("project") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("project") { Method = Method.Post };
             var projectMetaData = new ProjectMetaData()
             {
                 ProjectId = automationProject.ProjectId,
@@ -90,7 +89,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(zippedDataFile).NotNull().NotEmpty();
             logger.Debug("Add or update project data files for project : {0}", automationProject.Name);
 
-            RestRequest restRequest = new RestRequest("project") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("project") { Method = Method.Post };
             var projectMetaData = new ProjectMetaData()
             {
                 ProjectId = automationProject.ProjectId,

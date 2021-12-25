@@ -68,7 +68,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(prefabFile).NotNull().NotEmpty();
             logger.Debug("Add or update {@PrefabDescription}", prefabProject);
 
-            RestRequest restRequest = new RestRequest("prefab") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("prefab") { Method = Method.Post };
             var projectMetaData = new PrefabMetaData()
             {
                 PrefabId = prefabProject.PrefabId,
@@ -90,7 +90,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(zippedDataFile).NotNull().NotEmpty();
             logger.Debug("Add or update Prefab data files for Prefab : {0}", prefabProject.PrefabName);
 
-            RestRequest restRequest = new RestRequest("prefab") { Method = Method.POST };
+            RestRequest restRequest = new RestRequest("prefab") { Method = Method.Post };
             var prefabMetaData = new PrefabMetaData()
             {
                 PrefabId = prefabProject.PrefabId,

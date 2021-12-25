@@ -4,11 +4,12 @@ using System.Diagnostics;
 namespace Pixel.Automation.Designer.Views
 {
     /// <summary>
-    /// Interaction logic for Shell.xaml
+    /// Interaction logic for DesignerWindowView.xaml
     /// </summary>
-    public partial class ShellView 
+    public partial class DesignerWindowView
+        
     {
-        public ShellView()
+        public DesignerWindowView()
         {
             InitializeComponent();
         }
