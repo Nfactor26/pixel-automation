@@ -1,9 +1,11 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace Pixel.Automation.RunTime.DataReader
@@ -12,12 +14,14 @@ namespace Pixel.Automation.RunTime.DataReader
     public class CsvDataReader : IDataReader
     {
         
-        private CsvDataSourceConfiguration metaData;      
+        private CsvDataSourceConfiguration metaData;   
+        private CsvConfiguration configuration;
 
         public void Initialize(DataSourceConfiguration metaData)
         {
             Guard.Argument(metaData).HasValue();
-            this.metaData = Guard.Argument<DataSourceConfiguration>(metaData).Cast<CsvDataSourceConfiguration>();           
+            this.metaData = Guard.Argument<DataSourceConfiguration>(metaData).Cast<CsvDataSourceConfiguration>();    
+            this.configuration = new CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = this.metaData.Delimiter };
 
             if (!File.Exists(this.metaData.TargetFile))
             {
@@ -33,9 +37,8 @@ namespace Pixel.Automation.RunTime.DataReader
         {
             using (var streamReader = new StreamReader(this.metaData.TargetFile))
             {
-                using (var csvReader = new CsvReader(streamReader))
-                {
-                    csvReader.Configuration.Delimiter = this.metaData.Delimiter;
+                using (var csvReader = new CsvReader(streamReader, this.configuration))
+                {                  
                     csvReader.Read();
                     if (metaData.HasHeaders)
                     {
@@ -43,7 +46,7 @@ namespace Pixel.Automation.RunTime.DataReader
                     }
                     while (csvReader.Read())
                     {
-                        string[] rowData = csvReader.Context.Record;
+                        string[] rowData = csvReader.Parser.Record;
                         yield return rowData;
                     }
 
@@ -56,9 +59,8 @@ namespace Pixel.Automation.RunTime.DataReader
             List<T> rows = new List<T>();
             using (var streamReader = new StreamReader(this.metaData.TargetFile))
             {
-                using (var csvReader = new CsvReader(streamReader))
-                {
-                    csvReader.Configuration.Delimiter = this.metaData.Delimiter;
+                using (var csvReader = new CsvReader(streamReader, this.configuration))
+                {                  
                     csvReader.Read();
                     if (metaData.HasHeaders)
                     {
@@ -81,12 +83,11 @@ namespace Pixel.Automation.RunTime.DataReader
             {
                 using (var streamReader = new StreamReader(this.metaData.TargetFile))
                 {
-                    using (var csvReader = new CsvReader(streamReader))
-                    {
-                        csvReader.Configuration.Delimiter = this.metaData.Delimiter;
+                    using (var csvReader = new CsvReader(streamReader, this.configuration))
+                    {                       
                         csvReader.Read();
                         csvReader.ReadHeader();
-                        return csvReader.Context.HeaderRecord;
+                        return csvReader.HeaderRecord;
                     }
                 }
             }
@@ -98,7 +99,6 @@ namespace Pixel.Automation.RunTime.DataReader
             int rowCount = 0;
             using (StreamReader streamReader = new StreamReader(this.metaData.TargetFile))
             {
-
                 while (streamReader.ReadLine() != null)
                 {
                     rowCount++;
@@ -115,9 +115,8 @@ namespace Pixel.Automation.RunTime.DataReader
         {
             using (var streamReader = new StreamReader(this.metaData.TargetFile))
             {
-                using (var csvReader = new CsvReader(streamReader))
+                using (var csvReader = new CsvReader(streamReader, this.configuration))
                 {
-                    csvReader.Configuration.Delimiter = this.metaData.Delimiter;
                     csvReader.Read();
                     if (metaData.HasHeaders)
                     {
@@ -133,7 +132,7 @@ namespace Pixel.Automation.RunTime.DataReader
                     {
                         throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
                     }
-                    return csvReader.Context.Record;
+                    return csvReader.Parser.Record;
                 }
             }
 
@@ -143,9 +142,8 @@ namespace Pixel.Automation.RunTime.DataReader
         {
             using (var streamReader = new StreamReader(this.metaData.TargetFile))
             {
-                using (var csvReader = new CsvReader(streamReader))
-                {
-                    csvReader.Configuration.Delimiter = this.metaData.Delimiter;
+                using (var csvReader = new CsvReader(streamReader, this.configuration))
+                {                    
                     csvReader.Read();
                     if (metaData.HasHeaders)
                     {
