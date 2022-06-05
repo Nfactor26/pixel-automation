@@ -39,10 +39,9 @@
             <Style TargetType="{x:Type Controls:MetroContentControl}">
                 <Setter Property="BorderBrush" Value="{x:Null}"/>
                 <Setter Property="BorderThickness" Value="0"/>
-            </Style>
+            </Style>  
 
         </ResourceDictionary>
-
     </UserControl.Resources>
     
     <DockPanel>        
@@ -80,7 +79,9 @@
             </MenuItem>
         </Menu>
         <avalonDock:DockingManager x:Name="Manager" DocumentsSource="{Binding Items}" AnchorablesSource="{Binding Anchorables}"
-							 ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated">
+                                   GridSplitterVerticalStyle="{DynamicResource {x:Type avalonDock:LayoutGridResizerControl}}"
+                                   GridSplitterHorizontalStyle="{DynamicResource {x:Type avalonDock:LayoutGridResizerControl}}"
+							       ActiveContent="{Binding ActiveItem, Mode=TwoWay}" LayoutUpdated="OnManagerLayoutUpdated">
             <avalonDock:DockingManager.LayoutItemTemplateSelector>
                 <docking:PanesTemplateSelector>
                     <docking:PanesTemplateSelector.ScreenTemplate>
