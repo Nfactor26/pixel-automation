@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>    
-    <ProjectReference Include="..\..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />    
+    <ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />    
     <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
       <Private>false</Private>
     </ProjectReference>

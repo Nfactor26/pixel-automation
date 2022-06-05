@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\src\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+	  <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
 	</ItemGroup>
 
 </Project>
