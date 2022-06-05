@@ -3,7 +3,7 @@
           Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="table">
     <ToolBarContent>
         <MudText Typo="Typo.h6">@TableHeader</MudText>
-        <MudToolBarSpacer />
+        <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="e.g. fixture:name and result:Success|Failed" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudItem xs="1" Class="ml-4">

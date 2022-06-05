@@ -168,8 +168,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     chromeOptions.AddArgument(processIdentifier);
                     return chromeOptions as T;
                 case Browsers.Edge:
-                    EdgeOptions edgeOptions = driverOptions as EdgeOptions ?? new EdgeOptions();
-                    edgeOptions.UseChromium = true;
+                    EdgeOptions edgeOptions = driverOptions as EdgeOptions ?? new EdgeOptions();                  
                     //edgeOptions.AddArgument("test-type");
                     edgeOptions.AddArgument($"--{processIdentifier}");
                     return edgeOptions as T;

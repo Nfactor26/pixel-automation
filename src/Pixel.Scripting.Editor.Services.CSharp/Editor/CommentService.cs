@@ -13,8 +13,8 @@ namespace Pixel.Scripting.Editor.Services.CSharp
     internal class CommentService
     {
         private readonly string singleLineCommentLiteral = "//";
-        private readonly string multiLineCommentStartLiteral = "/*";
-        private readonly string multiLineCommentEndLiteral = "*/";
+        //private readonly string multiLineCommentStartLiteral = "/*";
+        //private readonly string multiLineCommentEndLiteral = "*/";
 
         private readonly AdhocWorkspaceManager workspaceManager;
 

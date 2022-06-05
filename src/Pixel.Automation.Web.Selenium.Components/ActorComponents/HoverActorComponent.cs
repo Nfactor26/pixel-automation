@@ -47,7 +47,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             if(this.Offset.IsConfigured())
             {
                 var offSet = this.ArgumentProcessor.GetValue<Point>(this.Offset);
-                action.MoveToElement(control, offSet.X, offSet.Y, MoveToElementOffsetOrigin.Center).Perform();
+                action.MoveToElement(control, offSet.X, offSet.Y).Perform();
             }
             else
             {
