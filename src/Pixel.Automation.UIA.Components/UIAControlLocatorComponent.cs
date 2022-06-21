@@ -2,6 +2,7 @@
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
@@ -16,6 +17,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 
@@ -24,7 +26,7 @@ namespace Pixel.Automation.UIA.Components
     [DataContract]
     [Serializable]
     [ToolBoxItem("UIA Locator", "Control Locators", iconSource: null, description: "Identify a UIA based control on screen", tags: new string[] { "Locator" })]
-    public class UIAControlLocatorComponent : ServiceComponent, IControlLocator<AutomationElement, AutomationElement>, ICoordinateProvider
+    public class UIAControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
     {
         #region Data Members
 
@@ -136,12 +138,12 @@ namespace Pixel.Automation.UIA.Components
             return controlIdentity is WinControlIdentity;
         }
 
-        public AutomationElement FindControl(IControlIdentity controlIdentity, AutomationElement searchRoot)
+        public async Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<WinControlIdentity>();
             logger.Debug("Start control lookup.");
           
-            AutomationElement currentSearchRoot = searchRoot ?? AutomationElement.RootElement;
+            AutomationElement currentSearchRoot = searchRoot?.GetApiControl<AutomationElement>() ?? AutomationElement.RootElement;
             IControlIdentity currentControl = controlIdentity;          
            
             while (true)
@@ -156,15 +158,16 @@ namespace Pixel.Automation.UIA.Components
                     continue;
                 }
                 logger.Debug("Control lookup completed.");
-                return foundElement ??  throw new ElementNotFoundException("No control could be located using specified search criteria");
+                var foundControl = new WinUIControl(controlIdentity, foundElement ??  throw new ElementNotFoundException("No control could be located using specified search criteria"));
+                return await Task.FromResult(foundControl);
             }
         }
 
-        public IEnumerable<AutomationElement> FindAllControls(IControlIdentity controlIdentity, AutomationElement searchRoot)
+        public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<WinControlIdentity>();
             logger.Debug("Start control lookup.");
-            AutomationElement currentSearchRoot = searchRoot ?? AutomationElement.RootElement;
+            AutomationElement currentSearchRoot = searchRoot?.GetApiControl<AutomationElement>() ?? AutomationElement.RootElement;
             IControlIdentity currentControl = controlIdentity;
             while (true)
             {
@@ -185,15 +188,15 @@ namespace Pixel.Automation.UIA.Components
                         case SearchScope.Children:
                             var childControls = FindAllChildControls(winControlIdentity, currentSearchRoot);
                             logger.Debug($"Located {childControls.Count()} matching control for {winControlIdentity}");
-                            return childControls;
+                            return await Task.FromResult(childControls.Select(c => new WinUIControl(controlIdentity, c)));
                         case SearchScope.Descendants:
                             var descendantControls = FindAllDescendantControls(winControlIdentity, currentSearchRoot);
                             logger.Debug($"Located {descendantControls.Count()} matching control for {winControlIdentity}");
-                            return descendantControls;
+                            return await Task.FromResult(descendantControls.Select(c => new WinUIControl(controlIdentity, c)));
                         case SearchScope.Sibling:
                             var siblingControls = FindAllSiblingControls(winControlIdentity, currentSearchRoot);
                             logger.Debug($"Located {siblingControls.Count()} matching control for {winControlIdentity}");
-                            return siblingControls;
+                            return await Task.FromResult(siblingControls.Select(c => new WinUIControl(controlIdentity, c)));
                         case SearchScope.Ancestor:
                             throw new InvalidOperationException("There can be only one ancestor for a given control");
                     }
@@ -241,7 +244,7 @@ namespace Pixel.Automation.UIA.Components
             ConfigureRetryPolicy(controlIdentity);
             Condition lookupCondition = BuildSearchCondition(winControlIdentity);
          
-            var currentSearchRoot = searchRoot ?? AutomationElement.RootElement;          
+            var currentSearchRoot = searchRoot ?? AutomationElement.RootElement;
 
             var foundControl = policy.Execute(() =>
             {
@@ -541,26 +544,28 @@ namespace Pixel.Automation.UIA.Components
 
         #region ICoordinateProvider      
 
-        public void GetClickablePoint(IControlIdentity controlDetails, out double x, out double y)
+        public async Task<(double,double)> GetClickablePoint(IControlIdentity controlDetails)
         {
-            GetScreenBounds(controlDetails, out Rectangle bounds);
-            controlDetails.GetClickablePoint(bounds, out x, out y);
+            var bounds = await GetScreenBounds(controlDetails);
+            controlDetails.GetClickablePoint(bounds, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
 
-        public void GetScreenBounds(IControlIdentity controlDetails, out Rectangle screenBounds)
+        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlDetails)
         {
             WinControlIdentity controlIdentity = controlDetails as WinControlIdentity;
-            AutomationElement targetControl = this.FindControl(controlIdentity, AutomationElement.RootElement);
-            screenBounds = GetBoundingBox(targetControl);
+            var targetControl = await this.FindControlAsync(controlIdentity, WinUIControl.RootControl);
+            var screenBounds = await GetBoundingBox(targetControl);
+            return screenBounds;
         }
 
-        public Rectangle GetBoundingBox(object control)
+        public async Task<Rectangle> GetBoundingBox(object control)
         {
             Guard.Argument(control).NotNull().Compatible<AutomationElement>();
 
             var automationElement = control as AutomationElement;
             var boundingBox = automationElement.Current.BoundingRectangle;
-            return new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
+            return await Task.FromResult(new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
         }
 
         #endregion ICoordinateProvider          

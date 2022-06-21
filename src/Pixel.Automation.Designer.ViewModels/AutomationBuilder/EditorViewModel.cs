@@ -153,11 +153,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     NotifyOfPropertyChange(() => CanRunComponent);
                     NotifyOfPropertyChange(() => CanResetProcessorComponents);
                     var component = componentViewModel.Model; 
-                    if (component is ActorComponent actorComponent)
-                    {
-                        actorComponent.Act();
-                    }
-                    else if(component is AsyncActorComponent asyncActorComponent)
+                    if(component is ActorComponent asyncActorComponent)
                     {
                         await asyncActorComponent.ActAsync();
                     }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Scripting.Components.Arguments
 {
@@ -22,7 +23,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
             this.globalsObject = Guard.Argument(globalsObject).NotNull().Value;
         }
      
-        public T GetValue<T>(Argument argument)
+        public async Task<T> GetValueAsync<T>(Argument argument)
         {
 
             if (!typeof(T).IsAssignableFrom(argument.GetType().GetGenericArguments()[0]))
@@ -74,11 +75,11 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                        return (T)result;                       
                     }
                    
-                    throw new ArgumentException($"Failed to {nameof(GetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
+                    throw new ArgumentException($"Failed to {nameof(GetValueAsync)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
                         $"Only simple types and IEnumerable<T> are supported. Consider using scripted mode for complex types");
                 
                 case ArgumentMode.Scripted:
-                    var fn = scriptEngine.CreateDelegateAsync<Func<T>>(argument.ScriptFile).Result;
+                    var fn = await scriptEngine.CreateDelegateAsync<Func<T>>(argument.ScriptFile);
                     return fn();                        
                
                 default:
@@ -86,7 +87,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
             }
         }
 
-        public void SetValue<T>(Argument argument, T value)
+        public async Task SetValueAsync<T>(Argument argument, T value)
         {
             if (!argument.GetType().GetGenericArguments()[0].IsAssignableFrom(value.GetType()))
             {
@@ -117,7 +118,7 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                             var retrievedValue = scriptEngine.GetVariableValue<object>(nestedProperties[0]);
                             if (!TrySetNestedPropertyValue<T>(retrievedValue, value, nestedProperties.Skip(1)))
                             {
-                                throw new InvalidOperationException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
+                                throw new InvalidOperationException($"Failed to {nameof(SetValueAsync)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
                             }                            
                         }                       
                     }                              
@@ -125,12 +126,12 @@ namespace Pixel.Automation.Scripting.Components.Arguments
                     {
                         if (!TrySetNestedPropertyValue<T>(globalsObject, value, nestedProperties))
                         {
-                            throw new InvalidOperationException($"Failed to {nameof(SetValue)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
+                            throw new InvalidOperationException($"Failed to {nameof(SetValueAsync)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode. {typeof(T)} could not be assigned to property {nestedProperties.Last()}. Verify types are compatible.");
                         }                      
                     }
                     break;
                 case ArgumentMode.Scripted:
-                    var fn = scriptEngine.CreateDelegateAsync<Action<T>>(argument.ScriptFile).Result;
+                    var fn = await scriptEngine.CreateDelegateAsync<Action<T>>(argument.ScriptFile);
                     fn(value);
                     break;
 

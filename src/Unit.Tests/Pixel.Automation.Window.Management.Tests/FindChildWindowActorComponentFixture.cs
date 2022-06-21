@@ -8,6 +8,7 @@ using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
@@ -15,7 +16,7 @@ namespace Pixel.Automation.Window.Management.Tests
     {
 
         [Test]
-        public void ValidateThatFindChildWindowActorCanLocateSingleChildWindow()
+        public async Task ValidateThatFindChildWindowActorCanLocateSingleChildWindow()
         {
             string childWindowTitle = "Don't Save";
             var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -28,8 +29,8 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { childWindow });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
+            argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
@@ -45,17 +46,17 @@ namespace Pixel.Automation.Window.Management.Tests
             Assert.AreEqual(MatchType.Equals, findChildWindowActor.MatchType);
             Assert.AreEqual(FilterMode.Index, findChildWindowActor.FilterMode);
 
-            findChildWindowActor.Act();
+            await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindow);
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindow);
 
         }
 
         [Test]
-        public void ValidateThatFindChildWindowActorCanLocateChildWindowByIndex()
+        public async Task ValidateThatFindChildWindowActorCanLocateChildWindowByIndex()
         {
             string childWindowTitle = "Don't Save";
             var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -70,9 +71,9 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { childWindowOne, childWindowTwo });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
-            argumentProcessor.GetValue<int>(Arg.Any<InArgument<int>>()).Returns(1); // we want child window at index 1 to be retrieved
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
+            argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<InArgument<int>>()).Returns(1); // we want child window at index 1 to be retrieved
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
@@ -89,19 +90,19 @@ namespace Pixel.Automation.Window.Management.Tests
             Assert.AreEqual(MatchType.Equals, findChildWindowActor.MatchType);
             Assert.AreEqual(FilterMode.Index, findChildWindowActor.FilterMode);           
 
-            findChildWindowActor.Act();
+            await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
+            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
 
 
         }
 
         [Test]
-        public void ValidateThatFindChildWindowActorCanLocateChildWindowByCustomFilter()
+        public async Task ValidateThatFindChildWindowActorCanLocateChildWindowByCustomFilter()
         {
             string childWindowTitle = "Don't Save";
             var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -117,8 +118,8 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { childWindowOne, childWindowTwo, childWindowThree });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(childWindowTitle);
+            argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
 
             var scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>(Arg.Any<string>())
@@ -150,13 +151,13 @@ namespace Pixel.Automation.Window.Management.Tests
 
             findChildWindowActor.Filter.ScriptFile = "FindWindow.csx";
 
-            findChildWindowActor.Act();
+            await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
+            await scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
         }
     }
 }

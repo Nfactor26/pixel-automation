@@ -2,9 +2,9 @@
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -45,11 +45,12 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Scroll the browser horizontally or vertically or both.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {           
-            int verticalScrollAmount = this.ArgumentProcessor.GetValue<int>(this.VerticalScroll);
-            int horizontalScrollAmount = this.ArgumentProcessor.GetValue<int>(this.HorizontalScroll);
+            int verticalScrollAmount = await this.ArgumentProcessor.GetValueAsync<int>(this.VerticalScroll);
+            int horizontalScrollAmount = await this.ArgumentProcessor.GetValueAsync<int>(this.HorizontalScroll);
             _ = ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll({horizontalScrollAmount}, {verticalScrollAmount});");
+            await Task.CompletedTask;
         }
 
         public override string ToString()

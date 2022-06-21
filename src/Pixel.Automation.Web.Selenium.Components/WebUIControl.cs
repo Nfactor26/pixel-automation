@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -40,13 +41,13 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Get the bounding box of wrapped <see cref="IWebElement"/>
         /// </summary>
         /// <returns></returns>
-        public override Rectangle GetBoundingBox()
+        public override async Task<Rectangle> GetBoundingBoxAsync()
         {
             //webdriver imlementation for location doesn't consider browser window titlebar space resulting in to incorrect y-coodrinate.
             //Hence, custom implementation          
             //var boundingBox = new Rectangle(webElement.Location, webElement.Size);
             //return boundingBox;
-            var boundingBox = coordinateProvider.GetBoundingBox(webElement);
+            var boundingBox = await coordinateProvider.GetBoundingBox(webElement);
             return boundingBox;
         }
 
@@ -55,10 +56,11 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public override void GetClickablePoint(out double x, out double y)
+        public override async Task<(double, double)> GetClickablePointAsync()
         {
-            var boundingBox = GetBoundingBox();
-            controlIdentity.GetClickablePoint(boundingBox, out x, out y);
+            var boundingBox = await GetBoundingBoxAsync();
+            controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -44,12 +45,13 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Mouse mouse cursor from it's current position by specified amount.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {           
-            var offsetCoordinates = this.ArgumentProcessor.GetValue<Point>(this.MoveBy);
+            var offsetCoordinates = await this.ArgumentProcessor.GetValueAsync<Point>(this.MoveBy);
             var syntheticMouse = GetMouse();
             syntheticMouse.MoveMouseBy(offsetCoordinates.X, offsetCoordinates.Y, this.SmootMode);
             logger.Information($"Mouse cursor moved by ({offsetCoordinates.X}, {offsetCoordinates.Y})");
+            await Task.CompletedTask;
         }
 
         public override string ToString()

@@ -20,8 +20,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             var enumerableCollection = new List<int>() { 1, 2 };
-            argumentProcessor.GetValue<List<int>>(Arg.Any<Argument>()).Returns(enumerableCollection);
-            argumentProcessor.When(x => x.SetValue<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => { });
+            argumentProcessor.GetValueAsync<List<int>>(Arg.Any<Argument>()).Returns(enumerableCollection);
+            argumentProcessor.When(x => x.SetValueAsync<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => { });
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var forEachLoopEntity = new ForEachLoopEntity()
@@ -44,8 +44,8 @@ namespace Pixel.Automation.Core.Components.Tests
             Assert.AreEqual(actorComponent, iterationResult.ElementAt(0));
             Assert.AreEqual(actorComponent, iterationResult.ElementAt(1));
 
-            argumentProcessor.Received(1).GetValue<List<int>>(Arg.Any<Argument>());
-            argumentProcessor.Received(2).SetValue<int>(Arg.Any<Argument>(), Arg.Any<int>());
+            argumentProcessor.Received(1).GetValueAsync<List<int>>(Arg.Any<Argument>());
+            argumentProcessor.Received(2).SetValueAsync<int>(Arg.Any<Argument>(), Arg.Any<int>());
         }
 
 
@@ -59,8 +59,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             var enumerableCollection = new List<int>() { 1, 2 };
-            argumentProcessor.GetValue<List<int>>(Arg.Any<Argument>()).Returns(enumerableCollection);
-            argumentProcessor.When(x => x.SetValue<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => { });
+            argumentProcessor.GetValueAsync<List<int>>(Arg.Any<Argument>()).Returns(enumerableCollection);
+            argumentProcessor.When(x => x.SetValueAsync<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => { });
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var forEachLoopEntity = new ForEachLoopEntity()

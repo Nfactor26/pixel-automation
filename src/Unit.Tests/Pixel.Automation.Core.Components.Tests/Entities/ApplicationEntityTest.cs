@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
@@ -9,12 +10,12 @@ namespace Pixel.Automation.Core.Components.Tests
     {
         class MockApplicationEntity : ApplicationEntity
         {
-            public override void Launch()
+            public override async Task LaunchAsync()
             {
                 throw new System.NotImplementedException();
             }
 
-            public override void Close()
+            public override async Task CloseAsync()
             {
                 throw new System.NotImplementedException();
             }

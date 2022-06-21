@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Tests
 {
@@ -14,7 +15,7 @@ namespace Pixel.Automation.Core.Tests
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             try
             {
@@ -25,6 +26,7 @@ namespace Pixel.Automation.Core.Tests
             {
                 this.IsExecuting = false;    
             }
+            await Task.CompletedTask;
         }
     }
 
@@ -44,18 +46,18 @@ namespace Pixel.Automation.Core.Tests
         }
 
         [Test]
-        public void ValidateThatActorComponentCanAct()
+        public async Task ValidateThatActorComponentCanAct()
         {
             var actorComponent = new FakeActorComponent("Name", "Tag");
-            actorComponent.Act();
+            await actorComponent.ActAsync();
             Assert.IsTrue(actorComponent.IsFaulted);
         }
 
         [Test]
-        public void ValidateThatActorComponentCanBeReset()
+        public async Task ValidateThatActorComponentCanBeReset()
         {
             var actorComponent = new FakeActorComponent("Name", "Tag");
-            actorComponent.Act();
+            await actorComponent.ActAsync();
             Assert.IsTrue(actorComponent.IsFaulted);
             actorComponent.ResetComponent();
             Assert.IsFalse(actorComponent.IsFaulted);

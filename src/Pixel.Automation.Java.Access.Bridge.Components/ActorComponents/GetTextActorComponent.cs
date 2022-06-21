@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -38,9 +39,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <summary>
         /// Retrieve the text of a control
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {          
-            AccessibleContextNode targetControl = this.GetTargetControl();
+            AccessibleContextNode targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleTextInterface) != 0)
             {
@@ -57,7 +58,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 {                   
                     sb.Append(lineData.Text);
                 }
-                this.ArgumentProcessor.SetValue<string>(this.Result, sb.ToString());
+                await this.ArgumentProcessor.SetValueAsync<string>(this.Result, sb.ToString());
                 logger.Information("Text was retrieved from control.");
                 return;
             }

@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests
 {
@@ -282,7 +283,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         [TestCase(Core.Enums.SearchScope.Children)]
         [TestCase(Core.Enums.SearchScope.Sibling)]
         [TestCase(Core.Enums.SearchScope.Ancestor)]
-        public void ValidateThatControlLocatorCanFindControl(Core.Enums.SearchScope searchScope)
+        public async Task ValidateThatControlLocatorCanFindControl(Core.Enums.SearchScope searchScope)
         {
 
             var entityManager = Substitute.For<IEntityManager>();
@@ -326,20 +327,20 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             switch(searchScope)
             {
                 case Core.Enums.SearchScope.Descendants:
-                    var locatedControl = controlLocator.FindControl(controlIdentity);
+                    var locatedControl = await controlLocator.FindControlAsync(controlIdentity);
                     Assert.IsNotNull(locatedControl);
-                    Assert.AreSame(webElement, locatedControl);
+                    Assert.AreSame(webElement, locatedControl.GetApiControl<IWebElement>());
                     webDriver.Received(1).FindElement(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
-                    Assert.Throws<NotSupportedException>(() => { controlLocator.FindControl(controlIdentity); });
+                    Assert.ThrowsAsync<NotSupportedException>(async () => { await controlLocator.FindControlAsync(controlIdentity); });
                     break;
                 case Core.Enums.SearchScope.Ancestor:
                 case Core.Enums.SearchScope.Sibling:
 
-                    var foundControl = controlLocator.FindControl(controlIdentity);
+                    var foundControl = await controlLocator.FindControlAsync(controlIdentity);
                     Assert.IsNotNull(foundControl);
-                    Assert.AreSame(webElement, foundControl);
+                    Assert.AreSame(webElement, foundControl.GetApiControl<IWebElement>());
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());
                     break;
             }        
@@ -350,7 +351,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         [TestCase(Core.Enums.SearchScope.Children, 1)]
         [TestCase(Core.Enums.SearchScope.Sibling, 2)]
         [TestCase(Core.Enums.SearchScope.Ancestor, 2)]
-        public void ValidateThatControlLocatorCanFindControlAtConfiguredIndex(Core.Enums.SearchScope searchScope, int index)
+        public async Task ValidateThatControlLocatorCanFindControlAtConfiguredIndex(Core.Enums.SearchScope searchScope, int index)
         {
             var controlIdentity = new WebControlIdentity()
             {
@@ -363,20 +364,20 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             switch (searchScope)
             {
                 case Core.Enums.SearchScope.Descendants:
-                    var locatedControl = webControlLocator.FindControl(controlIdentity);
+                    var locatedControl = await webControlLocator.FindControlAsync(controlIdentity);
                     Assert.IsNotNull(locatedControl);
-                    Assert.AreSame(controlTwo, locatedControl);
+                    Assert.AreSame(controlTwo, locatedControl.GetApiControl<IWebElement>());
                     webDriver.Received(1).FindElements(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
                 case Core.Enums.SearchScope.Ancestor:
-                    Assert.Throws<NotSupportedException>(() => { webControlLocator.FindControl(controlIdentity); });
+                    Assert.ThrowsAsync<NotSupportedException>(async () => { await webControlLocator.FindControlAsync(controlIdentity); });
                     break;
             
                 case Core.Enums.SearchScope.Sibling:
-                    var foundControl = webControlLocator.FindControl(controlIdentity);
+                    var foundControl = await webControlLocator.FindControlAsync(controlIdentity);
                     Assert.IsNotNull(foundControl);
-                    Assert.AreSame(controlTwo, foundControl);
+                    Assert.AreSame(controlTwo, foundControl.GetApiControl<IWebElement>());
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());
                     break;
             }
@@ -387,7 +388,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         [TestCase(Core.Enums.SearchScope.Sibling)]
         [TestCase(Core.Enums.SearchScope.Ancestor)]
 
-        public void ValidateThatControlLocatorCanFindAllControls(Core.Enums.SearchScope searchScope)
+        public async Task ValidateThatControlLocatorCanFindAllControls(Core.Enums.SearchScope searchScope)
         {
             var controlIdentity = new WebControlIdentity()
             {
@@ -399,18 +400,18 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             switch (searchScope)
             {
                 case Core.Enums.SearchScope.Descendants:
-                    var locatedControls = webControlLocator.FindAllControls(controlIdentity);
+                    var locatedControls = await webControlLocator.FindAllControlsAsync(controlIdentity);
                     Assert.IsNotNull(locatedControls);
                     Assert.AreEqual(2, locatedControls.Count());
                     webDriver.Received(1).FindElements(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
                 case Core.Enums.SearchScope.Ancestor:
-                    Assert.Throws<NotSupportedException>(() => { webControlLocator.FindAllControls(controlIdentity); });
+                    Assert.ThrowsAsync<NotSupportedException>(async () => { await webControlLocator.FindAllControlsAsync(controlIdentity); });
                     break;
 
                 case Core.Enums.SearchScope.Sibling:
-                    var foundControls = webControlLocator.FindAllControls(controlIdentity);
+                    var foundControls = await webControlLocator.FindAllControlsAsync(controlIdentity);
                     Assert.IsNotNull(foundControls);
                     Assert.AreEqual(2, foundControls.Count());
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());

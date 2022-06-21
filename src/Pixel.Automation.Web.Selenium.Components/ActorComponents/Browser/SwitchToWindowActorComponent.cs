@@ -3,10 +3,10 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 {
@@ -39,15 +39,16 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// Switch to the window or tab identifed using the specifed <b>WindowNumber</b>
         /// </summary>
         /// <exception cref="IndexOutOfRangeException">Throws IndexOutOfRangeException if the window or tab is not available</exception>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
-            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber) - 1;
+            int windowNumber = await ArgumentProcessor.GetValueAsync<int>(this.WindowNumber) - 1;
             if (webDriver.WindowHandles.Count() > windowNumber)
             {
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
                 webDriver.SwitchTo().DefaultContent();
                 logger.Information($"WebDriver switched to window/tab number : {windowNumber}");
+                await Task.CompletedTask;
                 return;
             }
 

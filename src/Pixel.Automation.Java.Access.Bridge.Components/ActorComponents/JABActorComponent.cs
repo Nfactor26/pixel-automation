@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -53,17 +54,17 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="JavaControlEntity"/>
         /// </summary>
         /// <returns>Control as <see cref="AccessibleContextNode"/></returns>
-        protected AccessibleContextNode GetTargetControl()
+        protected async Task<AccessibleContextNode> GetTargetControl()
         {
             UIControl targetControl;
             if (this.TargetControl.IsConfigured())
             {
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
+                targetControl = await ArgumentProcessor.GetValueAsync<UIControl>(this.TargetControl);
             }
             else
             {
                 ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();
+                targetControl = await this.ControlEntity.GetControl();
             }
 
             AccessibleContextNode control = targetControl.GetApiControl<AccessibleContextNode>();

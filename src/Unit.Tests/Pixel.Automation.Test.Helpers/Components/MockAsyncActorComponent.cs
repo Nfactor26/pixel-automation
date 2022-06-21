@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Helpers
 {
-    public class MockAsyncActorComponent : AsyncActorComponent
+    public class MockAsyncActorComponent : ActorComponent
     {
 
         public MockAsyncActorComponent() : base()

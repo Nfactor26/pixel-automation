@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -29,9 +30,9 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Perform a double click on <see cref="IWebElement"/>
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
+            IWebElement control = await GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             action.DoubleClick(control).Perform();
             logger.Information("control was double clicked.");

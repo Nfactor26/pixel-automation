@@ -35,21 +35,21 @@ namespace Pixel.Automation.Core.Components.Processors
         /// <inheritdoc/>
         public override async Task BeginProcessAsync()
         {
-            ConfigureDelay();
+            await ConfigureDelay();
             await ProcessEntity(this);
             ResetDelay();
         }
 
-        private void ConfigureDelay()
+        private async Task ConfigureDelay()
         {
             var argumentProcessor = this.ArgumentProcessor;
             if(this.PreDelay.IsConfigured())
             {
-                this.preDelayAmount = argumentProcessor.GetValue<int>(this.PreDelay);
+                this.preDelayAmount = await argumentProcessor.GetValueAsync<int>(this.PreDelay);
             }
             if (this.PostDelay.IsConfigured())
             {
-                this.postDelayAmount = argumentProcessor.GetValue<int>(this.PostDelay);
+                this.postDelayAmount = await argumentProcessor.GetValueAsync<int>(this.PostDelay);
             }           
         }
     }

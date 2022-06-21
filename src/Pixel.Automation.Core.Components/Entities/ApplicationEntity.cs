@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components
 {
@@ -98,10 +99,10 @@ namespace Pixel.Automation.Core.Components
         public virtual bool CanUseExisting => false;
 
         ///<inheritdoc/>
-        public abstract void Launch();
+        public abstract Task LaunchAsync();
 
         ///<inheritdoc/>
-        public abstract void Close();      
+        public abstract Task CloseAsync();      
 
         ///<inheritdoc/>
         public virtual void UseExisting(ApplicationProcess application)
@@ -146,7 +147,7 @@ namespace Pixel.Automation.Core.Components
         {
             if (isDisposing)
             {
-                Close();
+                CloseAsync();
             }
         }
 

@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -17,9 +18,9 @@ namespace Pixel.Automation.Input.Devices.Tests
     {
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
-        public override void Act()
+        public override async Task ActAsync()
         {
-            _ = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
+            await GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
         }
 
         public new bool IsKeySequenceValid(string keySequence)
@@ -34,20 +35,14 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// Validate that screen coordinate can be retrieved from a UIControl that is configured as a InArgument
         /// </summary>
         [Test]
-        public void ValidateThatScreenCoordinateCanBeRetrievedFromConfiguredControl()
+        public async Task ValidateThatScreenCoordinateCanBeRetrievedFromConfiguredControl()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var uiControl = Substitute.For<UIControl>();
-            uiControl.When(x => x.GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>())).Do
-            (x =>
-            {
-                x[0] = 100.0;
-                x[1] = 100.0;
-            });
-
+            uiControl.GetClickablePointAsync().Returns((100.0, 100.0));
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(uiControl);
+            argumentProcessor.GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(uiControl);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var deviceInputActor = new MockInputDeviceActor()
@@ -55,10 +50,10 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager,
                 TargetControl = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, PropertyPath = "SomeProperty" } //so that Argument.IsConfigured() returns true
             };
-            deviceInputActor.Act();
+            await deviceInputActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<UIControl>(Arg.Any<InArgument<UIControl>>());
-            uiControl.Received(1).GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>());
+            argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await uiControl.Received(1).GetClickablePointAsync();
         }
 
         /// <summary>
@@ -68,16 +63,12 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// <param name="buttonToClick"></param>
         /// <param name="clickMode"></param>
         [Test]
-        public void ValidateThatScreenCoordinateCanBeRetrievedFromParentControlEntity()
+        public async Task ValidateThatScreenCoordinateCanBeRetrievedFromParentControlEntity()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var uiControl = Substitute.For<UIControl>();
-            uiControl.When(x => x.GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>())).Do
-            (x => {
-                x[0] = 100.0;
-                x[1] = 100.0;
-            });
+            uiControl.GetClickablePointAsync().Returns((100.0, 100.0));
 
             var controlEntity = Substitute.For<Entity, IControlEntity>();
             (controlEntity as IControlEntity).GetControl().Returns(uiControl);
@@ -92,10 +83,10 @@ namespace Pixel.Automation.Input.Devices.Tests
                 Parent = controlEntity
             };
 
-            deviceInputActor.Act();
+            await deviceInputActor.ActAsync();
 
             (controlEntity as IControlEntity).Received(1).GetControl();
-            uiControl.Received(1).GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>());
+            await uiControl.Received(1).GetClickablePointAsync();
         }
 
 
@@ -103,32 +94,34 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// ConfigurationException shoud be thrown since target control is not configured and control entity is not available
         /// </summary>
         [Test]
-        public void ValidateThatExceptionIsThrownIfControlEntityIsMissingAndTargetControlIsNotConfigured()
+        public async Task ValidateThatExceptionIsThrownIfControlEntityIsMissingAndTargetControlIsNotConfigured()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager
             };
-            Assert.Throws<ConfigurationException>(() => { deviceInputActor.Act(); });
+            Assert.ThrowsAsync<ConfigurationException>(async () => { await deviceInputActor.ActAsync(); });
+            await Task.CompletedTask;
         }
 
         /// <summary>
         /// ElementNotFoundException  shoud be thrown if control could not be retrieved
         /// </summary>
         [Test]
-        public void ValidateThatExceptionIsThrownIfControlCouldNotBeRetrieved()
+        public async Task ValidateThatExceptionIsThrownIfControlCouldNotBeRetrieved()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(default(UIControl));
+            argumentProcessor.GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(default(UIControl));
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             var deviceInputActor = new MockInputDeviceActor()
             {
                 EntityManager = entityManager,
                 TargetControl = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, PropertyPath = "SomeProperty" } //so that Argument.IsConfigured() returns true
             };
-            Assert.Throws<ElementNotFoundException>(() => { deviceInputActor.Act(); });
+            Assert.ThrowsAsync<ElementNotFoundException>(async () => { await deviceInputActor.ActAsync(); });
+            await Task.CompletedTask;
         }
 
         [TestCase("Ctrl + C", true)]

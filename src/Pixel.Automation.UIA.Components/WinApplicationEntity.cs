@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -33,26 +34,27 @@ namespace Pixel.Automation.UIA.Components
         public override bool CanUseExisting => true;
 
         ///<inheritdoc/>
-        public override void Launch()
+        public override async Task LaunchAsync()
         {
             var winApplicationDetalis = this.GetTargetApplicationDetails<WinApplication>();
             if (!(winApplicationDetalis.TargetApplication?.HasExited ?? true))
             {
                 logger.Warning($"{winApplicationDetalis.ApplicationName} is already running.");
+                await Task.CompletedTask;
                 return;
             }
 
             string executablePath = winApplicationDetalis.ExecutablePath;
             if (this.ExecutableOverride.IsConfigured())
             {
-                executablePath = this.ArgumentProcessor.GetValue<string>(this.ExecutableOverride);
+                executablePath = await this.ArgumentProcessor.GetValueAsync<string>(this.ExecutableOverride);
                 logger.Information($"Executable Path was over-ridden to {executablePath} for application : {winApplicationDetalis.ApplicationName}");
             }
 
             string workingDirectory = winApplicationDetalis.WorkingDirectory;
             if (this.WorkingDirectoryOverride.IsConfigured())
             {
-                workingDirectory = this.ArgumentProcessor.GetValue<string>(this.WorkingDirectoryOverride);
+                workingDirectory = await this.ArgumentProcessor.GetValueAsync<string>(this.WorkingDirectoryOverride);
                 logger.Information($"Working Directory was over-ridden to {workingDirectory} for application : {winApplicationDetalis.ApplicationName}");
             }
 
@@ -76,13 +78,14 @@ namespace Pixel.Automation.UIA.Components
             throw new ConfigurationException($"Executable Path is not configured.");
         }
 
-        public override void Close()
+        public override async Task CloseAsync()
         {
             var winApplicationDetalis = this.GetTargetApplicationDetails<WinApplication>();
             if (!(winApplicationDetalis.TargetApplication?.HasExited ?? true))
             {
                 winApplicationDetalis.TargetApplication.Close();
                 logger.Information($"Application : {winApplicationDetalis.ApplicationName} was closed");
+                await Task.CompletedTask;
             }
         }
 

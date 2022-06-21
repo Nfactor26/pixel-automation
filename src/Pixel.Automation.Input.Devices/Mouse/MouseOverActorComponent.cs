@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -83,7 +84,7 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Move the mouse cursor to a target control or an arbitrary co-ordinate.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
 
@@ -91,10 +92,10 @@ namespace Pixel.Automation.Input.Devices
             switch (this.Target)
             {
                 case Target.Control:
-                    screenCoordinate = GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
+                    screenCoordinate = await GetScreenCoordinateFromControl(this.TargetControl as InArgument<UIControl>);
                     break;
                 case Target.Point:
-                    screenCoordinate = argumentProcessor.GetValue<ScreenCoordinate>(this.MoveTo);
+                    screenCoordinate = await argumentProcessor.GetValueAsync<ScreenCoordinate>(this.MoveTo);
                     break;
             }
             var syntheticMouse = GetMouse();

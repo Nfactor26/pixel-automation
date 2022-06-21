@@ -3,9 +3,9 @@ using OpenQA.Selenium.Interactions;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -34,9 +34,9 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// However, if force click is configured, actions api is used instead which doesn't throw 
         /// exception if element is disabled, hidden, beneath other control, etc.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
+            IWebElement control = await GetTargetControl();
             if (this.ForceClick)
             {
                 //doesn't check for preconditions like whether element is clickable,etc

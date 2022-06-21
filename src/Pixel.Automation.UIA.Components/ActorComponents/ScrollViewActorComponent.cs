@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 
@@ -48,11 +49,11 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Perform a horizontal and/or vertical scroll.
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if ScrollPattern is not supported</exception>      
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            double horizontalScrollAmount = Math.Clamp(this.ArgumentProcessor.GetValue<double>(this.HorizontalScrollAmount), -1 , 100);
-            double verticalScrollAmount = Math.Clamp(this.ArgumentProcessor.GetValue<double>(this.VerticalScrollAmount), -1, 100);
+            AutomationElement control = await GetTargetControl();
+            double horizontalScrollAmount = Math.Clamp(await this.ArgumentProcessor.GetValueAsync<double>(this.HorizontalScrollAmount), -1 , 100);
+            double verticalScrollAmount = Math.Clamp(await this.ArgumentProcessor.GetValueAsync<double>(this.VerticalScrollAmount), -1, 100);
             control.ScrollToPercent(horizontalScrollAmount, verticalScrollAmount);
             logger.Information($"Scroll set to {horizontalScrollAmount}%, {verticalScrollAmount}%");
         }

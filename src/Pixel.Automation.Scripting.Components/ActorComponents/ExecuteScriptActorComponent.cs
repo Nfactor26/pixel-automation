@@ -16,7 +16,7 @@ namespace Pixel.Automation.Scripting.Components
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
     [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
-    public class ExecuteScriptActorComponent : AsyncActorComponent
+    public class ExecuteScriptActorComponent : ActorComponent
     {
         protected string scriptFile;
         [DataMember]

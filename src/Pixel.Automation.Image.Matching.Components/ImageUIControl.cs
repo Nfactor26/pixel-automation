@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Image.Matching.Components
 {
@@ -13,18 +14,20 @@ namespace Pixel.Automation.Image.Matching.Components
         public ImageUIControl(IControlIdentity controlIdentity, BoundingBox imageControl)
         {
             this.controlIdentity = controlIdentity;
-            this.imageControl = imageControl;         
+            this.imageControl = imageControl;        
+            this.TargetControl = imageControl;
         }
 
-        public override Rectangle GetBoundingBox()
+        public override async Task<Rectangle> GetBoundingBoxAsync()
         {
-            return new Rectangle(imageControl.X, imageControl.Y, imageControl.Width, imageControl.Height);
+            return await Task.FromResult(new Rectangle(imageControl.X, imageControl.Y, imageControl.Width, imageControl.Height));
         }
 
-        public override void GetClickablePoint(out double x, out double y)
+        public override async Task<(double,double)> GetClickablePointAsync()
         {
-            var boundingBox = GetBoundingBox();
-            controlIdentity.GetClickablePoint(boundingBox, out x, out y);
+            var boundingBox = await GetBoundingBoxAsync();
+            controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
     }
 }

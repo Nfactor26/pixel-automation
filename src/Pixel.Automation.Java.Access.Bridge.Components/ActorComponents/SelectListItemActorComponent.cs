@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 using WindowsAccessBridgeInterop;
 
@@ -52,10 +53,10 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <summary>
         /// Select the configured option contained in a combo box or similar control
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            string selectText = ArgumentProcessor.GetValue<string>(this.Option);
-            AccessibleContextNode dropDownControl = this.GetTargetControl();
+            string selectText = await ArgumentProcessor.GetValueAsync<string>(this.Option);
+            AccessibleContextNode dropDownControl = await this.GetTargetControl();
             AccessibleContextNode optionControl = null;
             var options = dropDownControl.FindAll(TreeScope.Descendants, new JavaControlIdentity() { Role = "label" });
 

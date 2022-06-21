@@ -16,7 +16,7 @@ namespace Pixel.Automation.Scripting.Components
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
     [ToolBoxItem("Execute [Inline]", "Scripting", iconSource: null, description: "Assign value to a variable", tags: new string[] { "Assign", "Scripting" })]   
-    public class ExecuteInlineScriptActorComponent : AsyncActorComponent
+    public class ExecuteInlineScriptActorComponent : ActorComponent
     {
         protected string scriptFile;
         [DataMember]

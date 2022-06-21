@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -50,23 +51,16 @@ namespace Pixel.Automation.Core.Interfaces
         Argument SearchRoot { get; set; }
 
         /// <summary>
-        /// Get all the found controls
+        /// Get all the located controls based on configured control identity
         /// </summary>
         /// <returns></returns>
-        IEnumerable<UIControl> GetAllControls();
+        Task<IEnumerable<UIControl>> GetAllControls();
       
         /// <summary>
-        /// Get the found control 
+        /// Get the control located based on configured control identity
         /// </summary>
         /// <returns></returns>
-        UIControl GetControl();      
-      
-        /// <summary>
-        /// Get native found control e.g. IwebElement or AutomationElement instead of UIControl 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetTargetControl<T>();
+        Task<UIControl> GetControl();             
 
         /// <summary>
         /// Reload the control details from control file.

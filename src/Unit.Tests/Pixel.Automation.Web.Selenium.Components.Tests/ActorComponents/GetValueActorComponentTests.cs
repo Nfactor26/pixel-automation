@@ -5,7 +5,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -15,11 +15,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that Get value actor can retrieve value attribute from target control
         /// </summary>
         [Test]
-        public void ValidateThatGetValueActorCanRetrieveValueFromTargetControl()
+        public async Task ValidateThatGetValueActorCanRetrieveValueFromTargetControl()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<string>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<string>()))
                 .Do(p =>
                 {
 
@@ -42,20 +42,20 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 EntityManager = entityManager,
                 Parent = controlEntity
             };
-            getValueActor.Act();
+            await getValueActor.ActAsync();
 
             targetControl.Received(1).GetAttribute(Arg.Is<string>("value"));
             _ = targetControl.DidNotReceive().Text;
-            argumentProcessor.Received(1).SetValue<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
+            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
         }
 
 
         [Test]
-        public void ValidateThatGetValueActorReturnsTextIfValueAttributeOfTargetControlIsNullOrEmpty()
+        public async Task ValidateThatGetValueActorReturnsTextIfValueAttributeOfTargetControlIsNullOrEmptyAsync()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<string>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<string>()))
                 .Do(p =>
                 {
 
@@ -77,11 +77,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 EntityManager = entityManager,
                 Parent = controlEntity
             };
-            getValueActor.Act();
+            await getValueActor.ActAsync();
 
             targetControl.Received(1).GetAttribute(Arg.Is<string>("value"));
              _ = targetControl.Received(1).Text;
-            argumentProcessor.Received(1).SetValue<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
+            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
         }
     }
 }

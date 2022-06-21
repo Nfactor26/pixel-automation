@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components.Controls;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
@@ -27,7 +28,7 @@ namespace Pixel.Automation.Core.Components.Tests
         }
 
         [Test]
-        public void AssertThatFindAllControlActorCanLocateAllMatchingControls()
+        public async Task AssertThatFindAllControlActorCanLocateAllMatchingControls()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -47,12 +48,12 @@ namespace Pixel.Automation.Core.Components.Tests
             int foundControlsCount = 0;
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();           
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<IEnumerable<UIControl>>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<IEnumerable<UIControl>>()))
                 .Do(p => 
                 { 
                     foundControls = p.ArgAt<List<UIControl>>(1); 
                 });       
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<int>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<int>()))
                 .Do(p =>
                 { 
                     foundControlsCount = p.ArgAt<int>(1);
@@ -60,7 +61,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            containerEntity.GroupActor.Act();
+            await containerEntity.GroupActor.ActAsync();
 
 
             Assert.AreEqual(controls, foundControls);

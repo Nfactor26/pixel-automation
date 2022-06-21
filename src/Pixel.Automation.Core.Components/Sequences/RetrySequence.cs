@@ -43,8 +43,8 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         public override async Task BeginProcessAsync()
         {
-            int retryCount = this.ArgumentProcessor.GetValue<int>(RetryCount);
-            double retryInterval = this.ArgumentProcessor.GetValue<double>(RetryInterval);
+            int retryCount = await this.ArgumentProcessor.GetValueAsync<int>(RetryCount);
+            double retryInterval = await this.ArgumentProcessor.GetValueAsync<double>(RetryInterval);
             TimeSpan sleepDuration = TimeSpan.FromMilliseconds(retryInterval * 1000);
 
             var retrySequence = new List<TimeSpan>();
@@ -55,8 +55,8 @@ namespace Pixel.Automation.Core.Components.Sequences
 
             var policy = Policy.Handle<Exception>().WaitAndRetryAsync(retrySequence, async (exception, waitInterval, currentAttempt, context) =>
             {
-                logger.Warning($"An error was encountered while processing Execute block. {exception.Message}.");                
-                this.ArgumentProcessor.SetValue<Exception>(Exception, exception);
+                logger.Warning($"An error was encountered while processing Execute block. {exception.Message}.");
+                await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, exception);
                 var retry = this.GetComponentsByName("Retry", Enums.SearchScope.Children).FirstOrDefault() as Entity;
                 await this.ProcessEntity(retry);
                 logger.Information($"Number of remaining attempts is {retryCount - currentAttempt} to process Execute block.");

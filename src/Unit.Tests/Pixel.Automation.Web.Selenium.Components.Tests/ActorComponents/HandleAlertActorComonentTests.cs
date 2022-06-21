@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Web.Selenium.Components.Alerts;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -11,7 +12,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
     {
         [TestCase(HandleAlertBehavior.Accept)]
         [TestCase(HandleAlertBehavior.Dismiss)]
-        public void ValidateThatHandleAlertActorCanHandleAlerts(HandleAlertBehavior alertBehavior)
+        public async Task ValidateThatHandleAlertActorCanHandleAlerts(HandleAlertBehavior alertBehavior)
         {
             var entityManager = Substitute.For<IEntityManager>();
           
@@ -32,7 +33,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 Action = alertBehavior
             };
 
-            handleAlertActor.Act();
+            await handleAlertActor.ActAsync();
 
             switch(alertBehavior)
             {

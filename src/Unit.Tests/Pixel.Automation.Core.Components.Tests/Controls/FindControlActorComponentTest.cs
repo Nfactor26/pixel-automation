@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components.Controls;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
@@ -27,7 +28,7 @@ namespace Pixel.Automation.Core.Components.Tests
         }
 
         [Test]
-        public void AssertThatFindControlActorCanLocateMatchingControl()
+        public async Task AssertThatFindControlActorCanLocateMatchingControl()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -45,12 +46,12 @@ namespace Pixel.Automation.Core.Components.Tests
             bool wasLocated = false;
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<UIControl>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<UIControl>()))
                 .Do(p =>
                 {
                     foundControl = p.ArgAt<UIControl>(1);
                 });
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<bool>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<bool>()))
                 .Do(p =>
                 {
                     wasLocated = p.ArgAt<bool>(1);
@@ -58,7 +59,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            containerEntity.GroupActor.Act();
+            await containerEntity.GroupActor.ActAsync();
 
 
             Assert.AreEqual(uiControl, foundControl);

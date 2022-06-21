@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Interfaces;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests
 {
@@ -28,17 +29,17 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         }
 
         [Test]
-        public void ValidateThatWebUIControlCanProvideBoundingBoxOfUnderlyingControl()
+        public async Task ValidateThatWebUIControlCanProvideBoundingBoxOfUnderlyingControl()
         {
-            var boundingBox = webUIControl.GetBoundingBox();
+            var boundingBox = await webUIControl.GetBoundingBoxAsync();
 
             Assert.AreEqual(new Rectangle(0, 0, 100, 100), boundingBox);
         }
 
         [Test]
-        public void ValidateThatWebUIControlCanProvideClickablePointOnUnderlyingControl()
+        public async Task ValidateThatWebUIControlCanProvideClickablePointOnUnderlyingControl()
         {
-            webUIControl.GetClickablePoint(out double x, out double y);
+            var (x, y) = await webUIControl.GetClickablePointAsync();
 
             //since pivot mode is center and x offset is 10 
             Assert.AreEqual(60, x);

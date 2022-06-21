@@ -3,13 +3,14 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Components.Loops;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
     public class BreakLoopActorComponentTest
     {
         [Test]
-        public void ValidateThatLoopEntityExitsOnProcessingBreakLoopActorComponent()
+        public async Task ValidateThatLoopEntityExitsOnProcessingBreakLoopActorComponent()
         {
 
             var loopEntity = Substitute.For<Entity, ILoop>();
@@ -20,13 +21,13 @@ namespace Pixel.Automation.Core.Components.Tests
 
             //As the loop will be processed, eventually  break loop actor will be processed which will set exitcritiriasatisifed to true 
             //causing the loop to stop
-            breakLoopActorComponent.Act();
+            await breakLoopActorComponent.ActAsync();
 
             Assert.IsTrue((loopEntity as ILoop).ExitCriteriaSatisfied);
         }
 
         [Test]
-        public void ValidateThatBreakLoopActorComponentThrowsExceptionIfAddedOutsideALoopConstruct()
+        public async Task ValidateThatBreakLoopActorComponentThrowsExceptionIfAddedOutsideALoopConstruct()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var entity = Substitute.ForPartsOf<Entity>();
@@ -35,7 +36,8 @@ namespace Pixel.Automation.Core.Components.Tests
             var breakLoopActorComponent = new BreakLoopActorComponent();
             entity.AddComponent(breakLoopActorComponent);
 
-            Assert.Throws<InvalidOperationException>(() => { breakLoopActorComponent.Act(); });
+            Assert.ThrowsAsync<InvalidOperationException>(async () => { await breakLoopActorComponent.ActAsync(); });
+            await Task.CompletedTask;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
@@ -30,26 +31,27 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             
 
         ///<inheritdoc/>
-        public override void Launch()
+        public override async Task LaunchAsync()
         {
             var javaApplicationDetails = this.GetTargetApplicationDetails<JavaApplication>();
             if (!(javaApplicationDetails.TargetApplication?.HasExited ?? true))
             {
                 logger.Warning($"{javaApplicationDetails.ApplicationName} is already running.");
+                await Task.CompletedTask;
                 return;
             }
 
             string executablePath = javaApplicationDetails.ExecutablePath;
             if (this.ExecutableOverride.IsConfigured())
             {
-                executablePath = this.ArgumentProcessor.GetValue<string>(this.ExecutableOverride);
+                executablePath = await this.ArgumentProcessor.GetValueAsync<string>(this.ExecutableOverride);
                 logger.Information($"Executable Path was over-ridden to {executablePath} for application : {javaApplicationDetails.ApplicationName}");
             }
 
             string workingDirectory = javaApplicationDetails.WorkingDirectory;
             if (this.WorkingDirectoryOverride.IsConfigured())
             {
-                workingDirectory = this.ArgumentProcessor.GetValue<string>(this.WorkingDirectoryOverride);
+                workingDirectory = await this.ArgumentProcessor.GetValueAsync<string>(this.WorkingDirectoryOverride);
                 logger.Information($"Working Directory was over-ridden to {workingDirectory} for application : {javaApplicationDetails.ApplicationName}");
             }
 
@@ -73,13 +75,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             throw new ConfigurationException($"Executable Path is not configured.");
         }
 
-        public override void Close()
+        public override async Task CloseAsync()
         {
             var javaApplicationDetails = this.GetTargetApplicationDetails<JavaApplication>();
             if (!(javaApplicationDetails.TargetApplication?.HasExited ?? true))
             {
                 javaApplicationDetails.TargetApplication.Close();
                 logger.Information($"Application : {javaApplicationDetails.ApplicationName} was closed");
+                await Task.CompletedTask;
             }
         }
 

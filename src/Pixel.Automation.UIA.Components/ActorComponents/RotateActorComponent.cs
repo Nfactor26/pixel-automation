@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 
@@ -40,10 +41,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Rotate the control by a given amount.
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if TransformPattern is not supported</exception>      
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            double rotateBy = this.ArgumentProcessor.GetValue<double>(this.RotateBy);         
+            AutomationElement control = await GetTargetControl();
+            double rotateBy = await this.ArgumentProcessor.GetValueAsync<double>(this.RotateBy);         
             control.RotateBy(rotateBy);
             logger.Information($"Control was rotated by {rotateBy} degrees.");
         }

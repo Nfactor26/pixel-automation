@@ -51,7 +51,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = Substitute.For<Entity>();
             var actorComponent = Substitute.For<ActorComponent>();
             var component = Substitute.For<Component>();
-            var asyncActorComponent = Substitute.For<AsyncActorComponent>();
+            var asyncActorComponent = Substitute.For<ActorComponent>();
 
             placeHolderEntity.AddComponent(entity);
             placeHolderEntity.AddComponent(actorComponent);

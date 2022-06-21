@@ -21,8 +21,8 @@ namespace Pixel.Automation.Core.Components.Tests
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(5); //we want to retry upto 5 times.
-            argumentProcessor.GetValue<double>(Arg.Any<Argument>()).Returns(1); // we want to retry every 1 second
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(5); //we want to retry upto 5 times.
+            argumentProcessor.GetValueAsync<double>(Arg.Any<Argument>()).Returns(1); // we want to retry every 1 second
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             
             var retrySequence = new RetrySequence();
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             //create a actor for execute block that throws exception twice and works fine 3rd time
             var executeActor = Substitute.For<ActorComponent>();
-            executeActor.When(x => x.Act()).
+            executeActor.When(x => x.ActAsync()).
                 Do(Callback.First(
                     x => { throw new Exception(); }).Then(
                     x => { throw new Exception(); }).Then(
@@ -46,8 +46,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await retrySequence.BeginProcessAsync();
 
-            executeActor.Received(3).Act();
-            retryActor.Received(2).Act();
+            await executeActor.Received(3).ActAsync();
+            await retryActor.Received(2).ActAsync();
         }
     }
 }

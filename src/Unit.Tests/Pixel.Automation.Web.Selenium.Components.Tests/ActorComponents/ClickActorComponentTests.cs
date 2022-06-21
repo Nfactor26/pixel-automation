@@ -4,7 +4,7 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -14,7 +14,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that Click actor component can perform click on a web element
         /// </summary>
         [Test]
-        public void ValidateThatClickActorCanClickTargetcontrol()
+        public async Task ValidateThatClickActorCanClickTargetcontrol()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -31,7 +31,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 Parent = controlEntity,
                 ForceClick = false
             };
-            clickActor.Act();           
+            await clickActor.ActAsync();           
             targetControl.Received(1).Click();
         }
 

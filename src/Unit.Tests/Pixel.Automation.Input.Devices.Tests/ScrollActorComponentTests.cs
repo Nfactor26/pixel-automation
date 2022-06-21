@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -25,12 +26,12 @@ namespace Pixel.Automation.Input.Devices.Tests
         [TestCase(ScrollDirection.Right)]
         [TestCase(ScrollDirection.Down)]
         [TestCase(ScrollDirection.Up)]
-        public void ValidateThatScrollActorCanPerformDifferentCombinationsOfScroll(ScrollDirection scrollDirection)
+        public async Task ValidateThatScrollActorCanPerformDifferentCombinationsOfScroll(ScrollDirection scrollDirection)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<InArgument<int>>()).Returns(10);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<InArgument<int>>()).Returns(10);
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -42,9 +43,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager,              
                 ScrollDirection = scrollDirection
             };
-            scrollActorComponent.Act();
+            await scrollActorComponent.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
+            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
 
             switch(scrollDirection)
             {

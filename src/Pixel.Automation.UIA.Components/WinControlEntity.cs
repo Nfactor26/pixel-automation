@@ -15,7 +15,7 @@ namespace Pixel.Automation.UIA.Components
     {
         private readonly ILogger logger = Log.ForContext<WinControlEntity>();
 
-        private AutomationElement uiaElement;
+        private UIControl control;
         
         protected override void InitializeFilter()
         {
@@ -32,50 +32,46 @@ namespace Pixel.Automation.UIA.Components
         {
             if (CacheControl)
             {
-                uiaElement = null;
+                control = null;
                 logger.Debug($"Cleared cached AutomationElement for {this.Name}");
             }
             await Task.CompletedTask;
         }
 
 
-        public override T GetTargetControl<T>()
+        public override async Task<UIControl> GetControl()
         {
-            if(CacheControl && uiaElement != null)
+            if (CacheControl && control != null)
             {
-                if(uiaElement is T cachedControl)
-                {
-                    logger.Debug($"Return cached AutomationElement for {this.Name}");
-                    return cachedControl;
-                }
-                throw new Exception($"AutomationElement is not compatible with type {typeof(T)}");
+                logger.Debug($"Return cached AutomationElement for {this.Name}");
+                return control;
             }
 
-            AutomationElement searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AutomationElement>();
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative))
             {
-                searchRoot = (this.Parent as WinControlEntity).GetTargetControl<AutomationElement>();
+                searchRoot = await (this.Parent as WinControlEntity).GetControl();
             }
 
-            UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;         
+            UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
-                    uiaElement = uiaControlLocator.FindControl(this.ControlDetails, searchRoot);
+                    control = await uiaControlLocator.FindControlAsync(this.ControlDetails, searchRoot);
                     break;
                 case LookupMode.FindAll:
-                    var descendantControls = uiaControlLocator.FindAllControls(this.ControlDetails, searchRoot);
+                    var descendantControls = await uiaControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
                     switch (FilterMode)
                     {
                         case FilterMode.Index:
-                            uiaElement = GetElementAtIndex(descendantControls);
+                            control = await GetElementAtIndex(descendantControls);
                             break;
                         case FilterMode.Custom:
-                            uiaElement = GetElementMatchingCriteria(descendantControls);
+                            control = GetElementMatchingCriteria(descendantControls);
                             break;
                     }
                     break;
@@ -83,41 +79,25 @@ namespace Pixel.Automation.UIA.Components
                     throw new NotSupportedException();
             }
 
-            if (uiaElement is T result)
-            {
-                return result;
-            }
-            throw new Exception($"AutomationElement is not compatible with type {typeof(T)}");
-
-        }
-
-        public override UIControl GetControl()
-        {         
-            AutomationElement uiaElement = GetTargetControl<AutomationElement>();
-            return new WinUIControl(this.ControlDetails, uiaElement);
+            return control;
         }
 
 
-        public override IEnumerable<UIControl> GetAllControls()
+        public override async Task<IEnumerable<UIControl>> GetAllControls()
         {
-            AutomationElement searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
-            {         
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AutomationElement>();
+            {
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative))
             {
-                searchRoot = (this.Parent as WinControlEntity).GetTargetControl<AutomationElement>();
+                searchRoot = await (this.Parent as WinControlEntity).GetControl();
             }
 
             UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;
-            var foundControls = uiaControlLocator.FindAllControls(this.ControlDetails, searchRoot);
-            List<UIControl> foundUIControls = new List<UIControl>();
-            foreach (var control in foundControls)
-            {
-                foundUIControls.Add(new WinUIControl(this.ControlDetails, control));
-            }
-            return foundUIControls;
+            var foundControls = await uiaControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);            
+            return foundControls;
         }     
 
     }

@@ -2,6 +2,7 @@
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
@@ -27,9 +28,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
         /// <summary>
         /// Toggle the state of control 
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            var targetControl = this.GetTargetControl();
+            var targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             AccessibleActionInfo actionToPerform = default;
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleActionInterface) != 0)

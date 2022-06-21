@@ -3,6 +3,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -37,9 +38,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// warning : Triggering an action which opens a modal dialog will throw error for subsequent actions on AccessibleWindow 
         /// consider simulating physical mouse clicks in these scenarios
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AccessibleContextNode targetControl = this.GetTargetControl();
+            AccessibleContextNode targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleActionInterface) != 0)
             {

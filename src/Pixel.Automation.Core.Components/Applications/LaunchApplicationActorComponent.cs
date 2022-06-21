@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
@@ -38,14 +39,14 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Launch the executable for owner application
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            this.ApplicationEntity.Launch();
+            await this.ApplicationEntity.LaunchAsync();
         }
 
         public override string ToString()
         {
             return "Launch Application Actor";
-        }
+        }        
     }
 }

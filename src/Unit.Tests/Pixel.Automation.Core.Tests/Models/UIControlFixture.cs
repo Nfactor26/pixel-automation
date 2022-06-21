@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Tests.Models
 {
@@ -20,15 +21,14 @@ namespace Pixel.Automation.Core.Tests.Models
             this.TargetControl = underlyingControl;
         }
 
-        public override Rectangle GetBoundingBox()
+        public override async Task<Rectangle> GetBoundingBoxAsync()
         {
-            return Rectangle.Empty;
+            return await Task.FromResult(Rectangle.Empty);
         }
 
-        public override void GetClickablePoint(out double x, out double y)
+        public override async Task<(double,double)> GetClickablePointAsync()
         {
-            x = 0;
-            y = 0;
+            return await Task.FromResult((0, 0));
         }
     }
 

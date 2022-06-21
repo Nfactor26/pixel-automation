@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -14,12 +15,12 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// Validate that MouseOverActor can move mouse to configured coordinates
         /// </summary>
         [Test]
-        public void ValidateThatMouseOverActorComponentCanMoveCursorToConfiugredCoordinates()
+        public async Task ValidateThatMouseOverActorComponentCanMoveCursorToConfiugredCoordinates()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
+            argumentProcessor.GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -32,9 +33,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager
             };
 
-            mouseOverActor.Act();
+            await mouseOverActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
+            argumentProcessor.Received(1).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);           
         }
 
@@ -42,19 +43,15 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// Validate that MouseOverActor can move mouse to configured control
         /// </summary>
         [Test]
-        public void ValidateThatMouseOverActorComponentCanMoveCursorToConfiugredControl()
+        public async Task ValidateThatMouseOverActorComponentCanMoveCursorToConfiugredControl()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             UIControl uiControl = Substitute.For<UIControl>();
-            uiControl.When(x => x.GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>())).Do(x =>
-            {
-                x[0] = 100.0;
-                x[1] = 100.0;
-            });
+            uiControl.GetClickablePointAsync().Returns((100.0, 100.0));
           
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(uiControl);
+            argumentProcessor.GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>()).Returns(uiControl);
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -68,10 +65,10 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager
             };
 
-            mouseOverActor.Act();
+            await mouseOverActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<UIControl>(Arg.Any<InArgument<UIControl>>());
-            uiControl.Received(1).GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>());
+            argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await uiControl.Received(1).GetClickablePointAsync();
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
         }
 

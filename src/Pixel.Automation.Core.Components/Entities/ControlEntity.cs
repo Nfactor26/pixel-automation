@@ -167,11 +167,9 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-        public abstract T GetTargetControl<T>();
+        public abstract Task<UIControl> GetControl();
 
-        public abstract UIControl GetControl();
-
-        public abstract IEnumerable<UIControl> GetAllControls();
+        public abstract Task<IEnumerable<UIControl>> GetAllControls();
 
         public override bool ValidateComponent()
         {
@@ -183,9 +181,9 @@ namespace Pixel.Automation.Core.Components
             return IsValid;
         }
 
-        protected T GetElementAtIndex<T>(IEnumerable<T> foundControls)
+        protected async Task<T> GetElementAtIndex<T>(IEnumerable<T> foundControls)
         {
-            int index = ArgumentProcessor.GetValue<int>(this.Index);
+            int index =  await ArgumentProcessor.GetValueAsync<int>(this.Index);
             if (foundControls.Count() > index)
             {
                 var foundControl = foundControls.ElementAt(index);

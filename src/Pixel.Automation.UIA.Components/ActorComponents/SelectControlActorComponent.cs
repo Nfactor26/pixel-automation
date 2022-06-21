@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -39,10 +40,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Select a control or add control to selection or remove control from selection based on the SelectionMode
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            switch(this.SelectionMode)
+            AutomationElement control = await GetTargetControl();
+            switch (this.SelectionMode)
             {
                 case SelectMode.Select:
                     control.Select();

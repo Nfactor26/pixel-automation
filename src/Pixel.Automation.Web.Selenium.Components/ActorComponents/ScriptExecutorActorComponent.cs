@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 {
@@ -56,25 +57,25 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// If the parent entity is a a <see cref="WebControlEntity"/> or a <see cref="IWebElement"/> is configured using TargetElement argument, then the retrieved
         /// WebElement is passed as first parameter to javascript which can be accessed using  argument[0] and holds a javascript HtmlElement.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {           
-            string jsCode = ArgumentProcessor.GetValue<string>(this.Script);
+            string jsCode = await ArgumentProcessor.GetValueAsync<string>(this.Script);
             List<object> allArguments = new List<object>();
 
             if (this.Parent is IControlEntity)
             {
-                IWebElement control = GetTargetControl();
+                IWebElement control = await GetTargetControl();
                 allArguments.Add(control);
             }
 
             if (this.Arguments.IsConfigured())
             {
-                var arguments = ArgumentProcessor.GetValue<object[]>(this.Arguments);
+                var arguments = await ArgumentProcessor.GetValueAsync<object[]>(this.Arguments);
                 allArguments.AddRange(arguments);
             }
 
             var scriptResult = (this.ApplicationDetails.WebDriver as IJavaScriptExecutor).ExecuteScript(jsCode, allArguments.ToArray())?.ToString();
-            ArgumentProcessor.SetValue<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
+            await ArgumentProcessor.SetValueAsync<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
 
             logger.Information("javascript executed successfully.");
         }  

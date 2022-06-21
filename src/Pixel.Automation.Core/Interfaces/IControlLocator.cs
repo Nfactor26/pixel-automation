@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Pixel.Automation.Core.Controls;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -14,23 +16,15 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="controlIdentity"></param>
         /// <returns></returns>
-        bool CanProcessControlOfType(IControlIdentity controlIdentity);       
-    }
+        bool CanProcessControlOfType(IControlIdentity controlIdentity);
 
-    /// <summary>
-    ///  Control locators are used to locate a control at runtime
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="U"></typeparam>
-    public interface IControlLocator<out T,in U> : IControlLocator  where T : class where U : class       
-    {
         /// <summary>
         /// Find the control given the details of control and the search root
         /// </summary>
         /// <param name="controlIdentity"></param>
         /// <param name="searchRoot"></param>
         /// <returns></returns>
-        T FindControl(IControlIdentity controlIdentity, U searchRoot);
+        Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot);
 
         /// <summary>
         /// Find all the controls matching the control details within specified search root
@@ -38,6 +32,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="controlIdentity"></param>
         /// <param name="searchRoot"></param>
         /// <returns></returns>
-        IEnumerable<T> FindAllControls(IControlIdentity controlIdentity, U searchRoot);
+        Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot);
     }
+   
 }

@@ -5,6 +5,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -15,7 +16,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// </summary>
         [TestCase(true)]
         [TestCase(false)]
-        public void ValidateThatSendKeyActorCanSetText(bool clearBeforeSendKeys)
+        public async Task ValidateThatSendKeyActorCanSetText(bool clearBeforeSendKeys)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -24,7 +25,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             uiControl.GetApiControl<IWebElement>().Returns(targetControl);
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns("How you doing?");
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns("How you doing?");
 
             var controlEntity = Substitute.For<Entity, IControlEntity>();
             (controlEntity as IControlEntity).GetControl().Returns(uiControl);
@@ -37,9 +38,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 Parent = controlEntity,
                 ClearBeforeSendKeys = clearBeforeSendKeys
             };
-            sendKeyActor.Act();
+            await sendKeyActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             if(clearBeforeSendKeys)
             {
                 targetControl.Received(1).Clear();

@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -11,12 +12,12 @@ namespace Pixel.Automation.Input.Devices.Tests
     {
        
         [Test]
-        public void ValidateThatMouseMoveByActorCanMoveCursorByConfiugredAmount()
+        public async Task ValidateThatMouseMoveByActorCanMoveCursorByConfiugredAmount()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<Point>(Arg.Any<InArgument<Point>>()).Returns(new Point(100, 100));
+            argumentProcessor.GetValueAsync<Point>(Arg.Any<InArgument<Point>>()).Returns(new Point(100, 100));
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -28,9 +29,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager
             };
 
-            mouseMoveByActor.Act();
+            await mouseMoveByActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<Point>(Arg.Any<InArgument<Point>>());
+            argumentProcessor.Received(1).GetValueAsync<Point>(Arg.Any<InArgument<Point>>());
             synthethicMouse.Received(1).MoveMouseBy(Arg.Is<int>(100), Arg.Is<int>(100),  SmoothMode.Interpolated);
         }
     }

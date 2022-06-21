@@ -18,7 +18,7 @@ namespace Pixel.Automation.Web.Selenium.Components
     {
         private readonly ILogger logger = Log.ForContext<WebControlEntity>();
 
-        private IWebElement webElement;
+        private UIControl control;
 
         protected override void InitializeFilter()
         {
@@ -35,104 +35,77 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             if (CacheControl)
             {
-                webElement = null;              
+                control = null;              
                 logger.Debug($"Cleared cached WebElement for {this.Name}");
             }
             await Task.CompletedTask;
-        }
+        }        
 
         /// <summary>
-        /// Get first control as <see cref="IWebElement"/> identified using wrapped <see cref="IControlIdentity"/>
+        /// Get first control identified using wrapped <see cref="IControlIdentity"/>
         /// </summary>
-        /// <typeparam name="T">Should be a IWebElement</typeparam>
-        /// <returns>IWebElement</returns>
-        /// <exception cref="Exception">Throws Exception if located control is not of type T</exception>
-        public override T GetTargetControl<T>()
+        /// <returns></returns>
+        public override async Task<UIControl> GetControl()
         {
-            if (CacheControl && webElement != null)
+            if (CacheControl && control != null)
             {
-                if (webElement is T cachedControl)
-                {
-                    logger.Debug($"Return cached element for {this.Name}");
-                    return cachedControl;
-                }
-                throw new Exception($"IWebElement is not compatible with type {typeof(T)}");
+                logger.Debug($"Return cached element for {this.Name}");
+                return control;
             }
 
 
-            IWebElement searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<IWebElement>();
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
-                searchRoot = (this.Parent as WebControlEntity).GetTargetControl<IWebElement>();
+                searchRoot = await (this.Parent as WebControlEntity).GetControl();
             }
 
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
-                    webElement = webControlLocator.FindControl(this.ControlDetails, searchRoot);
+                    control = await webControlLocator.FindControlAsync(this.ControlDetails, searchRoot);
                     break;
                 case LookupMode.FindAll:
-                    var descendantControls = webControlLocator.FindAllControls(this.ControlDetails, searchRoot);
+                    var descendantControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
                     switch (FilterMode)
                     {
                         case FilterMode.Index:
-                            webElement = GetElementAtIndex(descendantControls);
+                            control = await GetElementAtIndex(descendantControls);
                             break;
                         case FilterMode.Custom:
-                            webElement = GetElementMatchingCriteria(descendantControls);
+                            control = GetElementMatchingCriteria(descendantControls);
                             break;
                     }
                     break;
                 default:
                     throw new NotSupportedException();
             }
-
-            if (webElement is T result)
-            {
-                return result;
-            }
-            throw new Exception($"IWebElement is not compatible with type {typeof(T)}");
-        }
-
-        /// <summary>
-        /// Get first control identified using wrapped <see cref="IControlIdentity"/>
-        /// </summary>
-        /// <returns></returns>
-        public override UIControl GetControl()
-        {
-            IWebElement foundControl = GetTargetControl<IWebElement>();
-            WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
-            return new WebUIControl(this.ControlDetails, foundControl,  webControlLocator) ;
+            return control;
         }
 
         /// <summary>
         /// Get all the controls identifed using wrapped <see cref="IControlIdentity"/>
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<UIControl> GetAllControls()
+        public override async  Task<IEnumerable<UIControl>> GetAllControls()
         {
-            IWebElement searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {              
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<IWebElement>();
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
-                searchRoot = (this.Parent as WebControlEntity).GetTargetControl<IWebElement>();
+                searchRoot = await (this.Parent as WebControlEntity).GetControl();
             }
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
-            var foundControls = webControlLocator.FindAllControls(this.ControlDetails, searchRoot);
-            List<UIControl> foundUIControls = new List<UIControl>();
-            foreach(var foundControl in foundControls)
-            {
-                foundUIControls.Add(new WebUIControl(this.ControlDetails, foundControl,  webControlLocator));
-            }
-            return foundUIControls;
+            var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);           
+            return foundControls;
         }
 
     }

@@ -136,12 +136,12 @@ namespace Pixel.Automation.Test.Helpers
             Entity entityThree = new Entity("E3", "Entity");
             rootEntity.AddComponent(entityThree);
 
-            var componentFour = Substitute.For<AsyncActorComponent>();
+            var componentFour = Substitute.For<ActorComponent>();
             componentFour.Name = "E3-A1";
             componentFour.Tag = "Actor";
             entityThree.AddComponent(componentFour);
 
-            var componentFive = Substitute.For<AsyncActorComponent>();
+            var componentFive = Substitute.For<ActorComponent>();
             componentFive.Name = "E1-E1-A1";
             componentFive.Tag = "Actor";
             entityTwo.AddComponent(componentFive);

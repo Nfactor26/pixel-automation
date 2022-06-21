@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -13,7 +14,7 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// Validate that HotKeyActor can press configured keys properly
         /// </summary>
         [Test]
-        public void ValidateThatHotKeyActorCanPressConfiguredHotKeys()
+        public async Task ValidateThatHotKeyActorCanPressConfiguredHotKeys()
         {
             var entityManager = Substitute.For<IEntityManager>();
           
@@ -39,7 +40,7 @@ namespace Pixel.Automation.Input.Devices.Tests
                 KeySequence = "Ctrl + C",
                 EntityManager = entityManager
             };
-            hotKeyActor.Act();
+            await hotKeyActor.ActAsync();
 
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>("Ctrl + C"));
             syntheticKeyboard.Received(4).IsModifierKey(Arg.Any<SyntheticKeyCode>()); // twice to take and twice to skip

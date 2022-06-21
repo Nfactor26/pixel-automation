@@ -4,6 +4,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -36,13 +37,13 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <summary>
         /// Set the text of a control.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AccessibleContextNode targetControl = this.GetTargetControl();
+            AccessibleContextNode targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleTextInterface) != 0)
             {
-                string textToSet = this.ArgumentProcessor.GetValue<string>(this.Input);
+                string textToSet = await this.ArgumentProcessor.GetValueAsync<string>(this.Input);
                 targetControl.AccessBridge.Functions.SetTextContents(targetControl.JvmId, targetControl.AccessibleContextHandle, textToSet);
                 logger.Information("Text was set on control.");
                 return;

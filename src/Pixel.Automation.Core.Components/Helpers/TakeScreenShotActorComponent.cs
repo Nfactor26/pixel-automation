@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Helpers
 {
@@ -19,7 +20,7 @@ namespace Pixel.Automation.Core.Components.Helpers
         [DataMember]      
         [Description("Absolute path of the directory where screenshot should be saved")]
         [Display(Name = "Save Location", GroupName = "Input", Order = 10)]
-        public InArgument<string> SaveLocation { get; set; } = new InArgument<string>();
+        public Argument SaveLocation { get; set; } = new InArgument<string>();
        
 
         public TakeScreenShotActorComponent() : base("Take ScreenShot", "TakeScreenShot")
@@ -27,12 +28,11 @@ namespace Pixel.Automation.Core.Components.Helpers
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             IApplication targetApplication = this.EntityManager.GetOwnerApplication(this);
-            string applicationName = targetApplication.ApplicationName;
-            var argumentProcessor = this.ArgumentProcessor;
-            string saveLocation = argumentProcessor.GetValue<string>(this.SaveLocation);       
+            string applicationName = targetApplication.ApplicationName;           
+            string saveLocation = await this.ArgumentProcessor.GetValueAsync<string>(this.SaveLocation);       
             if (string.IsNullOrEmpty(saveLocation))
             {
                 throw new ArgumentException("SaveLocation can't be empty for TaksScreenShot Actor");
@@ -48,8 +48,8 @@ namespace Pixel.Automation.Core.Components.Helpers
                     Directory.CreateDirectory(saveAt);
                 }
                 screenShot.Save($"{saveAt}\\{this.Id}.png");
-            }         
-           
+            }
+            await Task.CompletedTask;
         }
 
     }

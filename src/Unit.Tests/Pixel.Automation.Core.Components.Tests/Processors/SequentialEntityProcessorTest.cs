@@ -23,7 +23,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var actorComponent = Substitute.For<ActorComponent>();
          
-            var asyncActorComponent = Substitute.For<AsyncActorComponent>();         
+            var asyncActorComponent = Substitute.For<ActorComponent>();         
      
             var disabledActorComponent = Substitute.For<ActorComponent>();
             disabledActorComponent.IsEnabled = false;
@@ -50,17 +50,17 @@ namespace Pixel.Automation.Core.Components.Tests
          
             await processor.BeginProcessAsync();
 
-            actorComponent.Received(1).Act();
+            await actorComponent.Received(1).ActAsync();
             await entity.Received(1).BeforeProcessAsync();
             await entity.Received(1).OnCompletionAsync();
           
             await asyncActorComponent.Received(1).ActAsync();         
 
-            disabledActorComponent.Received(0).Act();
+            await disabledActorComponent.Received(0).ActAsync();
            
             await entityProcessor.Received(1).BeginProcessAsync();            
             
-            nestedActorComponent.Received(1).Act();          
+            await nestedActorComponent.Received(1).ActAsync();          
 
             await Task.CompletedTask;
         }
@@ -79,7 +79,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var actorComponent = Substitute.For<ActorComponent>();
             actorComponent.ContinueOnError = false;
-            actorComponent.When(a => a.Act()).Do(a => { throw new Exception(); });
+            actorComponent.When(a => a.ActAsync()).Do(a => { throw new Exception(); });
 
          
 
@@ -90,7 +90,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             Assert.ThrowsAsync<Exception>(async () => { await processor.BeginProcessAsync(); });
 
-            actorComponent.Received(1).Act();           
+            await actorComponent.Received(1).ActAsync();           
 
             await Task.CompletedTask;
         }
@@ -109,9 +109,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var actorComponent = Substitute.For<ActorComponent>();
             actorComponent.ContinueOnError = true;
-            actorComponent.When(a => a.Act()).Do(a => { throw new Exception(); });
+            actorComponent.When(a => a.ActAsync()).Do(a => { throw new Exception(); });
 
-            var asyncActorComponent = Substitute.For<AsyncActorComponent>();
+            var asyncActorComponent = Substitute.For<ActorComponent>();
 
             SequentialEntityProcessor processor = new SequentialEntityProcessor();
             processor.EntityManager = entityManager;
@@ -121,7 +121,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await processor.BeginProcessAsync();
 
-            actorComponent.Received(1).Act();
+            await actorComponent.Received(1).ActAsync();
             await asyncActorComponent.Received(1).ActAsync();
 
             await Task.CompletedTask;
@@ -139,7 +139,7 @@ namespace Pixel.Automation.Core.Components.Tests
             //Substituting for parts since we want to use GetNextComponentToProcess implementation
             var rootEntity = Substitute.ForPartsOf<Entity>();
 
-            var asyncActorComponent = Substitute.For<AsyncActorComponent>();
+            var asyncActorComponent = Substitute.For<ActorComponent>();
             asyncActorComponent.ContinueOnError = false;
             asyncActorComponent.When(a => a.ActAsync()).Do(a => { throw new Exception(); });
 
@@ -168,7 +168,7 @@ namespace Pixel.Automation.Core.Components.Tests
             //Substituting for parts since we want to use GetNextComponentToProcess implementation
             var rootEntity = Substitute.ForPartsOf<Entity>();
 
-            var asyncActorComponent = Substitute.For<AsyncActorComponent>();
+            var asyncActorComponent = Substitute.For<ActorComponent>();
             asyncActorComponent.ContinueOnError = true;
             asyncActorComponent.When(a => a.ActAsync()).Do(a => { throw new Exception(); });
 
@@ -183,7 +183,7 @@ namespace Pixel.Automation.Core.Components.Tests
             await processor.BeginProcessAsync();
 
             await asyncActorComponent.Received(1).ActAsync();
-            actorComponent.Received(1).Act();
+            await actorComponent.Received(1).ActAsync();
             await Task.CompletedTask;
         }
     }

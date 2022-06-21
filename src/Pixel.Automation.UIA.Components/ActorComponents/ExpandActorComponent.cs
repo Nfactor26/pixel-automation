@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -30,9 +31,9 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Expand the state of  control that supports ExpandCollasePattern.
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if ExpandCollapsePattern is not supported</exception>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
+            AutomationElement control = await GetTargetControl();
             if(control.IsControlExpanded())
             {
                 logger.Information("Control is already expanded.");

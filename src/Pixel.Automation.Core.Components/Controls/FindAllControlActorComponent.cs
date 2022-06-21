@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Controls
 {
@@ -33,18 +34,18 @@ namespace Pixel.Automation.Core.Components.Controls
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             var controlEntities = this.Parent.GetComponentsOfType<IControlEntity>(Core.Enums.SearchScope.Descendants);
             List<UIControl> locatedControls = new List<UIControl>();
             foreach(var controlEntity in controlEntities)
             {
-                var foundControls = controlEntity.GetAllControls() ?? Array.Empty<UIControl>();
+                var foundControls = await controlEntity.GetAllControls() ?? Array.Empty<UIControl>();
                 locatedControls.AddRange(foundControls);
             }
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-            argumentProcessor.SetValue<IEnumerable<UIControl>>(this.FoundControls, locatedControls);      
-            argumentProcessor.SetValue<int>(this.Count, locatedControls.Count());
+            await argumentProcessor.SetValueAsync<IEnumerable<UIControl>>(this.FoundControls, locatedControls);      
+            await argumentProcessor.SetValueAsync<int>(this.Count, locatedControls.Count());
         }
     }
 
@@ -52,7 +53,7 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         public Core.Interfaces.IComponent CreateComponent()
         {
-            GroupEntity groupEntity = new GroupEntity()
+            var groupEntity = new GroupEntity()
             {
                 Name = "Find All Control",
                 Tag = "FindAllControlsGroup",

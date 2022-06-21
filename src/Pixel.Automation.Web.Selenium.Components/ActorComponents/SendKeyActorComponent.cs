@@ -3,9 +3,9 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -45,10 +45,10 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Set the text on a <see cref="IWebElement"/>
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
-            string inputForControl = ArgumentProcessor.GetValue<string>(this.Input);
+            IWebElement control = await GetTargetControl();
+            string inputForControl = await ArgumentProcessor.GetValueAsync<string>(this.Input);
             if (this.ClearBeforeSendKeys)
             {
                 logger.Information("Value of control was cleared ");

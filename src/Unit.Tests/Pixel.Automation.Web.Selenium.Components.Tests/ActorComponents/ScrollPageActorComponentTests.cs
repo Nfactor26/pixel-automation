@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -12,11 +13,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that scroll page actor component can scroll window by configured horizontal and vertical scroll amount
         /// </summary>
         [Test]
-        public void ValidateThatScrollPageActorCanScrollBrowserWindow()
+        public async Task ValidateThatScrollPageActorCanScrollBrowserWindow()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(100);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(100);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver, IJavaScriptExecutor>();
@@ -31,9 +32,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             {
                 EntityManager = entityManager                
             };
-            scrollPageActorComponent.Act();
+            await scrollPageActorComponent.ActAsync();
 
-            argumentProcessor.Received(2).GetValue<int>(Arg.Any<Argument>());
+            argumentProcessor.Received(2).GetValueAsync<int>(Arg.Any<Argument>());
             (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Is<string>("window.scroll(100, 100);"));
         }
     }

@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -41,7 +42,7 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Simulate pressing configured HotKeys
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             var synthethicKeyboard = GetKeyboard();
             var syntheticKeySequence = synthethicKeyboard.GetSynthethicKeyCodes(KeySequence);
@@ -49,6 +50,7 @@ namespace Pixel.Automation.Input.Devices
             var keys = syntheticKeySequence.SkipWhile(s => synthethicKeyboard.IsModifierKey(s));
             synthethicKeyboard.ModifiedKeyStroke(modifiers, keys);
             logger.Information($"Hot keys : {KeySequence} were pressed.");
+            await Task.CompletedTask;
         }
 
         /// <summary>

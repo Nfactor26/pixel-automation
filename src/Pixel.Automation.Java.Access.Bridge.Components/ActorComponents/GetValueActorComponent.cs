@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
@@ -38,16 +39,16 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// <summary>
         /// Get the value of a control
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AccessibleContextNode targetControl = GetTargetControl();
+            AccessibleContextNode targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleValueInterface) != 0)
             {
                 var sb = new StringBuilder(1024);
                 targetControl.AccessBridge.Functions.GetCurrentAccessibleValueFromContext(targetControl.JvmId, targetControl.AccessibleContextHandle, sb, (short)sb.Capacity);
                 string controlValue = sb.ToString();
-                this.ArgumentProcessor.SetValue<string>(this.Result, controlValue);
+                await this.ArgumentProcessor.SetValueAsync<string>(this.Result, controlValue);
                 logger.Information("Value was retrieved from control.");
                 return;
             }

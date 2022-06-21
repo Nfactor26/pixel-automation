@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Image.Matching.Components
 {
@@ -94,10 +95,10 @@ namespace Pixel.Automation.Image.Matching.Components
                 this.Filter = new PredicateArgument<BoundingBox>() { CanChangeMode = false, CanChangeType = false };
             }
         }
-
-        public override T GetTargetControl<T>()
+    
+        public override async Task<UIControl> GetControl()
         {
-            BoundingBox regionOfInterest = GetRegionOfInterest();
+            BoundingBox regionOfInterest = await GetRegionOfInterest();
             ImageControlLocatorComponent controlLocator;
             if (this.EntityManager.TryGetOwnerApplication(this, out IApplication application))
             {
@@ -107,18 +108,18 @@ namespace Pixel.Automation.Image.Matching.Components
             {
                 controlLocator = new ImageControlLocatorComponent();
             }
-            BoundingBox targetControl = default;
+            UIControl targetControl = default;
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
-                    targetControl = controlLocator.FindControl(this.ControlDetails, regionOfInterest);
+                    targetControl = await controlLocator.FindControlAsync(this.ControlDetails, new ImageUIControl(this.ControlDetails, regionOfInterest));
                     break;
                 case LookupMode.FindAll:
-                    var descendantControls = controlLocator.FindAllControls(this.ControlDetails, regionOfInterest);
+                    var descendantControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, new ImageUIControl(this.ControlDetails, regionOfInterest));
                     switch (FilterMode)
                     {
                         case FilterMode.Index:
-                            targetControl = GetElementAtIndex(descendantControls);
+                            targetControl = await GetElementAtIndex(descendantControls);
                             break;
                         case FilterMode.Custom:
                             targetControl = GetElementMatchingCriteria(descendantControls);
@@ -127,35 +128,18 @@ namespace Pixel.Automation.Image.Matching.Components
                     break;
                 default:
                     throw new NotSupportedException();
-            }          
-
-            if (targetControl is T result)
-            {
-                return result;
             }
-            throw new Exception($"BoundingBox is not compatible with type {typeof(T)}");
-
-        }
-
-        public override UIControl GetControl()
-        {
-            BoundingBox foundControl = GetTargetControl<BoundingBox>();
-            return new ImageUIControl(this.ControlDetails, foundControl);
+           
+            return targetControl;
         }
 
 
-        public override IEnumerable<UIControl> GetAllControls()
+        public override async Task<IEnumerable<UIControl>> GetAllControls()
         {
-            BoundingBox regionOfInterest = GetRegionOfInterest();
-
+            BoundingBox regionOfInterest = await GetRegionOfInterest();
             ImageControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as ImageControlLocatorComponent;
-            var foundControls = controlLocator.FindAllControls(this.ControlDetails, regionOfInterest);
-            List<UIControl> foundUIControls = new List<UIControl>();
-            foreach (var foundControl in foundControls)
-            {
-                foundUIControls.Add(new ImageUIControl(this.ControlDetails, foundControl));
-            }
-            return foundUIControls;
+            var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, new ImageUIControl(this.ControlDetails, regionOfInterest));          
+            return foundControls;
         }      
 
         /// <summary>
@@ -163,7 +147,7 @@ namespace Pixel.Automation.Image.Matching.Components
         /// Control locator treats null value as search on entire desktop
         /// </summary>
         /// <returns></returns>
-        private BoundingBox GetRegionOfInterest()
+        private async  Task<BoundingBox> GetRegionOfInterest()
         {
             switch(this.ImageSearchScope)
             {
@@ -176,7 +160,7 @@ namespace Pixel.Automation.Image.Matching.Components
                     var windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
                     if (TargetWindow.IsConfigured())
                     {
-                        var targetWindow = ArgumentProcessor.GetValue<ApplicationWindow>(this.TargetWindow);
+                        var targetWindow = await ArgumentProcessor.GetValueAsync<ApplicationWindow>(this.TargetWindow);
                         return new BoundingBox(targetWindow.WindowBounds);
                     }
                     else
@@ -191,7 +175,7 @@ namespace Pixel.Automation.Image.Matching.Components
                 case ImageSearchScope.Custom:
                     if(AreaOnScreen.IsConfigured())
                     {
-                        return ArgumentProcessor.GetValue<BoundingBox>(this.AreaOnScreen);
+                        return await ArgumentProcessor.GetValueAsync<BoundingBox>(this.AreaOnScreen);
                     }
                     throw new ConfigurationException("Search scope is configured as Custom. However, required input AreaOnScreen is not configured or incorrectly configured");                   
             }

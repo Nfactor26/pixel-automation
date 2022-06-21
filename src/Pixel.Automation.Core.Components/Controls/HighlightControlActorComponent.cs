@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Controls
 {
@@ -35,7 +36,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
 
@@ -47,16 +48,16 @@ namespace Pixel.Automation.Core.Components.Controls
                 {
                     throw new InvalidOperationException("Highlight Control Actor doesn't support Relative controls");
                 }
-                targetControl = controlEntity.GetControl();
+                targetControl = await controlEntity.GetControl();
             }
             else
             {
-                targetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
+                targetControl = await argumentProcessor.GetValueAsync<UIControl>(this.TargetControl);
             }
 
             if (targetControl != null)
             {
-                Rectangle boundingBox = targetControl.GetBoundingBox();
+                Rectangle boundingBox = await targetControl.GetBoundingBoxAsync();
 
                 var highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
 
@@ -64,7 +65,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
                 highlightRectangle.Location = boundingBox;
 
-                double highlightDuration = argumentProcessor.GetValue<double>(this.HighlightDuration);
+                double highlightDuration = await argumentProcessor.GetValueAsync<double>(this.HighlightDuration);
                 Thread.Sleep((int)(highlightDuration * 1000));
 
                 highlightRectangle.Visible = false;
@@ -79,7 +80,7 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         public Core.Interfaces.IComponent CreateComponent()
         {
-            GroupEntity groupEntity = new GroupEntity()
+            var groupEntity = new GroupEntity()
             {
                 Name = "Highlight Control",
                 Tag = "HighlightControlGroup",

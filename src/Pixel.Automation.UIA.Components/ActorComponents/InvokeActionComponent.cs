@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -29,9 +30,9 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Perform Invoke action on the control.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
+            AutomationElement control = await GetTargetControl();
             control.Invoke();
             logger.Information("Invoke performed on control.");
         }

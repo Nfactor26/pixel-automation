@@ -3,21 +3,21 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
-
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
     class TypeTextActorComponentTests
     {
         [Test]
-        public void ValidateThatTypeTextActorCanTypeText()
+        public async Task ValidateThatTypeTextActorCanTypeText()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var inputText  = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = "How you doing?" };
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Is<InArgument<string>>(inputText)).Returns(inputText.DefaultValue);
+            argumentProcessor.GetValueAsync<string>(Arg.Is<InArgument<string>>(inputText)).Returns(inputText.DefaultValue);
 
             var syntheticKeyboard = Substitute.For<ISyntheticKeyboard>();
 
@@ -29,9 +29,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 Input = inputText,
                 EntityManager = entityManager
             };
-            typeTextActor.Act();
+            await typeTextActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             syntheticKeyboard.Received(1).TypeText("How you doing?");
         }
     }

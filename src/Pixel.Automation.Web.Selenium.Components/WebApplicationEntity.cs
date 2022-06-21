@@ -13,6 +13,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Management;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -64,12 +65,13 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Launch the browser using Selenium WebDriver
         /// </summary>
-        public override void Launch()
+        public override async Task LaunchAsync()
         {
             var webApplicationDetails = this.GetTargetApplicationDetails<WebApplication>();
             if (webApplicationDetails.WebDriver != null)
             {
                 logger.Warning($"{webApplicationDetails.ApplicationName} is already launched");
+                await Task.CompletedTask;
                 return;
             }
 
@@ -78,19 +80,19 @@ namespace Pixel.Automation.Web.Selenium.Components
             Browsers preferredBrowser = webApplicationDetails.PreferredBrowser; 
             if (this.BrowserOverride.IsConfigured())
             {
-                preferredBrowser = this.ArgumentProcessor.GetValue<Browsers>(this.BrowserOverride);
+                preferredBrowser = await this.ArgumentProcessor.GetValueAsync<Browsers>(this.BrowserOverride);
                 logger.Information($"Preferred browser was over-ridden to {preferredBrowser} for application : {webApplicationDetails.ApplicationName}");
             }
             switch (preferredBrowser)
             {
                 case Browsers.FireFox:
-                    webApplicationDetails.WebDriver = new FirefoxDriver(webDriverFolder, GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier));
+                    webApplicationDetails.WebDriver = new FirefoxDriver(webDriverFolder, await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier));
                     break;
                 case Browsers.Chrome:
-                    webApplicationDetails.WebDriver = new ChromeDriver(webDriverFolder, GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier));
+                    webApplicationDetails.WebDriver = new ChromeDriver(webDriverFolder, await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier));
                     break;
                 case Browsers.Edge:
-                    webApplicationDetails.WebDriver = new EdgeDriver(webDriverFolder, GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier));
+                    webApplicationDetails.WebDriver = new EdgeDriver(webDriverFolder, await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier));
                     break;
                 default:
                     throw new ArgumentException("Requested web driver type is not supported");
@@ -112,7 +114,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             Uri goToUrl = webApplicationDetails.TargetUri;
             if (this.TargetUriOverride.IsConfigured())
             {
-                goToUrl = this.ArgumentProcessor.GetValue<Uri>(this.TargetUriOverride);             
+                goToUrl = await this.ArgumentProcessor.GetValueAsync<Uri>(this.TargetUriOverride);             
                 logger.Information($"TargetUri was over-ridden to {goToUrl} for application : {applicationDetails.ApplicationName}");
             }
             webApplicationDetails.WebDriver.Navigate().GoToUrl(goToUrl);
@@ -123,13 +125,14 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Close browser by disposing the WebDriver
         /// </summary>
-        public override void Close()
+        public override async Task CloseAsync()
         {
             var webApplicationDetails = this.GetTargetApplicationDetails<WebApplication>();
             if (webApplicationDetails.WebDriver != null)
             {
                 webApplicationDetails.WebDriver.Quit();
                 webApplicationDetails.WebDriver = null;
+                await Task.CompletedTask;
             }
         }
 
@@ -141,12 +144,12 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <param name="browser"></param>
         /// <param name="processIdentifier"></param>
         /// <returns></returns>
-        T GetDriverOptions<T>(Browsers browser, string processIdentifier) where T : DriverOptions
+        async Task<T> GetDriverOptions<T>(Browsers browser, string processIdentifier) where T : DriverOptions
         {
             DriverOptions driverOptions = default;
             if (this.DriverOptionsOverride.IsConfigured())
             {
-                driverOptions = this.ArgumentProcessor.GetValue<DriverOptions>(this.DriverOptionsOverride);
+                driverOptions = await this.ArgumentProcessor.GetValueAsync<DriverOptions>(this.DriverOptionsOverride);
                 logger.Information($"DriverOptions was over-ridden for application : {applicationDetails.ApplicationName}");
                 if (!(driverOptions is T))
                 {

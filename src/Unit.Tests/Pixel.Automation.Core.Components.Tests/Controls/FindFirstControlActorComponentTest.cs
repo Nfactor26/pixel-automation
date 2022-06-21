@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components.Controls;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
@@ -34,7 +35,7 @@ namespace Pixel.Automation.Core.Components.Tests
         /// <param name="index"></param>
         [TestCase(0)]
         [TestCase(1)]
-        public void AssertThatFindFirstControlActorCanLocateMatchingControl(int index)
+        public async Task AssertThatFindFirstControlActorCanLocateMatchingControl(int index)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -77,12 +78,12 @@ namespace Pixel.Automation.Core.Components.Tests
             bool wasLocated = false;
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<UIControl>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<UIControl>()))
                 .Do(p =>
                 {
                     foundControl = p.ArgAt<UIControl>(1);
                 });
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<bool>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<bool>()))
                 .Do(p =>
                 {
                     wasLocated = p.ArgAt<bool>(1);
@@ -90,7 +91,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
-            containerEntity.GroupActor.Act();
+            await containerEntity.GroupActor.ActAsync();
 
             if(index == 0)
             {
@@ -106,7 +107,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        public void GivenDifferentValuesofThrowIfNotFoundAssertThatFindFirstControlActorBehavesAccordingly(bool throwIfNotFound)
+        public async Task GivenDifferentValuesofThrowIfNotFoundAssertThatFindFirstControlActorBehavesAccordingly(bool throwIfNotFound)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -126,7 +127,7 @@ namespace Pixel.Automation.Core.Components.Tests
             bool wasLocated = false;
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();       
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<bool>()))
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<bool>()))
                 .Do(p =>
                 {
                     wasLocated = p.ArgAt<bool>(1);
@@ -137,11 +138,11 @@ namespace Pixel.Automation.Core.Components.Tests
            
             if(throwIfNotFound)
             {
-                Assert.Throws<ElementNotFoundException>(() => { containerEntity.GroupActor.Act(); });
+                Assert.ThrowsAsync<ElementNotFoundException>(async () => { await containerEntity.GroupActor.ActAsync(); });
             }
             else
             {
-                containerEntity.GroupActor.Act();               
+                await containerEntity.GroupActor.ActAsync();               
             }
 
             Assert.AreEqual(false, wasLocated);

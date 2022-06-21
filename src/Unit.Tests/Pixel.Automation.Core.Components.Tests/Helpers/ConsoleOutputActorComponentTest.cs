@@ -5,17 +5,18 @@ using Pixel.Automation.Core.Components.Helpers;
 using Pixel.Automation.Core.Interfaces;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
 {
     public class ConsoleOutputActorComponentTest
     {
         [Test]
-        public void AssertThatConsoleOutputActorCanWriteToConsole()
+        public async Task AssertThatConsoleOutputActorCanWriteToConsole()
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<Argument>()).Returns("Hello World !!");
+            argumentProcessor.GetValueAsync<string>(Arg.Any<Argument>()).Returns("Hello World !!");
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             ConsoleOutputActorComponent consoleOutputActorComponent = new ConsoleOutputActorComponent();
@@ -31,7 +32,7 @@ namespace Pixel.Automation.Core.Components.Tests
             try
             {
                 Console.SetOut(textWriter);
-                consoleOutputActorComponent.Act();
+                await consoleOutputActorComponent.ActAsync();
                 Assert.AreEqual("Hello World !!", consoleOutput);
 
             }

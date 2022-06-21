@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -23,12 +24,12 @@ namespace Pixel.Automation.Input.Devices.Tests
         [TestCase(MouseButton.MiddleButton, ClickMode.DoubleClick)]
         [TestCase(MouseButton.RightButton, ClickMode.SingleClick)]
         [TestCase(MouseButton.RightButton, ClickMode.DoubleClick)]
-        public void ValidateThatMouseClickCanBePerformedAtConfiguredCoordinates(MouseButton buttonToClick, ClickMode clickMode)
+        public async Task ValidateThatMouseClickCanBePerformedAtConfiguredCoordinates(MouseButton buttonToClick, ClickMode clickMode)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
+            argumentProcessor.GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -43,9 +44,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 EntityManager = entityManager
             };
 
-            mouseClickActor.Act();
+            await mouseClickActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
+            argumentProcessor.Received(1).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
             switch(clickMode)
             {
@@ -63,15 +64,11 @@ namespace Pixel.Automation.Input.Devices.Tests
         /// Validate that MouseClick can be performed on configured control
         /// </summary>
         [Test]
-        public void ValidateThatMouseClickCanBePerformedAtContifugredControl()
+        public async Task ValidateThatMouseClickCanBePerformedAtContifugredControl()
         {
             UIControl uiControl = Substitute.For<UIControl>();
-            uiControl.When(x => x.GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>())).Do(x =>
-            {
-                x[0] = 100.0;
-                x[1] = 100.0;
-            });
-
+            uiControl.GetClickablePointAsync().Returns((100.0, 100.0));
+           
             var entityManager = Substitute.For<IEntityManager>();
             var controlEntity = Substitute.For<Entity, IControlEntity>();
             controlEntity.EntityManager = entityManager;
@@ -90,10 +87,10 @@ namespace Pixel.Automation.Input.Devices.Tests
             };
             mouseClickActor.Parent = controlEntity;
 
-            mouseClickActor.Act();
+            await mouseClickActor.ActAsync();
 
-            argumentProcessor.Received(0).GetValue<UIControl>(Arg.Any<InArgument<UIControl>>());
-            uiControl.Received(1).GetClickablePoint(out Arg.Any<double>(), out Arg.Any<double>());
+            argumentProcessor.Received(0).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await uiControl.Received(1).GetClickablePointAsync();
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
         }
 

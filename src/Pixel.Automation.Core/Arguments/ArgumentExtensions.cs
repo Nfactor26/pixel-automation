@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core
 {
@@ -23,12 +24,14 @@ namespace Pixel.Automation.Core
         /// <param name="argument">Argument whose value needs to be retrieved</param>
         /// <param name="argumentProcessor"><see cref="IArgumentProcessor"/> instance that can retrieve the value of argument</param>
         /// <returns></returns>
-        public static object GetValue(this Argument argument, IArgumentProcessor argumentProcessor)
+        public static async Task<object> GetValue(this Argument argument, IArgumentProcessor argumentProcessor)
         {
-            MethodInfo getValueMethod = argumentProcessor.GetType().GetMethod("GetValue");
+            MethodInfo getValueMethod = argumentProcessor.GetType().GetMethod("GetValueAsync");
             MethodInfo getValueMethodWithClosedType = getValueMethod.MakeGenericMethod(argument.GetArgumentType());
-            var value = getValueMethodWithClosedType.Invoke(argumentProcessor, new object[] { argument });
-            return value;
+            var value = (Task)getValueMethodWithClosedType.Invoke(argumentProcessor, new object[] { argument });
+            await value.ConfigureAwait(false);
+            var resultProperty = value.GetType().GetProperty("Result");
+            return resultProperty.GetValue(value);
         }
 
         /// <summary>
@@ -37,11 +40,12 @@ namespace Pixel.Automation.Core
         /// <param name="argument">Argument whose value needs to be set</param>
         /// <param name="argumentProcessor"><see cref="IArgumentProcessor"/> instance that can set the value of argument</param>
         /// <param name="value">Value to be set</param>
-        public static void SetValue(this Argument argument, IArgumentProcessor argumentProcessor, object value)
+        public static async Task SetValue(this Argument argument, IArgumentProcessor argumentProcessor, object value)
         {
-            MethodInfo setValueMethod = argumentProcessor.GetType().GetMethod("SetValue");
+            MethodInfo setValueMethod = argumentProcessor.GetType().GetMethod("SetValueAsync");
             MethodInfo setValueMethodWithClosedType = setValueMethod.MakeGenericMethod(argument.GetArgumentType());
-            setValueMethodWithClosedType.Invoke(argumentProcessor, new[] { argument, value });
+            var task = (Task)setValueMethodWithClosedType.Invoke(argumentProcessor, new[] { argument, value });
+            await task.ConfigureAwait(false);
         }
 
         public static string GenerateInitialScript(this Argument argument)

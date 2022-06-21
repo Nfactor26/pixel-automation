@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Tests
 {
-    public class FakeAsyncActorComponent : AsyncActorComponent
+    public class FakeAsyncActorComponent : ActorComponent
     {
         public FakeAsyncActorComponent() : base()
         {

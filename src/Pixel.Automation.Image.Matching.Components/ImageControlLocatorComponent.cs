@@ -7,7 +7,6 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Polly;
 using Polly.Retry;
 using Serilog;
@@ -19,13 +18,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Image.Matching.Components
 {
     [DataContract]
     [Serializable]
     [ToolBoxItem("Image Locator", "Control Locators", iconSource: null, description: "Identify a image control on screen", tags: new string[] { "Locator" })]
-    public class ImageControlLocatorComponent : ServiceComponent, IControlLocator<BoundingBox, BoundingBox>, ICoordinateProvider
+    public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<ImageControlLocatorComponent>();
 
@@ -139,17 +139,18 @@ namespace Pixel.Automation.Image.Matching.Components
         }
 
 
-        public BoundingBox FindControl(IControlIdentity controlDetails, BoundingBox searchArea)
+        public async Task<UIControl> FindControlAsync(IControlIdentity controlDetails, UIControl searchRoot)
         {
             Guard.Argument(controlDetails).NotNull().Compatible<ImageControlIdentity>();
 
             ImageControlIdentity controlIdentity = controlDetails as ImageControlIdentity;
             ConfigureRetryPolicy(controlIdentity);
 
-            var foundControl = policy.Execute(() =>
+            var searchArea = searchRoot?.GetApiControl<BoundingBox>();
+            var foundControl = await policy.Execute(async () =>
             {
                 HighlightElement(searchArea);
-                var boundingBox = TryFindMatch(controlIdentity, searchArea);
+                var boundingBox = await TryFindMatch(controlIdentity, searchArea);
                 //Transform the control bounding box relative to desktop top-left (0,0)
                 if (searchArea != null)
                 {
@@ -159,33 +160,33 @@ namespace Pixel.Automation.Image.Matching.Components
                 return boundingBox;
             });
             HighlightElement(foundControl);
-            return foundControl ?? throw new ElementNotFoundException($"Failed to find any control matching image  {controlDetails}");
+            return await Task.FromResult(new ImageUIControl(controlIdentity, foundControl ?? throw new ElementNotFoundException($"Failed to find any control matching image  {controlDetails}")));
         }
 
 
-        public IEnumerable<BoundingBox> FindAllControls(IControlIdentity controlDetails, BoundingBox searchArea)
+        public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlDetails, UIControl searchRoot)
         {
             Guard.Argument(controlDetails).NotNull().Compatible<ImageControlIdentity>();
 
             ImageControlIdentity controlIdentity = controlDetails as ImageControlIdentity;
             ConfigureRetryPolicy(controlIdentity);
-
-            var foundControls = policy.Execute(() =>
+            var searchArea = searchRoot?.GetApiControl<BoundingBox>();
+            var foundControls = await policy.Execute(async () =>
             {
                 HighlightElement(searchArea);
-                return TryFindAllMatch(controlIdentity, searchArea);
+                return await TryFindAllMatch(controlIdentity, searchArea);
             });
             if (!foundControls.Any())
             {
                 throw new ElementNotFoundException($"Failed to find any control matching image  {controlDetails}");
             }
-            return foundControls;
+            return await Task.FromResult(foundControls.Select(s => new ImageUIControl(controlDetails, s)));
         }
 
 
-        private BoundingBox TryFindMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
+        private async Task<BoundingBox> TryFindMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
         {
-            string templateFile = GetTemplateFile(controlDetails);
+            string templateFile = await GetTemplateFile(controlDetails);
             CaptureRegionOfInterest(searchArea);
 
             OpenCvSharp.Point matchingPoint;
@@ -220,11 +221,11 @@ namespace Pixel.Automation.Image.Matching.Components
 
         }
 
-        private IEnumerable<BoundingBox> TryFindAllMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
+        private async Task<IEnumerable<BoundingBox>> TryFindAllMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
         {         
-            string templateFile = GetTemplateFile(controlDetails);
+            string templateFile = await GetTemplateFile(controlDetails);
             CaptureRegionOfInterest(searchArea);
-
+            var foundMatches = new List<BoundingBox>();
             using (Mat templateImg = Cv2.ImRead(templateFile, ImreadModes.Grayscale))
             {
                 using (Mat sourceImg = Cv2.ImRead("RegionOfInterest.Png", ImreadModes.Grayscale))
@@ -240,16 +241,15 @@ namespace Pixel.Automation.Image.Matching.Components
                         List<OpenCvSharp.Point> matchingPoints = GetAllMatchingPoints(resultImg, controlDetails.MatchStrategy, controlDetails.ThreshHold);
                         foreach (var matchingPoint in matchingPoints)
                         {
-                            yield return new BoundingBox(matchingPoint.X, matchingPoint.Y, templateImg.Width, templateImg.Height);
-                        }
-                        yield break;
+                            foundMatches.Add(new BoundingBox(matchingPoint.X, matchingPoint.Y, templateImg.Width, templateImg.Height));
+                        }                      
                     }
                 }
             }
-
+            return foundMatches;
         }
 
-        private string GetTemplateFile(ImageControlIdentity controlDetails)
+        private async Task<string> GetTemplateFile(ImageControlIdentity controlDetails)
         {
             var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
             var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
@@ -259,7 +259,7 @@ namespace Pixel.Automation.Image.Matching.Components
             string theme = string.Empty;
             if (this.Theme.IsConfigured())
             {
-                theme = argumentProcessor.GetValue<string>(this.Theme);
+                theme = await argumentProcessor.GetValueAsync<string>(this.Theme);
                 logger.Information($"Configured theme is {theme}");
             }
             var images = controlDetails.GetImages();
@@ -389,25 +389,31 @@ namespace Pixel.Automation.Image.Matching.Components
 
         }
 
-        public void GetClickablePoint(IControlIdentity controlIdentity, out double x, out double y)
+        #region ICoordinateProvider   
+
+        public async Task<(double, double)> GetClickablePoint(IControlIdentity controlDetails)
         {
-            GetScreenBounds(controlIdentity, out Rectangle bounds);
-            controlIdentity.GetClickablePoint(bounds, out x, out y);
+            var bounds = await GetScreenBounds(controlDetails);
+            controlDetails.GetClickablePoint(bounds, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
 
-        public void GetScreenBounds(IControlIdentity controlIdentity, out Rectangle screenBounds)
+        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlIdentity)
         {
-            var targetControl = this.FindControl(controlIdentity, null);
-            screenBounds = GetBoundingBox(targetControl);
+            var targetControl = await this.FindControlAsync(controlIdentity, null);
+            var screenBounds = await GetBoundingBox(targetControl);
+            return screenBounds;
         }
 
-        public Rectangle GetBoundingBox(object control)
+        public async Task<Rectangle> GetBoundingBox(object control)
         {
             if (control is BoundingBox boundingBox)
             {
-                return new Rectangle(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height);
+                return await Task.FromResult(new Rectangle(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height));
             }
-            throw new ArgumentException("");
+            throw new ArgumentException("control must be of type BoundingBox");
         }
+
+        #endregion ICoordinateProvider  
     }
 }

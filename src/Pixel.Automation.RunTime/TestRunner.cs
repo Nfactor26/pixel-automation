@@ -464,34 +464,8 @@ namespace Pixel.Automation.RunTime
                         logger.Information("Component : [{$Id},{$Name}] will be processed next.", component.Id, component.Name);
 
                         switch (component)
-                        {
+                        {                          
                             case ActorComponent actor:
-                                try
-                                {
-                                    actorBeingProcessed = actor;
-                                    AddDelay(this.preDelayAmount);
-                                    actor.IsExecuting = true;
-                                    actor.Act();
-                                    AddDelay(this.postDelayAmount);
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    if (!actor.ContinueOnError)
-                                    {
-                                        throw;
-                                    }
-                                    else
-                                    {
-                                        actor.IsFaulted = true;
-                                        logger.Warning(ex, ex.Message);
-                                    }
-                                }
-
-                                actor.IsExecuting = false;
-                                break;
-
-                            case AsyncActorComponent actor:
                                 try
                                 {
                                     actorBeingProcessed = actor;

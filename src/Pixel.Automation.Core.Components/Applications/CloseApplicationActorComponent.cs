@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
@@ -39,15 +40,17 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Close the owner application
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             var applicationEntity = this.ApplicationEntity;
-            applicationEntity.Close();
+            await applicationEntity.CloseAsync();
         }
 
         public override string ToString()
         {
             return "Close Application Actor";
         }
+
+       
     }
 }

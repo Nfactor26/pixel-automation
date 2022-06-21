@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Web.Selenium.Components.ActorComponents;
 using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -14,13 +15,13 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that Close Window Actor component can close window / tab at a configured index
         /// </summary>
         [Test]
-        public void ValidateThatCloseWindowActorCanCloseSpecifiedWindowOrTab()
+        public async Task ValidateThatCloseWindowActorCanCloseSpecifiedWindowOrTab()
         {
             int tabToClose = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(tabToClose);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(tabToClose);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -37,9 +38,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 EntityManager = entityManager,
                 WindowNumber = new InArgument<int>() { DefaultValue = tabToClose, Mode = ArgumentMode.Default }
             };
-            closeWindowActor.Act();
+            await closeWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<Argument>());
+            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<Argument>());
             webDriver.Received(1).SwitchTo();
             webDriver.Received(1).Close();
         }
@@ -48,13 +49,13 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that Close window actor component throws exception if there are less number of window / tabs open then configured window / tab number to be closed
         /// </summary>
         [Test]
-        public void ValidateThatCloseWindowActorThrowsExceptionIfFewerWindowsAreAvailableThenConfiguredIndex()
+        public async Task ValidateThatCloseWindowActorThrowsExceptionIfFewerWindowsAreAvailableThenConfiguredIndex()
         {
             int tabToClose = 2;
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(tabToClose);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(tabToClose);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -65,13 +66,13 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             entityManager.GetOwnerApplication<WebApplication>(Arg.Any<IComponent>()).Returns(webAppliction);
 
-
             var closeWindowActor = new CloseWindowActorComponent()
             {
                 EntityManager = entityManager,
                 WindowNumber = new InArgument<int>() { DefaultValue = tabToClose, Mode = ArgumentMode.Default }
             };           
-            Assert.Throws<IndexOutOfRangeException>(() => { closeWindowActor.Act(); });
+            Assert.ThrowsAsync<IndexOutOfRangeException>(async () => { await closeWindowActor.ActAsync(); });
+            await Task.CompletedTask;
         }
     }
 }

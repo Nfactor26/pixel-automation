@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Waits
 {
@@ -26,12 +27,13 @@ namespace Pixel.Automation.Core.Components.Waits
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             var argumentProcessor = this.ArgumentProcessor;
-            double waitAmount = argumentProcessor.GetValue<double>(this.WaitAmount);
+            double waitAmount = await argumentProcessor.GetValueAsync<double>(this.WaitAmount);
             logger.Information($"Sleep for {waitAmount} seconds.");
             Thread.Sleep((int)(waitAmount * 1000));
+            await Task.CompletedTask;
         }
     }
 }

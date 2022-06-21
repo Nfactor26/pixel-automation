@@ -4,6 +4,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -53,7 +54,7 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Simulate key press, key down or key up for configured key sequence
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             var syntheticKeyboard = GetKeyboard();
             var keysToPress = syntheticKeyboard.GetSynthethicKeyCodes(this.KeySequence);
@@ -79,6 +80,7 @@ namespace Pixel.Automation.Input.Devices
                     break;
             }
             logger.Information($"{KeyPressMode} performed for sequence {keySequence}");
+            await Task.CompletedTask;
         }
 
         /// <summary>

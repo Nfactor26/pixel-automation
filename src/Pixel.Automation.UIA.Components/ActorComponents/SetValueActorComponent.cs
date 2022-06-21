@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -39,10 +40,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Set value on a control.
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if ValuePattern is not supported</exception>      
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            string inputForControl = ArgumentProcessor.GetValue<string>(this.Input);
+            AutomationElement control = await GetTargetControl();
+            string inputForControl = await ArgumentProcessor.GetValueAsync<string>(this.Input);
             control.SetValue(inputForControl);
             logger.Information("Value was set on control.");
         }

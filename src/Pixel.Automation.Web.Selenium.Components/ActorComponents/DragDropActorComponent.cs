@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -49,14 +50,16 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Drag the source control and drop over target control
         /// </summary>
-        public override void Act()
-        {
-            var sourceControl = this.ArgumentProcessor.GetValue<UIControl>(SourceControl);
-            var targetControl = this.ArgumentProcessor.GetValue<UIControl>(TargetControl);
+        public override async Task ActAsync()
+        {            
+            var sourceControl = await this.ArgumentProcessor.GetValueAsync<UIControl>(SourceControl);
+            var targetControl = await this.ArgumentProcessor.GetValueAsync<UIControl>(TargetControl);
 
             var sourceWebElement = sourceControl.GetApiControl<IWebElement>();
             var targetWebElement = targetControl.GetApiControl<IWebElement>();
             (new Actions(ApplicationDetails.WebDriver)).DragAndDrop(sourceWebElement, targetWebElement).Perform();
+           
+            await Task.CompletedTask;
 
             logger.Information("Source control was drag-dropped to target control.");
         }

@@ -218,7 +218,7 @@ namespace Pixel.Automation.Core
 
                 //only actor components or EntityProcessors can be processed.
                 //IEntityProcessor also inherit from Entity
-                if (component is ActorComponent || component is AsyncActorComponent)
+                if (component is ActorComponent)
                 {
                     yield return component;
                 }

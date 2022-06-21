@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Alerts
 {
@@ -69,13 +70,13 @@ namespace Pixel.Automation.Web.Selenium.Components.Alerts
         /// <summary>
         /// Accept a browser prompt by providing an input value or dismiss the prompt.s
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IAlert alert = ApplicationDetails.WebDriver.SwitchTo().Alert();
             switch (this.action)
             {
                 case HandleAlertBehavior.Accept:
-                    string input = ArgumentProcessor.GetValue<string>(this.Message);
+                    string input = await ArgumentProcessor.GetValueAsync<string>(this.Message);
                     alert.SendKeys(input);
                     Thread.Sleep(500);
                     alert.Accept();
@@ -86,6 +87,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Alerts
                     logger.Information("Browser prompt was dismissed");
                     break;
             }
+            await Task.CompletedTask;
         }
 
         public override string ToString()

@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Controls
 {
@@ -32,14 +33,14 @@ namespace Pixel.Automation.Core.Components.Controls
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {          
             var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(Core.Enums.SearchScope.Descendants);
-            var foundControl = controlEntity.GetControl();
+            var foundControl = await controlEntity.GetControl();
 
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-            argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
-            argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
+            await argumentProcessor.SetValueAsync<UIControl>(this.FoundControl, foundControl);
+            await argumentProcessor.SetValueAsync<bool>(this.Exists, foundControl != null);
         }
     }
 
@@ -47,7 +48,7 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         public Core.Interfaces.IComponent CreateComponent()
         {
-            GroupEntity groupEntity = new GroupEntity()
+            var groupEntity = new GroupEntity()
             {
                 Name = "Find Control",
                 Tag = "FindControlGroup",

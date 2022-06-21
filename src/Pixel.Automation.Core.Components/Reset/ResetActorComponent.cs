@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components
 {
@@ -22,7 +23,7 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {        
             IComponent targetComponent = EntityManager.RootEntity.GetComponentById(ComponentId,SearchScope.Descendants);
 
@@ -39,6 +40,8 @@ namespace Pixel.Automation.Core.Components
             {
                 targetComponent.ResetComponent();
             }
+
+            await Task.CompletedTask;
         }
     }
 }

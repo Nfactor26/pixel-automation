@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -17,12 +18,12 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         [TestCase(SelectBy.Text, "Option 2")]
         [TestCase(SelectBy.Index, "2")]
         [TestCase(SelectBy.Value, "Value 2")]
-        public void ValidateThatSelectListItemCanSelectConfiguredItemInList(SelectBy selectBy, string option)
+        public async Task ValidateThatSelectListItemCanSelectConfiguredItemInList(SelectBy selectBy, string option)
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<Argument>()).Returns(option);
+            argumentProcessor.GetValueAsync<string>(Arg.Any<Argument>()).Returns(option);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
 
@@ -45,7 +46,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 Parent = controlEntity,
                 SelectBy = selectBy
             };
-            selectListItemActor.Act();
+            await selectListItemActor.ActAsync();
 
             targetControl.Received(1).FindElements(Arg.Any<By>());
             optionElement.Received(1).Click();

@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Web.Selenium.Components.ActorComponents;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -15,14 +16,14 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that configured javascript can be executed by Script executor actor      
         /// </summary>
         [Test]
-        public void ValidateThatScriptExecutorActorCanExecuteGivenJavaScript()
+        public async Task ValidateThatScriptExecutorActorCanExecuteGivenJavaScript()
         {
             var entityManager = Substitute.For<IEntityManager>();
           
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<Argument>()).Returns("some java script to check if element is visible");
-            argumentProcessor.GetValue<object[]>(Arg.Any<Argument>()).Returns(new object[] { 1 });
-            argumentProcessor.When(x => x.SetValue(Arg.Any<Argument>(), Arg.Any<string>()))
+            argumentProcessor.GetValueAsync<string>(Arg.Any<Argument>()).Returns("some java script to check if element is visible");
+            argumentProcessor.GetValueAsync<object[]>(Arg.Any<Argument>()).Returns(new object[] { 1 });
+            argumentProcessor.When(x => x.SetValueAsync(Arg.Any<Argument>(), Arg.Any<string>()))
                 .Do(p =>
                 {
 
@@ -52,9 +53,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 Parent = controlEntity,
                 Arguments = new InArgument<object[]>() { Mode = ArgumentMode.Default, DefaultValue = new object[] { 1 } }
             };
-            executeScriptActor.Act();
+            await executeScriptActor.ActAsync();
             
-            argumentProcessor.Received(1).SetValue<string>(Arg.Any<Argument>(), Arg.Is<string>("Element is visible"));
+            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Element is visible"));
         }
        
     }

@@ -4,9 +4,9 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Web.Selenium.Components.Enums;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -40,7 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Open a new window or tab for the browser and navigate new window or tab to configured url.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
             switch(this.WindowType)
@@ -55,10 +55,11 @@ namespace Pixel.Automation.Web.Selenium.Components
             logger.Information($"A new {this.WindowType} was opened.");
             if(this.TargetUrl.IsConfigured())
             {
-                Uri targetUrl = ArgumentProcessor.GetValue<Uri>(this.TargetUrl);
+                Uri targetUrl = await ArgumentProcessor.GetValueAsync<Uri>(this.TargetUrl);
                 webDriver.Navigate().GoToUrl(targetUrl);
                 logger.Information($"Navigated to Uri : {targetUrl}");
             }
+            await Task.CompletedTask;
         }
 
         public override string ToString()

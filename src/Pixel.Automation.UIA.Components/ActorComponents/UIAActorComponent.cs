@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -56,17 +57,17 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Get the AutomationElement identified using the control details
         /// </summary>
         /// <returns></returns>
-        protected AutomationElement GetTargetControl()
+        protected async Task<AutomationElement> GetTargetControl()
         {
             UIControl targetControl;
             if (this.TargetControl.IsConfigured())
             {
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
+                targetControl = await ArgumentProcessor.GetValueAsync<UIControl>(this.TargetControl);
             }
             else
             {
                 ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();
+                targetControl = await this.ControlEntity.GetControl();
             }
 
             AutomationElement control = targetControl.GetApiControl<AutomationElement>();

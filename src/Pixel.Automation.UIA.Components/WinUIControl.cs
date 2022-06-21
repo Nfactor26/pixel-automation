@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System.Drawing;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
@@ -12,6 +13,7 @@ namespace Pixel.Automation.UIA.Components
        
         private readonly IControlIdentity controlIdentity;
         private readonly AutomationElement automationElement;
+        public static UIControl RootControl { get; private set; } = new WinUIControl(null, AutomationElement.RootElement);
 
         public WinUIControl(IControlIdentity controlIdentity, AutomationElement automationElement)
         {          
@@ -20,16 +22,17 @@ namespace Pixel.Automation.UIA.Components
             this.TargetControl = automationElement;
         }
 
-        public override Rectangle GetBoundingBox()
+        public override async Task<Rectangle> GetBoundingBoxAsync()
         {
             var boundingBox = this.automationElement.Current.BoundingRectangle;
-            return new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
+            return await Task.FromResult(new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
         }
 
-        public override void GetClickablePoint(out double x, out double y)
+        public override async Task<(double,double)> GetClickablePointAsync()
         {
-            var boundingBox = GetBoundingBox();
-            controlIdentity.GetClickablePoint(boundingBox, out x, out y);
+            var boundingBox = await GetBoundingBoxAsync();
+            controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Arguments;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -19,7 +20,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <typeparam name="T">Type of Argument</typeparam>
         /// <param name="argument">Argument<typeparamref name="T"/></param>
         /// <returns></returns>
-        T GetValue<T>(Argument argument);
+        Task<T> GetValueAsync<T>(Argument argument);
 
         /// <summary>
         /// Set the value of argument
@@ -27,6 +28,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// <typeparam name="T">Type of Argument</typeparam>
         /// <param name="argument">Argument<typeparamref name="T"/></param>
         /// <param name="value">value to be set</param>
-        void SetValue<T>(Argument argument, T value);
+        Task SetValueAsync<T>(Argument argument, T value);
     }
 }

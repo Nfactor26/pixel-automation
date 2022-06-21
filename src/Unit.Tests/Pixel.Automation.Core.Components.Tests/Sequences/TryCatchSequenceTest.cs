@@ -38,9 +38,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await tryCatchSequence.BeginProcessAsync();
 
-            tryActor.Received(1).Act();
-            catchActor.Received(0).Act();
-            finallyActor.Received(1).Act();
+            await tryActor.Received(1).ActAsync();
+            await catchActor.Received(0).ActAsync();
+            await finallyActor.Received(1).ActAsync();
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Pixel.Automation.Core.Components.Tests
         {
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue<Exception>(Arg.Any<Argument>(), Arg.Any<Exception>())).
+            argumentProcessor.When(x => x.SetValueAsync<Exception>(Arg.Any<Argument>(), Arg.Any<Exception>())).
                 Do(x => { });
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
@@ -60,7 +60,7 @@ namespace Pixel.Automation.Core.Components.Tests
             tryCatchSequence.ResolveDependencies();
 
             var tryActor = Substitute.For<ActorComponent>();
-            tryActor.When(x => x.Act()).Do(x => { throw new Exception(); });
+            tryActor.When(x => x.ActAsync()).Do(x => { throw new Exception(); });
 
             var tryBlock = tryCatchSequence.GetComponentsByName("Try").Single() as Entity;
             tryBlock.AddComponent(tryActor);
@@ -75,9 +75,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await tryCatchSequence.BeginProcessAsync();
 
-            tryActor.Received(1).Act();
-            catchActor.Received(1).Act();
-            finallyActor.Received(1).Act();
+            await tryActor.Received(1).ActAsync();
+            await catchActor.Received(1).ActAsync();
+            await finallyActor.Received(1).ActAsync();
         }
     }
 }

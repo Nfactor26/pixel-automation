@@ -38,6 +38,7 @@
     <ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />
+    <ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />
     <ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
     <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
     <ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />

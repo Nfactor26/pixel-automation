@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Alerts
 {
@@ -37,7 +38,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Alerts
         /// <summary>
         /// Accept or Dismiss a browser alert
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IAlert alert = ApplicationDetails.WebDriver.SwitchTo().Alert();
             switch(this.Action)
@@ -51,6 +52,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Alerts
                     logger.Information($"Alert was dismissed");
                     break;
             }
+            await Task.CompletedTask;
         }
 
         public override string ToString()

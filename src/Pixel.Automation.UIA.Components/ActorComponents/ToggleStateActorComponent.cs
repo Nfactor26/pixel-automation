@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -28,9 +29,9 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Toggle the state of a control e.g. if a checkbox is checked, toggle action will uncheck it and vice-versa.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
+            AutomationElement control = await GetTargetControl();
             control.Toggle();
             logger.Information("State of the control was toggled.");
         }

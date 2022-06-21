@@ -8,6 +8,7 @@ using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
@@ -15,7 +16,7 @@ namespace Pixel.Automation.Window.Management.Tests
     {
 
         [Test]
-        public void ValidateThatFindDesktopWindowActorCanLocateSingleWindow()
+        public async Task ValidateThatFindDesktopWindowActorCanLocateSingleWindow()
         {
             string windowTitle = "Notepad";          
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -27,7 +28,7 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { window });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);         
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);         
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
@@ -43,11 +44,11 @@ namespace Pixel.Automation.Window.Management.Tests
             Assert.AreEqual(MatchType.Equals, findDesktopWindowActor.MatchType);
             Assert.AreEqual(FilterMode.Index, findDesktopWindowActor.FilterMode);
 
-            findDesktopWindowActor.Act();
+            await findDesktopWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             windowManager.Received(1).FindAllDesktopWindows(windowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
 
         }
 
@@ -56,7 +57,7 @@ namespace Pixel.Automation.Window.Management.Tests
         /// Validate that when multiple windows are located, correct window is returned at specified Index.
         /// </summary>
         [Test]
-        public void ValidateThatFinDesktopWindowActorCanLocateWindowByIndex()
+        public async Task ValidateThatFinDesktopWindowActorCanLocateWindowByIndex()
         {
             string windowTitle = "Notepad";       
 
@@ -70,8 +71,8 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { windowOne, windowTwo });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);         
-            argumentProcessor.GetValue<int>(Arg.Any<InArgument<int>>()).Returns(1); // we want window at index 1 to be retrieved
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);         
+            argumentProcessor.GetValueAsync<int>(Arg.Any<InArgument<int>>()).Returns(1); // we want window at index 1 to be retrieved
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
@@ -88,18 +89,18 @@ namespace Pixel.Automation.Window.Management.Tests
             Assert.AreEqual(MatchType.Equals, findDesktopWindowActor.MatchType);
             Assert.AreEqual(FilterMode.Index, findDesktopWindowActor.FilterMode);
 
-            findDesktopWindowActor.Act();
+            await findDesktopWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());         
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());         
             windowManager.Received(1).FindAllDesktopWindows(windowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<InArgument<int>>());
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), windowTwo);
+            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), windowTwo);
 
 
         }
 
         [Test]
-        public void ValidateThatFindChildWindowActorCanLocateChildWindowByCustomFilter()
+        public async Task ValidateThatFindChildWindowActorCanLocateChildWindowByCustomFilter()
         {
             string windowTitle = "Notepad";
 
@@ -114,7 +115,7 @@ namespace Pixel.Automation.Window.Management.Tests
                     new List<ApplicationWindow>() { windowOne, windowTwo, windowThree });
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);
+            argumentProcessor.GetValueAsync<string>(Arg.Any<InArgument<string>>()).Returns(windowTitle);
            
             var scriptEngine = Substitute.For<IScriptEngine>();
             scriptEngine.CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>(Arg.Any<string>())
@@ -145,12 +146,12 @@ namespace Pixel.Automation.Window.Management.Tests
             Assert.NotNull(findDesktopWindowActor.Filter); //Filter should be initialized on when FilterMode getter is called
 
             findDesktopWindowActor.Filter.ScriptFile = "FindWindow.csx";
-            findDesktopWindowActor.Act();
+            await findDesktopWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<string>(Arg.Any<InArgument<string>>());
+            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             windowManager.Received(1).FindAllDesktopWindows(windowTitle, MatchType.Equals, true);
-            scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), windowTwo);
+            await scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), windowTwo);
 
 
         }

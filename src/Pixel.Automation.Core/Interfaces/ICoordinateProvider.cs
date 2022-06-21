@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -15,14 +16,14 @@ namespace Pixel.Automation.Core.Interfaces
         /// <param name="targetControl"><see cref="IControlIdentity"/> for which clickable point is required</param>
         /// <param name="x">x coordinate of the clickable point</param>
         /// <param name="y">y coordinate of the clickable point</param>
-        void GetClickablePoint(IControlIdentity targetControl,out double x, out double y);
+        Task<(double, double)> GetClickablePoint(IControlIdentity targetControl);
 
         /// <summary>
         /// Get bounding box of the control on screen.
         /// </summary>
         /// <param name="targetControl"><see cref="IControlIdentity"/> whose bounding box is required</param>
         /// <param name="screenBounds"><see cref="Rectangle"/> as the bounding box</param>
-        void GetScreenBounds(IControlIdentity targetControl, out Rectangle screenBounds);
+        Task<Rectangle> GetScreenBounds(IControlIdentity targetControl);
 
 
         /// <summary>
@@ -30,6 +31,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
-        Rectangle GetBoundingBox(object control);
+        Task<Rectangle> GetBoundingBox(object control);
     }
 }

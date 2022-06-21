@@ -4,6 +4,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -32,9 +33,9 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Type configured text by simulating keyboard
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {           
-            string textToType = this.ArgumentProcessor.GetValue<string>(this.Input);
+            string textToType = await this.ArgumentProcessor.GetValueAsync<string>(this.Input);
 
             if (!string.IsNullOrEmpty(textToType))
             {
@@ -42,6 +43,7 @@ namespace Pixel.Automation.Input.Devices
                 keyboard.TypeText(textToType);
             }
             logger.Information("Text was typed.");
+            await Task.CompletedTask;
         }
 
         public override string ToString()

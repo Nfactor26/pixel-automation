@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -110,7 +111,7 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Initiate a drag on a source control or an arbitary co-ordinate or end a drag on a drop target control or an arbitrary co-ordinates.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             ScreenCoordinate dragStartPoint = default;
@@ -120,18 +121,18 @@ namespace Pixel.Automation.Input.Devices
             switch (this.Target)
             {
                 case Target.Control:
-                    var dragSourceControl = argumentProcessor.GetValue<UIControl>(this.SourceControl);
-                    dragSourceControl.GetClickablePoint(out double dragX, out double dragY);
+                    var dragSourceControl = await argumentProcessor.GetValueAsync<UIControl>(this.SourceControl);
+                    var (dragX, dragY) = await dragSourceControl.GetClickablePointAsync();
                     dragStartPoint = new ScreenCoordinate(dragX, dragY);
 
-                    var dropTargetControl = argumentProcessor.GetValue<UIControl>(this.TargetControl);
-                    dropTargetControl.GetClickablePoint(out double dropX, out double dropY);
+                    var dropTargetControl = await argumentProcessor.GetValueAsync<UIControl>(this.TargetControl);
+                    var (dropX, dropY) = await dropTargetControl.GetClickablePointAsync();
                     dropEndPoint = new ScreenCoordinate(dropX, dropY);
 
                     break;
                 case Target.Point:
-                    dragStartPoint = argumentProcessor.GetValue<ScreenCoordinate>(this.DragStartPoint);
-                    dropEndPoint = argumentProcessor.GetValue<ScreenCoordinate>(this.DropEndPoint);
+                    dragStartPoint = await argumentProcessor.GetValueAsync<ScreenCoordinate>(this.DragStartPoint);
+                    dropEndPoint = await argumentProcessor.GetValueAsync<ScreenCoordinate>(this.DropEndPoint);
                     break;
             }
 

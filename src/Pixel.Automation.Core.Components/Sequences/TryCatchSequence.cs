@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Components.Sequences
             catch (Exception ex)
             {
                 logger.Warning($"An error was encountered while processing Try block. {ex.Message}");
-                this.ArgumentProcessor.SetValue<Exception>(Exception, ex);
+                await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, ex);
                 var catchBlock = this.GetComponentsByName("Catch", Enums.SearchScope.Children).FirstOrDefault() as Entity;
                 await this.ProcessEntity(catchBlock);
             }

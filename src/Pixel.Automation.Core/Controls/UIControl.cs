@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Controls
 {
@@ -19,8 +20,8 @@ namespace Pixel.Automation.Core.Controls
             throw new InvalidCastException($"{typeof(T)} is incompatible with {TargetControl.GetType()}");
         }
 
-        public abstract Rectangle GetBoundingBox();
+        public abstract Task<Rectangle> GetBoundingBoxAsync();
 
-        public abstract void GetClickablePoint(out double x, out double y);
+        public abstract Task<(double,double)> GetClickablePointAsync();
     }
 }

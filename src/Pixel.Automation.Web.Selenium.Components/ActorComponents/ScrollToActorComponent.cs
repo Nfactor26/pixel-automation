@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -39,10 +40,10 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Scroll the browser to a target <see cref="IWebElement"/>.
         /// A vertical offset can be optionally specified.
         /// </summary>
-        public override void Act()
-        {
-            int offsetAmount = ArgumentProcessor.GetValue<int>(this.OffSet);
-            IWebElement control = GetTargetControl();
+        public override async Task ActAsync()
+        {           
+            int offsetAmount = await ArgumentProcessor.GetValueAsync<int>(this.OffSet);
+            IWebElement control = await GetTargetControl();
             int elemPos = control.Location.Y+ offsetAmount;
             ((IJavaScriptExecutor)ApplicationDetails.WebDriver).ExecuteScript($"window.scroll(0, {elemPos});");
 

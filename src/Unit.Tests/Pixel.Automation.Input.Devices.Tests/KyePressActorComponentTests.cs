@@ -3,14 +3,14 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
     class KyePressActorComponentTests
     {
         [Test]
-        public void ValidateThatKeyPressActorCanKeyPressConfiguredKeys()
+        public async Task ValidateThatKeyPressActorCanKeyPressConfiguredKeys()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -25,14 +25,14 @@ namespace Pixel.Automation.Input.Devices.Tests
                 KeySequence = "C + A + K + E",
                 EntityManager = entityManager
             };
-            keypressActor.Act();
+            await keypressActor.ActAsync();
 
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>("C + A + K + E"));           
             syntheticKeyboard.Received(4).KeyPress(Arg.Any<SyntheticKeyCode>());
         }
 
         [Test]
-        public void ValidateThatKeyPressActorCanKeyDownConfiguredKeys()
+        public async Task ValidateThatKeyPressActorCanKeyDownConfiguredKeys()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -47,7 +47,7 @@ namespace Pixel.Automation.Input.Devices.Tests
                 KeySequence = "C + A + K + E",
                 EntityManager = entityManager
             };
-            keypressActor.Act();
+            await keypressActor.ActAsync();
 
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>("C + A + K + E"));
             syntheticKeyboard.Received(4).KeyDown(Arg.Any<SyntheticKeyCode>());
@@ -55,7 +55,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
 
         [Test]
-        public void ValidateThatKeyPressActorCanKeyUpConfiguredKeys()
+        public async Task ValidateThatKeyPressActorCanKeyUpConfiguredKeys()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -70,7 +70,7 @@ namespace Pixel.Automation.Input.Devices.Tests
                 KeySequence = "C + A + K + E",
                 EntityManager = entityManager
             };
-            keypressActor.Act();
+            await keypressActor.ActAsync();
 
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>("C + A + K + E"));
             syntheticKeyboard.Received(4).KeyUp(Arg.Any<SyntheticKeyCode>());

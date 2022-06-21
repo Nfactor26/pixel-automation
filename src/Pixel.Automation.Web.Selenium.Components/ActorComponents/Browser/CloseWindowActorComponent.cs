@@ -3,10 +3,10 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 {
@@ -40,15 +40,16 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// Close the window or tab specified using WindowNumber for a given browser opened using selenium webdriver.
         /// </summary>
         /// <exception cref="IndexOutOfRangeException">Throws index out of range exception if the window or tab to be closed doesn't exist</exception>
-        public override void Act()
+        public override async Task ActAsync()
         {
             IWebDriver webDriver = ApplicationDetails.WebDriver;
-            int windowNumber = ArgumentProcessor.GetValue<int>(this.WindowNumber) - 1;
+            int windowNumber = await ArgumentProcessor.GetValueAsync<int>(this.WindowNumber) - 1;
             if (windowNumber > 0 && webDriver.WindowHandles.Count() > windowNumber)
             {               
                 webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
                 webDriver.Close();
                 logger.Information("Window / Tab at index {windowNumber + 1} was closed.");
+                await Task.CompletedTask;
                 return;
             }
 

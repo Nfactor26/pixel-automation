@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
@@ -19,7 +20,7 @@ namespace Pixel.Automation.Window.Management.Tests
         }
 
         [Test]
-        public void ValidThatSetForegroundWindowActorCanSetWindowToForeground()
+        public async Task ValidThatSetForegroundWindowActorCanSetWindowToForeground()
         {
 
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -29,7 +30,7 @@ namespace Pixel.Automation.Window.Management.Tests
             var windowManager = Substitute.For<IApplicationWindowManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);      
+            argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);      
 
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
@@ -39,9 +40,9 @@ namespace Pixel.Automation.Window.Management.Tests
                 EntityManager = entityManager
             };
 
-            actor.Act();
+            await actor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());        
+            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());        
             windowManager.Received(1).SetForeGroundWindow(window);
 
         }

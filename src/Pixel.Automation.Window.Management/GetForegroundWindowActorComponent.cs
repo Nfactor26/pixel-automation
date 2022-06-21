@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Models;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management
 {
@@ -29,13 +30,15 @@ namespace Pixel.Automation.Window.Management
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
       
             var foreGroundWindow = windowManager.GetForeGroundWindow();
-            argumentProcessor.SetValue<ApplicationWindow>(this.ForeGroundWindow, foreGroundWindow);
+            await argumentProcessor.SetValueAsync<ApplicationWindow>(this.ForeGroundWindow, foreGroundWindow);
+
+            await Task.CompletedTask;
         }
 
     }

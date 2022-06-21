@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -43,11 +44,11 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Retrieve the value of configured attribute from <see cref="IWebElement"/>
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
+            IWebElement control = await GetTargetControl();
             string extractedValue = control.GetAttribute(this.AttributeName);
-            ArgumentProcessor.SetValue<string>(Result, extractedValue);
+            await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
 
             logger.Information($"Retrived  attribue : {this.AttributeName} from control.");
 

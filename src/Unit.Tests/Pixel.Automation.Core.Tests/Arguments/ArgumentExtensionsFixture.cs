@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 using Argument = Pixel.Automation.Core.Arguments.Argument;
 
 namespace Pixel.Automation.Core.Tests.Arguments
@@ -9,15 +10,15 @@ namespace Pixel.Automation.Core.Tests.Arguments
     class ArgumentExtensionsFixture
     {
         [Test]
-        public void ValidateThatValueCanBeRetrievedFromAnArgumentUsingGetValueExtensionMethod()
+        public async Task ValidateThatValueCanBeRetrievedFromAnArgumentUsingGetValueExtensionMethod()
         {
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(10);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(10);
             var argument = new OutArgument<int>();
 
-            var result = argument.GetValue(argumentProcessor);
+            var result = await argument.GetValue(argumentProcessor);
 
-            Assert.AreEqual(result, 10);
+            Assert.AreEqual(10, result);
         }
 
         [Test]
@@ -25,7 +26,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var argument = new InArgument<int>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.When(x => x.SetValue<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => argument.DefaultValue = x.ArgAt<int>(1));
+            argumentProcessor.When(x => x.SetValueAsync<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => argument.DefaultValue = x.ArgAt<int>(1));
 
             argument.SetValue(argumentProcessor, 10);
 

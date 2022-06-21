@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
@@ -21,7 +22,7 @@ namespace Pixel.Automation.Window.Management.Tests
         }
 
         [Test]
-        public void ValidThatResizeWindowActorCanResizeWindow()
+        public async Task ValidThatResizeWindowActorCanResizeWindow()
         {
 
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -31,8 +32,8 @@ namespace Pixel.Automation.Window.Management.Tests
             var windowManager = Substitute.For<IApplicationWindowManager>();
           
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);
-            argumentProcessor.GetValue<Dimension>(Arg.Any<InArgument<Dimension>>()).Returns(Dimension.ZeroExtents);
+            argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(window);
+            argumentProcessor.GetValueAsync<Dimension>(Arg.Any<InArgument<Dimension>>()).Returns(Dimension.ZeroExtents);
 
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(windowManager);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
@@ -42,10 +43,10 @@ namespace Pixel.Automation.Window.Management.Tests
                 EntityManager = entityManager
             };
 
-            actor.Act();
+            await actor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
-            argumentProcessor.Received(1).GetValue<Dimension>(Arg.Any<InArgument<Dimension>>());
+            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            argumentProcessor.Received(1).GetValueAsync<Dimension>(Arg.Any<InArgument<Dimension>>());
             windowManager.Received(1).SetWindowSize(window, 0, 0);
 
         }

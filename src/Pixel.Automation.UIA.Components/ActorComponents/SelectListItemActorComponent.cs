@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -59,10 +60,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Select the configured option contained in a select (or similar) element
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            var control = GetTargetControl();
-            if(control.IsControlCollapsed())
+            var control = await GetTargetControl();
+            if (control.IsControlCollapsed())
             {
                 control.Expand();
             }
@@ -74,7 +75,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         
             logger.Information($"Located {childControls.ToList().Count}  options in control.");
 
-            string selectText = ArgumentProcessor.GetValue<string>(this.Option);
+            string selectText = await ArgumentProcessor.GetValueAsync<string>(this.Option);
             switch (SelectBy)
             {
                 case SelectBy.Text:

@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -43,9 +44,9 @@ namespace Pixel.Automation.Input.Devices
         /// <summary>
         /// Perform a horizontal or vertical scroll
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            int amountToScroll = this.ArgumentProcessor.GetValue<int>(this.ScrollAmount);
+            int amountToScroll = await this.ArgumentProcessor.GetValueAsync<int>(this.ScrollAmount);
             if (this.ScrollDirection.Equals(ScrollDirection.Down) || this.ScrollDirection.Equals(ScrollDirection.Right))
             {
                 amountToScroll *= -1;
@@ -64,6 +65,7 @@ namespace Pixel.Automation.Input.Devices
                     logger.Information($"Mouse was vertically scrolled by {amountToScroll} ticks in direction {this.ScrollDirection}");
                     break;
             }
+            await Task.CompletedTask;
         }
 
         public override string ToString()

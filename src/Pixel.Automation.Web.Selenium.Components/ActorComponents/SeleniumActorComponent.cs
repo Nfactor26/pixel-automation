@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -82,17 +83,17 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="WebControlEntity"/>
         /// </summary>
         /// <returns></returns>
-        protected virtual IWebElement GetTargetControl()
+        protected virtual async Task<IWebElement> GetTargetControl()
         {
             UIControl targetControl;
             if (this.TargetControl.IsConfigured())
             {
-                targetControl = ArgumentProcessor.GetValue<UIControl>(this.TargetControl);
+                targetControl = await ArgumentProcessor.GetValueAsync<UIControl>(this.TargetControl);
             }
             else
             {
                 ThrowIfMissingControlEntity();
-                targetControl = this.ControlEntity.GetControl();
+                targetControl = await this.ControlEntity.GetControl();
             }
 
             return targetControl.GetApiControl<IWebElement>();

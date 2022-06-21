@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Helpers
 {
@@ -14,9 +15,9 @@ namespace Pixel.Automation.Test.Helpers
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
-           
+            await Task.CompletedTask;
         }
     }
 }

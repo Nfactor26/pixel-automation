@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
 {
@@ -100,7 +101,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Target application for automation. 
         /// </summary>
         /// <exception cref="NotSupportedException">Throws NotSupportedException if ApplcationType doesn't support attach to behavior</exception>
-        public override void Act()
+        public override async Task ActAsync()
         {
             var applicationEntity = this.ApplicationEntity;
             if (!applicationEntity.CanUseExisting)
@@ -112,7 +113,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             switch (this.attachMode)
             {
                 case AttachMode.AttachToExecutable:
-                    string executableName = this.ArgumentProcessor.GetValue<string>(this.attachTarget);
+                    string executableName = await this.ArgumentProcessor.GetValueAsync<string>(this.attachTarget);
                     if (string.IsNullOrEmpty(executableName))
                     {
                         throw new ArgumentException($"{nameof(this.attachTarget)} can't be null or empty");
@@ -123,7 +124,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                     break;
 
                 case AttachMode.AttachToWindow:
-                    var applicationWindow = this.ArgumentProcessor.GetValue<ApplicationWindow>(this.attachTarget);
+                    var applicationWindow = await this.ArgumentProcessor.GetValueAsync<ApplicationWindow>(this.attachTarget);
                     var windowProcess = Process.GetProcessById(applicationWindow.ProcessId);
                     if (windowProcess == null)
                     {
@@ -134,7 +135,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
                     logger.Information("Attached to application window : {$applicationWindow}", applicationWindow);
                     break;
             }
-
+            await Task.CompletedTask;
         }
 
         public override string ToString()

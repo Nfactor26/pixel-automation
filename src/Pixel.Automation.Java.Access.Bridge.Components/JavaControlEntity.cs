@@ -14,7 +14,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     {
         private readonly ILogger logger = Log.ForContext<JavaControlEntity>();
 
-        private AccessibleContextNode controlNode;
+        private UIControl control;
 
         protected override void InitializeFilter()
         {
@@ -31,91 +31,70 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         {
             if (CacheControl)
             {
-                controlNode = null;
+                control = null;
                 logger.Debug($"Cleared cached AccessibleContextNode for {this.Name}");
             }
             await Task.CompletedTask;
         }
 
 
-        public override T GetTargetControl<T>()
+        public override async Task<UIControl> GetControl()
         {
-            if (CacheControl && controlNode != null)
+            if (CacheControl && control != null)
             {
-                if (controlNode is T cachedControl)
-                {
-                    logger.Debug($"Return cached AccessibleContextNode for {this.Name}");                 
-                    return cachedControl;
-                }
-                throw new Exception($"AccessibleContextNode is not compatible with type {typeof(T)}");
+                logger.Debug($"Return cached AccessibleContextNode for {this.Name}");
+                return control;
             }
 
-            AccessibleContextNode searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AccessibleContextNode>();
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
-                searchRoot = (this.Parent as JavaControlEntity).GetTargetControl<AccessibleContextNode>();
+                searchRoot = await (this.Parent as JavaControlEntity).GetControl();
             }
 
-            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;          
+            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
-                    controlNode = controlLocator.FindControl(this.ControlDetails, searchRoot);
+                    control = await controlLocator.FindControlAsync(this.ControlDetails, searchRoot);
                     break;
                 case LookupMode.FindAll:
-                    var descendantControls = controlLocator.FindAllControls(this.ControlDetails, searchRoot);
+                    var descendantControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
                     switch (FilterMode)
                     {
                         case FilterMode.Index:
-                            controlNode = GetElementAtIndex(descendantControls);
+                            control = await  GetElementAtIndex(descendantControls);
                             break;
                         case FilterMode.Custom:
-                            controlNode = GetElementMatchingCriteria(descendantControls);
+                            control = GetElementMatchingCriteria(descendantControls);
                             break;
                     }
                     break;
                 default:
                     throw new NotSupportedException();
             }
-
-            if (controlNode is T result)
-            {
-                return result;
-            }
-            throw new Exception($"AccessibleContextNode is not compatible with type {typeof(T)}");
-
-        }
-
-        public override UIControl GetControl()
-        {
-            AccessibleContextNode foundControl = GetTargetControl<AccessibleContextNode>();
-            return new JavaUIControl(this.ControlDetails, foundControl);
+            return control;
         }
 
 
-        public override IEnumerable<UIControl> GetAllControls()
+        public override async Task<IEnumerable<UIControl>> GetAllControls()
         {
-            AccessibleContextNode searchRoot = default;
+            UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
             {
-                searchRoot = this.ArgumentProcessor.GetValue<UIControl>(this.SearchRoot)?.GetApiControl<AccessibleContextNode>();
+                searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
             {
-                searchRoot = (this.Parent as JavaControlEntity).GetTargetControl<AccessibleContextNode>();
+                searchRoot = await (this.Parent as JavaControlEntity).GetControl();
             }
             JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
-            var foundControls = controlLocator.FindAllControls(this.ControlDetails, searchRoot);
-            List<UIControl> foundUIControls = new List<UIControl>();
-            foreach (var foundControl in foundControls)
-            {
-                foundUIControls.Add(new JavaUIControl(this.ControlDetails, foundControl));
-            }
-            return foundUIControls;
+            var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
+            return foundControls;
         }
     }
 }

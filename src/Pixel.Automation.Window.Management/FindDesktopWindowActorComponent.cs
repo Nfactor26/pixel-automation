@@ -109,28 +109,28 @@ namespace Pixel.Automation.Window.Management
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
             IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
 
-            string titleToMatch = argumentProcessor.GetValue<string>(this.Title) ?? string.Empty;
+            string titleToMatch = await argumentProcessor.GetValueAsync<string>(this.Title) ?? string.Empty;
             var foundWindows = windowManager.FindAllDesktopWindows(titleToMatch, this.MatchType, true);
 
             if (this.lookupMode == LookupMode.FindSingle)
             {
-                argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, foundWindows.Single());
+                await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindows.Single());
             }
             else
             {
                 switch (this.filterMode)
                 {
                     case FilterMode.Index:
-                        int index = argumentProcessor.GetValue<int>(this.Index);
+                        int index = await argumentProcessor.GetValueAsync<int>(this.Index);
                         if (foundWindows.Count() > index)
                         {
                             var foundWindow = foundWindows.ElementAt(index);
-                            argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, foundWindow);
+                            await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindow);
                         }
                         break;
                     case FilterMode.Custom:                      
@@ -139,7 +139,7 @@ namespace Pixel.Automation.Window.Management
                             var found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
                             if (found)
                             {
-                                argumentProcessor.SetValue<ApplicationWindow>(this.TargetWindow, window);
+                                await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, window);
                                 break;
                             }
 
@@ -147,6 +147,7 @@ namespace Pixel.Automation.Window.Management
                         break;
                 }
             }
+            await Task.CompletedTask;
         }
 
 

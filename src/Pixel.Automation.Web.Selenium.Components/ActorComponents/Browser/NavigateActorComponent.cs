@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -36,11 +37,12 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Navigate the active window/tab of the brower to a configured url.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            Uri targetUrl = ArgumentProcessor.GetValue<Uri>(this.TargetUrl);
+            Uri targetUrl = await ArgumentProcessor.GetValueAsync<Uri>(this.TargetUrl);
             this.ApplicationDetails.WebDriver.Navigate().GoToUrl(targetUrl);
             Log.Information($"Navigated to Url : {targetUrl}");
+            await Task.CompletedTask;
         }
 
         public override string ToString()

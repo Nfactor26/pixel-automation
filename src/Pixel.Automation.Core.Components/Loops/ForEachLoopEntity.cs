@@ -77,7 +77,7 @@ namespace Pixel.Automation.Core.Components.Loops
         public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;       
-            var targetEnumerable = this.TargetCollection.GetValue(argumentProcessor);
+            var targetEnumerable = this.TargetCollection.GetValue(argumentProcessor).Result;
      
             int index = 0;
             foreach(var item in (IEnumerable)targetEnumerable)
@@ -85,8 +85,8 @@ namespace Pixel.Automation.Core.Components.Loops
                 if (!this.exitCriteriaSatisfied)
                 {
                     Log.Information("Running iteration : {Iteration} of ForEach Loop Component with Id : {Id}", index, this.Id);
-
-                    this.Current.SetValue(argumentProcessor, item);
+                  
+                    _ = this.Current.SetValue(argumentProcessor, item);
 
                     var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
                     var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();

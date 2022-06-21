@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
@@ -18,13 +19,14 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]
     [ToolBoxItem("Selenium Locator", "Control Locators", iconSource: null, description: "Identify a web control on screen", tags: new string[] { "Locator" })]
-    public class WebControlLocatorComponent : ServiceComponent, IControlLocator<IWebElement, ISearchContext>, ICoordinateProvider
+    public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
     
@@ -157,12 +159,12 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         #region IControlLocator
 
-        public IWebElement FindControl(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
+        public async Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
         {
             Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
 
             IControlIdentity currentControl = controlIdentity;
-            ISearchContext currentRoot = searchRoot ?? WebDriver;
+            ISearchContext currentRoot = searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver;
             SwitchToTargetFrame(controlIdentity as WebControlIdentity); //All nested controls must be in same frame.Hence, switch once at start
             while (true)
             {
@@ -211,12 +213,12 @@ namespace Pixel.Automation.Web.Selenium.Components
                     continue;
                 }
 
-                return currentRoot as IWebElement;
+                return await Task.FromResult(new WebUIControl(controlIdentity, currentRoot as IWebElement, this));
             }
 
         }
 
-        public IEnumerable<IWebElement> FindAllControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
+        public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
         {
             Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
 
@@ -226,11 +228,11 @@ namespace Pixel.Automation.Web.Selenium.Components
             switch (webControlIdentity.SearchScope)
             {
                 case SearchScope.Descendants:
-                    var foundElements = FindAllElement(controlIdentity as WebControlIdentity, searchRoot ?? WebDriver);
-                    return foundElements;
+                    var foundElements = FindAllElement(controlIdentity as WebControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                    return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
                 case SearchScope.Sibling:
-                    var siblingElements = FindAllSiblingControls(controlIdentity, searchRoot ?? WebDriver);
-                    return siblingElements;
+                    var siblingElements = FindAllSiblingControls(controlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                    return await Task.FromResult(siblingElements.Select(f => new WebUIControl(controlIdentity, f, this)));
                 case SearchScope.Children:
                 case SearchScope.Ancestor:
                 default:
@@ -480,25 +482,31 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         #region ICoordinateProvider      
 
-        public void GetClickablePoint(IControlIdentity controlDetails, out double x, out double y)
+        public async Task<(double, double)> GetClickablePoint(IControlIdentity controlDetails)
         {
-            GetScreenBounds(controlDetails, out Rectangle bounds);
-            controlDetails.GetClickablePoint(bounds, out x, out y);
+            var bounds = await GetScreenBounds(controlDetails);
+            controlDetails.GetClickablePoint(bounds, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
 
-        public void GetScreenBounds(IControlIdentity controlDetails, out Rectangle screenBounds)
+        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlDetails)
         {
             WebControlIdentity controlIdentity = controlDetails as WebControlIdentity;
-            IWebElement targetControl = this.FindControl(controlIdentity, WebDriver);
-            screenBounds = GetBoundingBox(targetControl);
+            var targetControl = await this.FindControlAsync(controlIdentity, null);
+            var screenBounds = await GetBoundingBox(targetControl.GetApiControl<IWebElement>());
+            return screenBounds;
         }
 
-        public Rectangle GetBoundingBox(object targetControl)
+        public async Task<Rectangle> GetBoundingBox(object targetControl)
         {
             Guard.Argument(targetControl).NotNull().Compatible<IWebElement>();
+            var result = CalculateBoundingBox(targetControl as IWebElement);
+            return await Task.FromResult(result);
+        }
 
-            IWebElement webControl = targetControl as IWebElement;
-            if (webControl.Displayed)
+        private Rectangle CalculateBoundingBox(IWebElement webElement)
+        {
+            if (webElement.Displayed)
             {
                 string getScreenCoordinate = @"
                        
@@ -520,12 +528,11 @@ namespace Pixel.Automation.Web.Selenium.Components
 
                     ";
 
-                dynamic boundingBox = (WebDriver as IJavaScriptExecutor).ExecuteScript(getScreenCoordinate, webControl);
+                dynamic boundingBox = (WebDriver as IJavaScriptExecutor).ExecuteScript(getScreenCoordinate, webElement);
                 Rectangle screenBounds = new Rectangle(Convert.ToInt32(boundingBox["left"]), Convert.ToInt32(boundingBox["top"]), Convert.ToInt32(boundingBox["width"]), Convert.ToInt32(boundingBox["height"]));
                 return screenBounds;
             }
-            throw new InvalidOperationException($"{webControl.ToString()} is not visible.");
-
+            throw new InvalidOperationException($"{webElement} is not visible.");
         }
 
         #endregion ICoordinateProvider    
@@ -672,7 +679,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     this.highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
                 }
 
-                Rectangle boundingBox = GetBoundingBox(foundControl);
+                Rectangle boundingBox =  CalculateBoundingBox(foundControl);
                 if (boundingBox != Rectangle.Empty)
                 {
                     highlightRectangle.Visible = true;
@@ -683,7 +690,6 @@ namespace Pixel.Automation.Web.Selenium.Components
                     highlightRectangle.Visible = false;
 
                 }
-
             }
         }
 

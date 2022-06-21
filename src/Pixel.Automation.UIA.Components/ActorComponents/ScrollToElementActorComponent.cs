@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -30,9 +31,9 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Scroll control in to view.       
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if ScrollItemPattern is not supported</exception>   
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
+            AutomationElement control = await GetTargetControl();
             control.ScrollIntoView();
             logger.Information("Control was scrolled in to view.");
         }

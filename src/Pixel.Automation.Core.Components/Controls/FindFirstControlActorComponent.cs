@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Controls
 {
@@ -49,10 +50,10 @@ namespace Pixel.Automation.Core.Components.Controls
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-            int retryAttempts = argumentProcessor.GetValue<int>(this.RetryAttempts);
+            int retryAttempts = await argumentProcessor.GetValueAsync<int>(this.RetryAttempts);
             var retrySequence = new List<TimeSpan>();
             foreach (var i in Enumerable.Range(1, retryAttempts))
             {
@@ -77,15 +78,15 @@ namespace Pixel.Automation.Core.Components.Controls
             UIControl foundControl = default;
             try
             {
-                foundControl = retryPolicy.Execute(() =>
+                foundControl = await retryPolicy.Execute(async () =>
                 {
                     foreach (var controlEntity in controlEntities)
                     {
                         try
                         {
-                            var foundControl = controlEntity.GetControl();
-                            argumentProcessor.SetValue<UIControl>(this.FoundControl, foundControl);
-                            argumentProcessor.SetValue<bool>(this.Exists, foundControl != null);
+                            var foundControl = await controlEntity.GetControl();
+                            await argumentProcessor.SetValueAsync<UIControl>(this.FoundControl, foundControl);
+                            await argumentProcessor.SetValueAsync<bool>(this.Exists, foundControl != null);
                             logger.Information("Located control {0}", controlEntity.ControlDetails);
                             return foundControl;
                         }
@@ -108,7 +109,7 @@ namespace Pixel.Automation.Core.Components.Controls
                 return;
             }
 
-            argumentProcessor.SetValue<bool>(this.Exists, false);
+            await argumentProcessor.SetValueAsync<bool>(this.Exists, false);
             if (ThrowIfNotFound)
             {
                 throw new ElementNotFoundException("No control could be located");
@@ -120,7 +121,7 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         public Core.Interfaces.IComponent CreateComponent()
         {
-            GroupEntity groupEntity = new GroupEntity()
+            var groupEntity = new GroupEntity()
             {
                 Name = "Find First Control",
                 Tag = "FindFirstControlsGroup",

@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -46,11 +47,11 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Resize the control e.g. a window
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if TransformPattern is not supported</exception>      
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            double width = this.ArgumentProcessor.GetValue<double>(this.Width);
-            double height = this.ArgumentProcessor.GetValue<double>(this.Height);
+            AutomationElement control = await GetTargetControl();
+            double width = await this.ArgumentProcessor.GetValueAsync<double>(this.Width);
+            double height = await this.ArgumentProcessor.GetValueAsync<double>(this.Height);
             control.ResizeTo(width, height);
             logger.Information($"Control was resized to ({width}, {height})");
         }

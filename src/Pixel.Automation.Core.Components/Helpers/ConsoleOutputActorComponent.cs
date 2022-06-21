@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Helpers
 {
@@ -22,11 +23,11 @@ namespace Pixel.Automation.Core.Components.Helpers
 
         }
 
-        public override void Act()
-        {
-            var argumentProcessor = this.ArgumentProcessor;       
-            string message = this.Message.GetValue(argumentProcessor)?.ToString() ?? string.Empty;
+        public override async Task ActAsync()
+        {      
+            string message = await this.ArgumentProcessor.GetValueAsync<string>(this.Message);
             Console.WriteLine(message);
+            await Task.CompletedTask;
         }
     }
 }

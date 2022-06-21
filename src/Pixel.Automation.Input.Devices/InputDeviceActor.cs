@@ -4,12 +4,12 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices
 {
@@ -62,23 +62,23 @@ namespace Pixel.Automation.Input.Devices
         /// </summary>
         /// <param name="targetControl"></param>
         /// <returns></returns>
-        internal protected ScreenCoordinate GetScreenCoordinateFromControl(InArgument<UIControl> targetControl)
+        internal protected async Task<ScreenCoordinate> GetScreenCoordinateFromControl(InArgument<UIControl> targetControl)
         {
             var argumentProcessor = this.ArgumentProcessor;
             UIControl control;
             if (targetControl.IsConfigured())
             {
-                control = argumentProcessor.GetValue<UIControl>(targetControl);
+                control = await argumentProcessor.GetValueAsync<UIControl>(targetControl);
             }
             else
             {
                 ThrowIfMissingControlEntity();
-                control = this.ControlEntity.GetControl();
+                control = await this.ControlEntity.GetControl();
             }
           
             if (control != null)
             {
-                control.GetClickablePoint(out double x, out double y);
+                var (x,y) = await control.GetClickablePointAsync();
                 return new ScreenCoordinate(x, y);
             }
 

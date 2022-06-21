@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -40,13 +41,13 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Simulate a mouse over on a <see cref="IWebElement"/>
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
+            IWebElement control = await GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             if(this.Offset.IsConfigured())
             {
-                var offSet = this.ArgumentProcessor.GetValue<Point>(this.Offset);
+                var offSet = await this.ArgumentProcessor.GetValueAsync<Point>(this.Offset);
                 action.MoveToElement(control, offSet.X, offSet.Y).Perform();
             }
             else

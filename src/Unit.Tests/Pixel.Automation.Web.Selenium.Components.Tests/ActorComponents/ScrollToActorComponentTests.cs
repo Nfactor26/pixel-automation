@@ -5,6 +5,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -14,12 +15,12 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that scroll to actor component can scroll to a target control on web page
         /// </summary>
         [Test]
-        public void ValidateThatScrollToActorCanScrollTargetControlInView()
+        public async Task ValidateThatScrollToActorCanScrollTargetControlInView()
         {
             var entityManager = Substitute.For<IEntityManager>();
         
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<int>(Arg.Any<Argument>()).Returns(10);
+            argumentProcessor.GetValueAsync<int>(Arg.Any<Argument>()).Returns(10);
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             IWebElement targetControl = Substitute.For<IWebElement>();
@@ -43,9 +44,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 EntityManager = entityManager,
                 Parent = controlEntity
             };
-            scrollToActor.Act();
+            await scrollToActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<int>(Arg.Any<Argument>());
+            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<Argument>());
             (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Is<string>("window.scroll(0, 810);"));
         }
     }

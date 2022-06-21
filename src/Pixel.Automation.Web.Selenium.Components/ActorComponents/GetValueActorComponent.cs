@@ -3,9 +3,9 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -38,15 +38,15 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Get the value  of <see cref="IWebElement"/>.
         /// If value is not available, text is returned instead.
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
+            IWebElement control = await GetTargetControl();
             string extractedValue = control.GetAttribute("value");
             if (string.IsNullOrEmpty(extractedValue))
             {
                 extractedValue = control.Text;
             }
-            ArgumentProcessor.SetValue<string>(Result, extractedValue);
+            await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
 
             logger.Information("Retrived value of control");
         }

@@ -3,11 +3,10 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Components.Decisions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Test.Helpers;
 using System.Linq;
 
 namespace Pixel.Automation.Core.Components.Tests
-{   
+{
     public class IfEntityTest
     {
         [TestCase(true)]

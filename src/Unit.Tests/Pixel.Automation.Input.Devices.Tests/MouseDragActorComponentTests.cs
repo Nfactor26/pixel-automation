@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
@@ -10,12 +11,12 @@ namespace Pixel.Automation.Input.Devices.Tests
     {
 
         [Test]
-        public void ValidateThatDragDropActorComponentCanPerformDragDropWithTargetPoints()
+        public async Task ValidateThatDragDropActorComponentCanPerformDragDropWithTargetPoints()
         {
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
+            argumentProcessor.GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -29,9 +30,9 @@ namespace Pixel.Automation.Input.Devices.Tests
                 SmootMode = SmoothMode.None
             };
 
-            dragActorComponent.Act();
+            await dragActorComponent.ActAsync();
 
-            argumentProcessor.Received(2).GetValue<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
+            argumentProcessor.Received(2).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(2).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.None);
             synthethicMouse.Received(1).ButtonDown(MouseButton.LeftButton);
             synthethicMouse.Received(1).ButtonUp(MouseButton.LeftButton);

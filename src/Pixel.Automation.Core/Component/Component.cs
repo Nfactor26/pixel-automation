@@ -223,91 +223,9 @@ namespace Pixel.Automation.Core
         }
     }
 
-    /// <summary>
-    /// Actor components contain the processing logic to do some action by consuming data components and service components
-    /// </summary>
     [DataContract]
     [Serializable]
-    public  abstract class ActorComponent : Component
-    {
-        /// <summary>
-        /// Indicates whether the processor should continue with the next child if this actor was not processed successfully
-        /// </summary>
-        [DataMember]
-        [Display(Name = "Continue on Error", Order = 40, GroupName = "Error Handling", Description = "Indicates whether the processor should ignore any error in this component and " +
-            "continue processing next component")]
-        public bool ContinueOnError { get; set; } = false;
-
-        /// <summary>
-        /// Indicates whether the component is currently being executed by the processor
-        /// </summary>
-        [NonSerialized]
-        private bool isExecuting;
-
-        [Browsable(false)]
-        public bool IsExecuting
-        {
-            get
-            {
-                return isExecuting;
-            }
-            set
-            {
-                isExecuting = value;
-                if(isExecuting)
-                {
-                    IsFaulted = false;
-                }
-                OnPropertyChanged();
-            }
-        }
-      
-
-        [NonSerialized]
-        private List<string> errorMessages = new ();
-        [Browsable(false)]
-        [IgnoreDataMember]
-        public List<string> ErrorMessages
-        {
-            get
-            {
-                return errorMessages;
-            }           
-        }
-       
-        public  ActorComponent() : base()
-        {
-
-        }
-
-        public ActorComponent(string name = "", string tag = "") : base(name, tag)
-        {
-
-        }
-
-        /// <summary>
-        /// Processor calls Act on its child actor components  
-        /// </summary>
-        public abstract void Act();
-
-        public override void ResetComponent()
-        {
-            this.isExecuting = false;
-            this.IsFaulted = false;
-            this.ErrorMessages.Clear();
-        }
-
-        [OnDeserialized]
-        public new void Initialize(StreamingContext context)
-        {
-            this.errorMessages = new List<string>();
-        }
-    }
-
-
-    [DataContract]
-    [Serializable]
-    public abstract class AsyncActorComponent : Component
+    public abstract class ActorComponent : Component
     {
         /// <summary>
         /// Indicates whether the processor should continue with the next child if this actor was not processed successfully
@@ -355,12 +273,12 @@ namespace Pixel.Automation.Core
         }
                 
 
-        public AsyncActorComponent() : base()
+        public ActorComponent() : base()
         {
 
         }
 
-        public AsyncActorComponent(string name = "", string tag = "") : base(name, tag)
+        public ActorComponent(string name = "", string tag = "") : base(name, tag)
         {
 
         }

@@ -43,8 +43,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await processor.BeginProcessAsync();
 
-            actorOne.Received(1).Act();          
-            actorTwo.Received(1).Act();
+            await actorOne.Received(1).ActAsync();          
+            await actorTwo.Received(1).ActAsync();
             await entityOne.Received(1).BeforeProcessAsync();
             await entityOne.Received(1).OnCompletionAsync();
             await entityTwo.Received(1).BeforeProcessAsync();
@@ -65,7 +65,7 @@ namespace Pixel.Automation.Core.Components.Tests
             //Substituting for parts since we want to use GetNextComponentToProcess implementation
             var entityOne = Substitute.ForPartsOf<Entity>();
             var actorOne = Substitute.For<ActorComponent>();
-            actorOne.When(a => a.Act()).Do(a => { throw new ArgumentException(); });
+            actorOne.When(a => a.ActAsync()).Do(a => { throw new ArgumentException(); });
           
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
             processor.EntityManager = entityManager;

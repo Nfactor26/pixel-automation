@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components.ActorComponents
@@ -40,10 +41,10 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// Move the control e.g. window or a dialog to a new position 
         /// </summary>
         /// <exception cref="InvalidOperationException">Throws InvalidOperationException if TransformPattern is not supported</exception>      
-        public override void Act()
+        public override async Task ActAsync()
         {
-            AutomationElement control = GetTargetControl();
-            var newPosition = this.ArgumentProcessor.GetValue<Point>(this.Position);           
+            AutomationElement control = await GetTargetControl();
+            var newPosition = await this.ArgumentProcessor.GetValueAsync<Point>(this.Position);           
             control.MoveTo(newPosition.X, newPosition.Y);
             logger.Information($"Control was moved to position : ({newPosition.X}, {newPosition.Y})");
         }

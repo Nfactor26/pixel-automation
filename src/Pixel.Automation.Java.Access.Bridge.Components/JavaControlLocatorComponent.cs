@@ -3,6 +3,7 @@
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
@@ -17,6 +18,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 using WindowsAccessBridgeInterop;
 
@@ -25,7 +27,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     [DataContract]
     [Serializable]
     [ToolBoxItem("JAB Locator", "Control Locators", iconSource: null, description: "Identify a java control on screen", tags: new string[] { "Locator" })]
-    public class JavaControlLocatorComponent : ServiceComponent, IControlLocator<AccessibleContextNode, AccessibleContextNode>, ICoordinateProvider, IDisposable
+    public class JavaControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider, IDisposable
     {
 
         private readonly ILogger logger = Log.ForContext<JavaControlLocatorComponent>();
@@ -139,14 +141,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             return controlIdentity is JavaControlIdentity;
         }
 
-        public AccessibleContextNode FindControl(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
+        public async  Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
             logger.Information("Start control lookup.");
 
             IControlIdentity currentControl = controlIdentity;
             ConfigureRetryPolicy(currentControl);
-            var currentSearchRoot = searchRoot ?? GetSearchRoot(ref currentControl);
+            var currentSearchRoot = searchRoot?.GetApiControl<AccessibleContextNode>() ?? GetSearchRoot(ref currentControl);
             while (true)
             {               
                 var foundElement = FindSingleControl(currentControl, currentSearchRoot);
@@ -158,18 +160,18 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     continue;
                 }
                 logger.Information("Control lookup completed.");
-                return foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria");
+                return await Task.FromResult(new JavaUIControl(controlIdentity, foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria")));
             }
         }
 
-        public IEnumerable<AccessibleContextNode> FindAllControls(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
+        public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
             logger.Information("Start control lookup.");
             
             IControlIdentity currentControl = controlIdentity;
             ConfigureRetryPolicy(currentControl);
-            var currentSearchRoot = searchRoot ?? GetSearchRoot(ref currentControl);
+            var currentSearchRoot = searchRoot?.GetApiControl<AccessibleContextNode>() ?? GetSearchRoot(ref currentControl);
 
             while (true)
             {
@@ -189,15 +191,15 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                         case SearchScope.Children:
                             var childControls = FindAllChildControls(javaControlIdentity, currentSearchRoot);
                             logger.Information($"Located {childControls.Count()} matching control for {javaControlIdentity}");
-                            return childControls;
+                            return await Task.FromResult(childControls.Select(d => new JavaUIControl(controlIdentity, d)));
                         case SearchScope.Descendants:
                             var descendantControls = FindAllDescendantControls(javaControlIdentity, currentSearchRoot);
                             logger.Information($"Located {descendantControls.Count()} matching control for {javaControlIdentity}");
-                            return descendantControls;
+                            return await Task.FromResult(descendantControls.Select(d => new JavaUIControl(controlIdentity, d)));
                         case SearchScope.Sibling:
                             var siblingControls = FindAllSiblingControls(javaControlIdentity, currentSearchRoot);
                             logger.Information($"Located {siblingControls.Count()} matching control for {javaControlIdentity}");
-                            return siblingControls;
+                            return await Task.FromResult(siblingControls.Select(d => new JavaUIControl(controlIdentity, d)));
                         case SearchScope.Ancestor:
                             throw new InvalidOperationException("There can be only one ancestor for a given control");
                     }
@@ -466,31 +468,32 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
         #region ICoordinateProvider      
 
-        public void GetClickablePoint(IControlIdentity controlDetails, out double x, out double y)
+        public async Task<(double, double)> GetClickablePoint(IControlIdentity controlDetails)
         {
-            GetScreenBounds(controlDetails, out Rectangle bounds);
-            controlDetails.GetClickablePoint(bounds, out x, out y);
+            var bounds = await GetScreenBounds(controlDetails);
+            controlDetails.GetClickablePoint(bounds, out double x, out double y);
+            return await Task.FromResult((x, y));
         }
 
-        public void GetScreenBounds(IControlIdentity controlIdentity, out Rectangle screenBounds)
+        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlIdentity)
         {
             var currentSearchRoot = GetSearchRoot(ref controlIdentity);    
             ConfigureRetryPolicy(controlIdentity);
-            AccessibleContextNode targetControl = this.FindControl(controlIdentity, currentSearchRoot);
-            screenBounds = GetBoundingBox(targetControl);
+            var targetControl = await this.FindControlAsync(controlIdentity, new JavaUIControl(controlIdentity, currentSearchRoot));
+            var screenBounds = await GetBoundingBox(targetControl.GetApiControl<AccessibleContextNode>());
+            return screenBounds;
         }
 
-        public Rectangle GetBoundingBox(object control)
+        public async Task<Rectangle> GetBoundingBox(object control)
         {
             Guard.Argument(control).NotNull().Compatible<AccessibleContextNode>();
 
             var controlNode = control as AccessibleContextNode;
             var boundingBox = controlNode.GetScreenRectangle().Value;
-            return  boundingBox;
+            return await Task.FromResult(boundingBox);
         }
 
         #endregion ICoordinateProvider        
-
 
         #region IDisposable
 

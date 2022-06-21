@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
 {
@@ -20,7 +21,7 @@ namespace Pixel.Automation.Window.Management.Tests
         }
 
         [Test]
-        public void ValidThatGetForegroundWindowActorCanLocateForegroundWindow()
+        public async Task ValidThatGetForegroundWindowActorCanLocateForegroundWindow()
         {
 
             var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
@@ -40,10 +41,10 @@ namespace Pixel.Automation.Window.Management.Tests
                 EntityManager = entityManager
             };
 
-            actor.Act();
+            await actor.ActAsync();
 
             windowManager.Received(1).GetForeGroundWindow();
-            argumentProcessor.Received(1).SetValue<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
+            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
 
         }
 

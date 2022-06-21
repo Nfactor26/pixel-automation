@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
@@ -13,12 +14,12 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
         /// Validate that Click actor component can perform click on a web element
         /// </summary>
         [Test]
-        public void ValidateThatNavigateActorComponentCanNavigateBrowserToAGivenUri()
+        public async Task ValidateThatNavigateActorComponentCanNavigateBrowserToAGivenUri()
         {
             var entityManager = Substitute.For<IEntityManager>();
          
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValue<Uri>(Arg.Any<Argument>()).Returns(new Uri("https://www.bing.com"));
+            argumentProcessor.GetValueAsync<Uri>(Arg.Any<Argument>()).Returns(new Uri("https://www.bing.com"));
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -33,9 +34,9 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             {
                 EntityManager = entityManager                
             };
-            navigateActor.Act();
+            await navigateActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValue<Uri>(Arg.Any<Argument>());
+            argumentProcessor.Received(1).GetValueAsync<Uri>(Arg.Any<Argument>());
             webDriver.Received(1).Navigate();    
         }
     }

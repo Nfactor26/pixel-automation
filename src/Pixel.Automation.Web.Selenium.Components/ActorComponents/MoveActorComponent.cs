@@ -7,7 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.Serialization;
-
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -39,11 +39,11 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Drag drop a <see cref="IWebElement"/> to an offset point from it's current position
         /// </summary>
-        public override void Act()
-        {        
-            var positionOffSet = this.ArgumentProcessor.GetValue<Point>(this.OffSet);
+        public override async Task ActAsync()
+        {           
+            var positionOffSet = await this.ArgumentProcessor.GetValueAsync<Point>(this.OffSet);
 
-            IWebElement control = ControlEntity.GetTargetControl<IWebElement>();
+            IWebElement control = await GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
             action.DragAndDropToOffset(control, positionOffSet.X, positionOffSet.Y).Perform();
 

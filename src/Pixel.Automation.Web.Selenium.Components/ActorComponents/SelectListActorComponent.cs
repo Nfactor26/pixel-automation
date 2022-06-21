@@ -7,6 +7,7 @@ using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -47,10 +48,10 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// <summary>
         /// Select the configured option contained in a select (or similar) element
         /// </summary>
-        public override void Act()
+        public override async Task ActAsync()
         {
-            IWebElement control = GetTargetControl();
-            string selectText = ArgumentProcessor.GetValue<string>(this.Option);
+            IWebElement control = await GetTargetControl();
+            string selectText = await ArgumentProcessor.GetValueAsync<string>(this.Option);
 
             SelectElement selectElement = new SelectElement(control);
             switch (SelectBy)

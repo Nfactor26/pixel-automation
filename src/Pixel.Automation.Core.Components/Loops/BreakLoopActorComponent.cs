@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Loops
 {
@@ -18,7 +19,7 @@ namespace Pixel.Automation.Core.Components.Loops
 
         }
 
-        public override void Act()
+        public override async Task ActAsync()
         {
             Entity currentParent = this.Parent;
             while (currentParent != null)
@@ -34,6 +35,7 @@ namespace Pixel.Automation.Core.Components.Loops
                 throw new InvalidOperationException("BreakLoopActor must be added inside a loop construct such as for loop, while loop, etc.");
             }
             (currentParent as ILoop).ExitCriteriaSatisfied = true;
+            await Task.CompletedTask;
         }
     }
 }
