@@ -37,8 +37,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Seleni
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Screen.Scrappers", "Screen.Scrappers", "{2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Scrapper", "src\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj", "{1AEFEAB7-4292-46A8-8699-C5611AF8E353}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Editors", "Editors", "{94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ViewModels", "ViewModels", "{85AB536F-8852-40FB-BCB5-6CFE666630D4}"
@@ -107,19 +105,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{31FC611F-42BE-4506-AEF5-89BB59963695}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chrome", "Chrome", "{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0}"
-	ProjectSection(SolutionItems) = preProject
-		src\Extensions\Chrome\background.html = src\Extensions\Chrome\background.html
-		src\Extensions\Chrome\background.js = src\Extensions\Chrome\background.js
-		src\Extensions\Chrome\icon.png = src\Extensions\Chrome\icon.png
-		src\Extensions\Chrome\jquery-1.6.4-vsdoc.js = src\Extensions\Chrome\jquery-1.6.4-vsdoc.js
-		src\Extensions\Chrome\jquery-1.6.4.min.js = src\Extensions\Chrome\jquery-1.6.4.min.js
-		src\Extensions\Chrome\manifest.json = src\Extensions\Chrome\manifest.json
-		src\Extensions\Chrome\optimal-select.min.js = src\Extensions\Chrome\optimal-select.min.js
-		src\Extensions\Chrome\signalr.js = src\Extensions\Chrome\signalr.js
-		src\Extensions\Chrome\Web.Scrapper.js = src\Extensions\Chrome\Web.Scrapper.js
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.Views", "src\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj", "{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests.csproj", "{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}"
@@ -151,6 +136,23 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Core.Tests", "src\Unit.Tests\Pixel.Automation.Editor.Core.Tests\Pixel.Automation.Editor.Core.Tests.csproj", "{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.OpenId.Authenticator", "src\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj", "{D9F21769-910D-4D54-8CE0-7C370C8DEBE8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Playwright.Components", "src\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj", "{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Common", "src\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj", "{BF6E961C-8989-4560-B07F-50F1E8642EAF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Web.Scrapper", "src\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj", "{C2D0B652-C331-4728-8836-FF1F0B5EC746}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pixel-browser-scrapper", "pixel-browser-scrapper", "{C2CEB3A7-7E9B-4465-92E6-67D5E8937AAF}"
+	ProjectSection(SolutionItems) = preProject
+		src\Extensions\pixel-browser-scrapper\background.js = src\Extensions\pixel-browser-scrapper\background.js
+		src\Extensions\pixel-browser-scrapper\icon.png = src\Extensions\pixel-browser-scrapper\icon.png
+		src\Extensions\pixel-browser-scrapper\jquery-1.6.4-vsdoc.js = src\Extensions\pixel-browser-scrapper\jquery-1.6.4-vsdoc.js
+		src\Extensions\pixel-browser-scrapper\jquery-1.6.4.min.js = src\Extensions\pixel-browser-scrapper\jquery-1.6.4.min.js
+		src\Extensions\pixel-browser-scrapper\manifest.json = src\Extensions\pixel-browser-scrapper\manifest.json
+		src\Extensions\pixel-browser-scrapper\optimal-select.min.js = src\Extensions\pixel-browser-scrapper\optimal-select.min.js
+		src\Extensions\pixel-browser-scrapper\Web.Scrapper.js = src\Extensions\pixel-browser-scrapper\Web.Scrapper.js
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -206,10 +208,6 @@ Global
 		{8CAC0AE2-E8C7-4452-9A11-F54264D20152}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CAC0AE2-E8C7-4452-9A11-F54264D20152}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CAC0AE2-E8C7-4452-9A11-F54264D20152}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1AEFEAB7-4292-46A8-8699-C5611AF8E353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AEFEAB7-4292-46A8-8699-C5611AF8E353}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AEFEAB7-4292-46A8-8699-C5611AF8E353}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AEFEAB7-4292-46A8-8699-C5611AF8E353}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44061547-D707-4ABB-8A37-72B9A5F9C3C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44061547-D707-4ABB-8A37-72B9A5F9C3C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44061547-D707-4ABB-8A37-72B9A5F9C3C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -378,6 +376,18 @@ Global
 		{D9F21769-910D-4D54-8CE0-7C370C8DEBE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9F21769-910D-4D54-8CE0-7C370C8DEBE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9F21769-910D-4D54-8CE0-7C370C8DEBE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF6E961C-8989-4560-B07F-50F1E8642EAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF6E961C-8989-4560-B07F-50F1E8642EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF6E961C-8989-4560-B07F-50F1E8642EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF6E961C-8989-4560-B07F-50F1E8642EAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D0B652-C331-4728-8836-FF1F0B5EC746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D0B652-C331-4728-8836-FF1F0B5EC746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D0B652-C331-4728-8836-FF1F0B5EC746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D0B652-C331-4728-8836-FF1F0B5EC746}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -395,7 +405,6 @@ Global
 		{879B0937-E80E-4E14-83ED-5D055AA0D528} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{80B49469-0B0F-4D05-ADA6-09B73495AC91} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{8CAC0AE2-E8C7-4452-9A11-F54264D20152} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
-		{1AEFEAB7-4292-46A8-8699-C5611AF8E353} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
 		{94422BB0-2426-4FA2-B9C4-29F94A3CAD7F} = {2A028EC5-0824-4120-91A0-988F6AADE81C}
 		{85AB536F-8852-40FB-BCB5-6CFE666630D4} = {2A028EC5-0824-4120-91A0-988F6AADE81C}
 		{40DB0F5D-BB65-4027-B0A2-682628455D6A} = {2A028EC5-0824-4120-91A0-988F6AADE81C}
@@ -426,7 +435,6 @@ Global
 		{2CB3D6DB-B509-41B1-84F8-1AA13AA43101} = {AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}
 		{DC616BF5-7555-4972-99DC-71E208FA3C82} = {FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}
 		{31FC611F-42BE-4506-AEF5-89BB59963695} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
-		{B2D4CDAA-BC63-45DC-95E4-57A78FEF3DF0} = {31FC611F-42BE-4506-AEF5-89BB59963695}
 		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{DC83E05E-6BD8-49B4-B133-87ADF186E432} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
@@ -443,6 +451,10 @@ Global
 		{EFD20B77-E69D-4D00-A737-F3BDC8DE50C1} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{2EB7D04C-E0E7-4AB2-8916-D9A5143F92A7} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{D9F21769-910D-4D54-8CE0-7C370C8DEBE8} = {FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}
+		{C5D6D04F-F7F1-4C6A-A4D3-DB8965088B7C} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
+		{BF6E961C-8989-4560-B07F-50F1E8642EAF} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
+		{C2D0B652-C331-4728-8836-FF1F0B5EC746} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
+		{C2CEB3A7-7E9B-4465-92E6-67D5E8937AAF} = {31FC611F-42BE-4506-AEF5-89BB59963695}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

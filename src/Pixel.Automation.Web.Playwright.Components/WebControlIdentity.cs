@@ -1,14 +1,11 @@
-﻿using Pixel.Automation.Core.Attributes;
+﻿﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Selenium.Components
+namespace Pixel.Automation.Web.Playwright.Components
 {
     [DataContract]
     [Serializable]
@@ -16,33 +13,6 @@ namespace Pixel.Automation.Web.Selenium.Components
     public class WebControlIdentity : ControlIdentity
     {
         #region Search Strategy
-
-        string findByStrategy;
-        /// <summary>
-        ///  FindBy strategy used to search for a control e.g. id, name, css3selector, etc.     
-        /// </summary>
-        [DataMember(IsRequired = true, Order = 210)]
-        [Display(Name = "Find By", Order = 10, GroupName = "Search Strategy")]
-        [Description(" FindBy strategy used to search for a control.For ex: id,name,css3selector,etc.")]
-        public virtual string FindByStrategy
-        {
-            get
-            {
-                return findByStrategy;
-            }
-            set
-            {
-                if (value != findByStrategy)
-                {
-                    findByStrategy = value;
-                    if (AvilableIdentifiers?.Any(a => a.AttributeName.Equals(value)) ?? false)
-                    {
-                        Identifier = AvilableIdentifiers.First(a => a.AttributeName.Equals(value)).AttributeValue;
-                    }
-                }
-            }
-        }
-
 
         /// <summary>
         /// Identifier value used to search for the control i.e. name of control if FindByStrategy is name,etc.
@@ -67,13 +37,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         [Display(Name = "Search Scope", Order = 30, GroupName = "Search Strategy")]
         public override SearchScope SearchScope { get; set; } = SearchScope.Descendants;
 
-        /// <summary>
-        /// Holds all the identifiers captured at design time
-        /// </summary>
-        [DataMember(Order = 250)]
-        [Browsable(false)]
-        public List<ControlIdentifier> AvilableIdentifiers = new List<ControlIdentifier>();
-
+     
         #endregion Search Strategy
 
         #region Frame Details
@@ -108,14 +72,12 @@ namespace Pixel.Automation.Web.Selenium.Components
                 BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
-                YOffSet = this.YOffSet,
-                FindByStrategy = this.findByStrategy,
+                YOffSet = this.YOffSet,             
                 Identifier = this.Identifier,
                 RetryAttempts = this.RetryAttempts,
                 RetryInterval = this.RetryInterval,
                 SearchTimeout = this.SearchTimeout,
-                SearchScope = this.SearchScope,
-                AvilableIdentifiers = new List<ControlIdentifier>(this.AvilableIdentifiers),
+                SearchScope = this.SearchScope,              
                 FrameHierarchy = new List<FrameIdentity>(this.FrameHierarchy ?? new List<FrameIdentity>()),
                 Next = this.Next?.Clone() as WebControlIdentity
 
@@ -125,7 +87,8 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         public override string ToString()
         {
-            return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> Identifier:{this.Identifier}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
         }
     }
 }
+

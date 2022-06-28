@@ -11,10 +11,11 @@ namespace Pixel.Automation.Web.Selenium.Components
 {
     [DataContract]
     [Serializable]  
-    [DisplayName("Browser App")]
+    [DisplayName("Browser Selenium")]
     [Description("Browser based web applications using Selenium")]
     [ControlLocator(typeof(WebControlLocatorComponent))]
     [ApplicationEntity(typeof(WebApplicationEntity))]
+    [Builder(typeof(WebControlIdentityBuilder))]
     public class WebApplication : Application
     {      
         /// <summary>

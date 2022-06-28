@@ -3,6 +3,7 @@ using Dawn;
 using Microsoft.Win32;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
@@ -379,8 +380,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 {
                     try
                     {
+                       
+                        IControlIdentity control;
+
+                        //The plugin can already provide the scraped data as IControlIdentity
+                        if (scrapedControl.ControlData is IControlIdentity controlIdentity)
+                        {
+                            control = controlIdentity;
+                        }
+                        //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
+                        else
+                        {
+                            var ownerApplication = this.activeApplication.ApplicationDetails;
+                            var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
+                                ?? throw new Exception("No control builder available to process scraped control");
+                            var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
+                            control = controlBuilder.CreateFromData(scrapedControl.ControlData);                         
+                        }
+
                         //update the application id for each control identity in hierarchy
-                        IControlIdentity control = scrapedControl.ControlData;
                         control.ApplicationId = this.activeApplication.ApplicationId;
                         IControlIdentity current = control;
                         while (current.Next != null)

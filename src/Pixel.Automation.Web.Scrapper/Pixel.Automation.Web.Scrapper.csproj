@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	<TargetFramework>net6.0-windows</TargetFramework>	
@@ -10,17 +10,19 @@
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.173">
       <IncludeAssets>compile</IncludeAssets>
-    </PackageReference>   
+    </PackageReference>
+    <PackageReference Include="Microsoft.Playwright" Version="1.22.0" />   
     <PackageReference Include="Serilog" Version="2.11.0">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
+	
   <ItemGroup>
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
     <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj">
       <Private>false</Private>
     </ProjectReference>

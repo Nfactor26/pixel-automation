@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+
+  "name": "playright-control-inspector",
+  "description": "Extracts the details of html control for use in 'Pixel Automation' application for use with playwright plugin.",
+  "version": "1.0",
+
+  "action": {
+    "default_icon": "icon.png",
+    "default_title": "Toggle Scraping!"    
+  },
+  "background": {
+   "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],    
+      "js": ["jquery-1.6.4.min.js","optimal-select.min.js", "Web.Scrapper.js"],
+      "all_frames" : true  
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "tabs"    
+  ] 
+}
