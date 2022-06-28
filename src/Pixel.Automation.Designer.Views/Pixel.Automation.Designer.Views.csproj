@@ -38,6 +38,8 @@
     <ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />  
     <ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />

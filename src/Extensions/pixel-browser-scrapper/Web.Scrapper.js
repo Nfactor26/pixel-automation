@@ -73,10 +73,6 @@ var BoundingBox = function (left, top, width, height) {
     this.width = width;
     this.height = height;
 };
-//BoundingBox.prototype.getBoundingBox = function () {
-//    return this.left + '|' + this.top + '|' + this.width + '|' + this.height;
-//};
-
 
 var GetScreenCoordinate = function (elem) {
     var elemBounds = elem.getBoundingClientRect();
@@ -119,7 +115,6 @@ function extractDetails(control) {
     var controlDetails = {
         "controlLocation": window.location.hostname, "identifier": selector,  "left": Math.trunc(bounds.left), "top": Math.trunc(bounds.top), "width": Math.trunc(bounds.width), "height": Math.trunc(bounds.height)        
     };
-    //console.log(selector + " : " + event.target)
     var frameHierarchy = [];
     if (window === top) {
         //frameDetails.push(frameIdentity("","",-1));
@@ -140,12 +135,8 @@ function extractDetails(control) {
         }
         while (current !== top);
     }
-    controlDetails.frameHierarchy = frameHierarchy.reverse();
-    console.log("Selector : " + controlDetails.identifier + " , frame : " + controlDetails.frameIndex);
-
-    //send message after a while so that green border has cleared
-    setTimeout(function () {
-        chrome.runtime.sendMessage(controlDetails);
-    }, 2000);
+    controlDetails.frameHierarchy = frameHierarchy.reverse();    
+   
+    console.log(JSON.stringify(controlDetails));
 }
 

@@ -146,7 +146,7 @@ namespace Pixel.Automation.Core.Components
 
         }
 
-        protected ControlDescription LoadControlDescription()
+        protected virtual ControlDescription LoadControlDescription()
         {
             if (File.Exists(this.ControlFile))
             {

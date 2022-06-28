@@ -1,19 +1,12 @@
-﻿using OpenQA.Selenium;
+﻿using Microsoft.Playwright;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace Pixel.Automation.Web.Selenium.Components
+namespace Pixel.Automation.Web.Playwright.Components
 {
-    /// <summary>
-    /// WebControlEntity wraps a control details required to lookup a control detail.
-    /// It also supports caching of the <see cref="IWebElement"/> for subsequent lookup.
-    /// </summary>
     public class WebControlEntity : ControlEntity
     {
         private readonly ILogger logger = Log.ForContext<WebControlEntity>();
@@ -24,7 +17,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<IWebElement>() { CanChangeMode = false, CanChangeType = false };
+                this.Filter = new PredicateArgument<ILocator>() { CanChangeMode = false, CanChangeType = false };
             }
         }
 
@@ -35,24 +28,23 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             if (CacheControl)
             {
-                control = null;              
+                control = null;
                 logger.Debug($"Cleared cached WebElement for {this.Name}");
             }
             await Task.CompletedTask;
-        }        
-
+        }
+     
         /// <summary>
         /// Get first control identified using wrapped <see cref="IControlIdentity"/>
         /// </summary>
         /// <returns></returns>
-        public override async Task<UIControl> GetControl()
+        public override async  Task<UIControl> GetControl()
         {
             if (CacheControl && control != null)
             {
                 logger.Debug($"Return cached element for {this.Name}");
                 return control;
             }
-
 
             UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
@@ -85,6 +77,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 default:
                     throw new NotSupportedException();
             }
+
             return control;
         }
 
@@ -96,7 +89,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             UIControl searchRoot = default;
             if (this.SearchRoot.IsConfigured())
-            {              
+            {
                 searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
             else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
@@ -104,7 +97,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 searchRoot = await (this.Parent as WebControlEntity).GetControl();
             }
             WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
-            var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);           
+            var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
             return foundControls;
         }
 

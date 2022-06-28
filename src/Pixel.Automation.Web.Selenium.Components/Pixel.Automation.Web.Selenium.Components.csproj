@@ -34,6 +34,7 @@
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
       <Private>false</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
   </ItemGroup>
 
 </Project>
