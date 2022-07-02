@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Pixel.Automation.Editor.Core.Helpers
+namespace Pixel.Scripting.Editor.Core
 {
     public static class DesignTimeEntityManagerExtensions
     {

@@ -1,25 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon />
-    <StartupObject />
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon />
+		<StartupObject />
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.173" />
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.70.1" />
-    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Caliburn.Micro" Version="4.0.173" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.1" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">    
-    </ProjectReference>
-    <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj">      
-    </ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
+	</ItemGroup>
 
 </Project>

@@ -1,21 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon />
-    <StartupObject />
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon />
+		<StartupObject />
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">     
-    </ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
+	</ItemGroup>
 
 </Project>
