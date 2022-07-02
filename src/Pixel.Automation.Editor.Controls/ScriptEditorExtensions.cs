@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Editor.Core.Helpers
+namespace Pixel.Automation.Editor.Controls
 {
     public static class ScriptEditorExtensions
     {

@@ -20,6 +20,7 @@ using System.Windows;
 using System.Windows.Data;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core;
+using Pixel.Scripting.Editor.Core;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
