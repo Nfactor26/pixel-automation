@@ -1,5 +1,5 @@
-﻿using Pixel.Automation.Native.Windows;
-using System;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -331,4 +331,15 @@ namespace Pixel.Automation.Editor.Controls.HotKeys
         public const uint MAPVK_VSC_TO_VK_EX = 0x03;
         public const uint MAPVK_VK_TO_VSC_EX = 0x04;
     }
+
+
+    static class NativeMethods
+    {       
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern int MapVirtualKey(uint uCode, uint uMapType);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int GetKeyNameText(int lParam, [MarshalAs(UnmanagedType.LPWStr), Out] StringBuilder str, int size);
+    }
+
 }
