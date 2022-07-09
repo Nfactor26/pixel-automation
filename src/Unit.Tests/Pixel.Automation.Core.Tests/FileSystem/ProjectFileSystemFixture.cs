@@ -26,8 +26,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, "1.0.0.0"));
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, "2.0.0.0"));
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId), true);           
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         public void ValdiateThatFileSystemIsCorrectlyInitializedAndRequiredDirectoriesAreCreated()
         {
             var versionInfo = Substitute.For<VersionInfo>();
-            versionInfo.Version = new Version(1, 0);
+            versionInfo.Version = new Version(1, 0, 0, 0);
             var project = new AutomationProject() { ProjectId = projectId };
             projectFileSystem.Initialize(project, versionInfo);
 
@@ -58,7 +57,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         public void ValidateThatProjectFileSystemCanBeSwitchedToADifferentVersion()
         {
             var versionInfo = Substitute.For<VersionInfo>();
-            versionInfo.Version = new Version(2, 0);
+            versionInfo.Version = new Version(2, 0, 0, 0);
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, versionInfo.ToString());
 
