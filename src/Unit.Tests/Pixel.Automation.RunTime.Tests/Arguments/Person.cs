@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace Pixel.Automation.Scripting.Components.Tests
+namespace Pixel.Automation.RunTime.Tests
 {
 
     public class Address
-    {
-     
+    {     
         public string City { get; set; }
 
-        public string Country { get; set; }
-       
+        public string Country { get; set; }       
     }
 
     public class Person

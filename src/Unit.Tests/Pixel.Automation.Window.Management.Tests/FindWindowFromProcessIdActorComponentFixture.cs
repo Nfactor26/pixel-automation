@@ -45,9 +45,9 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await actor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
+            await argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
             windowManager.Received(1).FromProcessId(0);
-            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
+            await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
         }
     }
 }

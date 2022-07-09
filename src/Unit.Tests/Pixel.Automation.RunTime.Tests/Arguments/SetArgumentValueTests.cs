@@ -2,11 +2,10 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Scripting.Components.Arguments;
 using System;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Scripting.Components.Tests
+namespace Pixel.Automation.RunTime.Tests
 {
     /// <summary>
     /// Test cases covering various scenarios for SetValue operation on ArgumentProcessor for a given argument

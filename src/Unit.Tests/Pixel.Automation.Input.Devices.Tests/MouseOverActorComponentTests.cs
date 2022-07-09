@@ -67,7 +67,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await mouseOverActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
             await uiControl.Received(1).GetClickablePointAsync();
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
         }

@@ -46,7 +46,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             targetControl.Received(1).GetAttribute(Arg.Is<string>("value"));
             _ = targetControl.DidNotReceive().Text;
-            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
+            await argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
         }
 
 
@@ -81,7 +81,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
             targetControl.Received(1).GetAttribute(Arg.Is<string>("value"));
              _ = targetControl.Received(1).Text;
-            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
+            await argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Sea of Thieves"));
         }
     }
 }

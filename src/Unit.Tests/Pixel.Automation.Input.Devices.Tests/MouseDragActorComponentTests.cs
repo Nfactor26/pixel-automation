@@ -32,7 +32,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await dragActorComponent.ActAsync();
 
-            argumentProcessor.Received(2).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
+            await argumentProcessor.Received(2).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(2).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.None);
             synthethicMouse.Received(1).ButtonDown(MouseButton.LeftButton);
             synthethicMouse.Received(1).ButtonUp(MouseButton.LeftButton);

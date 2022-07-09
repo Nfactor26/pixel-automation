@@ -1,8 +1,6 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
 namespace Pixel.Automation.Core
@@ -22,18 +20,6 @@ namespace Pixel.Automation.Core
             {
                 displayAttr.AutoGenerateField = value;
                 return;
-            }
-        }
-
-        public static T CreateCopy<T>(this IComponent component) where T : IComponent
-        {
-            using (var stream = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, component);
-                stream.Seek(0, SeekOrigin.Begin);
-                T copy = (T)formatter.Deserialize(stream);              
-                return copy;
             }
         }
 

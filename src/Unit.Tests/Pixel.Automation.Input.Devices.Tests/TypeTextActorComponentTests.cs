@@ -31,7 +31,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             };
             await typeTextActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             syntheticKeyboard.Received(1).TypeText("How you doing?");
         }
     }

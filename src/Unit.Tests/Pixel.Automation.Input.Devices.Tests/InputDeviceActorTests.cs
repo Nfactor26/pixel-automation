@@ -52,7 +52,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             };
             await deviceInputActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await argumentProcessor.Received(1).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
             await uiControl.Received(1).GetClickablePointAsync();
         }
 
@@ -85,7 +85,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await deviceInputActor.ActAsync();
 
-            (controlEntity as IControlEntity).Received(1).GetControl();
+            await (controlEntity as IControlEntity).Received(1).GetControl();
             await uiControl.Received(1).GetClickablePointAsync();
         }
 

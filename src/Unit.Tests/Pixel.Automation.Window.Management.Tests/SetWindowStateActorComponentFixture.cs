@@ -44,7 +44,7 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await actor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).SetWindowState(window, WindowState.Maximize, false);
 
         }

@@ -8,7 +8,6 @@ using Pixel.Automation.Editor.TypeBrowser;
 using Pixel.Automation.Native.Windows;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
-using Pixel.Automation.Scripting.Components.Arguments;
 using Pixel.Automation.TestData.Repository.ViewModels;
 using Pixel.Automation.TestExplorer.ViewModels;
 

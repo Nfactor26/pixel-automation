@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
 {
-    class KyePressActorComponentTests
+    class KeyPressActorComponentTests
     {
         [Test]
         public async Task ValidateThatKeyPressActorCanKeyPressConfiguredKeys()

@@ -46,7 +46,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await mouseClickActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
+            await argumentProcessor.Received(1).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
             switch(clickMode)
             {
@@ -89,7 +89,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await mouseClickActor.ActAsync();
 
-            argumentProcessor.Received(0).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
+            await argumentProcessor.Received(0).GetValueAsync<UIControl>(Arg.Any<InArgument<UIControl>>());
             await uiControl.Received(1).GetClickablePointAsync();
             synthethicMouse.Received(1).MoveMouseTo(Arg.Any<ScreenCoordinate>(), SmoothMode.Interpolated);
         }

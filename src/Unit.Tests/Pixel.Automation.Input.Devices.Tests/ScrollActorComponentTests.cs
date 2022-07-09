@@ -45,7 +45,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             };
             await scrollActorComponent.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
+            await argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
 
             switch(scrollDirection)
             {

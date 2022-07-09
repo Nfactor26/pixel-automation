@@ -1,10 +1,8 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core;
-using Pixel.Automation.Scripting.Components.Arguments;
-using System;
 
-namespace Pixel.Automation.Scripting.Components.Tests
+namespace Pixel.Automation.RunTime.Tests
 {
     public class ArgumentProcessorTests
     {
