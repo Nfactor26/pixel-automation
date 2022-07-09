@@ -40,7 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             await switchToActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<Argument>());
+            await argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<Argument>());
             webDriver.Received(2).SwitchTo();
         }
 

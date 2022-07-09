@@ -48,10 +48,10 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindow);
+            await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindow);
 
         }
 
@@ -92,11 +92,11 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
-            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
+            await argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<InArgument<int>>());
+            await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
 
 
         }
@@ -153,11 +153,11 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await findChildWindowActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
-            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
             await scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
-            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
+            await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
         }
     }
 }

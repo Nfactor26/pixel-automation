@@ -44,7 +44,7 @@ namespace Pixel.Automation.Window.Management.Tests
             await actor.ActAsync();
 
             windowManager.Received(1).GetForeGroundWindow();
-            argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
+            await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), window);
 
         }
 

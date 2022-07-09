@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Scripting.Components.Arguments
+namespace Pixel.Automation.RunTime
 {
     ///<inheritdoc/>
     public class ArgumentProcessor : IArgumentProcessor

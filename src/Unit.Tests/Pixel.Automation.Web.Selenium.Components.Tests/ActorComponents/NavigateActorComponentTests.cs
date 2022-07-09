@@ -36,7 +36,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             await navigateActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<Uri>(Arg.Any<Argument>());
+            await argumentProcessor.Received(1).GetValueAsync<Uri>(Arg.Any<Argument>());
             webDriver.Received(1).Navigate();    
         }
     }

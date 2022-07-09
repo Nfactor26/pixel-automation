@@ -31,7 +31,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await mouseMoveByActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<Point>(Arg.Any<InArgument<Point>>());
+            await argumentProcessor.Received(1).GetValueAsync<Point>(Arg.Any<InArgument<Point>>());
             synthethicMouse.Received(1).MoveMouseBy(Arg.Is<int>(100), Arg.Is<int>(100),  SmoothMode.Interpolated);
         }
     }

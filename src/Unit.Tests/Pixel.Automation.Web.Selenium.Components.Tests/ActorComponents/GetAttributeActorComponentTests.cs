@@ -46,7 +46,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             await getAttributeActor.ActAsync();
           
             targetControl.Received(1).GetAttribute(Arg.Is<string>("title"));
-            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Enter your search term"));
+            await argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Enter your search term"));
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             await sendKeyActor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             if(clearBeforeSendKeys)
             {
                 targetControl.Received(1).Clear();

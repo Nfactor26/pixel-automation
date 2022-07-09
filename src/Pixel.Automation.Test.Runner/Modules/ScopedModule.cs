@@ -1,7 +1,6 @@
 ﻿using Ninject.Modules;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.RunTime;
-using Pixel.Automation.Scripting.Components.Arguments;
 
 namespace Pixel.Automation.Test.Runner.Modules
 {

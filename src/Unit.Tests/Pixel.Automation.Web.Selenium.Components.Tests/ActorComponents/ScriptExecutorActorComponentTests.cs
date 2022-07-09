@@ -55,7 +55,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             await executeScriptActor.ActAsync();
             
-            argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Element is visible"));
+            await argumentProcessor.Received(1).SetValueAsync<string>(Arg.Any<Argument>(), Arg.Is<string>("Element is visible"));
         }
        
     }

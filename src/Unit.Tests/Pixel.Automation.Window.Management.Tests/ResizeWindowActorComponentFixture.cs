@@ -45,8 +45,8 @@ namespace Pixel.Automation.Window.Management.Tests
 
             await actor.ActAsync();
 
-            argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
-            argumentProcessor.Received(1).GetValueAsync<Dimension>(Arg.Any<InArgument<Dimension>>());
+            await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
+            await argumentProcessor.Received(1).GetValueAsync<Dimension>(Arg.Any<InArgument<Dimension>>());
             windowManager.Received(1).SetWindowSize(window, 0, 0);
 
         }
