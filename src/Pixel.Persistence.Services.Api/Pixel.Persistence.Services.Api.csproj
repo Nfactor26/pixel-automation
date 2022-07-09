@@ -5,8 +5,8 @@
     <UserSecretsId>6da300a2-c532-481d-b6a1-431c16742bd5</UserSecretsId>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\.builds\Persistence</OutputPath>
+  <PropertyGroup>
+    <OutputPath>..\..\.builds\$(Configuration)\Persistence</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

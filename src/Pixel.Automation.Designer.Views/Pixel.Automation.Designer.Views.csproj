@@ -7,8 +7,8 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\..\.builds\Designer</OutputPath>
+	<PropertyGroup>
+		<OutputPath>..\..\.builds\$(Configuration)\Designer</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -44,25 +44,22 @@
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
-	</ItemGroup>
 
-	<ItemGroup>					
-		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />		
-		<ProjectReference Include="..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />		
-		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />		
+		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />	
+		<ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj" />	
+		<ProjectReference Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />	
-	</ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />
 
-	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj" />
+		
 	</ItemGroup>
 
 	<ItemGroup>

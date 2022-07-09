@@ -37,7 +37,7 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
-            DisplayRootViewFor<MainWindowViewModel>();         
+            DisplayRootViewForAsync<MainWindowViewModel>();         
         }
 
         /// <summary>

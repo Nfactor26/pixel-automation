@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="IdentityModel.OidcClient" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1264.42" />
 	</ItemGroup>
 
 	<ItemGroup>

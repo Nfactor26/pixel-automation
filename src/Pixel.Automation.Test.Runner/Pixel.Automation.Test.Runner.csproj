@@ -6,8 +6,8 @@
     <AssemblyName>PixelRun</AssemblyName>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\.builds\Runner</OutputPath>
+  <PropertyGroup>
+    <OutputPath>..\..\.builds\$(Configuration)\Runner</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
