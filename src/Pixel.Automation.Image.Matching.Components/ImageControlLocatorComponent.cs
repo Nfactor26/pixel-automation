@@ -48,7 +48,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     }
 
     [NonSerialized]
-    int retryAttempts = 2;
+    int retryAttempts = 5;
     [Browsable(false)]
     [IgnoreDataMember]
     protected int RetryAttempts
@@ -73,7 +73,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     }
 
     [NonSerialized]
-    double retryInterval = 5;
+    double retryInterval = 2;
     [DataMember]
     [Browsable(false)]
     [IgnoreDataMember]
@@ -105,7 +105,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     public Argument Theme { get; set; } = new InArgument<string>() { CanChangeType = false, CanChangeMode = true, DefaultValue = string.Empty, Mode = ArgumentMode.DataBound };
 
     [NonSerialized]
-    private RetryPolicy policy;
+    private AsyncRetryPolicy policy;
 
     [NonSerialized]
     private List<TimeSpan> retrySequence;
@@ -121,12 +121,12 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
         }
         policy = Policy.Handle<ElementNotFoundException>()
-        .WaitAndRetry(retrySequence, (exception, timeSpan, retryCount, context) =>
+        .WaitAndRetryAsync(retrySequence, (exception, timeSpan, retryCount, context) =>
         {
-            logger.Error(exception, exception.Message); ;
+            logger.Error(exception, "Failed to locate image control."); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Information("Control lookup  will be attempated again.");
+                logger.Information($"Control lookup  will be attempated again upto {retrySequence.Count - retryCount} times.");
             }
         });
 
@@ -146,7 +146,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
         ConfigureRetryPolicy(controlIdentity);
 
         var searchArea = searchRoot?.GetApiControl<BoundingBox>();
-        var foundControl = await policy.Execute(async () =>
+        var foundControl = await policy.ExecuteAsync(async () =>
         {
             HighlightElement(searchArea);
             var boundingBox = await TryFindMatch(controlIdentity, searchArea);
@@ -170,7 +170,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
         ImageControlIdentity controlIdentity = controlDetails as ImageControlIdentity;
         ConfigureRetryPolicy(controlIdentity);
         var searchArea = searchRoot?.GetApiControl<BoundingBox>();
-        var foundControls = await policy.Execute(async () =>
+        var foundControls = await policy.ExecuteAsync(async () =>
         {
             HighlightElement(searchArea);
             return await TryFindAllMatch(controlIdentity, searchArea);
@@ -251,30 +251,35 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     private async Task<string> GetTemplateFile(ImageControlIdentity controlDetails)
     {
         var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
-        var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();
-      
-        (short width, short height) = screenCapture.GetScreenResolution();            
+        var argumentProcessor = this.EntityManager.GetServiceOfType<IArgumentProcessor>();       
+        (short width, short height) = screenCapture.GetScreenResolution();
+        var allImages = controlDetails.GetImages();
 
-        string theme = string.Empty;
+        ImageDescription targetImage = default;
+
+        //Find image description that matches the current theme and resolution or just the theme if a theme is specified
         if (this.Theme.IsConfigured())
         {
-            theme = await argumentProcessor.GetValueAsync<string>(this.Theme);
+            string theme = await argumentProcessor.GetValueAsync<string>(this.Theme);
             logger.Information($"Configured theme is {theme}");
+           
+            if (!string.IsNullOrEmpty(theme))
+            {
+                targetImage = allImages.FirstOrDefault(a => a.Theme.Equals(theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height))
+                    ?? allImages.FirstOrDefault(a => a.Theme.Equals(theme) && a.ScreenWidth.Equals(0) && a.ScreenHeight.Equals(0));
+            }
+            if(targetImage == null)
+            {
+                logger.Warning($"Theme is specified. However, no template image could be found for configured theme : {theme}.");
+            }
         }
-        var images = controlDetails.GetImages();
-        ImageDescription targetImage;
-        if(!string.IsNullOrEmpty(theme))
-        {
-            targetImage = images.FirstOrDefault(a => a.Theme.Equals(theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height));                   
-        }
-        else
-        {
-            targetImage = images.FirstOrDefault(a => string.IsNullOrEmpty(a.Theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height));
-        }
-        targetImage = targetImage ?? images.FirstOrDefault(a => a.IsDefault);
-       
-        string templateFile = targetImage?.ControlImage ?? throw new ConfigurationException($"No template image could be located for theme : {theme}, " +
-            $"screen width : {width}, screen height : {height} and default image is not configured.");;
+
+        //Find image description that matches the current resolution if no theme is specified else use default image.
+        targetImage = targetImage ?? allImages.FirstOrDefault(a => string.IsNullOrEmpty(a.Theme) && a.ScreenWidth.Equals(width) && a.ScreenHeight.Equals(height))
+            ?? allImages.FirstOrDefault(a => a.IsDefault);
+               
+        string templateFile = targetImage?.ControlImage ?? throw new ConfigurationException($"No template image could be located. Total number of configured templates : {allImages.Count()}." +
+            $"Current screen resolution is {width},{height}");;
         if (!File.Exists(templateFile))
         {
             throw new FileNotFoundException($"{templateFile} doesn't exist.");
