@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Web.Common;
-using System.Drawing;
 
 namespace Pixel.Automation.Web.Playwright.Components
 {
@@ -15,7 +14,7 @@ namespace Pixel.Automation.Web.Playwright.Components
                 {
                     Name = "1",                  
                     Identifier = capturedData.Identifier,
-                    BoundingBox = new Rectangle(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height)
+                    BoundingBox = new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height)
                 };
 
 

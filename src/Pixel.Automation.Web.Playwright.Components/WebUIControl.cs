@@ -1,9 +1,8 @@
-﻿﻿using Dawn;
+﻿using Dawn;
 using Microsoft.Playwright;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 
 namespace Pixel.Automation.Web.Playwright.Components
 {
@@ -37,7 +36,7 @@ namespace Pixel.Automation.Web.Playwright.Components
         /// Get the bounding box
         /// </summary>
         /// <returns></returns>
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {           
             var boundingBox = await coordinateProvider.GetBoundingBox(locator);
             return boundingBox;

@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -28,10 +27,10 @@ namespace Pixel.Automation.Image.Matching.Components
         [Browsable(false)]
         public string Name { get; set; }
 
-        protected Rectangle boundingBox;
+        protected BoundingBox boundingBox;
         [DataMember(Order = 40)]       
         [Browsable(false)]
-        public Rectangle BoundingBox
+        public BoundingBox BoundingBox
         {
             get => boundingBox;
             set => boundingBox = value;

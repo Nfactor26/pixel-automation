@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
@@ -19,10 +18,10 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             this.TargetControl = controlNode;
         }
 
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
             var boundingBox = this.controlNode.GetScreenRectangle().Value;
-            return await Task.FromResult(boundingBox);
+            return await Task.FromResult(new BoundingBox(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height));
         }
 
         public override async Task<(double, double)> GetClickablePointAsync()

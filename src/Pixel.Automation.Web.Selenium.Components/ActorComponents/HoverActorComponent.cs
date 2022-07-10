@@ -2,10 +2,10 @@
 using OpenQA.Selenium.Interactions;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Devices;
 using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -28,7 +28,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Offset", GroupName = "Configuration", Order = 20, Description = "[Optional] Specify an offset relative to center of the control for hover position")]      
-        public Argument Offset { get; set; } = new InArgument<Point>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+        public Argument Offset { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Default constructor
@@ -47,8 +47,8 @@ namespace Pixel.Automation.Web.Selenium.Components
             Actions action = new Actions(ApplicationDetails.WebDriver);
             if(this.Offset.IsConfigured())
             {
-                var offSet = await this.ArgumentProcessor.GetValueAsync<Point>(this.Offset);
-                action.MoveToElement(control, offSet.X, offSet.Y).Perform();
+                var offSet = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.Offset);
+                action.MoveToElement(control, offSet.XCoordinate, offSet.YCoordinate).Perform();
             }
             else
             {

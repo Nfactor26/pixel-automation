@@ -1,3 +1,4 @@
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 ///*******************************************************************************
 // * File: HighlightRectangle.cs
@@ -35,13 +36,13 @@ namespace Pixel.Automation.Native.Windows
 
         private bool highlightShown;
         private int highlightLineWidth;
-        Rectangle highlightLocation;
+        private BoundingBox highlightLocation;
 
         private Form leftForm;
         private Form topForm;
         private Form rightForm;
         private Form bottomForm;
-        Form[] forms;
+        private Form[] forms;
 
         #endregion
 
@@ -90,17 +91,22 @@ namespace Pixel.Automation.Native.Windows
         #region Public 
       
         Color lastColor = Color.Red;
-        public Color BorderColor
+        public string BorderColor
         {
             set
             {
-                if (lastColor == value)
-                    return;
-                lastColor = value;
-                foreach (Form form in forms)
+                if(!string.IsNullOrEmpty(value))
                 {
-                    form.BackColor = value;
-                }
+                    var newColor = Color.FromName(value);
+                    if(lastColor != newColor)
+                    {
+                        lastColor = newColor;
+                        foreach (Form form in forms)
+                        {
+                            form.BackColor = lastColor;
+                        }
+                    }                   
+                }                
             }
         }
 
@@ -142,7 +148,7 @@ namespace Pixel.Automation.Native.Windows
         /// <summary>
         /// Sets the location of the highlight.
         /// </summary>
-        public Rectangle Location
+        public BoundingBox Location
         {
             get
             {
@@ -214,24 +220,24 @@ namespace Pixel.Automation.Native.Windows
             // Using Form.TopMost = true to do this has the side-effect
             // of activating the rectangle windows, causing them to gain the focus.
             NativeMethods.SetWindowPos(leftForm.Handle, NativeMethods.HWND_TOPMOST,
-                        highlightLocation.Left - highlightLineWidth,
-                        highlightLocation.Top,
+                        highlightLocation.X - highlightLineWidth,
+                        highlightLocation.Y,
                         highlightLineWidth, highlightLocation.Height,
                         NativeMethods.SWP_NOACTIVATE);
             NativeMethods.SetWindowPos(topForm.Handle, NativeMethods.HWND_TOPMOST,
-                        highlightLocation.Left - highlightLineWidth,
-                        highlightLocation.Top - highlightLineWidth,
+                        highlightLocation.X - highlightLineWidth,
+                        highlightLocation.Y - highlightLineWidth,
                         highlightLocation.Width + 2 * highlightLineWidth,
                         highlightLineWidth,
                         NativeMethods.SWP_NOACTIVATE);
             NativeMethods.SetWindowPos(rightForm.Handle, NativeMethods.HWND_TOPMOST,
-                        highlightLocation.Left + highlightLocation.Width,
-                        highlightLocation.Top, highlightLineWidth,
+                        highlightLocation.X + highlightLocation.Width,
+                        highlightLocation.Y, highlightLineWidth,
                         highlightLocation.Height,
                         NativeMethods.SWP_NOACTIVATE);
             NativeMethods.SetWindowPos(bottomForm.Handle, NativeMethods.HWND_TOPMOST,
-                        highlightLocation.Left - highlightLineWidth,
-                        highlightLocation.Top + highlightLocation.Height,
+                        highlightLocation.X - highlightLineWidth,
+                        highlightLocation.Y + highlightLocation.Height,
                         highlightLocation.Width + 2 * highlightLineWidth,
                         highlightLineWidth,
                         NativeMethods.SWP_NOACTIVATE);

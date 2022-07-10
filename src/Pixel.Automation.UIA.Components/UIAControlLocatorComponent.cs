@@ -13,7 +13,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -530,7 +529,7 @@ namespace Pixel.Automation.UIA.Components
                 {
                     highlightRectangle.Visible = true;
 
-                    highlightRectangle.Location = new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
+                    highlightRectangle.Location = new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height);
                     Thread.Sleep(500);
 
                     highlightRectangle.Visible = false;
@@ -551,7 +550,7 @@ namespace Pixel.Automation.UIA.Components
             return await Task.FromResult((x, y));
         }
 
-        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlDetails)
+        public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlDetails)
         {
             WinControlIdentity controlIdentity = controlDetails as WinControlIdentity;
             var targetControl = await this.FindControlAsync(controlIdentity, WinUIControl.RootControl);
@@ -559,13 +558,13 @@ namespace Pixel.Automation.UIA.Components
             return screenBounds;
         }
 
-        public async Task<Rectangle> GetBoundingBox(object control)
+        public async Task<BoundingBox> GetBoundingBox(object control)
         {
             Guard.Argument(control).NotNull().Compatible<AutomationElement>();
 
             var automationElement = control as AutomationElement;
             var boundingBox = automationElement.Current.BoundingRectangle;
-            return await Task.FromResult(new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
+            return await Task.FromResult(new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
         }
 
         #endregion ICoordinateProvider          

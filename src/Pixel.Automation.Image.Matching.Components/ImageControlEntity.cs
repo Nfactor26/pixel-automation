@@ -161,14 +161,14 @@ namespace Pixel.Automation.Image.Matching.Components
                     if (TargetWindow.IsConfigured())
                     {
                         var targetWindow = await ArgumentProcessor.GetValueAsync<ApplicationWindow>(this.TargetWindow);
-                        return new BoundingBox(targetWindow.WindowBounds);
+                        return targetWindow.WindowBounds;
                     }
                     else
                     {
                         if(this.EntityManager.TryGetOwnerApplication<IApplication>(this, out IApplication parentApplication))
                         {
                             var appRectangle = windowManager.GetWindowSize(parentApplication.Hwnd);
-                            return new BoundingBox(appRectangle);
+                            return appRectangle;
                         }
                         throw new ConfigurationException($"Search scope is Application. However, {this} doesn't have a Application Context.");
                     }                   

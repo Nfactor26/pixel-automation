@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using Pixel.Automation.Core.Controls;
 
 
 namespace Pixel.Automation.Core.Interfaces
@@ -18,13 +18,13 @@ namespace Pixel.Automation.Core.Interfaces
         /// Capture the screen shot of entire desktop
         /// </summary>
         /// <returns></returns>
-        Bitmap CaptureDesktop();
+        byte[] CaptureDesktop();
 
         /// <summary>
         /// Capture the specified area on the desktop
         /// </summary>
         /// <param name="rectangle"></param>
         /// <returns></returns>
-        Bitmap CaptureArea(Rectangle rectangle);
+        byte[] CaptureArea(BoundingBox rectangle);
     }
 }

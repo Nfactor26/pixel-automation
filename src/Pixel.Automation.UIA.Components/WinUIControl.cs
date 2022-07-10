@@ -2,7 +2,6 @@
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
@@ -22,10 +21,10 @@ namespace Pixel.Automation.UIA.Components
             this.TargetControl = automationElement;
         }
 
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
             var boundingBox = this.automationElement.Current.BoundingRectangle;
-            return await Task.FromResult(new Rectangle((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
+            return await Task.FromResult(new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top, (int)boundingBox.Width, (int)boundingBox.Height));
         }
 
         public override async Task<(double,double)> GetClickablePointAsync()

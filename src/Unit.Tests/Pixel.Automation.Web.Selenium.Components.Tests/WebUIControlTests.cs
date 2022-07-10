@@ -1,8 +1,8 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using OpenQA.Selenium;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             controlIdentity.Next = null;
 
             var coordinateProvider = Substitute.For<ICoordinateProvider>();
-            coordinateProvider.GetBoundingBox(Arg.Any<IWebElement>()).Returns(new System.Drawing.Rectangle(0, 0, 100, 100));
+            coordinateProvider.GetBoundingBox(Arg.Any<IWebElement>()).Returns(new BoundingBox(0, 0, 100, 100));
 
             var webElement = Substitute.For<IWebElement>();
 
@@ -33,7 +33,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         {
             var boundingBox = await webUIControl.GetBoundingBoxAsync();
 
-            Assert.AreEqual(new Rectangle(0, 0, 100, 100), boundingBox);
+            Assert.AreEqual(new BoundingBox(0, 0, 100, 100), boundingBox);
         }
 
         [Test]

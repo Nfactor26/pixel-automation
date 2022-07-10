@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Devices;
 using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -32,7 +31,7 @@ namespace Pixel.Automation.Input.Devices
         /// </summary>
         [DataMember]      
         [Display(Name = "Move By", GroupName = "Configuration", Order = 20, Description = "Represents the amount by which cursor should be moved from it's current position")]     
-        public Argument MoveBy { get; set; } = new InArgument<Point>() { DefaultValue = new Point(), CanChangeType = false };
+        public Argument MoveBy { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(), CanChangeType = false };
 
       
         /// <summary>
@@ -47,10 +46,10 @@ namespace Pixel.Automation.Input.Devices
         /// </summary>
         public override async Task ActAsync()
         {           
-            var offsetCoordinates = await this.ArgumentProcessor.GetValueAsync<Point>(this.MoveBy);
+            var offsetCoordinates = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.MoveBy);
             var syntheticMouse = GetMouse();
-            syntheticMouse.MoveMouseBy(offsetCoordinates.X, offsetCoordinates.Y, this.SmootMode);
-            logger.Information($"Mouse cursor moved by ({offsetCoordinates.X}, {offsetCoordinates.Y})");
+            syntheticMouse.MoveMouseBy(offsetCoordinates.XCoordinate, offsetCoordinates.YCoordinate, this.SmootMode);
+            logger.Information($"Mouse cursor moved by ({offsetCoordinates.XCoordinate}, {offsetCoordinates.YCoordinate})");
             await Task.CompletedTask;
         }
 

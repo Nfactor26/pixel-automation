@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Tests
             controlIdentity.YOffSet.Returns(10);
             controlIdentity.Next.Returns((IControlIdentity)null);
 
-            controlIdentity.GetClickablePoint(new System.Drawing.Rectangle(0, 0, 100, 100), out double x, out double y);
+            controlIdentity.GetClickablePoint(new Controls.BoundingBox(0, 0, 100, 100), out double x, out double y);
          
             Assert.AreEqual(expectedX, x);
             Assert.AreEqual(expectedY, y);

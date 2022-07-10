@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -34,8 +35,8 @@ namespace Pixel.Automation.Editors.Image.Capture
             get => SystemParameters.PrimaryScreenHeight;
         }
 
-        Rectangle templateBoundingBox;
-        public Rectangle TemplateBoundingBox
+        BoundingBox templateBoundingBox;
+        public BoundingBox TemplateBoundingBox
         {
             get => templateBoundingBox;
             set
@@ -79,7 +80,7 @@ namespace Pixel.Automation.Editors.Image.Capture
             this.controlIdentity = new ImageControlIdentity()
             {
                 Name = "1",
-                BoundingBox = new Rectangle()
+                BoundingBox = new BoundingBox()
                 {
                     X = 200,
                     Y = 200,
@@ -118,7 +119,7 @@ namespace Pixel.Automation.Editors.Image.Capture
             {
                 case "Template":
                     var templateArea = container;
-                    this.TemplateBoundingBox = new Rectangle(Convert.ToInt32(templateArea.GetValue(Canvas.LeftProperty)), Convert.ToInt32(templateArea.GetValue(Canvas.TopProperty)),
+                    this.TemplateBoundingBox = new BoundingBox(Convert.ToInt32(templateArea.GetValue(Canvas.LeftProperty)), Convert.ToInt32(templateArea.GetValue(Canvas.TopProperty)),
                     Convert.ToInt32(templateArea.GetValue(Canvas.WidthProperty)), Convert.ToInt32(templateArea.GetValue(Canvas.HeightProperty)));
                     controlIdentity.BoundingBox = this.templateBoundingBox;
                     UpdatePivotPoint();

@@ -44,10 +44,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             AccessibleContextNode targetControl = await this.GetTargetControl();
             var info = targetControl.GetInfo();
             if ((info.accessibleInterfaces & AccessibleInterfaces.cAccessibleTextInterface) != 0)
-            {
-                var point = new System.Drawing.Point(0, 0);
+            {               
                 AccessibleTextInfo textInfo;
-                targetControl.AccessBridge.Functions.GetAccessibleTextInfo(targetControl.JvmId, targetControl.AccessibleContextHandle, out textInfo, point.X, point.Y);
+                targetControl.AccessBridge.Functions.GetAccessibleTextInfo(targetControl.JvmId, targetControl.AccessibleContextHandle, out textInfo, 0, 0);
                 var reader = new AccessibleTextReader(targetControl, textInfo.charCount);
                 var lines = reader
                   .ReadFullLines(targetControl.AccessBridge.TextLineLengthLimit)

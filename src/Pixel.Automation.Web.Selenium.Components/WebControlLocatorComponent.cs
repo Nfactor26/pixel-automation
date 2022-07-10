@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -489,7 +488,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             return await Task.FromResult((x, y));
         }
 
-        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlDetails)
+        public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlDetails)
         {
             WebControlIdentity controlIdentity = controlDetails as WebControlIdentity;
             var targetControl = await this.FindControlAsync(controlIdentity, null);
@@ -497,14 +496,14 @@ namespace Pixel.Automation.Web.Selenium.Components
             return screenBounds;
         }
 
-        public async Task<Rectangle> GetBoundingBox(object targetControl)
+        public async Task<BoundingBox> GetBoundingBox(object targetControl)
         {
             Guard.Argument(targetControl).NotNull().Compatible<IWebElement>();
             var result = CalculateBoundingBox(targetControl as IWebElement);
             return await Task.FromResult(result);
         }
 
-        private Rectangle CalculateBoundingBox(IWebElement webElement)
+        private BoundingBox CalculateBoundingBox(IWebElement webElement)
         {
             if (webElement.Displayed)
             {
@@ -529,7 +528,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                     ";
 
                 dynamic boundingBox = (WebDriver as IJavaScriptExecutor).ExecuteScript(getScreenCoordinate, webElement);
-                Rectangle screenBounds = new Rectangle(Convert.ToInt32(boundingBox["left"]), Convert.ToInt32(boundingBox["top"]), Convert.ToInt32(boundingBox["width"]), Convert.ToInt32(boundingBox["height"]));
+                var screenBounds = new BoundingBox(Convert.ToInt32(boundingBox["left"]), Convert.ToInt32(boundingBox["top"]), Convert.ToInt32(boundingBox["width"]), Convert.ToInt32(boundingBox["height"]));
                 return screenBounds;
             }
             throw new InvalidOperationException($"{webElement} is not visible.");
@@ -679,8 +678,8 @@ namespace Pixel.Automation.Web.Selenium.Components
                     this.highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
                 }
 
-                Rectangle boundingBox =  CalculateBoundingBox(foundControl);
-                if (boundingBox != Rectangle.Empty)
+                var boundingBox =  CalculateBoundingBox(foundControl);
+                if (!BoundingBox.Empty.Equals(boundingBox))
                 {
                     highlightRectangle.Visible = true;
 

@@ -1,14 +1,13 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Pixel.Automation.Native.Windows
-{
-    /// <summary>
-    /// Credits : https://github.com/TestStack/White/blob/master/src/TestStack.White/ScreenCapture.cs
-    /// </summary>
+{   
     public class ScreenCapture : IScreenCapture
     {
         [DllImport("gdi32.dll")]
@@ -39,7 +38,7 @@ namespace Pixel.Automation.Native.Windows
         public static extern IntPtr GetWindowDC(IntPtr ptr);
 
 
-        public virtual Bitmap CaptureDesktop()
+        public virtual byte[] CaptureDesktop()
         {            
             var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;          
             var sz = bounds.Size;
@@ -49,22 +48,34 @@ namespace Pixel.Automation.Native.Windows
             var hBmp = CreateCompatibleBitmap(hSrce, sz.Width, sz.Height);
             var hOldBmp = SelectObject(hDest, hBmp);
             BitBlt(hDest, 0, 0, sz.Width, sz.Height, hSrce, 0, 0, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
-            Bitmap bmp =  Image.FromHbitmap(hBmp);
-            SelectObject(hDest, hOldBmp);
-            DeleteObject(hBmp);
-            DeleteDC(hDest);
-            ReleaseDC(hDesk, hSrce);
-            return bmp;
+            using (Bitmap bmp = Image.FromHbitmap(hBmp))
+            {
+                SelectObject(hDest, hOldBmp);
+                DeleteObject(hBmp);
+                DeleteDC(hDest);
+                ReleaseDC(hDesk, hSrce);
+                using (var ms = new MemoryStream())
+                {
+                    bmp.Save(ms, ImageFormat.Png);
+                    return ms.ToArray();
+                }
+            }         
         }
 
-        public virtual Bitmap CaptureArea(Rectangle rectangle)
+        public virtual byte[] CaptureArea(BoundingBox rectangle)
         {
-            var bmp = new Bitmap(rectangle.Width, rectangle.Height, PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(bmp))
+            using (var bmp = new Bitmap(rectangle.Width, rectangle.Height, PixelFormat.Format32bppArgb))
             {
-                graphics.CopyFromScreen(rectangle.Left, rectangle.Top, 0, 0, new Size(rectangle.Width, rectangle.Height), CopyPixelOperation.SourceCopy);
-            }
-            return bmp;
+                using (var graphics = Graphics.FromImage(bmp))
+                {
+                    graphics.CopyFromScreen(rectangle.X, rectangle.Y, 0, 0, new Size(rectangle.Width, rectangle.Height), CopyPixelOperation.SourceCopy);
+                    using (var ms = new MemoryStream())
+                    {
+                        bmp.Save(ms, ImageFormat.Png);
+                        return ms.ToArray();
+                    }
+                }
+            }              
         }
 
         public (short width, short height) GetScreenResolution()

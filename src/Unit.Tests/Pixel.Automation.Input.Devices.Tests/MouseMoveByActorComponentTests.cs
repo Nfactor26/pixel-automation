@@ -3,7 +3,6 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Input.Devices.Tests
@@ -17,7 +16,7 @@ namespace Pixel.Automation.Input.Devices.Tests
             var entityManager = Substitute.For<IEntityManager>();
 
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValueAsync<Point>(Arg.Any<InArgument<Point>>()).Returns(new Point(100, 100));
+            argumentProcessor.GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>()).Returns(new ScreenCoordinate(100, 100));
 
             var synthethicMouse = Substitute.For<ISyntheticMouse>();
 
@@ -31,7 +30,7 @@ namespace Pixel.Automation.Input.Devices.Tests
 
             await mouseMoveByActor.ActAsync();
 
-            await argumentProcessor.Received(1).GetValueAsync<Point>(Arg.Any<InArgument<Point>>());
+            await argumentProcessor.Received(1).GetValueAsync<ScreenCoordinate>(Arg.Any<InArgument<ScreenCoordinate>>());
             synthethicMouse.Received(1).MoveMouseBy(Arg.Is<int>(100), Arg.Is<int>(100),  SmoothMode.Interpolated);
         }
     }

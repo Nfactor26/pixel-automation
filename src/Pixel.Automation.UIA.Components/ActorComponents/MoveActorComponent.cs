@@ -1,10 +1,10 @@
 ﻿extern alias uiaComWrapper;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Devices;
 using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
@@ -27,7 +27,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// </summary>
         [DataMember]
         [Display(Name = "Position", GroupName = "Configuration", Order = 10, Description = "New position co-ordinates of the control")]
-        public Argument Position { get; set; } = new InArgument<Point>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new Point(), Mode = ArgumentMode.Default };
+        public Argument Position { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new ScreenCoordinate(), Mode = ArgumentMode.Default };
 
        /// <summary>
        /// Default constructor
@@ -44,9 +44,9 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         public override async Task ActAsync()
         {
             AutomationElement control = await GetTargetControl();
-            var newPosition = await this.ArgumentProcessor.GetValueAsync<Point>(this.Position);           
-            control.MoveTo(newPosition.X, newPosition.Y);
-            logger.Information($"Control was moved to position : ({newPosition.X}, {newPosition.Y})");
+            var newPosition = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.Position);           
+            control.MoveTo(newPosition.XCoordinate, newPosition.YCoordinate);
+            logger.Information($"Control was moved to position : ({newPosition.XCoordinate}, {newPosition.YCoordinate})");
         }
 
         public override string ToString()

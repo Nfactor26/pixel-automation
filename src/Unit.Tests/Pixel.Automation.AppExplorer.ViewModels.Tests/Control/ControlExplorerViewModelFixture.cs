@@ -8,6 +8,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -177,18 +178,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationDescription = CreateApplicationDescription();
             controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
 
-            using (var bitMap = Bitmap.FromFile("Resources\\Image.Png") as Bitmap)
+            using (var bitMap = Bitmap.FromFile("Resources\\Image.Png"))
             {
-                ScrapedControl scrapedControl = new ScrapedControl()
+                using(var ms = new MemoryStream())
                 {
-                    ControlImage = bitMap,
-                    ControlData = new MockControlIdentity()
+                    bitMap.Save(ms, ImageFormat.Png);
+                    ScrapedControl scrapedControl = new ScrapedControl()
                     {
-                        ApplicationId = "application-id",
-                        ControlImage = "image.Png",
-                    }
-                };
-                await controlExplorer.HandleAsync(new [] { scrapedControl }, CancellationToken.None);
+                        ControlImage = ms.ToArray(),
+                        ControlData = new MockControlIdentity()
+                        {
+                            ApplicationId = "application-id",
+                            ControlImage = "image.Png",
+                        }
+                    };
+                    await controlExplorer.HandleAsync(new[] { scrapedControl }, CancellationToken.None);
+                }               
             }
 
             Assert.AreEqual(2, controlExplorer.Controls.Count);

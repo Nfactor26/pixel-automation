@@ -3,7 +3,6 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
@@ -41,7 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// Get the bounding box of wrapped <see cref="IWebElement"/>
         /// </summary>
         /// <returns></returns>
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
             //webdriver imlementation for location doesn't consider browser window titlebar space resulting in to incorrect y-coodrinate.
             //Hence, custom implementation          

@@ -3,7 +3,6 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Components.Controls;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
@@ -41,8 +40,8 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var controlEntity = Substitute.For<IControlEntity>();
             var uiControl = Substitute.For<UIControl>();
-            var boundingBox = new Rectangle(0, 0, 100, 100);
-            uiControl.GetBoundingBoxAsync().Returns<Rectangle>(boundingBox);
+            var boundingBox = new BoundingBox(0, 0, 100, 100);
+            uiControl.GetBoundingBoxAsync().Returns<BoundingBox>(boundingBox);
             controlEntity.GetControl().Returns(uiControl);
 
             var componentBuilder = new HighlightControlActorBuilder();

@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Pixel.Automation.Core.Devices
+﻿namespace Pixel.Automation.Core.Devices
 {
     public interface ISyntheticMouse : IDevice
     {
@@ -68,7 +66,7 @@ namespace Pixel.Automation.Core.Devices
         /// Retrieve the current location of cursor
         /// </summary>
         /// <returns></returns>
-        Point GetCursorPosition();
+        ScreenCoordinate GetCursorPosition();
 
     }
 }

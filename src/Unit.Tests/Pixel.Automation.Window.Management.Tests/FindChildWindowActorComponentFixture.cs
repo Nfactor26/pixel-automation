@@ -2,12 +2,12 @@ using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
@@ -19,8 +19,8 @@ namespace Pixel.Automation.Window.Management.Tests
         public async Task ValidateThatFindChildWindowActorCanLocateSingleChildWindow()
         {
             string childWindowTitle = "Don't Save";
-            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
-            var childWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
+            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
+            var childWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -59,10 +59,10 @@ namespace Pixel.Automation.Window.Management.Tests
         public async Task ValidateThatFindChildWindowActorCanLocateChildWindowByIndex()
         {
             string childWindowTitle = "Don't Save";
-            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
           
-            var childWindowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
-            var childWindowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
+            var childWindowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
+            var childWindowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -105,11 +105,11 @@ namespace Pixel.Automation.Window.Management.Tests
         public async Task ValidateThatFindChildWindowActorCanLocateChildWindowByCustomFilter()
         {
             string childWindowTitle = "Don't Save";
-            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var parentWindow = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
 
-            var childWindowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
-            var childWindowTwo = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
-            var childWindowThree = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", Rectangle.Empty, true);
+            var childWindowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
+            var childWindowTwo = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
+            var childWindowThree = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Don't Save", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 

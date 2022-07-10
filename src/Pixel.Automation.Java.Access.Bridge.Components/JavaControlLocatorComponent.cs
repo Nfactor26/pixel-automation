@@ -14,7 +14,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -449,8 +448,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
                 }
 
-                var boundingBox = foundControl.GetScreenRectangle().Value;
-                if (boundingBox != Rectangle.Empty)
+                var controlBounds = foundControl.GetScreenRectangle().Value;
+                var boundingBox = new BoundingBox(controlBounds.X, controlBounds.Y, controlBounds.Width, controlBounds.Height);
+                if (!BoundingBox.Empty.Equals(boundingBox))
                 {
                     highlightRectangle.Visible = true;
 
@@ -475,7 +475,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             return await Task.FromResult((x, y));
         }
 
-        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlIdentity)
+        public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlIdentity)
         {
             var currentSearchRoot = GetSearchRoot(ref controlIdentity);    
             ConfigureRetryPolicy(controlIdentity);
@@ -484,13 +484,13 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             return screenBounds;
         }
 
-        public async Task<Rectangle> GetBoundingBox(object control)
+        public async Task<BoundingBox> GetBoundingBox(object control)
         {
             Guard.Argument(control).NotNull().Compatible<AccessibleContextNode>();
 
             var controlNode = control as AccessibleContextNode;
             var boundingBox = controlNode.GetScreenRectangle().Value;
-            return await Task.FromResult(boundingBox);
+            return await Task.FromResult(new BoundingBox(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height));
         }
 
         #endregion ICoordinateProvider        

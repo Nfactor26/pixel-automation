@@ -3,7 +3,6 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using System;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Tests.Models
@@ -21,9 +20,9 @@ namespace Pixel.Automation.Core.Tests.Models
             this.TargetControl = underlyingControl;
         }
 
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
-            return await Task.FromResult(Rectangle.Empty);
+            return await Task.FromResult(BoundingBox.Empty);
         }
 
         public override async Task<(double,double)> GetClickablePointAsync()

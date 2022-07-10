@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Controls;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Models
-{    
+{
     public class ApplicationWindow
     {    
         [Display(Name = "Window Title", Order = 10)]
@@ -18,7 +17,7 @@ namespace Pixel.Automation.Core.Models
 
      
         [Display(Name = "Window Bounds", Order = 40)]
-        public Rectangle WindowBounds { get; set; }     
+        public BoundingBox WindowBounds { get; set; }     
        
         [Display(Name = "Is Visible", Order = 50)]
         public bool IsVisible { get; set; }       
@@ -28,7 +27,7 @@ namespace Pixel.Automation.Core.Models
 
         }
 
-        public ApplicationWindow(int processId, IntPtr handle, string windowTitle, Rectangle windowBounds, bool isVisible)
+        public ApplicationWindow(int processId, IntPtr handle, string windowTitle, BoundingBox windowBounds, bool isVisible)
         {
             this.ProcessId = processId;
             this.HWnd = handle;

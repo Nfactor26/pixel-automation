@@ -57,7 +57,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
             if (targetControl != null)
             {
-                Rectangle boundingBox = await targetControl.GetBoundingBoxAsync();
+                var boundingBox = await targetControl.GetBoundingBoxAsync();
 
                 var highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
 
