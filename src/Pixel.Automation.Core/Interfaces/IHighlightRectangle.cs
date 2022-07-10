@@ -1,5 +1,5 @@
-﻿using System;
-using System.Drawing;
+﻿using Pixel.Automation.Core.Controls;
+using System;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -8,12 +8,12 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Set the border color of the HighlightRectangle
         /// </summary>
-        Color BorderColor { set; }
+        string BorderColor { set; }
 
         /// <summary>
         /// Set the location of the HighlightRectangle relative to top-left of the screen
         /// </summary>
-        Rectangle Location { get;  set; }
+        BoundingBox Location { get;  set; }
 
         /// <summary>
         /// Toggle the visibility of the HighlightRectangle

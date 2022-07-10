@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Controls
@@ -8,6 +7,8 @@ namespace Pixel.Automation.Core.Controls
     [Serializable]
     public class BoundingBox
     {
+        public static BoundingBox Empty = new BoundingBox(0, 0, 0, 0);
+
         public int X { get; set; }
 
         public int Y { get; set; }
@@ -21,7 +22,7 @@ namespace Pixel.Automation.Core.Controls
 
         }
 
-        public BoundingBox(int x, int y , int width, int height)
+        public BoundingBox(int x, int y, int width, int height)
         {
             this.X = x;
             this.Y = y;
@@ -29,17 +30,13 @@ namespace Pixel.Automation.Core.Controls
             this.Height = height;
         }
 
-        public BoundingBox(Rectangle rectangle)
+        public override bool Equals(object obj)
         {
-            this.X = rectangle.X;
-            this.Y = rectangle.Y;
-            this.Width = rectangle.Width;
-            this.Height = rectangle.Height;
-        }
-
-        public Rectangle GetBoundingBoxAsRectangle()
-        {
-            return new Rectangle(X, Y, Width, Height);
+            if(obj is BoundingBox other)
+            {
+                return other.X == this.X && other.Y == this.Y && other.Width == this.Width && other.Height == this.Height;
+            }
+            return false;
         }
     }
 }

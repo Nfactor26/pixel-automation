@@ -3,7 +3,6 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Controls
@@ -21,11 +20,11 @@ namespace Pixel.Automation.Core.Controls
         [DataMember(Order = 20)]
         public string Name { get; set; }      
 
-        protected Rectangle boundingBox;
+        protected BoundingBox boundingBox;
         [DataMember(Order = 40)]
         [Description("Bounding box of the template image captured at design time")]        
         [Browsable(false)]
-        public Rectangle BoundingBox
+        public BoundingBox BoundingBox
         {
             get => boundingBox;
             set => boundingBox = value;

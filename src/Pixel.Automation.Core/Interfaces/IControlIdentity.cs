@@ -2,7 +2,6 @@
 using Pixel.Automation.Core.Enums;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -32,7 +31,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Bounding box of the control captured at design time
         /// </summary>
-        Rectangle BoundingBox
+        BoundingBox BoundingBox
         {
             get;
             set;

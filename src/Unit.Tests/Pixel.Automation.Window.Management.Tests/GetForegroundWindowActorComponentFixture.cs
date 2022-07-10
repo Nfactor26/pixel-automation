@@ -1,10 +1,10 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
@@ -24,7 +24,7 @@ namespace Pixel.Automation.Window.Management.Tests
         public async Task ValidThatGetForegroundWindowActorCanLocateForegroundWindow()
         {
 
-            var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 

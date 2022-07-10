@@ -2,10 +2,10 @@
 using OpenQA.Selenium.Interactions;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Devices;
 using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -26,7 +26,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         [DataMember]
         [Display(Name = "OffSet", GroupName = "Configuration", Order = 10, Description = "New position co-ordinates of the control")]
-        public Argument OffSet { get; set; } = new InArgument<Point>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new Point(), Mode = ArgumentMode.Default };
+        public Argument OffSet { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new ScreenCoordinate(), Mode = ArgumentMode.Default };
 
         /// <summary>
         /// Default constructor
@@ -41,13 +41,13 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         public override async Task ActAsync()
         {           
-            var positionOffSet = await this.ArgumentProcessor.GetValueAsync<Point>(this.OffSet);
+            var positionOffSet = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.OffSet);
 
             IWebElement control = await GetTargetControl();
             Actions action = new Actions(ApplicationDetails.WebDriver);
-            action.DragAndDropToOffset(control, positionOffSet.X, positionOffSet.Y).Perform();
+            action.DragAndDropToOffset(control, positionOffSet.XCoordinate, positionOffSet.YCoordinate).Perform();
 
-            logger.Information($"control was dragged by offset ({positionOffSet.X}, {positionOffSet.Y})");
+            logger.Information($"control was dragged by offset ({positionOffSet.XCoordinate}, {positionOffSet.YCoordinate})");
         }
 
         public override string ToString()

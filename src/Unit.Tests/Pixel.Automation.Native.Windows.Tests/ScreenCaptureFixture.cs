@@ -1,5 +1,8 @@
 using NUnit.Framework;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Native.Windows;
+using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Pixel.Automation.Nativew.Windows.Tests
@@ -15,11 +18,15 @@ namespace Pixel.Automation.Nativew.Windows.Tests
             int resX = Screen.PrimaryScreen.Bounds.Width;
             int resY = Screen.PrimaryScreen.Bounds.Height;
             ScreenCapture screenCapture = new ScreenCapture();
-            using(var desktop = screenCapture.CaptureDesktop())
+            var screenshot = screenCapture.CaptureDesktop();
+            using(var ms = new MemoryStream(screenshot))
             {
-                Assert.AreEqual(resX, desktop.Width);
-                Assert.AreEqual(resY, desktop.Height);
-            }
+                using (var bitmap = Image.FromStream(ms))
+                {
+                    Assert.AreEqual(resX, bitmap.Width);
+                    Assert.AreEqual(resY, bitmap.Height);
+                }
+            }           
         }
 
         /// <summary>
@@ -29,11 +36,15 @@ namespace Pixel.Automation.Nativew.Windows.Tests
         public void ValidateThatSpecifiedDesktopAreaCanBeCaptured()
         {
             ScreenCapture screenCapture = new ScreenCapture();
-            using (var area = screenCapture.CaptureArea(new System.Drawing.Rectangle() { X = 100, Y = 100, Width = 400, Height = 600 }))
+            var screenshot = screenCapture.CaptureArea(new BoundingBox() { X = 100, Y = 100, Width = 400, Height = 600 });
+            using (var ms = new MemoryStream(screenshot))
             {
-                Assert.AreEqual(400, area.Width);
-                Assert.AreEqual(600, area.Height);
-            }
+                using (var bitmap = Image.FromStream(ms))
+                {
+                    Assert.AreEqual(400, bitmap.Width);
+                    Assert.AreEqual(600, bitmap.Height);
+                }
+            }           
         }
     }
 }

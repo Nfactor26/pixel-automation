@@ -154,14 +154,14 @@ namespace Pixel.Automation.JAB.Scrapper
                         if(boundingBox.HasValue)
                         {
                             focusedRect = new System.Windows.Rect() { X = boundingBox.Value.X, Y = boundingBox.Value.Y, Width = boundingBox.Value.Width, Height = boundingBox.Value.Height };
-                            ShowControlHighlightRectangle(focusedRect, Color.Orange);
+                            ShowControlHighlightRectangle(focusedRect, "Orange");
                         }                       
                     }
        
                 }
                 catch (Exception ex)
                 {
-                    controlHighlight.BorderColor = Color.Red;
+                    controlHighlight.BorderColor = "Red";
                     logger.Error(ex, ex.Message);
                 }
                 finally
@@ -209,9 +209,9 @@ namespace Pixel.Automation.JAB.Scrapper
                         {
                             var boundingBox = leafNode.GetScreenRectangle();
                             focusedRect = new System.Windows.Rect() { X = boundingBox.Value.X, Y = boundingBox.Value.Y, Width = boundingBox.Value.Width, Height = boundingBox.Value.Height };
-                            Bitmap controlScreenShot = screenCapture.CaptureArea(new Rectangle((int)focusedRect.X, (int)focusedRect.Y, (int)focusedRect.Width, (int)focusedRect.Height));
 
-                            ShowControlHighlightRectangle(focusedRect, Color.Orange);
+                            var controlScreenShot = screenCapture.CaptureArea(new BoundingBox(boundingBox.Value.X, boundingBox.Value.Y, boundingBox.Value.Width, boundingBox.Value.Height));                          
+                            ShowControlHighlightRectangle(focusedRect, "Orange");
 
                             logger.Information("Processing control @ coordiante : {@Point}.", point);
 
@@ -229,7 +229,7 @@ namespace Pixel.Automation.JAB.Scrapper
                             }
 
                             //user clicked an element not relative to containerNode. Clear out the container and remove highlight
-                            if(!isRelativeScraping && containerNode != null)
+                            if (!isRelativeScraping && containerNode != null)
                             {
                                 containerNode = null;
                                 containerHighlight.Visible = false;
@@ -249,7 +249,7 @@ namespace Pixel.Automation.JAB.Scrapper
                                 var nextNode = controlPath.ElementAt(i + 1) as AccessibleContextNode;
 
                                 if (ShouldCaptureNode(currentNode, nextNode))
-                                {                                  
+                                {
                                     var nextNodeIdentity = CreateControlComponent(controlPath.ElementAt(i) as AccessibleContextNode, i + 1);
                                     nextNodeIdentity.Index = GetIndexInParent(currentNode, lastCapturedAncestorNode);
                                     lastCapturedAncestorNode = currentNode;
@@ -267,7 +267,7 @@ namespace Pixel.Automation.JAB.Scrapper
 
                             }
 
-                            if(pathLength > 1)
+                            if (pathLength > 1)
                             {
                                 var leafNodeIdentity = CreateControlComponent(leafNode, pathLength);
                                 leafNodeIdentity.Index = GetIndexInParent(leafNode, lastCapturedAncestorNode);
@@ -281,7 +281,7 @@ namespace Pixel.Automation.JAB.Scrapper
                                 }
                                 currentNodeIdentity.Next = leafNodeIdentity;
                                 currentNodeIdentity = leafNodeIdentity;
-                            }                          
+                            }
 
                             switch (e.Button)
                             {
@@ -291,21 +291,20 @@ namespace Pixel.Automation.JAB.Scrapper
 
                                 case MouseButtons.Right:
                                     containerNode = leafNode;
-                                    ShowContainerHighlightRectangle(focusedRect, Color.Purple);
+                                    ShowContainerHighlightRectangle(focusedRect, "Purple");
                                     break;
                             }
 
                             ScrapedControl scrapedControl = new ScrapedControl() { ControlData = rootNodeIdentity, ControlImage = controlScreenShot };
                             capturedControls.Enqueue(scrapedControl);
 
-                            controlHighlight.BorderColor = Color.Green;
-                        }
-                       
+                            controlHighlight.BorderColor = "Green";
+                        }                       
                     }
                 }
                 catch (Exception ex)
                 {
-                    controlHighlight.BorderColor = Color.Red;
+                    controlHighlight.BorderColor = "Red";
                     logger.Error(ex, ex.Message);                   
                 }
                 finally
@@ -333,7 +332,8 @@ namespace Pixel.Automation.JAB.Scrapper
 
         private JavaControlIdentity CreateControlComponent(AccessibleContextNode trackedElement, int depth)
         {
-            var nodeInfo = trackedElement.GetInfo();          
+            var nodeInfo = trackedElement.GetInfo();
+            var boundingBox = trackedElement.GetScreenRectangle().GetValueOrDefault();
             JavaControlIdentity controlDetails = new JavaControlIdentity()
             {               
                 ControlName = nodeInfo.name,
@@ -341,7 +341,7 @@ namespace Pixel.Automation.JAB.Scrapper
                 Role = nodeInfo.role,
                 Depth = depth,            
                 Name = depth.ToString(),
-                BoundingBox = trackedElement.GetScreenRectangle().GetValueOrDefault()
+                BoundingBox = new BoundingBox(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height)
             };
             return controlDetails;
         }
@@ -391,13 +391,13 @@ namespace Pixel.Automation.JAB.Scrapper
             return false;
         }
     
-        private void ShowControlHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        private void ShowControlHighlightRectangle(System.Windows.Rect boundingBox, string borderColor)
         {
             // Hide old rectangle.
             controlHighlight.Visible = false;
 
             // Show new rectangle.
-            controlHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            controlHighlight.Location = new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top,
             (int)boundingBox.Width, (int)boundingBox.Height);
 
             controlHighlight.BorderColor = borderColor;
@@ -405,13 +405,13 @@ namespace Pixel.Automation.JAB.Scrapper
 
         }
 
-        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, string borderColor)
         {
             // Hide old rectangle.
             containerHighlight.Visible = false;
 
             // Show new rectangle.
-            containerHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            containerHighlight.Location = new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top,
             (int)boundingBox.Width, (int)boundingBox.Height);
 
             containerHighlight.BorderColor = borderColor;

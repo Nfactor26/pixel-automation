@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -6,7 +7,6 @@ using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -227,7 +227,7 @@ namespace Pixel.Automation.Native.Windows
             User32.SetForegroundWindow(applicationWindow.HWnd);
         }
 
-        public Rectangle GetWindowSize(IntPtr hWnd)
+        public BoundingBox GetWindowSize(IntPtr hWnd)
         {           
             Guard.Argument(hWnd).Require(h => h != IntPtr.Zero);
 
@@ -235,11 +235,11 @@ namespace Pixel.Automation.Native.Windows
             User32.GetWindowInfo(hWnd, ref windowInfo);
             if ((windowInfo.dwStyle & User32.WindowStyles.WS_MINIMIZE) == User32.WindowStyles.WS_MINIMIZE)
             {
-                return Rectangle.Empty;
+                return BoundingBox.Empty;
             }
 
             User32.GetWindowRect(hWnd, out RECT lpRect);
-            return new Rectangle(lpRect.left, lpRect.top, lpRect.Width, lpRect.Height);
+            return new BoundingBox(lpRect.left, lpRect.top, lpRect.Width, lpRect.Height);
         }
 
         public string GetWindowTitle(IntPtr hWnd)
@@ -257,7 +257,7 @@ namespace Pixel.Automation.Native.Windows
       
             User32.GetWindowThreadProcessId(hWnd, out uint processId);
             string title = GetWindowTitle(hWnd);
-            Rectangle windowSize = GetWindowSize(hWnd);
+            var windowSize = GetWindowSize(hWnd);
           
             User32.WINDOWINFO windowInfo = default;
             User32.GetWindowInfo(hWnd, ref windowInfo);

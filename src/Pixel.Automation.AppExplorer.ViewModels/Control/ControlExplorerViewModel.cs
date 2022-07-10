@@ -13,7 +13,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -32,9 +31,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
     public class ControlExplorerViewModel : Screen, IApplicationAware, IHandle<IEnumerable<ScrapedControl>>
     {
         private readonly ILogger logger = Log.ForContext<ControlExplorerViewModel>();
-        private readonly IControlEditorFactory controlEditorFactory;     
+        private readonly IControlEditorFactory controlEditorFactory;
         private readonly IEventAggregator eventAggregator;
-        private readonly IWindowManager windowManager;     
+        private readonly IWindowManager windowManager;
         private readonly IApplicationDataManager applicationDataManager;
 
         private ApplicationDescriptionViewModel activeApplication;
@@ -71,7 +70,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             IApplicationDataManager applicationDataManager)
         {
             this.DisplayName = "Control Explorer";
-            this.windowManager = windowManager;           
+            this.windowManager = windowManager;
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnPublishedThread(this);
             this.controlEditorFactory = controlEditorFactory;
@@ -79,7 +78,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
             CreateCollectionView();
         }
-      
+
         #region Filter 
 
 
@@ -163,7 +162,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 if (keyArgs != null && keyArgs.Key == Key.Enter)
                 {
                     string newName = (context.Source as System.Windows.Controls.TextBox).Text;
-                    if(this.Controls.Except(new[] { controlToRename }).Any(a => a.ControlName.Equals(newName)))
+                    if (this.Controls.Except(new[] { controlToRename }).Any(a => a.ControlName.Equals(newName)))
                     {
                         return;
                     }
@@ -192,11 +191,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             this.activeApplication = applicationDescriptionViewModel;
             this.Controls.Clear();
-            if(applicationDescriptionViewModel != null)
+            if (applicationDescriptionViewModel != null)
             {
                 LoadControlDetails(applicationDescriptionViewModel);
                 this.Controls.AddRange(this.activeApplication.ControlsCollection);
-            }          
+            }
         }
 
         private void LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel)
@@ -204,12 +203,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             if (applicationDescriptionViewModel.ControlsCollection.Count() == 0)
             {
                 var controls = this.applicationDataManager.GetAllControls(applicationDescriptionViewModel.Model).ToList();
-                foreach(var control in controls)
+                foreach (var control in controls)
                 {
                     applicationDescriptionViewModel.AddControl(new ControlDescriptionViewModel(control));
                 }
             }
-        }     
+        }
         /// <summary>
         /// Open the ControlEditor View to allow edtiing the captured automation identifers and search strategy for control.
         /// </summary>
@@ -218,7 +217,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit).NotNull();
-            
+
             //Make a copy of ControlDescription that is opened for edit
             var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
             copyOfControlToEdit.ControlId = controlToEdit.ControlId;
@@ -259,7 +258,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             if (openFileDialog.ShowDialog() == true)
             {
                 string fileName = openFileDialog.FileName;
-                File.Delete(selectedControl.ControlImage);             
+                File.Delete(selectedControl.ControlImage);
                 using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                 {
                     //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
@@ -287,7 +286,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
             await SaveControlDetails(controlDescriptionViewModel, true);
             await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-            this.Controls.Add(controlDescriptionViewModel);           
+            this.Controls.Add(controlDescriptionViewModel);
         }
 
         private readonly object locker = new object();
@@ -305,10 +304,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 this.activeApplication.AddControl(controlToSave);
             }
             if (updateApplication)
-            {               
+            {
                 await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
-            }             
-         
+            }
+
             var view = CollectionViewSource.GetDefaultView(Controls);
             view.Refresh();
             NotifyOfPropertyChange(() => Controls);
@@ -316,14 +315,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             logger.Information($"Control details saved for {controlToSave.ControlName}");
         }
 
-        private BitmapImage ConvertToImageSource(Bitmap src)
+        private BitmapImage ConvertToImageSource(byte[] controlImage)
         {
-            MemoryStream ms = new MemoryStream();
-            src.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
             BitmapImage image = new BitmapImage();
             image.BeginInit();
-            ms.Seek(0, SeekOrigin.Begin);
-            image.StreamSource = ms;
+            image.StreamSource = new MemoryStream(controlImage);
             image.EndInit();
             return image;
         }
@@ -344,7 +340,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         {
                             ControlImage = controlDescription.ControlImage,
                             PivotPoint = Core.Enums.Pivots.Center,
-                            ScreenWidth = (short)SystemParameters.PrimaryScreenWidth, 
+                            ScreenWidth = (short)SystemParameters.PrimaryScreenWidth,
                             ScreenHeight = (short)SystemParameters.PrimaryScreenHeight
                         };
                         imageControlIdentity.AddImage(imageDescription);
@@ -366,7 +362,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task HandleAsync(IEnumerable<ScrapedControl> scrapedControls, CancellationToken cancellationToken)
         {
             logger.Information("Received {count} scraped controls to process", scrapedControls.Count());
-            if(!scrapedControls.Any())
+            if (!scrapedControls.Any())
             {
                 return;
             }
@@ -376,55 +372,54 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
             foreach (ScrapedControl scrapedControl in scrapedControls)
             {
-                using (scrapedControl)
+
+                try
                 {
-                    try
+
+                    IControlIdentity control;
+
+                    //The plugin can already provide the scraped data as IControlIdentity
+                    if (scrapedControl.ControlData is IControlIdentity controlIdentity)
                     {
-                       
-                        IControlIdentity control;
-
-                        //The plugin can already provide the scraped data as IControlIdentity
-                        if (scrapedControl.ControlData is IControlIdentity controlIdentity)
-                        {
-                            control = controlIdentity;
-                        }
-                        //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
-                        else
-                        {
-                            var ownerApplication = this.activeApplication.ApplicationDetails;
-                            var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
-                                ?? throw new Exception("No control builder available to process scraped control");
-                            var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
-                            control = controlBuilder.CreateFromData(scrapedControl.ControlData);                         
-                        }
-
-                        //update the application id for each control identity in hierarchy
-                        control.ApplicationId = this.activeApplication.ApplicationId;
-                        IControlIdentity current = control;
-                        while (current.Next != null)
-                        {
-                            current = current.Next;
-                            current.ApplicationId = this.activeApplication.ApplicationId;
-                        }
-
-                        //create an instance of ControlToolBoxItem to display in the toolbox
-                        var controlDescription = new ControlDescription(control);
-                        ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
-                        controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);            
-
-                        //save the captured control details                        
-                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);                      
-                        await SaveControlDetails(controlDescriptionViewModel, false);
-                        this.Controls.Add(controlDescriptionViewModel);
-
-                        logger.Information($"Added control with details {controlDescription}");
+                        control = controlIdentity;
                     }
-                    catch (Exception ex)
+                    //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
+                    else
                     {
-                        logger.Error(ex, ex.Message);
+                        var ownerApplication = this.activeApplication.ApplicationDetails;
+                        var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
+                            ?? throw new Exception("No control builder available to process scraped control");
+                        var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
+                        control = controlBuilder.CreateFromData(scrapedControl.ControlData);
                     }
+
+                    //update the application id for each control identity in hierarchy
+                    control.ApplicationId = this.activeApplication.ApplicationId;
+                    IControlIdentity current = control;
+                    while (current.Next != null)
+                    {
+                        current = current.Next;
+                        current.ApplicationId = this.activeApplication.ApplicationId;
+                    }
+
+                    //create an instance of ControlToolBoxItem to display in the toolbox
+                    var controlDescription = new ControlDescription(control);
+                    ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
+                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
+                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+
+                    //save the captured control details                        
+                    await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                    await SaveControlDetails(controlDescriptionViewModel, false);
+                    this.Controls.Add(controlDescriptionViewModel);
+
+                    logger.Information($"Added control with details {controlDescription}");
                 }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, ex.Message);
+                }
+
             }
             await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
         }

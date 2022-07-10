@@ -1,6 +1,6 @@
-﻿using Pixel.Automation.Core.Enums;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 {
@@ -9,7 +9,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public string ControlImage { get; set; }
         public string ApplicationId { get; set; }
         public string Name { get; set; }
-        public Rectangle BoundingBox { get; set; }
+        public BoundingBox BoundingBox { get; set; }
         public int RetryAttempts { get; set; }
         public int RetryInterval { get; set; }
         public Pivots PivotPoint { get; set; }

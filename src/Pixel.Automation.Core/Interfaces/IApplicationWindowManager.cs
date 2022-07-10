@@ -1,9 +1,9 @@
-﻿using Pixel.Automation.Core.Devices;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -74,7 +74,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        Rectangle GetWindowSize(IntPtr hWnd);
+        BoundingBox GetWindowSize(IntPtr hWnd);
 
         /// <summary>
         /// Get the title of window

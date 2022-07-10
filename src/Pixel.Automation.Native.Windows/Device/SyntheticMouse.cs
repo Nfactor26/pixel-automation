@@ -2,11 +2,10 @@
 using Pixel.Automation.Core.Devices;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
-using MouseButton = Pixel.Automation.Core.Devices.MouseButton;
 using System.Windows.Forms;
+using MouseButton = Pixel.Automation.Core.Devices.MouseButton;
 
 namespace Pixel.Automation.Native.Windows.Device
 {
@@ -135,8 +134,8 @@ namespace Pixel.Automation.Native.Windows.Device
                 var cursorPos = GetCursorPosition();
                 ScreenCoordinate finalStop = new ScreenCoordinate()
                 {
-                    XCoordinate = cursorPos.X + xCoordinate,
-                    YCoordinate = cursorPos.Y + yCoordinate
+                    XCoordinate = cursorPos.XCoordinate + xCoordinate,
+                    YCoordinate = cursorPos.YCoordinate + yCoordinate
                 };
 
                 foreach (var stop in GetNextStop(finalStop, smoothMode))
@@ -184,11 +183,11 @@ namespace Pixel.Automation.Native.Windows.Device
             }           
         }
 
-        public Point GetCursorPosition()
+        public ScreenCoordinate GetCursorPosition()
         {
             Win32Point w32Mouse = new Win32Point();
             GetCursorPos(ref w32Mouse);
-            return new Point(w32Mouse.X, w32Mouse.Y);
+            return new ScreenCoordinate(w32Mouse.X, w32Mouse.Y);
         }
 
 
@@ -201,15 +200,15 @@ namespace Pixel.Automation.Native.Windows.Device
                     yield break;
                 case SmoothMode.Interpolated:
                     {
-                        Point cursorPosition = GetCursorPosition();
+                        var cursorPosition = GetCursorPosition();
                         //TODO : Always using 25 stops seems like a bad idea. For larger movements, this should be more..Use better approach to dynamically calculate number of stops
                         int intervals = 1; 
                         while (intervals <= 25)
                         {
                             yield return new ScreenCoordinate()
                             {
-                                XCoordinate = cursorPosition.X + (destination.XCoordinate - cursorPosition.X) * intervals / 25,
-                                YCoordinate = cursorPosition.Y + (destination.YCoordinate - cursorPosition.Y) * intervals / 25
+                                XCoordinate = cursorPosition.XCoordinate + (destination.XCoordinate - cursorPosition.XCoordinate) * intervals / 25,
+                                YCoordinate = cursorPosition.YCoordinate + (destination.YCoordinate - cursorPosition.YCoordinate) * intervals / 25
                             };
                             Thread.Sleep(20);
                             intervals++;

@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Image.Matching.Components
@@ -18,9 +17,9 @@ namespace Pixel.Automation.Image.Matching.Components
             this.TargetControl = imageControl;
         }
 
-        public override async Task<Rectangle> GetBoundingBoxAsync()
+        public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
-            return await Task.FromResult(new Rectangle(imageControl.X, imageControl.Y, imageControl.Width, imageControl.Height));
+            return await Task.FromResult(new BoundingBox(imageControl.X, imageControl.Y, imageControl.Width, imageControl.Height));
         }
 
         public override async Task<(double,double)> GetClickablePointAsync()

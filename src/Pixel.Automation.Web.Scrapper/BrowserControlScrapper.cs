@@ -9,7 +9,6 @@ using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -132,10 +131,10 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
                     PropertyNameCaseInsensitive = true
                 }) ?? throw new NullReferenceException("Control details could not be deserialized");
 
-                Bitmap controlImage = screenCapture.CaptureArea(new Rectangle(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height));
-                ScrapedControl scrapedControl = new ScrapedControl() { ControlImage = controlImage, ControlData = capturedData };
+                var controlScreenShot = screenCapture.CaptureArea(new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height));
+                ScrapedControl scrapedControl = new ScrapedControl() { ControlImage = controlScreenShot, ControlData = capturedData };
                 capturedControls.Enqueue(scrapedControl);
-              
+
                 logger.Information("Recevied control with identifier : {identifier}", capturedData.Identifier);
             }
         }

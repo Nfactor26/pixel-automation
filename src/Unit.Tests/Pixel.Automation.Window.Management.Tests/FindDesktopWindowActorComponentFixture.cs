@@ -2,12 +2,12 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Window.Management.Tests
@@ -19,7 +19,7 @@ namespace Pixel.Automation.Window.Management.Tests
         public async Task ValidateThatFindDesktopWindowActorCanLocateSingleWindow()
         {
             string windowTitle = "Notepad";          
-            var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var window = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -61,8 +61,8 @@ namespace Pixel.Automation.Window.Management.Tests
         {
             string windowTitle = "Notepad";       
 
-            var windowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
-            var windowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var windowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
+            var windowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 
@@ -104,9 +104,9 @@ namespace Pixel.Automation.Window.Management.Tests
         {
             string windowTitle = "Notepad";
 
-            var windowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
-            var windowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
-            var windowThree = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", Rectangle.Empty, true);
+            var windowOne = new ApplicationWindow(int.MinValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
+            var windowTwo = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
+            var windowThree = new ApplicationWindow(int.MaxValue, IntPtr.Zero, "Notepad", BoundingBox.Empty, true);
 
             var entityManager = Substitute.For<IEntityManager>();
 

@@ -1,17 +1,13 @@
-﻿﻿using Dawn;
+﻿using Dawn;
 using Microsoft.Playwright;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using Polly;
-using Polly.Retry;
 using Serilog;
 using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Playwright.Components;
@@ -227,7 +223,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         return (x, y);
     }
 
-    public async Task<Rectangle> GetScreenBounds(IControlIdentity controlDetails)
+    public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlDetails)
     {
         WebControlIdentity controlIdentity = controlDetails as WebControlIdentity;
         var targetControl = await this.FindControlAsync(controlIdentity, null);
@@ -235,17 +231,17 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         return screenBounds;
     }
 
-    public async Task<Rectangle> GetBoundingBox(object control)
+    public async Task<BoundingBox> GetBoundingBox(object control)
     {
         if (control is ILocator locator)
         {
             var boundingBox = await locator.BoundingBoxAsync(new LocatorBoundingBoxOptions() { Timeout = 10 });
             if (boundingBox != null)
             {
-                return new Rectangle(Convert.ToInt32(boundingBox.X), Convert.ToInt32(boundingBox.Y), Convert.ToInt32(boundingBox.Width), Convert.ToInt32(boundingBox.Height));
+                return new BoundingBox(Convert.ToInt32(boundingBox.X), Convert.ToInt32(boundingBox.Y), Convert.ToInt32(boundingBox.Width), Convert.ToInt32(boundingBox.Height));
             }
             logger.Warning("Bounding box could not be retrieved. Return empty bounding box.");
-            return Rectangle.Empty;
+            return BoundingBox.Empty;
         }
         throw new ArgumentException("control must be of type ILocator");
     }
@@ -276,8 +272,8 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 this.highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
             }
 
-            Rectangle boundingBox = await GetBoundingBox(foundControl);
-            if (boundingBox != Rectangle.Empty)
+            var boundingBox = await GetBoundingBox(foundControl);
+            if (!BoundingBox.Empty.Equals(boundingBox))
             {
                 highlightRectangle.Visible = true;
 

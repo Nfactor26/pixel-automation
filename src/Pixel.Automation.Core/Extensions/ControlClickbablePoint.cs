@@ -1,6 +1,6 @@
-﻿using Pixel.Automation.Core.Enums;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using System.Drawing;
 
 namespace Pixel.Automation.Core.Extensions
 {
@@ -14,7 +14,7 @@ namespace Pixel.Automation.Core.Extensions
         /// <param name="boundingBox">Runtime bounding box of the control on screen</param>
         /// <param name="x">Calculated x-coord to perform mouse operations at</param>
         /// <param name="y">Calculated y-coord to perform mouse operations at</param>
-        public static void GetClickablePoint(this IControlIdentity controlIdentity, Rectangle boundingBox,out double x, out double y)
+        public static void GetClickablePoint(this IControlIdentity controlIdentity, BoundingBox boundingBox,out double x, out double y)
         {
             //target control is the leaf node in controlIdentity and contains the actual configuration for pivot and offset.
             var targetControl = controlIdentity;

@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using Pixel.Automation.Core.Controls;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Interfaces
@@ -22,8 +22,8 @@ namespace Pixel.Automation.Core.Interfaces
         /// Get bounding box of the control on screen.
         /// </summary>
         /// <param name="targetControl"><see cref="IControlIdentity"/> whose bounding box is required</param>
-        /// <param name="screenBounds"><see cref="Rectangle"/> as the bounding box</param>
-        Task<Rectangle> GetScreenBounds(IControlIdentity targetControl);
+        /// <param name="screenBounds"><see cref="BoundingBox"/> as the bounding box</param>
+        Task<BoundingBox> GetScreenBounds(IControlIdentity targetControl);
 
 
         /// <summary>
@@ -31,6 +31,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
-        Task<Rectangle> GetBoundingBox(object control);
+        Task<BoundingBox> GetBoundingBox(object control);
     }
 }

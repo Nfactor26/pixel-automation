@@ -7,6 +7,8 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -70,32 +72,43 @@ namespace Pixel.Automation.Image.Scrapper
             System.Windows.Application.Current.MainWindow.Hide();
             Thread.Sleep(1000);
 
-            using Bitmap desktopScreenShot = screenCapture.CaptureDesktop();
-            imageCaptureViewModel.Initialize(desktopScreenShot);       
-            var result = await windowManager.ShowDialogAsync(imageCaptureViewModel);
-            
-            if(result.HasValue && result.Value==true)
+            var desktopImage = screenCapture.CaptureDesktop();
+            using(var ms = new MemoryStream(desktopImage))
             {
-                var controlDetails = imageCaptureViewModel.GetCapturedImageControl();
-                ScrapedControl scrapedControl = new ScrapedControl()
+                using (var bitmap = new Bitmap(ms))
                 {
-                    ControlData = controlDetails,
-                    ControlImage = CropImage(desktopScreenShot, controlDetails.BoundingBox)
-                };
-                await eventAggregator.PublishOnUIThreadAsync(new List<ScrapedControl>() { scrapedControl });
-            }                
-            System.Windows.Application.Current.MainWindow.Show();
-            Thread.Sleep(200);
+                    imageCaptureViewModel.Initialize(bitmap);
+                    var result = await windowManager.ShowDialogAsync(imageCaptureViewModel);
+
+                    if (result.HasValue && result.Value == true)
+                    {
+                        var controlDetails = imageCaptureViewModel.GetCapturedImageControl();
+                        var croppedImage = CropImage(bitmap, controlDetails.BoundingBox);
+                        using (var croppedImageStream = new MemoryStream())
+                        {
+                            croppedImage.Save(croppedImageStream, ImageFormat.Png);
+                            ScrapedControl scrapedControl = new ScrapedControl()
+                            {
+                                ControlData = controlDetails,
+                                ControlImage = croppedImageStream.ToArray()
+                            };
+                            await eventAggregator.PublishOnUIThreadAsync(new List<ScrapedControl>() { scrapedControl });
+                        }                      
+                    }
+                    System.Windows.Application.Current.MainWindow.Show();
+                    Thread.Sleep(200);
+                }
+            }      
 
             await StopCapture();
         }
 
-        Bitmap CropImage(Bitmap source, Rectangle section)
+        Bitmap CropImage(Bitmap source, BoundingBox boundingBox)
         {
-            var bitmap = new Bitmap(section.Width, section.Height);
+            var bitmap = new Bitmap(boundingBox.Width, boundingBox.Height);
             using (var g = Graphics.FromImage(bitmap))
             {
-                g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+                g.DrawImage(source, 0, 0, new Rectangle(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height), GraphicsUnit.Pixel);
                 return bitmap;
             }
         }

@@ -13,7 +13,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -187,12 +186,12 @@ namespace Pixel.Automation.Image.Matching.Components
         private async Task<BoundingBox> TryFindMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
         {
             string templateFile = await GetTemplateFile(controlDetails);
-            CaptureRegionOfInterest(searchArea);
+            var regionOfInterest = CaptureRegionOfInterest(searchArea);
 
             OpenCvSharp.Point matchingPoint;
             using (Mat templateImg = Cv2.ImRead(templateFile, ImreadModes.Grayscale))
             {
-                using (Mat sourceImg = Cv2.ImRead("RegionOfInterest.Png", ImreadModes.Grayscale))
+                using (Mat sourceImg = Cv2.ImDecode(regionOfInterest, ImreadModes.Grayscale))
                 {
                     int cols = sourceImg.Cols - templateImg.Cols + 1;
                     int rows = sourceImg.Rows - templateImg.Rows + 1;
@@ -224,11 +223,11 @@ namespace Pixel.Automation.Image.Matching.Components
         private async Task<IEnumerable<BoundingBox>> TryFindAllMatch(ImageControlIdentity controlDetails, BoundingBox searchArea)
         {         
             string templateFile = await GetTemplateFile(controlDetails);
-            CaptureRegionOfInterest(searchArea);
+            var regionOfInterest = CaptureRegionOfInterest(searchArea);
             var foundMatches = new List<BoundingBox>();
             using (Mat templateImg = Cv2.ImRead(templateFile, ImreadModes.Grayscale))
             {
-                using (Mat sourceImg = Cv2.ImRead("RegionOfInterest.Png", ImreadModes.Grayscale))
+                using (Mat sourceImg = Cv2.ImDecode(regionOfInterest, ImreadModes.Grayscale))
                 {
                     int cols = sourceImg.Cols - templateImg.Cols + 1;
                     int rows = sourceImg.Rows - templateImg.Rows + 1;
@@ -345,16 +344,16 @@ namespace Pixel.Automation.Image.Matching.Components
 
         }
 
-        private void CaptureRegionOfInterest(BoundingBox searchArea)
+        private byte[] CaptureRegionOfInterest(BoundingBox searchArea)
         {
             var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
             if (searchArea != null)
             {
-                screenCapture.CaptureArea(searchArea.GetBoundingBoxAsRectangle()).Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
+                return screenCapture.CaptureArea(searchArea);
             }
             else
             {
-                screenCapture.CaptureDesktop().Save("RegionOfInterest.Png", System.Drawing.Imaging.ImageFormat.Png);
+                return screenCapture.CaptureDesktop();
             }
         }
 
@@ -374,8 +373,8 @@ namespace Pixel.Automation.Image.Matching.Components
                     highlightRectangle = this.EntityManager.GetServiceOfType<IHighlightRectangle>();
                 }
 
-                var boundingBox = new Rectangle(foundControl.X, foundControl.Y, foundControl.Width, foundControl.Height);
-                if (boundingBox != Rectangle.Empty)
+                var boundingBox = new BoundingBox(foundControl.X, foundControl.Y, foundControl.Width, foundControl.Height);
+                if (!boundingBox.Equals(BoundingBox.Empty))
                 {
                     highlightRectangle.Visible = true;
 
@@ -398,18 +397,18 @@ namespace Pixel.Automation.Image.Matching.Components
             return await Task.FromResult((x, y));
         }
 
-        public async Task<Rectangle> GetScreenBounds(IControlIdentity controlIdentity)
+        public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlIdentity)
         {
             var targetControl = await this.FindControlAsync(controlIdentity, null);
             var screenBounds = await GetBoundingBox(targetControl);
             return screenBounds;
         }
 
-        public async Task<Rectangle> GetBoundingBox(object control)
+        public async Task<BoundingBox> GetBoundingBox(object control)
         {
             if (control is BoundingBox boundingBox)
             {
-                return await Task.FromResult(new Rectangle(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height));
+                return await Task.FromResult(new BoundingBox(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height));
             }
             throw new ArgumentException("control must be of type BoundingBox");
         }

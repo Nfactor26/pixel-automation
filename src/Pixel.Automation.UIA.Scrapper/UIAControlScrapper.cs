@@ -9,7 +9,6 @@ using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -138,13 +137,13 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     focusedRect = trackedElement.Current.BoundingRectangle;
 
-                    ShowControlHighlightRectangle(focusedRect, Color.Orange);
+                    ShowControlHighlightRectangle(focusedRect, "Orange");
 
                 }
 
                 catch (Exception ex)
                 {
-                    controlHighlight.BorderColor = Color.Red;
+                    controlHighlight.BorderColor = "Red";
                     Log.Error(ex, ex.Message);
                 }
                 finally
@@ -185,16 +184,16 @@ namespace Pixel.Automation.UIA.Scrapper
                     lastCapturedControlRunTimeId = trackedElement.GetRuntimeId();
 
                     //Take a snapshot of control
-                    focusedRect = trackedElement.Current.BoundingRectangle;                
-                    Bitmap controlScreenShot = screenCapture.CaptureArea(new Rectangle((int)focusedRect.X, (int)focusedRect.Y, (int)focusedRect.Width, (int)focusedRect.Height));
-
-                    ShowControlHighlightRectangle(focusedRect, Color.Orange);
+                    focusedRect = trackedElement.Current.BoundingRectangle;
+                  
+                    var controlScreenShot = screenCapture.CaptureArea(new BoundingBox((int)focusedRect.X, (int)focusedRect.Y, (int)focusedRect.Width, (int)focusedRect.Height));
+                    ShowControlHighlightRectangle(focusedRect, "Orange");
 
                     Log.Information("Processing AutomationElement @ coordiante : {@Point}.", point);
 
                     List<AutomationElement> controlPath = new List<AutomationElement>();
                     AutomationElement current = trackedElement;
-                    while(current != AutomationElement.RootElement && !(containerNode?.GetRuntimeId().SequenceEqual(current.GetRuntimeId()) ?? false))
+                    while (current != AutomationElement.RootElement && !(containerNode?.GetRuntimeId().SequenceEqual(current.GetRuntimeId()) ?? false))
                     {
                         LogElementDetails("Parent", current);
                         controlPath.Add(current);
@@ -204,13 +203,13 @@ namespace Pixel.Automation.UIA.Scrapper
                     logger.Information($"Identified {controlPath.Count} elements in control path");
 
                     //user clicked element which is not relative to container node. Clear the container node and remove container highlight
-                    if(containerNode != null && current == AutomationElement.RootElement)
+                    if (containerNode != null && current == AutomationElement.RootElement)
                     {
                         containerNode = null;
                         containerHighlight.Visible = false;
                         logger.Information("Removing container node since user clicked an element which is not relative to container node");
                     }
-                                    
+
 
                     current = controlPath.ElementAt(0);
                     WinControlIdentity rootNodeIdentity = CreateControlComponent(current, 1);
@@ -243,7 +242,7 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     }
 
-                    if(pathLength > 1)
+                    if (pathLength > 1)
                     {
                         var leafNodeIdentity = CreateControlComponent(trackedElement, pathLength);
                         leafNodeIdentity.Index = GetIndexInParent(trackedElement, lastCapturedAncestorNode);
@@ -257,8 +256,8 @@ namespace Pixel.Automation.UIA.Scrapper
                         }
                         currentNodeIdentity.Next = leafNodeIdentity;
                         currentNodeIdentity = leafNodeIdentity;
-                    }                  
-               
+                    }
+
                     switch (e.Button)
                     {
                         case MouseButtons.Left:
@@ -271,22 +270,22 @@ namespace Pixel.Automation.UIA.Scrapper
                         case MouseButtons.Right:
                             containerNode = trackedElement;
                             rootNodeIdentity.LookupType = Core.Enums.LookupType.Default;
-                            ShowContainerHighlightRectangle(containerNode.Current.BoundingRectangle, Color.Purple);
+                            ShowContainerHighlightRectangle(containerNode.Current.BoundingRectangle, "Purple");
                             break;
                     }
-                                      
-                 
+
+
                     ScrapedControl scrapedControl = new ScrapedControl() { ControlData = rootNodeIdentity, ControlImage = controlScreenShot };
                     capturedControls.Enqueue(scrapedControl);
 
-                    controlHighlight.BorderColor = Color.Green;
+                    controlHighlight.BorderColor = "Green";
 
                     Log.Information("Captured control : {$capturedControl} as {$controlType}", current, rootNodeIdentity.LookupType);
 
                 }
                 catch (Exception ex)
                 {
-                    controlHighlight.BorderColor = Color.Red;
+                    controlHighlight.BorderColor = "Red";
                     Log.Error(ex, ex.Message);
                 }
                 finally
@@ -358,7 +357,7 @@ namespace Pixel.Automation.UIA.Scrapper
             capturedControl.ClassName = trackedElement.Current.ClassName;
             capturedControl.WinControlType = ControlType.LookupById(trackedElement.Current.ControlType.Id).ToWinControlType();
             var boundingRectangle = trackedElement.Current.BoundingRectangle;
-            capturedControl.BoundingBox = new Rectangle((int)boundingRectangle.X, (int)boundingRectangle.Y,
+            capturedControl.BoundingBox = new BoundingBox((int)boundingRectangle.X, (int)boundingRectangle.Y,
                             (int)boundingRectangle.Width, (int)boundingRectangle.Height);
             capturedControl.AcceleratorKey = trackedElement.Current.AcceleratorKey;
             capturedControl.AccessKey = trackedElement.Current.AccessKey;
@@ -434,13 +433,13 @@ namespace Pixel.Automation.UIA.Scrapper
             return 1;
         }
 
-        private void ShowControlHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        private void ShowControlHighlightRectangle(System.Windows.Rect boundingBox, string borderColor)
         {
             // Hide old rectangle.
             controlHighlight.Visible = false;
 
             // Show new rectangle.
-            controlHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            controlHighlight.Location = new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top,
             (int)boundingBox.Width, (int)boundingBox.Height);
 
             controlHighlight.BorderColor = borderColor;
@@ -448,13 +447,13 @@ namespace Pixel.Automation.UIA.Scrapper
 
         }
 
-        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, Color borderColor)
+        private void ShowContainerHighlightRectangle(System.Windows.Rect boundingBox, string borderColor)
         {
             // Hide old rectangle.
             containerHighlight.Visible = false;
 
             // Show new rectangle.
-            containerHighlight.Location = new System.Drawing.Rectangle((int)boundingBox.Left, (int)boundingBox.Top,
+            containerHighlight.Location = new BoundingBox((int)boundingBox.Left, (int)boundingBox.Top,
             (int)boundingBox.Width, (int)boundingBox.Height);
 
             containerHighlight.BorderColor = borderColor;
