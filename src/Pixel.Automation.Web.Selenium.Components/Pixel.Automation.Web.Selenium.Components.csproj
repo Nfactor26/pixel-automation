@@ -1,40 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
 
-    <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
-      
-  <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0">
-      <IncludeAssets>compile</IncludeAssets>      
-    </PackageReference>
-    <PackageReference Include="Selenium.Support" Version="4.3.0">     
-    </PackageReference>
-    <PackageReference Include="Selenium.WebDriver" Version="4.3.0">      
-    </PackageReference>
-    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0">
-      <IncludeAssets>compile</IncludeAssets>      
-    </PackageReference>
-    <PackageReference Include="System.Management" Version="6.0.0" />   
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>	
+		<PackageReference Include="Serilog" Version="2.11.0">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Selenium.Support" Version="4.3.0" />	
+		<PackageReference Include="Selenium.WebDriver" Version="4.3.0" />		
+		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
+			<Private>false</Private>
+		</ProjectReference>		
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" >
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
 
 </Project>
