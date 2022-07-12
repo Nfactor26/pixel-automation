@@ -10,13 +10,7 @@
 	<PropertyGroup>
 		<OutputPath>..\..\.builds\$(Configuration)\Designer</OutputPath>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Remove="Images\OffsetPicker.png" />
-		<None Remove="Images\PrefabIcon.jpg" />
-		<None Remove="Resources\TemplateMapping.xml" />
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<Content Include="Resources\TemplateMapping.xml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -72,5 +66,14 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+
+	<Target Name="CopyExtension" AfterTargets="Build">
+		<ItemGroup>
+			<ExtensionFiles Include="..\..\src\Extensions\**\*.*"/>
+		</ItemGroup>
+		<Message Importance="high" Text="Copy extensions to $(BuildDirectory) ========="/>
+		<Copy  SourceFiles="@(ExtensionFiles)"  DestinationFolder="$(OutputPath)\Extensions\%(RecursiveDir)"/>
+	</Target>
 
 </Project>

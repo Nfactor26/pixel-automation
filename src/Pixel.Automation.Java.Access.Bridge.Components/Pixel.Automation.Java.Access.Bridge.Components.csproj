@@ -1,29 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Serilog" Version="2.11.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Serilog" Version="2.11.0" >
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" >
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" >
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="UIAComWrapper">
-      <HintPath>..\Libs\UIAComWrapper.dll</HintPath>
-      <Aliases>uiaComWrapper</Aliases>
-      <EmbedInteropTypes>false</EmbedInteropTypes>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="WindowsAccessBridgeInterop">
-      <HintPath>..\Libs\WindowsAccessBridgeInterop.dll</HintPath>
-      <EmbedInteropTypes>false</EmbedInteropTypes>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="UIAComWrapper">
+			<HintPath>..\Libs\UIAComWrapper.dll</HintPath>
+			<Aliases>uiaComWrapper</Aliases>
+			<EmbedInteropTypes>false</EmbedInteropTypes>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="WindowsAccessBridgeInterop">
+			<HintPath>..\Libs\WindowsAccessBridgeInterop.dll</HintPath>
+			<EmbedInteropTypes>false</EmbedInteropTypes>
+		</Reference>
+	</ItemGroup>
 
 </Project>
