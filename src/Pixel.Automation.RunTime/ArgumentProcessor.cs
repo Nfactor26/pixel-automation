@@ -14,6 +14,8 @@ namespace Pixel.Automation.RunTime
     ///<inheritdoc/>
     public class ArgumentProcessor : IArgumentProcessor
     {
+        private readonly ILogger logger = Log.ForContext<ArgumentProcessor>();
+
         private IScriptEngine scriptEngine;
         private object globalsObject;
 
@@ -70,9 +72,10 @@ namespace Pixel.Automation.RunTime
                         result = GetNestedPropertyValue(globalsObject, nestedProperties);
                     }                     
                                                       
-                    if (typeof(T).IsAssignableFrom(result.GetType()))
+                    if (typeof(T).IsAssignableFrom(result?.GetType()))
                     {
-                       return (T)result;                       
+                        logger.Information("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
+                        return (T)result;                       
                     }
                    
                     throw new ArgumentException($"Failed to {nameof(GetValueAsync)}<{typeof(T)}> for Argument : {argument.PropertyPath} in DataBound Mode." +
@@ -80,27 +83,31 @@ namespace Pixel.Automation.RunTime
                 
                 case ArgumentMode.Scripted:
                     var fn = await scriptEngine.CreateDelegateAsync<Func<T>>(argument.ScriptFile);
+                    logger.Information("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
                     return fn();                        
                
                 default:
                     throw new InvalidOperationException($"Argument mode : {argument.Mode} is not supported");
             }
+            
         }
 
         public async Task SetValueAsync<T>(Argument argument, T value)
         {
-            if (!argument.GetType().GetGenericArguments()[0].IsAssignableFrom(value.GetType()))
+            if (value != null && !argument.GetType().GetGenericArguments()[0].IsAssignableFrom(value.GetType()))
             {
                 throw new InvalidOperationException($"Can't perform SetValue<{typeof(T)}> operation on Property {argument.PropertyPath}. Type : {argument.GetType().GetGenericArguments()[0]} is not assignable from Type : {value.GetType()}");
             }
+
+            value = value ?? default;
 
             switch (argument.Mode)
             {
                 case ArgumentMode.DataBound:
                     if (string.IsNullOrEmpty(argument.PropertyPath))
                     {
-                        Log.Warning("{PropertyPath} is not configure for {@Argument}", nameof(argument.PropertyPath), argument);
-                        Log.Warning("Skipping operation SetValue on Argument as it might be optional argument.");
+                        logger.Warning("{PropertyPath} is not configure for {@argument}", nameof(argument.PropertyPath), argument);
+                        logger.Warning("Skipping operation SetValue on Argument as it might be optional argument.");
                         break;
                     }
                   
@@ -130,14 +137,16 @@ namespace Pixel.Automation.RunTime
                         }                      
                     }
                     break;
+
                 case ArgumentMode.Scripted:
                     var fn = await scriptEngine.CreateDelegateAsync<Action<T>>(argument.ScriptFile);
-                    fn(value);
+                    fn(value);                   
                     break;
 
                 default:
                     throw new InvalidOperationException($"Argument mode : {argument.Mode} is not supported");
             }
+            logger.Information("{0} operation completed on {argument}", nameof(SetValueAsync), argument);
         }
 
         private object GetNestedPropertyValue(object root, IEnumerable<string> nestedProperties)
@@ -170,8 +179,7 @@ namespace Pixel.Automation.RunTime
                 if (targetProperty == null)
                 {
                     throw new ArgumentException($"Could not find property {targetProperty} in type {root.GetType()}");
-                }
-               
+                }               
             }
            
             if (targetProperty.PropertyType.IsAssignableFrom(typeof(T)))
