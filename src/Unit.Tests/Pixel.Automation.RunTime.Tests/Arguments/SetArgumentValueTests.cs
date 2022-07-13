@@ -68,7 +68,7 @@ namespace Pixel.Automation.RunTime.Tests
         }
 
         /// <summary>
-        /// Validate that simple property can be set on globals object
+        /// Validate that non-nested property can be set on globals object
         /// </summary>
         [Test]
         public async Task CanSetSimplePropertyValueInDataBoundModeOnGlobalsObject()
@@ -79,12 +79,18 @@ namespace Pixel.Automation.RunTime.Tests
             Person person = new Person() { Name = "Sheldon Cooper", Age = 40 };
             ArgumentProcessor argumentProcessor = new ArgumentProcessor();
             argumentProcessor.Initialize(scriptEngine, person);
-            var argument = new OutArgument<int>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age" };
+           
+            var ageArgument = new OutArgument<int>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age" };
+            await argumentProcessor.SetValueAsync<int>(ageArgument, 50);
+            Assert.AreEqual(50, person.Age);          
 
-            await argumentProcessor.SetValueAsync<int>(argument, 50);
+            var nameArgument = new OutArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "Name" };
+            await argumentProcessor.SetValueAsync<string>(nameArgument, "Leonard Hofstadter");
+            Assert.AreEqual("Leonard Hofstadter", person.Name);           
+            await argumentProcessor.SetValueAsync<string>(nameArgument, null);
+            Assert.AreEqual(null, person.Name);
 
-            scriptEngine.Received(1).HasScriptVariable(Arg.Any<string>());
-            Assert.AreEqual(50, person.Age);
+            scriptEngine.Received(3).HasScriptVariable(Arg.Any<string>());
         }
 
         /// <summary>
