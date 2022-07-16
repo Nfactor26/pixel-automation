@@ -174,7 +174,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public override async Task Save()
         {
             this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetAllTypes());
+            serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetKnownTypes());
 
             var prefabParent = this.prefabbedEntity.Parent;
             prefabParent.RemoveComponent(this.prefabbedEntity);

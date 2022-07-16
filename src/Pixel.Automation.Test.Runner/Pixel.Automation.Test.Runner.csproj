@@ -29,14 +29,14 @@
     <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
     <ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
-    <ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj" />
     <ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />
     <ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
     <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />

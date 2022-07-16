@@ -4,24 +4,21 @@ using System.Reflection;
 
 namespace Pixel.Automation.Core.Interfaces
 {
+    /// <summary>
+    /// Type provider maintains known component types which are serializable.
+    /// Serializer needs to know the these derived types to serialize/desirialize them correctly.
+    /// </summary>
     public interface ITypeProvider
-    {      
-        Dictionary<string,List<Type>> KnownTypes
-        {
-            get;
+    {
+        /// <summary>
+        /// Get all the known types
+        /// </summary>
+        /// <returns></returns>
+        List<Type> GetKnownTypes();       
 
-        }
-
-        List<Type> GetAllTypes();       
-
-        void LoadDefaultTypes();
-
-        void RefreshDefaultTypeCache();
-
-        void ClearCustomTypes();
-
-        void LoadTypesFromAssembly(List<string> loadFromAssemblies);
-
+        /// Find and load types from specified assembly
+        /// </summary>
+        /// <param name="assembly"></param>
         void LoadTypesFromAssembly(Assembly assembly);
     }
 }

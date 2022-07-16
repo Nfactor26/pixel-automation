@@ -221,7 +221,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         private void InitializeKnownApplications()
         {
-            var knownApps = this.typeProvider.GetAllTypes().Where(t => t.GetInterface(nameof(IApplication)) != null);
+            var knownApps = this.typeProvider.GetKnownTypes().Where(t => t.GetInterface(nameof(IApplication)) != null);
             foreach (var knownApp in knownApps)
             {
                 string displayName = TypeDescriptor.GetAttributes(knownApp).OfType<DisplayNameAttribute>()?.FirstOrDefault()?.DisplayName ?? knownApp.Name;

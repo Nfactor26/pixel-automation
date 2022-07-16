@@ -68,7 +68,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             this.Components.Clear();
 
-            foreach (var item in knownTypesProvider.GetAllTypes())
+            foreach (var item in knownTypesProvider.GetKnownTypes())
             {
                 if(TryCreateToolBoxItem(item,out ComponentToolBoxItem toolBoxItem))
                 {

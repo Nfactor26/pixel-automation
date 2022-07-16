@@ -33,7 +33,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 
             var application = CreateApplicationDescription();
             applicationDataManager.GetAllApplications().Returns(new[] { application });
-            typeProvider.GetAllTypes().Returns(new List<Type>() { typeof(MockApplication) });
+            typeProvider.GetKnownTypes().Returns(new List<Type>() { typeof(MockApplication) });
 
             eventAggregator.HandlerExistsFor(Arg.Is<Type>(typeof(RepositoryApplicationOpenedEventArgs))).Returns(true);
         }

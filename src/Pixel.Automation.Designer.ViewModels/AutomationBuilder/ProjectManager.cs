@@ -87,7 +87,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             });         
 
             File.WriteAllText(fileName, fileContents);        
-            T entity = serializer.Deserialize<T>(fileName, typeProvider.GetAllTypes());
+            T entity = serializer.Deserialize<T>(fileName, typeProvider.GetKnownTypes());
             return entity;
         }
 

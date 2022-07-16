@@ -92,7 +92,7 @@ namespace Pixel.Automation.Test.Runner
             this.entityManager.RegisterDefault<IProjectFileSystem>(this.projectFileSystem);
             this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
 
-            var processEntity = serializer.Deserialize<Entity>(this.projectFileSystem.ProcessFile, typeProvider.GetAllTypes());
+            var processEntity = serializer.Deserialize<Entity>(this.projectFileSystem.ProcessFile, typeProvider.GetKnownTypes());
             this.entityManager.RootEntity = processEntity;
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
 
@@ -269,7 +269,7 @@ namespace Pixel.Automation.Test.Runner
             });
 
             File.WriteAllText(fileName, fileContents);
-            T entity = serializer.Deserialize<T>(fileName, typeProvider.GetAllTypes());
+            T entity = serializer.Deserialize<T>(fileName, typeProvider.GetKnownTypes());
             return entity;
         }
     }
