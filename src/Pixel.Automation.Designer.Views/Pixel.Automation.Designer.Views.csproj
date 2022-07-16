@@ -29,7 +29,7 @@
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Services.CSharp\Pixel.Scripting.Editor.Services.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Editors.Image.Capture\Pixel.Automation.Editors.Image.Capture.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Editor.Image.Capture\Pixel.Automation.Editor.Image.Capture.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />

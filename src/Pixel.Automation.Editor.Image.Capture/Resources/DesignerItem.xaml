@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:s="clr-namespace:Pixel.Automation.Editors.Image.Capture">
+                    xmlns:s="clr-namespace:Pixel.Automation.Editor.Image.Capture">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="SizeChrome.xaml"/>
