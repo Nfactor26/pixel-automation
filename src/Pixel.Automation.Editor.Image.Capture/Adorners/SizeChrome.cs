@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace Pixel.Automation.Editors.Image.Capture
+namespace Pixel.Automation.Editor.Image.Capture
 {
     public class SizeChrome : Control
     {

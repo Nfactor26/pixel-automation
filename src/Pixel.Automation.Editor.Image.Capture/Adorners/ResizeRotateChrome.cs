@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Pixel.Automation.Editors.Image.Capture
+namespace Pixel.Automation.Editor.Image.Capture
 {
     public class ResizeRotateChrome : Control
     {

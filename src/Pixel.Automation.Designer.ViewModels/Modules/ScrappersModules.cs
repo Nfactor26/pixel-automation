@@ -3,8 +3,7 @@ using Ninject.Extensions.Conventions;
 using Ninject.Modules;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editors.Image.Capture;
-using Pixel.Automation.Native.Windows;
+using Pixel.Automation.Editor.Image.Capture;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {

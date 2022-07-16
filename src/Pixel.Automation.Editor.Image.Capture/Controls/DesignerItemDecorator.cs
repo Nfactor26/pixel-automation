@@ -7,7 +7,7 @@ using System.Windows.Documents;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Pixel.Automation.Editors.Image.Capture
+namespace Pixel.Automation.Editor.Image.Capture
 {
     public class DesignerItemDecorator : Control
     {

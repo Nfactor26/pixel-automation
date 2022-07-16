@@ -48,26 +48,19 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             List<Assembly> viewAssemblies = new List<Assembly>();
             viewAssemblies.Add(Assembly.GetEntryAssembly());
-
-            //Since .net core doesn't support sub directories easily. Workaround at the moment.
-            foreach(var item in Directory.GetFiles(".", "*.dll",SearchOption.TopDirectoryOnly))
+                      
+            foreach(var item in Directory.GetFiles(".", "*.Views*.dll", SearchOption.TopDirectoryOnly))
             {
-                switch(item)
-                {
-                    case ".\\Pixel.Automation.Editor.Controls.dll":                   
-                    case ".\\Pixel.Automation.TestData.Repository.Views.dll":
-                    case ".\\Pixel.Automation.TestExplorer.Views.dll":
-                    case ".\\Pixel.Scripting.Script.Editor.dll":
-                    case ".\\Pixel.Automation.AppExplorer.Views.dll":
-                    case ".\\Pixel.Automation.Editors.Image.Capture.dll":
-                        viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
-                        break;
-                }
-            }       
+                viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
+                logger.Information($"Added {item} to view assemblies.");
+            }
+            foreach (var item in Directory.GetFiles(".", "*.Editor*.dll", SearchOption.TopDirectoryOnly))
+            {
+                viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
+                logger.Information($"Added {item} to view assemblies.");
+            }
             return viewAssemblies;
         }
-
-
 
         protected override void Configure()
         {

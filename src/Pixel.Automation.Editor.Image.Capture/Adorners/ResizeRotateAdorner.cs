@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace Pixel.Automation.Editors.Image.Capture
+namespace Pixel.Automation.Editor.Image.Capture
 {
     public class ResizeRotateAdorner : Adorner
     {

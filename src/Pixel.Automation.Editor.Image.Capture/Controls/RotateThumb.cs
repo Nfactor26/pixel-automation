@@ -5,7 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Pixel.Automation.Editors.Image.Capture
+namespace Pixel.Automation.Editor.Image.Capture
 {
     public class RotateThumb : Thumb
     {
