@@ -223,7 +223,7 @@ namespace Pixel.Persistence.Services.Client
                 File.Delete(appFile);
             }
 
-            serializer.Serialize(appFile, application, typeProvider.KnownTypes["Default"]);
+            serializer.Serialize(appFile, application, typeProvider.GetKnownTypes());
             return appFile;
         }    
 
@@ -417,7 +417,7 @@ namespace Pixel.Persistence.Services.Client
                 File.Delete(projectFile);
             }
 
-            serializer.Serialize(projectFile, automationProject, typeProvider.KnownTypes["Default"]);          
+            serializer.Serialize(projectFile, automationProject, typeProvider.GetKnownTypes());          
         }
       
         #endregion Project

@@ -150,7 +150,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());            
+            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());            
                    
             var rootEntity = DeserializeProject();
             //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
@@ -184,7 +184,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
             this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetAllTypes());
+            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
             await this.applicationDataManager.AddOrUpdateProjectAsync(this.activeProject, this.loadedVersion);
 
             //Add back the test cases that were already open

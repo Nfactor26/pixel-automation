@@ -39,15 +39,16 @@
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
 
+
+		<ProjectReference Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Input.Devices\Pixel.Automation.Input.Devices.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Window.Management\Pixel.Automation.Window.Management.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj" />
 
 		<ProjectReference Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj" />
@@ -70,10 +71,10 @@
 
 	<Target Name="CopyExtension" AfterTargets="Build">
 		<ItemGroup>
-			<ExtensionFiles Include="..\..\src\Extensions\**\*.*"/>
+			<ExtensionFiles Include="..\..\src\Extensions\**\*.*" />
 		</ItemGroup>
-		<Message Importance="high" Text="Copy extensions to $(BuildDirectory) ========="/>
-		<Copy  SourceFiles="@(ExtensionFiles)"  DestinationFolder="$(OutputPath)\Extensions\%(RecursiveDir)"/>
+		<Message Importance="high" Text="Copy extensions to $(BuildDirectory) =========" />
+		<Copy SourceFiles="@(ExtensionFiles)" DestinationFolder="$(OutputPath)\Extensions\%(RecursiveDir)" />
 	</Target>
 
 </Project>
