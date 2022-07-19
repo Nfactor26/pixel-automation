@@ -60,7 +60,7 @@ namespace Pixel.Automation.Core.Components.Loops
         public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
         {           
             IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
-            string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.ScriptsDirectory,this.scriptFile))?.Trim()
+            string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.WorkingDirectory, this.scriptFile))?.Trim()
                 .Split(new char[] {';'});
 
             //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
