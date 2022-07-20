@@ -1,5 +1,8 @@
 ﻿namespace Pixel.Automation.Core.Devices
 {
+    /// <summary>
+    /// <see cref="ISyntheticMouse"/> defines a contract on how to simulate a mouse
+    /// </summary>
     public interface ISyntheticMouse : IDevice
     {
         /// <summary>

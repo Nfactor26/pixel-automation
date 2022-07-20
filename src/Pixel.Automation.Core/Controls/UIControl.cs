@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Controls
 {
+    /// <summary>
+    /// <see cref="UIControl"/> wraps a ui framework specific control e.g. AutomationElement from UIA or IWebElement from WebDriver
+    /// and helps to retrieve it's bounding box or a clickable point inside the control.
+    /// </summary>
     [DataContract]
     [Serializable]
     public abstract class UIControl

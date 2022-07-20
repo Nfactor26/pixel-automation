@@ -82,7 +82,13 @@ namespace Pixel.Automation.Core.Extensions
             throw new Exception($"Data type : {typeof(T)} is not assignable to property {propertyName} on object");
         }
 
-
+        /// <summary>
+        /// Given a type get the required using directives and assembly references required to use the type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="withRequiredRefrences"></param>
+        /// <param name="withRequiredDirectives"></param>
+        /// <returns></returns>
         public static string GetRequiredImportsForType(this Type type, IEnumerable<Assembly> withRequiredRefrences, IEnumerable<string> withRequiredDirectives)
         {
             StringBuilder result = new StringBuilder();
@@ -103,7 +109,12 @@ namespace Pixel.Automation.Core.Extensions
         }
 
 
-
+        /// <summary>
+        /// Given a type find the assembly refrences required to use that type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="withRequiredRefrences"></param>
+        /// <returns></returns>
         public static IEnumerable<string> GetDllReferences(this Type type, IEnumerable<Assembly> withRequiredRefrences)
         {
             List<string> distinctReferences = new List<string>();
@@ -124,8 +135,7 @@ namespace Pixel.Automation.Core.Extensions
                 {
                     distinctReferences.Add(Path.GetFileName(containedInDll));
                 }
-            }
-           
+            }           
 
             if (type.IsGenericType)
             {
@@ -146,6 +156,12 @@ namespace Pixel.Automation.Core.Extensions
 
         }
 
+        /// <summary>
+        /// Given a type find the required namespaces that are required to use the type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="withRequiredDirectives"></param>
+        /// <returns></returns>
         public static IEnumerable<string> GetUsingDirectives(this Type type, IEnumerable<string> withRequiredDirectives)
         {
             List<string> distinceDirectives = new List<string>();    

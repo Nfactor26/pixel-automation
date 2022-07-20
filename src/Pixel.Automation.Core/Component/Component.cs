@@ -217,7 +217,7 @@ namespace Pixel.Automation.Core
 
         }
 
-        public DataComponent(string name = "", string tag = ""):base(name,tag)
+        public DataComponent(string name = "", string tag = ""):base(name, tag)
         {
             
         }
@@ -288,6 +288,7 @@ namespace Pixel.Automation.Core
         /// </summary>
         public abstract Task ActAsync();
 
+        /// <inheritdoc/>
         public override void ResetComponent()
         {
             this.isExecuting = false;
