@@ -146,10 +146,10 @@ namespace Pixel.Automation.Core.Interfaces
         ICoordinateProvider GetCoordinateProvider(IControlIdentity forControl);
 
         /// <summary>
-        /// Ensures that the child entities have EntitManager and right Parent.
+        /// Ensures that the descendant components of an Entity correct have EntitManager and Parent.
         /// </summary>
         /// <param name="entityComponent"></param>
-        void RestoreParentChildRelation(IComponent entityComponent);
+        void RestoreParentChildRelation(Entity entity);
 
         /// <summary>
         /// Get the names of all properties of a given type available on the Arguments instance.

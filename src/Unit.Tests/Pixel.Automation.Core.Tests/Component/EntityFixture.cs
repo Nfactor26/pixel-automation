@@ -27,8 +27,7 @@ namespace Pixel.Automation.Core.Tests
             IEntityManager entityManager = Substitute.For<IEntityManager>();
 
             IComponent component = Substitute.For<IComponent>();
-            component.EntityManager.Returns(entityManager);
-         
+            component.EntityManager.Returns(entityManager);        
 
             Entity entity = new Entity("EntityName", "EntityTag");
             entity.EntityManager = entityManager;
@@ -40,9 +39,7 @@ namespace Pixel.Automation.Core.Tests
             Assert.AreEqual(0, component.ProcessOrder);
 
             component.Received(1).ResolveDependencies();
-            component.Received(1).ValidateComponent();
-            entityManager.Received(1).RestoreParentChildRelation(component);
-
+            component.Received(1).ValidateComponent();            
         }
 
         /// <summary>

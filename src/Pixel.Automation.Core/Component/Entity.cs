@@ -55,7 +55,7 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="name">Name of the entity</param>
         /// <param name="tag">Tag assigned to entity</param>
-        public Entity(string name = "", string tag = "") : base(name :name, tag:tag)
+        public Entity(string name = "", string tag = "") : base(name:name, tag:tag)
         {
            
         }
@@ -93,8 +93,7 @@ namespace Pixel.Automation.Core
         #region Manage Components
 
         /// <summary>
-        /// Add a component to an entity and set its parent to entity to which it is added.
-        /// No entity can contain same type of component two times.
+        /// Add a component to an entity and set its parent to entity to which it is added.      
         /// An entity can however contain multiple entity components as its child.
         /// </summary>
         /// <param name="component"></param>
@@ -110,12 +109,18 @@ namespace Pixel.Automation.Core
                     {
                         component.EntityManager = this.EntityManager;
                         component.ResolveDependencies();
-                        component.EntityManager.RestoreParentChildRelation(component);
+                        if(component is Entity entity)
+                        {
+                            component.EntityManager.RestoreParentChildRelation(entity);
+                        }
                     }
                     else
                     {
                         //When adding TestCaseEntity, EntityManager is already set.
-                        this.EntityManager.RestoreParentChildRelation(component);
+                        if (component is Entity entity)
+                        {
+                            this.EntityManager.RestoreParentChildRelation(entity);
+                        }                       
                         component.ResolveDependencies();
                     }
 
@@ -198,6 +203,8 @@ namespace Pixel.Automation.Core
                     continue;
                 }
 
+                //EntityProcessors are Entity that also implement IEntityProcessor. We don't want to process
+                //it's child components and hence treat it differently.
                 if (component is IEntityProcessor)
                 {
                     yield return component;
@@ -216,8 +223,7 @@ namespace Pixel.Automation.Core
                     continue;
                 }
 
-                //only actor components or EntityProcessors can be processed.
-                //IEntityProcessor also inherit from Entity
+                //only actor components or EntityProcessors can be processed.              
                 if (component is ActorComponent)
                 {
                     yield return component;
@@ -229,7 +235,7 @@ namespace Pixel.Automation.Core
 
         public override string ToString()
         {
-            return string.Format("{{\"Id\":{0},\"Name\":{1},\"Tag\":{2},\"IsEnabled\":{3},\"Children\":{4}}}", Id, Name, Tag, IsEnabled,Components.Count);
+            return string.Format("{{\"Id\":{0},\"Name\":{1},\"Tag\":{2},\"IsEnabled\":{3},\"Children\":{4}}}", Id, Name, Tag, IsEnabled, Components.Count);
         }
     }
 }
