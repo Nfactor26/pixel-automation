@@ -1,6 +1,4 @@
-﻿﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Controls;
-using System.ComponentModel;
+﻿using Pixel.Automation.Core;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
@@ -9,35 +7,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 [DataContract]
 [Serializable]
 public class FrameIdentity : NotifyPropertyChanged
-{
-
-    string findByStrategy;
-    /// <summary>
-    ///  FindBy strategy used to search for a control.
-    ///  For ex : name, url, selector,etc.
-    /// </summary>
-    [DataMember(IsRequired = true, Order = 10)]
-    [Display(Name = "Find By", GroupName = "Configuration", Order = 10, Description = "FindBy strategy used to search for frame. Supported values are Name, Url, Selector")]
-    public virtual string FindByStrategy
-    {
-        get
-        {
-            return findByStrategy;
-        }
-        set
-        {
-            if (value != findByStrategy)
-            {
-                findByStrategy = value;
-                if (AvilableIdentifiers?.Any(a => a.AttributeName.Equals(value)) ?? false)
-                {
-                    Identifier = AvilableIdentifiers.
-                             First(a => a.AttributeName.Equals(value)).AttributeValue;
-                }
-            }
-        }
-    }
-
+{     
     /// <summary>
     /// Identifier used to search for the control i.e. name of control if FindByStrategy is name,etc.
     /// </summary>
@@ -45,24 +15,22 @@ public class FrameIdentity : NotifyPropertyChanged
     [Display(Name = "Identifier", GroupName = "Configuration", Order = 20, Description = "Identifier used to search for the control")]
     public virtual string Identifier
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>
-    /// Holds all the identifiers captured at design time
+    /// Default constructor
     /// </summary>
-    [DataMember(IsRequired = true, Order = 30)]
-    [Browsable(false)]
-    public List<ControlIdentifier> AvilableIdentifiers = new List<ControlIdentifier>();
-
     public FrameIdentity()
     {
-        FindByStrategy = "Name";
+       
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
-        return $"Frame -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}";
+        return $"Frame -> Identifier:{this.Identifier}";
     }
 
 }
@@ -75,7 +43,7 @@ public class FrameEqualityComparer : IEqualityComparer<FrameIdentity>
         {
             return true;
         }
-        return x.FindByStrategy.Equals(y.FindByStrategy) && x.Identifier.Equals(y.Identifier);
+        return x.Identifier.Equals(y.Identifier);
 
     }
 
