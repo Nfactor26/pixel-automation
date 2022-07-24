@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core.Controls;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 
 namespace Pixel.Automation.Web.Playwright.Components
 {
@@ -12,8 +11,7 @@ namespace Pixel.Automation.Web.Playwright.Components
                 WebControlIdentity controlIdentity = new WebControlIdentity()
                 {
                     Name = "1",                  
-                    Identifier = capturedData.Identifier,
-                    BoundingBox = new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height)
+                    Identifier = capturedData.Identifier
                 };
 
 

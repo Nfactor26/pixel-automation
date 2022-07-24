@@ -355,10 +355,7 @@ namespace Pixel.Automation.UIA.Scrapper
             capturedControl.NameProperty = trackedElement.Current.Name;
             capturedControl.AutomationId = trackedElement.Current.AutomationId;
             capturedControl.ClassName = trackedElement.Current.ClassName;
-            capturedControl.WinControlType = ControlType.LookupById(trackedElement.Current.ControlType.Id).ToWinControlType();
-            var boundingRectangle = trackedElement.Current.BoundingRectangle;
-            capturedControl.BoundingBox = new BoundingBox((int)boundingRectangle.X, (int)boundingRectangle.Y,
-                            (int)boundingRectangle.Width, (int)boundingRectangle.Height);
+            capturedControl.WinControlType = ControlType.LookupById(trackedElement.Current.ControlType.Id).ToWinControlType();                  
             capturedControl.AcceleratorKey = trackedElement.Current.AcceleratorKey;
             capturedControl.AccessKey = trackedElement.Current.AccessKey;
             //HelpText changes if mouseover is true . While capturing control, mouse is always over so it will yield wrong results as during playback mouse will not be initially hovering

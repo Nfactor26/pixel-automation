@@ -6,7 +6,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IImageCaptureViewModel : IScreen
     {
-        IControlIdentity GetCapturedImageControl();
+        IImageControlIdentity GetCapturedImageControl();
 
         void Initialize(Bitmap screenShot);
     }

@@ -27,20 +27,7 @@ namespace Pixel.Automation.Core.Controls
         /// Name of the control
         /// </summary>
         [DataMember(Order = 20)]
-        public string Name { get; set; }
-
-        protected BoundingBox boundingBox;
-        /// <summary>
-        /// <see cref="BoundingBox"/> of the control captured during scraping the control
-        /// </summary>
-        [DataMember(Order = 40)]
-        [Description("Bounding box of the template image captured at design time")]
-        [Browsable(false)]
-        public BoundingBox BoundingBox
-        {
-            get => boundingBox;
-            set => boundingBox = value;
-        }
+        public string Name { get; set; }     
 
         #endregion General
 

@@ -15,9 +15,9 @@ namespace Pixel.Automation.Editor.Image.Capture
 {
     public class ImageCaptureViewModel : Screen , IImageCaptureViewModel
     {
-       
-        IControlIdentity controlIdentity;
-        public IControlIdentity ControlIdentity
+
+        IImageControlIdentity controlIdentity;
+        public IImageControlIdentity ControlIdentity
         {
             get
             {
@@ -70,7 +70,7 @@ namespace Pixel.Automation.Editor.Image.Capture
         }
 
 
-        public IControlIdentity GetCapturedImageControl()
+        public IImageControlIdentity GetCapturedImageControl()
         {
             return this.controlIdentity;
         }       
@@ -79,17 +79,16 @@ namespace Pixel.Automation.Editor.Image.Capture
         {
             this.controlIdentity = new ImageControlIdentity()
             {
-                Name = "1",
-                BoundingBox = new BoundingBox()
-                {
-                    X = 200,
-                    Y = 200,
-                    Width = 200,
-                    Height = 200
-                },
+                Name = "1",               
                 PivotPoint = Pivots.Center
             };
-            this.templateBoundingBox = controlIdentity.BoundingBox;
+            this.TemplateBoundingBox = new BoundingBox()
+            {
+                X = 200,
+                Y = 200,
+                Width = 200,
+                Height = 200
+            };
             this.offset = new System.Drawing.Point((int)controlIdentity.XOffSet, (int)controlIdentity.YOffSet);
 
             UpdatePivotPoint();

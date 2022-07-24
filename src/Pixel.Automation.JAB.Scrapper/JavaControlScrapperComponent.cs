@@ -340,8 +340,7 @@ namespace Pixel.Automation.JAB.Scrapper
                 Description = nodeInfo.description,
                 Role = nodeInfo.role,
                 Depth = depth,            
-                Name = depth.ToString(),
-                BoundingBox = new BoundingBox(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height)
+                Name = depth.ToString()
             };
             return controlDetails;
         }

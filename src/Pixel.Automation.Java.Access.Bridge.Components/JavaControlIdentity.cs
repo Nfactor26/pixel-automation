@@ -103,7 +103,6 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 Name = this.Name,
                 ApplicationId = this.ApplicationId,
-                BoundingBox = this.BoundingBox,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
                 YOffSet = this.YOffSet,
