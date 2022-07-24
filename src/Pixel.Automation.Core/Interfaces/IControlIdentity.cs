@@ -26,17 +26,8 @@ namespace Pixel.Automation.Core.Interfaces
         {
             get;
             set;
-        }
-        
-        /// <summary>
-        /// Bounding box of the control captured at design time
-        /// </summary>
-        BoundingBox BoundingBox
-        {
-            get;
-            set;
-        }
-
+        }        
+      
         /// <summary>
         /// Number of times to retry if control can't be located in first attempt
         /// </summary>
@@ -111,6 +102,16 @@ namespace Pixel.Automation.Core.Interfaces
     /// </summary>
     public interface IImageControlIdentity : IControlIdentity
     {
+
+        /// <summary>
+        /// Bounding box of the image control
+        /// </summary>
+        BoundingBox BoundingBox
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Add a new image. There can be multiple image associate with a ImageControlIdentity with
         /// different configuration based on resolution and theme that will be matched at runtime to 

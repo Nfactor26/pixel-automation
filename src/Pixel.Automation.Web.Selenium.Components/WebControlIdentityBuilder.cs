@@ -1,7 +1,4 @@
-﻿using Pixel.Automation.Core.Controls;
-using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Web.Common;
-using System;
+﻿using Pixel.Automation.Core.Interfaces;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -15,8 +12,7 @@ namespace Pixel.Automation.Web.Selenium.Components
                 {
                     Name = "1",
                     FindByStrategy = "CssSelector",
-                    Identifier = capturedData.Identifier,
-                    BoundingBox = new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height)
+                    Identifier = capturedData.Identifier
                 };
 
                 foreach (var frame in capturedData.FrameHierarchy)
