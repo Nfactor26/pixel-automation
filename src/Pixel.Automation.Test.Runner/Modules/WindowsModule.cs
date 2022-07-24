@@ -9,6 +9,7 @@ namespace Pixel.Automation.Test.Runner.Modules
         public override void Load()
         {
             Kernel.Bind<IApplicationWindowManager>().To<ApplicationWindowManager>().InSingletonScope();
+            Kernel.Bind<IProcessManager>().To<ProcessManager>().InSingletonScope();
             Kernel.Bind<IHighlightRectangleFactory>().To<HighlightRectangleFactory>().InSingletonScope();
             Kernel.Bind<IScreenCapture>().To<ScreenCapture>().InSingletonScope();
         }

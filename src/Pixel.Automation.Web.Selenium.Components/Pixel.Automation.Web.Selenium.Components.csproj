@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
+		<PackageReference Include="Dawn.Guard" Version="1.12.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
@@ -33,8 +33,7 @@
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Selenium.Support" Version="4.3.0" />	
-		<PackageReference Include="Selenium.WebDriver" Version="4.3.0" />		
-		<PackageReference Include="System.Management" Version="6.0.0" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -44,7 +43,7 @@
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 			<Private>false</Private>
 		</ProjectReference>		
-		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj">
 			<Private>false</Private>
 		</ProjectReference>
 	</ItemGroup>
