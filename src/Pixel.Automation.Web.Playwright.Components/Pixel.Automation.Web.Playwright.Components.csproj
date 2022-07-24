@@ -3,9 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>	
 	</PropertyGroup>
 
+	<ItemGroup>		
+		<Using Include="Pixel.Automation.Web.Common" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
 			<IncludeAssets>compile</IncludeAssets>
@@ -27,5 +31,5 @@
 			<Private>false</Private>
 		</ProjectReference>
 	</ItemGroup>
-
+	
 </Project>

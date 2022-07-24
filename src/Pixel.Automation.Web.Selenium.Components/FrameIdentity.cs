@@ -1,10 +1,6 @@
 ﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Controls;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components

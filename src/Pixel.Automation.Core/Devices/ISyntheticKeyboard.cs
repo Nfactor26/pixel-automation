@@ -2,6 +2,9 @@
 
 namespace Pixel.Automation.Core.Devices
 {
+    /// <summary>
+    /// <see cref="ISyntheticKeyboard"/> defines a contract on how to simulate a keyboard
+    /// </summary>
     public interface ISyntheticKeyboard : IDevice
     {
         /// <summary>

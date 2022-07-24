@@ -216,6 +216,12 @@ namespace Pixel.Automation.Core
 
         #region Get Component Helpers
 
+        /// <summary>
+        /// Try to get the owner application of a given component
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="application"></param>
+        /// <returns>True if owner application could be located</returns>
         public bool TryGetOwnerApplication(IComponent component, out IApplication application)
         {
             try
@@ -230,6 +236,13 @@ namespace Pixel.Automation.Core
             return false;
         }
 
+        /// <summary>
+        /// Try get owner application of type T for a given component
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component"></param>
+        /// <param name="application"></param>
+        /// <returns>True if owner application could be located</returns>
         public bool TryGetOwnerApplication<T>(IComponent component, out T application) where T : class, IApplication
         {
             try
@@ -259,7 +272,6 @@ namespace Pixel.Automation.Core
             }
             var targetApp = GetApplicationEntity(component);
             return targetApp.GetTargetApplicationDetails();
-
         }
 
         /// <summary>
@@ -277,7 +289,6 @@ namespace Pixel.Automation.Core
             var targetApp = GetApplicationEntity(component);
             return targetApp.GetTargetApplicationDetails<T>();
         }
-
 
         /// <summary>
         /// Get IControlLocator for a given control identity
@@ -325,7 +336,6 @@ namespace Pixel.Automation.Core
                 return GetApplicationEntity(targetAppId);
             }
             throw new ConfigurationException($"{component} doesn't have an Application Context");
-
         }
 
         /// <summary>
@@ -392,7 +402,11 @@ namespace Pixel.Automation.Core
             return matchingProperties;
         }
 
-        public void RestoreParentChildRelation(IComponent entityComponent)
+        /// <summary>
+        /// For a given entity, restore the parent child relation for all its descendants
+        /// </summary>
+        /// <param name="entityComponent"></param>
+        public void RestoreParentChildRelation(Entity entityComponent)
         {
             if (entityComponent is Entity entity)
             {

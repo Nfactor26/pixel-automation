@@ -130,7 +130,6 @@ namespace Pixel.Automation.Core
                         {
                             componentsWithTag.Add(component);
                         }
-
                     }
                     return componentsWithTag;
                 default:
@@ -170,7 +169,6 @@ namespace Pixel.Automation.Core
                                 break;
                             }
                         }
-
                     }
                     break;
                 default:
@@ -188,7 +186,7 @@ namespace Pixel.Automation.Core
         /// <param name="name">Name of the component to find</param>
         /// <param name="searchScope">Whether to look in immediate children or entire subtree</param>
         /// <returns></returns>
-        public static IEnumerable<IComponent> GetComponentsByName(this Entity rootEntity, string name,SearchScope searchScope = SearchScope.Children)
+        public static IEnumerable<IComponent> GetComponentsByName(this Entity rootEntity, string name, SearchScope searchScope = SearchScope.Children)
         {
 
             switch (searchScope)
@@ -229,7 +227,6 @@ namespace Pixel.Automation.Core
             switch (searchScope)
             {
                 case SearchScope.Children:
-
                     components = rootEntity.Components.Where(c => c.GetType().GetCustomAttributes(true).Any(a => a is T));                 
                     return components ?? Enumerable.Empty<IComponent>(); 
 
@@ -321,13 +318,19 @@ namespace Pixel.Automation.Core
                 if (parent is T requiredComponent)
                 {
                     return requiredComponent;
-                }
-                   
+                }                   
                 parent = parent.Parent;
             }
             throw new MissingComponentException($"Ancestor of type :{typeof(T)} could not be located");
         }
 
+        /// <summary>
+        /// Try to get an ancestor component of type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component"></param>
+        /// <param name="ancestor"></param>
+        /// <returns>True if ancestor could be located</returns>
         public static bool TryGetAnsecstorOfType<T>(this IComponent component, out T ancestor) where T : class, IComponent
         {
             var parent = component.Parent;
@@ -338,7 +341,6 @@ namespace Pixel.Automation.Core
                     ancestor = requiredComponent;
                     return true;
                 }
-
                 parent = parent.Parent;
             }
             ancestor = null;

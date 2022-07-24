@@ -4,6 +4,9 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Controls
 {
+    /// <summary>
+    /// <see cref="ImageDescription"/> stores the details of image of a control.
+    /// </summary>
     [DataContract]
     [Serializable]
     public class ImageDescription : ICloneable
@@ -50,12 +53,15 @@ namespace Pixel.Automation.Core.Controls
         [DataMember(Order = 70)]
         public string Theme { get; set; } = string.Empty;
         
-       
+        /// <summary>
+        /// Indicates if this is the default image amongst multiple configured images
+        /// </summary>
         public  bool IsDefault
         {
             get => string.IsNullOrEmpty(this.Theme) && this.ScreenHeight == 0 && this.ScreenWidth == 0;
         }
 
+        /// <inheritdoc/>
         public object Clone()
         {
             return new ImageDescription()
