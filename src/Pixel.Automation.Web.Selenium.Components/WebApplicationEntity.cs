@@ -7,13 +7,11 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Web.Selenium.Components.Enums;
-using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Management;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -106,10 +104,12 @@ namespace Pixel.Automation.Web.Selenium.Components
             }
 
             //for firefox/chrome
-            var launchedInstance = GetLaunchedBrowserProcess(preferredBrowser, processIdentifier);
-            webApplicationDetails.TargetApplication = ApplicationProcess.Attach(launchedInstance);
-            logger.Information($"Process Id of launched browser is : {webApplicationDetails.ProcessId}");
-
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var launchedInstance = GetLaunchedBrowserProcess(preferredBrowser, processIdentifier);
+                webApplicationDetails.TargetApplication = ApplicationProcess.Attach(launchedInstance);
+                logger.Information($"Process Id of launched browser is : {webApplicationDetails.ProcessId}");
+            }
 
             Uri goToUrl = webApplicationDetails.TargetUri;
             if (this.TargetUriOverride.IsConfigured())
@@ -204,20 +204,18 @@ namespace Pixel.Automation.Web.Selenium.Components
                     throw new ArgumentException("Browser is not supported");
             }
 
-            string wmiQuery = string.Format("select ProcessId,CommandLine from Win32_Process where Name='{0}'", processName);
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmiQuery);
-            ManagementObjectCollection retObjectCollection = searcher.Get();
-            foreach (ManagementObject retObject in retObjectCollection)
+            var processManager = this.EntityManager.GetServiceOfType<IProcessManager>();
+            IEnumerable<(int, string)> processDetails  = processManager.GetCommandLineArguments(processName);
+            foreach(var processDetailsItem in processDetails)
             {
-                if (retObject["CommandLine"].ToString().Contains(processIdentifier))
+                if(processDetailsItem.Item2.Contains(processIdentifier))
                 {
-                    int processId = Convert.ToInt32(retObject["ProcessId"]);
-                    var process = Process.GetProcessById(processId);
+                    var process = Process.GetProcessById(processDetailsItem.Item1);
                     if (process.MainWindowHandle != IntPtr.Zero)
                     {
                         return process;
                     }
-                }
+                }              
             }
             throw new Exception($"Failed to find launched browser window for : {preferredBrowser} with processIdentifier : {processIdentifier}");
         }

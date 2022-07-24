@@ -14,12 +14,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
+		<PackageReference Include="Dawn.Guard" Version="1.12.0">
 			<Private>false</Private>
 		</PackageReference>
 		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
 			<Private>false</Private>
 		</PackageReference>
+		<PackageReference Include="System.Management" Version="6.0.0" />
 		<PackageReference Include="Vanara.Core" Version="3.4.4">
 			<Private>false</Private>
 		</PackageReference>
