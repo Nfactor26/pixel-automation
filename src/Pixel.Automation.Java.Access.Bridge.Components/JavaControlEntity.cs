@@ -20,7 +20,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<AccessibleContextNode>() { CanChangeMode = false, CanChangeType = false };
+                this.Filter = new PredicateArgument<AccessibleContextNode>();
             }
         }
 

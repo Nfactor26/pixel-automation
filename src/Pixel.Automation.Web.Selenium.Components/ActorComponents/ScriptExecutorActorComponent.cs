@@ -3,12 +3,8 @@ using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
 {
@@ -27,7 +23,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// </summary>
         [DataMember]
         [Display(Name = "JavaScript", GroupName = "Configuration", Order = 20, Description = "javascript to be executed")]     
-        public Argument Script { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+        public Argument Script { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Specify additional arguments to be passed to javascript. These arguments can be accessed inside javascript using arguments[n].
@@ -35,7 +31,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// </summary>
         [DataMember]
         [Display(Name = "Arguments", GroupName = "Configuration", Order = 30, Description = "[Optional] Additional arguments to be passed to javascript")]      
-        public Argument Arguments { get; set; } = new InArgument<object[]>() { Mode = ArgumentMode.Scripted };
+        public Argument Arguments { get; set; } = new InArgument<object[]>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.Scripted };
 
         /// <summary>
         /// Result argument will store the returned value from javascript execution

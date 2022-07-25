@@ -27,7 +27,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// </summary>
         [DataMember]
         [Display(Name = "Position", GroupName = "Configuration", Order = 10, Description = "New position co-ordinates of the control")]
-        public Argument Position { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new ScreenCoordinate(), Mode = ArgumentMode.Default };
+        public Argument Position { get; set; } = new InArgument<ScreenCoordinate>() { Mode = ArgumentMode.Default, DefaultValue = new ScreenCoordinate()};
 
        /// <summary>
        /// Default constructor

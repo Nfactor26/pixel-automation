@@ -76,7 +76,7 @@ public class ImageControlEntity : ControlEntity
     [DataMember]
     [Display(Name = "Target window", GroupName = "Search Strategy", Order = 10)]    
     [Description("Target application window within which image lookup will be restricted")]     
-    public Argument TargetWindow { get; set; } = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+    public Argument TargetWindow { get; set; } = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// A custom bounding box can be provided when search scope is set to custom. Image lookup is constrained within this bounding box.
@@ -84,14 +84,14 @@ public class ImageControlEntity : ControlEntity
     [DataMember]
     [Display(Name = "Area on screen", GroupName = "Search Strategy", Order = 15)]
     [Description("Target window within which image lookup will be restricted")]    
-    public Argument AreaOnScreen { get; set; } = new InArgument<BoundingBox>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+    public Argument AreaOnScreen { get; set; } = new InArgument<BoundingBox>() { Mode = ArgumentMode.DataBound };
 
     ///<inheritdoc/>
     protected override void InitializeFilter()
     {
         if (this.Filter == null)
         {
-            this.Filter = new PredicateArgument<BoundingBox>() { CanChangeMode = false, CanChangeType = false };
+            this.Filter = new PredicateArgument<BoundingBox>() { CanChangeType = false };
         }
     }
 

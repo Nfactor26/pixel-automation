@@ -26,14 +26,14 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// </summary>
         [DataMember]
         [Display(Name = "Width", GroupName = "Configuration", Order = 10, Description = "New value of width")]
-        public Argument Width { get; set; } = new InArgument<double>() { CanChangeMode = true, CanChangeType = false, DefaultValue = 0.0, Mode = ArgumentMode.Default };
+        public Argument Width { get; set; } = new InArgument<double>() { Mode = ArgumentMode.Default,  DefaultValue = 0.0 };
 
         /// <summary>
         /// New value of the height
         /// </summary>
         [DataMember]
         [Display(Name = "Height", GroupName = "Configuration", Order = 20, Description = "New value of height")]
-        public Argument Height { get; set; } = new InArgument<double>() { CanChangeMode = true, CanChangeType = false, DefaultValue = 0.0, Mode = ArgumentMode.Default };
+        public Argument Height { get; set; } = new InArgument<double>() { Mode = ArgumentMode.Default, DefaultValue = 0.0};
 
         /// <summary>
         /// Default constructor

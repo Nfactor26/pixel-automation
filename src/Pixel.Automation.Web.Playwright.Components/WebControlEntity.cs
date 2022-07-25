@@ -17,7 +17,7 @@ namespace Pixel.Automation.Web.Playwright.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<ILocator>() { CanChangeMode = false, CanChangeType = false };
+                this.Filter = new PredicateArgument<ILocator>();
             }
         }
 

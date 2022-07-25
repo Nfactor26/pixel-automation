@@ -27,7 +27,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         [DataMember]
         [Display(Name = "Rotate By", GroupName = "Configuration", Order = 10, Description = "The number of degrees to rotate the element." +
             "A positive number rotates clockwise; a negative number rotates counterclockwise.")]
-        public Argument RotateBy { get; set; } = new InArgument<double>() { CanChangeMode = true, CanChangeType = false, DefaultValue = 0.0, Mode = ArgumentMode.Default };
+        public Argument RotateBy { get; set; } = new InArgument<double>() { CanChangeType = false, DefaultValue = 0.0, Mode = ArgumentMode.Default };
 
         /// <summary>
         /// Default constructor

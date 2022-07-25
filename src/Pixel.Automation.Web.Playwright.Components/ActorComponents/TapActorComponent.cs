@@ -22,7 +22,7 @@ public class TapActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Tap Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorTapOptions")]
-    public Argument TapOptions { get; set; } = new InArgument<LocatorTapOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument TapOptions { get; set; } = new InArgument<LocatorTapOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Cosntructor

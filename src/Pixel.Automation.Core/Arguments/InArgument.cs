@@ -18,8 +18,8 @@ namespace Pixel.Automation.Core.Arguments
     public class InArgument<T> : Argument, IDefaultValueProvider<T>
     {
 
-        T defaultValue;
-        [DataMember(IsRequired = false)]
+        T defaultValue = default(T);
+        [DataMember(IsRequired = false, Order = 30)]
         /// <summary>
         /// Default value of the argument
         /// </summary>
@@ -56,7 +56,7 @@ namespace Pixel.Automation.Core.Arguments
         /// </summary>
         public InArgument()
         {
-            this.Mode = ArgumentMode.Default;
+           
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace Pixel.Automation.Core.Arguments
             InArgument<T> clone = new InArgument<T>()
             {
                 Mode = this.Mode,
+                AllowedModes = this.AllowedModes,
                 DefaultValue = this.DefaultValue,
-                PropertyPath = this.PropertyPath,
-                CanChangeMode = this.CanChangeMode,
+                PropertyPath = this.PropertyPath,               
                 CanChangeType = this.CanChangeType,
                 ScriptFile = this.ScriptFile
             };

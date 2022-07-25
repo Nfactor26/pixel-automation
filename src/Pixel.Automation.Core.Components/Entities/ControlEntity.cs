@@ -39,6 +39,7 @@ namespace Pixel.Automation.Core.Components
         [Browsable(true)]
         public virtual Argument SearchRoot { get; set; } = new InArgument<UIControl>()
         {
+            AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted,
             Mode = ArgumentMode.DataBound,
             CanChangeType = false
         };
@@ -107,11 +108,20 @@ namespace Pixel.Automation.Core.Components
         [Description("Bind to current Iteration when used inside loop")]
         public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
 
+        private Argument filter;
         [DataMember]
         [Browsable(false)]
         [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
-        public virtual Argument Filter { get; set; }
+        public virtual Argument Filter
+        {
+            get => filter;
+            set
+            {
+                filter = value;
+                OnPropertyChanged();
+            }
+        }
 
         [DataMember]
         [Display(Name = "Enable Caching", GroupName = "Caching", Order = 50,

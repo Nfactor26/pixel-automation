@@ -23,7 +23,7 @@ public class DoubleClickActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Double Click Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorDblClickOptions")]
-    public Argument DblClickOptions { get; set; } = new InArgument<LocatorDblClickOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument DblClickOptions { get; set; } = new InArgument<LocatorDblClickOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

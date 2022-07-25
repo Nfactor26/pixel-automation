@@ -75,14 +75,14 @@ namespace Pixel.Automation.Input.Devices.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Drag Source", GroupName = "Control Details", Order = 30, Description = "Control to drag")]
-        public Argument SourceControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument SourceControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Drop target control
         /// </summary>
         [DataMember]
         [Display(Name = "Drop Target", GroupName = "Control Details", Order = 40, Description = "Target control to drop to")]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Pixel.Automation.Input.Devices.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Drag Start", GroupName = "Point", Order = 50, Description = "Represents the coordinates which acts as drag start point")]     
-        public Argument DragStartPoint { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(0, 0), CanChangeType = false };
+        public Argument DragStartPoint { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(0, 0) };
 
         /// <summary>
         /// Drop point co-ordinates

@@ -19,13 +19,13 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [DisplayName("Target Window")]
         [Category("Input")]
-        public Argument ApplicationWindow { get; set; } = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
+        public Argument ApplicationWindow { get; set; } = new InArgument<ApplicationWindow>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         [DataMember]
         [DisplayName("Window dimension")]
         [Category("Input")]
         [Description("New dimension i.e. width and height of window")]
-        public Argument Dimension { get; set; } = new InArgument<Dimension>() { DefaultValue = Core.Devices.Dimension.ZeroExtents };
+        public Argument Dimension { get; set; } = new InArgument<Dimension>() { DefaultValue = new Dimension(0, 0) };
 
         public ResizeWindowActorComponent() : base("Resize Window", "ResizeWindow")
         {

@@ -27,14 +27,14 @@ public class GetAttributeActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Get Attribute Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorGetAttributeOptions")]
-    public Argument GetAttributeOptions { get; set; } = new InArgument<LocatorGetAttributeOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument GetAttributeOptions { get; set; } = new InArgument<LocatorGetAttributeOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Output argument to store the attribute value of element
     /// </summary>
     [DataMember]
     [Display(Name = "Result", GroupName = "Output", Order = 20, Description = "Output argument to store the retrieved attribute value")]
-    public Argument Result { get; set; } = new OutArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Result { get; set; } = new OutArgument<string>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

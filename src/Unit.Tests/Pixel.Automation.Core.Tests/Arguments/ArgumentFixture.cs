@@ -2,8 +2,6 @@
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Test.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pixel.Automation.Core.Tests.Arguments
 {
@@ -13,6 +11,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public DummyArgument()
         {
             this.Mode = ArgumentMode.DataBound;
+            this.AllowedModes = ArgumentMode.Default | ArgumentMode.DataBound | ArgumentMode.Scripted;
         }
 
         public override object Clone()
@@ -31,7 +30,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         [Test]
         public void ValidateThatArugmentCanBeInitializedInDataBoundMode()
         {
-            var argument = new DummyArgument<Person>() { PropertyPath = "Age", CanChangeMode = true, CanChangeType =false };
+            var argument = new DummyArgument<Person>() { PropertyPath = "Age", CanChangeType =false };
             Assert.AreEqual(ArgumentMode.DataBound, argument.Mode);
             Assert.IsTrue(argument.CanChangeMode);
             Assert.IsFalse(argument.CanChangeType);
@@ -39,7 +38,10 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual("Age", argument.PropertyPath);
             Assert.AreEqual("Person", argument.ArgumentType);
             Assert.IsTrue(argument.IsConfigured());
-                       
+            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+
         }
 
         [Test]
@@ -53,6 +55,22 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.IsTrue(string.IsNullOrEmpty(argument.PropertyPath));
             Assert.AreEqual("Int32", argument.ArgumentType);
             Assert.IsTrue(argument.IsConfigured());
+        }
+
+        [Test]
+        public void ValidateThatOnlyAllowedModesCanBeSetAsArgumentMode()
+        {
+            var argument = new DummyArgument<int>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.Scripted, ScriptFile = "Script.csx" };
+           
+            Assert.IsFalse(argument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.AreEqual(ArgumentMode.Scripted, argument.Mode);
+
+            argument.Mode = ArgumentMode.Default;
+       
+            Assert.AreNotEqual(ArgumentMode.Default, argument.Mode);
+            Assert.AreEqual(ArgumentMode.Scripted, argument.Mode);
 
         }
     }

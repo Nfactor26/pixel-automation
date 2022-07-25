@@ -26,7 +26,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         [DataMember]
         [Display(Name = "OffSet", GroupName = "Configuration", Order = 10, Description = "New position co-ordinates of the control")]
-        public Argument OffSet { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeMode = true, CanChangeType = false, DefaultValue = new ScreenCoordinate(), Mode = ArgumentMode.Default };
+        public Argument OffSet { get; set; } = new InArgument<ScreenCoordinate>() { Mode = ArgumentMode.Default, DefaultValue = new ScreenCoordinate()};
 
         /// <summary>
         /// Default constructor

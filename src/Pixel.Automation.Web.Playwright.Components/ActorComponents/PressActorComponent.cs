@@ -23,14 +23,14 @@ public class PressActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember(IsRequired = true)]
     [Display(Name = "Keys", GroupName = "Configuration", Order = 10, Description = "Input argument to provide keys to press")]
-    public Argument Keys { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Keys { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorPressOptions"/> that can be used to customize the Press operation
     /// </summary>
     [DataMember]
     [Display(Name = "Press Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorpressOptions")]
-    public Argument PressOptions { get; set; } = new InArgument<LocatorPressOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument PressOptions { get; set; } = new InArgument<LocatorPressOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

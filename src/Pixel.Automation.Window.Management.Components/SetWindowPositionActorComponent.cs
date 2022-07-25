@@ -22,7 +22,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [DisplayName("Target Window")]
         [Category("Input")]
-        public Argument ApplicationWindow { get; set; } = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
+        public Argument ApplicationWindow { get; set; } = new InArgument<ApplicationWindow>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         [DataMember]
         [DisplayName("Position")]

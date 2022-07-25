@@ -23,7 +23,7 @@ public class UncheckActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "UnCheck Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorUncheckOptions")]
-    public Argument UnCheckOptions { get; set; } = new InArgument<LocatorUncheckOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument UnCheckOptions { get; set; } = new InArgument<LocatorUncheckOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
     /// <summary>

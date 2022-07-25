@@ -28,7 +28,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Offset", GroupName = "Configuration", Order = 20, Description = "[Optional] Specify an offset relative to center of the control for hover position")]      
-        public Argument Offset { get; set; } = new InArgument<ScreenCoordinate>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+        public Argument Offset { get; set; } = new InArgument<ScreenCoordinate>() { Mode = ArgumentMode.DataBound, DefaultValue = new ScreenCoordinate() };
 
         /// <summary>
         /// Default constructor

@@ -102,7 +102,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     /// Set the theme used by the application. Target image will be retrieved based on the matching theme.
     /// </summary>
     [DataMember]
-    public Argument Theme { get; set; } = new InArgument<string>() { CanChangeType = false, CanChangeMode = true, DefaultValue = string.Empty, Mode = ArgumentMode.DataBound };
+    public Argument Theme { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, DefaultValue = string.Empty };
 
     [NonSerialized]
     private AsyncRetryPolicy policy;

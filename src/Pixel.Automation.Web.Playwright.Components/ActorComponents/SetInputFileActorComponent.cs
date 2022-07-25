@@ -23,7 +23,7 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Input Files", GroupName = "Configuration", Order = 10, Description = "Input argument for input files for upload")]
-    public Argument InputFiles { get; set; } = new InArgument<string>() { CanChangeType = true, Mode = ArgumentMode.DataBound };
+    public Argument InputFiles { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
 
     /// <summary>
@@ -31,7 +31,7 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Input Files Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorSetInputFilesOptions")]
-    public Argument SetInputFilesOptions { get; set; } = new InArgument<LocatorSetInputFilesOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument SetInputFilesOptions { get; set; } = new InArgument<LocatorSetInputFilesOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
     /// <summary>

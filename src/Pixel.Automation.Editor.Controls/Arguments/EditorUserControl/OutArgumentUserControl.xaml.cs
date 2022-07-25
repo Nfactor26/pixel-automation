@@ -25,21 +25,20 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
         public void ChangeArgumentMode(object sender, RoutedEventArgs e)
         {
-            if (this.OwnerComponent?.EntityManager == null)
+            if (this.OwnerComponent?.EntityManager == null || !this.Argument.CanChangeMode)
             {
                 return;
             }
-            if (this.Argument.Mode == ArgumentMode.DataBound)
+            if (this.Argument.Mode == ArgumentMode.DataBound && this.Argument.AllowedModes.HasFlag(ArgumentMode.Scripted))
             {
                 this.Argument.Mode = ArgumentMode.Scripted;
                 InitializeScriptName();
             }
-            else if (this.Argument.Mode == ArgumentMode.Scripted)
-            {                        
+            else if (this.Argument.Mode == ArgumentMode.Scripted && this.Argument.AllowedModes.HasFlag(ArgumentMode.DataBound))
+            {
                 this.Argument.Mode = ArgumentMode.DataBound;
                 LoadAvailableProperties();
             }
-
         }        
 
     }

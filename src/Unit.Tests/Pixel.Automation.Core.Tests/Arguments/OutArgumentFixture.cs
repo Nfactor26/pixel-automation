@@ -24,7 +24,12 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual(ArgumentMode.DataBound, outArgument.Mode);
             Assert.AreEqual("Age", outArgument.PropertyPath);
             Assert.AreEqual(typeof(Person), outArgument.GetArgumentType());
+            Assert.IsFalse(outArgument.CanChangeType);
+            Assert.IsTrue(outArgument.CanChangeMode);
             Assert.IsTrue(outArgument.IsConfigured());
+            Assert.IsFalse(outArgument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.IsTrue(outArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.IsTrue(outArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]

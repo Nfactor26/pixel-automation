@@ -37,7 +37,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
         public void ChangeArgumentMode(object sender, RoutedEventArgs e)
         {
-            if (this.OwnerComponent?.EntityManager == null)
+            if (this.OwnerComponent?.EntityManager == null || !this.Argument.CanChangeMode)
             {
                 return;
             }
@@ -45,15 +45,38 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             switch (this.Argument.Mode)
             {
                 case ArgumentMode.Default:
-                    this.Argument.Mode = ArgumentMode.DataBound;
-                    LoadAvailableProperties();
+                    if(this.Argument.AllowedModes.HasFlag(ArgumentMode.DataBound))
+                    {
+                        this.Argument.Mode = ArgumentMode.DataBound;
+                        LoadAvailableProperties();
+                    }
+                    else if(this.Argument.AllowedModes.HasFlag(ArgumentMode.Scripted))
+                    {
+                        this.Argument.Mode = ArgumentMode.Scripted;
+                        InitializeScriptName();
+                    }
                     break;
                 case ArgumentMode.DataBound:
-                    this.Argument.Mode = ArgumentMode.Scripted;
-                    InitializeScriptName();
+                    if(this.Argument.AllowedModes.HasFlag(ArgumentMode.Scripted))
+                    {
+                        this.Argument.Mode = ArgumentMode.Scripted;
+                        InitializeScriptName();
+                    }
+                    else if (this.Argument.AllowedModes.HasFlag(ArgumentMode.Default))
+                    {
+                        this.Argument.Mode = ArgumentMode.Default;
+                    }
                     break;
                 case ArgumentMode.Scripted:
-                    this.Argument.Mode = ArgumentMode.Default;
+                    if (this.Argument.AllowedModes.HasFlag(ArgumentMode.Default))
+                    {
+                        this.Argument.Mode = ArgumentMode.Default;
+                    }
+                    else if (this.Argument.AllowedModes.HasFlag(ArgumentMode.DataBound))
+                    {
+                        this.Argument.Mode = ArgumentMode.DataBound;
+                        LoadAvailableProperties();
+                    }
                     break;
             }
         }

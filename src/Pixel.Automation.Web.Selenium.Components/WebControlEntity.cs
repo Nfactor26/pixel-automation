@@ -4,9 +4,6 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -24,7 +21,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<IWebElement>() { CanChangeMode = false, CanChangeType = false };
+                this.Filter = new PredicateArgument<IWebElement>();
             }
         }
 

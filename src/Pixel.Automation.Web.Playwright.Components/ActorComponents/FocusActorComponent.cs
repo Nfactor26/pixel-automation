@@ -23,7 +23,7 @@ public class FocusActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Focus Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorFocusOptions")]
-    public Argument FocusOptions { get; set; } = new InArgument<LocatorFocusOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument FocusOptions { get; set; } = new InArgument<LocatorFocusOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
