@@ -22,7 +22,7 @@ public class ClickActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Click Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorClickOptions")]
-    public Argument ClickOptions { get; set; } = new InArgument<LocatorClickOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument ClickOptions { get; set; } = new InArgument<LocatorClickOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

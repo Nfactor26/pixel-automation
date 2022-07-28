@@ -18,7 +18,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [Description("Handle window to be located")]
         [DisplayName("Window Handle")]
-        public Argument WindowHandle { get; set; } = new InArgument<IntPtr>() { DefaultValue = IntPtr.Zero, Mode = ArgumentMode.Default, CanChangeType = false, CanChangeMode = true };
+        public Argument WindowHandle { get; set; } = new InArgument<IntPtr>() { Mode = ArgumentMode.Default, DefaultValue = IntPtr.Zero };
 
         [DataMember]
         [DisplayName("Found Window")]

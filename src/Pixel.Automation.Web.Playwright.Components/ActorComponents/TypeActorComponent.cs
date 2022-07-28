@@ -23,7 +23,7 @@ public class TypeActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember(IsRequired = true)]
     [Display(Name = "Input", GroupName = "Configuration", Order = 10, Description = "Input argument for text to type")]
-    public Argument Input { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
 
     /// <summary>
@@ -31,7 +31,7 @@ public class TypeActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Type Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorTypeOptions")]
-    public Argument TypeOptions { get; set; } = new InArgument<LocatorTypeOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument TypeOptions { get; set; } = new InArgument<LocatorTypeOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
     /// <summary>

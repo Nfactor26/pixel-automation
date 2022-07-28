@@ -32,7 +32,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DisplayName("Parent Window")]
         [Description("Parent Window whose child window needs to be located")]
         [Category("Input")]
-        public InArgument<ApplicationWindow> ParentWindow { get; set; } = new InArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
+        public InArgument<ApplicationWindow> ParentWindow { get; set; } = new InArgument<ApplicationWindow>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         private LookupMode lookupMode = LookupMode.FindSingle;
         [DataMember]
@@ -79,7 +79,7 @@ namespace Pixel.Automation.Window.Management.Components
                         this.SetDispalyAttribute(nameof(Index), true);
                         break;
                     case FilterMode.Custom:
-                        this.Filter = new PredicateArgument<ApplicationWindow>() { CanChangeMode = false, CanChangeType = false };
+                        this.Filter = new PredicateArgument<ApplicationWindow>() { CanChangeType = false };
                         this.SetDispalyAttribute(nameof(Filter), true);
                         this.SetDispalyAttribute(nameof(Index), false);
                         break;

@@ -18,7 +18,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [Description("ProcessId of window to be located")]
         [DisplayName("Process Id")]
-        public Argument ProcessId { get; set; } = new InArgument<int>() { DefaultValue = 0, Mode = ArgumentMode.Default, CanChangeType = false, CanChangeMode = true };
+        public Argument ProcessId { get; set; } = new InArgument<int>() { Mode = ArgumentMode.Default, DefaultValue = 0 };
 
         [DataMember]
         [DisplayName("Found Window")]

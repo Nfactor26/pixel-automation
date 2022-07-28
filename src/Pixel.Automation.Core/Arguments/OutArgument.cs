@@ -16,6 +16,7 @@ namespace Pixel.Automation.Core.Arguments
         /// </summary>
         public OutArgument()
         {
+            this.AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted;
             this.Mode = ArgumentMode.DataBound;
         }
        
@@ -31,8 +32,8 @@ namespace Pixel.Automation.Core.Arguments
             OutArgument<T> clone = new OutArgument<T>()
             {
                 Mode = this.Mode,
-                PropertyPath = this.PropertyPath,              
-                CanChangeMode = this.CanChangeMode,
+                AllowedModes = this.AllowedModes,
+                PropertyPath = this.PropertyPath,                     
                 CanChangeType = this.CanChangeType,
                 ScriptFile = this.ScriptFile
             };

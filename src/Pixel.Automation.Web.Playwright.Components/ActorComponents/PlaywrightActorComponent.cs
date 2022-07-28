@@ -18,7 +18,7 @@ public abstract class PlaywrightActorComponent : ActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Target Control", GroupName = "Control Details", Order = 10, Description = "[Optional] Input argument to provide a WebUIControl.")]
-    public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+    public Argument TargetControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Owner application that is interacted with

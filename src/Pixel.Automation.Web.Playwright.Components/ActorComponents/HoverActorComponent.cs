@@ -23,7 +23,7 @@ public class HoverActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Hover Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorHoverOptions")]      
-    public Argument HoverOptions { get; set; } = new InArgument<LocatorHoverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument HoverOptions { get; set; } = new InArgument<LocatorHoverOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

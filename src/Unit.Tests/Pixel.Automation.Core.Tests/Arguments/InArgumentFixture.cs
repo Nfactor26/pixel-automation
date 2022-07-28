@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Test.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pixel.Automation.Core.Tests.Arguments
 {
@@ -18,7 +15,12 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual(26, inArgument.DefaultValue);         
             Assert.IsTrue(inArgument.IsConfigured());
             Assert.AreEqual(26, inArgument.GetDefaultValue());
-            Assert.AreEqual(typeof(int), inArgument.GetArgumentType());            
+            Assert.IsFalse(inArgument.CanChangeType);
+            Assert.IsTrue(inArgument.CanChangeMode);
+            Assert.AreEqual(typeof(int), inArgument.GetArgumentType());
+            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]

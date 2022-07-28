@@ -23,7 +23,7 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Select Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorSelectOptionOptions")]
-    public Argument SelectOptions { get; set; } = new InArgument<LocatorSelectOptionOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument SelectOptions { get; set; } = new InArgument<LocatorSelectOptionOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
     /// <summary>
@@ -31,7 +31,7 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Values", GroupName = "Configuration", Order = 20, Description = "one or more values to select")]
-    public Argument Values { get; set; } = new InArgument<string>() { CanChangeType = true, Mode = ArgumentMode.DataBound };
+    public Argument Values { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
 
     /// <summary>

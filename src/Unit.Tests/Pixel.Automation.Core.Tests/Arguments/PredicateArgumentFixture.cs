@@ -12,9 +12,12 @@ namespace Pixel.Automation.Core.Tests.Arguments
             
             Assert.AreEqual(ArgumentMode.Scripted, predicateArgument.Mode);
             Assert.AreEqual("PredicateScript.csx", predicateArgument.ScriptFile);
-            Assert.IsTrue(predicateArgument.CanChangeType);
+            Assert.IsFalse(predicateArgument.CanChangeType);
             Assert.IsFalse(predicateArgument.CanChangeMode);
             Assert.AreEqual(typeof(int), predicateArgument.GetArgumentType());
+            Assert.IsFalse(predicateArgument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.IsFalse(predicateArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.IsTrue(predicateArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]

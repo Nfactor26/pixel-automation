@@ -32,23 +32,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             Assert.ThrowsAsync<InvalidOperationException>(async () => await argumentProcessor.SetValueAsync<bool>(argument, false));
             await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Validate that InvalidOperationException is thrown since SetValue operation is not applicable for a OutArgument<T>
-        /// which doesn't have a default value. Only InArgument<T> have default value which can be retrieved only using GetValue operation
-        /// </summary>
-        [Test]
-        public async Task ShouldThrowExceptionIfArgumentIsConfiguredForDefaultMode()
-        {
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor();
-            argumentProcessor.Initialize(defaultScriptEngine, new object());
-            var argument = new OutArgument<int>() { Mode = ArgumentMode.Default };
-
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await argumentProcessor.SetValueAsync<int>(argument, 10));
-            await Task.CompletedTask;
-           
-        }
+        }       
 
         /// <summary>
         /// Several OutArgument<T> on components can not be configured as user might not be intersted in storing these values.

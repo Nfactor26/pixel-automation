@@ -3,7 +3,6 @@ using Microsoft.Win32;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -162,7 +161,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
         public async void ChangeArgumentType(object sender, RoutedEventArgs e)
         {
             //Using outside automation process such as Application in ApplicationRepository
-            if (this.OwnerComponent?.EntityManager == null)
+            if (this.OwnerComponent?.EntityManager == null || !this.Argument.CanChangeType)
             {
                 return;
             }
@@ -181,8 +180,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 if (this.Argument.GetType().Name.StartsWith("OutArgument"))
                 {
                     Argument typedArgumentInstance = typeBrowserWindow.CreateOutArgumentForSelectedType();
-                    typedArgumentInstance.Mode = this.Argument.Mode;
-                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
+                    typedArgumentInstance.Mode = this.Argument.Mode;              
                     typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
                     this.Argument = typedArgumentInstance;
                 }
@@ -191,7 +189,6 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 {
                     Argument typedArgumentInstance = typeBrowserWindow.CreateInArgumentForSelectedType();
                     typedArgumentInstance.Mode = this.Argument.Mode;
-                    typedArgumentInstance.CanChangeMode = this.Argument.CanChangeMode;
                     typedArgumentInstance.CanChangeType = this.Argument.CanChangeType;
                     this.Argument = typedArgumentInstance;
                 }

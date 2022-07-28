@@ -84,7 +84,7 @@ namespace Pixel.Automation.Input.Devices.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Target Control", GroupName = "Control Details", Order = 50, Description = "[Optional] Target control that needs to be clicked.")]  
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// MouseClickActorComponent can be used to click at an arbitrary co-ordinates instead of a target control. Click At argument can be used to spcify an arbitrary co-ordinates
@@ -92,7 +92,7 @@ namespace Pixel.Automation.Input.Devices.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Click At", GroupName = "Point", Order = 50, Description = "[Optional] Co-ordinates at which click needs to be performed if there is no target control.")]
-        public Argument ClickAt { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(), CanChangeType = false };
+        public Argument ClickAt { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate()};
 
         /// <summary>
         /// Default constructor

@@ -23,7 +23,7 @@ public class DispatchEventActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "DispatchEvent", GroupName = "Configuration", Order = 10, Description = "event to dispatch")]
-    public Argument DispatchEvent { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.Default, DefaultValue = String.Empty };
+    public Argument DispatchEvent { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = String.Empty };
 
 
     /// <summary>
@@ -31,7 +31,7 @@ public class DispatchEventActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Dispatch Event Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorDispatchEventOptions")]
-    public Argument DispatchEventOptions { get; set; } = new InArgument<LocatorDispatchEventOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument DispatchEventOptions { get; set; } = new InArgument<LocatorDispatchEventOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

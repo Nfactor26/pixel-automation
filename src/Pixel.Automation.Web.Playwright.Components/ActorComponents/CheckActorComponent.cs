@@ -23,7 +23,7 @@ public class CheckActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Check Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorCheckOptions")]
-    public Argument CheckOptions { get; set; } = new InArgument<LocatorCheckOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument CheckOptions { get; set; } = new InArgument<LocatorCheckOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
    
     /// <summary>

@@ -17,9 +17,9 @@ namespace Pixel.Automation.Core.Arguments
         /// </summary>
         public PredicateArgument()
         {
-            this.Mode = ArgumentMode.Scripted;
-            this.CanChangeType = true;
-            this.CanChangeMode = false;
+            this.AllowedModes = ArgumentMode.Scripted;
+            this.Mode = ArgumentMode.Scripted;         
+            this.CanChangeType = false;            
         }
 
         /// <inheritdoc/>
@@ -34,7 +34,7 @@ namespace Pixel.Automation.Core.Arguments
             PredicateArgument<T> clone = new PredicateArgument<T>()
             {
                 Mode = this.Mode,            
-                CanChangeMode = this.CanChangeMode,
+                AllowedModes = this.AllowedModes,
                 CanChangeType = this.CanChangeType,
                 ScriptFile = this.ScriptFile
             };

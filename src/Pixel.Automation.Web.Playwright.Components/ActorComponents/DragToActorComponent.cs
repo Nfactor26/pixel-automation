@@ -22,14 +22,14 @@ public class DragToActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Target", GroupName = "Configuration", Order = 10, Description = "Input argument for drop target locator")]
-    public Argument Target { get; set; } = new InArgument<ILocator>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Target { get; set; } = new InArgument<ILocator>() {  Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorDragToOptions"/> that can be used to customize the drag operation
     /// </summary>
     [DataMember]
     [Display(Name = "Drag To Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorDragToOptions")]
-    public Argument DragToOptions { get; set; } = new InArgument<LocatorDragToOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument DragToOptions { get; set; } = new InArgument<LocatorDragToOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

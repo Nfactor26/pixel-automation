@@ -23,14 +23,14 @@ public class FillActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember(IsRequired = true)]
     [Display(Name = "Input", GroupName = "Configuration", Order = 10, Description = "Input value to fill")]
-    public Argument Input { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorFillOptions"/> that can be used to customize the fill operation
     /// </summary>
     [DataMember]
     [Display(Name = "Offset", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorFillOptions")]
-    public Argument FillOptions { get; set; } = new InArgument<LocatorFillOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument FillOptions { get; set; } = new InArgument<LocatorFillOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor

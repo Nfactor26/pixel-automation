@@ -21,7 +21,7 @@ namespace Pixel.Automation.UIA.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<AutomationElement>() { CanChangeMode = false, CanChangeType = false };
+                this.Filter = new PredicateArgument<AutomationElement>();
             }
         }
 

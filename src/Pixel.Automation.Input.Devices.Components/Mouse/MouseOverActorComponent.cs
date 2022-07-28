@@ -64,14 +64,14 @@ namespace Pixel.Automation.Input.Devices.Components
         /// </summary>
         [DataMember]
         [Display(Name = "Target Control", GroupName = "Control Details", Order = 30, Description = "[Optional] Target control where cursor needs to be moved.")]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// An arbitrary co-ordinates where the cursor position should be moved.
         /// </summary>
         [DataMember]
         [Display(Name = "Move To", GroupName = "Point", Order = 40, Description = "[Optional] Arbitrary co-ordinates where mouse cursor should be moved to.")]
-        public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(100, 100), CanChangeType = false };
+        public Argument MoveTo { get; set; } = new InArgument<ScreenCoordinate>() { DefaultValue = new ScreenCoordinate(100, 100) };
 
         /// <summary>
         /// Default constructor

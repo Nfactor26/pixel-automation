@@ -23,7 +23,7 @@ namespace Pixel.Automation.Core.Components.Sequences
         [DataMember]
         [Display(Name = "Exception", GroupName = "Exception  Handling", Order = 10)]
         [Description("Exception encountered during processing of try block")]
-        public Argument Exception { get; set; } = new OutArgument<Exception>() { CanChangeType = false, Mode = ArgumentMode.DataBound, CanChangeMode = false };
+        public Argument Exception { get; set; } = new OutArgument<Exception>() { CanChangeType = false, Mode = ArgumentMode.DataBound};
 
         public TryCatchSequence() : base("Try Catch", "TryCatchSequence")
         {

@@ -21,14 +21,14 @@ public class EvaluateScriptActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "JavaScript", GroupName = "Configuration", Order = 10, Description = "Input argument to provide javascript to be evaluated.")]     
-    public Argument Script { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    public Argument Script { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Input argument to provide additional arguments to be passed to javascript.   
     /// </summary>
     [DataMember]
     [Display(Name = "Arguments", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for additional arguments to be passed to javascript")]      
-    public Argument Arguments { get; set; } = new InArgument<object>() { Mode = ArgumentMode.DataBound };
+    public Argument Arguments { get; set; } = new InArgument<object>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Output argument to store the result of the evaluate javascript operation

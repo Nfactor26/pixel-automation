@@ -29,7 +29,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         [DataMember]
         [Display(Name = "Drag Source", GroupName = "Control Details", Order = 10)]
         [Description("Drag source control")]
-        public Argument SourceControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument SourceControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Drop target control
@@ -37,7 +37,7 @@ namespace Pixel.Automation.Web.Selenium.Components
         [DataMember]
         [Display(Name = "Drop Target", GroupName = "Control Details", Order = 10)]
         [Description("Drop target control")]
-        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+        public Argument TargetControl { get; set; } = new InArgument<UIControl>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
         /// <summary>
         /// Default constructor

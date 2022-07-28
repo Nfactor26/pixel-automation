@@ -73,7 +73,7 @@ namespace Pixel.Automation.Window.Management.Components
                         this.SetDispalyAttribute(nameof(Index), true);
                         break;
                     case FilterMode.Custom:
-                        this.Filter = new PredicateArgument<ApplicationWindow>() { CanChangeMode = false, CanChangeType = false };
+                        this.Filter = new PredicateArgument<ApplicationWindow>();
                         this.SetDispalyAttribute(nameof(Filter), true);
                         this.SetDispalyAttribute(nameof(Index), false);
                         break;
@@ -90,7 +90,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
-        public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
+        public Argument Index { get; set; } = new InArgument<int>() {  Mode = ArgumentMode.Default, DefaultValue = 0 };
 
         [DataMember]
         [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
