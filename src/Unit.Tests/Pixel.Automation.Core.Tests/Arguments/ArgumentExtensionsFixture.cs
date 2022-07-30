@@ -58,7 +58,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatInitialScriptCanBeGeneratedForPredicateArgument()
         {
             var argument = new PredicateArgument<int>();
-            var expected = "using System;\r\nbool IsMatch(IComponent current, Int32 argument)\r\n{\r\n    return false;\r\n}\r\nreturn ((Func<IComponent, Int32, bool>)IsMatch);";
+            var expected = "using System;\r\nusing Pixel.Automation.Core.Interfaces;\r\nbool IsMatch(IComponent current, Int32 argument)\r\n{\r\n    return false;\r\n}\r\nreturn ((Func<IComponent, Int32, bool>)IsMatch);";
             var result = argument.GenerateInitialScript();
 
             Assert.AreEqual(expected, result);

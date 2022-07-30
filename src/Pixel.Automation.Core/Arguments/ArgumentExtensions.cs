@@ -64,6 +64,7 @@ namespace Pixel.Automation.Core
             }
             else if(argument.GetType().Name.Equals(typeof(PredicateArgument<>).Name))
             {
+                result.Append($"using {typeof(IComponent).Namespace};{Environment.NewLine}");
                 result.Append(GeneratePredicateScript(argument));
                 return result.ToString();
             }
