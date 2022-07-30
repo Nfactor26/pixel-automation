@@ -15,8 +15,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     [ControlLocator(typeof(JavaControlLocatorComponent))]
     [ApplicationEntity(typeof(JavaApplicationEntity))]
     public class JavaApplication : Application
-    {      
-        string executablePath;
+    {             
         /// <summary>
         /// Path of the executable file
         /// </summary>
@@ -33,7 +32,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         [Description("Working directory of the application")]
         public string WorkingDirectory
         {
-            get => workingDirectory ?? (Path.IsPathRooted(executablePath) ? Path.GetDirectoryName(executablePath) : "");
+            get => workingDirectory ?? (Path.IsPathRooted(ExecutablePath) ? Path.GetDirectoryName(ExecutablePath) : "");
             set => workingDirectory = value;
         }
 
