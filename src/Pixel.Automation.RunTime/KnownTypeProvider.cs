@@ -46,7 +46,7 @@ namespace Pixel.Automation.RunTime
         {           
             foreach (Type t in assembly.DefinedTypes)
             {
-                if (t.IsPublic && !t.IsAbstract && (t.IsSubclassOf(typeof(Component)) || t.GetInterface("IEntityProcessor") != null))
+                if (t.IsPublic && !t.IsAbstract)
                 {
                     if(!this.knownTypes.Contains(t))
                     {
