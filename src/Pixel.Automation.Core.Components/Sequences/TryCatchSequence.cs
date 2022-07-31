@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         [DataMember]
         [Display(Name = "Exception", GroupName = "Exception  Handling", Order = 10)]
-        [Description("Exception encountered during processing of try block")]
+        [Description("[Optional] Exception encountered during processing of try block")]
         public Argument Exception { get; set; } = new OutArgument<Exception>() { CanChangeType = false, Mode = ArgumentMode.DataBound};
 
         public TryCatchSequence() : base("Try Catch", "TryCatchSequence")
@@ -41,7 +41,10 @@ namespace Pixel.Automation.Core.Components.Sequences
             catch (Exception ex)
             {
                 logger.Warning($"An error was encountered while processing Try block. {ex.Message}");
-                await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, ex);
+                if(this.Exception.IsConfigured())
+                {
+                    await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, ex);
+                }               
                 var catchBlock = this.GetComponentsByName("Catch", Enums.SearchScope.Children).FirstOrDefault() as Entity;
                 await this.ProcessEntity(catchBlock);
             }

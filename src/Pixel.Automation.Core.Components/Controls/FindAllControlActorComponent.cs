@@ -25,7 +25,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
         [DataMember]
         [Display(Name = "Count", Order = 20, GroupName = "Output")]
-        [Description("Argument will hold the count of found controls")]
+        [Description("[Optional] Argument will hold the count of found controls")]
         public Argument Count { get; set; } = new OutArgument<int>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
 
@@ -44,8 +44,11 @@ namespace Pixel.Automation.Core.Components.Controls
                 locatedControls.AddRange(foundControls);
             }
             IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-            await argumentProcessor.SetValueAsync<IEnumerable<UIControl>>(this.FoundControls, locatedControls);      
-            await argumentProcessor.SetValueAsync<int>(this.Count, locatedControls.Count());
+            await argumentProcessor.SetValueAsync<IEnumerable<UIControl>>(this.FoundControls, locatedControls);
+            if(this.Count.IsConfigured())
+            {
+                await argumentProcessor.SetValueAsync<int>(this.Count, locatedControls.Count());
+            }
         }
     }
 

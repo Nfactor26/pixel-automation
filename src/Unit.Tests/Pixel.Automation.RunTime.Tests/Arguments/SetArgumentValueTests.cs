@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Exceptions;
 using System;
 using System.Threading.Tasks;
 
@@ -35,20 +36,16 @@ namespace Pixel.Automation.RunTime.Tests
         }       
 
         /// <summary>
-        /// Several OutArgument<T> on components can not be configured as user might not be intersted in storing these values.
-        /// For ex: FindControl has two OutArgument to store actual control and a boolean indicating whether control was found.
-        /// User might only store the control and not configure the boolean Argument. To avoid validation logic in each actor component
-        /// to check if OutArgument has Property Path configured or not before trying to set value , ArgumentProcessor will simply ignore
-        /// those argument and only log that Property Path is not configured.
+        /// Verify that exception is thrown if the OutArgument is not configured and an attempt is made to set it's value.
         /// </summary>
         [Test]
-        public async Task ShouldNotThrowExceptionIfPropertyPathIsNotConfiguredInDataBoundMode()
+        public void ShouldThrowExceptionIfPropertyPathIsNotConfiguredInDataBoundMode()
         {          
             ArgumentProcessor argumentProcessor = new ArgumentProcessor();
             argumentProcessor.Initialize(defaultScriptEngine, new object());
 
             var argument = new OutArgument<bool>() { Mode = ArgumentMode.DataBound };
-            await argumentProcessor.SetValueAsync<bool>(argument, true);           
+            Assert.ThrowsAsync<ArgumentNotConfiguredException>(async () => { await argumentProcessor.SetValueAsync<bool>(argument, true);});                    
         }
 
         /// <summary>

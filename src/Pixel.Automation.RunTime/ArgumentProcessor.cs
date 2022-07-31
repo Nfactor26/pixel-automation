@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
@@ -33,6 +34,11 @@ namespace Pixel.Automation.RunTime
                 throw new InvalidOperationException($"Can't perform GetValue<{typeof(T)}> operation. Type : {typeof(T)} is not assignable from Type : {argument.GetType().GetGenericArguments()[0]}");
             }
 
+            if(!argument.IsConfigured())
+            {
+                throw new ArgumentNotConfiguredException($"{argument} is not configured.");
+            }
+
             switch (argument.Mode)
             {
                 case ArgumentMode.Default:
@@ -42,15 +48,8 @@ namespace Pixel.Automation.RunTime
                     }
                     throw new ArgumentException($"{nameof(Argument)} must be of type InArgument<{typeof(T)}>");
               
-                case ArgumentMode.DataBound:
-                  
-                    if (string.IsNullOrEmpty(argument.PropertyPath))
-                    {
-                        Log.Warning("{PropertyPath} is not configured for {@Argument}", nameof(argument.PropertyPath), argument);
-                        Log.Warning("Returning {value} GetValue on Argument as it might be optional argument.", default);
-                        return default;
-                    }
-
+                case ArgumentMode.DataBound:                  
+               
                     string[] nestedProperties = argument.PropertyPath.Split(new char[] { '.' });
                     object result = default;
                     //Look in variables declared in script engine first
@@ -99,18 +98,17 @@ namespace Pixel.Automation.RunTime
                 throw new InvalidOperationException($"Can't perform SetValue<{typeof(T)}> operation on Property {argument.PropertyPath}. Type : {argument.GetType().GetGenericArguments()[0]} is not assignable from Type : {value.GetType()}");
             }
 
+            if (!argument.IsConfigured())
+            {
+                throw new ArgumentNotConfiguredException($"{argument} is not configured.");
+            }
+
             value = value ?? default;
 
             switch (argument.Mode)
             {
                 case ArgumentMode.DataBound:
-                    if (string.IsNullOrEmpty(argument.PropertyPath))
-                    {
-                        logger.Warning("{PropertyPath} is not configure for {@argument}", nameof(argument.PropertyPath), argument);
-                        logger.Warning("Skipping operation SetValue on Argument as it might be optional argument.");
-                        break;
-                    }
-                  
+                 
                     string[] nestedProperties = argument.PropertyPath.Split(new char[] { '.' });
                   
                     //Look in variables declared in script engine first
