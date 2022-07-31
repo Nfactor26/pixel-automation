@@ -36,7 +36,7 @@ namespace Pixel.Automation.RunTime.Serialization
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-                throw ex;
+                throw;
             }           
            
         }
@@ -54,7 +54,7 @@ namespace Pixel.Automation.RunTime.Serialization
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-                throw ex;
+                throw;
             }        
         }
 
@@ -67,7 +67,7 @@ namespace Pixel.Automation.RunTime.Serialization
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
-                throw ex;
+                throw;
             }
         }
     }

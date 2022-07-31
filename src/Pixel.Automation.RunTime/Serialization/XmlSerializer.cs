@@ -10,6 +10,7 @@ namespace Pixel.Automation.RunTime.Serialization
 {   
     public  class XmlSerializer : ISerializer
     {
+        private readonly ILogger logger = Log.ForContext<XmlSerializer>();
         private readonly XmlWriterSettings settings = new XmlWriterSettings() { Indent = true, NamespaceHandling = NamespaceHandling.OmitDuplicates };
        
         /// <summary>
@@ -19,7 +20,7 @@ namespace Pixel.Automation.RunTime.Serialization
         /// <param name="path">Relative path of xml where data will be serialized</param>
         /// <param name="model">Model to serialize</param>
         /// <exception cref="BusinessModels.XmlSerializationException">ModelSerializationException is thrown when serialization fails</exception>
-        public void Serialize<T>(string path, T model, List<Type> knownTypes=null)
+        public void Serialize<T>(string path, T model, List<Type> knownTypes = null)
         {
             try
             {              
@@ -31,7 +32,8 @@ namespace Pixel.Automation.RunTime.Serialization
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
+                throw;
             }
         }
 
@@ -53,16 +55,13 @@ namespace Pixel.Automation.RunTime.Serialization
                     var ds = new DataContractSerializer(typeof(T), knownTypes);
                     model = (T)ds.ReadObject(s);
                     return model;
-                }
-              
+                }              
             }
             catch (Exception ex)
             {
-                Log.Error(ex, ex.Message);
+                logger.Error(ex, ex.Message);
+                throw;
             }
-
-            return default;
-
         }
 
         public T DeserializeContent<T>(string content, List<Type> knownTypes = null) where T : new()
