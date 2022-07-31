@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -69,18 +70,16 @@ namespace Pixel.Automation.RunTime.Tests
         }
 
         /// <summary>
-        /// Validate that when property path is not configured, default value of Argument's type is returned
+        /// Validate that when property path is not configured in DataBound mode, an exception is thrown
         /// </summary>
         [Test]
-        public async Task ShouldReturnDefaultValueOfTypeWhenPropertyPathIsNotConfigured()
+        public void ShouldThrowExceptionIfArgumentIsNotCorrectlyConfigured()
         {             
             ArgumentProcessor argumentProcessor = new ArgumentProcessor();
             argumentProcessor.Initialize(defaultScriptEngine, new object());
             var argument = new InArgument<bool>() { Mode = ArgumentMode.DataBound };
 
-            var result = await argumentProcessor.GetValueAsync<bool>(argument);
-
-            Assert.AreEqual(false, result);
+            Assert.ThrowsAsync<ArgumentNotConfiguredException>(async () => { await argumentProcessor.GetValueAsync<bool>(argument); });
         }
 
         /// <summary>

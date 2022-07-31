@@ -37,7 +37,7 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
         /// Result argument will store the returned value from javascript execution
         /// </summary>
         [DataMember]
-        [Display(Name = "Result", GroupName = "Output", Order = 10 , Description = "Argument where the result of executing javascript will be stored")]       
+        [Display(Name = "Result", GroupName = "Output", Order = 10 , Description = "[Optional] Argument where the result of executing javascript will be stored")]       
         public Argument Result { get; set; } = new OutArgument<string>();
 
         /// <summary>
@@ -71,8 +71,10 @@ namespace Pixel.Automation.Web.Selenium.Components.ActorComponents
             }
 
             var scriptResult = (this.ApplicationDetails.WebDriver as IJavaScriptExecutor).ExecuteScript(jsCode, allArguments.ToArray())?.ToString();
-            await ArgumentProcessor.SetValueAsync<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
-
+            if(this.Result.IsConfigured())
+            {
+                await ArgumentProcessor.SetValueAsync<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
+            }
             logger.Information("javascript executed successfully.");
         }  
 

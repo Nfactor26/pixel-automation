@@ -69,6 +69,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var findFirstControlActorComponentBuilder = new FindFirstControlActorBuider();
             var containerEntity = findFirstControlActorComponentBuilder.CreateComponent() as GroupEntity;
+            (containerEntity.GroupActor as FindFirstControlActorComponent).Exists = new OutArgument<bool>() { Mode = ArgumentMode.DataBound, PropertyPath = "Exists" };
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
             containerEntity.GroupPlaceHolder.AddComponent(firstControlEntity);

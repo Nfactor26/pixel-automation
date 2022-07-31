@@ -12,9 +12,8 @@ namespace Pixel.Automation.Core.Tests.Exceptions
         /// <param name="type"></param>
         [TestCase(typeof(ConfigurationException))]
         [TestCase(typeof(ElementNotFoundException))]
-        [TestCase(typeof(InputNotConfiguredException))]       
-        [TestCase(typeof(MissingComponentException))]             
-        [TestCase(typeof(OutputNotConfiguredException))]      
+        [TestCase(typeof(ArgumentNotConfiguredException))]       
+        [TestCase(typeof(MissingComponentException))]          
         public void ValidateThatExceptionObjectsCanBeInitialized(Type type)
         {
             var exception = Activator.CreateInstance(type) as Exception;

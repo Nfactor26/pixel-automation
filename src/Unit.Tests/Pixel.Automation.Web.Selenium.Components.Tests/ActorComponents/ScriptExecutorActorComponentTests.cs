@@ -51,7 +51,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             {
                 EntityManager = entityManager,
                 Parent = controlEntity,
-                Arguments = new InArgument<object[]>() { Mode = ArgumentMode.Default, DefaultValue = new object[] { 1 } }
+                Arguments = new InArgument<object[]>() { Mode = ArgumentMode.Default, DefaultValue = new object[] { 1 } },
+                Result = new OutArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "ScriptResult" }
             };
             await executeScriptActor.ActAsync();
             

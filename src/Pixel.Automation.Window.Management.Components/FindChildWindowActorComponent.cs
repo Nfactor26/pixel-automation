@@ -21,7 +21,7 @@ namespace Pixel.Automation.Window.Management.Components
         [DataMember]
         [DisplayName("Window Title")]
         [Category("Input")]
-        public InArgument<string> Title { get; set; } = new InArgument<string>();
+        public InArgument<string> Title { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = String.Empty };
 
         [DataMember]
         [DisplayName("Match Criteria")]

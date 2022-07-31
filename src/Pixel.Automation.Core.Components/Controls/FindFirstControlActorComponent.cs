@@ -31,7 +31,7 @@ namespace Pixel.Automation.Core.Components.Controls
 
         [DataMember]
         [Display(Name = "Found", Order = 20, GroupName = "Output")]
-        [Description("Argument will hold a boolean value indicating whether any of the control was located")]
+        [Description("[Optional] Argument will hold a boolean value indicating whether any of the control was located")]
         public Argument Exists { get; set; } = new OutArgument<bool>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
 
@@ -86,7 +86,10 @@ namespace Pixel.Automation.Core.Components.Controls
                         {
                             var foundControl = await controlEntity.GetControl();
                             await argumentProcessor.SetValueAsync<UIControl>(this.FoundControl, foundControl);
-                            await argumentProcessor.SetValueAsync<bool>(this.Exists, foundControl != null);
+                            if(this.Exists.IsConfigured())
+                            {
+                                await argumentProcessor.SetValueAsync<bool>(this.Exists, foundControl != null);
+                            }
                             logger.Information("Located control {0}", controlEntity.ControlDetails);
                             return foundControl;
                         }

@@ -33,7 +33,7 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         [DataMember]
         [Display(Name = "Exception", GroupName = "Retry Configuration", Order = 30)]
-        [Description("Last exception encountered during processing of execute block. This can be used inside retry block.")]
+        [Description("[Optional] Last exception encountered during processing of execute block. This can be used inside retry block.")]
         public Argument Exception { get; set; }  = new OutArgument<Exception>() { CanChangeType = false }; 
 
         public RetrySequence() : base("Retry Sequence", "RetrySequence")
@@ -56,7 +56,10 @@ namespace Pixel.Automation.Core.Components.Sequences
             var policy = Policy.Handle<Exception>().WaitAndRetryAsync(retrySequence, async (exception, waitInterval, currentAttempt, context) =>
             {
                 logger.Warning($"An error was encountered while processing Execute block. {exception.Message}.");
-                await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, exception);
+                if(this.Exception.IsConfigured())
+                {
+                    await this.ArgumentProcessor.SetValueAsync<Exception>(Exception, exception);
+                }              
                 var retry = this.GetComponentsByName("Retry", Enums.SearchScope.Children).FirstOrDefault() as Entity;
                 await this.ProcessEntity(retry);
                 logger.Information($"Number of remaining attempts is {retryCount - currentAttempt} to process Execute block.");

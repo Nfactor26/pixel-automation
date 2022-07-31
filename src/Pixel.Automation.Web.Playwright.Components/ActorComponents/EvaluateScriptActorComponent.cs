@@ -34,7 +34,7 @@ public class EvaluateScriptActorComponent : PlaywrightActorComponent
     /// Output argument to store the result of the evaluate javascript operation
     /// </summary>
     [DataMember]
-    [Display(Name = "Result", GroupName = "Output", Order = 10 , Description = "Output argument to store the result of evaluate javascript operation")]       
+    [Display(Name = "Result", GroupName = "Output", Order = 10 , Description = "[Optional] Output argument to store the result of evaluate javascript operation")]       
     public Argument Result { get; set; } = new OutArgument<string>();
 
     /// <summary>
@@ -52,7 +52,10 @@ public class EvaluateScriptActorComponent : PlaywrightActorComponent
     {           
         string jsCode = await ArgumentProcessor.GetValueAsync<string>(this.Script);      
         var result = await this.ApplicationDetails.ActivePage.EvaluateAsync<string>(jsCode, this.Arguments.IsConfigured() ? await ArgumentProcessor.GetValueAsync<object>(this.Arguments) : null );
-        await ArgumentProcessor.SetValueAsync<string>(this.Result, result);
+        if(this.Result.IsConfigured())
+        {
+            await ArgumentProcessor.SetValueAsync<string>(this.Result, result);
+        }
         logger.Information("javascript executed successfully.");
     }
 

@@ -40,6 +40,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var findAllControlActorComponentBuilder = new FindAllControlsActorBuilder();
             var containerEntity = findAllControlActorComponentBuilder.CreateComponent() as GroupEntity;
+            (containerEntity.GroupActor as FindAllControlsActorComponent).Count = new OutArgument<int>() { Mode = ArgumentMode.DataBound, PropertyPath = "Count" };
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
             containerEntity.GroupPlaceHolder.AddComponent(controlEntity);
