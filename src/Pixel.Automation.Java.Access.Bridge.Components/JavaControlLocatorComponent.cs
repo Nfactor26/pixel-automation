@@ -28,65 +28,22 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     [ToolBoxItem("JAB Locator", "Control Locators", iconSource: null, description: "Identify a java control on screen", tags: new string[] { "Locator" })]
     public class JavaControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider, IDisposable
     {
+        private readonly ILogger logger = Log.ForContext<JavaControlLocatorComponent>();       
+        private IHighlightRectangle highlightRectangle;       
+        private readonly RetryPolicy policy;       
+        private readonly List<TimeSpan> retrySequence = new();       
+        private readonly AccessBridge accessBridge;
+        private AccessibleJvm accessibleJvm;
+        private int jvmId = 0;
+        private int retryAttempts = 5;
+        private double retryInterval = 2;
 
-        private readonly ILogger logger = Log.ForContext<JavaControlLocatorComponent>();
-
-        [NonSerialized]
-        bool showBoundingBox;
         /// <summary>
         /// Toggle if bounding box is shown during playback on controls.
         /// This can help visuall debug the control location process in hierarchy
         /// </summary>
-        public bool ShowBoundingBox
-        {
-            get
-            {
-                return showBoundingBox;
-            }
-            set
-            {
-                showBoundingBox = value;
-            }
-        }
+        public bool ShowBoundingBox { get; set; }       
 
-        int retryAttempts = 5;
-        [DataMember]
-        public int RetryAttempts
-        {
-            get
-            {
-                return retryAttempts;
-            }
-            set
-            {
-                retryAttempts = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, value))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
-                }
-            }
-        }
-
-        double retryInterval = 2;
-        [DataMember]
-        public double RetryInterval
-        {
-            get
-            {
-                return retryInterval;
-            }
-            set
-            {
-                retryInterval = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, retryAttempts))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(value));
-                }
-            }
-        }
-     
         [Browsable(false)]
         [IgnoreDataMember]
         public IApplication TargetApplication
@@ -95,38 +52,23 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 return this.EntityManager.GetOwnerApplication<IApplication>(this);
             }
-        }
+        }     
 
-        [NonSerialized]
-        private IHighlightRectangle highlightRectangle;
-
-
-        [NonSerialized]
-        private RetryPolicy policy;
-
-        [NonSerialized]
-        private List<TimeSpan> retrySequence;
-
-        [NonSerialized]
-        AccessBridge accessBridge;
-
-        [NonSerialized]
-        AccessibleJvm accessibleJvm;
-
-        int jvmId;
-     
         public JavaControlLocatorComponent() : base("Java Control Locator", "JavaControlLocator")
         {
-            this.retrySequence = new List<TimeSpan>();
+            foreach (var i in Enumerable.Range(1, retryAttempts))
+            {
+                retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
+            }
             this.policy = Policy.Handle<ElementNotFoundException>()
-           .WaitAndRetry(retrySequence, (exception, timeSpan, retryCount, context) =>
-           {
-               logger.Error(exception, exception.Message); ;
-               if (retryCount < retrySequence.Count)
-               {
-                   logger.Information("Control lookup  will be attempated again.");
-               }
-           });
+            .WaitAndRetry(retrySequence, (exception, timeSpan, retryCount, context) =>
+            {
+                logger.Error(exception, exception.Message); ;
+                if (retryCount < retrySequence.Count)
+                {
+                    logger.Information("Control lookup  will be attempated again.");
+                }
+            });
 
             accessBridge = new AccessBridge();
             accessBridge.Initialize();
@@ -140,7 +82,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             return controlIdentity is JavaControlIdentity;
         }
 
-        public async  Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot)
+        public async Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
             logger.Information("Start control lookup.");
@@ -149,7 +91,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             ConfigureRetryPolicy(currentControl);
             var currentSearchRoot = searchRoot?.GetApiControl<AccessibleContextNode>() ?? GetSearchRoot(ref currentControl);
             while (true)
-            {               
+            {
                 var foundElement = FindSingleControl(currentControl, currentSearchRoot);
                 logger.Information($"Located control {currentControl}");
                 if (currentControl.Next != null)
@@ -167,7 +109,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
             logger.Information("Start control lookup.");
-            
+
             IControlIdentity currentControl = controlIdentity;
             ConfigureRetryPolicy(currentControl);
             var currentSearchRoot = searchRoot?.GetApiControl<AccessibleContextNode>() ?? GetSearchRoot(ref currentControl);
@@ -211,7 +153,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         }
 
         private AccessibleContextNode FindSingleControl(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
-        {          
+        {
             AccessibleContextNode foundElement = default;
             JavaControlIdentity javaControlIdentity = controlIdentity as JavaControlIdentity;
             switch (javaControlIdentity.SearchScope)
@@ -240,7 +182,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public AccessibleContextNode FindChildControl(IControlIdentity controlIdentity, AccessibleContextNode searchRoot = null)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
-        
+
             var currentSearchRoot = searchRoot ?? GetSearchRoot(ref controlIdentity);
             JavaControlIdentity javaControlIdentity = controlIdentity as JavaControlIdentity;
             ConfigureRetryPolicy(javaControlIdentity);
@@ -248,7 +190,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             var foundControl = policy.Execute(() =>
             {
                 if (javaControlIdentity.Index > 1)
-                {                 
+                {
                     var foundControls = searchRoot.FindAll(TreeScope.Children, javaControlIdentity);
                     if (foundControls.Count() == 0)
                     {
@@ -271,7 +213,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public IEnumerable<AccessibleContextNode> FindAllChildControls(IControlIdentity controlIdentity, AccessibleContextNode searchRoot = null)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
-                     
+
             var currentSearchRoot = searchRoot ?? GetSearchRoot(ref controlIdentity);
             JavaControlIdentity javaControlIdentity = controlIdentity as JavaControlIdentity;
             ConfigureRetryPolicy(javaControlIdentity);
@@ -295,13 +237,13 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         public AccessibleContextNode FindDescendantControl(IControlIdentity controlIdentity, AccessibleContextNode searchRoot = null)
         {
             Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
-          
+
             var currentSearchRoot = searchRoot ?? GetSearchRoot(ref controlIdentity);
             JavaControlIdentity javaControlIdentity = controlIdentity as JavaControlIdentity;
             ConfigureRetryPolicy(javaControlIdentity);
 
             var foundControl = policy.Execute(() =>
-            {                      
+            {
                 return currentSearchRoot.FindNthDescendantControl(javaControlIdentity, javaControlIdentity.Index) ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
             });
 
@@ -369,8 +311,8 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
         public IEnumerable<AccessibleContextNode> FindAllSiblingControls(IControlIdentity controlIdentity, AccessibleContextNode searchRoot)
         {
-            Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();      
-           
+            Guard.Argument(controlIdentity).NotNull().Compatible<JavaControlIdentity>();
+
             var currentSearchRoot = searchRoot ?? GetSearchRoot(ref controlIdentity);
             var ancestor = currentSearchRoot.GetParent() as AccessibleContextNode;
 
@@ -387,12 +329,12 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 IntPtr hWnd = TargetApplication.Hwnd;
                 var rootWindow = accessBridge.CreateAccessibleWindow(hWnd);
                 jvmId = rootWindow.JvmId;
-                accessibleJvm = accessBridge.EnumJvms().FirstOrDefault(j => j.JvmId.Equals(jvmId));                
+                accessibleJvm = accessBridge.EnumJvms().FirstOrDefault(j => j.JvmId.Equals(jvmId));
             }
             accessibleJvm = accessBridge.EnumJvms().FirstOrDefault(j => j.JvmId.Equals(jvmId));
             JavaControlIdentity javaControlIdentity = controlIdentity as JavaControlIdentity;
-            
-            var window  = policy.Execute(() =>
+
+            var window = policy.Execute(() =>
             {
                 foreach (var window in accessibleJvm.Windows)
                 {
@@ -408,7 +350,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             controlIdentity = controlIdentity.Next;
             return window;
         }
-        
+
         #region Filter
 
         protected AccessibleContextNode GetElementAtConfiguredIndex(IEnumerable<AccessibleContextNode> foundControls, JavaControlIdentity javaControlIdentity)
@@ -430,18 +372,26 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         #endregion Filter
 
         #region private methods
-             
+
 
         private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
         {
-            RetryAttempts = controlIdentity.RetryAttempts;
-            RetryInterval = controlIdentity.RetryInterval;
+            if (this.retryAttempts != controlIdentity.RetryAttempts || this.retryInterval != controlIdentity.RetryInterval)
+            {
+                this.retryAttempts = controlIdentity.RetryAttempts;
+                this.retryInterval = controlIdentity.RetryInterval;
+                retrySequence.Clear();
+                foreach (var i in Enumerable.Range(1, this.retryAttempts))
+                {
+                    retrySequence.Add(TimeSpan.FromSeconds(this.retryInterval));
+                }
+            }
         }
 
         private void HighlightElement(AccessibleContextNode foundControl)
         {
 
-            if (showBoundingBox && foundControl != null)
+            if (ShowBoundingBox && foundControl != null)
             {
                 if (highlightRectangle == null)
                 {
@@ -477,7 +427,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
         public async Task<BoundingBox> GetScreenBounds(IControlIdentity controlIdentity)
         {
-            var currentSearchRoot = GetSearchRoot(ref controlIdentity);    
+            var currentSearchRoot = GetSearchRoot(ref controlIdentity);
             ConfigureRetryPolicy(controlIdentity);
             var targetControl = await this.FindControlAsync(controlIdentity, new JavaUIControl(controlIdentity, currentSearchRoot));
             var screenBounds = await GetBoundingBox(targetControl.GetApiControl<AccessibleContextNode>());
@@ -499,7 +449,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
         protected virtual void Dispose(bool isDisposing)
         {
-            if(isDisposing)
+            if (isDisposing)
             {
                 this.accessBridge?.Dispose();
                 logger.Information("Access bridge is disposed now.");

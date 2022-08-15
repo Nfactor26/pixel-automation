@@ -12,7 +12,6 @@ using Polly.Retry;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -26,77 +25,18 @@ namespace Pixel.Automation.Image.Matching.Components;
 [ToolBoxItem("Image Locator", "Control Locators", iconSource: null, description: "Identify a image control on screen", tags: new string[] { "Locator" })]
 public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
 {
-    private readonly ILogger logger = Log.ForContext<ImageControlLocatorComponent>();
+    private readonly ILogger logger = Log.ForContext<ImageControlLocatorComponent>();   
+    private readonly AsyncRetryPolicy policy;    
+    private readonly List<TimeSpan> retrySequence = new();   
+    private IHighlightRectangle highlightRectangle;
+    private int retryAttempts = 5;
+    private double retryInterval = 2;
 
-
-    [NonSerialized]
-    bool showBoundingBox;
     /// <summary>
     /// Toggle if bounding box is shown during playback on controls.
     /// This can help visuall debug the control location process in hierarchy
     /// </summary>
-    public bool ShowBoundingBox
-    {
-        get
-        {
-            return showBoundingBox;
-        }
-        set
-        {
-            showBoundingBox = value;
-        }
-    }
-
-    [NonSerialized]
-    int retryAttempts = 5;
-    [Browsable(false)]
-    [IgnoreDataMember]
-    protected int RetryAttempts
-    {
-        get
-        {
-            return retryAttempts;
-        }
-        set
-        {
-            if (value == retryAttempts)
-            {
-                return;
-            }
-            retryAttempts = value;
-            retrySequence.Clear();
-            foreach (var i in Enumerable.Range(1, value))
-            {
-                retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
-            }
-        }
-    }
-
-    [NonSerialized]
-    double retryInterval = 2;
-    [DataMember]
-    [Browsable(false)]
-    [IgnoreDataMember]
-    protected double RetryInterval
-    {
-        get
-        {
-            return retryInterval;
-        }
-        set
-        {
-            if (value == retryInterval)
-            {
-                return;
-            }
-            retryInterval = value;
-            retrySequence.Clear();
-            foreach (var i in Enumerable.Range(1, retryAttempts))
-            {
-                retrySequence.Add(TimeSpan.FromSeconds(value));
-            }
-        }
-    }
+    public bool ShowBoundingBox { get; set; }  
 
     /// <summary>
     /// Set the theme used by the application. Target image will be retrieved based on the matching theme.
@@ -104,18 +44,9 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
     [DataMember]
     public Argument Theme { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, DefaultValue = string.Empty };
 
-    [NonSerialized]
-    private AsyncRetryPolicy policy;
-
-    [NonSerialized]
-    private List<TimeSpan> retrySequence;
-
-    [NonSerialized]
-    private IHighlightRectangle highlightRectangle;
   
     public ImageControlLocatorComponent() : base("Image Control Locator", "ImageControlLocator")
-    {
-        retrySequence = new List<TimeSpan>();
+    {       
         foreach (var i in Enumerable.Range(1, retryAttempts))
         {
             retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
@@ -364,14 +295,22 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
 
     private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
     {
-        RetryAttempts = controlIdentity.RetryAttempts;
-        RetryInterval = controlIdentity.RetryInterval;
+        if (this.retryAttempts != controlIdentity.RetryAttempts || this.retryInterval != controlIdentity.RetryInterval)
+        {
+            this.retryAttempts = controlIdentity.RetryAttempts;
+            this.retryInterval = controlIdentity.RetryInterval;
+            retrySequence.Clear();
+            foreach (var i in Enumerable.Range(1, this.retryAttempts))
+            {
+                retrySequence.Add(TimeSpan.FromSeconds(this.retryInterval));
+            }
+        }
     }
 
     private void HighlightElement(BoundingBox foundControl)
     {
 
-        if (showBoundingBox && foundControl != null)
+        if (ShowBoundingBox && foundControl != null)
         {
             if (highlightRectangle == null)
             {
