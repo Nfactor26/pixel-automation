@@ -10,15 +10,10 @@ using Pixel.Automation.Core.Interfaces;
 using Polly;
 using Polly.Retry;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -28,7 +23,12 @@ namespace Pixel.Automation.Web.Selenium.Components
     public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
     {
         private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
-    
+        private readonly RetryPolicy policy;
+        private readonly List<TimeSpan> retrySequence = new();
+        private IHighlightRectangle highlightRectangle;       
+        private int retryAttempts = 2;     
+        private double retryInterval = 5;
+
         [IgnoreDataMember]
         [Browsable(false)]
         public WebApplication ApplicationDetails
@@ -48,93 +48,19 @@ namespace Pixel.Automation.Web.Selenium.Components
                 return ApplicationDetails.WebDriver;
             }
         }
-
-
-        [NonSerialized]
-        bool showBoundingBox;
+      
         /// <summary>
         /// Toggle if bounding box is shown during playback on controls.
         /// This can help visuall debug the control location process in hierarchy
         /// </summary>
-        public bool ShowBoundingBox
-        {
-            get
-            {
-                return showBoundingBox;
-            }
-            set
-            {
-                showBoundingBox = value;
-            }
-        }
-
-        [NonSerialized]
-        private IHighlightRectangle highlightRectangle;
-
-        [NonSerialized]
-        int retryAttempts = 2;
-        [Browsable(false)]
-        [IgnoreDataMember]
-        protected int RetryAttempts
-        {
-            get
-            {
-                return retryAttempts;
-            }
-            set
-            {
-                if (value == retryAttempts)
-                {
-                    return;
-                }
-                retryAttempts = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, value))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
-                }
-            }
-        }
-
-        [NonSerialized]
-        double retryInterval = 5;
-        [DataMember]
-        [Browsable(false)]
-        [IgnoreDataMember]
-        protected double RetryInterval
-        {
-            get
-            {
-                return retryInterval;
-            }
-            set
-            {
-                if (value == retryInterval)
-                {
-                    return;
-                }
-                retryInterval = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, retryAttempts))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(value));
-                }
-            }
-        }
-
-        [NonSerialized]
-        private RetryPolicy policy;
-
-        [NonSerialized]
-        private List<TimeSpan> retrySequence;
-
+        public bool ShowBoundingBox { get; set; }
+       
 
         /// <summary>
         /// Contrsuctor      
         /// </summary>
         public WebControlLocatorComponent() : base("Selenium Control Locator", "SeleniumControlLocator")
-        {
-            retrySequence = new List<TimeSpan>();
+        {          
             foreach (var i in Enumerable.Range(1, retryAttempts))
             {
                 retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
@@ -671,7 +597,7 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         private void HighlightElement(IWebElement foundControl)
         {
-            if (showBoundingBox && foundControl != null)
+            if (ShowBoundingBox && foundControl != null)
             {
                 if (this.highlightRectangle == null)
                 {
@@ -694,8 +620,16 @@ namespace Pixel.Automation.Web.Selenium.Components
 
         private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
         {
-            RetryAttempts = controlIdentity.RetryAttempts;
-            RetryInterval = controlIdentity.RetryInterval;
+            if (this.retryAttempts != controlIdentity.RetryAttempts || this.retryInterval != controlIdentity.RetryInterval)
+            {
+                this.retryAttempts = controlIdentity.RetryAttempts;
+                this.retryInterval = controlIdentity.RetryInterval;
+                retrySequence.Clear();
+                foreach (var i in Enumerable.Range(1, this.retryAttempts))
+                {
+                    retrySequence.Add(TimeSpan.FromSeconds(this.retryInterval));
+                }
+            }
         }
 
         #endregion private methods

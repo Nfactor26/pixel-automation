@@ -30,68 +30,24 @@ namespace Pixel.Automation.UIA.Components
         #region Data Members
 
         private readonly ILogger logger = Log.ForContext<UIAControlLocatorComponent>();
+        private IHighlightRectangle highlightRectangle;
+        private readonly RetryPolicy policy;
+        private readonly List<TimeSpan> retrySequence = new();
+        private int retryAttempts = 5;
+        private double retryInterval = 2;
 
-        [NonSerialized]
-        bool showBoundingBox;
         /// <summary>
         /// Toggle if bounding box is shown during playback on controls.
         /// This can help visually debug the control lookup process in hierarchy
         /// </summary>
-        public bool ShowBoundingBox
-        {
-            get
-            {
-                return showBoundingBox;
-            }
-            set
-            {
-                showBoundingBox = value;
-            }
-        }
+        [IgnoreDataMember]
+        public bool ShowBoundingBox { get; set; }        
 
         /// <summary>
         /// Inidicates if the control lookup will be restricted inside Process that was launched or attached to
         /// </summary>
         [DataMember]
-        public bool MatchProcessId { get; set; } = true;
-
-        int retryAttempts = 5;
-        [DataMember]
-        public int RetryAttempts
-        {
-            get
-            {
-                return retryAttempts;
-            }
-            set
-            {
-                retryAttempts = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, value))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
-                }
-            }
-        }
-
-        double retryInterval = 2;
-        [DataMember]
-        public double RetryInterval
-        {
-            get
-            {
-                return retryInterval;
-            }
-            set
-            {
-                retryInterval = value;
-                retrySequence.Clear();
-                foreach (var i in Enumerable.Range(1, retryAttempts))
-                {
-                    retrySequence.Add(TimeSpan.FromSeconds(value));
-                }
-            }
-        }      
+        public bool MatchProcessId { get; set; } = true;         
 
         [IgnoreDataMember]
         [Browsable(false)]
@@ -101,28 +57,21 @@ namespace Pixel.Automation.UIA.Components
             {
                 return this.EntityManager.GetOwnerApplication<WinApplication>(this);
             }
-        }
-        
-        [NonSerialized]
-        private IHighlightRectangle highlightRectangle;
-        
-
-        [NonSerialized]
-        private RetryPolicy policy;
-
-        [NonSerialized]
-        private List<TimeSpan> retrySequence;
+        }              
 
         #endregion Data Members
 
         public UIAControlLocatorComponent() : base("UIA Control Locator", "UIAControlLocatorComponent")
         {
-            retrySequence = new List<TimeSpan>();
+            foreach (var i in Enumerable.Range(1, retryAttempts))
+            {
+                retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
+            }
             policy = Policy
            .Handle<ElementNotFoundException>()
            .WaitAndRetry(retrySequence,(exception, timeSpan, retryCount, context) =>
            {
-               Log.Error(exception, exception.Message); ;
+               logger.Error(exception, exception.Message); ;
                if(retryCount < retrySequence.Count)
                {
                    logger.Information("Control lookup  will be attempated again.");
@@ -509,15 +458,23 @@ namespace Pixel.Automation.UIA.Components
         }
 
         private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
-        {           
-            RetryAttempts = controlIdentity.RetryAttempts;
-            RetryInterval = controlIdentity.RetryInterval;
+        {                       
+            if(this.retryAttempts != controlIdentity.RetryAttempts || this.retryInterval != controlIdentity.RetryInterval)
+            {
+                this.retryAttempts = controlIdentity.RetryAttempts;
+                this.retryInterval = controlIdentity.RetryInterval;
+                retrySequence.Clear();
+                foreach (var i in Enumerable.Range(1, this.retryAttempts))
+                {
+                    retrySequence.Add(TimeSpan.FromSeconds(this.retryInterval));
+                }
+            }           
         }
 
         private void HighlightElement(AutomationElement foundControl)
         {         
 
-            if (showBoundingBox && foundControl != null)
+            if (ShowBoundingBox && foundControl != null)
             {
                 if (highlightRectangle == null)
                 {
