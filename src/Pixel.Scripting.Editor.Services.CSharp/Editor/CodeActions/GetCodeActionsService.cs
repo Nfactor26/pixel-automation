@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis.Diagnostics;
+using Pixel.Scripting.Common.CSharp.Diagnostics;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Models.CodeActions;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
         private readonly GetCodeActionsResponse emptyResponse = new GetCodeActionsResponse() { CodeActions = new List<EditorCodeAction>() };
 
         public GetCodeActionsService(AdhocWorkspaceManager workspaceManager, IEnumerable<ICodeActionProvider> providers,
-            IDiagnosticService diagnosticService, CachingCodeFixProviderForProjects codeFixesForProject)
+            IDiagnosticsService diagnosticService, CachingCodeFixProviderForProjects codeFixesForProject)
             : base(workspaceManager, providers, diagnosticService, codeFixesForProject)
         {
         }

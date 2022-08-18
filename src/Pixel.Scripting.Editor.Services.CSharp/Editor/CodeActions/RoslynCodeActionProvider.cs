@@ -1,21 +1,15 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Immutable;
-using System.Reflection;
+﻿using Pixel.Scripting.Common.CSharp;
+using System.Composition;
 
 namespace Pixel.Scripting.Editor.Services.CodeActions
 {
+    [Shared]
+    [Export(typeof(ICodeActionProvider))]
     public class RoslynCodeActionProvider : AbstractCodeActionProvider
     {
-        private static readonly ImmutableArray<Assembly> DefaultCodeActionProviders =
-            ImmutableArray.Create
-            (
-                 // Microsoft.CodeAnalysis.Features
-                 typeof(FeaturesResources).GetTypeInfo().Assembly,
-                 // Microsoft.CodeAnalysis.CSharp.Features
-                 typeof(CSharpFeaturesResources).GetTypeInfo().Assembly
-            );
-        public RoslynCodeActionProvider()  : base("Roslyn", DefaultCodeActionProviders)
+        [ImportingConstructor]
+        public RoslynCodeActionProvider(IHostServicesProvider featuresHostServicesProvider)
+            : base("Roslyn", featuresHostServicesProvider.Assemblies)
         {
         }
     }

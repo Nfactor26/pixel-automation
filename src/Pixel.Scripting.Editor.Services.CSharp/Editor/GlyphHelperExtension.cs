@@ -241,9 +241,6 @@ namespace Pixel.Scripting.Editor.Services.CSharp
                     case WellKnownTags.Reference:
                         return Glyph.Reference;
 
-                    case WellKnownTags.NuGet:
-                        return Glyph.NuGet;
-
                     case WellKnownTags.Structure:
                         switch (GetAccessibility(tags))
                         {
@@ -265,9 +262,7 @@ namespace Pixel.Scripting.Editor.Services.CSharp
 
                     case WellKnownTags.Warning:
                         return Glyph.CompletionWarning;
-
-                    case WellKnownTags.StatusInformation:
-                        return Glyph.StatusInformation;
+                   
                 }
             }
 

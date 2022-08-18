@@ -1,19 +1,25 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.Host.Mef;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Composition;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
-namespace Pixel.Script.Editor.Services.CSharp
+namespace Pixel.Scripting.Common.CSharp
 {
-    internal class AssemblyLoader : IAssemblyLoader, IAnalyzerAssemblyLoader
+    [Export(typeof(IAnalyzerAssemblyLoader)), Shared]
+    public class AssemblyLoader : IAssemblyLoader, IAnalyzerAssemblyLoader
     {
-        private static readonly ConcurrentDictionary<string, Assembly> AssemblyCache = new ConcurrentDictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);      
+        public static AssemblyLoader Instance { get; } = new();
+
+        private static readonly ConcurrentDictionary<string, Assembly> AssemblyCache = new ConcurrentDictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
+
         public AssemblyLoader()
         {
-         
+
         }
 
         public void AddDependencyLocation(string fullPath)
@@ -26,13 +32,12 @@ namespace Pixel.Script.Editor.Services.CSharp
             Assembly result = null;
             try
             {
-                result = Assembly.Load(name);               
+                result = Assembly.Load(name);
             }
-            catch (Exception ex)
+            catch
             {
-             
-            }
 
+            }
             return result;
         }
 
@@ -55,8 +60,8 @@ namespace Pixel.Script.Editor.Services.CSharp
 
                 return assemblies;
             }
-            catch (Exception ex)
-            {             
+            catch
+            {
                 return Array.Empty<Assembly>();
             }
         }
@@ -79,20 +84,29 @@ namespace Pixel.Script.Editor.Services.CSharp
                         assembly = Assembly.LoadFrom(assemblyPath);
                     }
                 }
-                catch (Exception ex)
-                {                 
+                catch
+                {
                     return assembly;
                 }
 
                 AssemblyCache.AddOrUpdate(assemblyPath, assembly, (k, v) => assembly);
             }
-         
+
             return assembly;
         }
 
         public Assembly LoadFromPath(string fullPath)
         {
             return LoadFrom(fullPath);
+        }
+    }
+
+    [ExportWorkspaceService(typeof(IAnalyzerService), ServiceLayer.Host), Shared]
+    internal sealed class AnalyzerAssemblyLoaderService : IAnalyzerService
+    {
+        public IAnalyzerAssemblyLoader GetLoader()
+        {
+            return AssemblyLoader.Instance;
         }
     }
 }

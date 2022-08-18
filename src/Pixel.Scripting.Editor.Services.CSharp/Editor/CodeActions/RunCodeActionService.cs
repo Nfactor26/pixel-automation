@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Pixel.Scripting.Common.CSharp.Diagnostics;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Models;
 using Pixel.Scripting.Editor.Core.Models.CodeActions;
@@ -16,18 +16,12 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
 {
     public class RunCodeActionService : BaseCodeActionService<RunCodeActionRequest, RunCodeActionResponse>
     {     
-
         private const string RenameDocumentOperation = "Microsoft.CodeAnalysis.CodeActions.RenameDocumentOperation";
         private readonly RunCodeActionResponse emptyResponse = new RunCodeActionResponse() { Changes = new List<FileOperationResponse>() };
 
 
-        public RunCodeActionService(         
-            AdhocWorkspaceManager workspaceManager,
-            CodeActionHelper helper,
-            IEnumerable<ICodeActionProvider> providers,
-            IDiagnosticService diagnosticService,
-            CachingCodeFixProviderForProjects codeFixesForProjects)
-            : base(workspaceManager, providers, diagnosticService, codeFixesForProjects)
+        public RunCodeActionService(AdhocWorkspaceManager workspaceManager, IEnumerable<ICodeActionProvider> providers, IDiagnosticsService diagnosticService,
+            CachingCodeFixProviderForProjects codeFixesForProjects) : base(workspaceManager, providers, diagnosticService, codeFixesForProjects)
         {
            
         }

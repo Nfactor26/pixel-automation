@@ -21,8 +21,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
     {
         public CodeWorkspaceManager(string workingDirectory) : base(workingDirectory)
         {
-            Guard.Argument(workingDirectory).NotEmpty().NotNull();
-            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.Semantic);
+            Guard.Argument(workingDirectory).NotEmpty().NotNull();          
             logger = Log.ForContext<CodeWorkspaceManager>();
         }    
 

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Script.Editor.Services.CSharp.Helpers;
+using Pixel.Scripting.Common.CSharp.Diagnostics;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Models.CodeActions;
 using Pixel.Scripting.Editor.Services.CSharp.Helpers;
@@ -22,7 +23,7 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
     {
         protected readonly AdhocWorkspaceManager workspaceManager;
         protected readonly IEnumerable<ICodeActionProvider> Providers;      
-        private readonly IDiagnosticService diagnosticService;
+        private readonly IDiagnosticsService diagnosticService;
         private readonly CachingCodeFixProviderForProjects codeFixesForProject;
         private readonly MethodInfo _getNestedCodeActions;
 
@@ -35,8 +36,7 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
         };
 
         protected BaseCodeActionService(AdhocWorkspaceManager workspaceManager, IEnumerable<ICodeActionProvider> providers,
-            IDiagnosticService diagnosticService,
-            CachingCodeFixProviderForProjects codeFixesForProject)
+            IDiagnosticsService diagnosticService, CachingCodeFixProviderForProjects codeFixesForProject)
         {
             this.workspaceManager = workspaceManager;
             this.Providers = providers;
@@ -100,11 +100,9 @@ namespace Pixel.Scripting.Editor.Services.CodeActions
 
         private async Task CollectCodeFixesActions(Document document, TextSpan span, List<CodeAction> codeActions)
         {
-            var diagnosticDatas = this.diagnosticService.GetDiagnostics(document.Project.Solution.Workspace,
-                document.Project.Id, document.Id, null, false, CancellationToken.None);
+            var diagnosticDatas = await this.diagnosticService.GetDiagnostics(document);
 
-            var groupedBySpan = diagnosticDatas
-                    .Select(x => x.ToDiagnosticAsync(document.Project,CancellationToken.None).Result)
+            var groupedBySpan = diagnosticDatas                   
                     .Where(diagnostic => span.IntersectsWith(diagnostic.Location.SourceSpan))
                     .GroupBy(diagnostic => diagnostic.Location.SourceSpan);
 

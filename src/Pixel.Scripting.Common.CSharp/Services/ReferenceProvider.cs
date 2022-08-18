@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Common.CSharp.Services
@@ -39,7 +40,7 @@ namespace Pixel.Scripting.Common.CSharp.Services
             //}
             var root = await tree.GetRootAsync(cancellationToken);
             var tokenAtContextPosition = root.FindToken(position, findInsideTrivia: true);
-            if (tree.IsEntirelyWithinStringLiteral(position, cancellationToken))
+            if (IsEntirelyWithinStringLiteral(tree, position, cancellationToken))
             {
                 var token = tree.GetRoot(cancellationToken).FindToken(position, findInsideTrivia: true);
                 if (token.IsKind(SyntaxKind.EndOfDirectiveToken) || token.IsKind(SyntaxKind.EndOfFileToken))
@@ -100,9 +101,7 @@ namespace Pixel.Scripting.Common.CSharp.Services
         private async Task InitializeReferenceDlls(Document document)
         {
             await Task.Run(() =>
-            {
-                var scriptEnvironmentService = document.Project.Solution.Workspace.Services.GetService<IWorkspaceOptionService>();
-
+            {                
                 foreach (var directory in new[] { Environment.CurrentDirectory })
                 {
                     var dlls = Directory.EnumerateFiles(directory, "*.dll");
@@ -116,6 +115,82 @@ namespace Pixel.Scripting.Common.CSharp.Services
                     }
                 }
             });
+        }
+
+        bool IsEntirelyWithinStringLiteral(SyntaxTree syntaxTree, int position, CancellationToken cancellationToken)
+        {
+            var token = syntaxTree.GetRoot(cancellationToken).FindToken(position, findInsideTrivia: true);
+
+            // If we ask right at the end of the file, we'll get back nothing. We handle that case
+            // specially for now, though SyntaxTree.FindToken should work at the end of a file.
+            if (token.IsKind(SyntaxKind.EndOfDirectiveToken) || token.IsKind(SyntaxKind.EndOfFileToken))
+            {
+                token = token.GetPreviousToken(includeSkipped: true, includeDirectives: true);
+            }
+
+            if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken)) 
+               // || token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.Utf8SingleLineRawStringLiteralToken) || token.IsKind(SyntaxKind.Utf8MultiLineRawStringLiteralToken))                         
+            {
+                var span = token.Span;
+
+                // cases:
+                // "|"
+                // "|  (e.g. incomplete string literal)
+                return (position > span.Start && position < span.End)
+                    || AtEndOfIncompleteStringOrCharLiteral(token, position, '"', cancellationToken);
+            }
+
+            if (token.IsKind(SyntaxKind.InterpolatedStringStartToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) || token.IsKind(SyntaxKind.InterpolatedStringEndToken)
+                || token.IsKind(SyntaxKind.InterpolatedRawStringEndToken) || token.IsKind(SyntaxKind.InterpolatedSingleLineRawStringStartToken)
+                || token.IsKind(SyntaxKind.InterpolatedMultiLineRawStringStartToken))
+            {
+                return token.SpanStart < position && token.Span.End > position;
+            }
+
+            return false;
+        }
+
+        private bool AtEndOfIncompleteStringOrCharLiteral(SyntaxToken token, int position, char lastChar, CancellationToken cancellationToken)
+        {
+            if (!(token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.CharacterLiteralToken) ||
+                token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken)))
+            {
+                throw new ArgumentException("Expected string or char literal.", nameof(token));
+            }
+
+            if (position != token.Span.End)
+                return false;
+
+            if (token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken))
+            {
+                var sourceText = token.SyntaxTree!.GetText(cancellationToken);
+                var startDelimeterLength = 0;
+                var endDelimeterLength = 0;
+                for (int i = token.SpanStart, n = token.Span.End; i < n; i++)
+                {
+                    if (sourceText[i] != '"')
+                        break;
+
+                    startDelimeterLength++;
+                }
+
+                for (int i = token.Span.End - 1, n = token.Span.Start; i >= n; i--)
+                {
+                    if (sourceText[i] != '"')
+                        break;
+
+                    endDelimeterLength++;
+                }
+
+                return token.Span.Length == startDelimeterLength ||
+                    (token.Span.Length > startDelimeterLength && endDelimeterLength < startDelimeterLength);
+            }
+            else
+            {
+                var startDelimeterLength = token.IsVerbatimStringLiteral() ? 2 : 1;
+                return token.Span.Length == startDelimeterLength ||
+                    (token.Span.Length > startDelimeterLength && token.Text[^1] != lastChar);
+            }
         }
     }
 }

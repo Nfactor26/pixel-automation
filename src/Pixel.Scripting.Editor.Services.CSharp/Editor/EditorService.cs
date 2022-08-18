@@ -1,8 +1,6 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
-using Pixel.Script.Editor.Services.CSharp.Helpers;
+﻿using Pixel.Script.Editor.Services.CSharp.Helpers;
 using Pixel.Script.Editor.Services.CSharp.Highlight;
-using Pixel.Script.Editor.Services.CSharp.Signature;
-using Pixel.Script.Editor.Services.CSharp.TypeLookup;
+using Pixel.Scripting.Common.CSharp;
 using Pixel.Scripting.Common.CSharp.Diagnostics;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core;
@@ -19,13 +17,14 @@ using Pixel.Scripting.Editor.Services.CodeActions;
 using Pixel.Scripting.Editor.Services.Completion;
 using Pixel.Scripting.Editor.Services.CSharp;
 using Pixel.Scripting.Editor.Services.CSharp.Formatting;
+using Pixel.Scripting.Editor.Services.CSharp.Signature;
+using Pixel.Scripting.Editor.Services.CSharp.TypeLookup;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Script.Editor.Services.CSharp
@@ -48,6 +47,7 @@ namespace Pixel.Script.Editor.Services.CSharp
         private CommentService commentService;
         private GetCodeActionsService codeActionsService;
         private RunCodeActionService runCodeActionService;
+        private DiagnosticsService diagnosticsService;
 
         public event EventHandler<WorkspaceChangedEventArgs> WorkspaceChanged;
 
@@ -85,7 +85,7 @@ namespace Pixel.Script.Editor.Services.CSharp
             this.intelliSenseService = new IntellisenseService(workspaceManager, formattingOptions);
             this.highlightService = new HighlightService(workspaceManager);
             this.signatureHelpService = new SignatureHelpService(workspaceManager);
-            this.typeLookupService = new TypeLookupService(workspaceManager, formattingOptions);
+            this.typeLookupService = new TypeLookupService(workspaceManager);
             this.codeFormatService = new CodeFormatService(workspaceManager);
             this.formatRangeService = new FormatRangeService(workspaceManager);
             this.formatAfterKeyStrokeService = new FormatAfterKeystrokeService(workspaceManager);
@@ -93,18 +93,16 @@ namespace Pixel.Script.Editor.Services.CSharp
 
             if(editorOptions.EnableDiagnostics)
             {
-                var diagnosticService = workspaceManager.GetService<Microsoft.CodeAnalysis.Diagnostics.IDiagnosticService>();
-                var diagnosticsEventObservable = System.Reactive.Linq.Observable.FromEventPattern<DiagnosticsUpdatedArgs>(diagnosticService, nameof(diagnosticService.DiagnosticsUpdated));
+                this.diagnosticsService = new DiagnosticsService(this.workspaceManager.GetWorkspace());
+                var diagnosticsEventObservable = Observable.FromEventPattern<DiagnosticsUpdatedArgs>(diagnosticsService, nameof(diagnosticsService.DiagnosticsUpdated));
                 var diagnosticsMessageObservable = diagnosticsEventObservable.Select(d =>
                 {
                     var diagnosticEventData = d.EventArgs;
-
                     if (diagnosticEventData.Kind != DiagnosticsUpdatedKind.DiagnosticsCreated)
                     {
                         return null;
                     }
-
-                   
+                    
                     var document = workspaceManager.GetDocumentById(diagnosticEventData.DocumentId);
                     var project = diagnosticEventData.Solution.GetProject(diagnosticEventData.ProjectId);
                     DiagnosticResultEx diagnosticResult = new DiagnosticResultEx()
@@ -112,11 +110,11 @@ namespace Pixel.Script.Editor.Services.CSharp
                         Id = diagnosticEventData.Id,
                         FileName = document.Name,
                         ProjectName = project.Name
-                    };                   
+                    };    
+                    
                     List<DiagnosticLocation> quickFixes = new List<DiagnosticLocation>();
-                    foreach (var diagnosticData in diagnosticEventData.GetAllDiagnosticsRegardlessOfPushPullSetting())
-                    {
-                        var diagnostic = diagnosticData.ToDiagnosticAsync(project, CancellationToken.None).Result;
+                    foreach (var diagnostic in diagnosticEventData.GetAllDiagnosticsRegardlessOfPushPullSetting())
+                    {                       
                         var diagnosticLocation = diagnostic.ToDiagnosticLocation();
                         quickFixes.Add(diagnosticLocation);
                     }
@@ -129,18 +127,18 @@ namespace Pixel.Script.Editor.Services.CSharp
 
                 if (editorOptions.EnableCodeActions)
                 {
+                    var hostServiceProvider = new RoslynFeaturesHostServicesProvider(AssemblyLoader.Instance);
                     this.codeActionsService = new GetCodeActionsService(this.workspaceManager, new[]
                     {
-                    new RoslynCodeActionProvider()
+                        new RoslynCodeActionProvider(hostServiceProvider)
                     },
-                    diagnosticService, new CachingCodeFixProviderForProjects());
+                    diagnosticsService, new CachingCodeFixProviderForProjects());
 
-                    this.runCodeActionService = new RunCodeActionService(this.workspaceManager,
-                    new CodeActionHelper(), new[]
+                    this.runCodeActionService = new RunCodeActionService(this.workspaceManager, new[]
                     {
-                     new RoslynCodeActionProvider()
+                     new RoslynCodeActionProvider(hostServiceProvider)
                     },
-                    diagnosticService, new CachingCodeFixProviderForProjects());
+                    diagnosticsService, new CachingCodeFixProviderForProjects());
                 }
 
             }
@@ -201,8 +199,9 @@ namespace Pixel.Script.Editor.Services.CSharp
         private void ClearState()
         {
             if (this.workspaceManager != null)
-            {                
-                this.workspaceManager.Dispose();
+            {
+                this.diagnosticsService.Dispose();
+                this.workspaceManager.Dispose();             
                 logger.Information($"Disposed workspace manager for {nameof(EditorService)} with Id : {Identifier}");
             }
         }
@@ -360,12 +359,20 @@ namespace Pixel.Script.Editor.Services.CSharp
 
         public async Task<GetCodeActionsResponse> GetCodeActionsAsync(GetCodeActionsRequest getCodeActionsRequest)
         {
-            return await this.codeActionsService.GetCodeActionsAsync(getCodeActionsRequest);
+            if (editorOptions.EnableCodeActions)
+            {
+                return await this.codeActionsService.GetCodeActionsAsync(getCodeActionsRequest);
+            }
+            return default;
         }
 
         public async Task<RunCodeActionResponse> RunCodeActionAsync(RunCodeActionRequest runCodeActionsRequest)
         {
-            return await this.runCodeActionService.RunCodeActionAsync(runCodeActionsRequest);
+            if (editorOptions.EnableCodeActions)
+            {
+                return await this.runCodeActionService.RunCodeActionAsync(runCodeActionsRequest);
+            }
+            return default;
         }
 
         #region IDisposable
@@ -379,6 +386,8 @@ namespace Pixel.Script.Editor.Services.CSharp
         {
             if (isDisposing)
             {
+                this.diagnosticsService?.Dispose();
+                this.diagnosticsService = null;
                 this.workspaceManager?.Dispose();
                 this.workspaceManager = null;              
                 logger.Debug("EditorService : {0} is disposed now.", this.Identifier);
