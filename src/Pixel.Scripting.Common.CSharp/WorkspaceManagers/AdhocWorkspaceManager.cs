@@ -15,7 +15,6 @@ using System.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
@@ -28,9 +27,10 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         protected ILogger logger;
        
         private string workingDirectory;
-        protected AdhocWorkspace workspace = default;              
-      
+        protected AdhocWorkspace workspace = default;
+        protected readonly IHostServicesProvider hostServicesProvider = new RoslynFeaturesHostServicesProvider(AssemblyLoader.Instance);
         protected List<MetadataReference> additionalReferences;
+        protected readonly DocumentationProviderService documentationProviderService = new ();       
 
         public AdhocWorkspaceManager(string workingDirectory)
         {
@@ -282,14 +282,15 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         {
             if (TryGetDocument(targetDocument, ownerProject, out Document document))
             {
-                SourceText documentText = document.GetTextSynchronously(CancellationToken.None);
-                using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), targetDocument)))
+                if(document.TryGetText(out SourceText documentText))
                 {
-                    documentText.Write(writer);
-                }
-                logger.Information($"Document {targetDocument} from project {ownerProject} has been saved.");
+                    using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), targetDocument)))
+                    {
+                        documentText.Write(writer);
+                    }
+                    logger.Information($"Document {targetDocument} from project {ownerProject} has been saved.");
+                }              
             }
-
         }
 
         /// <inheritdoc/>
@@ -342,13 +343,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                 {
                     //when we have a relative path which doesn't belong to working directory, get the assembly first so that assembly can be resolved by name as well.
                     var assembly = Assembly.LoadFrom(reference);
-                    var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: DocumentationProviderFactory.Invoke(assembly.Location));
+                    var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
                     this.additionalReferences.Add(metaDataReference);
                 }
                 else
                 {
                     //when we have an absolute path, create reference directly from file
-                    var metaDataReference = MetadataReference.CreateFromFile(reference, documentation: DocumentationProviderFactory.Invoke(reference));
+                    var metaDataReference = MetadataReference.CreateFromFile(reference, documentation: documentationProviderService.GetDocumentationProvider(reference));
                     this.additionalReferences.Add(metaDataReference);
                 }
                 index++;
@@ -361,7 +362,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             Guard.Argument(assemblyReferences).NotNull();
             foreach (var assembly in assemblyReferences)
             {
-                var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: DocumentationProviderFactory.Invoke(assembly.Location));
+                var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
                 this.additionalReferences.Add(metaDataReference);
             }
         }
@@ -374,11 +375,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         protected HostServices HostServices { get; private set; }
 
         protected  CompositionHost compositionContext;
-
-        protected IDocumentationProviderService documentationProviderService;
-
-        public Func<string, DocumentationProvider> DocumentationProviderFactory => documentationProviderService.GetDocumentationProvider;
-
+        
         void InitializeCompositionHost()
         {
             var assemblies = GetDefaultCompositionAssemblies();          
@@ -392,9 +389,6 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
                 .CreateContainer();
 
             HostServices = MefHostServices.Create(compositionContext);
-
-            documentationProviderService = GetService<IDocumentationProviderService>();
-
         }
 
         public TService GetService<TService>()
@@ -402,31 +396,19 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             return compositionContext.GetExport<TService>();
         }
 
-        internal static readonly ImmutableArray<Assembly> DefaultCompositionAssemblies =
-            ImmutableArray.Create(
-            // Microsoft.CodeAnalysis.Workspaces
-            typeof(WorkspacesResources).GetTypeInfo().Assembly,
-            // Microsoft.CodeAnalysis.CSharp.Workspaces
-            typeof(CSharpWorkspaceResources).GetTypeInfo().Assembly,
-            // Microsoft.CodeAnalysis.Features
-            typeof(FeaturesResources).GetTypeInfo().Assembly,
-            // Microsoft.CodeAnalysis.CSharp.Features
-            typeof(CSharpFeaturesResources).GetTypeInfo().Assembly,
-            // this
-            typeof(AdhocWorkspaceManager).GetTypeInfo().Assembly);
-
         protected virtual IEnumerable<Assembly> GetDefaultCompositionAssemblies()
-        {
-            return DefaultCompositionAssemblies;
+        {            
+            return Enumerable.Concat(hostServicesProvider.Assemblies, new[]  { typeof(AdhocWorkspaceManager).GetTypeInfo().Assembly });
         }
 
         protected virtual IEnumerable<AnalyzerReference> GetSolutionAnalyzerReferences()
         {
             var loader = GetService<IAnalyzerAssemblyLoader>();
             yield return new AnalyzerFileReference(typeof(Compilation).Assembly.Location, loader);
-            yield return new AnalyzerFileReference(typeof(CSharpResources).Assembly.Location, loader);
-            yield return new AnalyzerFileReference(typeof(FeaturesResources).Assembly.Location, loader);
-            yield return new AnalyzerFileReference(typeof(CSharpFeaturesResources).Assembly.Location, loader);
+            foreach (var assembly in hostServicesProvider.Assemblies)
+            {
+                yield return new AnalyzerFileReference(assembly.Location, loader);
+            }         
         }
 
         #endregion Host Services

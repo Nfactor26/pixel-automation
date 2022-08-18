@@ -1,15 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Script.Editor.Services.CSharp.Helpers;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Models.Signatures;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pixel.Script.Editor.Services.CSharp.Signature
+namespace Pixel.Scripting.Editor.Services.CSharp.Signature
 {
     internal class SignatureHelpService
     {
@@ -107,13 +107,13 @@ namespace Pixel.Script.Editor.Services.CSharp.Signature
                     return new InvocationContext(semanticModel, position, invocation.Expression, invocation.ArgumentList, invocation.IsInStaticContext());
                 }
 
-                if (node is ObjectCreationExpressionSyntax objectCreation && objectCreation.ArgumentList.Span.Contains(position))
+                if (node is BaseObjectCreationExpressionSyntax objectCreation && (objectCreation.ArgumentList?.Span.Contains(position) ?? false))
                 {
                     var semanticModel = await document.GetSemanticModelAsync();
                     return new InvocationContext(semanticModel, position, objectCreation, objectCreation.ArgumentList, objectCreation.IsInStaticContext());
                 }
 
-                if (node is AttributeSyntax attributeSyntax && attributeSyntax.ArgumentList.Span.Contains(position))
+                if (node is AttributeSyntax attributeSyntax && (attributeSyntax.ArgumentList?.Span.Contains(position) ?? false))
                 {
                     var semanticModel = await document.GetSemanticModelAsync();
                     return new InvocationContext(semanticModel, position, attributeSyntax, attributeSyntax.ArgumentList, attributeSyntax.IsInStaticContext());
@@ -143,7 +143,7 @@ namespace Pixel.Script.Editor.Services.CSharp.Signature
                     // 1 point for having a parameter
                     score += 1;
                 }
-                else if (invocationEnum.Current.ConvertedType.Equals(definitionEnum.Current.Type))
+                else if (SymbolEqualityComparer.Default.Equals(invocationEnum.Current.ConvertedType, definitionEnum.Current.Type))
                 {
                     // 2 points for having a parameter and being
                     // the same type
@@ -165,10 +165,10 @@ namespace Pixel.Script.Editor.Services.CSharp.Signature
 
             //Symbol Display parts provide information about part kind which can be used to render the part with a different color / font /etc.
             var symbolDisplayParts = symbol.ToDisplayParts();
-            List<Scripting.Editor.Core.Models.SymbolDisplayPart> displayParts = new List<Scripting.Editor.Core.Models.SymbolDisplayPart >();
+            List<Core.Models.SymbolDisplayPart> displayParts = new List<Core.Models.SymbolDisplayPart >();
             foreach(var symbolDisplayPart in symbolDisplayParts)
             {
-                displayParts.Add(new Scripting.Editor.Core.Models.SymbolDisplayPart(symbolDisplayPart.ToString(), (Scripting.Editor.Core.Models.SymbolDisplayPartKind)(int)symbolDisplayPart.Kind));
+                displayParts.Add(new Core.Models.SymbolDisplayPart(symbolDisplayPart.ToString(), (Core.Models.SymbolDisplayPartKind)(int)symbolDisplayPart.Kind));
             }
             signature.SymbolDisplayParts = displayParts;
 

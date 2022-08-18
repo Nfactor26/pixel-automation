@@ -25,8 +25,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
 
         public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
-        {         
-            DiagnosticProvider.Enable(workspace, DiagnosticProvider.Options.Syntax | DiagnosticProvider.Options.ScriptSemantic);
+        {                   
             logger = Log.ForContext<ScriptWorkSpaceManager>();
         }     
 

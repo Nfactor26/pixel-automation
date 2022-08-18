@@ -1,19 +1,18 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Script.Editor.Services.CSharp.Helpers;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Editor.Core.Models.TypeLookup;
+using Pixel.Scripting.Editor.Services.CSharp.Helpers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Pixel.Script.Editor.Services.CSharp.TypeLookup
+namespace Pixel.Scripting.Editor.Services.CSharp.TypeLookup
 {
     public class TypeLookupService
     {
-        private readonly AdhocWorkspaceManager workspaceManager;
-        private readonly Helpers.FormattingOptions formattingOptions;
+        private readonly AdhocWorkspaceManager workspaceManager;       
         private readonly TypeLookupResponse emptyResponse = new TypeLookupResponse();
       
         private static readonly SymbolDisplayFormat DefaultFormat = SymbolDisplayFormat.FullyQualifiedFormat.
@@ -30,10 +29,9 @@ namespace Pixel.Script.Editor.Services.CSharp.TypeLookup
             SymbolDisplayMemberOptions.IncludeConstantValue
          );
 
-        public TypeLookupService(AdhocWorkspaceManager workspaceManager, Helpers.FormattingOptions formattingOptions)
+        public TypeLookupService(AdhocWorkspaceManager workspaceManager)
         {
-            this.workspaceManager = workspaceManager;
-            this.formattingOptions = formattingOptions;
+            this.workspaceManager = workspaceManager;            
         }
 
         public async Task<TypeLookupResponse> GetTypeDescriptionAsync(TypeLookupRequest request)
@@ -57,14 +55,14 @@ namespace Pixel.Script.Editor.Services.CSharp.TypeLookup
                         symbol.ToDisplayString(DefaultFormat) :
                         symbol.ToMinimalDisplayString(semanticModel, position, MinimalFormat);
 
-                    response.Glyph = (Pixel.Scripting.Editor.Core.Glyph)Microsoft.CodeAnalysis.Shared.Extensions.ISymbolExtensions2.GetGlyph(symbol);
+                    response.Glyph = symbol.GetGlyph();
 
                     //Symbol Display parts provide information about part kind which can be used to render the part with a different color / font /etc.
                     var symbolDisplayParts = symbol.ToDisplayParts();
-                    List<Scripting.Editor.Core.Models.SymbolDisplayPart> displayParts = new List<Scripting.Editor.Core.Models.SymbolDisplayPart>();
+                    List<Core.Models.SymbolDisplayPart> displayParts = new List<Core.Models.SymbolDisplayPart>();
                     foreach (var symbolDisplayPart in symbolDisplayParts)
                     {
-                        displayParts.Add(new Scripting.Editor.Core.Models.SymbolDisplayPart(symbolDisplayPart.ToString(), (Scripting.Editor.Core.Models.SymbolDisplayPartKind)(int)symbolDisplayPart.Kind));
+                        displayParts.Add(new Core.Models.SymbolDisplayPart(symbolDisplayPart.ToString(), (Core.Models.SymbolDisplayPartKind)(int)symbolDisplayPart.Kind));
                     }
                     response.SymbolDisplayParts = displayParts;
 

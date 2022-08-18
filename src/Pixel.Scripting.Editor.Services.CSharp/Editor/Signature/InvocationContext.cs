@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
-namespace Pixel.Script.Editor.Services.CSharp.Signature
+namespace Pixel.Scripting.Editor.Services.CSharp.Signature
 {
     internal class InvocationContext
     {

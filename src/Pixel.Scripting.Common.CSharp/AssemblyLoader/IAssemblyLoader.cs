@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace Pixel.Script.Editor.Services.CSharp
+namespace Pixel.Scripting.Common.CSharp
 {
     public interface IAssemblyLoader
     {
@@ -36,7 +36,7 @@ namespace Pixel.Script.Editor.Services.CSharp
         {
             foreach (var name in assemblyNames)
             {
-                yield return Load(loader, name);
+                yield return loader.Load(name);
             }
         }
 
