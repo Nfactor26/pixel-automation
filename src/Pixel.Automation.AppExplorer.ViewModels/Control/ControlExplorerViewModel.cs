@@ -38,6 +38,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private ApplicationDescriptionViewModel activeApplication;
 
+
+        public BindableCollection<string> Screens { get; set; } = new BindableCollection<string>();
+
+        private string selectedScreen;
+        public string SelectedScreen
+        {
+            get => selectedScreen;
+            set
+            {
+                selectedScreen = value;
+                NotifyOfPropertyChange(() => SelectedScreen);
+                var controlsForSelectedScreen = LoadControlDetails(this.activeApplication, value);
+                this.Controls.Clear();
+                this.Controls.AddRange(controlsForSelectedScreen);
+            }
+        }
+
         /// <summary>
         /// Controls belonging to the active application
         /// </summary>
@@ -180,7 +197,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
 
         #endregion Edit ControlToolBoxItem        
-
+      
         #region Manage Controls
 
         /// <summary>
@@ -191,24 +208,65 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             this.activeApplication = applicationDescriptionViewModel;
             this.Controls.Clear();
+            this.Screens.Clear();
             if (applicationDescriptionViewModel != null)
-            {
-                LoadControlDetails(applicationDescriptionViewModel);
-                this.Controls.AddRange(this.activeApplication.ControlsCollection);
+            {                            
+                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.SelectedScreen = "Home";               
             }
         }
 
-        private void LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel)
+        private IEnumerable<ControlDescriptionViewModel> LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
         {
-            if (applicationDescriptionViewModel.ControlsCollection.Count() == 0)
+            List<ControlDescriptionViewModel> controlsList = new List<ControlDescriptionViewModel>();
+            if (applicationDescriptionViewModel.AvailableControls.ContainsKey(screenName))
             {
-                var controls = this.applicationDataManager.GetAllControls(applicationDescriptionViewModel.Model).ToList();
-                foreach (var control in controls)
+                var controlIdentifers = applicationDescriptionViewModel.AvailableControls[screenName];
+                if (controlIdentifers.Any() && applicationDescriptionViewModel.ControlsCollection.Any(a => a.ControlId.Equals(controlIdentifers.First())))
                 {
-                    applicationDescriptionViewModel.AddControl(new ControlDescriptionViewModel(control));
+                    foreach (var controlId in controlIdentifers)
+                    {
+                        var control = applicationDescriptionViewModel.ControlsCollection.FirstOrDefault(a => a.ControlId.Equals(controlId));
+                        if (control != null)
+                        {
+                            controlsList.Add(control);
+                        }
+                    }
                 }
+                else
+                {
+                    var controls = this.applicationDataManager.GetControlsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
+                    foreach (var control in controls)
+                    {
+                        var controlDescriptionViewModel = new ControlDescriptionViewModel(control);                       
+                        applicationDescriptionViewModel.AddControl(controlDescriptionViewModel, screenName);
+                        controlsList.Add(controlDescriptionViewModel);
+                    }
+                }
+                     
+            }          
+            return controlsList;
+        }
+
+        /// <summary>
+        /// Create a new screen for the application. Screens are used to group application controls.
+        /// </summary>
+        /// <returns></returns>
+        public async Task CreateScreen()
+        {
+            var applicationScreenViewModel = new ApplicationScreenViewModel(this.activeApplication);
+            var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
+            if (result.GetValueOrDefault())
+            {
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                var lastSelectedScreen = this.selectedScreen;
+                this.Screens.Clear();
+                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.SelectedScreen = lastSelectedScreen;
+                logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, this.activeApplication.ApplicationName);
             }
         }
+
         /// <summary>
         /// Open the ControlEditor View to allow edtiing the captured automation identifers and search strategy for control.
         /// </summary>
@@ -301,7 +359,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
             lock (locker)
             {
-                this.activeApplication.AddControl(controlToSave);
+                this.activeApplication.AddControl(controlToSave, this.SelectedScreen);
             }
             if (updateApplication)
             {

@@ -272,17 +272,49 @@ namespace Pixel.Persistence.Services.Client
            }
         }
 
+        /// <summary>
+        /// Get all the controls belonging to application
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
         public IEnumerable<ControlDescription> GetAllControls(ApplicationDescription applicationDescription)
         {
-            foreach (var controlId in applicationDescription.AvailableControls)
+            foreach(var screen in applicationDescription.AvailableControls)
             {
-                string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
-
-                if (File.Exists(controlFile))
+                foreach(var controlId in screen.Value)
                 {
-                    ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
-                    yield return controlDescription;
-                }
+                    string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
+
+                    if (File.Exists(controlFile))
+                    {
+                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
+                        yield return controlDescription;
+                    }
+                }              
+            }
+            yield break;
+        }
+
+        /// <summary>
+        /// Get all the controls for a given application screen
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <param name="screenName"></param>
+        /// <returns></returns>
+        public IEnumerable<ControlDescription> GetControlsForScreen(ApplicationDescription applicationDescription, string screenName)
+        {
+            if(applicationDescription.AvailableControls.ContainsKey(screenName))
+            {
+                foreach (var controlId in applicationDescription.AvailableControls[screenName])
+                {
+                    string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
+
+                    if (File.Exists(controlFile))
+                    {
+                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
+                        yield return controlDescription;
+                    }
+                }               
             }
             yield break;
         }

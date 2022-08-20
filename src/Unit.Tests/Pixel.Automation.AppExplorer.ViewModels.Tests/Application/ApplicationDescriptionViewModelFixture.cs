@@ -5,6 +5,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System.Linq;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 {
@@ -56,15 +57,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             };
 
             var control = new Control.ControlDescriptionViewModel(new ControlDescription());
-            applicationDescriptionViewModel.AddControl(control);
+            applicationDescriptionViewModel.AddControl(control, "Home");
                     
-            Assert.AreEqual(1, applicationDescriptionViewModel.AvailableControls.Count);           
+            Assert.AreEqual(1, applicationDescriptionViewModel.AvailableControls["Home"].Count);           
             Assert.AreEqual(1, applicationDescriptionViewModel.ControlsCollection.Count);
+            Assert.AreEqual(1, applicationDescriptionViewModel.ScreensCollection.Count());
 
-            applicationDescriptionViewModel.DeleteControl(control);
+            applicationDescriptionViewModel.DeleteControl(control, "Home");
 
-            Assert.AreEqual(0, applicationDescriptionViewModel.AvailableControls.Count);
+            Assert.AreEqual(0, applicationDescriptionViewModel.AvailableControls["Home"].Count);
             Assert.AreEqual(0, applicationDescriptionViewModel.ControlsCollection.Count);
+
+            applicationDescriptionViewModel.DeleteScreen("Home");
+            Assert.AreEqual(0, applicationDescriptionViewModel.ScreensCollection.Count());
 
         }
 

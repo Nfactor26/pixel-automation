@@ -39,7 +39,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             controlEditorFactory.CreateControlEditor(Arg.Any<IControlIdentity>()).Returns(controlEditor);
                       
             var controlDescription = CreateControl("SaveButton");
-            applicationDataManager.GetAllControls(Arg.Any<ApplicationDescription>()).Returns(new [] { controlDescription });
+            applicationDataManager.GetControlsForScreen(Arg.Any<ApplicationDescription>(), Arg.Any<string>()).Returns(new [] { controlDescription });
             this.applicationDataManager.AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>()).Returns(Path.GetRandomFileName());
         }
 
@@ -243,11 +243,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             IApplication applicationDetails = Substitute.For<IApplication>();
             applicationDetails.ApplicationName.Returns("NotePad");
             applicationDetails.ApplicationId.Returns("application-id");
-            return new ApplicationDescription(applicationDetails)
+            var applicationDescription = new ApplicationDescription(applicationDetails)
             {
                 ApplicationName = "NotePad",
                 ApplicationDetails = applicationDetails
             };
+            var controls = applicationDataManager.GetControlsForScreen(applicationDescription, "Home");
+            applicationDescription.AvailableControls.Add("Home", new System.Collections.Generic.List<string>(controls.Select(s => s.ControlId)));
+            return applicationDescription;
         }        
     }
 }

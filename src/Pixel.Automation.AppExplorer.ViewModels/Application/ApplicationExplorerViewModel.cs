@@ -28,6 +28,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         private readonly IEventAggregator eventAggregator;
         private readonly ITypeProvider typeProvider;
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IWindowManager windowManager;
 
         /// <summary>
         /// Child views that are dependent on the selected application such as control explorer and prefab explorer
@@ -92,12 +93,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="typeProvider"></param>
         /// <param name="childView"></param>
         public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager,
-            ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView)
+            ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView, IWindowManager windowManager)
         {
             this.DisplayName = "Application Repository";
-            this.eventAggregator = eventAggregator;
-            this.typeProvider = typeProvider;
-            this.applicationDataManager = applicationDataManager;
+            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value; ;
+            this.typeProvider = Guard.Argument(typeProvider).NotNull().Value; ;
+            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
             this.ChildViews.AddRange(childView);
             this.SelectedView = this.ChildViews[0];
 
@@ -180,7 +182,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 this.eventAggregator.PublishOnUIThreadAsync(new RepositoryApplicationOpenedEventArgs(string.Empty, string.Empty));
             }
             NotifyOfPropertyChange(nameof(IsApplicationOpen));
-        }
+        }       
 
         public async Task AddApplication(KnownApplication knownApplication)
         {
@@ -190,6 +192,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
             ApplicationDescription newApplication = new ApplicationDescription(application);
             var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
+            applicationDescriptionViewModel.AddScreen("Home");
             if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
             {
                 applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
@@ -218,6 +221,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.Applications.Remove(applicationDescriptionViewModel);
             this.Applications.Add(applicationDescriptionViewModel);
         }
+
+
 
         private void InitializeKnownApplications()
         {

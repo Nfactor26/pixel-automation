@@ -22,6 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         private ITypeProvider typeProvider;
         private IApplicationDataManager applicationDataManager;
         private IApplicationAware childScreen;
+        private IWindowManager windowManager;
     
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -30,6 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             typeProvider = Substitute.For<ITypeProvider>();
             applicationDataManager = Substitute.For<IApplicationDataManager>();
             childScreen = Substitute.For<IApplicationAware>();
+            windowManager = Substitute.For<IWindowManager>();
 
             var application = CreateApplicationDescription();
             applicationDataManager.GetAllApplications().Returns(new[] { application });
@@ -50,7 +52,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatApplicationExplorerViewModelCanBeCorrectlyInitialized()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen });
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
 
             Assert.AreEqual(1, applicationExplorerViewModel.Applications.Count);
             Assert.AreEqual(1, applicationExplorerViewModel.KnownApplications.Count);
@@ -67,7 +69,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanOpenChildView()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen });
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             applicationExplorerViewModel.OpenApplication(applicationDescription);
 
@@ -83,7 +85,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanGoBackToParentView()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen });
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             
             applicationExplorerViewModel.OpenApplication(applicationDescription);
@@ -99,7 +101,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatNewApplicationCanBeAdded()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen });
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
             var knownApplication = applicationExplorerViewModel.KnownApplications.First();
 
             await applicationExplorerViewModel.AddApplication(knownApplication);
@@ -114,7 +116,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanToggleRename()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen });
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
 
             applicationExplorerViewModel.SelectedApplication = applicationDescription;
