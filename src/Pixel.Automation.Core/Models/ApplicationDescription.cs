@@ -43,10 +43,10 @@ namespace Pixel.Automation.Core.Models
         public IApplication ApplicationDetails { get; set; }
 
         /// <summary>
-        /// Identifier of the controls belonging to this application
+        /// Control identifier collection for a given application screen
         /// </summary>
         [DataMember(Order = 30)]
-        public List<string> AvailableControls { get; private set; } = new List<string>();
+        public Dictionary<string, List<string>> AvailableControls { get; private set; } = new ();
 
         /// <summary>
         /// Identifier of the prefabs belonging to this application

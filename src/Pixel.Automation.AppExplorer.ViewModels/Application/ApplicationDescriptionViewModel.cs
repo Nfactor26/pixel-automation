@@ -5,6 +5,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
@@ -67,12 +68,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         }
 
         /// <summary>
-        /// Identifier of the controls belonging to this application
+        /// Collection of screens for application used to group controls
         /// </summary>
-        public List<string> AvailableControls
+        public IEnumerable<string> ScreensCollection
+        {
+            get => AvailableControls.Keys.Select(s => s);
+        }
+
+        /// <summary>
+        /// Control identifier collection for a given application screen
+        /// </summary>
+        public Dictionary<string, List<string>> AvailableControls
         {
             get => applicationDescription.AvailableControls;
-        }
+        }     
 
         /// <summary>
         /// Identifier of the prefabs belonging to this application
@@ -80,8 +89,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public List<string> AvailablePrefabs
         {
             get => applicationDescription.AvailablePrefabs;
-        }
- 
+        }       
+
         /// <summary>
         /// Controls belonging to the application
         /// </summary>
@@ -102,14 +111,42 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         }       
 
         /// <summary>
+        /// Add a new screen to the application
+        /// </summary>
+        /// <param name="screenName"></param>
+        public void AddScreen(string screenName)
+        {
+            if(!this.ScreensCollection.Contains(screenName))
+            {
+                this.applicationDescription.AvailableControls.Add(screenName, new List<string>());
+                OnPropertyChanged(nameof(ScreensCollection));
+            }
+        }
+
+        /// <summary>
+        /// Remove an existing screen from the application.
+        /// </summary>
+        /// <param name="screenName"></param>
+        public void DeleteScreen(string screenName)
+        {
+            if (this.ScreensCollection.Contains(screenName))
+            {
+                this.applicationDescription.AvailableControls.Remove(screenName);
+                OnPropertyChanged(nameof(ScreensCollection));
+            }
+        }
+
+        /// <summary>
         /// Add a new control to the application.
         /// </summary>
         /// <param name="controlDescription"></param>
-        public void AddControl(ControlDescriptionViewModel controlDescription)
+        public void AddControl(ControlDescriptionViewModel controlDescription, string screenName)
         {
-            if (!this.AvailableControls.Contains(controlDescription.ControlId))
+            AddScreen(screenName);
+            var controlCollection = this.applicationDescription.AvailableControls[screenName];
+            if (!controlCollection.Contains(controlDescription.ControlId))
             {
-                this.AvailableControls.Add(controlDescription.ControlId);
+                controlCollection.Add(controlDescription.ControlId);
             }
             if (!this.ControlsCollection.Contains(controlDescription))
             {
@@ -121,12 +158,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// Remove an existing control from the application
         /// </summary>
         /// <param name="controlDescription"></param>
-        public void DeleteControl(ControlDescriptionViewModel controlDescription)
+        public void DeleteControl(ControlDescriptionViewModel controlDescription, string screenName)
         {
-            if (this.AvailableControls.Contains(controlDescription.ControlId))
+            if(this.applicationDescription.AvailableControls.ContainsKey(screenName))
             {
-                this.AvailableControls.Remove(controlDescription.ControlId);
-            }
+                var controlCollection = this.applicationDescription.AvailableControls[screenName];
+                if (controlCollection.Contains(controlDescription.ControlId))
+                {
+                    controlCollection.Remove(controlDescription.ControlId);
+                }
+            }          
+            
             if (this.ControlsCollection.Contains(controlDescription))
             {
                 this.ControlsCollection.Remove(controlDescription);
