@@ -48,6 +48,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             get => this.controlDescription.ControlId;          
         }
+              
+        /// <summary>
+        /// Version of the control
+        /// </summary>
+        public Version Version
+        {
+            get => this.controlDescription.Version;
+        }
      
         /// <summary>
         /// Group assigned to control

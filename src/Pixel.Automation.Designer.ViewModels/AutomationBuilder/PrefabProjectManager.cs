@@ -38,6 +38,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.prefabProject = prefabProject;
             this.prefabFileSystem.Initialize(prefabProject, versionInfo);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
+            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
             ConfigureCodeEditor();
           

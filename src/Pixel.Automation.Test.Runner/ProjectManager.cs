@@ -89,6 +89,7 @@ namespace Pixel.Automation.Test.Runner
             Type setupDataModel = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName)) ?? throw new Exception($"Data model assembly {dataModelAssembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
 
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
+            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem);
             this.entityManager.RegisterDefault<IProjectFileSystem>(this.projectFileSystem);
             this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
 

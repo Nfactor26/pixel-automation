@@ -41,12 +41,20 @@ namespace Pixel.Persistence.Services.Client
         IEnumerable<ControlDescription> GetAllControls(ApplicationDescription applicationDescription);
 
         /// <summary>
-        /// Load all the control files from disk for a given screen of a given application
+        /// Load all the control files from disk for a given screen of a given application. Only latest revision is included.
         /// </summary>
         /// <param name="applicationDescription"></param>
         /// <param name="screenName"></param>
         /// <returns></returns>
         IEnumerable<ControlDescription> GetControlsForScreen(ApplicationDescription applicationDescription, string screenName);
+
+        /// <summary>
+        /// Get all the revisions of control given it's applicationId and controlId
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="controlId"></param>
+        /// <returns></returns>
+        IEnumerable<ControlDescription> GetControlsById(string applicationId, string controlId);
 
         /// <summary>
         /// Add or update a control file

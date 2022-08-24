@@ -4,6 +4,7 @@ using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
@@ -20,7 +21,7 @@ using System.Windows;
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>,
-        IHandle<TestEntityRemovedEventArgs>
+        IHandle<TestEntityRemovedEventArgs>, IHandle<ControlAddedEventArgs>
     {
         #region data members
 
@@ -32,7 +33,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly ApplicationSettings applicationSettings;
         protected readonly IVersionManagerFactory versionManagerFactory;
         protected readonly IWindowManager windowManager;
-
+        private readonly IProjectManager projectManager;
+      
         public IEntityManager EntityManager { get; private set; }
 
         public IDropTarget ComponentDropHandler { get; protected set; }
@@ -57,7 +59,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         #region constructor
 
         public EditorViewModel(IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
-            IEntityManager entityManager, IScriptExtactor scriptExtractor, IVersionManagerFactory versionManagerFactory,
+            IEntityManager entityManager, IProjectManager projectManager, IScriptExtactor scriptExtractor, IVersionManagerFactory versionManagerFactory,
             IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
         { 
             this.globalEventAggregator = Guard.Argument(globalEventAggregator, nameof(globalEventAggregator)).NotNull().Value;
@@ -66,6 +68,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.EntityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor, nameof(scriptExtractor)).NotNull().Value;
             this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).Value;
             this.ComponentDropHandler = Guard.Argument(componentDropHandler, nameof(componentDropHandler)).NotNull().Value;
@@ -76,13 +79,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
-        public virtual void DeleteComponent(ComponentViewModel componentViewModel)
+        public void DeleteComponent(ComponentViewModel componentViewModel)
         {
             //TODO : Disable delete button on the root entity
             if (componentViewModel.Model.Tag.Equals("Root"))
             {
-                logger.Warning("Root entity can't be deleted");
-                return;
+                logger.Warning("Root entity can't be deleted");               
             }
 
             IEnumerable<ScriptStatus> scripts = default;
@@ -130,9 +132,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
 
             componentViewModel.Parent.RemoveComponent(componentViewModel);
-            logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
-
+            if (componentViewModel.Model is IControlEntity controlEntity)
+            {
+                UpdateControlReferences(controlEntity);               
+            }
+            logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");         
         }
+
+        private void UpdateControlReferences(IControlEntity controlEntity)
+        {
+            var fileSystem = this.projectManager.GetProjectFileSystem();
+            var controlReferences = fileSystem.LoadFile<ControlReferences>(fileSystem.ControlReferencesFile);
+            if (controlReferences.HasReference(controlEntity.ControlId))
+            {
+                controlReferences.RemoveControlReference(controlReferences.GetControlReference(controlEntity.ControlId));
+            }
+            fileSystem.SaveToFile<ControlReferences>(controlReferences, fileSystem.ControlReferencesFile);
+        }
+
 
         private bool isRunInProgress = false;
         public bool CanRunComponent
@@ -241,10 +258,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        /// <inheritdoc/>      
+        public async Task ManageControlReferencesAsync()
+        {
+            try
+            {
+                var versionManager = this.versionManagerFactory.CreateControlReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                await this.windowManager.ShowDialogAsync(versionManager);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+
         #endregion Automation Project
 
         #region Utilities    
-     
+
         public void ZoomInToEntity(EntityComponentViewModel entityComponentViewModel)
         {
             try
@@ -340,7 +372,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
                 var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
                 foreach (var control in controlsToBeReloaded)
-                {
+                {                 
                     control.Reload();
                     logger.Information($"Control : {control.Name} with Id : {control.ControlId} has been reloaded");
                     await Task.CompletedTask;
@@ -389,6 +421,27 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             await Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Handle notification for a control added event to update the ControlReferences file for project.
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(ControlAddedEventArgs control, CancellationToken cancellationToken)
+        {
+            var controlDescription = control.Control;
+            var fileSystem = this.projectManager.GetProjectFileSystem();
+            ControlReferences controlReferences = File.Exists(fileSystem.ControlReferencesFile) ? fileSystem.LoadFile<ControlReferences>(fileSystem.ControlReferencesFile) : new ControlReferences();
+            //Even if we drop a new version, we won't update the versoin in ControlReferences file. Version needs to be manually changed using control reference manager.
+            if (!controlReferences.HasReference(controlDescription.ControlId))
+            {
+                controlReferences.AddControlReference(new ControlReference(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version));
+            }
+            fileSystem.SaveToFile<ControlReferences>(controlReferences, Path.GetDirectoryName(fileSystem.ControlReferencesFile), Path.GetFileName(fileSystem.ControlReferencesFile));
+            await Task.CompletedTask;
+        }
+
 
         #endregion IHandle<T>
 

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -18,20 +17,13 @@ namespace Pixel.Automation.Core.Components
     [Serializable]
     public abstract class ControlEntity : Entity, IControlEntity
     {
-        private string controlId;
-        [Browsable(false)]
-        public string ControlId
-        {
-            get => this.controlId;
-        }
-
-        /// <summary>
-        /// Control file inside the repository 
-        /// </summary>
         [DataMember]
-        [Category("File Details")]
         [Browsable(false)]
-        public string ControlFile { get; set; } = string.Empty;
+        public string ApplicationId { get; set; }
+
+        [DataMember]
+        [Browsable(false)]
+        public string ControlId { get; set; }
 
         [DataMember]
         [DisplayName("Search Root")]
@@ -155,18 +147,16 @@ namespace Pixel.Automation.Core.Components
         {
 
         }
+        
+        private IControlLoader controlLoader;
 
         protected virtual ControlDescription LoadControlDescription()
         {
-            if (File.Exists(this.ControlFile))
+            if (this.controlLoader == null)
             {
-                ISerializer serializer = this.EntityManager.GetServiceOfType<ISerializer>();
-                var controlDescription = serializer.Deserialize<ControlDescription>(this.ControlFile);
-                this.controlId = controlDescription.ControlId;
-                return controlDescription;              
+                this.controlLoader = this.EntityManager.GetServiceOfType<IControlLoader>();
             }
-
-            throw new FileNotFoundException("Control file : {ControlFile} could not be found", this.ControlFile);
+            return this.controlLoader.GetControl(this.ApplicationId, this.ControlId);
         }
 
         public override IEnumerable<IComponent> GetNextComponentToProcess()
@@ -180,16 +170,6 @@ namespace Pixel.Automation.Core.Components
         public abstract Task<UIControl> GetControl();
 
         public abstract Task<IEnumerable<UIControl>> GetAllControls();
-
-        public override bool ValidateComponent()
-        {
-            base.ValidateComponent();
-            if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative) && !(this.Parent is ControlEntity))
-            {
-                IsValid = false;
-            }
-            return IsValid;
-        }
 
         protected async Task<T> GetElementAtIndex<T>(IEnumerable<T> foundControls)
         {
@@ -220,7 +200,6 @@ namespace Pixel.Automation.Core.Components
 
         protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
         {
-
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, bool>>(predicateScriptFile);
             bool isMatch = fn(this, targetElement);
@@ -229,6 +208,7 @@ namespace Pixel.Automation.Core.Components
 
         public void Reload()
         {
+            this.controlLoader?.RemoveFromCache(this.ControlId);
             this.controlDescription = LoadControlDescription();
             OnPropertyChanged(nameof(ControlDescription));
             OnPropertyChanged(nameof(ControlDetails));

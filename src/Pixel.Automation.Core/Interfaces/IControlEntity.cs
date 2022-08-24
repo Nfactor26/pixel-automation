@@ -9,14 +9,14 @@ namespace Pixel.Automation.Core.Interfaces
     public interface IControlEntity : IComponent
     {
         /// <summary>
+        /// Identifier of the owner application
+        /// </summary>
+        string ApplicationId { get; }
+
+        /// <summary>
         /// Identifier of the control
         /// </summary>
         string ControlId { get; }
-
-        /// <summary>
-        /// Target file where control identification details are saved
-        /// </summary>
-        string ControlFile { get; set; }
 
         /// <summary>
         /// Control identification details

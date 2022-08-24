@@ -10,7 +10,6 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +38,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
             this.projectFileSystem.Initialize(activeProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
+            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
 
             await CreateDataModelFile();
             ConfigureCodeEditor();

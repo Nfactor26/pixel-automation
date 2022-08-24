@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
@@ -12,6 +13,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -91,6 +93,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             serializer.Serialize<PrefabProject>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
             UpdateAssemblyReferenceAndNameSpace(prefabToolBoxItem, prefabFileSystem);
+            UpdateControlReferencesFile(prefabToolBoxItem.PrefabRoot as Entity);
             logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
            
             await this.applicationDataManager.AddOrUpdatePrefabAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
@@ -128,6 +131,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             fileContents = fileContents.Replace(oldNameSpace, prefabProject.NameSpace);
             File.WriteAllText(prefabFileSystem.PrefabFile, fileContents);
 
+        }
+
+        /// <summary>
+        /// Prefabs can use controls in the automation. We need to create a ControlReferences file to include details of these controls.
+        /// By default, we create the references with the most recent version of the control irrespective of what version was it created with.
+        /// When a prefab is used in a automation project, control references are merged back in automation project control references.
+        /// However, the automation project control references will always decide what version of control is used.
+        /// </summary>
+        /// <param name="prefabRoot"></param>
+        private void UpdateControlReferencesFile(Entity prefabRoot)
+        {
+            var controlReferences = new ControlReferences();
+            var referencedControls = prefabRoot.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+            foreach(var control in referencedControls)
+            {
+                var mostRecentVersionOfControl = this.applicationDataManager.GetControlsById(control.ApplicationId, control.ControlId).OrderBy(a => a.Version).Last();
+                controlReferences.AddControlReference(new ControlReference(mostRecentVersionOfControl.ApplicationId, mostRecentVersionOfControl.ControlId, mostRecentVersionOfControl.Version));
+            }
+            this.prefabFileSystem.SaveToFile<ControlReferences>(controlReferences, Path.GetDirectoryName(this.prefabFileSystem.ControlReferencesFile),
+                Path.GetFileName(this.prefabFileSystem.ControlReferencesFile));
         }
 
         public override async Task Cancel()

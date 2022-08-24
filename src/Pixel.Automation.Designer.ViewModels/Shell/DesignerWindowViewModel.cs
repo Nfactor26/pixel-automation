@@ -5,7 +5,6 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -230,6 +229,25 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
+
+        public bool CanManageControlReferences
+        {
+            get
+            {
+                return this.ActiveItem is IEditor;
+            }
+
+        }
+
+        public async Task ManageControlReferencesAsync()
+        {
+            var activeItem = this.ActiveItem as IEditor;
+            if (activeItem != null)
+            {
+                await activeItem.ManageControlReferencesAsync();
+            }
+        }
+
         public override async Task ActivateItemAsync(IScreen item, CancellationToken cancellationToken)
         {
             //Temp fix
@@ -248,12 +266,12 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanSaveAll);
                 NotifyOfPropertyChange(() => CanManageProjectVersion);
                 NotifyOfPropertyChange(() => CanManagePrefabReferences);
+                NotifyOfPropertyChange(() => CanManageControlReferences);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, ex.Message);
             } 
-
         }
 
 

@@ -37,9 +37,14 @@ namespace Pixel.Automation.Designer.ViewModels.Factory
             return new ProjectVersionManagerViewModel(automationProject, this.workspaceManagerFactory, this.serializer, this.applicationDataManager, this.applicationSettings);
         }
 
-        public IVersionManager CreatePrefabReferenceManager(IFileSystem projectFileSystem)
+        public IVersionManager CreatePrefabReferenceManager(IFileSystem fileSystem)
         {
-            return new PrefabReferenceManagerViewModel(projectFileSystem, this.applicationDataManager);
+            return new PrefabReferenceManagerViewModel(fileSystem, this.applicationDataManager);
+        }
+
+        public IVersionManager CreateControlReferenceManager(IFileSystem fileSystem)
+        {
+            return new ControlReferenceManagerViewModel(fileSystem, this.applicationDataManager);
         }
     }
 }
