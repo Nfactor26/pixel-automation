@@ -22,7 +22,7 @@ namespace Pixel.Scripting.Common.CSharp.Diagnostics
     {
         private readonly Workspace workspace;
         private readonly IObserver<string> openDocuments;
-        private readonly IDisposable disposable;
+        private readonly IDisposable disposable;       
 
         public DiagnosticsService(Workspace workspace)
         {
@@ -80,9 +80,13 @@ namespace Pixel.Scripting.Common.CSharp.Diagnostics
         {
             var currentSolution = workspace.CurrentSolution;
             var documents = currentSolution.GetDocumentIdsWithFilePath(filePath).Select(id => currentSolution.GetDocument(id)).OfType<Document>();
-            var semanticModels = await Task.WhenAll(documents.Select(doc => doc.GetSemanticModelAsync()));
-            var items = semanticModels.SelectMany(sm => sm.GetDiagnostics());
-            return DiagnosticsUpdatedArgs.DiagnosticsCreated(documents.First().Id, workspace, workspace.CurrentSolution, documents.First().Project.Id, documents.First().Id, items);
+            if(documents.Any())
+            {                
+                var semanticModels = await Task.WhenAll(documents.Select(doc => doc.GetSemanticModelAsync()));
+                var items = semanticModels.SelectMany(sm => sm.GetDiagnostics());
+                return DiagnosticsUpdatedArgs.DiagnosticsCreated(documents.First().Id, workspace, workspace.CurrentSolution, documents.First().Project.Id, documents.First().Id, items);
+            }
+            return null;
         }
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnostics(Document document)
@@ -96,13 +100,16 @@ namespace Pixel.Scripting.Common.CSharp.Diagnostics
 
         protected virtual void OnDiagnosticsUpdated(DiagnosticsUpdatedArgs diagnosticsUpdatedArgs)
         {
-            this.DiagnosticsUpdated(this, diagnosticsUpdatedArgs);
+            if(diagnosticsUpdatedArgs != null)
+            {
+                this.DiagnosticsUpdated(this, diagnosticsUpdatedArgs);
+            }
         }
 
         public void Dispose()
         {
             workspace.WorkspaceChanged -= OnWorkspaceChanged;           
-            disposable.Dispose();
+            disposable.Dispose();            
         }
     }
 }
