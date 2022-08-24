@@ -32,7 +32,7 @@ namespace Pixel.Automation.RunTime
             {
                 try
                 {
-                    Assembly assembly = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, path));
+                    Assembly assembly = Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, path));
                     LoadTypesFromAssembly(assembly);
                 }
                 catch (Exception ex)
