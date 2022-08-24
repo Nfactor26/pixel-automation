@@ -127,7 +127,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
             metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
 
-            this.metaDataReferenceResolver = metaDataReferenceResolver.WithScriptMetaDataResolver(metaDataResolver);
+            this.metaDataReferenceResolver = this.metaDataReferenceResolver?.WithScriptMetaDataResolver(metaDataResolver);
             this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver);
         }
     }
