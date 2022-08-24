@@ -10,7 +10,11 @@ namespace Pixel.Persistence.Core.Models
         [Required]
         [DataMember]
         public string ControlId { get; set; }
-       
+
+        [Required]
+        [DataMember]
+        public string Version { get; set; }
+
         [DataMember]
         public DateTime LastUpdated { get; set; }
     }
@@ -25,6 +29,10 @@ namespace Pixel.Persistence.Core.Models
         [Required]
         [DataMember]
         public string ControlId { get; set; }
+
+        [Required]
+        [DataMember]
+        public string Version { get; set; }
 
         [Required]
         [DataMember]

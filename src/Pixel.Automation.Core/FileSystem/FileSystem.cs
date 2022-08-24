@@ -25,6 +25,8 @@ namespace Pixel.Automation.Core
 
         public string ReferencesDirectory { get; protected set; }
 
+        public string ControlReferencesFile { get; protected set; }
+
         public AssemblyReferenceManager ReferenceManager { get; internal protected set; }
 
 
@@ -45,6 +47,7 @@ namespace Pixel.Automation.Core
             this.TempDirectory = Path.Combine(this.WorkingDirectory, "Temp");
             this.DataModelDirectory = Path.Combine(this.WorkingDirectory, "DataModel");
             this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, "References");
+            this.ControlReferencesFile = Path.Combine(this.WorkingDirectory, "ControlReferences.ref");
 
             if (!Directory.Exists(WorkingDirectory))
             {

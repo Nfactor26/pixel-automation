@@ -225,12 +225,13 @@ namespace Pixel.Persistence.Services.Client
 
             serializer.Serialize(appFile, application, typeProvider.GetKnownTypes());
             return appFile;
-        }    
+        }
 
         #endregion Applications
 
         #region Controls
 
+        /// <inheritdoc/>      
         public async Task AddOrUpdateControlAsync(ControlDescription controlDescription)
         {
             SaveControlToDisk(controlDescription);
@@ -240,6 +241,7 @@ namespace Pixel.Persistence.Services.Client
             }
         }
 
+        /// <inheritdoc/>      
         public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream)
         {
             Directory.CreateDirectory(GetControlDirectory(controlDescription));
@@ -259,6 +261,7 @@ namespace Pixel.Persistence.Services.Client
             return saveLocation;
         }
 
+        /// <inheritdoc/>      
         public async Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile)
         {
            if(!File.Exists(imageFile))
@@ -272,51 +275,61 @@ namespace Pixel.Persistence.Services.Client
            }
         }
 
-        /// <summary>
-        /// Get all the controls belonging to application
-        /// </summary>
-        /// <param name="applicationDescription"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>      
         public IEnumerable<ControlDescription> GetAllControls(ApplicationDescription applicationDescription)
         {
             foreach(var screen in applicationDescription.AvailableControls)
             {
                 foreach(var controlId in screen.Value)
                 {
-                    string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
-
-                    if (File.Exists(controlFile))
+                    string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId);
+                    foreach(var revision in Directory.EnumerateDirectories(controlDirectory))
                     {
-                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
-                        yield return controlDescription;
-                    }
+                        string controlPath = Path.Combine(revision, $"{controlId}.dat");
+                        if (File.Exists(controlPath))
+                        {
+                            ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlPath);
+                            yield return controlDescription;
+                        }
+                    }                 
                 }              
             }
             yield break;
         }
 
-        /// <summary>
-        /// Get all the controls for a given application screen
-        /// </summary>
-        /// <param name="applicationDescription"></param>
-        /// <param name="screenName"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>       
         public IEnumerable<ControlDescription> GetControlsForScreen(ApplicationDescription applicationDescription, string screenName)
         {
             if(applicationDescription.AvailableControls.ContainsKey(screenName))
             {
                 foreach (var controlId in applicationDescription.AvailableControls[screenName])
                 {
-                    string controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId, $"{controlId}.dat");
-
-                    if (File.Exists(controlFile))
+                    string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId);
+                    var latestRevision = Directory.EnumerateDirectories(controlDirectory).Max(a => a);
+                    string controlPath = Path.Combine(latestRevision, $"{controlId}.dat");
+                    if (File.Exists(controlPath))
                     {
-                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlFile);
+                        ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlPath);
                         yield return controlDescription;
                     }
                 }               
             }
             yield break;
+        }
+
+       /// <inheritdoc />
+       public IEnumerable<ControlDescription> GetControlsById(string applicationId, string controlId)
+        {
+            string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, controlId);
+            foreach (var revision in Directory.EnumerateDirectories(controlDirectory))
+            {
+                string controlPath = Path.Combine(revision, $"{controlId}.dat");
+                if (File.Exists(controlPath))
+                {
+                    ControlDescription controlDescription = serializer.Deserialize<ControlDescription>(controlPath);
+                    yield return controlDescription;
+                }
+            }
         }
 
         private string SaveControlToDisk(ControlDescription controlDescription)
@@ -338,7 +351,7 @@ namespace Pixel.Persistence.Services.Client
 
         private string GetControlDirectory(ControlDescription controlItem)
         {
-            return Path.Combine(applicationSettings.ApplicationDirectory, controlItem.ApplicationId, Constants.ControlsDirectory, controlItem.ControlId);
+            return Path.Combine(applicationSettings.ApplicationDirectory, controlItem.ApplicationId, Constants.ControlsDirectory, controlItem.ControlId, controlItem.Version.ToString());
         }
 
         #endregion Controls

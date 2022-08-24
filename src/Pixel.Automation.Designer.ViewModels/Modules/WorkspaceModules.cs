@@ -36,7 +36,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 
             Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();    
-            Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InSingletonScope();       
+            Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InSingletonScope();
+            Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
 
             //If the Highglight rectangle is created on some other thread, it doesn't work. Delegate passed to BeginInvoke of forms never get executed.
             HighlightRectangle highlightRectangle = new HighlightRectangle();

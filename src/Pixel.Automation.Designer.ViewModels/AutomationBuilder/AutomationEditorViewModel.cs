@@ -23,7 +23,7 @@ using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-
+        
     public class AutomationEditorViewModel : EditorViewModel, IAutomationEditor
     {
         #region data members        
@@ -35,7 +35,8 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ITestExplorer testExplorer;
         private readonly ITestExplorerHost testExplorerHost;        
         private readonly ITestDataRepository testDataRepository;
-        private readonly ITestDataRepositoryHost testDataRepositoryHost;          
+        private readonly ITestDataRepositoryHost testDataRepositoryHost;
+        private readonly IPrefabLoader prefabLoader;
       
 
         #endregion data members
@@ -44,8 +45,8 @@ namespace Pixel.Automation.Designer.ViewModels
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
             IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
-            IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
-            : base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
+            IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, IPrefabLoader prefabLoader, ApplicationSettings applicationSettings)
+            : base(globalEventAggregator, windowManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
 
             this.serviceResolver = Guard.Argument(serviceResolver).NotNull().Value;
@@ -53,6 +54,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
             this.testExplorer = Guard.Argument(testExplorer).NotNull().Value;
             this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;
+            this.prefabLoader = Guard.Argument(prefabLoader).NotNull().Value;
             Guard.Argument(anchorables).NotNull().NotEmpty().DoesNotContainNull();
 
             foreach (var item in anchorables)
@@ -196,7 +198,7 @@ namespace Pixel.Automation.Designer.ViewModels
             base.BuildWorkFlow(root);
             this.componentViewBuilder.SetRoot(root);
         }
-
+        
         #endregion Automation Project
 
         #region OnLoad
@@ -264,11 +266,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        /// <summary>
-        /// Change the prefab version used in project.
-        /// This requires application restart to take effect.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>  
         public async Task ManagePrefabReferencesAsync()
         {
             try
@@ -285,7 +283,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 logger.Error(ex, ex.Message);
             }
-        }
+        }      
 
         #endregion Save project
 
@@ -329,11 +327,12 @@ namespace Pixel.Automation.Designer.ViewModels
 
 
         #endregion Close Screen
-
+       
         protected override void Dispose(bool isDisposing)
         {
             base.Dispose(isDisposing);
             this.serviceResolver.Dispose();
         }
+
     }
 }

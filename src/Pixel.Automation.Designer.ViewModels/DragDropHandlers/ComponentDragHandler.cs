@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
@@ -27,10 +28,12 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
     {
         private readonly ILogger logger = Log.ForContext<ComponentDropHandler>();
         private readonly ApplicationSettings applicationSettings;
+        private readonly IEventAggregator eventAggregator;
 
-        public ComponentDropHandler(ApplicationSettings applicationSettings)
+        public ComponentDropHandler(ApplicationSettings applicationSettings, IEventAggregator eventAggregator)
         {
-            this.applicationSettings = applicationSettings;
+            this.applicationSettings = Guard.Argument(applicationSettings).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
         }
 
         public void DragOver(IDropInfo dropInfo)
@@ -285,7 +288,9 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 };
 
                 targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
-                PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(targetItem.Model.EntityManager.GetCurrentFileSystem() as IProjectFileSystem, prefabProjectViewModel.PrefabProject, prefabEntity.Id, testCaseEntity?.Id);
+                var projectFileSystem = targetItem.Model.EntityManager.GetCurrentFileSystem() as IProjectFileSystem;
+                var prefabFileSystem = targetItem.Model.EntityManager.GetServiceOfType<IPrefabFileSystem>();
+                PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(projectFileSystem, prefabFileSystem, prefabProjectViewModel.PrefabProject, prefabEntity.Id, testCaseEntity?.Id);
                 IWindowManager windowManager = targetItem.Model.EntityManager.GetServiceOfType<IWindowManager>();
                 var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
                 result.ContinueWith(a =>
@@ -317,8 +322,11 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     ControlEntity controlEntity = Activator.CreateInstance(containerEntityAttribute.ContainerEntityType)
                         as ControlEntity;
                     controlEntity.Name = controlItem.ControlName;
-                    controlEntity.ControlFile = Path.Combine(applicationSettings.ApplicationDirectory, controlIdentity.ApplicationId, Constants.ControlsDirectory, controlItem.ControlId, $"{controlItem.ControlId}.dat");
+                    controlEntity.ApplicationId = controlItem.ApplicationId;
+                    controlEntity.ControlId = controlItem.ControlId;
                     targetItem.AddComponent(controlEntity);
+                    //Notify on event aggregator so that control references file for the project  can be updated
+                    this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription));
                 }
             }
 

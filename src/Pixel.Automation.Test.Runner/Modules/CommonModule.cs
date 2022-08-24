@@ -26,7 +26,8 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IServiceResolver>().To<ServiceResolver>().InSingletonScope();
 
            
-            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope(); // since nested prefabs are not supported          
+            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope(); // since nested prefabs are not supported
+            Kernel.Bind<IControlLoader>().To<ControlLoader>().InSingletonScope();
             Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
 
             Kernel.Bind<IEntityManager>().ToConstructor(c => new EntityManager(c.Inject<IServiceResolver>())).InSingletonScope();

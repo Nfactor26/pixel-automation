@@ -41,14 +41,15 @@ namespace Pixel.Persistence.Respository
             {
                 string applicationId = document["ApplicationId"].AsString;
                 string controlId = document["ControlId"].AsString;
+                string version = document["Version"].AsString;
 
                 document.Add("LastUpdated", DateTime.Now.ToUniversalTime());            
               
-                //if document with application id already exists, replace it
+                //if document already exists, replace it
                 if (controlsCollection.CountDocuments<BsonDocument>(x => x["ApplicationId"].Equals(applicationId) 
-                    && x["ControlId"].Equals(controlId), new CountOptions { Limit = 1 }) > 0)
+                    && x["ControlId"].Equals(controlId) && x["Version"].Equals(version), new CountOptions { Limit = 1 }) > 0)
                 {
-                    await controlsCollection.FindOneAndReplaceAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), document);
+                    await controlsCollection.FindOneAndReplaceAsync<BsonDocument>(CreateControlFilter(applicationId, controlId, version), document);
                 }
                 else
                 {
@@ -73,7 +74,8 @@ namespace Pixel.Persistence.Respository
                 Metadata = new BsonDocument()
                 {
                     {"applicationId" , imageMetaData.ApplicationId},
-                    {"controlId" , imageMetaData.ControlId }                   
+                    {"controlId" , imageMetaData.ControlId },
+                    {"version", imageMetaData.Version.ToString() }
                 }
             });
           
@@ -83,7 +85,7 @@ namespace Pixel.Persistence.Respository
         public async Task DeleteImageAsync(ControlImageMetaData imageMetaData)
         {
             Guard.Argument(imageMetaData, nameof(imageMetaData)).NotNull();
-            var filter = CreateImageFilter(imageMetaData.FileName, imageMetaData.ApplicationId, imageMetaData.ControlId);
+            var filter = CreateImageFilter(imageMetaData.FileName, imageMetaData.ApplicationId, imageMetaData.ControlId, imageMetaData.Version.ToString());
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
             {
@@ -107,39 +109,42 @@ namespace Pixel.Persistence.Respository
             Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
             Guard.Argument(controlId, nameof(controlId)).NotNull().NotEmpty();
 
+            //Get all the versoins of the control
             var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated");
             var result = controlsCollection.Find<BsonDocument>(CreateControlFilter(applicationId, controlId)).Project(projection);
-            var document = await result.SingleOrDefaultAsync();          
-            using(MemoryStream ms = new MemoryStream())
+            var documents = await result.ToListAsync();   
+            foreach(var document in documents)
             {
-                using(StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.UTF8))
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    var jsonData = JsonSerializer.Serialize(BsonTypeMapper.MapToDotNetValue(document), new JsonSerializerOptions()
+                    using (StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.UTF8))
                     {
-                        WriteIndented = true
-                    }) ;
-                    sw.Write(jsonData);
-                    sw.Flush();
-                    yield return new DataFile() { FileName = $"{controlId}.dat", Bytes = ms.ToArray(), Type = "ControlFile" };
+                        var jsonData = JsonSerializer.Serialize(BsonTypeMapper.MapToDotNetValue(document), new JsonSerializerOptions()
+                        {
+                            WriteIndented = true
+                        });
+                        sw.Write(jsonData);
+                        sw.Flush();
+                        yield return new DataFile() { FileName = $"{controlId}.dat", Version = document["Version"].AsString, Bytes = ms.ToArray(), Type = "ControlFile" };
 
+                    }
                 }
-            }
+            }           
 
+            //Get all the versions of the images
             var filter = CreateImageFilter(applicationId, controlId);
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
-            {
-                Limit = 1,
+            {                
                 Sort = sort
-            };
-            //Get all the images
+            };          
             using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
             {
                 var imageFiles = await cursor.ToListAsync();
                 foreach(var imageFile in imageFiles)
                 {
                     var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
-                    yield return new DataFile() { FileName = imageFile.Filename, Bytes = imageBytes, Type = "ControlImage" };
+                    yield return new DataFile() { FileName = imageFile.Filename, Version = imageFile.Metadata["Version"].AsString, Bytes = imageBytes, Type = "ControlImage" };
                 }
             }
            
@@ -159,6 +164,7 @@ namespace Pixel.Persistence.Respository
                 yield return new ControlMetaData()
                 {
                     ControlId = doc["ControlId"].AsString,
+                    Version = doc["Version"].AsString,
                     LastUpdated = doc["LastUpdated"].ToUniversalTime()
                 };
             }
@@ -175,6 +181,21 @@ namespace Pixel.Persistence.Respository
             var filterBuilder = Builders<BsonDocument>.Filter;
             var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x["ControlId"], controlId));
+            return filter;
+        }
+
+        /// <summary>
+        /// Create filter condition for control file with given applicationId and controlId
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="controlId"></param>
+        /// <returns></returns>
+        private FilterDefinition<BsonDocument> CreateControlFilter(string applicationId, string controlId, string version)
+        {
+            var filterBuilder = Builders<BsonDocument>.Filter;
+            var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x["ControlId"], controlId));
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x["Version"], version));
             return filter;
         }
      
@@ -198,12 +219,13 @@ namespace Pixel.Persistence.Respository
         /// <param name="applicationId"></param>
         /// <param name="controlId"></param>
         /// <returns></returns>
-        private FilterDefinition<GridFSFileInfo> CreateImageFilter(string imageName, string applicationId, string controlId)
+        private FilterDefinition<GridFSFileInfo> CreateImageFilter(string imageName, string applicationId, string controlId, string version)
         {
             var filterBuilder = Builders<GridFSFileInfo>.Filter;
             var filter = filterBuilder.Eq(x => x.Filename, imageName);
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["applicationId"], applicationId));
             filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["controlId"], controlId));
+            filter = filterBuilder.And(filter, filterBuilder.Eq(x => x.Metadata["version"], version));
             return filter;
         }
     }

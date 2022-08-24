@@ -226,10 +226,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 {
                     foreach (var controlId in controlIdentifers)
                     {
-                        var control = applicationDescriptionViewModel.ControlsCollection.FirstOrDefault(a => a.ControlId.Equals(controlId));
-                        if (control != null)
+                        var controls = applicationDescriptionViewModel.ControlsCollection.Where(a => a.ControlId.Equals(controlId));
+                        if (controls.Any())
                         {
-                            controlsList.Add(control);
+                            controlsList.AddRange(controls);
                         }
                     }
                 }
@@ -342,9 +342,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
             var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
             controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
-            await SaveControlDetails(controlDescriptionViewModel, true);
             await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+            await SaveControlDetails(controlDescriptionViewModel, true);          
             this.Controls.Add(controlDescriptionViewModel);
+            logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
+        }
+
+        /// <summary>
+        /// Create a copy of control
+        /// </summary>
+        /// <param name="controlToRename"></param>
+        public async Task CreateRevision(ControlDescriptionViewModel control)
+        {
+            Guard.Argument(control).NotNull();
+
+            var clonedControl = control.ControlDescription.Clone() as ControlDescription;
+            clonedControl.ControlId = control.ControlId;
+            clonedControl.Version = new Version(control.Version.Major + 1, 0);
+            var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+            await SaveControlDetails(controlDescriptionViewModel, true);
+            //we remove the visible version and add the new revised version in explorer.
+            this.Controls.Remove(control);
+            this.Controls.Add(controlDescriptionViewModel);
+            logger.Information("Created a new revision for control : {0}", control.ControlDescription);
         }
 
         private readonly object locker = new object();
@@ -430,7 +451,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
             foreach (ScrapedControl scrapedControl in scrapedControls)
             {
-
                 try
                 {
 
@@ -461,7 +481,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     }
 
                     //create an instance of ControlToolBoxItem to display in the toolbox
-                    var controlDescription = new ControlDescription(control);
+                    var controlDescription = new ControlDescription(control)
+                    {
+                        Version = new Version(1, 0)
+                    };
                     ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
                     controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
                     controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);

@@ -18,6 +18,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly PrefabProject prefabProject;
         private readonly PrefabReferences prefabReferences;
         private readonly IProjectFileSystem projectFileSystem;
+        private readonly IPrefabFileSystem prefabFileSystem;
 
         public string PrefabName => prefabProject.PrefabName;
 
@@ -27,9 +28,10 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public bool CanChangeVersion { get; private set; } 
 
-        public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, PrefabProject prefabProject, string entityId, string testCaseId)
+        public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, IPrefabFileSystem prefabFileSystem, PrefabProject prefabProject, string entityId, string testCaseId)
         {          
             this.projectFileSystem = projectFileSystem;
+            this.prefabFileSystem = prefabFileSystem;          
             this.prefabProject = prefabProject;
             if(File.Exists(projectFileSystem.PrefabReferencesFile))
             {
@@ -55,15 +57,46 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
         public async Task ConfirmSelection()
-        {        
-            if(!prefabReferences.HasReference(prefabProject))
-            {                
-                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
-            }            
-            this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, this.projectFileSystem.WorkingDirectory, Path.GetFileName(this.projectFileSystem.PrefabReferencesFile));
+        {
+            UpdatePrefabReferences();
+            UpdateControlReferences();
             await this.TryCloseAsync(true);
             logger.Information($"{nameof(PrefabVersionSelectorViewModel)} was closed by clicking ok. {this.SelectedVersion} was selected.");
 
+        }
+
+        private void UpdatePrefabReferences()
+        {
+            if (!prefabReferences.HasReference(prefabProject))
+            {
+                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
+            }
+            this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, this.projectFileSystem.WorkingDirectory, Path.GetFileName(this.projectFileSystem.PrefabReferencesFile));
+            logger.Debug($"Updated prefab refrences file.");
+        }
+
+        private void UpdateControlReferences()
+        {
+            //Load control references file for prefab project
+            this.prefabFileSystem.Initialize(this.prefabProject, this.SelectedVersion);
+            ControlReferences prefabControlReferences = File.Exists(this.prefabFileSystem.ControlReferencesFile) ? 
+                this.prefabFileSystem.LoadFile<ControlReferences>(this.prefabFileSystem.ControlReferencesFile) : new ControlReferences();      
+           
+            //Load control references file for project to which prefab is being added
+            ControlReferences projectControlReferences = File.Exists(this.projectFileSystem.ControlReferencesFile) ?
+                this.projectFileSystem.LoadFile<ControlReferences>(this.projectFileSystem.ControlReferencesFile) : new ControlReferences();
+         
+            //Add control references from prefab project to automation project if it doesn't already exists and save it
+            foreach (var controlReference in prefabControlReferences.References)
+            {
+                if (!projectControlReferences.HasReference(controlReference.ControlId))
+                {
+                    projectControlReferences.AddControlReference(controlReference);
+                }
+            }          
+            this.projectFileSystem.SaveToFile<ControlReferences>(projectControlReferences, Path.GetDirectoryName(this.projectFileSystem.ControlReferencesFile), Path.GetFileName(this.projectFileSystem.ControlReferencesFile));
+           
+            logger.Debug($"Updated control refrences file.");
         }
 
         public override bool CanClose()

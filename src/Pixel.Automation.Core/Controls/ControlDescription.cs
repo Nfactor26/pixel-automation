@@ -31,15 +31,21 @@ namespace Pixel.Automation.Core.Controls
         public string ControlName { get; set; }
 
         /// <summary>
-        /// Group name to which the control belongs. "Default" is the default group.
+        /// Version of the control
         /// </summary>
         [DataMember(Order = 40)]
+        public Version Version { get; set; }
+
+        /// <summary>
+        /// Group name to which the control belongs. "Default" is the default group.
+        /// </summary>
+        [DataMember(Order = 50)]
         public string GroupName { get; set; } = "Default";              
        
         /// <summary>
         /// Image of the control
         /// </summary>
-        [DataMember(Order = 50)]
+        [DataMember(Order = 60)]
         public string ControlImage { get; set; }      
 
         /// <summary>

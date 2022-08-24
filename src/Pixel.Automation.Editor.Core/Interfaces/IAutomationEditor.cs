@@ -6,10 +6,10 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IAutomationEditor : IEditor, IDisposable
     {
-        AutomationProject CurrentProject
-        {
-            get;
-        }
+        /// <summary>
+        /// Project loaded in to Automation Editor
+        /// </summary>
+        AutomationProject CurrentProject { get; }
 
         /// <summary>
         /// Load project from the current workspace
@@ -24,8 +24,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <returns></returns>
         Task EditScriptAsync();
 
+        /// <summary>
+        /// Manage prefab references for the project.
+        /// </summary>
+        /// <returns></returns>
 
-        Task ManagePrefabReferencesAsync();
+        Task ManagePrefabReferencesAsync();       
 
     }
 }

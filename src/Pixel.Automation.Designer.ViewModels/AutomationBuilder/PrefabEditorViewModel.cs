@@ -16,14 +16,14 @@ namespace Pixel.Automation.Designer.ViewModels
     public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
     {
         private readonly IServiceResolver serviceResolver;
-        private readonly IPrefabProjectManager projectManager;    
-      
+        private readonly IPrefabProjectManager projectManager;  
+          
         #region constructor
 
         public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager,
             ISerializer serializer, IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings):
-            base(globalEventAggregator, windowManager, serializer, entityManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
+            base(globalEventAggregator, windowManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
             this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
@@ -75,7 +75,7 @@ namespace Pixel.Automation.Designer.ViewModels
             await this.projectManager.Refresh();
 
             UpdateWorkFlowRoot();
-        }
+        }  
 
         #endregion Automation Project     
 

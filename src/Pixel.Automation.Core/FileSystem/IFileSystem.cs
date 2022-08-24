@@ -32,6 +32,11 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string ReferencesDirectory { get;  }
 
+        /// <summary>
+        /// Path of the control references file. This store metadata for the controls used in a project.
+        /// </summary>
+        string ControlReferencesFile { get; }
+
         AssemblyReferenceManager ReferenceManager { get; }
 
         /// <summary>

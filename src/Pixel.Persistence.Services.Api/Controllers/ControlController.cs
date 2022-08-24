@@ -52,7 +52,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
                         {
                             await foreach (var file in this.controlRepository.GetControlFiles(controlDataReqest.ApplicationId, controlId))
                             {
-                                var zipEntry = zipArchive.CreateEntry(Path.Combine(controlId, file.FileName));
+                                var zipEntry = zipArchive.CreateEntry(Path.Combine(controlId, file.Version, file.FileName));
                                 using (var zipEntryStream = zipEntry.Open())
                                 {
                                     zipEntryStream.Write(file.Bytes);

@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.ViewModels;
+﻿using Pixel.Automation.Editor.Core.ViewModels;
 using System;
 using System.Threading.Tasks;
 
@@ -26,6 +25,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Open code editor that can be used to add , remove or modify existing data models for the project
         /// </summary>
-        Task EditDataModelAsync();    
+        Task EditDataModelAsync();
+
+        /// <summary>
+        /// Manage control references for the project.
+        /// </summary>
+        /// <returns></returns>
+        Task ManageControlReferencesAsync();
     }
 }
