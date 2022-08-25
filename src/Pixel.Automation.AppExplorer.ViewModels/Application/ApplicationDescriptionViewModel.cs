@@ -124,6 +124,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         }
 
         /// <summary>
+        /// Rename an existing screen
+        /// </summary>
+        /// <param name="currentName"></param>
+        /// <param name="newName"></param>
+        public void RenameScreen(string currentName, string newName)
+        {
+            if (this.AvailableControls.ContainsKey(currentName))
+            {
+                var controls = this.AvailableControls[currentName];
+                this.AvailableControls.Remove(currentName);
+                this.AddScreen(newName);             
+                this.AvailableControls[newName].AddRange(controls);
+            }
+        }
+
+        /// <summary>
         /// Remove an existing screen from the application.
         /// </summary>
         /// <param name="screenName"></param>

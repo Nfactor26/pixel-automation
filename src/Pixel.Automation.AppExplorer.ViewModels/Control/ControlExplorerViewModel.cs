@@ -212,7 +212,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             if (applicationDescriptionViewModel != null)
             {                            
                 this.Screens.AddRange(this.activeApplication.ScreensCollection);
-                this.SelectedScreen = "Home";               
+                this.SelectedScreen = this.Screens.First();               
             }
         }
 
@@ -264,6 +264,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 this.Screens.AddRange(this.activeApplication.ScreensCollection);
                 this.SelectedScreen = lastSelectedScreen;
                 logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, this.activeApplication.ApplicationName);
+            }
+        }
+
+        /// <summary>
+        /// Rename screen to a new value
+        /// </summary>
+        /// <param name="selectedScreen"></param>
+        /// <returns></returns>
+        public async Task RenameScreen()
+        {
+            var renameScreenViewModel = new RenameScreenViewModel(this.activeApplication, this.selectedScreen);
+            var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
+            if (result.GetValueOrDefault())
+            {
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                var lastSelectedScreen = this.selectedScreen;
+                this.Screens.Clear();
+                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.SelectedScreen = renameScreenViewModel.NewScreenName;
+                logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, this.activeApplication.ApplicationName);
             }
         }
 

@@ -19,6 +19,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 screenName = value;
                 ValidateScreenName(value);
                 NotifyOfPropertyChange(() => ScreenName);
+                NotifyOfPropertyChange(() => CanCreateScreen);
             }
         }
 
@@ -41,7 +42,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             get
             {
-                return !this.HasErrors && !string.IsNullOrEmpty(this.ScreenName) && !!IsNameAvailable(this.ScreenName);
+                return !this.HasErrors && !string.IsNullOrEmpty(this.ScreenName) && IsNameAvailable(this.ScreenName);
             }         
         }
 
@@ -49,7 +50,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             ClearErrors(nameof(ScreenName));
             ValidateRequiredProperty(nameof(ScreenName), screenName);
-            ValidatePattern("^([A-Za-z]|){3,}$", nameof(ScreenName), screenName, "Name must contain only alphabets and should be atleast 3 characters in length.");
+            ValidatePattern("[A-Za-z]{3,}", nameof(ScreenName), screenName, "Name must contain only alphabets and should be atleast 3 characters in length.");
             if (!IsNameAvailable(screenName))
             {
                 this.AddOrAppendErrors(nameof(ScreenName), $"Screen already exists with name {ScreenName}");
