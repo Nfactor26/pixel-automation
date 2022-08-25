@@ -125,10 +125,10 @@
                                  Width="250"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
                 <Button x:Name="BackButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
-                                            Height="30" Width="30" ToolTip="Go back to application view"                                                                                      
+                                            Height="28" Width="28" ToolTip="Go back to application view"                                                                                      
                                             cal:Message.Attach="[Event Click] = [Action GoBack()]"
                                             Style="{StaticResource EditControlButtonStyle}"
-                                            Content="{iconPacks:FontAwesome ArrowAltCircleLeftRegular, Width=28, Height=28}"/>
+                                            Content="{iconPacks:FontAwesome ArrowAltCircleLeftRegular, Width=24, Height=24}"/>
             </StackPanel>
             <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
             <!-- Screen management on right-->
@@ -136,10 +136,16 @@
                 <ComboBox x:Name="Screens" SelectedItem="{Binding SelectedScreen}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
                 <Button x:Name="AddScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
-                                            Height="30" Width="30" ToolTip="Create a new application screen"                                                                                    
+                                            Height="28" Width="28" ToolTip="Create a new application screen"                                                                                    
                                             cal:Message.Attach="[Event Click] = [Action CreateScreen()]"
                                             Style="{StaticResource EditControlButtonStyle}"
-                                            Content="{iconPacks:Material PlusCircleOutline, Width=28, Height=28}"/>
+                                            Content="{iconPacks:Material PlusCircleOutline, Width=24, Height=24}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="RenameScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                                            Height="26" Width="26" ToolTip="Create a new application screen"                                                                                    
+                                            cal:Message.Attach="[Event Click] = [Action RenameScreen()]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:FontAwesome PencilAltSolid, Width=24, Height=24}"/>
             </StackPanel>
             
         </DockPanel>        

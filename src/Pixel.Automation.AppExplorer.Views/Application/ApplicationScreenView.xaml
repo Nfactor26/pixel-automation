@@ -4,7 +4,7 @@
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       ResizeMode="NoResize" SizeToContent="WidthAndHeight"
              WindowStartupLocation="CenterScreen"  ShowCloseButton="False"
-             IsMinButtonEnabled="False" Title="Add New Screen" GlowBrush="{DynamicResource AccentColorBrush}">
+             IsMinButtonEnabled="False" GlowBrush="{DynamicResource AccentColorBrush}">
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
             <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
