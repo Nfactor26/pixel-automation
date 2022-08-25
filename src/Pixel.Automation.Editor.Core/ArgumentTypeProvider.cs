@@ -31,7 +31,7 @@ namespace Pixel.Automation.Arguments.Editor
                 {
                     try
                     {
-                        Assembly assembly = Assembly.LoadFile(assemblyPath);                      
+                        Assembly assembly = Assembly.LoadFrom(assemblyPath);                      
                         PopulateAvailableTypesInAssembly(assembly);
                         logger.Information($"Adding types from assembly {assembly.FullName}");
                     }
