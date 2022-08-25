@@ -278,12 +278,28 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
             if (result.GetValueOrDefault())
             {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
-                var lastSelectedScreen = this.selectedScreen;
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);               
                 this.Screens.Clear();
-                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.Screens.AddRange(this.activeApplication.ScreensCollection);           
                 this.SelectedScreen = renameScreenViewModel.NewScreenName;
                 logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, this.activeApplication.ApplicationName);
+            }
+        }
+
+        /// <summary>
+        /// Move a control from one screen to another
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
+        {
+            var moveToScreenViewModel = new MoveToScreenViewModel(this.activeApplication, controlDescription, this.selectedScreen, this.Screens);
+            var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+            if (result.GetValueOrDefault())
+            {
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                this.Controls.Remove(controlDescription);
+                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.selectedScreen, moveToScreenViewModel.SelectedScreen, this.activeApplication.ApplicationName);
             }
         }
 

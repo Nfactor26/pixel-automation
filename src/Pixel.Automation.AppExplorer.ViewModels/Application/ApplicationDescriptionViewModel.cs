@@ -4,6 +4,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -188,6 +189,27 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             if (this.ControlsCollection.Contains(controlDescription))
             {
                 this.ControlsCollection.Remove(controlDescription);
+            }
+        }
+
+        /// <summary>
+        /// Move Control from one screen to another
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <param name="currentScreen"></param>
+        /// <param name="moveToScreen"></param>
+        public void MoveControlToScreen(ControlDescriptionViewModel controlDescription, string currentScreen, string moveToScreen)
+        {
+            if (this.applicationDescription.AvailableControls.ContainsKey(currentScreen) && this.applicationDescription.AvailableControls.ContainsKey(moveToScreen))
+            {
+                var currentScreenControls = this.applicationDescription.AvailableControls[currentScreen];
+                if (currentScreenControls.Contains(controlDescription.ControlId))
+                {
+                    currentScreenControls.Remove(controlDescription.ControlId);
+                }
+
+                var newScreenControls = this.applicationDescription.AvailableControls[moveToScreen];
+                newScreenControls.Add(controlDescription.ControlId);
             }
         }
 
