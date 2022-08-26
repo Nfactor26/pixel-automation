@@ -104,8 +104,12 @@ public class WebApplicationEntity : ApplicationEntity
     public override async Task CloseAsync()
     {
         var webApplicationDetails = this.GetTargetApplicationDetails<WebApplication>();
-        await webApplicationDetails.Browser?.CloseAsync();
+        await webApplicationDetails.Browser?.CloseAsync();      
+        webApplicationDetails.Playwright?.Dispose();
+        webApplicationDetails.ActivePage = null;
+        webApplicationDetails.ActiveContext = null;
         webApplicationDetails.Browser = null;
+        webApplicationDetails.Playwright = null;
     }
 
     /// <summary>
@@ -136,18 +140,18 @@ public class WebApplicationEntity : ApplicationEntity
 
     void InstallBrowser(Browsers preferredBrowser)
     {
-        Microsoft.Playwright.Program.Main(new[] { "install", "--help" });
+        Program.Main(new[] { "install", "--help" });
         int exitCode = -1;
         switch (preferredBrowser)
         {
             case Browsers.FireFox:
-                exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "firefox" });
+                exitCode = Program.Main(new[] { "install", "firefox" });
                 break;
             case Browsers.Chrome:
-                exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+                exitCode = Program.Main(new[] { "install", "chromium" });
                 break;
             case Browsers.WebKit:
-                exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "webkit" });
+                exitCode = Program.Main(new[] { "install", "webkit" });
                 break;
             default:
                 throw new ArgumentException("Requested web driver type is not supported");
