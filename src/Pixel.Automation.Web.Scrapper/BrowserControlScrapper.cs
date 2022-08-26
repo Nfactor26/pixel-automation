@@ -30,6 +30,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     private readonly IScreenCapture screenCapture;
     private readonly ConcurrentQueue<ScrapedControl> capturedControls = new ConcurrentQueue<ScrapedControl>();
 
+    IPlaywright playWright;
     IBrowserContext browserContext;
   
     ///</inheritdoc>      
@@ -89,14 +90,14 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     {
         capturedControls.Clear();
         InstallBrowser();
-        var playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+        playWright = await Microsoft.Playwright.Playwright.CreateAsync();
         string pathToExtension = Path.Combine(Environment.CurrentDirectory, "Extensions", "pixel-browser-scrapper");
         string dataDirectory = Path.Combine(Environment.CurrentDirectory, "Extensions", "Context");
         if (!Directory.Exists(dataDirectory))
         {
             Directory.CreateDirectory(dataDirectory);
         }
-        browserContext = await playwright.Chromium.LaunchPersistentContextAsync(dataDirectory, new BrowserTypeLaunchPersistentContextOptions()
+        browserContext = await playWright.Chromium.LaunchPersistentContextAsync(dataDirectory, new BrowserTypeLaunchPersistentContextOptions()
         {
             Headless = false,
             Args = new List<string>()
@@ -119,23 +120,38 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void HandleMessagesOnConsole(object sender, Microsoft.Playwright.IConsoleMessage e)
+    private void HandleMessagesOnConsole(object sender, IConsoleMessage e)
     {
         try
         {
-            if (e.Type == "log" && e.Text.Contains("controlLocation"))
+            if (e.Type == "log")
             {
-                ScrapedControlData capturedData = JsonSerializer.Deserialize<ScrapedControlData>(e.Text, new JsonSerializerOptions()
+                if(e.Text.Contains("controlLocation"))
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    PropertyNameCaseInsensitive = true
-                }) ?? throw new NullReferenceException("Control details could not be deserialized");
+                    ScrapedControlData capturedData = JsonSerializer.Deserialize<ScrapedControlData>(e.Text, new JsonSerializerOptions()
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        PropertyNameCaseInsensitive = true
+                    }) ?? throw new NullReferenceException("Control details could not be deserialized");
 
-                var controlScreenShot = screenCapture.CaptureArea(new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height));
-                ScrapedControl scrapedControl = new ScrapedControl() { ControlImage = controlScreenShot, ControlData = capturedData };
-                capturedControls.Enqueue(scrapedControl);
+                    var controlScreenShot = screenCapture.CaptureArea(new BoundingBox(capturedData.Left, capturedData.Top, capturedData.Width, capturedData.Height));
+                    ScrapedControl scrapedControl = new ScrapedControl() { ControlImage = controlScreenShot, ControlData = capturedData };
+                    capturedControls.Enqueue(scrapedControl);
 
-                logger.Information("Recevied control with identifier : {identifier}", capturedData.Identifier);
+                    logger.Information("Recevied control with identifier : {identifier}", capturedData.Identifier);
+                    return;
+                }
+
+                if(e.Text.Equals("startListening"))
+                {
+
+                    foreach (var page in browserContext.Pages)
+                    {
+                        page.Console -= HandleMessagesOnConsole;
+                        page.Console += HandleMessagesOnConsole;
+
+                    }
+                }              
             }
         }
         catch (Exception ex)
@@ -150,8 +166,8 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     /// <exception cref="Exception"></exception>
     void InstallBrowser()
     {
-        Microsoft.Playwright.Program.Main(new[] { "install", "--help" });
-        int exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+        Program.Main(new[] { "install", "--help" });
+        int exitCode = Program.Main(new[] { "install", "chromium" });
         if (exitCode != 0)
         {
             throw new Exception($"Playwright exited with code {exitCode}");
@@ -163,8 +179,13 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     {
         try
         {
-            browserContext.Pages[0].Console -= HandleMessagesOnConsole;
+            foreach(var page in browserContext.Pages)
+            {
+                page.Console -= HandleMessagesOnConsole;
+            }
             await browserContext.CloseAsync();
+            await browserContext.DisposeAsync();
+            playWright.Dispose();
             await eventAggregator.PublishOnUIThreadAsync(capturedControls.ToList<ScrapedControl>());
             browserContext = null;
             logger.Information("Scrapping is stopped now.");
@@ -172,8 +193,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
         catch (Exception ex)
         {
             logger.Error(ex.Message, ex);
-        }
-       
+        }       
     }
 
     ///</inheritdoc>

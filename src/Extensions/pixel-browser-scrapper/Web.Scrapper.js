@@ -19,7 +19,8 @@ function startListening()
     window.addEventListener("mouseover", onMouseOver);
     window.addEventListener("mouseout", onMouseOut);
     window.addEventListener("mousedown", onMouseDown,true);
-    window.addEventListener("click", onClick, true);   
+    window.addEventListener("click", onClick, true);
+    console.log("startListening"); // Scrapper plugin looks for this console message to attach to event handler
 }
 
 function stopListening()
@@ -28,6 +29,7 @@ function stopListening()
     window.removeEventListener("mouseout", onMouseOut);
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("click", onClick);
+    console.log("stopListening");
 }
 
 
