@@ -29,6 +29,31 @@ namespace Pixel.Automation.Core.Tests.Models
         {
             return await Task.FromResult((0, 0));
         }
+
+        public override Task<bool> IsCheckedAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<bool> IsDisabledAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<bool> IsEnabledAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<bool> IsHiddenAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<bool> IsVisibleAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     class UIControlFixture
