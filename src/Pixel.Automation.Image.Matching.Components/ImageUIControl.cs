@@ -39,4 +39,34 @@ public class ImageUIControl : UIControl
         controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
         return (x, y);
     }
+
+    ///<inheritdoc/>
+    public override Task<bool> IsDisabledAsync()
+    {
+        throw new System.NotSupportedException("Image control doesn't support determinig if a control is disabled.");
+    }
+
+    ///<inheritdoc/>
+    public override Task<bool> IsEnabledAsync()
+    {
+        throw new System.NotSupportedException("Image control doesn't support determining if a control is enabled.");
+    }
+
+    ///<inheritdoc/>
+    public override Task<bool> IsHiddenAsync()
+    {
+        return Task.FromResult(false);
+    }
+
+    ///<inheritdoc/>
+    public override Task<bool> IsVisibleAsync()
+    {      
+        return Task.FromResult(true);
+    }
+
+    ///<inheritdoc/>
+    public override Task<bool> IsCheckedAsync()
+    {
+        throw new System.NotSupportedException("Image control doesn't support determining if a control is checked.");
+    }
 }

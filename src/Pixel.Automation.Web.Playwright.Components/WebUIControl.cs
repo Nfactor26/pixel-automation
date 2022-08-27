@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using System.Runtime.InteropServices;
 
 namespace Pixel.Automation.Web.Playwright.Components
 {
@@ -11,7 +12,6 @@ namespace Pixel.Automation.Web.Playwright.Components
         private readonly ICoordinateProvider coordinateProvider;
         private readonly IControlIdentity controlIdentity;
         private readonly ILocator locator;
-
 
         /// <summary>
         /// Constructor
@@ -31,27 +31,53 @@ namespace Pixel.Automation.Web.Playwright.Components
             this.TargetControl = locator;
         }
 
-
-        /// <summary>
-        /// Get the bounding box
-        /// </summary>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public override async Task<BoundingBox> GetBoundingBoxAsync()
         {           
             var boundingBox = await coordinateProvider.GetBoundingBox(locator);
             return boundingBox;
         }
 
-        /// <summary>
-        /// Get the clickable point
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
+        ///<inheritdoc/>
         public override async Task<(double, double)> GetClickablePointAsync()
         {
             var boundingBox = await GetBoundingBoxAsync();
             controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
             return await Task.FromResult((x, y));
         }
+
+        ///<inheritdoc/>
+        public override async Task<bool> IsDisabledAsync()
+        {
+            return await this.locator.IsDisabledAsync();
+        }
+
+        ///<inheritdoc/>
+        public override async Task<bool> IsEnabledAsync()
+        {
+            return await this.locator.IsEnabledAsync();
+        }
+
+        ///<inheritdoc/>
+        public override async Task<bool> IsHiddenAsync()
+        {
+            return await this.locator.IsHiddenAsync();
+        }
+
+        ///<inheritdoc/>
+        public override async Task<bool> IsVisibleAsync()
+        {
+            return await this.locator.IsVisibleAsync();
+        }
+
+        ///<inheritdoc/>
+        public override async Task<bool> IsCheckedAsync()
+        {
+            return await this.locator.IsCheckedAsync(new LocatorIsCheckedOptions() 
+            { 
+                Timeout = this.controlIdentity.RetryInterval * this.controlIdentity.RetryAttempts 
+            });
+        }
+
     }
 }

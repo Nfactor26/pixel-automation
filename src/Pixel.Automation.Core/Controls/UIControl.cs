@@ -41,5 +41,35 @@ namespace Pixel.Automation.Core.Controls
         /// </summary>
         /// <returns></returns>
         public abstract Task<(double,double)> GetClickablePointAsync();
+
+        /// <summary>
+        /// Check if a UI Control is visible
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<bool> IsVisibleAsync();
+
+        /// <summary>
+        /// Check if a UI Control is visible
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<bool> IsHiddenAsync();
+
+        /// <summary>
+        /// Check if a UI Control is enabled
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<bool> IsEnabledAsync();
+
+        /// <summary>
+        /// Check if a UI Control is disabled
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<bool> IsDisabledAsync();
+
+        /// <summary>
+        /// Check if a control has checked state
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<bool> IsCheckedAsync();
     }
 }

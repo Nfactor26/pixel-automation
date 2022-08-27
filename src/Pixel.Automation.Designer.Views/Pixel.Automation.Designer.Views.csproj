@@ -39,7 +39,7 @@
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
 
-
+		<ProjectReference Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />

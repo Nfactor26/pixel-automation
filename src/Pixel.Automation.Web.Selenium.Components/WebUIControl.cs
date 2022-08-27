@@ -3,7 +3,6 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components
 {
@@ -15,7 +14,6 @@ namespace Pixel.Automation.Web.Selenium.Components
         private readonly ICoordinateProvider coordinateProvider; 
         private readonly IControlIdentity controlIdentity;
         private readonly IWebElement webElement;
-
 
         /// <summary>
         /// Constructor
@@ -35,11 +33,7 @@ namespace Pixel.Automation.Web.Selenium.Components
             this.TargetControl = webElement;
         }
 
-
-        /// <summary>
-        /// Get the bounding box of wrapped <see cref="IWebElement"/>
-        /// </summary>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public override async Task<BoundingBox> GetBoundingBoxAsync()
         {
             //webdriver imlementation for location doesn't consider browser window titlebar space resulting in to incorrect y-coodrinate.
@@ -50,16 +44,42 @@ namespace Pixel.Automation.Web.Selenium.Components
             return boundingBox;
         }
 
-        /// <summary>
-        /// Get the clickable point of wrapped <see cref="IWebElement"/>
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
+        ///<inheritdoc/>
         public override async Task<(double, double)> GetClickablePointAsync()
         {
             var boundingBox = await GetBoundingBoxAsync();
             controlIdentity.GetClickablePoint(boundingBox, out double x, out double y);
             return await Task.FromResult((x, y));
+        }
+
+        ///<inheritdoc/>
+        public override Task<bool> IsDisabledAsync()
+        {
+            return Task.FromResult(!this.webElement.Enabled);
+        }
+
+        ///<inheritdoc/>
+        public override Task<bool> IsEnabledAsync()
+        {
+            return Task.FromResult(this.webElement.Enabled);
+        }
+
+        ///<inheritdoc/>
+        public override Task<bool> IsHiddenAsync()
+        {
+            return Task.FromResult(!this.webElement.Displayed);
+        }
+
+        ///<inheritdoc/>
+        public override Task<bool> IsVisibleAsync()
+        {
+            return Task.FromResult(this.webElement.Displayed);
+        }
+
+        ///<inheritdoc/>
+        public override Task<bool> IsCheckedAsync()
+        {
+            return Task.FromResult(this.webElement.Selected);
         }
     }
 }
