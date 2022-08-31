@@ -31,7 +31,8 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Values", GroupName = "Configuration", Order = 20, Description = "one or more values to select")]
-    public Argument Values { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
+    [AllowedTypes(typeof(string), typeof(IEnumerable<string>), typeof(SelectOptionValue), typeof(IEnumerable<SelectOptionValue>), typeof(IElementHandle), typeof(IEnumerable<IElementHandle>))]
+    public Argument Values { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, CanChangeType = true };
 
 
     /// <summary>

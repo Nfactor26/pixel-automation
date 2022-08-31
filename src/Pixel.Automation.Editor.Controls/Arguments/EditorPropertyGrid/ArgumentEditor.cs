@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -9,6 +10,8 @@ using Serilog;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using Xceed.Wpf.Toolkit.PropertyGrid;
@@ -166,10 +169,22 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 return;
             }
 
+            IArgumentTypeBrowser typeBrowserWindow = default;
+          
             var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             var argumentBrowserFactory = entityManager.GetServiceOfType<IArgumentTypeBrowserFactory>();
-            var typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();
+            
+            var appliedAttributes = this.OwnerComponent.GetType().GetProperty(this.propertyItem.PropertyName).GetCustomAttributes();
+            if (appliedAttributes.Any(a => a is AllowedTypesAttribute))
+            {
+                var allowedTypeAttribute = appliedAttributes.First(a => a is AllowedTypesAttribute) as AllowedTypesAttribute;
+                typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser(allowedTypeAttribute.Types);
+            }
+            else
+            {
+                typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();
+            }
 
             var result = await windowManager.ShowDialogAsync(typeBrowserWindow);
 

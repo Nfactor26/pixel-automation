@@ -1,6 +1,9 @@
 ﻿using Dawn;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Core.TypeBrowser;
+using System;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.Editor.TypeBrowser
 {
@@ -16,6 +19,11 @@ namespace Pixel.Automation.Editor.TypeBrowser
         public IArgumentTypeBrowser CreateArgumentTypeBrowser()
         {
             return new ArgumentTypeBrowserViewModel(this.typeProvider);
+        }
+
+        public IArgumentTypeBrowser CreateArgumentTypeBrowser(IEnumerable<Type> typesToShow)
+        {
+            return new ArgumentTypeBrowserViewModel(new SimpleArgumentTypeProvider(typesToShow), true);
         }
 
         public IArgumentTypeBrowser CreateArgumentTypeBrowser(TypeDefinition selectedType)
