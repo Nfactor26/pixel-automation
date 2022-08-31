@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 
 [DataContract]
 [Serializable]
-[ToolBoxItem("Run And Wait For Popup", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for popup", tags: new string[] { "run", "wait", "popup", "Web" })]
+[ToolBoxItem("Run And Wait For Popup", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for popup", tags: new string[] { "Run", "Wait", "Popup", "Web" })]
 public class RunAndWaitForPopupProcessor : EntityProcessor
 {
     /// <summary>
@@ -35,7 +35,7 @@ public class RunAndWaitForPopupProcessor : EntityProcessor
     /// <summary>
     /// Constructor
     /// </summary>
-    public RunAndWaitForPopupProcessor() : base("RunAndWaitForPopup", "RunAndWaitForPopup")
+    public RunAndWaitForPopupProcessor() : base("Run And Wait Fo rPopup", "RunAndWaitForPopup")
     {
 
     }

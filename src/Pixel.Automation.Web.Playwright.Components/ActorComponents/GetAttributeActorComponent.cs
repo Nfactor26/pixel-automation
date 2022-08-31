@@ -19,8 +19,8 @@ public class GetAttributeActorComponent : PlaywrightActorComponent
     private readonly ILogger logger = Log.ForContext<GetAttributeActorComponent>();
 
     [DataMember]
-    [Display(Name = "Attribute", GroupName = "Configuration", Order = 20, Description = "Get the specified attribute of element")]
-    public string AttributeToGet { get; set; }
+    [Display(Name = "Attribute", GroupName = "Configuration", Order = 10, Description = "Get the specified attribute of element")]
+    public Argument AttributeToGet { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorGetAttributeOptions"/> that can be used to customize the get attribute operation
@@ -33,13 +33,13 @@ public class GetAttributeActorComponent : PlaywrightActorComponent
     /// Output argument to store the attribute value of element
     /// </summary>
     [DataMember]
-    [Display(Name = "Result", GroupName = "Output", Order = 20, Description = "Output argument to store the retrieved attribute value")]
+    [Display(Name = "Result", GroupName = "Output", Order = 10, Description = "Output argument to store the retrieved attribute value")]
     public Argument Result { get; set; } = new OutArgument<string>() { Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public GetAttributeActorComponent() : base("GetAttribute", "GetAttribute")
+    public GetAttributeActorComponent() : base("Get Attribute", "GetAttribute")
     {
 
     }
@@ -49,16 +49,12 @@ public class GetAttributeActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
+        var attributeToGet = await this.ArgumentProcessor.GetValueAsync<string>(this.AttributeToGet);
         var getAttributeOptions = this.GetAttributeOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorGetAttributeOptions>(this.GetAttributeOptions) : null;
         var control = await GetTargetControl();
-        var result = await control.GetAttributeAsync(this.AttributeToGet, getAttributeOptions);
+        var result = await control.GetAttributeAsync(attributeToGet, getAttributeOptions);
         await this.ArgumentProcessor.SetValueAsync<string>(this.Result, result);
         logger.Information($"Retrieved attribute {this.AttributeToGet} of element.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "GetAttribute Actor";
-    }
 }

@@ -43,9 +43,4 @@ public class FocusActorComponent : PlaywrightActorComponent
         logger.Information("Focus performed on element.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Focus Actor";
-    }
 }

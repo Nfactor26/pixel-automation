@@ -80,9 +80,4 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
         
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Select Options Actor";
-    }
 }

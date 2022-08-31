@@ -51,9 +51,4 @@ public class PressActorComponent : PlaywrightActorComponent
         logger.Information("Key press performed on element.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Press Actor";
-    }
 }

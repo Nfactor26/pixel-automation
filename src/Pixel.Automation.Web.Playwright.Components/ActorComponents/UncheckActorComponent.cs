@@ -22,7 +22,7 @@ public class UncheckActorComponent : PlaywrightActorComponent
     /// Optional input argument for <see cref="LocatorUncheckOptions"/> that can be used to customize the uncheck element operation
     /// </summary>
     [DataMember]
-    [Display(Name = "UnCheck Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for LocatorUncheckOptions")]
+    [Display(Name = "UnCheck Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for LocatorUncheckOptions")]
     public Argument UnCheckOptions { get; set; } = new InArgument<LocatorUncheckOptions>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
 
@@ -49,8 +49,4 @@ public class UncheckActorComponent : PlaywrightActorComponent
         logger.Warning("element is already unchecked.");
     }
 
-    public override string ToString()
-    {
-        return "Uncheck Actor";
-    }
 }

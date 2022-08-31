@@ -42,10 +42,5 @@ public class DoubleClickActorComponent : PlaywrightActorComponent
         await control.DblClickAsync(this.DblClickOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorDblClickOptions>(this.DblClickOptions) : null);
         logger.Information("control was double clicked.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Double Click Actor";
-    }
+  
 }

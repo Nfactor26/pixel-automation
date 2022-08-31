@@ -34,7 +34,7 @@ public class DragToActorComponent : PlaywrightActorComponent
     /// <summary>
     /// Constructor
     /// </summary>
-    public DragToActorComponent() : base("DragTo", "DragTo")
+    public DragToActorComponent() : base("Drag To", "DragTo")
     {
 
     }
@@ -49,10 +49,5 @@ public class DragToActorComponent : PlaywrightActorComponent
         var control = await GetTargetControl();
         await control.DragToAsync(targetLocator, dragToOptions);
         logger.Information("control was dragged to target.");
-    }
-
-    public override string ToString()
-    {
-        return "DragTo Actor";
     }
 }

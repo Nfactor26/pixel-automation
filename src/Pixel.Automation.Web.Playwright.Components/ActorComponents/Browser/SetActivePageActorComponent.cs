@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Playwright.Components.ActorComponents;
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Set Active Page", "Playwright", "Browser", iconSource: null, description: "Navigate the browser to desired url", tags: new string[] { "goto", "navigate", "Web" })]
+[ToolBoxItem("Set Active Page", "Playwright", "Browser", iconSource: null, description: "Navigate the browser to desired url", tags: new string[] { "Set", "Active", "Page", "Browser", "Web" })]
 public class SetActivePageActorComponent : PlaywrightActorComponent
 {   
     /// <summary>
@@ -42,9 +42,4 @@ public class SetActivePageActorComponent : PlaywrightActorComponent
         await Task.CompletedTask;
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Set Active Page Actor";
-    }
 }

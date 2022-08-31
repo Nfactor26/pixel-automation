@@ -41,10 +41,5 @@ public class TapActorComponent : PlaywrightActorComponent
         await control.TapAsync(this.TapOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorTapOptions>(this.TapOptions) : null);
         logger.Information("control was tapped.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Tap Actor";
-    }
+   
 }

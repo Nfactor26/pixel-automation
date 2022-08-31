@@ -53,9 +53,4 @@ public class TypeActorComponent : PlaywrightActorComponent
         logger.Information("Type performed on element.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Type Actor";
-    }
 }

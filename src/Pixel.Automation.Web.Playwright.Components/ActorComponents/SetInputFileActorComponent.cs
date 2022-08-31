@@ -12,7 +12,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Input File", "Playwright", iconSource: null, description: "Select input files for upload", tags: new string[] { "input" , "file", "Web" })]
+[ToolBoxItem("Set Input File", "Playwright", iconSource: null, description: "Select input files for upload", tags: new string[] { "input" , "file", "Web" })]
 
 public class SetInputFileActorComponent : PlaywrightActorComponent
 {
@@ -23,7 +23,8 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember]
     [Display(Name = "Input Files", GroupName = "Configuration", Order = 10, Description = "Input argument for input files for upload")]
-    public Argument InputFiles { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
+    [AllowedTypes(typeof(string), typeof(IEnumerable<string>), typeof(FilePayload), typeof(IEnumerable<FilePayload>))]
+    public Argument InputFiles { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, CanChangeType = true };
 
 
     /// <summary>
@@ -37,7 +38,7 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     /// <summary>
     /// Constructor
     /// </summary>
-    public SetInputFileActorComponent() : base("InputFile", "InputFile")
+    public SetInputFileActorComponent() : base("Set Input File", "SetInputFile")
     {
 
     }
@@ -70,10 +71,5 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
        
         logger.Information("Input files were set.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Set Input File Actor";
-    }
+    
 }
