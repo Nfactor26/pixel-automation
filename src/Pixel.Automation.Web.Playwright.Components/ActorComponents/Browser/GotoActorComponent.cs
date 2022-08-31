@@ -8,11 +8,11 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Web.Playwright.Components;
 
 /// <summary>
-/// Use <see cref="GotoActorComponent"/> to navigate the browser to a specified url.
+/// Use <see cref="GotoActorComponent"/> to reloads the current page, in the same way as if the user had triggered a browser refresh
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Goto", "Playwright", "Browser", iconSource: null, description: "Navigate the browser to desired url", tags: new string[] { "goto", "navigate", "Web" })]
+[ToolBoxItem("Reload", "Playwright", "Browser", iconSource: null, description: "Reloads the current page", tags: new string[] { "Reload", "Navigate", "Browser", "Web" })]
 public class GotoActorComponent : PlaywrightActorComponent
 {
     private readonly ILogger logger = Log.ForContext<GotoActorComponent>();
@@ -23,7 +23,6 @@ public class GotoActorComponent : PlaywrightActorComponent
     [DataMember(IsRequired = true)]   
     [Display(Name = "Url", GroupName = "Configuration", Order = 10, Description = "Input argument for url to navigate to")]        
     public Argument TargetUrl { get; set; } = new InArgument<string>() { DefaultValue ="https://www.bing.com" };
-
 
     /// <summary>
     /// Optional input argument for <see cref="PageGotoOptions"/> that can be used to customize the goto operation
@@ -45,7 +44,7 @@ public class GotoActorComponent : PlaywrightActorComponent
     }
 
     /// <summary>
-    /// Navigate the active window/tab of the brower to a specified url using GotoAsync() method.
+    /// Reloads the current page, in the same way as if the user had triggered a browser refresh
     /// </summary>
     public override async Task ActAsync()
     {
@@ -56,11 +55,5 @@ public class GotoActorComponent : PlaywrightActorComponent
             await this.ArgumentProcessor.SetValueAsync<IResponse?>(Result, result);
         }
         logger.Information($"Goto to Url : {targetUrl}");       
-    }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Goto Actor";
     }
 }

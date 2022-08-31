@@ -5,12 +5,13 @@ using Pixel.Automation.Core.Components.Processors;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Web.Playwright.Components;
 
 [DataContract]
 [Serializable]
-[ToolBoxItem("Run And Wait For Response", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for response", tags: new string[] { "run", "wait", "response", "Web" })]
+[ToolBoxItem("Run And Wait For Response", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for response", tags: new string[] { "Run", "Wait", "Response", "Web" })]
 public class RunAndWaitForResponseProcessor : EntityProcessor
 {
     /// <summary>
@@ -30,31 +31,51 @@ public class RunAndWaitForResponseProcessor : EntityProcessor
     /// </summary>
     [DataMember]
     [Display(Name = "Predicate", GroupName = "Configuration", Order = 20, Description = "Input argument for predicate for response url matching")]
-    public Argument Predicate { get; set; } = new InArgument<Func<IResponse, bool>> { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    [AllowedTypes(typeof(string), typeof(Regex), typeof(Func<IRequest, bool>))]
+    public Argument Predicate { get; set; } = new InArgument<Func<IResponse, bool>> { Mode = ArgumentMode.DataBound, CanChangeType = true };
 
     /// <summary>
     /// Optional input argument for <see cref="PageRunAndWaitForResponseOptions"/> that can be used to customize the run and wait for response operation
     /// </summary>
     [DataMember]
-    [Display(Name = "Response Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for WaitForResponseOptions")]
+    [Display(Name = "Wait For Response Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for WaitForResponseOptions")]
     public Argument WaitForResponseOptions { get; set; } = new InArgument<PageRunAndWaitForResponseOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public RunAndWaitForResponseProcessor() : base("RunAndWaitForResponse", "RunAndWaitForResponse")
+    public RunAndWaitForResponseProcessor() : base("Run And Wait For Response", "RunAndWaitForResponse")
     {
 
     }
 
     public override async Task BeginProcessAsync()
-    {
-        var predicate = await this.ArgumentProcessor.GetValueAsync<Func<IResponse, bool>>(this.Predicate);
+    {       
         var waitForResponseOptions = this.WaitForResponseOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<PageRunAndWaitForResponseOptions>(this.WaitForResponseOptions) : null;
         var activePage = this.ApplicationDetails.ActivePage;
-        await activePage.RunAndWaitForResponseAsync(async () =>
+        switch (this.Predicate)
         {
-            await ProcessEntity(this);
-        }, predicate, waitForResponseOptions);
+            case InArgument<string>:
+                var predicate = await this.ArgumentProcessor.GetValueAsync<string>(this.Predicate);
+                await activePage.RunAndWaitForResponseAsync(async () =>
+                {
+                    await ProcessEntity(this);
+                }, predicate, waitForResponseOptions);
+                break;
+            case InArgument<Regex>:
+                var regexPredicate = await this.ArgumentProcessor.GetValueAsync<Regex>(this.Predicate);
+                await activePage.RunAndWaitForResponseAsync(async () =>
+                {
+                    await ProcessEntity(this);
+                }, regexPredicate, waitForResponseOptions);
+                break;
+            case InArgument<Func<IRequest, bool>>:
+                var funcPredicate = await this.ArgumentProcessor.GetValueAsync<Func<IResponse, bool>>(this.Predicate);
+                await activePage.RunAndWaitForResponseAsync(async () =>
+                {
+                    await ProcessEntity(this);
+                }, funcPredicate, waitForResponseOptions);
+                break;
+        }
     }
 }

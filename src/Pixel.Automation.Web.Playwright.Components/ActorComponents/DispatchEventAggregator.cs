@@ -53,9 +53,4 @@ public class DispatchEventActorComponent : PlaywrightActorComponent
         logger.Information("Event dispatched on lement.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Dispatch Event Actor";
-    }
 }

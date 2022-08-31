@@ -50,10 +50,5 @@ public class FillActorComponent : PlaywrightActorComponent
         await control.FillAsync(input, this.FillOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorFillOptions>(this.FillOptions) : null);
         logger.Information("Fill performed on element.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Fill Actor";
-    }
+       
 }

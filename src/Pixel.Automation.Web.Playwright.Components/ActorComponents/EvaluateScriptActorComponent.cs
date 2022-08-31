@@ -58,11 +58,5 @@ public class EvaluateScriptActorComponent : PlaywrightActorComponent
         }
         logger.Information("javascript executed successfully.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Evaluate Javscript Actor";
-    }
-
+    
 }

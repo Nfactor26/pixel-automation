@@ -29,13 +29,13 @@ public class RunAndWaitForConsoleMessageProcessor : EntityProcessor
     /// Optional input argument for <see cref="PageRunAndWaitForConsoleMessageOptions"/> that can be used to customize the run and wait for file console message operation
     /// </summary>
     [DataMember]
-    [Display(Name = "FileChooser Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Argument to configure PageRunAndWaitForConsoleMessageOptions")]
+    [Display(Name = "Wait For Console Message Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Argument to configure PageRunAndWaitForConsoleMessageOptions")]
     public Argument ConsoleMessageOptions { get; set; } = new InArgument<PageRunAndWaitForConsoleMessageOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public RunAndWaitForConsoleMessageProcessor() : base(" RunAndWaitForConsoleMessage", " RunAndWaitForConsoleMessage")
+    public RunAndWaitForConsoleMessageProcessor() : base("Run And Wait For Console Message", "RunAndWaitForConsoleMessage")
     {
 
     }

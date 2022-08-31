@@ -42,9 +42,4 @@ public class ClickActorComponent : PlaywrightActorComponent
         logger.Information("control was clicked.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Click Actor";
-    }
 }

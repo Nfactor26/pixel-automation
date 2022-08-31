@@ -10,8 +10,8 @@ namespace Pixel.Automation.Web.Playwright.Components;
 
 [DataContract]
 [Serializable]
-[ToolBoxItem("Run And Wait For Request", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for request", tags: new string[] { "run", "wait", "request", "Web" })]
-public class RunAndWaitForRequestProcessor : EntityProcessor
+[ToolBoxItem("Run And Wait For Request Finished", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for request", tags: new string[] { "Run", "Wait", "Request", "Finished", "Web" })]
+public class RunAndWaitForRequestFinishedProcessor : EntityProcessor
 {
     /// <summary>
     /// Owner application that is interacted with
@@ -24,37 +24,29 @@ public class RunAndWaitForRequestProcessor : EntityProcessor
             return this.EntityManager.GetOwnerApplication<WebApplication>(this);
         }
     }
-
+       
     /// <summary>
-    /// Input argument to provide a predicate for matching request
+    /// Optional input argument for <see cref="PageRunAndWaitForRequestFinishedOptions"/> that can be used to customize the run and wait for request finished operation
     /// </summary>
     [DataMember]
-    [Display(Name = "Predicate", GroupName = "Configuration", Order = 10, Description = "Input argumnet for predicate for matching request ")]
-    public Argument Predicate { get; set; } = new InArgument<Func<IRequest, bool>> { CanChangeType = false, Mode = ArgumentMode.DataBound };
-
-    /// <summary>
-    /// Optional input argument for <see cref="PageRunAndWaitForRequestOptions"/> that can be used to customize the run and wait for request operation
-    /// </summary>
-    [DataMember]
-    [Display(Name = "Request Options", GroupName = "Configuration", Order = 20, Description = "Input argument for PageRunAndWaitForRequestOptions")]
-    public Argument WaitForRequestOptions { get; set; } = new InArgument<PageRunAndWaitForRequestOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
+    [Display(Name = "Wait For Request Options", GroupName = "Configuration", Order = 20, Description = "Input argument for PageRunAndWaitForRequestOptions")]
+    public Argument WaitForRequestOptions { get; set; } = new InArgument<PageRunAndWaitForRequestFinishedOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public RunAndWaitForRequestProcessor() : base("RunAndWaitForRequest", "RunAndWaitForRequest")
+    public RunAndWaitForRequestFinishedProcessor() : base("Run And Wait For Request Finished", "RunAndWaitForRequestFinished")
     {
 
     }
 
     public override async Task BeginProcessAsync()
     {
-        var predicate = await this.ArgumentProcessor.GetValueAsync<Func<IRequest, bool>>(this.Predicate);
-        var navigationOptions = this.WaitForRequestOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<PageRunAndWaitForRequestOptions>(this.WaitForRequestOptions) : null;
-        var activePage = this.ApplicationDetails.ActivePage;
-        await activePage.RunAndWaitForRequestAsync(async () =>
+        var waitForRequestFinishedOptions = this.WaitForRequestOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<PageRunAndWaitForRequestFinishedOptions>(this.WaitForRequestOptions) : null;
+        var activePage = this.ApplicationDetails.ActivePage;     
+        await activePage.RunAndWaitForRequestFinishedAsync(async () =>
         {
             await ProcessEntity(this);
-        }, predicate, navigationOptions);
+        }, waitForRequestFinishedOptions);       
     }
 }

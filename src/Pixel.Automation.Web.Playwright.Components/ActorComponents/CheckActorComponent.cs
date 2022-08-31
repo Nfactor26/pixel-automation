@@ -48,10 +48,4 @@ public class CheckActorComponent : PlaywrightActorComponent
         }
         logger.Warning("element is already checked.");
     }
-
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Check Actor";
-    }
 }

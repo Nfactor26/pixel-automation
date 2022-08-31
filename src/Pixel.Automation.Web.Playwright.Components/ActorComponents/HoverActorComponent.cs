@@ -43,9 +43,4 @@ public class HoverActorComponent : PlaywrightActorComponent
         logger.Information("Hover over element done.");
     }
 
-    ///</inheritdoc>
-    public override string ToString()
-    {
-        return "Hover Actor";
-    }
 }

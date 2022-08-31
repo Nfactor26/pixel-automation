@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 
 [DataContract]
 [Serializable]
-[ToolBoxItem("Run And Wait For Navigation", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for navigation", tags: new string[] { "run", "wait", "navigation", "Web" })]
+[ToolBoxItem("Run And Wait For Navigation", "Playwright", "Run And Wait", iconSource: null, description: "Run and wait for navigation", tags: new string[] { "Run", "Wait", "Navigation", "Web" })]
 public class RunAndWaitForNavigationProcessor : EntityProcessor
 {
     /// <summary>
@@ -29,13 +29,13 @@ public class RunAndWaitForNavigationProcessor : EntityProcessor
     /// Optional input argument for <see cref="PageRunAndWaitForNavigationOptions"/> that can be used to customize the run and wait for navigation operation
     /// </summary>
     [DataMember]
-    [Display(Name = "Navigation Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for PageRunAndWaitForNavigationOptions")]
+    [Display(Name = "Wait For Navigation Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for PageRunAndWaitForNavigationOptions")]
     public Argument NavigationOptions { get; set; } = new InArgument<PageRunAndWaitForNavigationOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     ///C onstructor
     /// </summary>
-    public RunAndWaitForNavigationProcessor() : base("RunAndWaitForNavigation", "RunAndWaitForNavigation")
+    public RunAndWaitForNavigationProcessor() : base("Run And Wait For Navigation", "RunAndWaitForNavigation")
     {
 
     }

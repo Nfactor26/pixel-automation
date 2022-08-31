@@ -29,13 +29,13 @@ public class RunAndWaitForFileChooserProcessor : EntityProcessor
     /// Optional input argument for <see cref="PageRunAndWaitForFileChooserOptions"/> that can be used to customize the run and wait for file chooser operation
     /// </summary>
     [DataMember]
-    [Display(Name = "File Chooser Options", GroupName = "Configuration", Order = 20, Description = "[Optional] Input argument for PageRunAndWaitForFileChooserOptions")]
+    [Display(Name = "Wait For File Chooser Options", GroupName = "Configuration", Order = 10, Description = "[Optional] Input argument for PageRunAndWaitForFileChooserOptions")]
     public Argument FileChooserOptions { get; set; } = new InArgument<PageRunAndWaitForFileChooserOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public RunAndWaitForFileChooserProcessor() : base(" RunAndWaitForFileChooser", " RunAndWaitForFileChooser")
+    public RunAndWaitForFileChooserProcessor() : base(" Run And Wait For File Chooser", " RunAndWaitForFileChooser")
     {
 
     }
