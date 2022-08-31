@@ -8,21 +8,21 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Web.Selenium.Components;
 
 /// <summary>
-/// Use <see cref="GetAttributeActorComponent"/> to retrieve the value of any attribute from a web control.
+/// Use <see cref="GetDomAttributeActorComponent"/> to retrieve the Dom attribute from a web control.
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Get Attribute", "Selenium", iconSource: null, description: "Get the value of user defined attribute of a WebElement", tags: new string[] { "Attribute", "Attribute value", "Value", "Get", "Web" })]
-public class GetAttributeActorComponent : WebElementActorComponent
+[ToolBoxItem("Get Dom Attribute", "Selenium", iconSource: null, description: "Get the value of the dom attribute of a WebElement", tags: new string[] { "Dom", "Dom Attribute", "Get", "Web" })]
+public class GetDomAttributeActorComponent : WebElementActorComponent
 {
-    private readonly ILogger logger = Log.ForContext<GetAttributeActorComponent>();
+    private readonly ILogger logger = Log.ForContext<GetDomAttributeActorComponent>();
 
     /// <summary>
     /// Name of the attribute whose value needs to be retrieved
     /// </summary>
     [DataMember(IsRequired = true)]
-    [Display(Name = "Attribute", GroupName = "Configuration", Order = 20, Description = "Name of the attribute whose value needs to be retrieved")]
-    public Argument AttributeName { get; set; } = new InArgument<string>() { DefaultValue = "value", Mode = ArgumentMode.Default };
+    [Display(Name = "Dom Attribute Name", GroupName = "Configuration", Order = 20, Description = "Name of the Dom attribute whoe value needs to be retrieved")]
+    public Argument AttributeName { get; set; } = new InArgument<string>() { DefaultValue = "checked", Mode = ArgumentMode.Default };
 
     /// <summary>
     /// Argument where the value of the attribute will be stored
@@ -34,7 +34,7 @@ public class GetAttributeActorComponent : WebElementActorComponent
     /// <summary>
     /// Default constructor
     /// </summary>
-    public GetAttributeActorComponent() : base("Get Attribute", "GetAttribute")
+    public GetDomAttributeActorComponent() : base("Get Dom Attribute", "GetDomAttribute")
     {
 
     }
@@ -46,9 +46,9 @@ public class GetAttributeActorComponent : WebElementActorComponent
     {
         IWebElement control = await GetTargetControl();
         var attributeName = await this.ArgumentProcessor.GetValueAsync<string>(this.AttributeName);
-        string extractedValue = control.GetAttribute(attributeName);
+        string extractedValue = control.GetDomAttribute(attributeName);
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  attribue : {0} from control.", attributeName);
+        logger.Information("Retrived  Dom attribue : {0} from control.", attributeName);
     }
 
 }

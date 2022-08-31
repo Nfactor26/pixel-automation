@@ -19,7 +19,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             var entityManager = Substitute.For<IEntityManager>();
          
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
-            argumentProcessor.GetValueAsync<Uri>(Arg.Any<Argument>()).Returns(new Uri("https://www.bing.com"));
+            argumentProcessor.GetValueAsync<string>(Arg.Any<Argument>()).Returns("https://www.bing.com");
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
             var webDriver = Substitute.For<IWebDriver>();
@@ -30,13 +30,13 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             entityManager.GetOwnerApplication<WebApplication>(Arg.Any<IComponent>()).Returns(webAppliction);
                        
 
-            var navigateActor = new NavigateActorComponent()
+            var navigateActor = new GotoActorComponent()
             {
                 EntityManager = entityManager                
             };
             await navigateActor.ActAsync();
 
-            await argumentProcessor.Received(1).GetValueAsync<Uri>(Arg.Any<Argument>());
+            await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<Argument>());
             webDriver.Received(1).Navigate();    
         }
     }

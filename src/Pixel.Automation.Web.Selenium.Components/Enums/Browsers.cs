@@ -1,11 +1,10 @@
 ﻿
 
-namespace Pixel.Automation.Web.Selenium.Components.Enums
+namespace Pixel.Automation.Web.Selenium.Components.Enums;
+
+public enum Browsers
 {
-    public enum Browsers
-    {
-        FireFox,
-        Chrome,
-        Edge
-    }
+    FireFox,
+    Chrome,
+    Edge
 }
