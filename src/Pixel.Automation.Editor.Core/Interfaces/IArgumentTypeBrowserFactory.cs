@@ -1,4 +1,7 @@
-﻿namespace Pixel.Automation.Editor.Core.Interfaces
+﻿using System;
+using System.Collections.Generic;
+
+namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IArgumentTypeBrowserFactory
     {
@@ -8,6 +11,13 @@
         /// </summary>
         /// <returns></returns>
         IArgumentTypeBrowser CreateArgumentTypeBrowser();
+
+        /// <summary>
+        /// Create an instance of IArgumentTypeBrowser which will show only specified types
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        IArgumentTypeBrowser CreateArgumentTypeBrowser(IEnumerable<Type> types);
 
         /// <summary>
         /// Create an instance of IArgumentTypeBrowser where the initial GenericType e.g. List<T>  is already selected and we are showing 

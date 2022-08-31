@@ -1,14 +1,16 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -120,10 +122,31 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 return;
             }
 
+            IArgumentTypeBrowser typeBrowserWindow = default;
             var entityManager = this.OwnerComponent.EntityManager;
             IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
             var argumentBrowserFactory = entityManager.GetServiceOfType<IArgumentTypeBrowserFactory>();
-            var typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser();
+
+            var properties = this.OwnerComponent.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach(var property in properties)
+            {
+                if(!property.PropertyType.Equals(typeof(Argument)))
+                {
+                    continue;
+                }
+                if(property.GetValue(this.OwnerComponent)?.Equals(this.Argument) ?? false)
+                {
+                    var appliedAttributes = property.GetCustomAttributes();
+                    if (appliedAttributes.Any(a => a is AllowedTypesAttribute))
+                    {
+                        var allowedTypeAttribute = appliedAttributes.First(a => a is AllowedTypesAttribute) as AllowedTypesAttribute;
+                        typeBrowserWindow = argumentBrowserFactory.CreateArgumentTypeBrowser(allowedTypeAttribute.Types);
+                    }
+                    break;
+                }
+            }
+           
+            typeBrowserWindow = typeBrowserWindow ?? argumentBrowserFactory.CreateArgumentTypeBrowser();
 
             var result = await windowManager.ShowDialogAsync(typeBrowserWindow);
 
