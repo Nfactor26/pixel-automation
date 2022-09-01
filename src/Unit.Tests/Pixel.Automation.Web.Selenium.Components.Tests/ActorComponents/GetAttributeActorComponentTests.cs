@@ -24,7 +24,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
                 {
                    
                 });
-     
+            argumentProcessor.GetValueAsync<string>(Arg.Any<Argument>()).Returns("title");     
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
 
 
@@ -40,8 +40,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             var getAttributeActor = new GetAttributeActorComponent()
             {
                 EntityManager = entityManager,
-                Parent = controlEntity,
-                AttributeName = "title"
+                Parent = controlEntity
             };
             await getAttributeActor.ActAsync();
           

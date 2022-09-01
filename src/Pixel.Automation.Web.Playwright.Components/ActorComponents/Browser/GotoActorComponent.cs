@@ -12,7 +12,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Reload", "Playwright", "Browser", iconSource: null, description: "Reloads the current page", tags: new string[] { "Reload", "Navigate", "Browser", "Web" })]
+[ToolBoxItem("Goto", "Playwright", "Browser", iconSource: null, description: "Reloads the current page", tags: new string[] { "Reload", "Navigate", "Browser", "Web" })]
 public class GotoActorComponent : PlaywrightActorComponent
 {
     private readonly ILogger logger = Log.ForContext<GotoActorComponent>();

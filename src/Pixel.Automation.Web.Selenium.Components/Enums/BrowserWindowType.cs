@@ -1,8 +1,7 @@
-﻿namespace Pixel.Automation.Web.Selenium.Components.Enums
+﻿namespace Pixel.Automation.Web.Selenium.Components.Enums;
+
+public enum BrowserWindowType
 {
-    public enum BrowserWindowType
-    {
-        Tab,
-        Window
-    }
+    Tab,
+    Window
 }
