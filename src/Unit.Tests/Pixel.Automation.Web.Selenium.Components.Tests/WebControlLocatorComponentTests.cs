@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
             webDriver.FindElement(Arg.Any<By>()).Returns(controlOne);
 
+            (webDriver as IJavaScriptExecutor).ExecuteScript(Arg.Any<string>(), Arg.Any<object[]>()).Returns(false);
             (webDriver as IJavaScriptExecutor).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>()).Returns(new System.Collections.ObjectModel.ReadOnlyCollection<IWebElement>(new[] { controlOne, controlTwo }));
 
             WebApplication webapplication = new WebApplication()
@@ -393,8 +395,15 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             var controlIdentity = new WebControlIdentity()
             {
                 SearchScope = searchScope,
-                Identifier = "sbformq",
-                FindByStrategy = "Id"              
+                Identifier = "form",
+                FindByStrategy = "Id",
+                Index = 2,
+                Next = new WebControlIdentity()
+                {
+                    SearchScope = Core.Enums.SearchScope.Descendants,
+                    Identifier = "input",
+                    FindByStrategy = "Id"                    
+                }                
             };
 
             switch (searchScope)
@@ -403,7 +412,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
                     var locatedControls = await webControlLocator.FindAllControlsAsync(controlIdentity);
                     Assert.IsNotNull(locatedControls);
                     Assert.AreEqual(2, locatedControls.Count());
-                    webDriver.Received(1).FindElements(Arg.Any<By>());
+                    webDriver.Received(2).FindElements(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
                 case Core.Enums.SearchScope.Ancestor:

@@ -16,7 +16,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public double XOffSet { get; set; }
         public double YOffSet { get; set; }
         public LookupType LookupType { get; set; }
-        public IControlIdentity Next { get; set; }
+        public SearchScope SearchScope { get; set; }
+        public IControlIdentity Next { get; set; }      
 
         public object Clone()
         {
@@ -31,7 +32,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
                 YOffSet = this.YOffSet,
-                LookupType = this.LookupType
+                LookupType = this.LookupType,
+                SearchScope = this.SearchScope
             };
         }
 
