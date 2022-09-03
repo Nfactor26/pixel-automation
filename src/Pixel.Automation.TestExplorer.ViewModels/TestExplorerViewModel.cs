@@ -979,13 +979,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Run selected TestCase
         /// </summary>
         public async Task RunSelected()
-        {
-            logger.Information("------------------------------------------------------");
-            logger.Information("Start execution of selected test case");
+        {           
             Task runTestCasesTask = new Task(async () =>
             {
                 try
                 {
+                    logger.Information("------------------------------------------------------");
+                    logger.Information("Start execution of selected test case");
+
                     this.IsExecutionInProgress = true;
                     foreach (var testFixture in this.TestFixtures)
                     {
@@ -1026,27 +1027,27 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 finally
                 {
                     this.IsExecutionInProgress = false;
+                    logger.Information("Completed execution of selected test case");
+                    logger.Information("------------------------------------------------------");                  
                 }
             });
             runTestCasesTask.Start();
-            await runTestCasesTask;
-            logger.Information("------------------------------------------------------");
-            logger.Information("Completed execution of selected test case");
+            await runTestCasesTask;       
         }
 
         /// <summary>
         /// Run all the available TestCases
         /// </summary>
         public async Task RunAll()
-        {
-            logger.Information("------------------------------------------------------");
-            logger.Information("Start execution of all test cases");
+        {           
             isCancellationRequested = false;
             CanAbort = true;
             Task runTestCasesTask = new Task(async () =>
             {
                 try
                 {
+                    logger.Information("------------------------------------------------------");
+                    logger.Information("Start execution of all test cases");
                     System.Action clearTestResults = () =>
                     {
                         var tests = this.TestFixtures.SelectMany(t => t.Tests);
@@ -1094,12 +1095,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 finally
                 {
                     this.IsExecutionInProgress = false;
+                    logger.Information("Completed execution of all test cases");
+                    logger.Information("------------------------------------------------------");                  
                 }
             });
             runTestCasesTask.Start();
             await runTestCasesTask;
-            logger.Information("------------------------------------------------------");
-            logger.Information("Completed execution of all test cases");
+           
         }
 
         /// <summary>
