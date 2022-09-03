@@ -71,35 +71,16 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     public async Task<UIControl> FindControlAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
     {
         Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
-
-        IControlIdentity currentControl = controlIdentity;
+        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
 
         var currentRoot = searchRoot?.GetApiControl<ILocator>();
         while (true)
         {
-            WebControlIdentity webControlIdentity = currentControl as WebControlIdentity;
-            switch (webControlIdentity.SearchScope)
-            {
-                case SearchScope.Children:
-                case SearchScope.Sibling:
-                case SearchScope.Ancestor:
-                    throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
-                case SearchScope.Descendants:
-                    if (webControlIdentity.Index > 1)
-                    {
-                        var descendantControls = await FindAllDescendantControls(controlIdentity, currentRoot);
-                        currentRoot = GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);                       
-                    }
-                    else
-                    {
-                        currentRoot = FindDescendantControl(controlIdentity, currentRoot);
-                    }
-                    break;
-            }
+            currentRoot = await FindCurrentControl(webControlIdentity, currentRoot);
 
             if (webControlIdentity.Next != null)
             {
-                currentControl = webControlIdentity.Next;
+                webControlIdentity = webControlIdentity.Next as WebControlIdentity;
                 continue;
             }
             await HighlightElement(currentRoot);
@@ -107,23 +88,70 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         }
     }
 
-    public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
+    private async Task<ILocator> FindCurrentControl(WebControlIdentity webControlIdentity, ILocator currentRoot)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
-
-        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-        var currentRoot = searchRoot?.GetApiControl<ILocator>();
         switch (webControlIdentity.SearchScope)
         {
-            case SearchScope.Descendants:
-                var descendantControls = await FindAllDescendantControls(controlIdentity, currentRoot);
-                return await Task.FromResult(descendantControls.Select(f => new WebUIControl(controlIdentity, f, this)));
-            case SearchScope.Sibling:          
             case SearchScope.Children:
+            case SearchScope.Sibling:
             case SearchScope.Ancestor:
             default:
-                throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
+                throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
+            case SearchScope.Descendants:
+                if (webControlIdentity.Index > 1)
+                {
+                    var descendantControls = await FindAllDescendantControls(webControlIdentity, currentRoot);
+                    return GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);
+                }
+                else
+                {
+                    return FindDescendantControl(webControlIdentity, currentRoot);
+                }               
         }
+    }
+
+    public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
+    {
+        Guard.Argument(controlIdentity).NotNull().Compatible<WebControlIdentity>();
+
+        var webControlIdentity = controlIdentity as WebControlIdentity;
+        var currentRoot = searchRoot?.GetApiControl<ILocator>();
+      
+        while (true)
+        {
+            if (webControlIdentity.Next != null)
+            {
+                currentRoot = await FindCurrentControl(webControlIdentity, currentRoot);
+                webControlIdentity = webControlIdentity.Next as WebControlIdentity;
+                continue;
+            }
+
+            try
+            {
+                switch (webControlIdentity.SearchScope)
+                {
+                    case SearchScope.Descendants:
+                        var descendantControls = await FindAllDescendantControls(webControlIdentity, currentRoot);
+                        if (ShowBoundingBox)
+                        {
+                            foreach (var element in descendantControls)
+                            {
+                                await HighlightElement(element);
+                            }
+                        }
+                        return await Task.FromResult(descendantControls.Select(f => new WebUIControl(webControlIdentity, f, this)));
+                    case SearchScope.Sibling:
+                    case SearchScope.Children:
+                    case SearchScope.Ancestor:
+                    default:
+                        throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
+                }
+            }
+            finally
+            {
+                logger.Debug("Control lookup completed.");
+            }
+        }        
     }
 
     #endregion IControlLocator

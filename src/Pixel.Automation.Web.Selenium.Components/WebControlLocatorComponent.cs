@@ -92,44 +92,8 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         ISearchContext currentRoot = searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver;
         SwitchToTargetFrame(webControlIdentity); //All nested controls must be in same frame.Hence, switch once at start
         while (true)
-        {           
-            switch (webControlIdentity.SearchScope)
-            {
-                case SearchScope.Children:
-                    throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
-                case SearchScope.Descendants:
-                    if (webControlIdentity.Index > 1)
-                    {
-                        var descendantControls = FindAllDescendantControls(webControlIdentity, currentRoot);
-                        currentRoot = GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);
-                    }
-                    else
-                    {
-                        currentRoot = FindDescendantControl(webControlIdentity, currentRoot);
-                    }
-                    break;
-                case SearchScope.Sibling:
-                    if (webControlIdentity.Index > 1)
-                    {
-                        var siblingControls = FindAllSiblingControls(webControlIdentity, currentRoot);
-                        currentRoot = GetWebElementAtConfiguredIndex(siblingControls, webControlIdentity);
-                    }
-                    else
-                    {
-                        currentRoot = FindSiblingControl(webControlIdentity, currentRoot);
-                    }
-                    break;
-                case SearchScope.Ancestor:
-                    if (webControlIdentity.Index > 1)
-                    {
-                        throw new NotSupportedException("There can be only one ancestor for a given control. Index based lookup is invalid in this context");
-                    }
-                    else
-                    {
-                        currentRoot = FindAncestorControl(webControlIdentity, currentRoot);
-                    }
-                    break;
-            }
+        {
+            currentRoot = FindCurrentControl(webControlIdentity, currentRoot);
 
             if (webControlIdentity.Next != null)
             {
@@ -138,6 +102,46 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             }
 
             return await Task.FromResult(new WebUIControl(controlIdentity, currentRoot as IWebElement, this));
+        }
+
+    }
+
+    private ISearchContext FindCurrentControl(WebControlIdentity webControlIdentity, ISearchContext currentRoot)
+    {
+        switch (webControlIdentity.SearchScope)
+        {         
+            case SearchScope.Descendants:
+                if (webControlIdentity.Index > 1)
+                {
+                    var descendantControls = FindAllDescendantControls(webControlIdentity, currentRoot);
+                    return GetWebElementAtConfiguredIndex(descendantControls, webControlIdentity);
+                }
+                else
+                {
+                    return FindDescendantControl(webControlIdentity, currentRoot);
+                }               
+            case SearchScope.Sibling:
+                if (webControlIdentity.Index > 1)
+                {
+                    var siblingControls = FindAllSiblingControls(webControlIdentity, currentRoot);
+                    return GetWebElementAtConfiguredIndex(siblingControls, webControlIdentity);
+                }
+                else
+                {
+                    return FindSiblingControl(webControlIdentity, currentRoot);
+                }               
+            case SearchScope.Ancestor:
+                if (webControlIdentity.Index > 1)
+                {
+                    throw new NotSupportedException("There can be only one ancestor for a given control. Index based lookup is invalid in this context");
+                }
+                else
+                {
+                    return FindAncestorControl(webControlIdentity, currentRoot);
+                }
+            case SearchScope.Children:
+            default:
+                throw new NotSupportedException("SearchScope.Children is not supported by Web Control Locator");
         }
 
     }
@@ -153,28 +157,35 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         {          
             if (webControlIdentity.Next != null)
             {
-                var control = await FindControlAsync(webControlIdentity, searchRoot);
-                currentRoot = control.GetApiControl<IWebElement>();
-                logger.Debug($"Located control {webControlIdentity}");
+                currentRoot = FindCurrentControl(webControlIdentity, currentRoot);               
                 webControlIdentity = webControlIdentity.Next as WebControlIdentity;
                 continue;
             }
 
             try
             {
+                IReadOnlyCollection<IWebElement> foundElements;
                 switch (webControlIdentity.SearchScope)
                 {
                     case SearchScope.Descendants:
-                        var foundElements = FindAllElement(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                        return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
+                        foundElements = FindAllElement(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                        break;
                     case SearchScope.Sibling:
-                        var siblingElements = FindAllSiblingControls(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                        return await Task.FromResult(siblingElements.Select(f => new WebUIControl(controlIdentity, f, this)));
+                        foundElements = FindAllSiblingControls(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                        break;
                     case SearchScope.Children:
                     case SearchScope.Ancestor:
                     default:
                         throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
                 }
+                if (ShowBoundingBox)
+                {
+                    foreach (var element in foundElements)
+                    {
+                        HighlightElement(element);
+                    }
+                }
+                return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
             }
             finally
             {
