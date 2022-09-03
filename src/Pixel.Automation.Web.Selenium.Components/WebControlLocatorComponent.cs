@@ -25,8 +25,8 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
     private readonly RetryPolicy policy;
     private readonly List<TimeSpan> retrySequence = new();
-    private IHighlightRectangle highlightRectangle;       
-    private int retryAttempts = 2;     
+    private IHighlightRectangle highlightRectangle;
+    private int retryAttempts = 2;
     private double retryInterval = 5;
 
     [IgnoreDataMember]
@@ -48,19 +48,19 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             return ApplicationDetails.WebDriver;
         }
     }
-  
+
     /// <summary>
     /// Toggle if bounding box is shown during playback on controls.
     /// This can help visuall debug the control location process in hierarchy
     /// </summary>
     public bool ShowBoundingBox { get; set; }
-   
+
 
     /// <summary>
     /// Contrsuctor      
     /// </summary>
     public WebControlLocatorComponent() : base("Selenium Control Locator", "SeleniumControlLocator")
-    {          
+    {
         foreach (var i in Enumerable.Range(1, retryAttempts))
         {
             retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
@@ -88,12 +88,11 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     {
         Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
 
-        IControlIdentity currentControl = controlIdentity;
+        var webControlIdentity = controlIdentity as WebControlIdentity;
         ISearchContext currentRoot = searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver;
-        SwitchToTargetFrame(controlIdentity as WebControlIdentity); //All nested controls must be in same frame.Hence, switch once at start
+        SwitchToTargetFrame(webControlIdentity); //All nested controls must be in same frame.Hence, switch once at start
         while (true)
-        {
-            WebControlIdentity webControlIdentity = currentControl as WebControlIdentity;
+        {           
             switch (webControlIdentity.SearchScope)
             {
                 case SearchScope.Children:
@@ -134,7 +133,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
             if (webControlIdentity.Next != null)
             {
-                currentControl = webControlIdentity.Next;
+                webControlIdentity = webControlIdentity.Next as WebControlIdentity;
                 continue;
             }
 
@@ -145,42 +144,68 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
     public async Task<IEnumerable<UIControl>> FindAllControlsAsync(IControlIdentity controlIdentity, UIControl searchRoot = null)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull().Compatible<WebControlIdentity>();
+        ISearchContext currentRoot = searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver;
 
-        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+        var webControlIdentity = controlIdentity as WebControlIdentity;
         SwitchToTargetFrame(webControlIdentity);
+        while (true)
+        {          
+            if (webControlIdentity.Next != null)
+            {
+                var control = await FindControlAsync(webControlIdentity, searchRoot);
+                currentRoot = control.GetApiControl<IWebElement>();
+                logger.Debug($"Located control {webControlIdentity}");
+                webControlIdentity = webControlIdentity.Next as WebControlIdentity;
+                continue;
+            }
 
-        switch (webControlIdentity.SearchScope)
-        {
-            case SearchScope.Descendants:
-                var foundElements = FindAllElement(controlIdentity as WebControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
-            case SearchScope.Sibling:
-                var siblingElements = FindAllSiblingControls(controlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                return await Task.FromResult(siblingElements.Select(f => new WebUIControl(controlIdentity, f, this)));
-            case SearchScope.Children:
-            case SearchScope.Ancestor:
-            default:
-                throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
+            try
+            {
+                switch (webControlIdentity.SearchScope)
+                {
+                    case SearchScope.Descendants:
+                        var foundElements = FindAllElement(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                        return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
+                    case SearchScope.Sibling:
+                        var siblingElements = FindAllSiblingControls(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                        return await Task.FromResult(siblingElements.Select(f => new WebUIControl(controlIdentity, f, this)));
+                    case SearchScope.Children:
+                    case SearchScope.Ancestor:
+                    default:
+                        throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
+                }
+            }
+            finally
+            {
+                logger.Debug("Control lookup completed.");
+            }
+
         }
+    }
 
+    internal bool HasShadowRoot(ISearchContext searchContext)
+    {
+        var arguments = new List<object>();
+        arguments.Add(searchContext);       
+        var result = (this.WebDriver as IJavaScriptExecutor).ExecuteScript("return (arguments[0].shadowRoot != null)", arguments.ToArray());
+        return (bool)result;
     }
 
     #region Descendant Control
 
-    public IWebElement FindDescendantControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
+    internal IWebElement FindDescendantControl(WebControlIdentity controlIdentity, ISearchContext searchRoot)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull();
 
         ConfigureRetryPolicy(controlIdentity);
         IWebElement foundControl = default;
         foundControl = policy.Execute(() =>
         {
             try
-            {
-                WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-                foundControl = FindElement(webControlIdentity, searchRoot);
-                logger.Information($"{webControlIdentity} has been located");
+            {              
+                foundControl = FindElement(controlIdentity, searchRoot);
+                logger.Information($"{controlIdentity} has been located");
                 return foundControl;
             }
             finally
@@ -191,16 +216,14 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         return foundControl;
     }
 
-    public IReadOnlyCollection<IWebElement> FindAllDescendantControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
+    internal IReadOnlyCollection<IWebElement> FindAllDescendantControls(WebControlIdentity controlIdentity, ISearchContext searchRoot = null)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull(); ;
 
-        ConfigureRetryPolicy(controlIdentity);
-        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-        Debug.Assert(controlIdentity != null && webControlIdentity != null, "WebControlIdentity is null");
+        ConfigureRetryPolicy(controlIdentity);       
         var foundControls = policy.Execute(() =>
         {
-            return FindAllElement(webControlIdentity, searchRoot);
+            return FindAllElement(controlIdentity, searchRoot);
         });
         return foundControls;
     }
@@ -209,9 +232,9 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
     #region Ancestor Control
 
-    public IWebElement FindAncestorControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
+    internal IWebElement FindAncestorControl(WebControlIdentity controlIdentity, ISearchContext searchRoot)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull();
         ConfigureRetryPolicy(controlIdentity);
         IWebElement foundControl = default;
         try
@@ -259,9 +282,9 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     #endregion Ancestor Control
 
     #region Sibling Control
-    public IWebElement FindSiblingControl(IControlIdentity controlIdentity, ISearchContext searchRoot)
+    internal IWebElement FindSiblingControl(WebControlIdentity controlIdentity, ISearchContext searchRoot)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull();
 
         IWebElement foundControl = default;
         try
@@ -282,9 +305,9 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         return foundControl;
     }
 
-    public IReadOnlyCollection<IWebElement> FindAllSiblingControls(IControlIdentity controlIdentity, ISearchContext searchRoot = null)
+    internal IReadOnlyCollection<IWebElement> FindAllSiblingControls(WebControlIdentity controlIdentity, ISearchContext searchRoot = null)
     {
-        Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        Guard.Argument(controlIdentity).NotNull();
 
         ConfigureRetryPolicy(controlIdentity);
         WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
@@ -329,6 +352,11 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         string identifier = webControlIdentity.Identifier;
         int searchTimeout = webControlIdentity.SearchTimeout;
 
+        if (searchRoot is IWebElement webElement && HasShadowRoot(searchRoot))
+        {
+            searchRoot = webElement.GetShadowRoot();
+        }
+
         switch (webControlIdentity.FindByStrategy)
         {
             case "Id":
@@ -367,6 +395,11 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
         string identifier = webControlIdentity.Identifier;
         int searchTimeout = webControlIdentity.SearchTimeout;
+
+        if (searchRoot is IWebElement webElement && HasShadowRoot(searchRoot))
+        {
+            searchRoot = webElement.GetShadowRoot();
+        }
 
         switch (webControlIdentity.FindByStrategy)
         {
@@ -533,7 +566,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 if (!Element.prototype.matches)
                     Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
                 var parentElement = el.parentElement || el.parentNode;
-                var children = parentElement.children;
+                var children = parentElement.children;             
                 for (c of children)
                 {
                     if (c != el && c.matches(siblingSelector))
@@ -550,6 +583,10 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                     Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
                 do
                 {
+                    if(el.toString() === \""[object ShadowRoot]\"")
+                    {
+                        el = el.parentElement || el.parentNode;
+                    }
                     if (el.matches(ancestorSelector)) return el;
                         el = el.parentElement || el.parentNode;
                 } 

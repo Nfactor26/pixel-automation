@@ -9,89 +9,62 @@ namespace Pixel.Automation.Core.Interfaces
     /// Captures the details of a control that can be used to locate it at runtime
     /// </summary>
     public interface IControlIdentity : ICloneable
-    {      
+    {
         /// <summary>
         /// Identifier of the owner application
         /// </summary>
-        string ApplicationId
-        {
-            get;
-            set;
-        }
+        string ApplicationId { get; set; }       
 
         /// <summary>
         /// Name of the control
         /// </summary>
-        string Name
-        {
-            get;
-            set;
-        }        
-      
+        string Name { get; set; }       
+
         /// <summary>
         /// Number of times to retry if control can't be located in first attempt
         /// </summary>
-        int RetryAttempts
-        {
-            get;
-            set;
-        }
-
+        int RetryAttempts { get; set; }
+       
         /// <summary>
         /// Interval in seconds between each retry attempt
         /// </summary>
-        int RetryInterval
-        {
-            get;
-            set;
-        }
+        int RetryInterval { get; set; }    
 
         /// <summary>
         /// Reference point on control realtive to which mouse operations are performed.       
         /// </summary>
-        Pivots PivotPoint
-        {
-            get;
-            set;
-        }
-
+        Pivots PivotPoint { get; set; }
+      
         /// <summary>
         /// Offset on x-axis from Pivot Point
         /// </summary>
-        double XOffSet
-        {
-            get;
-            set;
-        }
-
+        double XOffSet { get; set; }
+        
         /// <summary>
         /// Offset on y-axis from Pivot Point
         /// </summary>
-        double YOffSet
-        {
-            get;
-            set;
-        }
+        double YOffSet { get; set; }
 
         /// <summary>
         /// Controls how the control lookup will be performed by <see cref="IControlLocator{T}"/>
         /// </summary>
-        LookupType LookupType
-        {
-            get;
-            set;
-        }
+        LookupType LookupType { get; set; }
+
+        /// <summary>
+        /// Configure the scope for searching the control relative to root search context
+        /// </summary>
+        SearchScope SearchScope { get; set; }
 
         /// <summary>
         /// Get the Name of the control
         /// </summary>
         /// <returns></returns>
-        string GetControlName();        
+        string GetControlName();
 
         /// <summary>
         /// For nested navigation
         /// </summary>
-        IControlIdentity  Next
+        IControlIdentity Next
         {
             get; set;
         }
