@@ -94,8 +94,7 @@ namespace Pixel.Automation.UIA.Components
             {
                 Name = this.Name,     
                 Index = this.Index,
-                Depth = this.Depth,
-                LookupType = this.LookupType,
+                Depth = this.Depth,             
                 ApplicationId = this.ApplicationId,                
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
@@ -120,7 +119,7 @@ namespace Pixel.Automation.UIA.Components
 
         public override string ToString()
         {
-            return $"{this.Name} -> Name:{this.NameProperty}|AutomationId:{this.AutomationId}|ClassName:{this.ClassName}|ControlType:{this.WinControlType}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> Name:{this.NameProperty}|AutomationId:{this.AutomationId}|ClassName:{this.ClassName}|ControlType:{this.WinControlType}|SearchScope:{this.SearchScope}";
         }
     }
 }

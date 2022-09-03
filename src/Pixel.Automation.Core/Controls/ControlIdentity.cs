@@ -115,15 +115,7 @@ namespace Pixel.Automation.Core.Controls
         #endregion Clickable Point Offset
 
         #region Search Strategy
-
-        /// <summary>
-        /// <see cref="LookupType"/> for the search strategy
-        /// </summary>
-        [DataMember(Order = 100)]
-        [Display(Name = "Look Up Type", GroupName = "Search Strategy", Order = 10)]
-        [Description("Whether control should be looked relative to Application root or relative to a parent control")]
-        public LookupType LookupType { get; set; } = LookupType.Default;
-
+               
         /// <summary>
         /// <see cref="SearchScope"/> for the search strategy
         /// </summary>

@@ -43,11 +43,7 @@ namespace Pixel.Automation.Core.Components.Controls
             UIControl targetControl = default;         
             if (this.Parent.GetComponentsOfType<IControlEntity>(SearchScope.Descendants).Any())
             {
-                var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(SearchScope.Descendants);
-                if(controlEntity.ControlDetails.LookupType.Equals(LookupType.Relative))
-                {
-                    throw new InvalidOperationException("Highlight Control Actor doesn't support Relative controls");
-                }
+                var controlEntity = this.Parent.GetFirstComponentOfType<IControlEntity>(SearchScope.Descendants);              
                 targetControl = await controlEntity.GetControl();
             }
             else

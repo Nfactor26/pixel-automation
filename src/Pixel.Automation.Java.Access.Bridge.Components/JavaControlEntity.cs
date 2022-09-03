@@ -51,9 +51,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
-            else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
+            else if (this.Parent is JavaControlEntity controlEntity)
             {
-                searchRoot = await (this.Parent as JavaControlEntity).GetControl();
+                searchRoot = await controlEntity.GetControl();
             }
 
             JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
@@ -88,9 +88,9 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
-            else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
+            else if (this.Parent is JavaControlEntity controlEntity)
             {
-                searchRoot = await (this.Parent as JavaControlEntity).GetControl();
+                searchRoot = await controlEntity.GetControl();
             }
             JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
             var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);

@@ -72,10 +72,6 @@ public class ImageControlIdentity : NotifyPropertyChanged, IImageControlIdentity
 
     #region Search Strategy
 
-    [DataMember(Order = 100, IsRequired = false)]
-    [Browsable(false)]
-    public LookupType LookupType { get; set; } = LookupType.Default;
-
     [DataMember(Order = 110, IsRequired = false)]
     [Browsable(false)]
     public SearchScope SearchScope { get; set; } = SearchScope.Descendants;

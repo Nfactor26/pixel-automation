@@ -56,9 +56,9 @@ public class WebControlEntity : ControlEntity
         {
             searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
         }
-        else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
+        else if (this.Parent is WebControlEntity controlEntity)
         {
-            searchRoot = await (this.Parent as WebControlEntity).GetControl();
+            searchRoot = await controlEntity.GetControl();
         }
 
         WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
@@ -96,9 +96,9 @@ public class WebControlEntity : ControlEntity
         {              
             searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
         }
-        else if (this.ControlDetails.LookupType.Equals(LookupType.Relative))
+        else if (this.Parent is WebControlEntity controlEntity)
         {
-            searchRoot = await (this.Parent as WebControlEntity).GetControl();
+            searchRoot = await controlEntity.GetControl();
         }
         WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
         var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);           

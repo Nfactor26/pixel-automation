@@ -237,8 +237,7 @@ namespace Pixel.Automation.JAB.Scrapper
 
                             var startingNode = (isRelativeScraping ? controlPath.ElementAt(0) : accessibleWindow);
                             JavaControlIdentity rootNodeIdentity = CreateControlComponent(startingNode as AccessibleContextNode, 1);
-                            rootNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;
-                            rootNodeIdentity.LookupType = (isRelativeScraping ? Core.Enums.LookupType.Relative : Core.Enums.LookupType.Default);
+                            rootNodeIdentity.SearchScope = Core.Enums.SearchScope.Children;                          
                             JavaControlIdentity currentNodeIdentity = rootNodeIdentity;
                             int pathLength = controlPath.Count;
                             AccessibleContextNode lastCapturedAncestorNode = accessibleWindow;

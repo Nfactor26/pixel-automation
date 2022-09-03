@@ -99,8 +99,7 @@ public class WebControlIdentity : ControlIdentity
         WebControlIdentity clone = new WebControlIdentity()
         {
             Name = this.Name,
-            Index = this.Index,
-            LookupType = this.LookupType,
+            Index = this.Index,           
             ApplicationId = this.ApplicationId,              
             PivotPoint = this.PivotPoint,
             XOffSet = this.XOffSet,
@@ -121,6 +120,6 @@ public class WebControlIdentity : ControlIdentity
 
     public override string ToString()
     {
-        return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
+        return $"{this.Name} -> FindBy:{this.findByStrategy}|Identifier:{this.Identifier}|SearchScope:{this.SearchScope}";
     }
 }

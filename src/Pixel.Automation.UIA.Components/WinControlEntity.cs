@@ -52,9 +52,9 @@ namespace Pixel.Automation.UIA.Components
             {
                 searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
-            else if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative))
+            else if (this.Parent is WinControlEntity controlEntity)
             {
-                searchRoot = await (this.Parent as WinControlEntity).GetControl();
+                searchRoot = await controlEntity.GetControl();
             }
 
             UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;
@@ -90,9 +90,9 @@ namespace Pixel.Automation.UIA.Components
             {
                 searchRoot = await this.ArgumentProcessor.GetValueAsync<UIControl>(this.SearchRoot);
             }
-            else if (this.ControlDetails.LookupType.Equals(Core.Enums.LookupType.Relative))
+            else if (this.Parent is WinControlEntity controlEntity)
             {
-                searchRoot = await (this.Parent as WinControlEntity).GetControl();
+                searchRoot = await controlEntity.GetControl();
             }
 
             UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;

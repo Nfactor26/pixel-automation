@@ -260,16 +260,11 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     switch (e.Button)
                     {
-                        case MouseButtons.Left:
-                            if (containerNode != null)
-                            {
-                                rootNodeIdentity.LookupType = Core.Enums.LookupType.Relative;
-                            }
+                        case MouseButtons.Left:                          
                             break;
 
                         case MouseButtons.Right:
-                            containerNode = trackedElement;
-                            rootNodeIdentity.LookupType = Core.Enums.LookupType.Default;
+                            containerNode = trackedElement;                         
                             ShowContainerHighlightRectangle(containerNode.Current.BoundingRectangle, "Purple");
                             break;
                     }
@@ -280,13 +275,13 @@ namespace Pixel.Automation.UIA.Scrapper
 
                     controlHighlight.BorderColor = "Green";
 
-                    Log.Information("Captured control : {$capturedControl} as {$controlType}", current, rootNodeIdentity.LookupType);
+                    logger.Information("Captured control : {$capturedControl}", current);
 
                 }
                 catch (Exception ex)
                 {
                     controlHighlight.BorderColor = "Red";
-                    Log.Error(ex, ex.Message);
+                    logger.Error(ex, ex.Message);
                 }
                 finally
                 {

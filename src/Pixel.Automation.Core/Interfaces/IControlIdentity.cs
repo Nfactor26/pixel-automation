@@ -43,12 +43,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Offset on y-axis from Pivot Point
         /// </summary>
-        double YOffSet { get; set; }
-
-        /// <summary>
-        /// Controls how the control lookup will be performed by <see cref="IControlLocator{T}"/>
-        /// </summary>
-        LookupType LookupType { get; set; }
+        double YOffSet { get; set; }       
 
         /// <summary>
         /// Configure the scope for searching the control relative to root search context

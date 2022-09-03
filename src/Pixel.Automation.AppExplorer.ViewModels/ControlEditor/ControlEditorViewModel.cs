@@ -135,12 +135,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             {
                if(root.Next != null)
                 {
-                    this.rootControl = root.Next;
-                    this.rootControl.LookupType = LookupType.Relative;
+                    this.rootControl = root.Next;                   
                 }
                 return;
             }
-
 
             IControlIdentity current = root;
             while (current.Next != controlToRemove)
