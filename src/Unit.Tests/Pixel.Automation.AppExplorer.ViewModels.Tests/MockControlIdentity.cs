@@ -14,8 +14,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public int RetryInterval { get; set; }
         public Pivots PivotPoint { get; set; }
         public double XOffSet { get; set; }
-        public double YOffSet { get; set; }
-        public LookupType LookupType { get; set; }
+        public double YOffSet { get; set; }      
         public SearchScope SearchScope { get; set; }
         public IControlIdentity Next { get; set; }      
 
@@ -31,8 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
                 RetryInterval = this.RetryInterval,
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
-                YOffSet = this.YOffSet,
-                LookupType = this.LookupType,
+                YOffSet = this.YOffSet,              
                 SearchScope = this.SearchScope
             };
         }

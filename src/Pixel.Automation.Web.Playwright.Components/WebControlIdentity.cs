@@ -66,8 +66,7 @@ namespace Pixel.Automation.Web.Playwright.Components
             WebControlIdentity clone = new WebControlIdentity()
             {
                 Name = this.Name,
-                Index = this.Index,
-                LookupType = this.LookupType,
+                Index = this.Index,               
                 ApplicationId = this.ApplicationId,              
                 PivotPoint = this.PivotPoint,
                 XOffSet = this.XOffSet,
@@ -86,7 +85,7 @@ namespace Pixel.Automation.Web.Playwright.Components
 
         public override string ToString()
         {
-            return $"{this.Name} -> Identifier:{this.Identifier}|LookUpType:{this.LookupType}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> Identifier:{this.Identifier}|SearchScope:{this.SearchScope}";
         }
     }
 }
