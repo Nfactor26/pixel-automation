@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
@@ -81,8 +80,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         [NonSerialized]
         private Entity prefabEntity;
 
-        [IgnoreDataMember] // TODO : Revisit this. Doesn't work with overriden property. 
-        [JsonIgnore]
+        [IgnoreDataMember]
         [Browsable(false)]
         public override List<IComponent> Components
         {
@@ -120,13 +118,18 @@ namespace Pixel.Automation.Core.Components.Prefabs
 
         public override async Task OnCompletionAsync()
         {
-            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScriptFile);
-            outputMappingAction.Invoke(prefabDataModel);
-            logger.Information($"Executed output mapping script : {this.OutputMappingScriptFile} for Prefab : {this.PrefabId}");
-
-            this.Components.Clear();
-            this.prefabDataModel = null;       
+            try
+            {
+                IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+                var outputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.OutputMappingScriptFile);
+                outputMappingAction.Invoke(prefabDataModel);
+                logger.Information($"Executed output mapping script : {this.OutputMappingScriptFile} for Prefab : {this.PrefabId}");             
+            }
+            finally
+            {
+                this.Components.Clear();
+                this.prefabDataModel = null;
+            }   
         }
 
         #region overridden methods

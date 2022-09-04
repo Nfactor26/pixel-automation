@@ -20,10 +20,7 @@
 	<ItemGroup>
 		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
 			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
-			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>		
+		</PackageReference>	
 		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
