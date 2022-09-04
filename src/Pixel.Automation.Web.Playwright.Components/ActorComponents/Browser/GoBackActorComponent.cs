@@ -28,7 +28,7 @@ public class GoBackActorComponent : PlaywrightActorComponent
     /// <summary>
     /// Constructor
     /// </summary>
-    public GoBackActorComponent():base("GoBack", "GoBack")
+    public GoBackActorComponent():base("Go Back", "GoBack")
     {
 
     }

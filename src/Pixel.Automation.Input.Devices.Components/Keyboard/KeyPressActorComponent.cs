@@ -97,9 +97,5 @@ namespace Pixel.Automation.Input.Devices.Components
             return IsValid && base.ValidateComponent();
         }
 
-        public override string ToString()
-        {
-            return "Key Press Actor";
-        }
     }
 }

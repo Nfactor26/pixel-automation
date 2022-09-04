@@ -55,9 +55,5 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             throw new InvalidOperationException($"Control: {this.TargetControl} doesn't support cAccessibleValueInterface.");
         }
 
-        public override string ToString()
-        {
-            return "Get Value Actor";
-        }
     }
 }

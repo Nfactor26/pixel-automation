@@ -48,9 +48,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Value of control was retrieved.");
         }
 
-        public override string ToString()
-        {
-            return "Get Value Actor";
-        }
     }
 }

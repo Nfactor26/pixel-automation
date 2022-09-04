@@ -138,9 +138,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             await Task.CompletedTask;
         }
 
-        public override string ToString()
-        {
-            return "Attach Actor";
-        }
     }
 }

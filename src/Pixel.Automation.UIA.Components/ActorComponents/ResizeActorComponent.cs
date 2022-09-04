@@ -55,10 +55,6 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             control.ResizeTo(width, height);
             logger.Information($"Control was resized to ({width}, {height})");
         }
-
-        public override string ToString()
-        {
-            return "Resize Actor";
-        }
+               
     }
 }

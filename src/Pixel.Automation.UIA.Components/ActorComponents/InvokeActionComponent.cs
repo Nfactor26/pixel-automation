@@ -22,7 +22,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public InvokeActorComponent():base("Invoke","Invoke")
+        public InvokeActorComponent():base("Invoke", "Invoke")
         {
 
         }
@@ -37,9 +37,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Invoke performed on control.");
         }
 
-        public override string ToString()
-        {
-            return "Invoke Actor";
-        }
     }
 }

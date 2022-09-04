@@ -122,9 +122,5 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             //targetControl.AccessBridge.Functions.AddAccessibleSelectionFromContext(targetControl.JvmId, targetControl.AccessibleContextHandle, targetIndex);
         }
 
-        public override string ToString()
-        {
-            return "Select List Actor";
-        }
     }
 }

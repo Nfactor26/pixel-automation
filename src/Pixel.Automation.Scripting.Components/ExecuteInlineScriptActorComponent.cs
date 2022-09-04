@@ -32,7 +32,7 @@ namespace Pixel.Automation.Scripting.Components
             }
         }
 
-        public ExecuteInlineScriptActorComponent() : base("Script", "ExecuteInlineScript")
+        public ExecuteInlineScriptActorComponent() : base("Execute Inline Script", "ExecuteInlineScript")
         {           
         }
 

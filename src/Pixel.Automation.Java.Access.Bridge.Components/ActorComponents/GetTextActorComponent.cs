@@ -65,12 +65,6 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             throw new InvalidOperationException($"Control: {this.TargetControl} doesn't support cAccessibleTextInterface.");
         }
 
-
-        public override string ToString()
-        {
-            return "Get Text Actor";
-        }
-
         //private static string MakePrintable(string text)
         //{
         //    var sb = new StringBuilder();

@@ -44,9 +44,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             await this.ApplicationEntity.LaunchAsync();
         }
 
-        public override string ToString()
-        {
-            return "Launch Application Actor";
-        }        
     }
 }

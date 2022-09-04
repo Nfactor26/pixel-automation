@@ -36,9 +36,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Focus was set on control.");
         }
 
-        public override string ToString()
-        {
-            return "Set Focus Actor";
-        }
     }
 }

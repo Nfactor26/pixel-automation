@@ -22,7 +22,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ScrollToActorComponent() : base("Scroll To", "ScrollTo")
+        public ScrollToActorComponent() : base("Scroll To Element", "ScrollToElement")
         {
 
         }
@@ -38,9 +38,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Control was scrolled in to view.");
         }
 
-        public override string ToString()
-        {
-            return "Scroll To Control Actor";
-        }
     }
 }
