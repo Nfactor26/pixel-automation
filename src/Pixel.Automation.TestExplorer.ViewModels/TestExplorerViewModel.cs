@@ -202,6 +202,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 bool? result = await this.windowManager.ShowDialogAsync(testFixtureEditor);
                 if (result.HasValue && result.Value)
                 {
+                    fixtureVM.Refresh();
                     SaveTestFixture(fixtureVM, false);
                     logger.Information("Edited fixture {0}", fixtureVM.DisplayName);
                 }
@@ -524,6 +525,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);
                 if (result.HasValue && result.Value)
                 {
+                    testCaseVM.Refresh();
                     if (testCaseVM.IsOpenForEdit)
                     {
                         testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
