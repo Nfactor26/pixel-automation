@@ -49,9 +49,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information($"Control was moved to position : ({newPosition.XCoordinate}, {newPosition.YCoordinate})");
         }
 
-        public override string ToString()
-        {
-            return "Move Actor";
-        }
     }
 }

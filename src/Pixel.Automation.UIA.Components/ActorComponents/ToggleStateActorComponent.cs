@@ -21,7 +21,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ToggleStateActorComponent() : base("Toggle", "Toggle")
+        public ToggleStateActorComponent() : base("Toggle State", "ToggleState")
         {
 
         }
@@ -36,9 +36,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("State of the control was toggled.");
         }
 
-        public override string ToString()
-        {
-            return "Toggle State Actor";
-        }
     }
 }

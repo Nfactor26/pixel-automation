@@ -40,7 +40,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ScrollViewActorComponent() : base("Scroll", "Scroll")
+        public ScrollViewActorComponent() : base("Scroll View", "ScrollView")
         {
 
         }
@@ -57,11 +57,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             control.ScrollToPercent(horizontalScrollAmount, verticalScrollAmount);
             logger.Information($"Scroll set to {horizontalScrollAmount}%, {verticalScrollAmount}%");
         }
-
-        public override string ToString()
-        {
-            return "Scroll View Actor";
-        }
-
     }
 }

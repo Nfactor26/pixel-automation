@@ -60,9 +60,5 @@ namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
             throw new InvalidOperationException($"Control doesn't support cAccessibleTextInterface.");
         }
 
-        public override string ToString()
-        {
-            return "Toggle State Actor";
-        }
     }
 }

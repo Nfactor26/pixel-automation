@@ -43,9 +43,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Control was expanded.");
         }
 
-        public override string ToString()
-        {
-            return "Expand Actor";
-        }
     }
 }

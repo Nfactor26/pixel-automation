@@ -46,9 +46,5 @@ namespace Pixel.Automation.Input.Devices.Components
             await Task.CompletedTask;
         }
 
-        public override string ToString()
-        {
-            return "Type Text Actor";
-        }
     }
 }

@@ -28,7 +28,7 @@ public class GoForwardActorComponent : PlaywrightActorComponent
     /// <summary>
     /// Constructor
     /// </summary>
-    public GoForwardActorComponent():base("GoForward", "GoForward")
+    public GoForwardActorComponent():base("Go Forward", "GoForward")
     {
 
     }

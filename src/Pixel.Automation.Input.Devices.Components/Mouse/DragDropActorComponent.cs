@@ -102,7 +102,7 @@ namespace Pixel.Automation.Input.Devices.Components
         /// <summary>
         /// Default constructor
         /// </summary>
-        public DragDropActorComponent() : base("Mouse Drag", "MouseDrag")
+        public DragDropActorComponent() : base("Drag Drop", "DragDrop")
         {
             
         }
@@ -165,10 +165,5 @@ namespace Pixel.Automation.Input.Devices.Components
             return IsValid && base.ValidateComponent();
         }
 
-
-        public override string ToString()
-        {
-            return "Drag Drop Actor";
-        }
     }
 }

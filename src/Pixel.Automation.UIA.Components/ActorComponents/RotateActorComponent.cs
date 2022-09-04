@@ -32,7 +32,7 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
         /// <summary>
         /// Default constructor
         /// </summary>
-        public RotateActorComponent() : base("Rotate","Rotate")
+        public RotateActorComponent() : base("Rotate", "Rotate")
         {
 
         }
@@ -49,9 +49,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information($"Control was rotated by {rotateBy} degrees.");
         }
 
-        public override string ToString()
-        {
-            return "Rotate Actor";
-        }
     }
 }

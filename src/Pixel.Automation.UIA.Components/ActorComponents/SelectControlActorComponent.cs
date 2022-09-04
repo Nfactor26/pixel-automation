@@ -60,9 +60,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             }
         }
 
-        public override string ToString()
-        {
-            return "Select Control Actor";
-        }
     }
 }

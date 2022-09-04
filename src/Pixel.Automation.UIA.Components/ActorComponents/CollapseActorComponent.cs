@@ -42,10 +42,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Control was collapsed.");
         }
 
-        public override string ToString()
-        {
-            return "Collapse Actor";
-        }
-
     }
 }

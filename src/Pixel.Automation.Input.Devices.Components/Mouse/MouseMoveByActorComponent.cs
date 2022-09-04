@@ -37,7 +37,7 @@ namespace Pixel.Automation.Input.Devices.Components
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MouseMoveByActorComponent() : base("Move By", "MoveBy")
+        public MouseMoveByActorComponent() : base("Mouse Move By", "MouseMoveBy")
         {
         }
 
@@ -53,9 +53,5 @@ namespace Pixel.Automation.Input.Devices.Components
             await Task.CompletedTask;
         }
 
-        public override string ToString()
-        {
-            return "Mouse Move By Actor";
-        }
     }
 }

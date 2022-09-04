@@ -23,7 +23,7 @@ public class SetActivePageActorComponent : PlaywrightActorComponent
     /// <summary>
     /// Constructor
     /// </summary>
-    public SetActivePageActorComponent() : base("SetActivePage", "SetActivePage")
+    public SetActivePageActorComponent() : base("Set Active Page", "SetActivePage")
     {
 
     }

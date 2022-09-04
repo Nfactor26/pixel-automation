@@ -15,7 +15,7 @@ namespace Pixel.Automation.Scripting.Components
     [Serializable]
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
-    [ToolBoxItem("Execute [Editor]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
+    [ToolBoxItem("Execute [File]", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
     public class ExecuteScriptActorComponent : ActorComponent
     {
         protected string scriptFile;
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Scripting.Components
             }
         }
 
-        public ExecuteScriptActorComponent() : base("Script", "ExecuteScript")
+        public ExecuteScriptActorComponent() : base("Execute Script", "ExecuteScript")
         {
 
         }

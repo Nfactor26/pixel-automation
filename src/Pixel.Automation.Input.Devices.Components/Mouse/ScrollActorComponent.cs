@@ -68,9 +68,5 @@ namespace Pixel.Automation.Input.Devices.Components
             await Task.CompletedTask;
         }
 
-        public override string ToString()
-        {
-            return "Scroll Actor";
-        }
     }
 }

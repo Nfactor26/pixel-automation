@@ -46,11 +46,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             await applicationEntity.CloseAsync();
         }
 
-        public override string ToString()
-        {
-            return "Close Application Actor";
-        }
-
-       
     }
 }

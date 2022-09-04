@@ -48,9 +48,5 @@ namespace Pixel.Automation.UIA.Components.ActorComponents
             logger.Information("Value was set on control.");
         }
 
-        public override string ToString()
-        {
-            return "Set Value Actor";
-        }
     }
 }
