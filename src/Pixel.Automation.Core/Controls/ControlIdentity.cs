@@ -23,11 +23,20 @@ namespace Pixel.Automation.Core.Controls
         [Browsable(false)]
         public string ApplicationId { get; set; }
 
+        private string name;
         /// <summary>
         /// Name of the control
         /// </summary>
         [DataMember(Order = 20)]
-        public string Name { get; set; }     
+        public string Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                OnPropertyChanged();
+            }
+        }
 
         #endregion General
 
