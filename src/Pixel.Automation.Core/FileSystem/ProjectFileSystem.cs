@@ -8,37 +8,54 @@ using System.IO;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Implementation of <see cref="IProjectFileSystem"/>
+    /// </summary>
     public class ProjectFileSystem : VersionedFileSystem, IProjectFileSystem
-    {       
+    {
+        /// <InheritDoc/>      
         public string ProjectId { get; private set; }
 
+        /// <InheritDoc/>      
         public string ProjectFile { get; private set; }
-        
+
+        /// <InheritDoc/>      
         public string ProcessFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string PrefabReferencesFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string TestCaseRepository { get; protected set; }
 
+        /// <InheritDoc/>      
         public string TestDataRepository { get; protected set; }
         
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="applicationSettings"></param>
         public ProjectFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) 
             : base(serializer, applicationSettings)
         {
          
         }
 
+        /// <InheritDoc/>      
         public void Initialize(AutomationProject automationProject, VersionInfo versionInfo)
         {
             Guard.Argument(automationProject).NotNull();           
             this.Initialize(automationProject.ProjectId, versionInfo);
         }
 
+        /// <InheritDoc/>      
         public override void SwitchToVersion(VersionInfo versionInfo)
         {
             Initialize(this.ProjectId, versionInfo);
         }
 
+        /// <InheritDoc/>      
         void Initialize(string projectId, VersionInfo versionInfo)
         {
             this.ProjectId  = Guard.Argument(projectId).NotNull().NotEmpty();
@@ -64,18 +81,17 @@ namespace Pixel.Automation.Core
 
             this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
 
-        }        
+        }
 
+        /// <InheritDoc/>      
         public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId)
         {
-            var fileSystem = new TestCaseFileSystem(this.serializer, this.applicationSettings)
-            {
-                ReferenceManager = this.ReferenceManager
-            };
+            var fileSystem = new TestCaseFileSystem();           
             fileSystem.Initialize(this.WorkingDirectory, testFixtureId);
             return fileSystem;
         }
 
+        /// <InheritDoc/>      
         public IEnumerable<TestDataSource> GetTestDataSources()
         {
             string repositoryFolder = this.TestDataRepository;

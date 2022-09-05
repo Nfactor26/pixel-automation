@@ -3,21 +3,35 @@ using System.IO;
 
 namespace Pixel.Automation.Core
 {
-    public class TestCaseFileSystem : FileSystem, ITestCaseFileSystem
+    /// <summary>
+    /// Implementation of <see cref="ITestCaseFileSystem"/>
+    /// </summary>
+    public class TestCaseFileSystem : ITestCaseFileSystem
     {
+        /// <InheritDoc/>       
+        public string WorkingDirectory { get; private set; }
+
+        /// <InheritDoc/>      
         public string FixtureDirectory { get; private set; }
 
+        /// <InheritDoc/>      
         public string FixtureFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string FixtureProcessFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string FixtureScript { get; private set; }
 
-        public TestCaseFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public TestCaseFileSystem()
         {
 
         }
 
+        /// <InheritDoc/>      
         public void Initialize(string projectWorkingDirectory, string testFixtureId)
         {
             this.WorkingDirectory = projectWorkingDirectory;
@@ -25,30 +39,32 @@ namespace Pixel.Automation.Core
             this.FixtureFile = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.fixture");
             this.FixtureProcessFile = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.proc");
             this.FixtureScript = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.csx");
-            this.ScriptsDirectory = this.FixtureDirectory;
-            
+                      
             if (!Directory.Exists(FixtureDirectory))
             {
                 Directory.CreateDirectory(FixtureDirectory);
             }           
         }
 
+        /// <InheritDoc/>      
         public string GetTestCaseFile(string testCaseId)
         {
             return Path.Combine(FixtureDirectory, $"{testCaseId}.test");
         }
 
+        /// <InheritDoc/>      
         public string GetTestProcessFile(string testCaseId)
         {
             return Path.Combine(FixtureDirectory, $"{testCaseId}.proc"); ;
         }
 
+        /// <InheritDoc/>      
         public string GetTestScriptFile(string testCaseId)
         {
             return Path.Combine(FixtureDirectory, $"{testCaseId}.csx"); ;
         }
 
-      
+        /// <InheritDoc/>      
         public void DeleteTestCase(string testCaseId)
         {
             File.Delete(GetTestCaseFile(testCaseId));

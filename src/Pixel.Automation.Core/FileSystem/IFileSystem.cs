@@ -237,8 +237,17 @@ namespace Pixel.Automation.Core.Interfaces
 
     }
 
-    public interface ITestCaseFileSystem : IFileSystem
+    /// <summary>
+    /// <see cref="ITestCaseFileSystem"/> is a simplified file system which only knows about the structure of the test fixtures and test cases and related assets.
+    /// However, it doesn't provide any methods to actually interact with the file system like <see cref="IFileSystem"/>
+    /// </summary>
+    public interface ITestCaseFileSystem
     {
+        /// <summary>
+        /// Working directory for the test case file system
+        /// </summary>
+        string WorkingDirectory { get; }
+
         /// <summary>
         /// Path of test fixture directory which contains test fixture file along with  test case file  test process file and test scripts for all tests belonging to it
         /// </summary>

@@ -6,8 +6,10 @@ using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Notfications;
+using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -18,9 +20,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using Pixel.Automation.Editor.Core.Helpers;
-using Pixel.Automation.Editor.Core;
-using Pixel.Scripting.Editor.Core;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -274,7 +273,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                         IScriptEditorFactory editorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
                         editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(EmptyModel));
-                        string fixtureScriptContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
+                        string fixtureScriptContent = this.fileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
                         editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.Id, fixtureScriptContent);
                     }                    
                    
@@ -438,11 +437,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testFixtureVM.Id);
                 if (string.IsNullOrEmpty(testFixtureVM.ScriptFile))
                 {
-                    testFixtureVM.ScriptFile = testCaseFileSystem.GetRelativePath(testCaseFileSystem.FixtureScript);
-                    testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testFixtureVM.ScriptFile), string.Empty);
+                    testFixtureVM.ScriptFile = this.fileSystem.GetRelativePath(testCaseFileSystem.FixtureScript);
+                    this.fileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testFixtureVM.ScriptFile), string.Empty);
                 }
 
-                testCaseFileSystem.SaveToFile<TestFixture>(testFixtureVM.TestFixture, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureFile));
+                this.fileSystem.SaveToFile<TestFixture>(testFixtureVM.TestFixture, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureFile));
               
                 if (saveFixtureEntity)
                 {
@@ -453,7 +452,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         testEntity.Parent.RemoveComponent(testEntity);
                     }
 
-                    testCaseFileSystem.SaveToFile<Entity>(testFixtureVM.TestFixtureEntity, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureProcessFile));
+                    this.fileSystem.SaveToFile<Entity>(testFixtureVM.TestFixtureEntity, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureProcessFile));
 
                     //Add back the test cases that were removed earlier
                     foreach (var testEntity in testCaseEntities)
@@ -631,7 +630,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
                         //Add the test script project and script file to script editor
                         editorFactory.AddProject(testCaseVM.Id, new string[] { parentFixture.Id }, testEntityManager.Arguments.GetType());
-                        string scriptFileContent = testCaseFileSystem.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
+                        string scriptFileContent = this.fileSystem.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
                         editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.Id, scriptFileContent);
                     }                   
                 }
@@ -806,8 +805,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 if (string.IsNullOrEmpty(testCaseVM.ScriptFile))
                 {
-                    testCaseVM.ScriptFile = testCaseFileSystem.GetRelativePath(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
-                    testCaseFileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseVM.ScriptFile), string.Empty);
+                    testCaseVM.ScriptFile = this.fileSystem.GetRelativePath(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
+                    this.fileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseVM.ScriptFile), string.Empty);
                 }
 
                 //e.g. while assigning test data source , test case is not open for edit and hence will have
@@ -825,10 +824,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     }
                 }
 
-                testCaseFileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.FixtureDirectory);
+                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.FixtureDirectory);
                 if (saveTestEntity)
                 {
-                    testCaseFileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, testCaseFileSystem.FixtureDirectory, testCaseFileSystem.GetTestProcessFile(testCaseVM.Id));
+                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, testCaseFileSystem.FixtureDirectory, testCaseFileSystem.GetTestProcessFile(testCaseVM.Id));
                 }
                 logger.Information("Changes to TestCase {0} were saved to local storage.", testCaseVM.DisplayName);
             }

@@ -9,33 +9,48 @@ using System.IO;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Implementation of <see cref="IFileSystem"/>
+    /// </summary>
     public abstract class FileSystem : IFileSystem
     {
         protected readonly ISerializer serializer;
 
-        protected readonly ApplicationSettings applicationSettings;   
+        protected readonly ApplicationSettings applicationSettings;
 
+        /// <InheritDoc/>
         public string WorkingDirectory { get; protected set; }
 
+        /// <InheritDoc/>      
         public string ScriptsDirectory { get; protected set; }
 
+        /// <InheritDoc/>
         public string TempDirectory { get; protected set; }
 
+        /// <InheritDoc/>
         public string DataModelDirectory { get; protected set; }
 
+        /// <InheritDoc/>  
         public string ReferencesDirectory { get; protected set; }
 
+        /// <InheritDoc/>
         public string ControlReferencesFile { get; protected set; }
 
+        /// <InheritDoc/> 
         public AssemblyReferenceManager ReferenceManager { get; internal protected set; }
 
-
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="applicationSettings"></param>
         public FileSystem(ISerializer serializer, ApplicationSettings applicationSettings)
         {
             this.serializer = Guard.Argument(serializer).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
         }
 
+        /// <InheritDoc/>
         protected void Initialize()
         {
             if(String.IsNullOrEmpty(this.WorkingDirectory))
@@ -73,13 +88,15 @@ namespace Pixel.Automation.Core
             {
                 Directory.CreateDirectory(ReferencesDirectory);
             }
-        }               
+        }
 
+        /// <InheritDoc/>
         public T LoadFile<T>(string fileName) where T: new()
         {
             return this.serializer.Deserialize<T>(fileName);
         }
 
+        /// <InheritDoc/>
         public IEnumerable<T> LoadFiles<T>(string directory) where T : new()
         {
             var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;
@@ -94,6 +111,7 @@ namespace Pixel.Automation.Core
             yield break;
         }
 
+        /// <InheritDoc/>
         public void SaveToFile<T>(T model, string directory) where T : new()
         {
             var fileDescription = TypeDescriptor.GetAttributes(typeof(T))[typeof(FileDescriptionAttribute)] as FileDescriptionAttribute;
@@ -108,6 +126,7 @@ namespace Pixel.Automation.Core
             }
         }
 
+        /// <InheritDoc/>
         public void SaveToFile<T>(T model, string directory, string fileName) where T : new()
         {
             if (!Directory.Exists(directory))
@@ -122,6 +141,7 @@ namespace Pixel.Automation.Core
             this.serializer.Serialize<T>(targetFile, model);           
         }
 
+        /// <InheritDoc/>
         public void CreateOrReplaceFile(string directory, string fileName, string content)
         {
             var targetFile = Path.Combine(directory, fileName);
@@ -135,28 +155,41 @@ namespace Pixel.Automation.Core
             }
         }
 
+        /// <InheritDoc/>
         public bool Exists(string path)
         {
             return File.Exists(path);
         }
 
+        /// <InheritDoc/>
         public string ReadAllText(string path)
         {
             return File.ReadAllText(path);
         }
 
+        /// <InheritDoc/>
         public string GetRelativePath(string path)
         {
             return Path.GetRelativePath(this.WorkingDirectory, path);
         }
     }
 
+    /// <summary>
+    /// Implementation of <see cref="IVersionedFileSystem"/>
+    /// </summary>
     public abstract class VersionedFileSystem : FileSystem, IVersionedFileSystem
     {
+        /// <InheritDoc/>
         public VersionInfo ActiveVersion { get; protected set; }
 
+        /// <InheritDoc/>
         public abstract void SwitchToVersion(VersionInfo versionInfo);
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="applicationSettings"></param>
         public VersionedFileSystem(ISerializer  serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
            
