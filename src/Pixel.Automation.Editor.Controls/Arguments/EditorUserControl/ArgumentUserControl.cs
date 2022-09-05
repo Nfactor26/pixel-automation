@@ -183,8 +183,8 @@ namespace Pixel.Automation.Editor.Controls.Arguments
                 {
                     if (!string.IsNullOrEmpty(this.Argument.ScriptFile))
                     {
-                        string processDirectory = this.OwnerComponent.EntityManager.GetCurrentFileSystem().WorkingDirectory;
-                        string fileToDelete = Path.Combine(processDirectory, "Scripts", this.Argument.ScriptFile);
+                        string scriptsDirectory = this.OwnerComponent.EntityManager.GetCurrentFileSystem().ScriptsDirectory;
+                        string fileToDelete = Path.Combine(scriptsDirectory, this.Argument.ScriptFile);
                         if (File.Exists(fileToDelete))
                         {
                             File.Delete(fileToDelete);

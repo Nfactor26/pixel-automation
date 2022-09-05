@@ -33,8 +33,8 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, "Prefabs", prefabId, "1.0.0.0"));
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, "Prefabs", prefabId, "2.0.0.0"));
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, "1.0.0.0"));
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, "2.0.0.0"));
         }
 
         [Test]

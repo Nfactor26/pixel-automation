@@ -23,7 +23,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, "TestCases"));          
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory));          
         }
 
 
@@ -33,13 +33,13 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             testCaseFileSystem.Initialize(Environment.CurrentDirectory, testFixtureId);
 
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId), testCaseFileSystem.FixtureDirectory);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, $"{testFixtureId}.fixture"), testCaseFileSystem.FixtureFile);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, $"{testFixtureId}.proc"), testCaseFileSystem.FixtureProcessFile);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, $"{testFixtureId}.csx"), testCaseFileSystem.FixtureScript);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, "1.test"), testCaseFileSystem.GetTestCaseFile("1"));
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, "1.proc"), testCaseFileSystem.GetTestProcessFile("1"));
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "TestCases", testFixtureId, "1.csx"), testCaseFileSystem.GetTestScriptFile("1"));
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId), testCaseFileSystem.FixtureDirectory);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, $"{testFixtureId}.fixture"), testCaseFileSystem.FixtureFile);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, $"{testFixtureId}.proc"), testCaseFileSystem.FixtureProcessFile);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, $"{testFixtureId}.csx"), testCaseFileSystem.FixtureScript);
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, "1.test"), testCaseFileSystem.GetTestCaseFile("1"));
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, "1.proc"), testCaseFileSystem.GetTestProcessFile("1"));
+            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, Constants.TestCasesDirectory, testFixtureId, "1.csx"), testCaseFileSystem.GetTestScriptFile("1"));
             Assert.IsTrue(Directory.Exists(testCaseFileSystem.FixtureDirectory));
         }
 

@@ -47,9 +47,9 @@ namespace Pixel.Automation.Core
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());       
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
             this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);
-            this.PrefabReferencesFile = Path.Combine(this.WorkingDirectory, "PrefabReferences.ref");
-            this.TestCaseRepository = Path.Combine(this.WorkingDirectory, "TestCases");
-            this.TestDataRepository = Path.Combine(this.WorkingDirectory, "TestDataRepository");
+            this.PrefabReferencesFile = Path.Combine(this.WorkingDirectory, Constants.PrefabRefrencesFileName);
+            this.TestCaseRepository = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory);
+            this.TestDataRepository = Path.Combine(this.WorkingDirectory, Constants.TestDataDirectory);
 
             if (!Directory.Exists(TestCaseRepository))
             {

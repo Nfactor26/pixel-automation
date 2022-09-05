@@ -72,10 +72,10 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             Assert.AreEqual(versionInfo.ToString(), fileSystem.ActiveVersion.ToString());
             Assert.AreEqual(workingdirectory, fileSystem.WorkingDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "Scripts"), fileSystem.ScriptsDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "Temp"), fileSystem.TempDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "DataModel"), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);           
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ScriptsDirectory), fileSystem.ScriptsDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.TemporaryDirectory), fileSystem.TempDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.DataModelDirectory), fileSystem.DataModelDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ReferencesDirectory), fileSystem.ReferencesDirectory);           
             Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));
@@ -95,10 +95,10 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             Assert.AreEqual(versionInfo.ToString(), fileSystem.ActiveVersion.ToString());
             Assert.AreEqual(workingdirectory, fileSystem.WorkingDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "Scripts"), fileSystem.ScriptsDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "Temp"), fileSystem.TempDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "DataModel"), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, "References"), fileSystem.ReferencesDirectory);          
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ScriptsDirectory), fileSystem.ScriptsDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.TemporaryDirectory), fileSystem.TempDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.DataModelDirectory), fileSystem.DataModelDirectory);
+            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ReferencesDirectory), fileSystem.ReferencesDirectory);          
             Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
             Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));

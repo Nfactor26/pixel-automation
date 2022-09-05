@@ -271,7 +271,8 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
-                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
+                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(projectFileSystem);
                 var result = await this.windowManager.ShowDialogAsync(versionManager);
                 //if (result.HasValue && result.Value)
                 //{
