@@ -43,11 +43,11 @@ namespace Pixel.Automation.Core
                 throw new InvalidOperationException("WorkingDirectory is not initialized");
             }
 
-            this.ScriptsDirectory = Path.Combine(this.WorkingDirectory, "Scripts");
-            this.TempDirectory = Path.Combine(this.WorkingDirectory, "Temp");
-            this.DataModelDirectory = Path.Combine(this.WorkingDirectory, "DataModel");
-            this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, "References");
-            this.ControlReferencesFile = Path.Combine(this.WorkingDirectory, "ControlReferences.ref");
+            this.ScriptsDirectory = Path.Combine(this.WorkingDirectory, Constants.ScriptsDirectory);
+            this.TempDirectory = Path.Combine(this.WorkingDirectory, Constants.TemporaryDirectory);
+            this.DataModelDirectory = Path.Combine(this.WorkingDirectory, Constants.DataModelDirectory);
+            this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, Constants.ReferencesDirectory);
+            this.ControlReferencesFile = Path.Combine(this.WorkingDirectory, Constants.ControlRefrencesFileName);
 
             if (!Directory.Exists(WorkingDirectory))
             {

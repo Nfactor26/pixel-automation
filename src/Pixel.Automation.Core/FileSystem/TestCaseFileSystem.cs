@@ -9,7 +9,6 @@ namespace Pixel.Automation.Core
 
         public string FixtureFile { get; private set; }
 
-
         public string FixtureProcessFile { get; private set; }
 
         public string FixtureScript { get; private set; }
@@ -22,7 +21,7 @@ namespace Pixel.Automation.Core
         public void Initialize(string projectWorkingDirectory, string testFixtureId)
         {
             this.WorkingDirectory = projectWorkingDirectory;
-            this.FixtureDirectory = Path.Combine(this.WorkingDirectory, "TestCases", testFixtureId);
+            this.FixtureDirectory = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory, testFixtureId);
             this.FixtureFile = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.fixture");
             this.FixtureProcessFile = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.proc");
             this.FixtureScript = Path.Combine(this.FixtureDirectory, $"{testFixtureId}.csx");

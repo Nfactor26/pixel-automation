@@ -40,11 +40,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, versionInfo.ToString());
            
-            Assert.AreEqual(Path.Combine(workingDirectory, "TestCases"), projectFileSystem.TestCaseRepository);
-            Assert.AreEqual(Path.Combine(workingDirectory, "TestDataRepository"), projectFileSystem.TestDataRepository);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestCasesDirectory), projectFileSystem.TestCaseRepository);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestDataDirectory), projectFileSystem.TestDataRepository);
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
             Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "PrefabReferences.ref"), projectFileSystem.PrefabReferencesFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabRefrencesFileName), projectFileSystem.PrefabReferencesFile);
 
             Assert.IsTrue(Directory.Exists(workingDirectory));
             Assert.IsTrue(Directory.Exists(projectFileSystem.TestCaseRepository));
@@ -63,11 +63,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             projectFileSystem.SwitchToVersion(versionInfo);
           
-            Assert.AreEqual(Path.Combine(workingDirectory, "TestCases"), projectFileSystem.TestCaseRepository);
-            Assert.AreEqual(Path.Combine(workingDirectory, "TestDataRepository"), projectFileSystem.TestDataRepository);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestCasesDirectory), projectFileSystem.TestCaseRepository);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestDataDirectory), projectFileSystem.TestDataRepository);
             Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
             Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, "PrefabReferences.ref"), projectFileSystem.PrefabReferencesFile);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabRefrencesFileName), projectFileSystem.PrefabReferencesFile);
 
             Assert.IsTrue(Directory.Exists(workingDirectory));
             Assert.IsTrue(Directory.Exists(projectFileSystem.TestCaseRepository));
@@ -87,7 +87,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             string fixtureId = "Fixture - Id";
             var testCaseFileSystem = projectFileSystem.CreateTestCaseFileSystemFor(fixtureId);
             Assert.IsNotNull(testCaseFileSystem);
-            Assert.AreEqual(Path.Combine(workingDirectory, "TestCases", fixtureId), testCaseFileSystem.FixtureDirectory);
+            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestCasesDirectory, fixtureId), testCaseFileSystem.FixtureDirectory);
         }
     }
 }

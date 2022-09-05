@@ -121,7 +121,7 @@ namespace Pixel.Automation.Core.Extensions
 
             foreach(var assembly in withRequiredRefrences.Distinct())
             {
-                if (assembly.Location.StartsWith(Environment.CurrentDirectory) && !assembly.Location.Contains("Temp"))
+                if (assembly.Location.StartsWith(Environment.CurrentDirectory) && !assembly.Location.Contains(Constants.TemporaryDirectory))
                 {
                     distinctReferences.Add(Path.GetFileName(assembly.Location));
                 }
@@ -131,7 +131,7 @@ namespace Pixel.Automation.Core.Extensions
             {
                 string containedInDll = type.Assembly.Location;
                 //include those in application directory but not in Temp folder i.e. dynamically compiled dll's by project.
-                if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp"))
+                if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains(Constants.TemporaryDirectory))
                 {
                     distinctReferences.Add(Path.GetFileName(containedInDll));
                 }
@@ -144,7 +144,7 @@ namespace Pixel.Automation.Core.Extensions
                     if (!withRequiredRefrences.Contains(typeArgument.Assembly))
                     {
                         string containedInDll = typeArgument.Assembly.Location;
-                        if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains("Temp") && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
+                        if (containedInDll.StartsWith(Environment.CurrentDirectory) && !containedInDll.Contains(Constants.TemporaryDirectory) && !distinctReferences.Contains(Path.GetFileName(containedInDll)))
                         {
                             distinctReferences.Add(Path.GetFileName(containedInDll));
                         }

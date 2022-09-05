@@ -14,17 +14,16 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
     public class PrefabReferenceManagerViewModel : Screen, IVersionManager
     {
-        private readonly IFileSystem projectFileSystem;
+        private readonly IProjectFileSystem projectFileSystem;
         public readonly PrefabReferences prefabReferences;
 
         public ObservableCollection<PrefabReferenceViewModel> PrefabReferences { get; private set; } = new();
 
-        public PrefabReferenceManagerViewModel(IFileSystem projectFileSystem, IApplicationDataManager applicationDataManager)
+        public PrefabReferenceManagerViewModel(IProjectFileSystem projectFileSystem, IApplicationDataManager applicationDataManager)
         {
             this.DisplayName = "Manage Prefab References";
             this.projectFileSystem = Guard.Argument(projectFileSystem).NotNull().Value;
-            this.prefabReferences = this.projectFileSystem.LoadFile<PrefabReferences>(Path.Combine(projectFileSystem.WorkingDirectory,
-                "PrefabReferences.ref"));
+            this.prefabReferences = this.projectFileSystem.LoadFile<PrefabReferences>(projectFileSystem.PrefabReferencesFile);
 
             var applications = this.prefabReferences.References.Select(r => r.ApplicationId).Distinct();
             foreach (var application in applications)
@@ -42,7 +41,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         public async void SaveAsync()
         {        
-            this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, projectFileSystem.WorkingDirectory, "PrefabReferences.ref");
+            this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, Path.GetDirectoryName(projectFileSystem.PrefabReferencesFile), Path.GetFileName(projectFileSystem.PrefabReferencesFile));
             await this.TryCloseAsync(true);
         }
 

@@ -6,7 +6,7 @@ namespace Pixel.Automation.Core
     public class ApplicationSettings : NotifyPropertyChanged
     {
         /// <summary>
-        /// Path relative to working directory where application configuration (including controls and prefabs) are stored locally
+        /// Path relative to working directory where application data (including controls and prefabs) are stored locally
         /// </summary>
         [DataMember]
         public string ApplicationDirectory { get; set; }
