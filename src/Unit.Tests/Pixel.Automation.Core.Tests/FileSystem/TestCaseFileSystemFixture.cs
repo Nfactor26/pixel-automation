@@ -17,7 +17,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             var serializer = Substitute.For<ISerializer>();
             appSettings = new ApplicationSettings() { IsOfflineMode = true, ApplicationDirectory = "Applications", AutomationDirectory = "Automations" };
-            testCaseFileSystem = new TestCaseFileSystem(serializer, appSettings);
+            testCaseFileSystem = new TestCaseFileSystem();
         }
 
         [OneTimeTearDown]

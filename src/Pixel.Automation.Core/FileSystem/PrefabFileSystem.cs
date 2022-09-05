@@ -9,33 +9,47 @@ using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Core
 {
+    /// <summary>
+    /// Implementation of <see cref="IPrefabFileSystem"/>
+    /// </summary>
     public class PrefabFileSystem : VersionedFileSystem, IPrefabFileSystem
     {
         private string applicationId;
         private string prefabId;
 
+        /// <InheritDoc/>      
         public string PrefabDescriptionFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string PrefabFile { get; private set; }
 
+        /// <InheritDoc/>      
         public string TemplateFile { get; private set; }
     
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="applicationSettings"></param>
         public PrefabFileSystem(ISerializer serializer, ApplicationSettings applicationSettings) : base(serializer, applicationSettings)
         {
 
         }
 
+        /// <InheritDoc/>      
         public void Initialize(PrefabProject prefabProject, VersionInfo versionInfo)
         {
             Guard.Argument(prefabProject).NotNull();
             this.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, versionInfo);
         }
 
+        /// <InheritDoc/>      
         public override void SwitchToVersion(VersionInfo version)
         {
             Initialize(this.applicationId, this.prefabId, version);
         }
 
+        /// <InheritDoc/>      
         void Initialize(string applicationId, string prefabId, VersionInfo versionInfo)
         {          
             this.applicationId = Guard.Argument(applicationId).NotNull().NotEmpty();
@@ -51,8 +65,9 @@ namespace Pixel.Automation.Core
 
             this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
 
-        }     
+        }
 
+        /// <InheritDoc/>      
         public Entity GetPrefabEntity()
         {
             if (!File.Exists(this.PrefabFile))
@@ -61,8 +76,9 @@ namespace Pixel.Automation.Core
             }
             Entity prefabRoot = this.serializer.Deserialize<Entity>(PrefabFile);
             return prefabRoot;
-        }    
+        }
 
+        /// <InheritDoc/>      
         public Entity GetPrefabEntity(Assembly withDataModelAssembly)
         {
             if (!File.Exists(this.PrefabFile))
@@ -81,6 +97,7 @@ namespace Pixel.Automation.Core
             return prefabRoot;
         }
 
+        /// <InheritDoc/>      
         public Assembly GetDataModelAssembly()
         {
             var assemblyFiles = Directory.GetFiles(this.TempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(this.TempDirectory,f)));
@@ -88,11 +105,13 @@ namespace Pixel.Automation.Core
             return Assembly.LoadFrom(targetFile.FullName);          
         }
 
+        /// <InheritDoc/>      
         public bool HasDataModelAssemblyChanged()
         {
             return true;
         }
 
+        /// <InheritDoc/>      
         public void CreateOrReplaceTemplate(Entity templateRoot)
         {
             if(File.Exists(this.TemplateFile))
@@ -102,6 +121,7 @@ namespace Pixel.Automation.Core
             this.serializer.Serialize<Entity>(this.TemplateFile, templateRoot);
         }
 
+        /// <InheritDoc/>      
         public Entity GetTemplate()
         {
             if(File.Exists(this.TemplateFile))
