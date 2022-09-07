@@ -183,7 +183,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             {
                 Id = testDataId,
                 Name = "EmptyDataSource",
-                ScriptFile = $"TestDataRepository\\{testDataId}.csx",
+                ScriptFile = $"{this.projectFileSystem.TestDataRepository}\\{testDataId}.csx",
                 DataSource = DataSource.Code,
                 MetaData = new DataSourceConfiguration()
                 {
