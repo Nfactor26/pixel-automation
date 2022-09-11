@@ -7,12 +7,10 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
-    public class ProjectVersionManagerViewModel: Screen, IVersionManager
+    public class ProjectVersionManagerViewModel: Caliburn.Micro.Screen, IVersionManager
     {
         private readonly ILogger logger = Log.ForContext<ProjectVersionManagerViewModel>();
 

@@ -9,12 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.210" />
+    <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
     <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj" />
     <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
   </ItemGroup>
 

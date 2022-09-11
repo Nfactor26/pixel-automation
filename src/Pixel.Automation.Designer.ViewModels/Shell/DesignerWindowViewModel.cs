@@ -1,17 +1,14 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Microsoft.Win32;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using Screen = Caliburn.Micro.Screen;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -94,7 +91,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private string ShowOpenFileDialog()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
             openFileDialog.InitialDirectory = Environment.CurrentDirectory;
             if (openFileDialog.ShowDialog() == true)

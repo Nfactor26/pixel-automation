@@ -3,7 +3,7 @@ using Dawn;
 using Microsoft.Playwright;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Notifications;
 using Pixel.Automation.Web.Common;
 using Serilog;
 using System;

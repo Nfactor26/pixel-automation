@@ -5,10 +5,8 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Pixel.Automation.Designer.ViewModels.Shell
 {

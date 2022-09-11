@@ -1,9 +1,7 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
 using Microsoft.Web.WebView2.Wpf;
 using Pixel.Automation.Core.Interfaces;
-using System.Threading;
-using System.Threading.Tasks;
+using Screen = Caliburn.Micro.Screen;
 
 namespace Pixel.Automation.Designer.ViewModels.Shell
 {

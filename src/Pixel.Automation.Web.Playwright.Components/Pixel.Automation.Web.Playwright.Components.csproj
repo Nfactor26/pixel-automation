@@ -1,19 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>	
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
-	<ItemGroup>		
+	<ItemGroup>
 		<Using Include="Pixel.Automation.Web.Common" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="Dawn.Guard" Version="1.12.0">
 			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>	
+		</PackageReference>
 		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
@@ -21,15 +23,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
-			<Private>false</Private>
-		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
+			<Private>false</Private>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj">
 			<Private>false</Private>
 		</ProjectReference>
 	</ItemGroup>
-	
+
 </Project>

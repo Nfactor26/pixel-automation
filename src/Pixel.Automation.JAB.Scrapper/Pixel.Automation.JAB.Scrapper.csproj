@@ -1,27 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Caliburn.Micro" Version="4.0.210" >
+		<PackageReference Include="Caliburn.Micro" Version="4.0.212">
 				<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="MouseKeyHook" Version="5.6.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj">
 			<Private>false</Private>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>
 

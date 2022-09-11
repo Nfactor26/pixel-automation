@@ -4,15 +4,10 @@ using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.DragDropHandler;
 using Pixel.Automation.Core;
-using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Notfications;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab

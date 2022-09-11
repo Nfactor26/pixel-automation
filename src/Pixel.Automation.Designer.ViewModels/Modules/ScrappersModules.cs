@@ -1,21 +1,30 @@
-﻿using Caliburn.Micro;
-using Ninject.Extensions.Conventions;
+﻿using Ninject.Extensions.Conventions;
 using Ninject.Modules;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editor.Image.Capture;
+using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
     public class ScrappersModules : NinjectModule
     {
+        private ICollection<Assembly> assemblies = new List<Assembly>();
+
+        public ScrappersModules(IEnumerable<Assembly> assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                this.assemblies.Add(assembly);
+            }
+        }
+
         public override void Load()
         {
-            Kernel.Bind<IImageCaptureViewModel>().To<ImageCaptureViewModel>();
-
-            Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
-            .Contains("Scrapper")).SelectAllClasses().InheritedFrom<IControlScrapper>()
-            .BindAllInterfaces().Configure(s => s.InSingletonScope()));
+            foreach (var assembly in this.assemblies)
+            {
+                Kernel.Bind(x => x.From(assembly).SelectAllClasses().InheritedFrom<IControlScrapper>()
+                        .BindAllInterfaces().Configure(s => s.InSingletonScope()));
+            }
+            this.assemblies.Clear();           
         }
     }
 }

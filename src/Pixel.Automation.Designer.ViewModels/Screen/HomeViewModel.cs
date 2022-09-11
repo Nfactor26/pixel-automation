@@ -1,20 +1,13 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Microsoft.Win32;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Notfications;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -110,7 +103,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 await automationEditor.DoLoad(automationProject);   
                 if(this.Parent is IConductor conductor)
                 {
-                    await conductor.ActivateItemAsync(automationEditor as Screen);
+                    await conductor.ActivateItemAsync(automationEditor as Caliburn.Micro.Screen);
                     this.openProjects.Add(automationProject);
                     logger.Information($"Project : {automationProject.Name} is open now.");
                     return;
@@ -127,7 +120,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private string ShowOpenFileDialog()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog();
             openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
             openFileDialog.InitialDirectory = this.fileSystem.GetAutomationsDirectory();
             if (openFileDialog.ShowDialog() == true)

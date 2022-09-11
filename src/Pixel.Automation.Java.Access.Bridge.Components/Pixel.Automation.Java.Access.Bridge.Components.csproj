@@ -1,21 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Serilog" Version="2.11.0" >
+		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 			<Private>false</Private>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>
 

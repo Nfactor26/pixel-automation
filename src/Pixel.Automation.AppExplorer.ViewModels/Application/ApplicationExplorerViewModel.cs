@@ -6,11 +6,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 

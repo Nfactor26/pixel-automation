@@ -1,22 +1,19 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -369,7 +366,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
+                var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(SearchScope.Descendants);
                 var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
                 foreach (var control in controlsToBeReloaded)
                 {                 
@@ -388,7 +385,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                var applicationEntities = this.EntityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(Core.Enums.SearchScope.Descendants);
+                var applicationEntities = this.EntityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants);
                 var applicationsToReload = applicationEntities.Where(a => a.ApplicationId.Equals(updatedApplication.ApplicationId));
                 foreach (var application in applicationsToReload)
                 {

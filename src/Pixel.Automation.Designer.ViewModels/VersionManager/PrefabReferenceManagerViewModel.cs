@@ -1,18 +1,15 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
 
-    public class PrefabReferenceManagerViewModel : Screen, IVersionManager
+    public class PrefabReferenceManagerViewModel : Caliburn.Micro.Screen, IVersionManager
     {
         private readonly IProjectFileSystem projectFileSystem;
         public readonly PrefabReferences prefabReferences;

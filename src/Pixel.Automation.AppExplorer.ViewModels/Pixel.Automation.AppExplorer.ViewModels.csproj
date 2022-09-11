@@ -1,29 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon />
-    <StartupObject />
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.210" />
-    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
-    <PackageReference Include="Serilog" Version="2.11.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
+		<PackageReference Include="Dawn.Guard" Version="1.12.0" />
+		<PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
+		<PackageReference Include="Serilog" Version="2.11.0" />
+	</ItemGroup>
 
-  <ItemGroup>   
-    <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
-    <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj" />
+		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
+		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
+	</ItemGroup>
 
+	<ItemGroup>
+		<Using Include="Pixel.Automation.Editor.Notifications" />
+	</ItemGroup>
+	
 </Project>

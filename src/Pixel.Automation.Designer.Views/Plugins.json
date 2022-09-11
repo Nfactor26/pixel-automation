@@ -1,0 +1,106 @@
+﻿[
+  {
+    "Name": "Pixel.Automation.Assertions.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Image.Matching.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Input.Devices.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Java.Access.Bridge.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Native.Windows",
+    "Type": 0,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Scripting.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.UIA.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Web.Playwright.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Web.Selenium.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Window.Management.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Image.Scrapper",
+    "Type": 2,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.JAB.Scrapper",
+    "Type": 2,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.UIA.Scrapper",
+    "Type": 2,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Web.Scrapper",
+    "Type": 2,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  }
+]

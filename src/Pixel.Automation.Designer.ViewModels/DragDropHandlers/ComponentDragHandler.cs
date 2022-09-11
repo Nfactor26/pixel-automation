@@ -16,15 +16,15 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
-using System;
 using System.IO;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using DragDropEffects = System.Windows.DragDropEffects;
+using MessageBox = System.Windows.MessageBox;
+using TreeView = System.Windows.Controls.TreeView;
 
 namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 {
-    public class ComponentDropHandler : IDropTarget
+    public class ComponentDropHandler : GongSolutions.Wpf.DragDrop.IDropTarget
     {
         private readonly ILogger logger = Log.ForContext<ComponentDropHandler>();
         private readonly ApplicationSettings applicationSettings;

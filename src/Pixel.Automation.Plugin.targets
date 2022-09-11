@@ -1,0 +1,16 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> 
+
+    <PropertyGroup>
+        <BuildDirectory>..\..\.builds\$(Configuration)\Designer</BuildDirectory>
+        <PluginDestinationFolder>$(BuildDirectory)\Plugins\$(ProjectName)</PluginDestinationFolder>
+    </PropertyGroup>
+     
+     <Target Name="CopyPlugin" AfterTargets="Build">        
+        <ItemGroup>         
+            <PluginSourceFiles Include="$(TargetDir)\**\*.*"/>			
+        </ItemGroup>		
+        <Message Importance="high" Text="======= $(ProjectName) copy plugin frpom $(TargetDir) to $(BuildDirectory) ========="/>
+        <Copy  SourceFiles="@(PluginSourceFiles)"  DestinationFolder="$(PluginDestinationFolder)$(ProjectName)\%(RecursiveDir)"/>	
+    </Target>
+
+</Project>

@@ -6,6 +6,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Notifications;
 using Pixel.Persistence.Services.Client;
 using System;
 using System.Collections.Generic;

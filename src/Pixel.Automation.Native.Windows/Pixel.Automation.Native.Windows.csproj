@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<UseWindowsForms>true</UseWindowsForms>		
+		<UseWindowsForms>true</UseWindowsForms>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dawn.Guard" Version="1.12.0">
-			<Private>false</Private>
+			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
 			<Private>false</Private>
@@ -41,6 +44,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
+			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
 	</ItemGroup>
 
