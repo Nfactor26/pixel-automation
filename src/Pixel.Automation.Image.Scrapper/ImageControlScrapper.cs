@@ -1,8 +1,8 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core;
-using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Image.Capture;
+using Pixel.Automation.Editor.Notifications;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Image.Scrapper
         private readonly IEventAggregator eventAggregator;
         private readonly IScreenCapture screenCapture;
         private readonly IWindowManager windowManager;
-        private readonly IImageCaptureViewModel imageCaptureViewModel;
+       
 
         bool isCapturing;
         public bool IsCapturing
@@ -38,13 +38,12 @@ namespace Pixel.Automation.Image.Scrapper
 
         string targetApplicationId = string.Empty;
        
-        public ImageControlScrapper(IEventAggregator eventAggregator, IWindowManager windowManager, IScreenCapture screenCapture, IImageCaptureViewModel imageCaptureViewModel)
+        public ImageControlScrapper(IEventAggregator eventAggregator, IWindowManager windowManager, IScreenCapture screenCapture)
         {
             this.eventAggregator = eventAggregator;
             this.eventAggregator.SubscribeOnUIThread(this);         
-            this.imageCaptureViewModel = imageCaptureViewModel;
             this.windowManager = windowManager;
-            this.screenCapture = screenCapture;
+            this.screenCapture = screenCapture;           
         }
 
 
@@ -77,9 +76,14 @@ namespace Pixel.Automation.Image.Scrapper
             {
                 using (var bitmap = new Bitmap(ms))
                 {
+                    var imageCaptureViewModel = new ImageCaptureViewModel();
                     imageCaptureViewModel.Initialize(bitmap);
-                    var result = await windowManager.ShowDialogAsync(imageCaptureViewModel);
 
+                    var imageCaptureView = new ImageCaptureView();
+                    ViewModelBinder.Bind(imageCaptureViewModel, imageCaptureView, null);
+
+                    var result = imageCaptureView.ShowDialog();
+                   
                     if (result.HasValue && result.Value == true)
                     {
                         var controlDetails = imageCaptureViewModel.GetCapturedImageControl();

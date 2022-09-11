@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>		
+		<TargetFramework>net6.0</TargetFramework>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -11,15 +12,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
+		<PackageReference Include="Dawn.Guard" Version="1.12.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
-			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>
+		<!--<PackageReference Include="McMaster.NETCore.Plugins" Version="1.4.0" />-->		
 		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="AutoMapper" Version="11.0.1" />
 		<PackageReference Include="CsvHelper" Version="28.0.0" />
 	</ItemGroup>
@@ -28,7 +28,7 @@
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 			<Private>false</Private>
 		</ProjectReference>
 	</ItemGroup>

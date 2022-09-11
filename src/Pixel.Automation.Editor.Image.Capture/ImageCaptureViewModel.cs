@@ -2,7 +2,6 @@
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Image.Matching.Components;
 using System;
 using System.Drawing;
@@ -13,7 +12,7 @@ using System.Windows.Media.Imaging;
 
 namespace Pixel.Automation.Editor.Image.Capture
 {
-    public class ImageCaptureViewModel : Screen , IImageCaptureViewModel
+    public class ImageCaptureViewModel : Screen
     {
 
         IImageControlIdentity controlIdentity;

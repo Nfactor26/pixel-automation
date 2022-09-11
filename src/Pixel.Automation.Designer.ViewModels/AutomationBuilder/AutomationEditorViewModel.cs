@@ -1,6 +1,5 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
@@ -9,21 +8,17 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Notfications;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
-        
+
     public class AutomationEditorViewModel : EditorViewModel, IAutomationEditor
     {
         #region data members        

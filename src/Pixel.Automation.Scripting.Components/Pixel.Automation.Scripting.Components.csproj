@@ -1,7 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -11,10 +14,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0" >
+		<PackageReference Include="Dawn.Guard" Version="1.12.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Serilog" Version="2.11.0" >
+		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>

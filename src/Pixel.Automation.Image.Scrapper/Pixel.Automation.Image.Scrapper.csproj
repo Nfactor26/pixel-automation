@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Caliburn.Micro" Version="4.0.210">
+		<PackageReference Include="Caliburn.Micro" Version="4.0.212">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0">
@@ -20,9 +22,15 @@
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj">
+		<ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj">
 			<Private>false</Private>
+		</ProjectReference>					
+		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj">
+			<Private>false</Private>
+			<PrivateAssets>false</PrivateAssets>
 		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Editor.Image.Capture\Pixel.Automation.Editor.Image.Capture.csproj" />
+			
 	</ItemGroup>
 
 </Project>

@@ -1,13 +1,10 @@
-﻿using Caliburn.Micro;
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
@@ -15,7 +12,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
     /// Control Reference Manager allows to manage the version of control used in a project. Multiple revisions of same control can be created over the life time of project.
     /// This screen will allow to manage revisions of control used in a given version of project.
     /// </summary>
-    public class ControlReferenceManagerViewModel : Screen, IVersionManager
+    public class ControlReferenceManagerViewModel : Caliburn.Micro.Screen, IVersionManager
     {
         private readonly IFileSystem fileSystem;
         public readonly ControlReferences controlReferences;

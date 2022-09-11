@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Pixel.Automation.Plugin.targets" />
+
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,7 +24,7 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1">
 			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>	
+		</PackageReference>
 		<PackageReference Include="Serilog" Version="2.11.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
@@ -32,7 +34,7 @@
 		<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Selenium.Support" Version="4.4.0" />	
+		<PackageReference Include="Selenium.Support" Version="4.4.0" />
 		<PackageReference Include="Selenium.WebDriver" Version="4.4.0" />
 	</ItemGroup>
 
@@ -42,10 +44,11 @@
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 			<Private>false</Private>
-		</ProjectReference>		
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj">
 			<Private>false</Private>
-		</ProjectReference>
+		</ProjectReference>		
 	</ItemGroup>
 
 </Project>

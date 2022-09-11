@@ -3,7 +3,7 @@ using Caliburn.Micro;
 using Gma.System.MouseKeyHook;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Notifications;
 using Pixel.Automation.Java.Access.Bridge.Components;
 using Serilog;
 using System;

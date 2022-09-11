@@ -8,7 +8,7 @@ namespace Pixel.Automation.Core
     /// <summary>
     /// Base class for all the application types
     /// </summary>
-    public class Application : NotifyPropertyChanged, IApplication
+    public abstract class Application : NotifyPropertyChanged, IApplication
     {     
         /// <summary>
         /// Unique identifier for the application

@@ -4,7 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Notfications;
+using Pixel.Automation.Editor.Notifications;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;

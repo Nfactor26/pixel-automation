@@ -1,6 +1,5 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -9,7 +8,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
+using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 
 namespace Pixel.Automation.Designer.ViewModels
 {

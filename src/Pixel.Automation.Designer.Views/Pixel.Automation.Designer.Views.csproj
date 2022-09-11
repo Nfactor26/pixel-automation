@@ -4,7 +4,8 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationContext>true</PreserveCompilationContext>		
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -19,42 +20,28 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />	
+		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />		
 		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />			
+		<ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.CodeGeneration\Pixel.Scripting.CodeGeneration.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Services.CSharp\Pixel.Scripting.Editor.Services.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Editor.Image.Capture\Pixel.Automation.Editor.Image.Capture.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Designer.ViewModels\Pixel.Automation.Designer.ViewModels.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />		
+		<ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />		
 		<ProjectReference Include="..\Pixel.Automation.TestData.Repository.Views\Pixel.Automation.TestData.Repository.Views.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />		
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
-
-		<ProjectReference Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj" />
-
-		<ProjectReference Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj" />
-		
 	</ItemGroup>
 
 	<ItemGroup>
@@ -66,15 +53,19 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Plugins.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
-
 	<Target Name="CopyExtension" AfterTargets="Build">
+		<PropertyGroup>
+			<ExtensionOutPath>$(OutputPath)Extensions\pixel-browser-scrapper</ExtensionOutPath>
+		</PropertyGroup>
 		<ItemGroup>
-			<ExtensionFiles Include="..\..\src\Extensions\**\*.*" />
-		</ItemGroup>
-		<Message Importance="high" Text="Copy extensions to $(BuildDirectory) =========" />
-		<Copy SourceFiles="@(ExtensionFiles)" DestinationFolder="$(OutputPath)\Extensions\%(RecursiveDir)" />
+			<ExtensionSourceFiles Include="..\..\src\Extensions\pixel-browser-scrapper\*.*" />
+		</ItemGroup>	
+		<Copy SourceFiles="@(ExtensionSourceFiles)" DestinationFolder="$(ExtensionOutPath)\%(RecursiveDir)" />
 	</Target>
 
 </Project>

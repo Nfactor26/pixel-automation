@@ -1,9 +1,7 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 
 
@@ -18,42 +16,33 @@ namespace Pixel.Automation.RunTime
 
         public KnownTypeProvider()
         {   
-            LoadAvailableTypes();
+           
         }
 
         #endregion constructor
 
         #region public methods
 
-        void LoadAvailableTypes()
+        public void LoadTypesFromAssembly(Assembly assembly)
         {
-            this.knownTypes.Clear();
-            foreach (var path in Directory.EnumerateFiles(".", "*.Components.dll"))
+            try
             {
-                try
+                foreach (Type t in assembly.DefinedTypes)
                 {
-                    Assembly assembly = Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, path));
-                    LoadTypesFromAssembly(assembly);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, ex.Message);
+                    if (t.IsPublic && !t.IsAbstract)
+                    {
+                        if (!this.knownTypes.Contains(t))
+                        {
+                            this.knownTypes.Add(t);
+                        }
+                    }
                 }
             }
-        }
-
-        public void LoadTypesFromAssembly(Assembly assembly)
-        {           
-            foreach (Type t in assembly.DefinedTypes)
+            catch (Exception ex)
             {
-                if (t.IsPublic && !t.IsAbstract)
-                {
-                    if(!this.knownTypes.Contains(t))
-                    {
-                        this.knownTypes.Add(t);
-                    }                    
-                }
-            }               
+                logger.Error(ex, "An exception occured while trying to load types from assembly {0}", assembly.FullName);
+                throw;
+            }           
         }      
 
         public List<Type> GetKnownTypes()

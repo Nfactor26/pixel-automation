@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Entities;
 using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.Sequences;
+using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -75,7 +76,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 templateRoot.EntityManager = this.entityManager;
                 RestoreParentChildRelation(templateRoot);
-                Entity prefabPlaceHolder = templateRoot.GetComponentsOfType<SequentialEntityProcessor>(Core.Enums.SearchScope.Children).Last();
+                Entity prefabPlaceHolder = templateRoot.GetComponentsOfType<SequentialEntityProcessor>(SearchScope.Children).Last();
                 prefabPlaceHolder.AddComponent(this.prefabbedEntity);
                 RestoreParentChildRelation(prefabPlaceHolder);
             }

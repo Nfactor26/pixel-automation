@@ -1,15 +1,19 @@
 ﻿using Caliburn.Micro;
 using Microsoft.Extensions.Configuration;
 using Ninject;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.Modules;
 using Pixel.Automation.Designer.ViewModels.Shell;
+using Pixel.Automation.RunTime;
+using Pixel.Automation.RunTime.Serialization;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -19,16 +23,16 @@ namespace Pixel.Automation.Designer.ViewModels
         private ILogger logger;
 
         private IKernel kernel;
-   
+
         public AppBootstrapper()
         {
             ConsoleManager.Show();
 
-            Log.Logger = new LoggerConfiguration()              
-              .Enrich.WithThreadId()           
+            Log.Logger = new LoggerConfiguration()
+              .Enrich.WithThreadId()
               .WriteTo.Console(Serilog.Events.LogEventLevel.Information, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
-              .WriteTo.File("logs\\Pixel-Automation-.txt",  restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}",  rollingInterval: RollingInterval.Day)
+              .WriteTo.File("logs\\Pixel-Automation-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
               .CreateLogger();
             logger = Log.ForContext<AppBootstrapper>();
             Initialize();
@@ -73,9 +77,24 @@ namespace Pixel.Automation.Designer.ViewModels
                 
                 LogManager.GetLog = type => new DebugLog(type);
 
-                kernel = new StandardKernel(new ViewModules(), new AnchorableModules(), new ScrappersModules(), new GlobalScriptingModules(), new DevicesModules(),
-                    new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(),  new WindowsModules(), new SettingsModules());                
-                kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));             
+                var pluginManager = new PluginManager(new JsonSerializer());
+                var platformFeatureAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.PlatformFeature);
+                var pluginAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Component);
+                var scrapperAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Scrapper);               
+                kernel = new StandardKernel(new ViewModules(), new AnchorableModules(), new ScrappersModules(scrapperAssemblies), new GlobalScriptingModules(),
+                    new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(),  new NativeModules(platformFeatureAssemblies), new SettingsModules());
+                kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
+                               
+                var knownTypeProvider = kernel.Get<ITypeProvider>();
+                knownTypeProvider.LoadTypesFromAssembly(typeof(Entity).Assembly);
+                knownTypeProvider.LoadTypesFromAssembly(typeof(ControlEntity).Assembly);
+                foreach (var assembly in pluginAssemblies)
+                {
+                    knownTypeProvider.LoadTypesFromAssembly(assembly);
+                }
+
+                pluginManager.ListLoadedAssemblies();
+                Debug.Assert(AssemblyLoadContext.All.Count() == 1, "Multiple assembly load context exists.");
 
             }
             catch (Exception ex)
