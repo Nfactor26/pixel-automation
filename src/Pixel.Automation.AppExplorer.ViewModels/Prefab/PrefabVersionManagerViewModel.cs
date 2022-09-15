@@ -1,13 +1,13 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -16,6 +16,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly ILogger logger = Log.ForContext<PrefabVersionManagerViewModel>();
 
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
         private readonly PrefabProject prefabProject;
@@ -26,20 +27,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
        
 
-        public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory, 
-            ISerializer serializer, IApplicationDataManager applicationDataManager,
-            ApplicationSettings applicationSettings)
+        public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory, IReferenceManagerFactory referenceManagerFactory,
+            ISerializer serializer, IApplicationDataManager applicationDataManager,  ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
-            this.workspaceManagerFactory = workspaceManagerFactory;
-            this.serializer = serializer;
-            this.applicationDataManager = applicationDataManager;
-            this.prefabProject = prefabProject;
-            this.applicationSettings = applicationSettings;
+            this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
+            this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+            this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             foreach (var version in this.prefabProject.AvailableVersions)
             {
                 IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, version, fileSystem));
+                AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, version, fileSystem, referenceManagerFactory));
             }
         }
 
@@ -69,7 +70,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
                     await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, newVersion);
                    
-                    this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem));
+                    this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));
 
                     this.wasDeployed = true;
                 }

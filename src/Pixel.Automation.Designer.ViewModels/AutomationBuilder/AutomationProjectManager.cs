@@ -9,24 +9,26 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public class AutomationProjectManager : ProjectManager, IAutomationProjectManager
     {
-        private readonly IProjectFileSystem projectFileSystem;    
+        private readonly IProjectFileSystem projectFileSystem;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
+        private IReferenceManager referenceManager;
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
-        public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager) 
-        : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator, applicationDataManager)
+        public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
+            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager,
+            IReferenceManagerFactory referenceManagerFactory) 
+        : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
-            this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
-            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;          
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
         }
 
         #region Load Project
@@ -35,17 +37,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             this.activeProject = activeProject;
             this.loadedVersion = versionToLoad;
+            
             await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
+            
             this.projectFileSystem.Initialize(activeProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
+            this.referenceManager = referenceManagerFactory.CreateForAutomationProject(activeProject, versionToLoad);
+            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
             await CreateDataModelFile();
-            ConfigureCodeEditor();
+            ConfigureCodeEditor(this.referenceManager);
 
-            this.entityManager.Arguments  = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
-          
-            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
+            var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
+            ConfigureScriptEngine(this.referenceManager, dataModel);
+            ConfigureScriptEditor(this.referenceManager, dataModel);         
+            this.entityManager.Arguments = dataModel;
+
             await ExecuteInitializationScript();
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();
@@ -143,11 +151,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {        
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
-            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
-         
-            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
-            await ExecuteInitializationScript();
-        
+            var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
+            ConfigureScriptEngine(this.referenceManager, dataModel);
+            ConfigureScriptEditor(this.referenceManager, dataModel);          
+            this.entityManager.Arguments = dataModel;
+           
+            await ExecuteInitializationScript();        
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());            

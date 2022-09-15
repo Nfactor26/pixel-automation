@@ -23,7 +23,7 @@ namespace Pixel.Scripting.Script.Editor
             logger.Debug($"Create a new instance of {nameof(CodeEditorFactory)} with Id : {Identifier}");
         }
 
-        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences, IEnumerable<string> imports)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
            

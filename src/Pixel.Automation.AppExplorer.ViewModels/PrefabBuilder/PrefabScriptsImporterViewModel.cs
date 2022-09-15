@@ -7,13 +7,10 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -32,6 +29,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly IScriptExtactor scriptExtractor;
         private readonly IArgumentExtractor argumentExtractor;
+        private readonly IReferenceManager referenceManager;
 
 
         public BindableCollection<ScriptStatus> RequiredScripts { get; set; } = new BindableCollection<ScriptStatus>();
@@ -39,21 +37,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public bool HasScripts { get => RequiredScripts.Count() > 0; }
 
         public PrefabScriptsImporterViewModel(PrefabProject prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
-            IArgumentExtractor argumentExtractor,
-            IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory)
+            IArgumentExtractor argumentExtractor, IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory, IReferenceManager referenceManager)
         {
-            Guard.Argument(prefabToolBoxItem).NotNull();
-            Guard.Argument(rootEntity).NotNull();
-            Guard.Argument(prefabFileSystem).NotNull();         
-            Guard.Argument(scriptExtractor).NotNull();
-            Guard.Argument(scriptEngineFactory).NotNull();
-
-            this.prefabToolBoxItem = prefabToolBoxItem;
-            this.prefabFileSystem = prefabFileSystem;
-            this.scriptExtractor = scriptExtractor;
-            this.argumentExtractor = argumentExtractor;
-            this.scriptEngineFactory = scriptEngineFactory;           
-            this.rootEntity = rootEntity;           
+            this.prefabToolBoxItem = Guard.Argument(prefabToolBoxItem).NotNull().Value;
+            this.prefabFileSystem = Guard.Argument(prefabFileSystem).NotNull().Value;
+            this.scriptExtractor = Guard.Argument(scriptExtractor).NotNull().Value;
+            this.argumentExtractor = Guard.Argument(argumentExtractor).NotNull().Value;
+            this.scriptEngineFactory = Guard.Argument(scriptEngineFactory).NotNull().Value;
+            this.rootEntity = Guard.Argument(rootEntity).NotNull();
+            this.referenceManager = Guard.Argument(referenceManager).NotNull().Value;
 
         }      
 
@@ -141,7 +133,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var dataModelType = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
             object dataModelInstance = Activator.CreateInstance(dataModelType);
 
-            scriptEngineFactory.WithAdditionalAssemblyReferences(prefabFileSystem.ReferenceManager.GetScriptRunTimeReferences());
+            scriptEngineFactory.WithAdditionalAssemblyReferences(this.referenceManager.GetScriptEngineReferences());
             scriptEngineFactory.WithAdditionalAssemblyReferences(dataModelAssembly);
             var scriptEngine = scriptEngineFactory.CreateScriptEngine(prefabFileSystem.WorkingDirectory);
             scriptEngine.SetWorkingDirectory(prefabFileSystem.WorkingDirectory);

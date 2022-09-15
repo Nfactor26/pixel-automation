@@ -34,9 +34,7 @@ namespace Pixel.Automation.Core.Tests
             this.serviceResolver = Substitute.For<IServiceResolver>();
 
             this.fileSystem = Substitute.For<IFileSystem>(); 
-            this.serializer = Substitute.For<ISerializer>();
-
-            this.fileSystem.ReferenceManager.Returns(new AssemblyReferenceManager(new ApplicationSettings(), string.Empty, string.Empty));
+            this.serializer = Substitute.For<ISerializer>();           
 
             this.scriptEngineFactory = Substitute.For<IScriptEngineFactory>();
             this.scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns((a) => { return CreateScriptEngine(); });
@@ -61,7 +59,7 @@ namespace Pixel.Automation.Core.Tests
             this.entityManager.SetCurrentFileSystem(fileSystem);
             this.entityManager.Arguments = this.dataModel;
 
-            this.scriptEngineFactory.Received(1).WithSearchPaths(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+            this.scriptEngineFactory.Received(0).WithSearchPaths(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
             this.scriptEngineFactory.Received(1).CreateScriptEngine(Arg.Any<string>());
             this.entityManager.GetScriptEngine().Received(1).SetGlobals(Arg.Any<object>());
             this.entityManager.GetArgumentProcessor().Received(1).Initialize(Arg.Any<IScriptEngine>(), Arg.Any<object>());

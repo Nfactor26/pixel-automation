@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         private List<string> searchPaths = new List<string>();
         private CachedScriptMetadataResolver metaDataReferenceResolver;
         private CSharpCompilationOptions scriptCompilationOptions;
-
+        private HashSet<string> imports = new HashSet<string>();
 
         public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
         {                   
@@ -92,7 +93,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         protected override CSharpCompilationOptions CreateCompilationOptions()
         {
             this.metaDataReferenceResolver = CreateMetaDataResolver();
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);           
+            
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));           
             compilationOptions = compilationOptions.WithMetadataReferenceResolver(metaDataReferenceResolver);
            
             //SourceFileResolver is required so that #load directive can be used in script
@@ -119,6 +121,14 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         {
             this.searchPaths = this.searchPaths.Except(searchPaths).ToList();
             UpdateCompilationOptions();
+        }
+
+        public void AddImports(params string[] imports)
+        {
+            foreach(var import in imports)
+            {
+                this.imports.Add(import);
+            }
         }
 
         void UpdateCompilationOptions()

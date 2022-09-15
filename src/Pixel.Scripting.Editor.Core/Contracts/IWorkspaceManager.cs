@@ -8,6 +8,10 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 {
     public interface IWorkspaceManager : IDisposable
     {
+        /// <summary>
+        /// Get the working directory
+        /// </summary>
+        /// <returns></returns>
         string GetWorkingDirectory();
 
         /// <summary>
@@ -16,6 +20,11 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="workingDirectory">Location of new working directory</param>
         void SwitchWorkingDirectory(string workingDirectory);
 
+        /// <summary>
+        /// Get service of specified type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         T GetService<T>();
 
         /// <summary>
@@ -107,12 +116,30 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <returns></returns>
         Task<string> GetBufferAsync(string targetDocument, string ownerProject);
 
+        /// <summary>
+        /// Update the source code for a document in workspace with new code
+        /// </summary>
+        /// <param name="updateBufferRequest"></param>
+        /// <returns></returns>
         Task UpdateBufferAsync(UpdateBufferRequest updateBufferRequest);
 
+        /// <summary>
+        /// Replace a part of the source code for a document in workspace
+        /// </summary>
+        /// <param name="changeBufferRequest"></param>
+        /// <returns></returns>
         Task ChangeBufferAsync(ChangeBufferRequest changeBufferRequest);
 
+        /// <summary>
+        /// Configure the workspace with additional assembly references that should be automatically added to any new project being added to workspace
+        /// </summary>
+        /// <param name="assemblyReferences"></param>
         void WithAssemblyReferences(IEnumerable<string> assemblyReferences);
 
+        /// <summary>
+        /// Configure the workspace with assembly references that should be automatically added to any new project being added to workspace
+        /// </summary>
+        /// <param name="assemblyReferences"></param>
         void WithAssemblyReferences(Assembly[] assemblyReferences);
 
 
@@ -120,11 +147,33 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
     public interface IScriptWorkspaceManager : IWorkspaceManager
     {
+        /// <summary>
+        /// Add a new project to the workspace
+        /// </summary>
+        /// <param name="projectName">Name of the project</param>
+        /// <param name="projectReferences">References to other projects to be added</param>
+        /// <param name="globalsType">Globals type for the project</param>
         void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType);
 
+        /// <summary>
+        /// Add search paths to the ScriptMetadataResolver. This allows #r and #load references to be resolved from specified search paths.
+        /// </summary>
+        /// <param name="searchPaths"></param>
         void AddSearchPaths(params string[] searchPaths);
 
+        /// <summary>
+        /// Remove search paths from the ScriptMetadataResolver.
+        /// </summary>
+        /// <param name="searchPaths"></param>
         void RemoveSearchPaths(params string[] searchPaths);
+
+        /// <summary>
+        /// Add imports to the CompilationOptions. Adding imports help to avoid explicitly importing these references in scripts.
+        /// This is helpful for inline script editors where we want some of the imports to be implicitly avialable.
+        /// </summary>
+        /// <param name="imports"></param>
+        void AddImports(params string[] imports);
+
     }
 
     public interface ICodeWorkspaceManager : IWorkspaceManager
@@ -135,8 +184,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="projectName">Name of project</param>
         /// <param name="defaultNameSpace">Default namespace for project</param>
         /// <param name="projectReferences">Other projects from workspace to be referenced</param>
-        void AddProject(string projectName, string defaultNameSpace, IEnumerable<string> projectReferences);
-    
+        void AddProject(string projectName, string defaultNameSpace, IEnumerable<string> projectReferences);    
 
         /// <summary>
         /// Compile the project

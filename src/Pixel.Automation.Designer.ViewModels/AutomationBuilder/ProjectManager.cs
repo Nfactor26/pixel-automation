@@ -4,14 +4,11 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -22,15 +19,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private int compilationIteration = 0;
 
         protected IEntityManager entityManager;
-        protected ISerializer serializer;
-        protected IFileSystem fileSystem;
-        protected ITypeProvider typeProvider;    
-        protected ICodeEditorFactory codeEditorFactory;
-        protected IScriptEditorFactory scriptEditorFactory;
+        protected readonly ISerializer serializer;
+        protected readonly IFileSystem fileSystem;
+        protected readonly ITypeProvider typeProvider;    
+        protected readonly ICodeEditorFactory codeEditorFactory;
+        protected readonly IScriptEditorFactory scriptEditorFactory;
+        protected readonly IScriptEngineFactory scriptEngineFactory;
         protected readonly ICodeGenerator codeGenerator;
-        protected IArgumentTypeProvider argumentTypeProvider;
-        protected IApplicationDataManager applicationDataManager;
-
+        protected readonly IArgumentTypeProvider argumentTypeProvider;
+        protected readonly IApplicationDataManager applicationDataManager;
+       
         protected Entity RootEntity
         {
             get => this.entityManager.RootEntity;
@@ -39,7 +37,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
 
         public ProjectManager(ISerializer serializer, IEntityManager entityManager, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
-            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
+            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
+            ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.entityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
@@ -48,8 +47,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.argumentTypeProvider = Guard.Argument(argumentTypeProvider, nameof(argumentTypeProvider)).NotNull().Value;
             this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
+            this.scriptEngineFactory = Guard.Argument(scriptEngineFactory, nameof(scriptEngineFactory)).NotNull().Value;    
             this.codeGenerator = Guard.Argument(codeGenerator, nameof(codeGenerator)).NotNull().Value;
-            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;            
         }
 
         ///<inheritdoc/>
@@ -93,12 +93,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region helper methods
 
-        protected virtual void ConfigureCodeEditor()
+        protected virtual void ConfigureCodeEditor(IReferenceManager referenceManager)
         {
             logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
-            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, this.fileSystem.ReferenceManager.GetCodeEditorReferences());       
+            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());       
             logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
-
         }
 
 
@@ -110,14 +109,30 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="fileSystem"></param>
         /// <param name="globalsType"></param>
-        protected virtual void ConfigureScriptEditor()
+        protected virtual void ConfigureScriptEditor(IReferenceManager referenceManager, object dataModel)
         {      
             logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
-            var assemblyReferences = new List<string>(this.fileSystem.ReferenceManager.GetScriptEditorReferences());
-            assemblyReferences.Add(this.entityManager.Arguments.GetType().Assembly.Location);
-            this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences.ToArray());      
+            var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences());
+            assemblyReferences.Add(dataModel.GetType().Assembly.Location);
+            this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences, referenceManager.GetImportsForScripts());
+            this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")));           
             logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
         }
+
+        /// <summary>
+        /// Setup ScriptEngineFactory with search path and assembly references
+        /// </summary>
+        /// <param name="referenceManager"></param>
+        protected virtual void ConfigureScriptEngine(IReferenceManager referenceManager, object dataModel)
+        {
+            this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory)
+                .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
+                .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
+                .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
+                .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
+                .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
+        }
+
 
         /// <summary>
         /// Add data model assembly to arguments type provider so that it can show types defined in data model assembly 

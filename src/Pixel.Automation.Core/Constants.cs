@@ -82,6 +82,12 @@
         public static readonly string ControlRefrencesFileName = "ControlReferences.ref";
 
         /// <summary>
+        /// Name of the file which store references and imports for script editor, code editor and script engine for the project.
+        /// </summary>
+
+        public static readonly string AssemblyReferencesFileName = "AssemblyReferences.ref";
+
+        /// <summary>
         /// Name of the file which store details of the prefabs that have been used in a automation project.
         /// </summary>
         public static readonly string PrefabRefrencesFileName = "PrefabReferences.ref";

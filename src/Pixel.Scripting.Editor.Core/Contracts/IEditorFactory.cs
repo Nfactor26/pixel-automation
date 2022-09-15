@@ -11,7 +11,8 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="workingDirectory"></param>
         /// <param name="editorReferences"></param>
-        void Initialize(string workingDirectory, IEnumerable<string> editorReferences);
+        /// <param name="imports"></param>
+        void Initialize(string workingDirectory, IEnumerable<string> editorReferences, IEnumerable<string> imports);
 
         /// <summary>
         /// Update the Editor to use a new working directory

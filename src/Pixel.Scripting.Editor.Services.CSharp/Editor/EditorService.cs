@@ -78,7 +78,10 @@ namespace Pixel.Script.Editor.Services.CSharp
                     this.workspaceManager = new ScriptWorkSpaceManager(editorOptions.WorkingDirectory);
                     break;
             }           
-
+            if(this.workspaceManager is IScriptWorkspaceManager scriptWorkspaceManager)
+            {
+                scriptWorkspaceManager.AddImports(this.editorOptions.Imports?.ToArray() ?? Array.Empty<string>());
+            }
             this.workspaceManager.WithAssemblyReferences(editorOptions.AssemblyReferences ?? Array.Empty<string>());
 
             var formattingOptions = new FormattingOptions();

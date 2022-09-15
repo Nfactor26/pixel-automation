@@ -36,8 +36,8 @@ namespace Pixel.Automation.Core
         /// <InheritDoc/>
         public string ControlReferencesFile { get; protected set; }
 
-        /// <InheritDoc/> 
-        public AssemblyReferenceManager ReferenceManager { get; internal protected set; }
+        /// <InheritDoc/>
+        public string AssemblyReferencesFile { get; protected set; }
 
         /// <summary>
         /// constructor
@@ -63,6 +63,7 @@ namespace Pixel.Automation.Core
             this.DataModelDirectory = Path.Combine(this.WorkingDirectory, Constants.DataModelDirectory);
             this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, Constants.ReferencesDirectory);
             this.ControlReferencesFile = Path.Combine(this.WorkingDirectory, Constants.ControlRefrencesFileName);
+            this.AssemblyReferencesFile = Path.Combine(this.WorkingDirectory, Constants.AssemblyReferencesFileName);
 
             if (!Directory.Exists(WorkingDirectory))
             {

@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
@@ -15,6 +16,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly ILogger logger = Log.ForContext<ProjectVersionManagerViewModel>();
 
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
         private readonly AutomationProject automationProject;
@@ -25,10 +27,11 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
        
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
-             ISerializer serializer, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
+            IReferenceManagerFactory referenceManagerFactory, ISerializer serializer, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage & Deploy Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
@@ -36,7 +39,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             foreach (var version in this.automationProject.AvailableVersions)
             {
                 IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, applicationSettings);
-                AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, version, projectFileSystem));
+                AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, version, projectFileSystem, referenceManagerFactory));
             }
         }
 
@@ -66,7 +69,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
                     await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
                    
-                    this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem));
+                    this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));
                     logger.Information($"Completed deployment of version : {projectVersionViewModel.Version} for project : {this.automationProject.Name}");
 
                     this.wasDeployed = true;

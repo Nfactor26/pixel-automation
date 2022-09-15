@@ -12,7 +12,9 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         public bool EnableDiagnostics { get; set; } = true;
 
-        public IEnumerable<string> AssemblyReferences { get; set; } 
+        public IEnumerable<string> AssemblyReferences { get; set; }
+
+        public IEnumerable<string> Imports { get; set; }
 
         public WorkspaceType WorkspaceType { get; set; }
     }
