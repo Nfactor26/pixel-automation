@@ -3,10 +3,10 @@ using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
@@ -17,6 +17,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         private readonly AutomationProject automationProject;
         private readonly IProjectFileSystem fileSystem;
+        private readonly Lazy<ReferenceManager> referenceManager;
 
         public ProjectVersion ProjectVersion { get; }
 
@@ -72,11 +73,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
 
-        public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem)
+        public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
         {
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
             this.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
+            this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForAutomationProject(automationProject, projectVersion); });
         }
 
 
@@ -129,7 +131,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             logger.Information($"Project file system has been initialized.");
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.fileSystem.ReferenceManager.GetCodeEditorReferences());
+            workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
             workspaceManager.AddProject(this.automationProject.Name, $"Pixel.Automation.{this.automationProject.GetProjectName()}",  Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())

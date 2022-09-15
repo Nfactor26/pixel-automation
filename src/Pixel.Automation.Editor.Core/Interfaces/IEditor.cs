@@ -32,5 +32,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// </summary>
         /// <returns></returns>
         Task ManageControlReferencesAsync();
+
+
+        /// <summary>
+        /// Managed assembly references and imports for code editor, script editor and script engine
+        /// </summary>
+        /// <returns></returns>
+        Task ManageAssemblyReferencesAsync();
     }
 }

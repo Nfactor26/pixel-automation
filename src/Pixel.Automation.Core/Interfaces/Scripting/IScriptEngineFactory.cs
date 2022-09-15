@@ -25,7 +25,7 @@ namespace Pixel.Automation.Core
         void RemoveSearchPaths(params string[] searchPaths);
 
         /// <summary>
-        /// Add one or more default namespace imports to be made available to the script
+        /// Add one or more imports to this script engine
         /// </summary>
         /// <param name="namespaces"></param>
         IScriptEngineFactory WithAdditionalNamespaces(params string[] namespaces);
@@ -48,6 +48,15 @@ namespace Pixel.Automation.Core
         /// </summary>
         /// <param name="assemblyReferences"></param>
         IScriptEngineFactory WithAdditionalAssemblyReferences(IEnumerable<string> assemblyReferences);
+
+
+        /// <summary>
+        /// WhiteListedReferences controls the secondar references that are allowed to be resolved by the MetaDataResolver for a primary assembly.
+        /// For example, if we #r "primary.dll", secondary references of primary.dll are allowed to be resolved only if white listed.
+        /// </summary>
+        /// <param name="whiteListedReferences"></param>
+        /// <returns></returns>
+        IScriptEngineFactory WithWhiteListedReferences(IEnumerable<string> whiteListedReferences);
 
         /// <summary>
         /// Remove one or more default assembly references to be made available to the script

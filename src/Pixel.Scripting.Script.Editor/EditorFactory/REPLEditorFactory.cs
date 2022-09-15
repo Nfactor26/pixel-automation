@@ -71,7 +71,7 @@ namespace Pixel.Scripting.Script.Editor
             throw new NotImplementedException();
         }
 
-        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences, IEnumerable<string> imports)
         {
             throw new NotImplementedException();
         }

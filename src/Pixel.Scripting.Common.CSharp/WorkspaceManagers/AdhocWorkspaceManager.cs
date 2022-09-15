@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Editor.Core.Models;
+using Pixel.Scripting.Reference.Manager;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         private string workingDirectory;
         protected AdhocWorkspace workspace = default;
         protected readonly IHostServicesProvider hostServicesProvider = new RoslynFeaturesHostServicesProvider(AssemblyLoader.Instance);
-        protected List<MetadataReference> additionalReferences;
+        protected List<MetadataReference> additionalReferences;     
         protected readonly DocumentationProviderService documentationProviderService = new ();       
 
         public AdhocWorkspaceManager(string workingDirectory)
@@ -54,7 +55,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         protected virtual CSharpCompilationOptions CreateCompilationOptions()
         {
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: ProjectReferences.NamespaceDefault.Imports);
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: AssemblyReferences.DefaultNamespaces.Imports);
             return compilationOptions;
         }
 
@@ -191,11 +192,13 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         #region IWorkspaceManager
 
+        /// <inheritdoc/>
         public string GetWorkingDirectory()
         {
             return this.workingDirectory;
         }
 
+        /// <inheritdoc/>
         public void SwitchWorkingDirectory(string workingDirectory)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
@@ -304,6 +307,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             throw new ArgumentException($"{targetDocument} is not open in workspace");
         }
 
+        /// <inheritdoc/>
         public async Task UpdateBufferAsync(UpdateBufferRequest updateBufferRequest)
         {
             if (TryGetDocument(updateBufferRequest.FileName, out Document document))
@@ -316,6 +320,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             await Task.CompletedTask;
         }
 
+        /// <inheritdoc/>
         public async Task ChangeBufferAsync(ChangeBufferRequest changeBufferRequest)
         {
             if (TryGetDocument(changeBufferRequest.FileName, out Document document))
@@ -332,7 +337,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             }
         }
 
-       
+        /// <inheritdoc/>
         public void WithAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();          
@@ -357,6 +362,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
 
         }
 
+        /// <inheritdoc/>
         public void WithAssemblyReferences(Assembly[] assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
@@ -367,7 +373,6 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             }
         }
     
-
         #endregion IWorkspaceManager
 
         #region Host Services

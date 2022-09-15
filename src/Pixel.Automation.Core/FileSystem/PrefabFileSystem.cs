@@ -62,9 +62,6 @@ namespace Pixel.Automation.Core
             this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
 
             base.Initialize();
-
-            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
-
         }
 
         /// <InheritDoc/>      

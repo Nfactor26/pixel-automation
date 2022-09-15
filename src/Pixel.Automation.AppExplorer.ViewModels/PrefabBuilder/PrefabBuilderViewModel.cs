@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+﻿using Dawn;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
@@ -9,13 +10,10 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -29,11 +27,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
 
-        private PrefabProject prefabToolBoxItem;
+        private PrefabProject prefabProject;
 
         public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager,
-            IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory, IScriptEngineFactory scriptEngineFactory)
+            IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory,
+            IScriptEngineFactory scriptEngineFactory, IReferenceManagerFactory referenceManagerFactory)
         {
             this.DisplayName = "Prefab Builder";
             this.prefabFileSystem = prefabFileSystem;
@@ -42,6 +42,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.scriptEngineFactory = scriptEngineFactory;
             this.serializer = serializer;
             this.applicationDataManager = applicationDataManager;
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
 
         public void Initialize(ApplicationDescriptionViewModel applicationDescriptionViewModel, Entity rootEntity)
@@ -50,7 +51,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
             this.stagedScreens.Clear();
             PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
-            prefabToolBoxItem = new PrefabProject()
+            prefabProject = new PrefabProject()
             {
                 ApplicationId = applicationDescriptionViewModel.ApplicationId,
                 PrefabId = Guid.NewGuid().ToString(),            
@@ -59,24 +60,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             };
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
-            prefabFileSystem.Initialize(prefabToolBoxItem, prefabVersion);
+            prefabFileSystem.Initialize(prefabProject, prefabVersion);
 
-            var newPreafabViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabToolBoxItem);
+            var newPreafabViewModel = new NewPrefabViewModel(applicationDescriptionViewModel, prefabProject);
             this.stagedScreens.Add(newPreafabViewModel);
 
             //we need refrence to ScriptEngine in use by EntityManager so that we can extract declared script variables here
             IScriptEngine entityScriptEngine = rootEntity.EntityManager.GetScriptEngine();
-            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabToolBoxItem, codeGenerator,
+            var prefabDataModelBuilderViewModel = new PrefabDataModelBuilderViewModel(prefabProject, codeGenerator,
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
-       
-            var references = prefabFileSystem.ReferenceManager.GetCodeEditorReferences();            
-            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, references);  
-            var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabToolBoxItem, this.prefabFileSystem, this.codeEditorFactory);
+
+            var referenceManager = this.referenceManagerFactory.CreateForPrefabProject(prefabProject, prefabVersion);                
+            this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());  
+            var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabProject, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
          
-            var prefabScriptImporterViewModel = new PrefabScriptsImporterViewModel(prefabToolBoxItem, rootEntity, 
-                new ScriptExtractor(new ArgumentExtractor()), new ArgumentExtractor(), prefabFileSystem, scriptEngineFactory);
+            var prefabScriptImporterViewModel = new PrefabScriptsImporterViewModel(prefabProject, rootEntity, 
+                new ScriptExtractor(new ArgumentExtractor()), new ArgumentExtractor(), prefabFileSystem, scriptEngineFactory, referenceManager);
             this.stagedScreens.Add(prefabScriptImporterViewModel);
 
             newPreafabViewModel.NextScreen = prefabDataModelBuilderViewModel;
@@ -90,15 +91,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public async Task<PrefabProject> SavePrefabAsync()
         {
-            serializer.Serialize<PrefabProject>(prefabFileSystem.PrefabDescriptionFile, prefabToolBoxItem);
-            serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabToolBoxItem.PrefabRoot as Entity);
-            UpdateAssemblyReferenceAndNameSpace(prefabToolBoxItem, prefabFileSystem);
-            UpdateControlReferencesFile(prefabToolBoxItem.PrefabRoot as Entity);
-            logger.Information($"Created new prefab : {this.prefabToolBoxItem.PrefabName}");
+            serializer.Serialize<PrefabProject>(prefabFileSystem.PrefabDescriptionFile, prefabProject);
+            serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabProject.PrefabRoot as Entity);
+            UpdateAssemblyReferenceAndNameSpace(prefabProject, prefabFileSystem);
+            UpdateControlReferencesFile(prefabProject.PrefabRoot as Entity);
+            logger.Information($"Created new prefab : {this.prefabProject.PrefabName}");
            
-            await this.applicationDataManager.AddOrUpdatePrefabAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);
-            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabToolBoxItem, prefabFileSystem.ActiveVersion);           
-            return this.prefabToolBoxItem;
+            await this.applicationDataManager.AddOrUpdatePrefabAsync(prefabProject, prefabFileSystem.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabFileSystem.ActiveVersion);           
+            return this.prefabProject;
         }
 
         /// <summary>

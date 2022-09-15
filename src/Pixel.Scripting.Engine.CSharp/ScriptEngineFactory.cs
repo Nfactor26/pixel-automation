@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Scripting;
 using Pixel.Automation.Core;
 using Pixel.Scripting.Common.CSharp;
+using Pixel.Scripting.Reference.Manager;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -30,23 +31,20 @@ namespace Pixel.Scripting.Engine.CSharp
 
         private List<WeakReference<IScriptEngine>> createdScriptEngines = new List<WeakReference<IScriptEngine>>();
 
-        private readonly object locker = new object();
-
-        /// <summary>
-        /// Allowed assemblies to be resolved by MetaDataResolver
-        /// </summary>
-        private readonly List<string> whiteListedReferences = new List<string>();
-       
+        private readonly object locker = new object();      
 
         #endregion data members
 
-        public ScriptEngineFactory(ApplicationSettings applicationSettings)
-        {
-            this.whiteListedReferences.AddRange(applicationSettings.WhiteListedReferences ?? Enumerable.Empty<string>());
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="applicationSettings"></param>
+        public ScriptEngineFactory()
+        {          
             this.metaDataReferenceResolver = CreateScriptMetaDataResolver();
             this.scriptOptions = this.scriptOptions.WithMetadataResolver(metaDataReferenceResolver);
-            this.scriptOptions = this.scriptOptions.AddReferences(ScriptReferences.DesktopDefault.GetReferences());
-            this.scriptOptions = this.scriptOptions.WithImports(ScriptReferences.NamespaceDefault.Imports);
+            this.scriptOptions = this.scriptOptions.AddReferences(AssemblyReferences.DefaultReferences.GetReferences());
+            this.scriptOptions = this.scriptOptions.WithImports(AssemblyReferences.DefaultNamespaces.Imports);
             this.scriptOptions = this.scriptOptions.WithFileEncoding(System.Text.Encoding.UTF8);
             this.scriptOptions = this.scriptOptions.WithEmitDebugInformation(true);
                 
@@ -64,14 +62,11 @@ namespace Pixel.Scripting.Engine.CSharp
             var scriptMetaDataResolver = ScriptMetadataResolver.Default;
             scriptMetaDataResolver = scriptMetaDataResolver.WithBaseDirectory(baseDirectory);
             scriptMetaDataResolver = scriptMetaDataResolver.WithSearchPaths(this.searchPaths);
-            var resolver = new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);   
-            foreach(var item in whiteListedReferences)
-            {
-                resolver.WithWhiteListedReference(item);
-            }
+            var resolver = new CachedScriptMetadataResolver(scriptMetaDataResolver, useCache: true);              
             return resolver;
         }
 
+        ///<inheritdoc/>
         public IScriptEngineFactory WithSearchPaths(string baseDirectory, params string[] searchPaths)
         {
             Guard.Argument(baseDirectory).NotNull().NotEmpty();
@@ -83,8 +78,9 @@ namespace Pixel.Scripting.Engine.CSharp
                 UpdateScriptOptions();
                 return this;
             }
-        }     
+        }
 
+        ///<inheritdoc/>
         public IScriptEngineFactory WithAdditionalSearchPaths(params string[] searchPaths)
         {
             if (string.IsNullOrEmpty(this.baseDirectory))
@@ -100,6 +96,7 @@ namespace Pixel.Scripting.Engine.CSharp
             }
         }
 
+        ///<inheritdoc/>
         public void RemoveSearchPaths(params string[] searchPaths)
         {
             lock (locker)
@@ -109,6 +106,7 @@ namespace Pixel.Scripting.Engine.CSharp
             }
         }
 
+        ///<inheritdoc/>
         void UpdateScriptOptions()
         {
             var scriptMetaDataResolver = ScriptMetadataResolver.Default;
@@ -122,25 +120,34 @@ namespace Pixel.Scripting.Engine.CSharp
             this.scriptOptions = this.scriptOptions.WithSourceResolver(new SourceFileResolver(searchPaths, baseDirectory));
         }
 
+        ///<inheritdoc/>
         public IScriptEngineFactory WithAdditionalNamespaces(params string[] namespaces)
         {
             lock (locker)
             {
                 this.namespaces = this.namespaces.Union(namespaces).ToList<string>();
-                this.scriptOptions = this.scriptOptions.WithImports(this.namespaces);
+                foreach(var import in namespaces)
+                {
+                    if(!this.namespaces.Contains(import))
+                    {
+                        this.scriptOptions = this.scriptOptions.AddImports(import);
+                    }
+                }                
                 return this;
             }
         }
 
+        ///<inheritdoc/>
         public void RemoveNamespaces(params string[] namespaces)
         {
             lock (locker)
             {
                 this.namespaces = this.namespaces.Except(namespaces).ToList<string>();
-                this.scriptOptions = this.scriptOptions.WithImports(this.namespaces);
+                this.scriptOptions = this.scriptOptions.WithImports(AssemblyReferences.DefaultNamespaces.Imports.Union(this.namespaces));
             }
-        }    
+        }
 
+        ///<inheritdoc/>
         public IScriptEngineFactory WithAdditionalAssemblyReferences(params Assembly[] references)
         {
             lock (locker)
@@ -157,6 +164,7 @@ namespace Pixel.Scripting.Engine.CSharp
             }
         }
 
+        ///<inheritdoc/>
         public IScriptEngineFactory WithAdditionalAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
             Guard.Argument(assemblyReferences).NotNull();
@@ -190,7 +198,18 @@ namespace Pixel.Scripting.Engine.CSharp
             }
         }
 
+        ///<inheritdoc/>
+        public IScriptEngineFactory WithWhiteListedReferences(IEnumerable<string> whiteListedReferences)
+        {
+            Guard.Argument(whiteListedReferences).NotNull();
+            foreach(var reference in whiteListedReferences)
+            {
+               _ = this.metaDataReferenceResolver.WithWhiteListedReference(reference);
+            }
+            return this;
+        }
 
+        ///<inheritdoc/>
         public void RemoveReferences(params Assembly[] references)
         {
             lock (locker)
@@ -227,8 +246,7 @@ namespace Pixel.Scripting.Engine.CSharp
 
         }
 
-
-
+        ///<inheritdoc/>
         public IScriptEngine CreateScriptEngine(string workingDirectory)
         {
             IScriptEngine scriptEngine = new ScriptEngine(() => this.scriptOptions, new ScriptRunner());
@@ -238,6 +256,7 @@ namespace Pixel.Scripting.Engine.CSharp
             return scriptEngine;
         }
 
+        ///<inheritdoc/>
         public IScriptEngine CreateInteractiveScriptEngine()
         {
             IScriptEngine scriptEngine = new ScriptEngine(() => this.scriptOptions, new ScriptRunner());

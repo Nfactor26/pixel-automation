@@ -269,6 +269,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        /// <inheritdoc/>      
+        public async Task ManageAssemblyReferencesAsync()
+        {
+            try
+            {
+                var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                await this.windowManager.ShowDialogAsync(versionManager);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
 
         #endregion Automation Project
 

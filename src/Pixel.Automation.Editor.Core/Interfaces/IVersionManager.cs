@@ -17,5 +17,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         IVersionManager CreatePrefabReferenceManager(IProjectFileSystem projectFileSystem);
 
         IVersionManager CreateControlReferenceManager(IFileSystem projectFileSystem);
+
+        IVersionManager CreateAssemblyReferenceManager(IFileSystem projectFileSystem);
     }
 }

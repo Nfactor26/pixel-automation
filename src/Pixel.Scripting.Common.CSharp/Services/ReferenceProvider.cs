@@ -8,12 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Common.CSharp.Services
 {    
-    [ExportCompletionProvider("DllReferenceProvider", LanguageNames.CSharp)]
+    [ExportCompletionProvider(nameof(DllReferenceProvider), LanguageNames.CSharp)]
     public class DllReferenceProvider : CompletionProvider
     {
         List<CompletionItem> completionItems = default;
@@ -22,9 +23,9 @@ namespace Pixel.Scripting.Common.CSharp.Services
             commitCharacterRules: ImmutableArray<CharacterSetModificationRule>.Empty,
             enterKeyRule: EnterKeyRule.Never,
             selectionBehavior: CompletionItemSelectionBehavior.SoftSelection);
+   
         public override bool ShouldTriggerCompletion(SourceText text, int caretPosition, CompletionTrigger trigger, OptionSet options)
         {
-
             return true;
         }
 
@@ -102,7 +103,7 @@ namespace Pixel.Scripting.Common.CSharp.Services
         {
             await Task.Run(() =>
             {                
-                foreach (var directory in new[] { Environment.CurrentDirectory })
+                foreach (var directory in Enumerable.Concat(new[] { AppContext.BaseDirectory }, Directory.GetDirectories(Path.Join(AppContext.BaseDirectory, "Plugins"))))
                 {
                     var dlls = Directory.EnumerateFiles(directory, "*.dll");
                     foreach (var dll in dlls)

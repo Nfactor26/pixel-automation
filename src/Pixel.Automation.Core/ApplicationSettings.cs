@@ -98,6 +98,13 @@ namespace Pixel.Automation.Core
         [DataMember]
         public string[] DefaultScriptReferences { get; set; }
 
+
+        /// <summary>
+        /// Default imports for the script editor and script engine for runtime.       
+        /// </summary>
+        [DataMember]
+        public string[] DefaultScriptImports { get; set; }
+
         /// <summary>
         /// For script engine, MetaDataResolver will resolve only those assemblies which are white listed.
         /// </summary>

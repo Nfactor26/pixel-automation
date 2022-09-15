@@ -11,25 +11,29 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public class PrefabProjectManager : ProjectManager, IPrefabProjectManager
     {
         private readonly IPrefabFileSystem prefabFileSystem;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
+        private IReferenceManager referenceManager;
         private readonly ApplicationSettings applicationSettings;
         private PrefabProject prefabProject;       
         private Entity prefabbedEntity;       
 
-        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider, ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
-            : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, codeGenerator, applicationDataManager)
+        public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
+            ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
+            ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings,
+            IReferenceManagerFactory referenceManagerFactory)
+            : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull().Value;
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
         }
 
         #region load project
@@ -40,12 +44,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.prefabFileSystem.Initialize(prefabProject, versionInfo);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
+            this.referenceManager = referenceManagerFactory.CreateForPrefabProject(prefabProject, versionInfo);
+            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
-            ConfigureCodeEditor();
-          
-            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
+            ConfigureCodeEditor(this.referenceManager);
 
-            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
+            var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
+            ConfigureScriptEngine(this.referenceManager, dataModel);
+            ConfigureScriptEditor(this.referenceManager, dataModel);          
+            this.entityManager.Arguments = dataModel;
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();           
             return this.RootEntity;
@@ -161,9 +168,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public override async Task Refresh()
         {
             await this.Save();
-            this.Initialize();
-            this.entityManager.Arguments = CompileAndCreateDataModel(Constants.PrefabDataModelName);
-            ConfigureScriptEditor(); //every time data model assembly changes, we need to reconfigure script editor
+            this.Initialize();          
+            var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
+            ConfigureScriptEngine(this.referenceManager, dataModel);
+            ConfigureScriptEditor(this.referenceManager, dataModel);           
+            this.entityManager.Arguments = dataModel;
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
         }
 

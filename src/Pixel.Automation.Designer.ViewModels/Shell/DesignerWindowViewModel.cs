@@ -233,7 +233,6 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 return this.ActiveItem is IEditor;
             }
-
         }
 
         public async Task ManageControlReferencesAsync()
@@ -242,6 +241,23 @@ namespace Pixel.Automation.Designer.ViewModels
             if (activeItem != null)
             {
                 await activeItem.ManageControlReferencesAsync();
+            }
+        }
+
+        public bool CanManageAssemblyReferences
+        {
+            get
+            {
+                return this.ActiveItem is IEditor;
+            }
+        }
+
+        public async Task ManageAssemblyReferencesAsync()
+        {
+            var activeItem = this.ActiveItem as IEditor;
+            if (activeItem != null)
+            {
+                await activeItem.ManageAssemblyReferencesAsync();
             }
         }
 
@@ -264,6 +280,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanManageProjectVersion);
                 NotifyOfPropertyChange(() => CanManagePrefabReferences);
                 NotifyOfPropertyChange(() => CanManageControlReferences);
+                NotifyOfPropertyChange(() => CanManageAssemblyReferences);
             }
             catch (Exception ex)
             {

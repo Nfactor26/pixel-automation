@@ -134,19 +134,7 @@ namespace Pixel.Automation.Core
         private void ConfigureServices()
         {
             IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
-
-            //For primary entity manager, add the assemblies.For secondary entity manager, data model assembly is same as primary entity manager data model assembly.
-            //For prefab entity manager which are also secondary entity manager, data model assembly is loaded using #r in mapping scripts. No need to add them to
-            //script engine factory here.
-            if (isPrimaryEntityManager)
-            {
-                var assemblyReferences = fileSystem.ReferenceManager.GetScriptRunTimeReferences();
-                scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory).
-                WithAdditionalAssemblyReferences(assemblyReferences).WithAdditionalAssemblyReferences(this.arguments.GetType().Assembly);               
-            }
-
-
-
+          
             this.scriptEngine = scriptEngineFactory.CreateScriptEngine(fileSystem.WorkingDirectory);
             this.scriptEngine.SetGlobals(this.arguments);
 

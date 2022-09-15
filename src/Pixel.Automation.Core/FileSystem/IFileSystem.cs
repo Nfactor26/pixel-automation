@@ -37,7 +37,10 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         string ControlReferencesFile { get; }
 
-        AssemblyReferenceManager ReferenceManager { get; }
+        /// <summary>
+        /// Path of the assembly references file. This store references and imports for script editor, code editor and script engine for the project.
+        /// </summary>
+        string AssemblyReferencesFile { get; }
 
         /// <summary>
         /// Returns path relative to working directory of file system for a given path.

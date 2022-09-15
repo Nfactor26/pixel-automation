@@ -78,9 +78,6 @@ namespace Pixel.Automation.Core
             }
 
             base.Initialize();
-
-            this.ReferenceManager = new AssemblyReferenceManager(this.applicationSettings, this.DataModelDirectory, this.ScriptsDirectory);
-
         }
 
         /// <InheritDoc/>      

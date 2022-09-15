@@ -9,8 +9,7 @@ namespace Pixel.Scripting.Script.Editor
 {
     public class ScriptEditorFactory : IScriptEditorFactory
     {
-        private readonly ILogger logger = Log.ForContext<ScriptEditorFactory>();
-        private readonly string Identifier = Guid.NewGuid().ToString();
+        private readonly ILogger logger = Log.ForContext<ScriptEditorFactory>();       
         private readonly IEditorService editorService;
         private bool isInitialized = false;
         private Dictionary<string, WeakReference<IInlineScriptEditor>> inlineEditors = new Dictionary<string, WeakReference<IInlineScriptEditor>>();
@@ -19,7 +18,7 @@ namespace Pixel.Scripting.Script.Editor
         {
             Guard.Argument(editorService).NotNull();
             this.editorService = editorService;
-            logger.Debug($"Create a new instance of {nameof(ScriptEditorFactory)} with Id : {Identifier}");
+            logger.Debug($"Create a new instance of {nameof(ScriptEditorFactory)}");
         }
 
         private void EnsureInitialized()
@@ -30,8 +29,7 @@ namespace Pixel.Scripting.Script.Editor
             }
         }
 
-
-        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences)
+        public void Initialize(string workingDirectory, IEnumerable<string> editorReferences, IEnumerable<string> imports)
         {
             Guard.Argument(workingDirectory).NotNull().NotEmpty();
          
@@ -40,11 +38,12 @@ namespace Pixel.Scripting.Script.Editor
                 WorkingDirectory = workingDirectory,
                 EnableCodeActions = true,
                 AssemblyReferences = editorReferences,
+                Imports = imports,
                 WorkspaceType = WorkspaceType.Script
             });
             this.isInitialized = true;
 
-            logger.Information($"{nameof(ScriptEditorFactory)} is initialized now.");
+            logger.Information("{0} is initialized now with working directory set to {1}.", nameof(ScriptEditorFactory), workingDirectory);
         }
 
         public void SwitchWorkingDirectory(string workingDirectory)

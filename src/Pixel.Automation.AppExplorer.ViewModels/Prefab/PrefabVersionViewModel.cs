@@ -1,11 +1,12 @@
 ﻿using Caliburn.Micro;
+using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
@@ -15,6 +16,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly PrefabProject prefabProject;
         private readonly PrefabVersion prefabVersion;
         private readonly IPrefabFileSystem fileSystem;
+        private readonly Lazy<ReferenceManager> referenceManager;
 
         public Version Version
         {
@@ -68,11 +70,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
 
-        public PrefabVersionViewModel(PrefabProject prefabProject, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem)
-        {
-            this.prefabProject = prefabProject;
-            this.prefabVersion = prefabVersion;
-            this.fileSystem = fileSystem;
+        public PrefabVersionViewModel(PrefabProject prefabProject, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
+        {         
+            this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+            this.prefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
+            this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForPrefabProject(prefabProject, prefabVersion); });
         }
 
         public PrefabVersion Clone()
@@ -123,7 +126,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
             string prefabProjectName = this.prefabProject.GetPrefabName();
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.fileSystem.ReferenceManager.GetCodeEditorReferences());
+            workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
             workspaceManager.AddProject(prefabProjectName, $"{Constants.PrefabDataModelName}.{this.prefabProject.GetPrefabName()}", Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())

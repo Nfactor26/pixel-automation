@@ -3,6 +3,8 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.Serialization;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
@@ -17,6 +19,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>();
             Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
             Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
+            
+            Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();
         }
     }
 }
