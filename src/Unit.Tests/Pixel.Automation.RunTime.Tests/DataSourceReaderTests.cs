@@ -4,24 +4,26 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Pixel.Automation.RunTime.Tests
 {
     public class DataSourceReaderTests
-    {      
-      
+    {    
 
-        [Test]
-        public void ValidateThatCodedDataSourceCanBeLoaded()
+        [TestCase("", false)]
+        [TestCase("custom", true)]
+        [TestCase("custom", false)]
+        public void ValidateThatCodedDataSourceCanBeLoaded(string dataSourceSuffix, bool suffixedFileExists)
         {
-            var testDataSource = new TestDataSource() { DataSource = DataSource.Code };
+            var testDataSource = new TestDataSource() { DataSource = DataSource.Code, ScriptFile = "Data.csx" };
 
             var fileSystem = Substitute.For<IProjectFileSystem>();
-            fileSystem.TestCaseRepository.Returns(Environment.CurrentDirectory);
-            fileSystem.Exists(Arg.Any<string>()).Returns(true);
+            fileSystem.TestCaseRepository.Returns(string.Empty);
+            fileSystem.Exists("DataSourceId.dat").Returns(true);
+            fileSystem.Exists("Data.csx").Returns(true);
+            fileSystem.Exists($"Data.{dataSourceSuffix}.csx").Returns(suffixedFileExists);
 
             var serializer = Substitute.For<ISerializer>();
             serializer.Deserialize<TestDataSource>(Arg.Any<string>()).Returns(testDataSource);
@@ -36,21 +38,27 @@ namespace Pixel.Automation.RunTime.Tests
             scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns(scriptEngine);
 
             var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngineFactory, new []{ csvDataReader });
+            dataSourceReader.SetDataSourceSuffix(dataSourceSuffix);
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 
             Assert.AreEqual(2, dataRows.Count());
 
-            fileSystem.Received(1).Exists(Arg.Any<string>());
+            fileSystem.Received(1).Exists("DataSourceId.dat");
+            if(!string.IsNullOrEmpty(dataSourceSuffix))
+            {
+                fileSystem.Received(1).Exists($"Data.{dataSourceSuffix}.csx");
+            }
             scriptEngine.Received(1).ExecuteFileAsync(Arg.Any<string>());
             scriptEngine.Received(1).ExecuteScriptAsync(Arg.Is<string>("GetDataRows()"));
 
         }
 
 
-
-        [Test]
-        public void ValidateThatCsvDataSourceCanBeLoaded()
+        [TestCase("", false)]
+        [TestCase("custom", true)]
+        [TestCase("custom", false)]
+        public void ValidateThatCsvDataSourceCanBeLoaded(string dataSourceSuffix, bool suffixedFileExists)
         {
             var testDataSource = new TestDataSource() 
             { 
@@ -62,9 +70,11 @@ namespace Pixel.Automation.RunTime.Tests
             };
 
             var fileSystem = Substitute.For<IProjectFileSystem>();
-            fileSystem.TestCaseRepository.Returns(Environment.CurrentDirectory);
-            fileSystem.TestDataRepository.Returns(Environment.CurrentDirectory);
-            fileSystem.Exists(Arg.Any<string>()).Returns(true);
+            fileSystem.TestCaseRepository.Returns(string.Empty);
+            fileSystem.TestDataRepository.Returns(string.Empty);
+            fileSystem.Exists("DataSourceId.dat").Returns(true);
+            fileSystem.Exists("CsvFile.csv").Returns(true);
+            fileSystem.Exists($"CsvFile.{dataSourceSuffix}.csx").Returns(suffixedFileExists);
 
             var serializer = Substitute.For<ISerializer>();
             serializer.Deserialize<TestDataSource>(Arg.Any<string>()).Returns(testDataSource);
@@ -82,12 +92,17 @@ namespace Pixel.Automation.RunTime.Tests
             scriptEngineFactory.CreateScriptEngine(Arg.Any<string>()).Returns(scriptEngine);
 
             var dataSourceReader = new DataSourceReader(serializer, fileSystem, scriptEngineFactory, new[] { csvDataReader });
+            dataSourceReader.SetDataSourceSuffix(dataSourceSuffix);
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 
             Assert.AreEqual(2, dataRows.Count());
 
-            fileSystem.Received(1).Exists(Arg.Any<string>());
+            fileSystem.Received(1).Exists("DataSourceId.dat");
+            if (!string.IsNullOrEmpty(dataSourceSuffix))
+            {
+                fileSystem.Received(1).Exists($"CsvFile.{dataSourceSuffix}.csv");
+            }
             csvDataReader.Received(1).CanProcessFileType("csv");
             scriptEngine.Received(1).SetGlobals(Arg.Any<object>());
             scriptEngine.Received(1).ExecuteFileAsync(Arg.Any<string>());
