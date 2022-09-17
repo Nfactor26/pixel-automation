@@ -12,7 +12,9 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Scripting.Reference.Manager.Models;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -22,7 +24,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private IReferenceManager referenceManager;
         private readonly ApplicationSettings applicationSettings;
-        private PrefabProject prefabProject;       
+        private PrefabProject prefabProject;
+        private VersionInfo loadedVersion;
         private Entity prefabbedEntity;       
 
         public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
@@ -38,13 +41,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region load project
 
-        public Entity Load(PrefabProject prefabProject, VersionInfo versionInfo)
+        public Entity Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
             this.prefabProject = prefabProject;
-            this.prefabFileSystem.Initialize(prefabProject, versionInfo);
+            this.loadedVersion = versionToLoad;
+            this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-            this.referenceManager = referenceManagerFactory.CreateForPrefabProject(prefabProject, versionInfo);
+            this.referenceManager = referenceManagerFactory.CreateForPrefabProject(prefabProject, versionToLoad);
             this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
             ConfigureCodeEditor(this.referenceManager);
@@ -165,10 +169,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public override async Task Refresh()
+        public override async Task Reload()
         {
             await this.Save();
-            this.Initialize();          
+            this.Initialize();                      
+            var reference = this.fileSystem.LoadFile<ReferenceCollection>(this.fileSystem.AssemblyReferencesFile);
+            this.referenceManager.SetReferenceCollection(reference);
             var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
             ConfigureScriptEngine(this.referenceManager, dataModel);
             ConfigureScriptEditor(this.referenceManager, dataModel);           

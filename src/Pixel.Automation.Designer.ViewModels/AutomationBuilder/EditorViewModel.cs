@@ -255,6 +255,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
+        /// <summary>
+        /// Reload the project while preserving the last editor state e.g. test cases opened earlier
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Task Reload();       
+
         /// <inheritdoc/>      
         public async Task ManageControlReferencesAsync()
         {
@@ -275,7 +281,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             try
             {
                 var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem());
-                await this.windowManager.ShowDialogAsync(versionManager);
+                var result = await this.windowManager.ShowDialogAsync(versionManager);
+                if(result.HasValue && result.Value)
+                {
+                    await this.Reload();
+                }               
             }
             catch (Exception ex)
             {
