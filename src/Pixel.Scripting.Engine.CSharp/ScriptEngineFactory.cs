@@ -128,7 +128,7 @@ namespace Pixel.Scripting.Engine.CSharp
                 this.namespaces = this.namespaces.Union(namespaces).ToList<string>();
                 foreach(var import in namespaces)
                 {
-                    if(!this.namespaces.Contains(import))
+                    if(!this.scriptOptions.Imports.Contains(import))
                     {
                         this.scriptOptions = this.scriptOptions.AddImports(import);
                     }
