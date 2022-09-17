@@ -23,7 +23,7 @@ public class TypeActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember(IsRequired = true)]
     [Display(Name = "Input", GroupName = "Configuration", Order = 10, Description = "Input argument for text to type")]
-    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
+    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default };
 
 
     /// <summary>

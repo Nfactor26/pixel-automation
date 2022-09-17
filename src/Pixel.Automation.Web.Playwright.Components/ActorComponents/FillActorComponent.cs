@@ -23,7 +23,7 @@ public class FillActorComponent : PlaywrightActorComponent
     /// </summary>
     [DataMember(IsRequired = true)]
     [Display(Name = "Input", GroupName = "Configuration", Order = 10, Description = "Input value to fill")]
-    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound };
+    public Argument Input { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorFillOptions"/> that can be used to customize the fill operation
