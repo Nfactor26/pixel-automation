@@ -120,6 +120,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         /// <summary>
+        /// Setup the scripting project for initialization script and add initialization script file as a document to this project
+        /// </summary>
+        protected virtual void SetupInitializationScriptProject(object dataModel)
+        {
+            this.scriptEditorFactory.AddProject(RootEntity.Id, Array.Empty<string>(), dataModel.GetType());
+            var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+            this.scriptEditorFactory.AddDocument(scriptFile, RootEntity.Id, this.fileSystem.ReadAllText(scriptFile));
+        }
+
+        /// <summary>
         /// Setup ScriptEngineFactory with search path and assembly references
         /// </summary>
         /// <param name="referenceManager"></param>
