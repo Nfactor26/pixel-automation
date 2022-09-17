@@ -83,7 +83,7 @@ namespace Pixel.Automation.Editor.Controls
             }
             else
             {
-                editorFactory.AddProject(forComponent.Id, Array.Empty<string>(), forComponent.EntityManager.Arguments.GetType());
+                editorFactory.AddProject(forComponent.Id, new string[] { forComponent.EntityManager.RootEntity.Id }, forComponent.EntityManager.Arguments.GetType());
             }
         }
     }

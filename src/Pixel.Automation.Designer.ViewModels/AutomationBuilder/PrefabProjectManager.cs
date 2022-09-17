@@ -58,7 +58,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             ConfigureScriptEditor(this.referenceManager, dataModel);          
             this.entityManager.Arguments = dataModel;
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            Initialize();           
+            Initialize();
+            SetupInitializationScriptProject(dataModel);
             return this.RootEntity;
         }
     
@@ -179,6 +180,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             ConfigureScriptEngine(this.referenceManager, dataModel);
             ConfigureScriptEditor(this.referenceManager, dataModel);           
             this.entityManager.Arguments = dataModel;
+            SetupInitializationScriptProject(dataModel);
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
         }
 
