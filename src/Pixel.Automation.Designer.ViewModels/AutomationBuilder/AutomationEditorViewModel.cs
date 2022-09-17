@@ -122,26 +122,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 logger.Information($"Editing data model completed for project : {this.CurrentProject.Name}");
 
-                logger.Information($"Closing all open TestCases for project: {this.CurrentProject.Name}");
-
-                //closing fixture will also close test cases
-                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-                var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
-                foreach (var fixture in testFixtures)
-                {
-                    await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
-                }
-
-                await this.projectManager.Refresh();
-
-                UpdateWorkFlowRoot();
-
-                //Opening test case will also open parent TestFixture if not already open.
-                logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
-                foreach (var testEntity in testCaseEntities)
-                {
-                    await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
-                }
+                await this.Reload();
             }
             catch (Exception ex)
             { 
@@ -193,7 +174,32 @@ namespace Pixel.Automation.Designer.ViewModels
             base.BuildWorkFlow(root);
             this.componentViewBuilder.SetRoot(root);
         }
-        
+
+        protected override async Task Reload()
+        {
+            logger.Information($"Closing all open TestCases for project: {this.CurrentProject.Name}");
+
+            //closing fixture will also close test cases
+            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
+            var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
+            foreach (var fixture in testFixtures)
+            {
+                await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
+            }
+
+            await this.projectManager.Reload();
+
+            UpdateWorkFlowRoot();
+
+            //Opening test case will also open parent TestFixture if not already open.
+            logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
+            foreach (var testEntity in testCaseEntities)
+            {
+                await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
+            }
+        }
+
+
         #endregion Automation Project
 
         #region OnLoad

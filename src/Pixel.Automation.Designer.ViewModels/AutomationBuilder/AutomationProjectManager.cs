@@ -10,6 +10,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Scripting.Reference.Manager.Models;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -43,7 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.projectFileSystem.Initialize(activeProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-            this.referenceManager = referenceManagerFactory.CreateForAutomationProject(activeProject, versionToLoad);
+            this.referenceManager = this.referenceManagerFactory.CreateForAutomationProject(activeProject, versionToLoad);
             this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
             await CreateDataModelFile();
@@ -147,10 +148,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public override async Task Refresh()
+        public override async Task Reload()
         {        
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
+            var reference = this.fileSystem.LoadFile<ReferenceCollection>(this.fileSystem.AssemblyReferencesFile);
+            this.referenceManager.SetReferenceCollection(reference);
             var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
             ConfigureScriptEngine(this.referenceManager, dataModel);
             ConfigureScriptEditor(this.referenceManager, dataModel);          

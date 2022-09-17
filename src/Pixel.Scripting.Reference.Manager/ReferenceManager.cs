@@ -10,7 +10,7 @@ namespace Pixel.Scripting.Reference.Manager;
 /// </summary>
 public class ReferenceManager : IReferenceManager
 {
-    private readonly ReferenceCollection referenceCollection;
+    private ReferenceCollection referenceCollection;
 
     /// <summary>
     /// constructor
@@ -49,5 +49,11 @@ public class ReferenceManager : IReferenceManager
     public IEnumerable<string> GetWhiteListedReferences()
     {
         return this.referenceCollection.WhiteListedReferences;
+    }
+
+    ///<inheritdoc/>  
+    public void SetReferenceCollection(ReferenceCollection referenceCollection)
+    {
+        this.referenceCollection = Guard.Argument(referenceCollection).NotNull();
     }
 }

@@ -56,7 +56,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public abstract Task Save();
 
         ///<inheritdoc/>
-        public abstract Task Refresh();
+        public abstract Task Reload();
 
         ///<inheritdoc/>
         public IProjectManager WithEntityManager(EntityManager entityManager)

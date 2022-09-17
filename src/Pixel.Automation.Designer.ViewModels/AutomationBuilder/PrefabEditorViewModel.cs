@@ -69,12 +69,18 @@ namespace Pixel.Automation.Designer.ViewModels
                 await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
                 await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);                            
              
-                await this.windowManager.ShowDialogAsync(editor);               
-            }
-            await this.projectManager.Refresh();
+                await this.windowManager.ShowDialogAsync(editor);
 
-            UpdateWorkFlowRoot();
-        }  
+                await this.Reload();
+            }
+           
+        }
+
+        protected override async Task Reload()
+        {
+            await this.projectManager.Reload();
+            this.UpdateWorkFlowRoot();
+        }
 
         #endregion Automation Project     
 

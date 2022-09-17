@@ -26,7 +26,11 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <returns></returns>
         T Load<T>(string fileName) where T : new();
 
-        Task Refresh();
+        /// <summary>
+        /// Reload the project
+        /// </summary>
+        /// <returns></returns>
+        Task Reload();
     }
 
     public interface IAutomationProjectManager: IProjectManager

@@ -77,7 +77,7 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
     /// <returns></returns>
     public async Task CloseAsync()
     {
-        await this.TryCloseAsync(true);
+        await this.TryCloseAsync(false);
     }
 
 }

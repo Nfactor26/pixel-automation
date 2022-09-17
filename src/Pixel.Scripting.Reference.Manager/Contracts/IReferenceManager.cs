@@ -1,4 +1,6 @@
-﻿namespace Pixel.Scripting.Reference.Manager.Contracts;
+﻿using Pixel.Scripting.Reference.Manager.Models;
+
+namespace Pixel.Scripting.Reference.Manager.Contracts;
 
 /// <summary>
 /// IReferenceManager defines the contract for retrieving assmbly references and imports for code editor, script editor and script engine associated
@@ -35,4 +37,11 @@ public interface IReferenceManager
     /// </summary>
     /// <returns></returns>
     IEnumerable<string> GetWhiteListedReferences();
+
+    /// <summary>
+    /// Set the <see cref="ReferenceCollection"/> for the ReferenceManager.
+    /// </summary>
+    /// <param name="referenceCollection"></param>
+    void SetReferenceCollection(ReferenceCollection referenceCollection);
+
 }
