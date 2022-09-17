@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Pixel.Automation.RunTime.Tests
 {
-    class CsvDataReaderTests
+    public class CsvDataReaderTests
     {
         private CsvDataReader csvDataReader;
 

@@ -76,7 +76,11 @@ namespace Pixel.Automation.RunTime
             string scriptFile = testDataSource.ScriptFile;        
             if(!string.IsNullOrEmpty(this.dataSourceSuffix))
             {
-                scriptFile = $"{Path.GetFileNameWithoutExtension(scriptFile)}.{this.dataSourceSuffix}{Path.GetExtension(scriptFile)}";
+                var suffixedScriptFile = $"{Path.GetFileNameWithoutExtension(scriptFile)}.{this.dataSourceSuffix}{Path.GetExtension(scriptFile)}";
+                if(this.fileSystem.Exists(suffixedScriptFile))
+                {
+                    scriptFile = suffixedScriptFile;
+                }
             }
             ScriptResult result = await codeScriptEngine.Value.ExecuteFileAsync(scriptFile);          
             result = await codeScriptEngine.Value.ExecuteScriptAsync("GetDataRows()");
@@ -97,7 +101,11 @@ namespace Pixel.Automation.RunTime
             string csvFile = csvDataSourceConfiguration.TargetFile;
             if (!string.IsNullOrEmpty(this.dataSourceSuffix))
             {
-                csvFile = $"{Path.GetFileNameWithoutExtension(csvFile)}.{this.dataSourceSuffix}{Path.GetExtension(csvFile)}";
+                var suffixedCsvFile = $"{Path.GetFileNameWithoutExtension(csvFile)}.{this.dataSourceSuffix}{Path.GetExtension(csvFile)}";
+                if(this.fileSystem.Exists(suffixedCsvFile))
+                {
+                    csvFile = suffixedCsvFile;
+                }
             }
             csvDataSourceConfiguration.TargetFile = Path.Combine(this.fileSystem.TestDataRepository, csvFile);
 
