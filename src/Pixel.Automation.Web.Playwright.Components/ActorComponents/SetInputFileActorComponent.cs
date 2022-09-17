@@ -24,7 +24,7 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     [DataMember]
     [Display(Name = "Input Files", GroupName = "Configuration", Order = 10, Description = "Input argument for input files for upload")]
     [AllowedTypes(typeof(string), typeof(IEnumerable<string>), typeof(FilePayload), typeof(IEnumerable<FilePayload>))]
-    public Argument InputFiles { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, CanChangeType = true };
+    public Argument InputFiles { get; set; } = new InArgument<string>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound, CanChangeType = true };
 
 
     /// <summary>

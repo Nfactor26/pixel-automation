@@ -27,12 +27,12 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
 
 
     /// <summary>
-    /// Input argument to provide one or more values to selected.
+    /// Input argument to provide one or more values to be selected.
     /// </summary>
     [DataMember]
-    [Display(Name = "Values", GroupName = "Configuration", Order = 20, Description = "one or more values to select")]
+    [Display(Name = "Value/s", GroupName = "Configuration", Order = 20, Description = "one or more values to select")]
     [AllowedTypes(typeof(string), typeof(IEnumerable<string>), typeof(SelectOptionValue), typeof(IEnumerable<SelectOptionValue>), typeof(IElementHandle), typeof(IEnumerable<IElementHandle>))]
-    public Argument Values { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, CanChangeType = true };
+    public Argument Values { get; set; } = new InArgument<string>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound, CanChangeType = true };
 
 
     /// <summary>
