@@ -3,8 +3,9 @@ namespace Pixel.Automation.Web.Playwright.Components;
 
 public enum Browsers
 {
-    FireFox,
     Chrome,
+    Edge,
+    FireFox,   
     WebKit
 }
 

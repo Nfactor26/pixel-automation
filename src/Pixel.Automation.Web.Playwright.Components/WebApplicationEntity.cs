@@ -21,13 +21,22 @@ public class WebApplicationEntity : ApplicationEntity
     public Argument BrowserOverride { get; set; } = new InArgument<Browsers>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
-    /// Optionally specify custom <see cref="DriverOptionsOverride"/> with which WebDriver should be initialized.
-    /// If DriverOptions is not configured, default configuration is created and used.
+    /// Optionally specify custom <see cref="BrowserTypeLaunchOptions"/> with which playwright browser should be launched.
+    /// If LaunchOptions is not configured, default configuration is created and used.
     /// </summary>
     [DataMember]
     [Display(Name = "Launch Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom browser launch options." +
-        "Default configuration is used if not specified.")]
+        " Default configuration is used if not specified.")]
     public Argument LaunchOptions { get; set; } = new InArgument<BrowserTypeLaunchOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound  };
+
+    /// <summary>
+    /// Optionally specify custom <see cref="BrowserNewContextOptions"/> with which a new browser context should be created.
+    /// If ContextOptions is not configured, default configuration is created and used.
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Context Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom browser new context options." +
+      " Default configuration is used if not specified.")]
+    public Argument ContextOptions { get; set; } = new InArgument<BrowserNewContextOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional argument which can be used to override the target url configured on application.
@@ -64,19 +73,22 @@ public class WebApplicationEntity : ApplicationEntity
         }
 
         Browsers preferredBrowser = await GetPreferredBrowser(webApplicationDetails);
-
-        InstallBrowser(preferredBrowser);
+        var browserLaunchOptions = await GetBrowserLaunchOptions(preferredBrowser);
+        
+        InstallBrowser(preferredBrowser, browserLaunchOptions);
 
         webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        var browserLaunchOptions = await GetBrowserLaunchOptions();
+      
         switch (preferredBrowser)
         {
+            case Browsers.Chrome:
+            case Browsers.Edge:
+                webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.LaunchAsync(browserLaunchOptions);
+                break;            
             case Browsers.FireFox:
                 webApplicationDetails.Browser = await webApplicationDetails.Playwright.Firefox.LaunchAsync(browserLaunchOptions);
                 break;
-            case Browsers.Chrome:
-                webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.LaunchAsync(browserLaunchOptions);
-                break;
+            
             case Browsers.WebKit:
                 webApplicationDetails.Browser = await webApplicationDetails.Playwright.Webkit.LaunchAsync(browserLaunchOptions);
                 break;
@@ -84,7 +96,8 @@ public class WebApplicationEntity : ApplicationEntity
                 throw new ArgumentException("Requested web driver type is not supported");
         }
 
-        webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync();
+        var browserContextOptions = await GetBrowserNewContextOptions();
+        webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync(browserContextOptions);
         webApplicationDetails.ActivePage = await webApplicationDetails.ActiveContext.NewPageAsync();
 
         string goToUrl = webApplicationDetails.TargetUri.ToString();
@@ -116,15 +129,45 @@ public class WebApplicationEntity : ApplicationEntity
     /// Get BrowserTypeLaunchOptions for browser
     /// </summary>        
     /// <returns></returns>
-    async Task<BrowserTypeLaunchOptions> GetBrowserLaunchOptions()
+    async Task<BrowserTypeLaunchOptions> GetBrowserLaunchOptions(Browsers preferredBrowser)
     {
+        BrowserTypeLaunchOptions launchOptions = new BrowserTypeLaunchOptions() { Headless = false };
         if (this.LaunchOptions.IsConfigured())
         {
-            var driverOptions =  await this.ArgumentProcessor.GetValueAsync<BrowserTypeLaunchOptions>(this.LaunchOptions);
-            logger.Information($"Browser launch options was over-ridden for application : {applicationDetails.ApplicationName}");
-            return driverOptions;
+            launchOptions =  await this.ArgumentProcessor.GetValueAsync<BrowserTypeLaunchOptions>(this.LaunchOptions);           
+            logger.Information($"Browser launch options was over-ridden for application : {applicationDetails.ApplicationName}");            
         }
-        return new BrowserTypeLaunchOptions() { Headless = false };
+        switch (preferredBrowser)
+        {
+            case Browsers.Chrome:
+                if (string.IsNullOrEmpty(launchOptions.Channel))
+                {
+                    launchOptions.Channel = "chrome";
+                }
+                break;
+            case Browsers.Edge:
+                if (string.IsNullOrEmpty(launchOptions.Channel))
+                {
+                    launchOptions.Channel = "msedge";
+                }
+                break;
+        }
+        return launchOptions;
+    }
+
+    /// <summary>
+    /// Get BrowserNewContextOptions for browser
+    /// </summary>        
+    /// <returns></returns>
+    async Task<BrowserNewContextOptions> GetBrowserNewContextOptions()
+    {
+        if (this.ContextOptions.IsConfigured())
+        {
+            var contextOptions = await this.ArgumentProcessor.GetValueAsync<BrowserNewContextOptions>(this.ContextOptions);
+            logger.Information($"Browser new context options was over-ridden for application : {applicationDetails.ApplicationName}");
+            return contextOptions;
+        }
+        return new BrowserNewContextOptions() { ViewportSize = ViewportSize.NoViewport };
     }
 
     async  Task<Browsers> GetPreferredBrowser(WebApplication webApplication)
@@ -138,19 +181,33 @@ public class WebApplicationEntity : ApplicationEntity
         return preferredBrowser;
     }
 
-    void InstallBrowser(Browsers preferredBrowser)
+    void InstallBrowser(Browsers preferredBrowser, BrowserTypeLaunchOptions launchOptions)
     {
-        Program.Main(new[] { "install", "--help" });
-        int exitCode = -1;
+        Program.Main(new[] { "install", "--help" });      
+        int exitCode = 0;
+        string channel;
         switch (preferredBrowser)
         {
-            case Browsers.FireFox:
+            case Browsers.FireFox:                
                 exitCode = Program.Main(new[] { "install", "firefox" });
                 break;
             case Browsers.Chrome:
-                exitCode = Program.Main(new[] { "install", "chromium" });
+                //Don't install the stock chrome. It is expected to be present on system
+                channel = launchOptions.Channel ?? "chrome";
+                if(!string.Equals(channel, "chrome"))
+                {
+                    exitCode = Program.Main(new[] { "install", channel });
+                }
                 break;
-            case Browsers.WebKit:
+            case Browsers.Edge:
+                //Don't install the stock edge. It is expected to be present on system
+                channel = launchOptions.Channel ?? "msedge";
+                if (!string.Equals(channel, "msedge"))
+                {
+                    exitCode = Program.Main(new[] { "install", channel });
+                }
+                break;
+            case Browsers.WebKit:               
                 exitCode = Program.Main(new[] { "install", "webkit" });
                 break;
             default:
