@@ -11,7 +11,7 @@ namespace Pixel.Automation.Web.Playwright.Components
                 WebControlIdentity controlIdentity = new WebControlIdentity()
                 {
                     Name = "1",                  
-                    Identifier = capturedData.Identifier
+                    Identifier = capturedData.PlaywrightSelector ?? capturedData.Selector
                 };
 
 
@@ -20,7 +20,7 @@ namespace Pixel.Automation.Web.Playwright.Components
                     var details = frame.Split(new char[] { '|' });
                     FrameIdentity frameIdentity = new FrameIdentity()
                     {                       
-                        Identifier = details[2]  //use index by default
+                        Identifier = details[3]  //use playwright selector by default
                     };                    
                     controlIdentity.FrameHierarchy.Add(frameIdentity);
                 }

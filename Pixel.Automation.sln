@@ -142,6 +142,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pixel-browser-scrapper", "p
 		src\Extensions\pixel-browser-scrapper\manifest.json = src\Extensions\pixel-browser-scrapper\manifest.json
 		src\Extensions\pixel-browser-scrapper\optimal-select.min.js = src\Extensions\pixel-browser-scrapper\optimal-select.min.js
 		src\Extensions\pixel-browser-scrapper\Web.Scrapper.js = src\Extensions\pixel-browser-scrapper\Web.Scrapper.js
+		src\Extensions\pixel-browser-scrapper\playwright.js = src\Extensions\pixel-browser-scrapper\playwright.js
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Components", "src\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj", "{329AD7C0-8CF7-4EB0-A143-BDE1576A94CC}"

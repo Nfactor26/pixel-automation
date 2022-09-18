@@ -10,7 +10,10 @@ public class ScrapedControlData
     public string ControlLocation { get; set; }
 
     [DataMember]
-    public string Identifier { get; set; }
+    public string Selector { get; set; }
+
+    [DataMember]
+    public string PlaywrightSelector { get; set; }
 
     [DataMember]
     public int Left { get; set; }
@@ -32,7 +35,6 @@ public class ScrapedControlData
 
     [DataMember]
     public int ScreenTop { get; set; }
-
 
 }
 

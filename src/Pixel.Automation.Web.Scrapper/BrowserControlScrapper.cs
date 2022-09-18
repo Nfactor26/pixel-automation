@@ -89,7 +89,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     public async Task StartCapture()
     {
         capturedControls.Clear();
-        InstallBrowser();
+        InstallBrowser();       
         playWright = await Microsoft.Playwright.Playwright.CreateAsync();
         string pathToExtension = Path.Combine(Environment.CurrentDirectory, "Extensions", "pixel-browser-scrapper");
         string dataDirectory = Path.Combine(Environment.CurrentDirectory, "Extensions", "Context");
@@ -105,6 +105,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
                 $"--disable-extensions-except={pathToExtension}",
                 $"--load-extension={pathToExtension}"
             },
+            Channel = "chrome",
             ViewportSize = ViewportSize.NoViewport
         });
         var page = browserContext.Pages[0];
@@ -138,7 +139,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
                     ScrapedControl scrapedControl = new ScrapedControl() { ControlImage = controlScreenShot, ControlData = capturedData };
                     capturedControls.Enqueue(scrapedControl);
 
-                    logger.Information("Recevied control with identifier : {identifier}", capturedData.Identifier);
+                    logger.Information("Recevied clicked control {@0}", capturedData);
                     return;
                 }
 
@@ -178,7 +179,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     public async Task StopCapture()
     {
         try
-        {
+        {            
             foreach(var page in browserContext.Pages)
             {
                 page.Console -= HandleMessagesOnConsole;
