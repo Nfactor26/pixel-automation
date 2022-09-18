@@ -89,6 +89,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     public async Task StartCapture()
     {
         capturedControls.Clear();
+        InstallBrowser();
         playWright = await Microsoft.Playwright.Playwright.CreateAsync();
         string pathToExtension = Path.Combine(Environment.CurrentDirectory, "Extensions", "pixel-browser-scrapper");
         string dataDirectory = Path.Combine(Environment.CurrentDirectory, "Extensions", "Context");
@@ -159,6 +160,15 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
             logger.Error(ex.Message, ex);
         }
     }
+
+    /// <summary>
+    /// Install chrome stock browser for use with scraping
+    /// </summary>  
+    void InstallBrowser()
+    {        
+        Program.Main(new[] { "install", "chrome" });        
+    }
+
 
     ///</inheritdoc>
     public async Task StopCapture()

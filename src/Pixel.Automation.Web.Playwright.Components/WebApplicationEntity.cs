@@ -198,6 +198,11 @@ public class WebApplicationEntity : ApplicationEntity
                 {
                     exitCode = Program.Main(new[] { "install", channel });
                 }
+                else
+                {
+                    //for stock browser, exitCode is non-zero if browser is already installed so we don't check it.
+                    Program.Main(new[] { "install", channel });
+                }
                 break;
             case Browsers.Edge:
                 //Don't install the stock edge. It is expected to be present on system
@@ -205,6 +210,11 @@ public class WebApplicationEntity : ApplicationEntity
                 if (!string.Equals(channel, "msedge"))
                 {
                     exitCode = Program.Main(new[] { "install", channel });
+                }
+                else
+                {
+                    //for stock browser, exitCode is non-zero if browser is already installed so we don't check it.
+                    Program.Main(new[] { "install", channel });
                 }
                 break;
             case Browsers.WebKit:               
