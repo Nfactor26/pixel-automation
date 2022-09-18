@@ -255,5 +255,13 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             }
         }
 
+        protected void RefreshAvailableProperties(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (this.Argument.Mode == ArgumentMode.DataBound)
+            {
+                this.AvailableProperties.Clear();
+                LoadAvailableProperties();
+            }
+        }
     }
 }

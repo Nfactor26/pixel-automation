@@ -33,6 +33,7 @@
 
                     <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=OutArgumentControl}" 
                           IsEditable="True" Metro:TextBoxHelper.UseFloatingWatermark="True"
+                          PreviewMouseDown="RefreshAvailableProperties"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=OutArgumentControl}"
                           SelectedValue="{Binding Argument.PropertyPath,Mode=TwoWay,ElementName=OutArgumentControl}"
                           Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"

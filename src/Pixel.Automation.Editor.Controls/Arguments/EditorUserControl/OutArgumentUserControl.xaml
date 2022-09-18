@@ -31,6 +31,7 @@
 
                 <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=OutArgumentControl}" 
                           IsEditable="True" Width="158" MaxWidth="158"
+                          PreviewMouseDown="RefreshAvailableProperties"
                           Metro:TextBoxHelper.UseFloatingWatermark="True"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=OutArgumentControl}"
                           SelectedValue="{Binding Argument.PropertyPath,Mode=TwoWay,ElementName=OutArgumentControl}"
