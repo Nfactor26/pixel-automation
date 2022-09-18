@@ -12,7 +12,7 @@ public class WebControlIdentityBuilder : IControlIdentityBuilder
             {
                 Name = "1",
                 FindByStrategy = "CssSelector",
-                Identifier = capturedData.Identifier
+                Identifier = capturedData.Selector
             };
 
             foreach (var frame in capturedData.FrameHierarchy)

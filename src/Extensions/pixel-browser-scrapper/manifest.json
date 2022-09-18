@@ -14,8 +14,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],    
-      "js": ["jquery-1.6.4.min.js","optimal-select.min.js", "Web.Scrapper.js"],
+      "matches": ["<all_urls>"],
+      "js": [ "jquery-1.6.4.min.js", "optimal-select.min.js", "playwright.js", "Web.Scrapper.js"],
       "all_frames" : true  
     }
   ],
