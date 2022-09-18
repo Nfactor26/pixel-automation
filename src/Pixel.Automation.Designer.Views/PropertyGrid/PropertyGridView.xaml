@@ -10,28 +10,14 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
-
             <converters:InverseBooleanConverter x:Key="inverseBoolConverter"/>
-
-            <!--<Thickness x:Key="ControlMargin">0 5 0 0</Thickness>-->
-
-            <!--<Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}" BasedOn="{StaticResource MahApps.Styles.TextBox}">
-                <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
-                <Setter Property="Margin" Value="{StaticResource ControlMargin}"/>
-                <Style.Triggers>
-                    <Trigger Property="IsReadOnly" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Gray3}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>-->
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <!--We also have IsReadOnly property. However, we need to make custom used control/styles on property grid support isreadonly as well-->
         <xctk:PropertyGrid x:Name="propertyGrid" SelectedObject="{Binding SelectedObject}"  ShowSortOptions="True" IsCategorized="True"
-          IsEnabled="{Binding IsReadOnly, Converter={StaticResource inverseBoolConverter}}"                          
+          IsEnabled="{Binding IsReadOnly, Converter={StaticResource inverseBoolConverter}}"                        
           BorderThickness="0"  ShowSearchBox="True" Style="{StaticResource PropertyGridStyle}" 
                            PropertyContainerStyle="{StaticResource PropertyItemStyle}"/>
-
     </Grid>
 </UserControl>

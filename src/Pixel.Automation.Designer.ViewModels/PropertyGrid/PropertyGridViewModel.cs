@@ -1,5 +1,4 @@
 ﻿using Pixel.Automation.Editor.Core;
-using System;
 using System.Windows.Input;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -26,15 +25,12 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private Func<bool> canSave;
 
-        private ICommand saveCommand;
-        public ICommand SaveCommand
-        {
-            get { return saveCommand ?? new RelayCommand(p => Save(), p => CanSave()); }
-        }      
+        public ICommand SaveCommand { get; private set; }
 
         public PropertyGridViewModel()
         {
             this.DisplayName = "Properties";
+            this.SaveCommand = new RelayCommand(p => Save(), p => CanSave());
         }
 
         public void SetState(object selectedObject, bool isReadOnly, Action saveCommand, Func<bool> canSave)

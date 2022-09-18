@@ -38,6 +38,7 @@
 
                 <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=InArgumentControl}" 
                           IsEditable="True" Metro:TextBoxHelper.UseFloatingWatermark="True"
+                          PreviewMouseDown="RefreshAvailableProperties"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=InArgumentControl}"
                           SelectedValue="{Binding Argument.PropertyPath,ElementName=InArgumentControl}"
                           Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
