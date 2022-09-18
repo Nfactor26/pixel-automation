@@ -34,7 +34,7 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     IBrowserContext browserContext;
   
     ///</inheritdoc>      
-    public string DisplayName => "Playwright Scrapper";
+    public string DisplayName => "Browser Scrapper";
 
     bool isCapturing;
    
@@ -89,7 +89,6 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     public async Task StartCapture()
     {
         capturedControls.Clear();
-        InstallBrowser();       
         playWright = await Microsoft.Playwright.Playwright.CreateAsync();
         string pathToExtension = Path.Combine(Environment.CurrentDirectory, "Extensions", "pixel-browser-scrapper");
         string dataDirectory = Path.Combine(Environment.CurrentDirectory, "Extensions", "Context");
@@ -158,20 +157,6 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
         catch (Exception ex)
         {
             logger.Error(ex.Message, ex);
-        }
-    }
-
-    /// <summary>
-    /// Install chrome browser for use with scraping
-    /// </summary>
-    /// <exception cref="Exception"></exception>
-    void InstallBrowser()
-    {
-        Program.Main(new[] { "install", "--help" });
-        int exitCode = Program.Main(new[] { "install", "chromium" });
-        if (exitCode != 0)
-        {
-            throw new Exception($"Playwright exited with code {exitCode}");
         }
     }
 
