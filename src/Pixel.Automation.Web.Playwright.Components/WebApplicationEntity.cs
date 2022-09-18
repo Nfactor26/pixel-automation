@@ -21,13 +21,22 @@ public class WebApplicationEntity : ApplicationEntity
     public Argument BrowserOverride { get; set; } = new InArgument<Browsers>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
-    /// Optionally specify custom <see cref="DriverOptionsOverride"/> with which WebDriver should be initialized.
-    /// If DriverOptions is not configured, default configuration is created and used.
+    /// Optionally specify custom <see cref="BrowserTypeLaunchOptions"/> with which playwright browser should be launched.
+    /// If LaunchOptions is not configured, default configuration is created and used.
     /// </summary>
     [DataMember]
     [Display(Name = "Launch Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom browser launch options." +
-        "Default configuration is used if not specified.")]
+        " Default configuration is used if not specified.")]
     public Argument LaunchOptions { get; set; } = new InArgument<BrowserTypeLaunchOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound  };
+
+    /// <summary>
+    /// Optionally specify custom <see cref="BrowserNewContextOptions"/> with which a new browser context should be created.
+    /// If ContextOptions is not configured, default configuration is created and used.
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Context Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom browser new context options." +
+      " Default configuration is used if not specified.")]
+    public Argument ContextOptions { get; set; } = new InArgument<BrowserNewContextOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional argument which can be used to override the target url configured on application.
@@ -84,7 +93,8 @@ public class WebApplicationEntity : ApplicationEntity
                 throw new ArgumentException("Requested web driver type is not supported");
         }
 
-        webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync();
+        var browserContextOptions = await GetBrowserNewContextOptions();
+        webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync(browserContextOptions);
         webApplicationDetails.ActivePage = await webApplicationDetails.ActiveContext.NewPageAsync();
 
         string goToUrl = webApplicationDetails.TargetUri.ToString();
@@ -125,6 +135,21 @@ public class WebApplicationEntity : ApplicationEntity
             return driverOptions;
         }
         return new BrowserTypeLaunchOptions() { Headless = false };
+    }
+
+    /// <summary>
+    /// Get BrowserNewContextOptions for browser
+    /// </summary>        
+    /// <returns></returns>
+    async Task<BrowserNewContextOptions> GetBrowserNewContextOptions()
+    {
+        if (this.ContextOptions.IsConfigured())
+        {
+            var contextOptions = await this.ArgumentProcessor.GetValueAsync<BrowserNewContextOptions>(this.ContextOptions);
+            logger.Information($"Browser new context options was over-ridden for application : {applicationDetails.ApplicationName}");
+            return contextOptions;
+        }
+        return new BrowserNewContextOptions() { ViewportSize = ViewportSize.NoViewport };
     }
 
     async  Task<Browsers> GetPreferredBrowser(WebApplication webApplication)
