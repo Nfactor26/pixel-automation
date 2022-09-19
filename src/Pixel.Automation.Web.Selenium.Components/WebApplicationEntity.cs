@@ -17,24 +17,33 @@ namespace Pixel.Automation.Web.Selenium.Components;
 
 public class WebApplicationEntity : ApplicationEntity
 {
-    private readonly string webDriverFolder = ".//WebDrivers//";
-
     [Browsable(false)]
     public string Platform { get; set; } = "FireFox";
 
     /// <summary>
+    /// Directory which contains the web driver binaries. Default value is ".//WebDrivers/" folder relative to application
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Driver Location", GroupName = "WebDriver", Order = 10, Description = "Directory where WebDriver binary is located")]
+    public Argument WebDriverLocation { get; set; } = new InArgument<string> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = ".//WebDrivers//" };
+    
+    /// <summary>
     /// Optional argument which can be used to override the preferred browser configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Browser", GroupName = "Overrides", Order = 10, Description = "[Optional] Override the preferred browser option set on Application")]
+    [Display(Name = "Browser", GroupName = "Overrides", Order = 20, Description = "[Optional] Override the preferred browser option set on Application")]
     public Argument BrowserOverride { get; set; } = new InArgument<Browsers>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
+
+    [DataMember]
+    [Display(Name = "Driver Service", GroupName = "Overrides", Order = 30, Description = "[Optional] Specify a custom driver service")]
+    public Argument DriverServiceOverride { get; set; } = new InArgument<DriverService> { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
     /// <summary>
     /// Optionally specify custom <see cref="DriverOptionsOverride"/> with which WebDriver should be initialized.
     /// If DriverOptions is not configured, default configuration is created and used.
     /// </summary>
     [DataMember]
-    [Display(Name = "Driver Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom configured driver options." +
+    [Display(Name = "Driver Options", GroupName = "Overrides", Order = 40, Description = "[Optional] Specify a custom configured driver options." +
         "Default configuration is used if not specified.")]
     public Argument DriverOptionsOverride { get; set; } = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
@@ -42,7 +51,7 @@ public class WebApplicationEntity : ApplicationEntity
     /// Optional argument which can be used to override the target url configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Target Url", GroupName = "Overrides", Order = 30, Description = "[Optional] Override the Target Url option set on Application")]
+    [Display(Name = "Target Url", GroupName = "Overrides", Order = 50, Description = "[Optional] Override the Target Url option set on Application")]
     public Argument TargetUriOverride { get; set; } = new InArgument<Uri>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
 
@@ -53,7 +62,7 @@ public class WebApplicationEntity : ApplicationEntity
     public override IApplication GetTargetApplicationDetails()
     {
         base.GetTargetApplicationDetails();
-        var applicationDetails = this.applicationDetails as WebApplication;     
+        var applicationDetails = this.applicationDetails as WebApplication;
         this.Platform = applicationDetails.PreferredBrowser.ToString();
         OnPropertyChanged(nameof(this.Platform));
         return applicationDetails;
@@ -74,8 +83,8 @@ public class WebApplicationEntity : ApplicationEntity
         }
 
         string processIdentifier = Guid.NewGuid().ToString();
-
-        Browsers preferredBrowser = webApplicationDetails.PreferredBrowser; 
+      
+        Browsers preferredBrowser = webApplicationDetails.PreferredBrowser;
         if (this.BrowserOverride.IsConfigured())
         {
             preferredBrowser = await this.ArgumentProcessor.GetValueAsync<Browsers>(this.BrowserOverride);
@@ -84,13 +93,19 @@ public class WebApplicationEntity : ApplicationEntity
         switch (preferredBrowser)
         {
             case Browsers.FireFox:
-                webApplicationDetails.WebDriver = new FirefoxDriver(webDriverFolder, await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier));
+                var fireFoxDriverService = await GetDriverService<FirefoxDriverService>(preferredBrowser);
+                var fireFoxDriverOptions = await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier);
+                webApplicationDetails.WebDriver = new FirefoxDriver(fireFoxDriverService, fireFoxDriverOptions);
                 break;
             case Browsers.Chrome:
-                webApplicationDetails.WebDriver = new ChromeDriver(webDriverFolder, await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier));
+                var chromeDriverService = await GetDriverService<ChromeDriverService>(preferredBrowser);
+                var chromeDriverOptions = await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier);
+                webApplicationDetails.WebDriver = new ChromeDriver(chromeDriverService, chromeDriverOptions);
                 break;
-            case Browsers.Edge:
-                webApplicationDetails.WebDriver = new EdgeDriver(webDriverFolder, await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier));
+            case Browsers.Edge:    
+                var edgeDriverService = await GetDriverService<EdgeDriverService>(preferredBrowser);
+                var edgeDriverOptions = await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier);
+                webApplicationDetails.WebDriver = new EdgeDriver(edgeDriverService, edgeDriverOptions);
                 break;
             default:
                 throw new ArgumentException("Requested web driver type is not supported");
@@ -103,22 +118,25 @@ public class WebApplicationEntity : ApplicationEntity
             webApplicationDetails.WebDriver.Manage().Window.Maximize();
         }
 
+        //TODO : System.Management complains of only supported on windows desktop application although we are running on window desktop applications
         //for firefox/chrome
-        if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            var launchedInstance = GetLaunchedBrowserProcess(preferredBrowser, processIdentifier);
-            webApplicationDetails.TargetApplication = ApplicationProcess.Attach(launchedInstance);
-            logger.Information($"Process Id of launched browser is : {webApplicationDetails.ProcessId}");
-        }
+        //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        //{
+        //    var launchedInstance = GetLaunchedBrowserProcess(preferredBrowser, processIdentifier);
+        //    webApplicationDetails.TargetApplication = ApplicationProcess.Attach(launchedInstance);
+        //    logger.Information($"Process Id of launched browser is : {webApplicationDetails.ProcessId}");
+        //}
 
         Uri goToUrl = webApplicationDetails.TargetUri;
         if (this.TargetUriOverride.IsConfigured())
         {
-            goToUrl = await this.ArgumentProcessor.GetValueAsync<Uri>(this.TargetUriOverride);             
+            goToUrl = await this.ArgumentProcessor.GetValueAsync<Uri>(this.TargetUriOverride);
             logger.Information($"TargetUri was over-ridden to {goToUrl} for application : {applicationDetails.ApplicationName}");
         }
-        webApplicationDetails.WebDriver.Navigate().GoToUrl(goToUrl);
-
+        if(!string.IsNullOrEmpty(goToUrl?.OriginalString))
+        {
+            webApplicationDetails.WebDriver.Navigate().GoToUrl(goToUrl);
+        }
         logger.Information($"{preferredBrowser} has been navigated to {goToUrl}");
     }
 
@@ -155,7 +173,7 @@ public class WebApplicationEntity : ApplicationEntity
             {
                 throw new ArgumentException($"Incorrect driver option  over-ride : {driverOptions.GetType()} for browser : {browser}");
             }
-        }         
+        }
 
         //Create a default driver option based on browser type
         switch (browser)
@@ -171,13 +189,46 @@ public class WebApplicationEntity : ApplicationEntity
                 chromeOptions.AddArgument(processIdentifier);
                 return chromeOptions as T;
             case Browsers.Edge:
-                EdgeOptions edgeOptions = driverOptions as EdgeOptions ?? new EdgeOptions();                  
+                EdgeOptions edgeOptions = driverOptions as EdgeOptions ?? new EdgeOptions();
                 //edgeOptions.AddArgument("test-type");
                 edgeOptions.AddArgument($"--{processIdentifier}");
                 return edgeOptions as T;
             default:
                 throw new ArgumentException("Requested web driver type is not supported");
         }
+    }
+
+    async Task<T> GetDriverService<T>(Browsers browser) where T : DriverService
+    {
+        DriverService driverService;
+        if (this.DriverServiceOverride.IsConfigured())
+        {
+            driverService = await this.ArgumentProcessor.GetValueAsync<DriverService>(this.DriverServiceOverride);
+            logger.Information($"DriverService was over-ridden for application : {applicationDetails.ApplicationName}");
+            if (!(driverService is T))
+            {
+                throw new ArgumentException($"Incorrect driver service override : {driverService.GetType()} for browser : {browser}");
+            }
+            return driverService as T;
+        }
+
+        var webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
+        //Create a default driver service based on browser type
+        switch (browser)
+        {
+            case Browsers.FireFox:
+                driverService =  FirefoxDriverService.CreateDefaultService(webDriverFolder);
+                break;
+            case Browsers.Chrome:
+                driverService = ChromeDriverService.CreateDefaultService(webDriverFolder);
+                break;
+            case Browsers.Edge:
+                driverService = EdgeDriverService.CreateDefaultService(webDriverFolder);
+                break;
+            default:
+                throw new ArgumentException("Requested web driver type is not supported");
+        }
+        return driverService as T;
     }
 
     /// <summary>
@@ -205,17 +256,17 @@ public class WebApplicationEntity : ApplicationEntity
         }
 
         var processManager = this.EntityManager.GetServiceOfType<IProcessManager>();
-        IEnumerable<(int, string)> processDetails  = processManager.GetCommandLineArguments(processName);
-        foreach(var processDetailsItem in processDetails)
+        IEnumerable<(int, string)> processDetails = processManager.GetCommandLineArguments(processName);
+        foreach (var processDetailsItem in processDetails)
         {
-            if(processDetailsItem.Item2.Contains(processIdentifier))
+            if (processDetailsItem.Item2.Contains(processIdentifier))
             {
                 var process = Process.GetProcessById(processDetailsItem.Item1);
                 if (process.MainWindowHandle != IntPtr.Zero)
                 {
                     return process;
                 }
-            }              
+            }
         }
         throw new Exception($"Failed to find launched browser window for : {preferredBrowser} with processIdentifier : {processIdentifier}");
     }
