@@ -154,8 +154,13 @@
     <Name>ExecuteScriptActorComponent</Name>
     <DataTemplateKey>ExecuteScriptTemplate</DataTemplateKey>
     <StyleKey>SlimStyle</StyleKey>
-  </ComponentTemplate> 
-  <!--Processor template -->
+  </ComponentTemplate>
+	<ComponentTemplate>
+		<Name>ExecuteAsyncScriptActorComponent</Name>
+		<DataTemplateKey>ExecuteScriptTemplate</DataTemplateKey>
+		<StyleKey>SlimStyle</StyleKey>
+	</ComponentTemplate>
+	<!--Processor template -->
   <ComponentTemplate>
     <Name>SequentialEntityProcessor</Name>
     <DataTemplateKey>SequentialProcessorTemplate</DataTemplateKey>
