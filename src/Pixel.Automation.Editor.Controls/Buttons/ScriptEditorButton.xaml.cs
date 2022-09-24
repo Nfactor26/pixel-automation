@@ -2,7 +2,6 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.Windows;
@@ -54,8 +53,15 @@ namespace Pixel.Automation.Editor.Controls
             {
                 return $"#r \"{typeof(IComponent).Assembly.GetName().Name}.dll\"{Environment.NewLine}#r \"{typeof(ApplicationEntity).Assembly.GetName().Name}.dll\"{Environment.NewLine}using {typeof(EntityManager).Namespace};{Environment.NewLine}using {typeof(IApplication).Namespace};{Environment.NewLine}" +
                     $"using {actorComponent.EntityManager.Arguments?.GetType().Namespace};{Environment.NewLine}{Environment.NewLine}" +
-                    $"void Execute(IApplication application, IComponent current){Environment.NewLine}{{{Environment.NewLine}    //Do something{Environment.NewLine}}}" +
-                    $"{Environment.NewLine}return ((Action<IApplication,IComponent>)Execute);";
+                    $"void Execute(IApplication application, IComponent current){Environment.NewLine}{{{Environment.NewLine}    //Do something{Environment.NewLine} }}" +
+                    $"{Environment.NewLine}return ((Action<IApplication, IComponent>)Execute);";               
+            }
+            if(actorComponent.Tag.Equals("ExecuteAsyncScript"))
+            {
+                return $"#r \"{typeof(IComponent).Assembly.GetName().Name}.dll\"{Environment.NewLine}#r \"{typeof(ApplicationEntity).Assembly.GetName().Name}.dll\"{Environment.NewLine}using {typeof(EntityManager).Namespace};{Environment.NewLine}using {typeof(IApplication).Namespace};{Environment.NewLine}" +
+                   $"using {actorComponent.EntityManager.Arguments?.GetType().Namespace};{Environment.NewLine}{Environment.NewLine}" +
+                   $"async Task ExecuteAsync(IApplication application, IComponent current){Environment.NewLine}{{{Environment.NewLine}    //Do something{Environment.NewLine} await Task.CompletedTask;{Environment.NewLine}}}" +
+                   $"{Environment.NewLine}return ((Func<IApplication, IComponent, Task>)ExecuteAsync);";
             }
             return string.Empty;
         }

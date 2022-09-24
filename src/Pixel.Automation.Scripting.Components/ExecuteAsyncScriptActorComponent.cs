@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace Pixel.Automation.Scripting.Components
 {
     /// <summary>
-    /// Use <see cref="ExecuteScriptActorComponent"/> to execute actions using custom script.
+    /// Use <see cref="ExecuteAsyncScriptActorComponent"/> to execute custom scripts having asyncrhonous operations.
     /// </summary>
     [DataContract]
     [Serializable]
     [Scriptable("ScriptFile")]
     [Initializer(typeof(ScriptFileInitializer))]
-    [ToolBoxItem("Script File", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
-    public class ExecuteScriptActorComponent : ActorComponent
+    [ToolBoxItem("Script File (async)", "Scripting", iconSource: null, description: "Execute script that use async api's", tags: new string[] { "script"})]   
+    public class ExecuteAsyncScriptActorComponent : ActorComponent
     {
         protected string scriptFile;
         [DataMember]
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Scripting.Components
             }
         }
 
-        public ExecuteScriptActorComponent() : base("Execute Script", "ExecuteScript")
+        public ExecuteAsyncScriptActorComponent() : base("Execute Async Script", "ExecuteAsyncScript")
         {
 
         }
@@ -40,8 +40,8 @@ namespace Pixel.Automation.Scripting.Components
         public override async Task ActAsync()
         {
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
-            action(this.EntityManager.GetOwnerApplication(this), this);
+            var action = await scriptEngine.CreateDelegateAsync<Func<IApplication, IComponent, Task>>(this.scriptFile);
+            await action(this.EntityManager.GetOwnerApplication(this), this);
         }
      
     }
