@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Test.Helpers;
 using System;
 using System.Linq;
@@ -49,11 +48,11 @@ namespace Pixel.Automation.Core.Components.Tests
             };
 
             Assert.AreEqual(0, prefabEntity.Components.Count);
-            Assert.AreEqual(typeof(Person), prefabEntity.DataModelType);
+            Assert.AreEqual(typeof(Person), prefabEntity.EntityManager.Arguments.GetType());
 
             await prefabEntity.BeforeProcessAsync();
             await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("InputMappingScript.csx"));
-            Assert.AreEqual(typeof(Person), prefabEntity.PrefabDataModelType);
+            Assert.AreEqual(typeof(Person), prefabEntity.GetPrefabDataModelType());
 
             Assert.AreEqual(1, prefabEntity.Components.Count);
 

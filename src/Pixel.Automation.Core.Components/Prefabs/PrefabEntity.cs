@@ -52,25 +52,6 @@ namespace Pixel.Automation.Core.Components.Prefabs
            
         }
 
-        [IgnoreDataMember]
-        [Browsable(false)]
-        public Type DataModelType => this.EntityManager?.Arguments?.GetType();
-
-
-        [IgnoreDataMember]
-        [Browsable(false)]
-        public Type PrefabDataModelType
-        {
-            get
-            {
-                if (this.prefabLoader == null)
-                {
-                    this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();
-                }
-                return this.prefabLoader.GetPrefabDataModelType(this.ApplicationId, this.PrefabId, this.EntityManager);
-            }
-        }
-
         [NonSerialized]
         private IPrefabLoader prefabLoader;
 
@@ -103,7 +84,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
             logger.Information($"Executed input mapping script : {this.InputMappingScriptFile} for Prefab : {this.PrefabId}");
         }
 
-        private void LoadPrefab()
+        public void LoadPrefab()
         {
             if(this.prefabLoader == null)
             {
@@ -140,5 +121,14 @@ namespace Pixel.Automation.Core.Components.Prefabs
         }
 
         #endregion overridden methods
+
+        public Type GetPrefabDataModelType()
+        {
+            if(this.prefabDataModel == null)
+            {
+                this.LoadPrefab();
+            }
+            return this.prefabDataModel.GetType();
+        }
     }
 }

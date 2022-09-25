@@ -4,6 +4,7 @@ using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
+using Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -15,6 +16,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System.IO;
 using System.Windows;
@@ -280,32 +282,10 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         {
             if(dropInfo.Data is PrefabProjectViewModel prefabProjectViewModel && dropInfo.TargetItem is EntityComponentViewModel targetItem)
             {
-                var prefabEntity = new PrefabEntity()
-                {
-                    Name = prefabProjectViewModel.PrefabName,
-                    PrefabId = prefabProjectViewModel.PrefabId,
-                    ApplicationId = prefabProjectViewModel.ApplicationId
-                };
-
-                targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity);
-                var projectFileSystem = targetItem.Model.EntityManager.GetCurrentFileSystem() as IProjectFileSystem;
-                var prefabFileSystem = targetItem.Model.EntityManager.GetServiceOfType<IPrefabFileSystem>();
-                PrefabVersionSelectorViewModel prefabVersionSelectorViewModel = new PrefabVersionSelectorViewModel(projectFileSystem, prefabFileSystem, prefabProjectViewModel.PrefabProject, prefabEntity.Id, testCaseEntity?.Id);
+                var entityManager = targetItem.Model.EntityManager;              
+                var prefabDropHandler = new PrefabDropHandlerViewModel(entityManager, prefabProjectViewModel, targetItem);               
                 IWindowManager windowManager = targetItem.Model.EntityManager.GetServiceOfType<IWindowManager>();
-                var result = windowManager.ShowDialogAsync(prefabVersionSelectorViewModel);
-                result.ContinueWith(a =>
-                {
-                    if(a.Result.GetValueOrDefault())
-                    {
-                        var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
-                        foreach (var intializer in initializers)
-                        {
-                            IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
-                            componentInitializer.IntializeComponent(prefabEntity, targetItem.Model.EntityManager);
-                        }
-                        targetItem.AddComponent(prefabEntity);
-                    }
-                }, scheduler: System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());             
+                windowManager.ShowDialogAsync(prefabDropHandler);               
             }          
         }
 

@@ -3,10 +3,9 @@ using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
-using System;
 using System.Windows;
 
-namespace Pixel.Automation.AppExplorer.ViewModels.DragDropHandler
+namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
     public class PrefabDragHandler : IDropTarget
     {
