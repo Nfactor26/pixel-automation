@@ -25,6 +25,11 @@ namespace Pixel.Scripting.Script.Editor
             this.editorService = editorService;          
         }
 
+        public string GetEditorText()
+        {
+            return this.editor?.Text ?? string.Empty;
+        }
+
         public virtual void OpenDocument(string targetDocument, string ownerProject, string intialContent)
         {
             Guard.Argument(targetDocument).NotNull().NotEmpty();

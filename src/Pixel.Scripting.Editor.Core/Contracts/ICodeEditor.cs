@@ -4,6 +4,8 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 {
     public interface ICodeEditor : IDisposable
     {
+        string GetEditorText();
+
         void OpenDocument(string documentName, string ownerProject, string initialContent);
 
         void SetContent(string documentName, string ownerProject, string documentContent);
@@ -13,7 +15,6 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void SetEditorOptions(EditorOptions editorOptions);
        
     }
-
 
     public interface IInlineScriptEditor : ICodeEditor, IDisposable
     {

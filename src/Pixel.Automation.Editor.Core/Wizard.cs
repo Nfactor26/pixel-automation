@@ -31,13 +31,17 @@ namespace Pixel.Automation.Editor.Core
             {
                 if (currentStage.NextScreen != null)
                 {
-                    currentStage.OnNextScreen();
+                    currentStage.OnNextScreen();                   
                     ActivateItemAsync(currentStage.NextScreen, CancellationToken.None);
+                    if (!string.IsNullOrEmpty(currentStage.NextScreen.DisplayName))
+                    {
+                        this.DisplayName = currentStage.NextScreen.DisplayName;
+                    }
                     NotifyOfPropertyChange(() => HasNext);
                     NotifyOfPropertyChange(() => CanGoToPrevious);
                     NotifyOfPropertyChange(() => CanGoToNext);
-                    NotifyOfPropertyChange(() => CanFinish);
-                }
+                    NotifyOfPropertyChange(() => CanFinish);                    
+                }               
             }
         }
 
@@ -56,10 +60,14 @@ namespace Pixel.Automation.Editor.Core
             {
                 currentStage.OnPreviousScreen();
                 ActivateItemAsync(currentStage.PreviousScreen, CancellationToken.None);
+                if (!string.IsNullOrEmpty(currentStage.PreviousScreen.DisplayName))
+                {
+                    this.DisplayName = currentStage.PreviousScreen.DisplayName;
+                }
                 NotifyOfPropertyChange(() => HasNext);
                 NotifyOfPropertyChange(() => CanGoToPrevious);
                 NotifyOfPropertyChange(() => CanGoToNext);
-                NotifyOfPropertyChange(() => CanFinish);
+                NotifyOfPropertyChange(() => CanFinish);                
             }
         }
 

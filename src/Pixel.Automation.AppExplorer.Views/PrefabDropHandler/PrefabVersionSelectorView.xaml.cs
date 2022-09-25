@@ -1,4 +1,4 @@
-﻿namespace Pixel.Automation.Designer.Views
+﻿namespace Pixel.Automation.AppExplorer.Views.PrefabDropHandler
 {
     /// <summary>
     /// Interaction logic for PrefabVersionSelectorView.xaml

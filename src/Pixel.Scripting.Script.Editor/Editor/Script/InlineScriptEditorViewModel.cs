@@ -47,7 +47,13 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.editorService.WorkspaceChanged += OnWorkspaceChanged;
 
             logger.Debug($"Created a new instance of {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");
-        }        
+        }
+
+        public string GetEditorText()
+        {
+            return this.Editor?.Text ?? string.Empty;
+        }
+
         public void SetEditorOptions(EditorOptions editorOptions)
         {
             this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
