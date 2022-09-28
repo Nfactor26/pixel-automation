@@ -20,8 +20,7 @@ namespace Pixel.Automation.Scripting.Components
     {
         protected string scriptFile;
         [DataMember]
-        [System.ComponentModel.DisplayName("Script File")]
-        [System.ComponentModel.ReadOnly(true)]
+        [System.ComponentModel.DisplayName("Script File")]      
         public string ScriptFile
         {
             get => scriptFile;

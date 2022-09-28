@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="Pixel.Automation.Editor.Controls.Scripts.EditorPropertyGrid.BrowseScriptEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:uc="clr-namespace:Pixel.Automation.Editor.Controls.Scripts.EditorUserControl"
+             mc:Ignorable="d" x:Name="BrowseScriptEditorControl"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <DockPanel LastChildFill="True" >
+            <uc:BrowseScriptButton x:Name="BrowseScriptButton" ActorComponent="{Binding ActorComponent, ElementName=BrowseScriptEditorControl}"
+                                   ScriptFile="{Binding Text, ElementName=ScriptPath, Mode=TwoWay}"  BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC"  
+                                   Visibility="{Binding ShowBrowseButton, ElementName=BrowseScriptEditorControl, Converter={StaticResource boolToVisConverter}}"
+                                   DockPanel.Dock="Right"/>
+            <uc:ScriptEditorButton x:Name="EditScriptButton" ActorComponent="{Binding ActorComponent, ElementName=BrowseScriptEditorControl}"
+                                   ScriptFile="{Binding Text, ElementName=ScriptPath}" BorderThickness="0,1,1,1"  BorderBrush="#FFCCCCCC"  
+                                   Visibility="{Binding ShowEditButton, ElementName=BrowseScriptEditorControl, Converter={StaticResource boolToVisConverter}}"
+                                   DockPanel.Dock="Right"/>
+            <TextBox x:Name="ScriptPath" DockPanel.Dock="Right"  BorderBrush="#FFCCCCCC"  />
+        </DockPanel>
+    </Grid>
+</UserControl>
