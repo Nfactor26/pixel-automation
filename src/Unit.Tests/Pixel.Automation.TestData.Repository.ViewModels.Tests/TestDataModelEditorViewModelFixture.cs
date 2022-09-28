@@ -25,7 +25,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             scriptEditor = Substitute.For<IInlineScriptEditor>();
             scriptEditorFactory = Substitute.For<IScriptEditorFactory>();
-            scriptEditorFactory.CreateInlineScriptEditor().Returns(scriptEditor);
+            scriptEditorFactory.CreateInlineScriptEditor(Arg.Any<EditorOptions>()).Returns(scriptEditor);
             //scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(Empty)))).Do(x => { });
 
            
@@ -60,7 +60,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
 
             testDataModelEditorViewModel.ActivateAsync();
-            scriptEditorFactory.Received(1).CreateInlineScriptEditor();
+            scriptEditorFactory.Received(1).CreateInlineScriptEditor(Arg.Any<EditorOptions>());
             scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(EmptyModel)));
             scriptEditor.Received(1).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
             scriptEditor.Received(1).Activate();           

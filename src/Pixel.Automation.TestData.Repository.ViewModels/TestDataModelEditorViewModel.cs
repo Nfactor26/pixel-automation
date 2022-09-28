@@ -136,7 +136,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             if(this.ScriptEditor == null)
             {
-                this.ScriptEditor = editorFactory.CreateInlineScriptEditor();
+                this.ScriptEditor = editorFactory.CreateInlineScriptEditor(new EditorOptions() { EnableDiagnostics = true });
                 this.ScriptEditor.SetEditorOptions(new EditorOptions() { FontSize = 23 });
             }            
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
