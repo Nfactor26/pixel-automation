@@ -77,12 +77,9 @@
     </Style>
 
     <Style x:Key="ShowDialogButtonStyle" TargetType="Button" BasedOn="{StaticResource SquaredButtonStyle}">
-        <Setter Property="Content" Value="{StaticResource IconDotsVertical}"/>
+        <Setter Property="Content" Value="{StaticResource IconDotsVertical}" />
     </Style>
-    <Style x:Key="EditScriptButtonStyle" TargetType="Button" BasedOn="{StaticResource SquaredButtonStyle}">
-        <Setter Property="Content" Value="{StaticResource IconPageEdit}"/>
-    </Style>
-
+  
     <Style x:Key="InfoButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
         <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
         <Setter Property="Width" Value="24"></Setter>

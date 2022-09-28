@@ -46,10 +46,9 @@
 
                 <DockPanel Visibility="{Binding Argument.Mode,ElementName=InArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
                     ConverterParameter=VisibleOnScripted}" LastChildFill="True">
-                    <Button x:Name="BrowseScriptButton" Click="BrowseScript" Style="{StaticResource SquaredButtonStyle}"
-                        Content="{iconPacks:Entypo DotsThreeHorizontal}" Width="24" ToolTip="Browse for Script" 
-                        BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
-                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource EditScriptButtonStyle}"
+                    <Button x:Name="BrowseScriptButton" Click="BrowseScript" Style="{StaticResource SquaredButtonStyle}" Content="{iconPacks:FontAwesome Kind=FolderOpenRegular}" 
+                        Width="24" ToolTip="Browse for Script" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
+                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource SquaredButtonStyle}" Content="{iconPacks:FontAwesome Kind=EditRegular}"
                         Width="26" ToolTip="Open Script editor" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                     <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=InArgumentControl}" BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
                 </DockPanel>

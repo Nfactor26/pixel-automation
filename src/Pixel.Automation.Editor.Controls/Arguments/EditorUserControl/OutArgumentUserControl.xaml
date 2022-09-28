@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"             
              xmlns:local="clr-namespace:Pixel.Automation.Editor.Controls.Arguments"
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Controls.Converters"
-             xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"            
+             xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"  
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" x:Name="OutArgumentControl"
              d:DesignHeight="300" d:DesignWidth="300">
     <local:ArgumentUserControl.Resources>
@@ -41,7 +42,8 @@
 
                 <DockPanel Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
                     ConverterParameter=VisibleOnScripted}" LastChildFill="True" Width="158" MaxWidth="158">
-                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" Style="{StaticResource EditScriptButtonStyle}"
+                    <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" 
+                        Style="{StaticResource SquaredButtonStyle}" Content="{iconPacks:FontAwesome Kind=EditRegular}"
                         ToolTip="Open Script editor" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                     <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=OutArgumentControl}" VerticalContentAlignment="Center"
                              BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>

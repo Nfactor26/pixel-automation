@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Editor.Controls.Arguments;
 using Pixel.Automation.Editor.Controls.HotKeys;
+using Pixel.Automation.Editor.Controls.Scripts.EditorPropertyGrid;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -30,26 +31,38 @@ namespace Pixel.Automation.Designer.Views
                 {
                     return;
                 }
-                if (targetPropertyItem.Value.GetType().Name.StartsWith("InArgument"))
+                else if (targetPropertyItem.Value.GetType().Name.StartsWith("InArgument"))
                 {
                     targetPropertyItem.Editor = new InArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.Value.GetType().Name.StartsWith("OutArgument"))
+                else if (targetPropertyItem.Value.GetType().Name.StartsWith("OutArgument"))
                 {
                     targetPropertyItem.Editor = new OutArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.Value.GetType().Name.StartsWith("PredicateArgument"))
+                else if (targetPropertyItem.Value.GetType().Name.StartsWith("PredicateArgument"))
                 {
                     targetPropertyItem.Editor = new InArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
-                if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
+                else if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
                 {
                     targetPropertyItem.Editor = new KeyEditor().ResolveEditor(targetPropertyItem);
                     return;
-                }                
+                }    
+                else if(targetPropertyItem.DisplayName.Equals("Input Mapping Script") || targetPropertyItem.DisplayName.Equals("Output Mapping Script"))
+                {
+                    //we don't want to show edit script button on property grid for script files of a prefab entity as they need to be loaded first which is not handled
+                    //by this control.
+                    var browserScriptEditor = new BrowseScriptEditor() { ShowEditButton = false };
+                    targetPropertyItem.Editor = browserScriptEditor.ResolveEditor(targetPropertyItem);
+                }
+                else if(targetPropertyItem.DisplayName.Equals("Script File") && !targetPropertyItem.IsReadOnly)
+                {
+                    //for script files of execute script actor
+                    targetPropertyItem.Editor = new BrowseScriptEditor().ResolveEditor(targetPropertyItem);
+                }
             }
             catch (Exception ex)
             {

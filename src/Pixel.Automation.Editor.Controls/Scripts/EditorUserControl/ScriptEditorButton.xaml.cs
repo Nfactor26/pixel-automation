@@ -7,7 +7,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Pixel.Automation.Editor.Controls
+namespace Pixel.Automation.Editor.Controls.Scripts.EditorUserControl
 {
     /// <summary>
     /// Interaction logic for ScriptEditorButton.xaml
