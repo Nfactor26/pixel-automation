@@ -57,6 +57,12 @@ namespace Pixel.Scripting.Script.Editor
             return new InlineScriptEditorViewModel(this.editorService);
         }
 
+        public IInlineScriptEditor CreateInlineScriptEditor(EditorOptions editorOptions)
+        {
+            EnsureInitialized();
+            return new InlineScriptEditorViewModel(this.editorService, editorOptions);
+        }
+
         public IInlineScriptEditor CreateInlineScriptEditor(string cacheKey)
         {
             EnsureInitialized();

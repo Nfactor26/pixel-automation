@@ -90,10 +90,16 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         IScriptEditorScreen CreateScriptEditorScreen();       
 
         /// <summary>
-        /// Create an inline script editor that will automatically remove underlying project on dispose
+        /// Create an inline script editor with default editor options that will automatically remove underlying project on dispose
         /// </summary>
         /// <returns></returns>
         IInlineScriptEditor CreateInlineScriptEditor();
+
+        /// <summary>
+        /// Create an inline script editor with custom editor options that will automatically remove underlying project on dispose
+        /// </summary>
+        /// <returns></returns>
+        IInlineScriptEditor CreateInlineScriptEditor(EditorOptions editorOptions);
 
         /// <summary>
         /// Get an existing inline script editor with given identifer or create a new one.

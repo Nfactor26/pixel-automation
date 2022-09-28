@@ -22,19 +22,25 @@ namespace Pixel.Scripting.Script.Editor.Script
 
         public CodeTextEditor Editor { get; private set; }
 
-        public InlineScriptEditorViewModel(IEditorService editorService)
+
+        public InlineScriptEditorViewModel(IEditorService editorService) : this(editorService, EditorOptions.DefaultOptions)
+        {           
+        }
+
+        public InlineScriptEditorViewModel(IEditorService editorService , EditorOptions editorOptions)
         {
             Guard.Argument(editorService).NotNull();
+            Guard.Argument(editorOptions).NotNull();
 
             this.editorService = editorService;
             this.Editor = new CodeTextEditor(editorService)
             {
-                EnableDiagnostics = false,
-                EnableCodeActions = false,
-                ShowLineNumbers = false,
-                Margin = new Thickness(2),
-                FontSize = 14,
-                FontFamily = new FontFamily("Consolas"),
+                EnableDiagnostics = editorOptions.EnableDiagnostics,
+                EnableCodeActions = editorOptions.EnableCodeActions,
+                ShowLineNumbers = editorOptions.ShowLineNumbers,
+                Margin = new Thickness(editorOptions.Thickness),
+                FontSize = editorOptions.FontSize,
+                FontFamily = new FontFamily(editorOptions.FontFamily),
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
                 HorizontalAlignment = HorizontalAlignment.Stretch,

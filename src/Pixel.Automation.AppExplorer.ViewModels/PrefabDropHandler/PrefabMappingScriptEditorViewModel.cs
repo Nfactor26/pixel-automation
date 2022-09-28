@@ -38,7 +38,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         protected override Task OnActivateAsync(CancellationToken cancellationToken)
         {
             string generatedCode = GetGeneratedCode();
-            this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor();
+            this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor(new EditorOptions() { EnableDiagnostics = true });
             this.ScriptEditor.SetEditorOptions(new EditorOptions() { ShowLineNumbers = true, FontSize = 23 });
             if (dropTarget.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
