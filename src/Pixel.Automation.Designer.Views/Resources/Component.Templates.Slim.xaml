@@ -229,7 +229,8 @@
 
     <DataTemplate x:Key="PrefabTemplate">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
-                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
             <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
                        Background="White" IsHitTestVisible="True">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
