@@ -65,7 +65,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                                 }
                             }
                             //It should not be possible to drag an item if the targetItem doesn't allow drop or source and target have different EntityManager
-                            if (targetItem is EntityComponentViewModel entityTarget && entityTarget.IsDropTarget && 
+                            if (targetItem is EntityComponentViewModel entityTarget && !(entityTarget.Model is PrefabEntity) && entityTarget.IsDropTarget && 
                                 (sourceItem.Model.EntityManager == targetItem.Model.EntityManager) && (sourceItem.Parent != targetItem))
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
