@@ -9,6 +9,7 @@ using Pixel.Automation.Designer.ViewModels.Modules;
 using Pixel.Automation.Designer.ViewModels.Shell;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.Serialization;
+using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.Diagnostics;
 using System.IO;
@@ -41,6 +42,40 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
+            var applicationSettings = IoC.Get<ApplicationSettings>();
+            if (!applicationSettings.IsOfflineMode)
+            {
+                using (var resetEvent = new ManualResetEvent(false))
+                {
+                    var downloadApplicationDataTask = new Task(async () =>
+                    {
+                        try
+                        {
+                            var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                            logger.Information("Downloading application data now");
+                            await applicationDataManger.DownloadApplicationsDataAsync();
+                            logger.Information("Download of application data completed");
+                            logger.Information("Downloading project information now");
+                            await applicationDataManger.DownloadProjectsAsync();
+                            logger.Information("Download of project information completed");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex.Message, ex);
+                        }
+                        finally
+                        {
+                            resetEvent.Set();
+                        }
+                    });
+                    downloadApplicationDataTask.Start();                 
+                    resetEvent.WaitOne();
+                }
+            }
+            else
+            {
+                logger.Information("Application is configured to run in offline mode.");
+            }
             DisplayRootViewForAsync<MainWindowViewModel>();         
         }
 

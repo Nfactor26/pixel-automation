@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
-using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
 
-    [Authorize(Policy = Policies.ReadTestDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class TestStatisticsController : ControllerBase
@@ -33,8 +30,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
             return NotFound();
         }
 
-        [HttpGet("process/{sessionId}")]
-        [Authorize(Policy = Policies.WriteTestDataPolicy)]
+        [HttpGet("process/{sessionId}")]       
         public ActionResult Post(string sessionId)
         {
             Task statsProcessor = new Task(async () =>

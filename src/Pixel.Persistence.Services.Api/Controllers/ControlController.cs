@@ -1,10 +1,8 @@
 ﻿using Dawn;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
-using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
 using System;
@@ -14,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class ControlController : ControllerBase
@@ -76,8 +73,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// </summary>
         /// <param name="controlDescription"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteProcessDataPolicy)]
+        [HttpPost]       
         public async Task<IActionResult> Post([FromBody] object controlDescription)
         {
             try
@@ -104,8 +100,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="imageFile">Image file</param>
         /// <returns></returns>
         [Route("image")]
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteProcessDataPolicy)]
+        [HttpPost]    
         public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlImageMetaData))] ControlImageMetaData controlImage, [FromForm(Name = "file")] IFormFile imageFile)
         {
             try
@@ -131,8 +126,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="controlImage"></param>
         /// <returns></returns>
         [Route("image/delete")]
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteProcessDataPolicy)]
+        [HttpPost]       
         public async Task<IActionResult> Delete([FromBody] ControlImageMetaData controlImage)
         {
             try

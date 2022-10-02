@@ -21,18 +21,16 @@ namespace Pixel.Automation.Designer.ViewModels
         public BindableCollection<IControlScrapper> ScreenScrappers { get; } = new BindableCollection<IControlScrapper>();
 
         private readonly ISerializer serializer;
-        private readonly ISignInManager signInManager;
-
+        
         public DesignerWindowViewModel(IEventAggregator eventAggregator, ISerializer serializer, IReadOnlyCollection<IAnchorable> tools,
-            IEnumerable<IControlScrapper> scrappers, ISignInManager signinManager, IHome homeScreen) : base()
+            IEnumerable<IControlScrapper> scrappers, IHome homeScreen) : base()
         {
             Guard.Argument(eventAggregator).NotNull();
             Guard.Argument(tools).NotNull().NotEmpty();
         
             Guard.Argument(scrappers, nameof(scrappers)).NotNull().NotEmpty();
             this.serializer = Guard.Argument(serializer).NotNull().Value;
-            this.signInManager = Guard.Argument(signinManager).NotNull().Value;
-         
+           
             DisplayName = "Pixel Automation";        
 
             this.Anchorables.AddRange(tools);

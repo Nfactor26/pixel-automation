@@ -4,14 +4,11 @@ using Ninject.Modules;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
-using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Designer.ViewModels.Factory;
-using Pixel.Automation.Designer.ViewModels.Shell;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.OpenId.Authenticator;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
@@ -25,9 +22,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IPlatformProvider>().To<XamlPlatformProvider>().InSingletonScope();
 
             Kernel.Bind<IShell>().To<DesignerWindowViewModel>();
-            Kernel.Bind<IShell>().To<LoginWindowViewModel>();
-            Kernel.Bind<ISignInManager>().To<AuthorizationCodeSignInManager>().InSingletonScope();
-           
+          
             Kernel.Bind<IHome>().To<HomeViewModel>().InSingletonScope();
             Kernel.Bind<INewProject>().To<NewProjectViewModel>();
             Kernel.Bind<IEditorFactory>().To<EditorFactory>();        

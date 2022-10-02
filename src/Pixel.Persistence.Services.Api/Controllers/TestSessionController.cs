@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
-using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [Authorize(Policy = Policies.ReadTestDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class TestSessionController : ControllerBase
@@ -44,8 +41,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }             
        
         // POST: api/TestSession
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteTestDataPolicy)]
+        [HttpPost]      
         public async Task<IActionResult> Post([FromBody] TestSession testSession)
         {
             await testSessionRepository.AddTestSessionAsync(testSession);
@@ -58,8 +54,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="sessionId">SessionId of the TestSession to be updated</param>
         /// <param name="testSession">Updated data for the TestSession</param>
         /// <returns></returns>
-        [HttpPost("{sessionId}")]
-        [Authorize(Policy = Policies.WriteTestDataPolicy)]
+        [HttpPost("{sessionId}")]        
         public async Task<IActionResult> Post([FromRoute] string sessionId, [FromBody] TestSession testSession)
         {
             await testSessionRepository.UpdateTestSessionAsync(sessionId, testSession);
@@ -67,8 +62,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         // DELETE: api/TestSession/sessionId
-        [HttpDelete("{id}")]
-        [Authorize(Policy = Policies.WriteTestDataPolicy)]
+        [HttpDelete("{id}")]       
         public async Task<IActionResult> Delete(string sessionId)
         {
             bool isDeleted = await testSessionRepository.TryDeleteTestSessionAsync(sessionId);

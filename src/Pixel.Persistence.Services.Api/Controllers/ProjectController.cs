@@ -12,8 +12,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
-{
-    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
+{  
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -79,8 +78,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="projectDescription"></param>
         /// <param name="projectFile"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteProcessDataPolicy)]       
+        [HttpPost]     
         public async Task<ActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ProjectMetaData))] ProjectMetaData projectDescription, [FromForm(Name = "file")] IFormFile projectFile)
         {
             try

@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
-{
-    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class MetaDataController : ControllerBase

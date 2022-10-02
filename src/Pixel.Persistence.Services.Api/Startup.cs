@@ -1,16 +1,14 @@
-using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Pixel.Persistence.Core.Models;
-using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Services;
 using Serilog;
-using System.Security.Claims;
 
 namespace Pixel.Persistence.Services.Api
 {
@@ -26,6 +24,14 @@ namespace Pixel.Persistence.Services.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //To forward the scheme from the proxy in non - IIS scenarios
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
             services.Configure<RetentionPolicy>(Configuration.GetSection(nameof(RetentionPolicy)));
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
@@ -39,46 +45,8 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<IControlRepository, ControlRepository>();
             services.AddTransient<IProjectRepository, ProjectRepository>();
             services.AddTransient<IPrefabRepository, PrefabRepository>();
-            services.AddTransient<ITemplateRepository, TemplateRepository>();
-                      
-            services.AddAuthentication(OAuth2IntrospectionDefaults.AuthenticationScheme)
-            .AddOAuth2Introspection(options =>
-            {               
-                options.Authority = Configuration["INTROSPECTION_AUTHORITY"];
-                options.ClientId = "pixel-persistence-api";
-                options.ClientSecret = "pixel-secret";                
-            });
+            services.AddTransient<ITemplateRepository, TemplateRepository>();                      
           
-            services.AddAuthorizationCore(options =>
-            {
-                options.AddPolicy(Policies.WriteProcessDataPolicy, policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole(Roles.EditorUserRole);
-                });
-                options.AddPolicy(Policies.ReadProcessDataPolicy, policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireAssertion(context =>
-                    {
-                        return context.User.IsInRole(Roles.EditorUserRole) || context.User.HasClaim("sub", "pixel-test-runner");
-                    });
-                });
-                options.AddPolicy(Policies.WriteTestDataPolicy, policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireAssertion(context =>
-                    {
-                        return context.User.IsInRole(Roles.EditorUserRole) || context.User.HasClaim("sub", "pixel-test-runner");
-                    });
-                });
-                options.AddPolicy(Policies.ReadTestDataPolicy, policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole(Roles.DashboardUserRole, Roles.EditorUserRole);
-                });
-            });
-
             services.AddControllers();
             services.AddRazorPages();
 
@@ -90,11 +58,13 @@ namespace Pixel.Persistence.Services.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
             }
+            app.UsePathBase("/persistence");
             app.UseSerilogRequestLogging();
 
             app.UseSwagger();
@@ -107,10 +77,7 @@ namespace Pixel.Persistence.Services.Api
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
-            app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseRouting();        
 
             app.UseEndpoints(endpoints =>
             {

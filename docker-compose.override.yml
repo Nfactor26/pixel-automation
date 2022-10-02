@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+
+  mongo:
+     image: mongo:latest
+     container_name: pixel_mongo
+     command: --auth
+     restart: always
+     volumes:
+      - mongo-pixel-store:/data/db
+     networks:
+      - pixel-network
+     environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: mongopass     
+
+  pixel-persistence-service:
+    container_name: pixel_persistence_service
+    env_file:
+      - ./.config/persistence.env
+    ports:
+      - 5001:443    
+    environment:     
+      - ASPNETCORE_URLS=https://+;
+      - Kestrel:Certificates:Default:Path=/etc/certs/localhost-cert.pem
+      - Kestrel:Certificates:Default:KeyPath=/etc/certs/localhost-key.pem 
+    volumes:
+      # volume mount for providing required certificates for Kestrel (when using https)
+      - ./.certificates:/etc/certs:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pixel-persistence-service.rule=Host(`pixel.docker.localhost`) && PathPrefix(`/persistence`)"
+      - "traefik.http.routers.pixel-persistence-service.tls=true"    
+    networks:
+      - pixel-network
+  
+volumes:
+  mongo-pixel-store:
+
+networks:
+  pixel-network:
+    external: true

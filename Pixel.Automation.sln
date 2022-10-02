@@ -161,7 +161,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Not
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Notifications.Tests", "src\Unit.Tests\Pixel.Automation.Editor.Notifications.Tests\Pixel.Automation.Editor.Notifications.Tests.csproj", "{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Scripting.Reference.Manager", "src\Pixel.Scripting.Reference.Manager\Pixel.Scripting.Reference.Manager.csproj", "{6DCD4843-5F19-4E63-929B-2CEE107C862E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Reference.Manager", "src\Pixel.Scripting.Reference.Manager\Pixel.Scripting.Reference.Manager.csproj", "{6DCD4843-5F19-4E63-929B-2CEE107C862E}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4110C527-9DBC-44A8-9349-34C72C78B722}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -413,6 +415,10 @@ Global
 		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4110C527-9DBC-44A8-9349-34C72C78B722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4110C527-9DBC-44A8-9349-34C72C78B722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4110C527-9DBC-44A8-9349-34C72C78B722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4110C527-9DBC-44A8-9349-34C72C78B722}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -484,6 +490,7 @@ Global
 		{3387DC18-1B51-47AD-B4F0-ED3411E88597} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{6DCD4843-5F19-4E63-929B-2CEE107C862E} = {4E906FCE-BF6F-44B0-8E8D-C3F6AFEE6874}
+		{4110C527-9DBC-44A8-9349-34C72C78B722} = {AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}
