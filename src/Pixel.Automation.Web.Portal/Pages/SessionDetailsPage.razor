@@ -1,5 +1,4 @@
 ﻿@page "/session-details/{sessionId}"
-@attribute [Authorize(Policy = Policies.DashboardUserPolicy)]
 
 <MudGrid Elevation="4" Justify="Justify.Center">
     <MudItem xs="12">
@@ -18,7 +17,7 @@
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Workspaces" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
-                        <MudLink Href=@($"/project-statistics/{testSessionVm?.ProjectId}")>@testSessionVm?.ProjectName</MudLink>
+                        <MudLink Href=@($"./project-statistics/{testSessionVm?.ProjectId}")>@testSessionVm?.ProjectName</MudLink>
                         <MudText Typo="Typo.subtitle2">@testSessionVm?.ProjectVersion</MudText>
                     </div>
                 </MudPaper>

@@ -1,10 +1,8 @@
 ﻿using Dawn;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
-using Pixel.Persistence.Core.Security;
 using Pixel.Persistence.Respository;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
 {
-    [Authorize(Policy = Policies.ReadTestDataPolicy)]
     [Route("api/[controller]")]
     [ApiController]
     public class TestResultController : ControllerBase
@@ -44,8 +41,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         // POST: api/TestSession
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteTestDataPolicy)]
+        [HttpPost]      
         public async Task<IActionResult> Post([FromBody] TestResult testResult)
         {
             Guard.Argument(testResult).NotNull();

@@ -72,6 +72,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 ApplicationId = controlDescription.ApplicationId,
                 ControlId = controlDescription.ControlId,
+                Version = controlDescription.Version.ToString(),
                 FileName = Path.GetFileName(imageFile)
             };
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
@@ -93,6 +94,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 ApplicationId = controlDescription.ApplicationId,
                 ControlId = controlDescription.ControlId,
+                Version = controlDescription.Version.ToString(),
                 FileName = fileName
             };
             restRequest.AddJsonBody(serializer.Serialize<ControlImageMetaData>(controlImageMetaData));    

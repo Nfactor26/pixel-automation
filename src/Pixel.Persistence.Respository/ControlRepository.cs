@@ -144,7 +144,7 @@ namespace Pixel.Persistence.Respository
                 foreach(var imageFile in imageFiles)
                 {
                     var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
-                    yield return new DataFile() { FileName = imageFile.Filename, Version = imageFile.Metadata["Version"].AsString, Bytes = imageBytes, Type = "ControlImage" };
+                    yield return new DataFile() { FileName = imageFile.Filename, Version = imageFile.Metadata["version"].AsString, Bytes = imageBytes, Type = "ControlImage" };
                 }
             }
            
@@ -157,7 +157,7 @@ namespace Pixel.Persistence.Respository
 
             var filterBuilder = Builders<BsonDocument>.Filter;
             var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
-            var projection = Builders<BsonDocument>.Projection.Include("ControlId").Include("LastUpdated");
+            var projection = Builders<BsonDocument>.Projection.Include("ControlId").Include("Version").Include("LastUpdated");
             var results = await controlsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
             foreach (var doc in results)
             {

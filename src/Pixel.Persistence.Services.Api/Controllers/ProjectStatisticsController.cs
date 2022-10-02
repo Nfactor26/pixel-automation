@@ -6,8 +6,7 @@ using Pixel.Persistence.Respository;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
-{
-    [Authorize(Policy = Policies.ReadTestDataPolicy)]
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectStatisticsController : ControllerBase

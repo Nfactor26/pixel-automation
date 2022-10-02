@@ -12,8 +12,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
-{
-    [Authorize(Policy = Policies.ReadProcessDataPolicy)]
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class PrefabController : ControllerBase
@@ -79,8 +78,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="projectDescription"></param>
         /// <param name="prefabFile"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Authorize(Policy = Policies.WriteProcessDataPolicy)]       
+        [HttpPost]       
         public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(PrefabMetaData))] PrefabMetaData prefabDescription, [FromForm(Name = "file")] IFormFile prefabFile)
         {
             try

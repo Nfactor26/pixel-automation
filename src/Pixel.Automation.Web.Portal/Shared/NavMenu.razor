@@ -1,13 +1,6 @@
-﻿<AuthorizeView Policy="@Policies.DashboardUserPolicy">
-    <Authorized>
-        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
-        <MudNavLink Href="/sessions" Icon="@Icons.Material.Outlined.ViewList">Sessions</MudNavLink>
-        <MudNavGroup Title="Statistics" Icon="@Icons.Material.Outlined.Dashboard" Expanded="true">
-            <MudNavLink Href="/project-statistics">Project</MudNavLink>
-            <MudNavLink Href="/test-statistics">Test</MudNavLink>
-        </MudNavGroup>
-    </Authorized>
-    <NotAuthorized>
-        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
-    </NotAuthorized>
-</AuthorizeView>
+﻿<MudNavLink Href="./" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
+<MudNavLink Href="./sessions" Icon="@Icons.Material.Outlined.ViewList">Sessions</MudNavLink>
+<MudNavGroup Title="Statistics" Icon="@Icons.Material.Outlined.Dashboard" Expanded="true">
+    <MudNavLink Href="./project-statistics">Project</MudNavLink>
+    <MudNavLink Href="./test-statistics">Test</MudNavLink>
+</MudNavGroup>

@@ -1,5 +1,4 @@
 ﻿@page "/sessions"
-@attribute [Authorize(Policy = Policies.DashboardUserPolicy)]
 
 <MudTable ServerData="@(new Func<TableState, Task<TableData<TestSession>>>(GetSessionsData))"
           Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="sessionsTable">
@@ -21,7 +20,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Details">
-            <MudButton Link="@($"session-details/{context.SessionId}")"
+            <MudButton Link="@($"./session-details/{context.SessionId}")"
                        Variant="Variant.Filled"
                        Color="@((context.SessionResult == TestStatus.Success) ? Color.Success : Color.Error)"
                        Disabled=@(context.SessionStatus == SessionStatus.InProgress)>
@@ -29,7 +28,7 @@
             </MudButton>
         </MudTd>
         <MudTd DataLabel="Project Name">
-            <MudLink Href=@($"/project-statistics/{context.ProjectId}")>@context.ProjectName</MudLink>
+            <MudLink Href=@($"./project-statistics/{context.ProjectId}")>@context.ProjectName</MudLink>
             <br />
             <MudText Typo="Typo.caption">@context.ProjectVersion</MudText>
         </MudTd>

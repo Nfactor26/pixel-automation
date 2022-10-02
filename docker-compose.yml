@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  pixel-persistence-service:
+    image: ${DOCKER_REGISTRY-}pixel-persistence-service
+    build:
+      context: .
+      dockerfile: src/Pixel.Persistence.Services.Api/Dockerfile

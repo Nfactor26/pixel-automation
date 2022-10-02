@@ -23,22 +23,12 @@
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Presistence Service" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
                             <Button x:Name="InfoPersistenceService" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
-                                    ToolTip="Service endpoint for data persistence"/>
+                                    ToolTip="Service endpoint for data persistence."/>
                         </StackPanel>
                         <TextBox x:Name="PersistenceServiceUri" Controls:TextBoxHelper.Watermark="Persistence service endpoint" 
                                  Text="{Binding ApplicationSettings.PersistenceServiceUri}" Width="250" HorizontalAlignment="Left"
                                  Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Identity Service" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
-                            <Button x:Name="IdentityService" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
-                                    ToolTip="OIDC based identity provider"/>
-                        </StackPanel>
-                        <TextBox x:Name="IdentityServiceUri" Controls:TextBoxHelper.Watermark="Identity service endpoint" 
-                                 Text="{Binding ApplicationSettings.OpenIdConnectSettings.Authority}" Width="250" HorizontalAlignment="Left"
-                                 Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
-                    </StackPanel>
+                    </StackPanel>                   
                     <StackPanel Orientation="Horizontal"  Margin="{StaticResource MarginTop}">
                         <CheckBox x:Name="IsOfflineMode" IsChecked="{Binding ApplicationSettings.IsOfflineMode}" Content="Work Offline"></CheckBox>
                         <Button x:Name="InfoIsOfflineMode" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,0"
