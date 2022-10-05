@@ -2,15 +2,17 @@
 <!--This is required because some plugins like Image.Matching.Components require runtimes to be present in working directory of application-->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<PropertyGroup>
-		<BuildDirectory>..\..\.builds\$(Configuration)\Designer</BuildDirectory>		
+	<PropertyGroup>			
+		<DesignerBuildDirectory>..\..\.builds\$(Configuration)\Designer</DesignerBuildDirectory>
+        <RunnerBuildDirectory>..\..\.builds\$(Configuration)\Runner</RunnerBuildDirectory>
 	</PropertyGroup>
 
 	<Target Name="CopyRuntimes" AfterTargets="Build">
 		<ItemGroup>			
 			<PluginRuntimeFiles Include="$(BuildDirectory)\Plugins\$(ProjectName)\runtimes\**\*.*"/>
 		</ItemGroup>	
-		<Copy  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(BuildDirectory)\runtimes\%(RecursiveDir)"/>
+		<Copy  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(DesignerBuildDirectory)\runtimes\%(RecursiveDir)"/>
+		<Copy  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(RunnerBuildDirectory)\runtimes\%(RecursiveDir)"/>
 		<RemoveDir Directories="$(BuildDirectory)\Plugins\$(ProjectName)\runtimes" />
 	</Target>
 

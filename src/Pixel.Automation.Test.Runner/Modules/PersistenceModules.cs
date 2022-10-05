@@ -8,7 +8,7 @@ namespace Pixel.Automation.Test.Runner.Modules
     {
         public override void Load()
         {
-            Kernel.Bind<IRestClientFactory>().To<RestClientFactory>();
+            Kernel.Bind<IRestClientFactory>().To<RestClientFactory>().InSingletonScope();
             Kernel.Bind<IMetaDataClient>().To<MetaDataClient>();
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();

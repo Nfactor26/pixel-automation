@@ -8,11 +8,7 @@ namespace Pixel.Automation.Test.Runner.Modules
     {
         public override void Load()
         {
-
-            //Kernel.Bind<IWorkspaceManagerFactory>().To<WorkspaceManagerFactory>().InSingletonScope();
-
             Kernel.Bind<IScriptEngineFactory>().To<ScriptEngineFactory>().InSingletonScope();
-
         }
     }
 }

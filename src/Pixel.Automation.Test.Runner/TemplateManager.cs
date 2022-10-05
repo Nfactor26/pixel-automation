@@ -58,6 +58,7 @@ namespace Pixel.Automation.Test.Runner
             var targetProject = availableProjects.FirstOrDefault(a => a.Name.Equals(projectName)) ?? throw new ArgumentException($"Project with name :" +
                 $" {projectName} doesn't exist");
             template.ProjectId = targetProject.ProjectId;
+            await projectManager.LoadProjectAsync(template);
             projectManager.LoadTestCases();
             await projectManager.ListAllAsync(template.Selector);
 

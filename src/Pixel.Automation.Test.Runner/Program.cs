@@ -1,6 +1,11 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Ninject;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.RunTime;
+using Pixel.Automation.RunTime.Serialization;
 using Pixel.Automation.Test.Runner.Modules;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
@@ -37,12 +42,14 @@ namespace Pixel.Automation.Test.Runner
 
 
             Log.Logger = new LoggerConfiguration()
-                .Enrich.WithThreadId()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File("logs\\Pixel-Automation-{Date}.txt",
-                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+               .Enrich.WithThreadId()
+               .WriteTo.Console(Serilog.Events.LogEventLevel.Information, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
+               .WriteTo.File("logs\\Pixel-Automation-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose,
+                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
+               .CreateLogger();
+            var logger = Log.ForContext<Program>();
+
+            template.DefaultValue = "Bing_Demo_Template";
 
             app.OnExecuteAsync(async c =>
             {
@@ -50,9 +57,27 @@ namespace Pixel.Automation.Test.Runner
                 {
                     Debugger.Launch();
                 }
+
+                var pluginManager = new PluginManager(new JsonSerializer());
+                var platformFeatureAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.PlatformFeature);
+                var pluginAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Component);
               
-                var kernel = new StandardKernel(new CommonModule(), new DevicesModule(), new ScopedModules(), new ScriptingModule(), new WindowsModule(), new SettingsModule(), new PersistenceModules());
-                              
+                var kernel = new StandardKernel(new CommonModule(), new ScopedModules(), new ScriptingModule(), 
+                    new NativeModule(platformFeatureAssemblies), new SettingsModule(), new PersistenceModules());
+                kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
+
+                var knownTypeProvider = kernel.Get<ITypeProvider>();
+                knownTypeProvider.LoadTypesFromAssembly(typeof(Entity).Assembly);
+                knownTypeProvider.LoadTypesFromAssembly(typeof(ControlEntity).Assembly);
+                foreach (var assembly in pluginAssemblies)
+                {
+                    knownTypeProvider.LoadTypesFromAssembly(assembly);
+                }
+
+                #if DEBUG
+                pluginManager.ListLoadedAssemblies();
+                #endif
+
                 var applicationDataManager = kernel.Get<IApplicationDataManager>();
 
                 if (clean.HasValue())
@@ -60,12 +85,12 @@ namespace Pixel.Automation.Test.Runner
                     applicationDataManager.CleanLocalData();
                 }
 
-                Log.Information("Downloading application data now");
+                logger.Information("Downloading application data now");
                 await applicationDataManager.DownloadApplicationsDataAsync();
-                Log.Information("Download of application data completed");
-                Log.Information("Downloading project information now");
+                logger.Information("Download of application data completed");
+                logger.Information("Downloading project information now");
                 await applicationDataManager.DownloadProjectsAsync();
-                Log.Information("Download of project information completed");
+                logger.Information("Download of project information completed");
 
                 var projectManager = kernel.Get<ProjectManager>();
                 var templateManager = kernel.Get<TemplateManager>();
@@ -93,7 +118,7 @@ namespace Pixel.Automation.Test.Runner
                     sessionTemplate = await templateManager.GetByNameAsync(template.Value());
                     if(sessionTemplate == null)
                     {
-                        Console.WriteLine($"Template with name : {template.Value()} doesn't exist");                       
+                        logger.Warning("Template with name : {0} doesn't exist", template.Value());                       
                     }
                 }
                 else if (project.HasValue() && version.HasValue() && where.HasValue())
@@ -112,7 +137,7 @@ namespace Pixel.Automation.Test.Runner
                 }
                 else
                 {
-                    Log.Error("No operation specified to execute or insufficient parameters for operation to be executed.");
+                    logger.Error("No operation specified to execute or insufficient parameters for operation to be executed.");
                     app.ShowHelp();
                     Console.WriteLine("Press any key to exit");
                     Console.ReadLine();

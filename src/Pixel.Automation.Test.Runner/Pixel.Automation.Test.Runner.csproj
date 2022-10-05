@@ -4,6 +4,7 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<AssemblyName>PixelRun</AssemblyName>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -19,17 +20,19 @@
 		<PackageReference Include="Ninject" Version="3.3.6" />
 		<PackageReference Include="Ninject.Extensions.ChildKernel" Version="3.3.0" />
 		<PackageReference Include="ninject.extensions.conventions" Version="3.3.0" />
+		<PackageReference Include="Polly" Version="7.2.3" />
 		<PackageReference Include="Serilog" Version="2.11.0" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="Spectre.Console" Version="0.45.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />	
 		<ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
@@ -40,6 +43,9 @@
 	<ItemGroup>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Plugins.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
