@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,9 @@ namespace Pixel.Automation.Test.Runner
         private readonly ITestSessionClient sessionClient;
         private readonly ITestRunner testRunner;
         private readonly ITestSelector testSelector;
-        private readonly IApplicationDataManager applicationDataManager;       
+        private readonly IApplicationDataManager applicationDataManager;
+        private readonly IScriptEngineFactory scriptEngineFactory;
+        private readonly IReferenceManagerFactory referenceManagerFactory;
         private AutomationProject automationProject;
         private VersionInfo targetVersion;
         private List<TestFixture> availableFixtures = new List<TestFixture>();
@@ -37,7 +40,8 @@ namespace Pixel.Automation.Test.Runner
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IApplicationFileSystem applicationFileSystem,
             IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,
             IApplicationDataManager applicationDataManager, ITestRunner testRunner,
-            ITestSelector testSelector, ITestSessionClient sessionClient)
+            ITestSelector testSelector, ITestSessionClient sessionClient, IScriptEngineFactory scriptEngineFactory,
+            IReferenceManagerFactory referenceManagerFactory)
         {
             this.entityManager = Guard.Argument(entityManager).NotNull().Value;
             this.serializer = Guard.Argument(serializer).NotNull().Value;
@@ -48,6 +52,8 @@ namespace Pixel.Automation.Test.Runner
             this.testRunner = Guard.Argument(testRunner).NotNull().Value;
             this.testSelector = Guard.Argument(testSelector).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.scriptEngineFactory = Guard.Argument(scriptEngineFactory).NotNull().Value;
+            this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
 
         public async Task<string> LoadProjectAsync(SessionTemplate template)
@@ -78,6 +84,10 @@ namespace Pixel.Automation.Test.Runner
 
             await this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
             this.projectFileSystem.Initialize(automationProject, targetVersion);
+            this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
+            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);
+            var referenceManager = this.referenceManagerFactory.CreateForAutomationProject(this.automationProject, this.targetVersion);
+            this.entityManager.RegisterDefault<IReferenceManager>(referenceManager);
 
             if (!string.IsNullOrEmpty(initializationScript) && !File.Exists(Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)))
             {
@@ -87,26 +97,56 @@ namespace Pixel.Automation.Test.Runner
             //Load the setup data model for the project.
             Assembly dataModelAssembly = Assembly.LoadFrom(Path.Combine(projectFileSystem.ReferencesDirectory, targetVersion.DataModelAssembly));
             Type setupDataModel = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName)) ?? throw new Exception($"Data model assembly {dataModelAssembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
-
-            this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem);
-            this.entityManager.RegisterDefault<IProjectFileSystem>(this.projectFileSystem);
-            this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
+            var dateModel = Activator.CreateInstance(setupDataModel);
+            ConfigureScriptEngineFactory(referenceManager, dateModel);
 
             var processEntity = serializer.Deserialize<Entity>(this.projectFileSystem.ProcessFile, typeProvider.GetKnownTypes());
             this.entityManager.RootEntity = processEntity;
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
-
-
-            var scriptEngine = this.entityManager.GetScriptEngine();
+            this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
+          
             initializationScript = string.IsNullOrEmpty(initializationScript) ? Constants.InitializeEnvironmentScript : initializationScript;
-            string scriptFile = projectFileSystem.GetRelativePath(Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript));
-            await scriptEngine.ExecuteFileAsync(scriptFile);
-
+            await ExecuteInitializationScript(initializationScript);
 
             logger.Information($"Project load completed.");
         }
 
+        /// <summary>
+        /// Setup ScriptEngineFactory with search path and assembly references
+        /// </summary>
+        /// <param name="referenceManager"></param>
+        protected virtual void ConfigureScriptEngineFactory(IReferenceManager referenceManager, object dataModel)
+        {
+            this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, projectFileSystem.ReferencesDirectory)
+                .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
+                .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
+                .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
+                .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
+                .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
+        }
+
+        /// <summary>
+        /// Execute the Initialization script for Automation process.
+        /// Empty Initialization script is created if script file doesn't exist already.
+        /// </summary>
+        private async Task ExecuteInitializationScript(string scriptFile)
+        {
+            try
+            {                
+                if (!File.Exists(scriptFile))
+                {
+                    throw new FileNotFoundException("Script file doesn't exist.", nameof(scriptFile));
+                }
+                var scriptEngine = this.entityManager.GetScriptEngine();
+                await scriptEngine.ExecuteFileAsync(scriptFile);
+                logger.Information("Executed initialization script : {scriptFile}", scriptFile);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to execute Initialization script {scriptFile}");
+            }
+        }
+       
         public void LoadTestCases()
         {
             foreach (var testFixtureDirectory in Directory.GetDirectories(this.projectFileSystem.TestCaseRepository))
