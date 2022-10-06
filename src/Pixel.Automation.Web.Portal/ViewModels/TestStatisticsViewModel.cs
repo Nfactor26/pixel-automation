@@ -2,10 +2,7 @@
 using Pixel.Automation.Web.Portal.Helpers;
 using Pixel.Persistence.Core.Models;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.ViewModels
 {
@@ -108,8 +105,8 @@ namespace Pixel.Automation.Web.Portal.ViewModels
                     currentYear--;
                 }
             }
-            seriesData.AddSeries("Passed", "column", passedSeries);
-            seriesData.AddSeries("Failed", "column", failedSeries);
+            seriesData.AddSeries("Passed", passedSeries);
+            seriesData.AddSeries("Failed", failedSeries);
             seriesData.AddColors(new[] { "#82EE5F", "#E91E63" });
             seriesData.PlotOptions.Distributed = false;
             seriesData.Width = "100%";
@@ -126,7 +123,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
 
             SeriesChartDataViewModel<double> seriesData = new SeriesChartDataViewModel<double>(xAxisData);
             currentMonthOfYear = DateTime.Now.Month;
-            double[] avgExecutionTimeSeries = new double[currentMonthOfYear];
+            double[] avgExecutionTimeSeries = new double[6];
             for (int i = 6; i >= 1; i--)
             {
                 var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));

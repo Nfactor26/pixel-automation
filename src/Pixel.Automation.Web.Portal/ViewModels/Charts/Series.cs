@@ -6,8 +6,6 @@ namespace Pixel.Automation.Web.Portal.Charts
     {
         public string Name { get; set; }
 
-        public string Type { get; set; }
-
         public List<T> Data { get; set; } = new List<T>();
 
         public Series(string name, IEnumerable<T> data)
@@ -17,11 +15,6 @@ namespace Pixel.Automation.Web.Portal.Charts
             {
                 this.Data.AddRange(data);
             }
-        }
-
-        public Series(string name, string type, IEnumerable<T> data) : this(name, data)
-        { 
-            this.Type = type;
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             }
             var xAxis = new XAxis("", categories);
             this.ExecutionTimeChart = new SeriesChartDataViewModel<double>(xAxis);
-            this.ExecutionTimeChart.AddSeries("", seriesData);
+            this.ExecutionTimeChart.AddSeries("Time", seriesData);
             this.ExecutionTimeChart.AddColors(colors);
             this.ExecutionTimeChart.PlotOptions.Distributed = true;
             this.ExecutionTimeChart.Width = "100%";
