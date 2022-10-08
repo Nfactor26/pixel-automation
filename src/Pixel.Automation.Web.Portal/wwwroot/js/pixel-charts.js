@@ -69,10 +69,9 @@
     chart.render();
 }
 
-function generateRadarChart(containerId, chartData) {
-
+function generateRadarChart(containerId, chartData) {    
     var options = {
-        series: chartData.series,       
+        series: chartData.series,  
         chart: {
             type: 'radar',
             height: chartData.height,
@@ -90,12 +89,20 @@ function generateRadarChart(containerId, chartData) {
             colors: [],
             dashArray: 0
         },
+        colors: ['#FF4560'],
         markers: {
-            size: 0,
-            hover: {
-                size: 0
-            }
+            size: 4,
+            colors: ['#fff'],
+            strokeColor: '#FF4560',
+            strokeWidth: 2,
         },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val
+                }
+            }
+        },       
         responsive: [{
             breakpoint: 300,
             options: {
@@ -108,8 +115,8 @@ function generateRadarChart(containerId, chartData) {
         }],        
         xaxis: {
             categories: chartData.xAxis.categories           
-        },
-        yaxis: {
+        },        
+        yaxis: {           
             labels: {
                 formatter: function (val) {
                     return val.toFixed(2)
@@ -133,15 +140,25 @@ function generateRadarChart(containerId, chartData) {
                 enabled: true,
                 borderRadius: 2,
             }
-        }
+        },
+        plotOptions: {
+            radar: {
+                size: 100,
+                polygons: {
+                    strokeColors: '#e9e9e9',
+                    fill: {
+                        colors: ['#f8f8f8', '#fff']
+                    }
+                }
+            }
+        },
     };
 
     var chart = new ApexCharts(document.querySelector(containerId), options);
     chart.render();
 }
 
-function generateBarChart(containerId, chartData) {
-
+function generateBarChart(containerId, chartData) {   
     var options = {
         series: chartData.series,
         chart: {
@@ -163,7 +180,7 @@ function generateBarChart(containerId, chartData) {
                 }
             },
             zoom: {
-                enabled: true
+                enabled: false
             }
         },
         responsive: [{
@@ -181,7 +198,7 @@ function generateBarChart(containerId, chartData) {
             bar: {
                 borderRadius: 2,
                 horizontal: false,
-                columnWidth: '20%',
+                columnWidth: '10%',
                 distributed: chartData.plotOptions.distributed,
             },
         },
