@@ -1,7 +1,6 @@
 # Pixel.Automation
 Pixel Automation is a open source tool written in C# .net core for creating automation test cases without writing code. It provides a  design time environment where you configure the actions to be done on UI elements in a simple and efficient manner e.g. clicking a button or enter some value in a textbox. It integrates with popular automation frameworks like Selenium, Playwright, Microsoft UI Automation, OpenCV, etc. to provide the automation capabilities and can be extended to integrate with other frameworks easily via a plugin model. It also provides C# based scripting environment to augment the configuration when required.
 
-
 # Features
  - Create automation test cases without writing code. 
  - Automate both web and desktop applications and even combine different applications together in a single test case.
@@ -14,6 +13,9 @@ Pixel Automation is a open source tool written in C# .net core for creating auto
  - Visual debugging of control lookup to understand issues with lookup configuration.
  - Integrated reports for test case executions.
  - Console based client to run automation test cases
+
+# Demo
+[![selenium-demo](https://img.youtube.com/vi/MSPQjDoT3Qg/maxresdefault.jpg)](https://youtu.be/MSPQjDoT3Qg)
  
 # Why should you use Pixel Automation ?
 Writing test cases is not an easy task and maintaing them is even difficult. Pixel Automation enables you to create automation test cases much faster then writing code and at the same time tries to handle the automation framework specific complexities so that users can focus on writing test cases. It builds upon automation frameworks that you have already been using e.g. Selenium, Playwright, Microsoft UI Automation, OpenCV for image based automation, etc. It doesn't tries to hide automation framework specific api's in to another abstraction but exposes these api's as configuration instead. As a result, if you are already familiar with these frameworks, you don't have to rediscover things. New plugins can be easily created to integrated with other automation frameworks. Additionally, it comes inbuilt with a reporting system to understand how your test cases are performing.
