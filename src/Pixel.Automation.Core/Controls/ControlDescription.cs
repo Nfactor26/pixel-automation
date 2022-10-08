@@ -86,7 +86,8 @@ namespace Pixel.Automation.Core.Controls
                 ControlName = this.ControlName,              
                 ControlImage = this.ControlImage,                         
                 GroupName = this.GroupName,
-                ApplicationId = this.ApplicationId               
+                ApplicationId = this.ApplicationId,
+                Version = this.Version
             };
         }
 
