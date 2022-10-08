@@ -373,15 +373,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task CloneControl(ControlDescriptionViewModel controlToClone)
         {
-            Guard.Argument(controlToClone).NotNull();
+            try
+            {
+                Guard.Argument(controlToClone).NotNull();
 
-            var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
-            var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
-            controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
-            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-            await SaveControlDetails(controlDescriptionViewModel, true);          
-            this.Controls.Add(controlDescriptionViewModel);
-            logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
+                var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
+                var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+                controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
+                await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                await SaveControlDetails(controlDescriptionViewModel, true);
+                this.Controls.Add(controlDescriptionViewModel);
+                logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to clone the control.");
+            }
         }
 
         /// <summary>
