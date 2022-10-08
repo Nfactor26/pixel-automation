@@ -38,8 +38,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         protected override Task OnActivateAsync(CancellationToken cancellationToken)
         {
             string generatedCode = GetGeneratedCode();
-            this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor(new EditorOptions() { EnableDiagnostics = true });
-            this.ScriptEditor.SetEditorOptions(new EditorOptions() { ShowLineNumbers = true, FontSize = 23 });
+            this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor(new EditorOptions() 
+            {
+                EnableDiagnostics = true,
+                ShowLineNumbers = true,
+                FontSize = 23
+            });           
             if (dropTarget.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
                 //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project

@@ -11,9 +11,6 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void SetContent(string documentName, string ownerProject, string documentContent);
 
         void CloseDocument(bool save = true);
-
-        void SetEditorOptions(EditorOptions editorOptions);
-       
     }
 
     public interface IInlineScriptEditor : ICodeEditor, IDisposable
