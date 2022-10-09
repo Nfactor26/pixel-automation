@@ -60,13 +60,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// Get the control located based on configured control identity
         /// </summary>
         /// <returns></returns>
-        Task<UIControl> GetControl();             
-
-        /// <summary>
-        /// Reload the control details from control file.
-        /// This can be used to reload control data on editor whenever control is edited from explorer.
-        /// </summary>
-        void Reload();
- 
+        Task<UIControl> GetControl();        
     }
 }

@@ -134,11 +134,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         protected override  async Task OnActivateAsync(CancellationToken cancellationToken)
         {
-            if(this.ScriptEditor == null)
+            if (this.ScriptEditor == null)
             {
-                this.ScriptEditor = editorFactory.CreateInlineScriptEditor(new EditorOptions() { EnableDiagnostics = true });
-                this.ScriptEditor.SetEditorOptions(new EditorOptions() { FontSize = 23 });
-            }            
+                this.ScriptEditor = editorFactory.CreateInlineScriptEditor(new EditorOptions()
+                {
+                    EnableDiagnostics = true,
+                    FontSize = 23
+                });
+            }
             if (TryGenerateDataModelCode(out string generatedCode, out string errorDescription))
             {                
                 editorFactory.AddProject(testDataSource.Name, Array.Empty<string>(), typeof(EmptyModel));

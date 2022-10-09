@@ -120,18 +120,11 @@ namespace Pixel.Automation.Core.Components
             Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
         public bool CacheControl { get; set; } = false;
 
-        private ControlDescription controlDescription;
+      
         [Browsable(false)]
         public ControlDescription ControlDescription
         {
-            get
-            {
-                if(controlDescription == null)
-                {
-                    controlDescription = LoadControlDescription();
-                }
-                return controlDescription;
-            }
+            get => LoadControlDescription();            
         }
 
         [Browsable(false)]
@@ -205,14 +198,5 @@ namespace Pixel.Automation.Core.Components
             bool isMatch = fn(this, targetElement);
             return isMatch;
         }
-
-        public void Reload()
-        {
-            this.controlLoader?.RemoveFromCache(this.ControlId);
-            this.controlDescription = LoadControlDescription();
-            OnPropertyChanged(nameof(ControlDescription));
-            OnPropertyChanged(nameof(ControlDetails));
-        }
-
     }
 }

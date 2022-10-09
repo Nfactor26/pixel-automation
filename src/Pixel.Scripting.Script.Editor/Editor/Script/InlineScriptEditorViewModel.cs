@@ -60,15 +60,6 @@ namespace Pixel.Scripting.Script.Editor.Script
             return this.Editor?.Text ?? string.Empty;
         }
 
-        public void SetEditorOptions(EditorOptions editorOptions)
-        {
-            this.Editor.ShowLineNumbers = editorOptions.ShowLineNumbers;
-            this.Editor.FontSize = editorOptions.FontSize;
-            if (!string.IsNullOrEmpty(editorOptions.FontFamily))
-            {
-                this.Editor.FontFamily = new System.Windows.Media.FontFamily(editorOptions.FontFamily);
-            }
-        }
         private void OnWorkspaceChanged(object sender, WorkspaceChangedEventArgs e)
         {
             logger.Debug($"Process workspace changed event for {nameof(InlineScriptEditorViewModel)} with Id : {Identifier}");

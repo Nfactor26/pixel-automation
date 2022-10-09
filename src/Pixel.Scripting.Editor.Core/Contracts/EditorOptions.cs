@@ -14,7 +14,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
 
         public string FontFamily { get; set; } = "Consolas";
 
-        public bool ShowLineNumbers { get; set; } = true;
+        public bool ShowLineNumbers { get; set; } = false;
 
         public int Thickness { get; set; } = 2;
      
