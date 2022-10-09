@@ -390,14 +390,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
+                var controlLoader = this.EntityManager.GetServiceOfType<IControlLoader>();
+                controlLoader.RemoveFromCache(updatedControl.ControlId);             
                 var controlEntities = this.EntityManager.RootEntity.GetComponentsOfType<ControlEntity>(SearchScope.Descendants);
                 var controlsToBeReloaded = controlEntities.Where(c => c.ControlId.Equals(updatedControl.ControlId));
                 foreach (var control in controlsToBeReloaded)
                 {                 
-                    control.Reload();
-                    logger.Information($"Control : {control.Name} with Id : {control.ControlId} has been reloaded");
-                    await Task.CompletedTask;
+                    control.Refresh();                 
                 }
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
