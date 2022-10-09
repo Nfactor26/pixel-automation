@@ -12,12 +12,27 @@ namespace Pixel.Automation.Core.Models
     [DataContract]
     public class AutomationProject
     {
+        /// <summary>
+        /// Unique Identifier of the automation project
+        /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
         public string ProjectId { get; set; } = Guid.NewGuid().ToString();
 
+        /// <summary>
+        /// Display Name of the automation project
+        /// </summary>
         [DataMember(IsRequired = true, Order = 20)]
         public string Name { get; set; } = string.Empty;
 
+        /// <summary>
+        /// NameSpace for generated models. NameSpace must be unique
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 40)]
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// Indicates when was the project last opened
+        /// </summary>
         [DataMember(IsRequired = true, Order = 40)]
         public DateTime LastOpened { get; set; } = DateTime.Now;
 
@@ -29,6 +44,9 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         public IEnumerable<ProjectVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
 
+        /// <summary>
+        /// Active version of the project
+        /// </summary>
         public ProjectVersion ActiveVersion
         {
             get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
@@ -40,15 +58,6 @@ namespace Pixel.Automation.Core.Models
         public AutomationProject()
         {
            
-        }
-
-        /// <summary>
-        /// Get the name of the project. Spaces are replaced by _ .
-        /// </summary>
-        /// <returns></returns>
-        public string GetProjectName()
-        {
-            return this.Name.Trim().Replace(' ','_');
         }
     }
 }

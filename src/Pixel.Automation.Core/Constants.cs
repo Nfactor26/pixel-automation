@@ -3,6 +3,11 @@
     public static class Constants
     {
         /// <summary>
+        /// Prefix for generate namespace for automation and prefab projects
+        /// </summary>
+        public static readonly string NamespacePrefix = "Pixel.Automation";
+
+        /// <summary>
         /// Directory name where the controls belonging to application are stored locally
         /// </summary>
         public static readonly string ControlsDirectory = "Controls";

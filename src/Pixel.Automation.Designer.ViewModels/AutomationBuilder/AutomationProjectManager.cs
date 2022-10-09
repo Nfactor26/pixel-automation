@@ -67,7 +67,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
             if (!dataModelFiles.Any())
             {
-                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.AutomationProcessDataModelName, $"Pixel.Automation.{this.GetProjectName()}", new[] { typeof(object).Namespace });
+                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.AutomationProcessDataModelName, this.GetProjectNamespace(), new[] { typeof(object).Namespace });
                 string dataModelInitialContent = classGenerator.GetGeneratedCode();
                 string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, $"{Constants.AutomationProcessDataModelName}.cs");
                 await File.WriteAllTextAsync(dataModelFile, dataModelInitialContent);
@@ -209,7 +209,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected override string GetProjectName()
         {
-            return this.activeProject.GetProjectName();
+            return this.activeProject.Name;
+        }
+
+        protected override string GetProjectNamespace()
+        {
+            return this.activeProject.Namespace;
         }
 
         #endregion overridden methods

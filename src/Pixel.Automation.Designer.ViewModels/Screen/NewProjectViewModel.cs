@@ -1,15 +1,12 @@
 ﻿using Dawn;
+using Newtonsoft.Json.Linq;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
@@ -29,7 +26,8 @@ namespace Pixel.Automation.Designer.ViewModels
             get => this.NewProject.Name;
             set
             {
-                this.NewProject.Name = value;
+                value = value ?? string.Empty;
+                this.NewProject.Name = value;               
                 ValidateProjectName(value);
                 NotifyOfPropertyChange(() => Name);
                 NotifyOfPropertyChange(() => CanCreateNewProject);
@@ -56,6 +54,8 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
+                this.NewProject.Name = this.NewProject.Name.Trim();
+                this.NewProject.Namespace = $"{Constants.NamespacePrefix}.{this.NewProject.Name.Replace(' ', '.')}";
                 this.NewProject.LastOpened = DateTime.Now;
 
                 //create a directory inside projects directory with name equal to newProject identifier
@@ -95,7 +95,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             ClearErrors(nameof(Name));
             ValidateRequiredProperty(nameof(Name), projectName);
-            ValidatePattern("^([A-Za-z]|[_]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or '_' and should be atleast 4 characters in length.");
+            ValidatePattern("^([A-Za-z]|[._ ]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or ' ' or '_' and should be atleast 4 characters in length.");
             if(!IsNameAvailable(projectName))
             {
                 this.AddOrAppendErrors(nameof(Name), "An application already exists with this name");

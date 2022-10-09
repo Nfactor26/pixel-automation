@@ -14,20 +14,21 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Pixel.Scripting.Reference.Manager.Models;
 using System.IO;
-using System.Text.Json.Serialization;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
+    /// <summary>
+    /// Manager for a <see cref="PrefabProject"/>
+    /// </summary>
     public class PrefabProjectManager : ProjectManager, IPrefabProjectManager
     {
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private IReferenceManager referenceManager;
         private readonly ApplicationSettings applicationSettings;
-        private PrefabProject prefabProject;
-        private VersionInfo loadedVersion;
+        private PrefabProject prefabProject;       
         private Entity prefabbedEntity;       
-
+             
         public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
             ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings,
@@ -43,8 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public Entity Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
-            this.prefabProject = prefabProject;
-            this.loadedVersion = versionToLoad;
+            this.prefabProject = prefabProject;           
             this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
@@ -209,6 +209,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected override string GetProjectName()
         {
             return this.prefabProject.GetPrefabName();
+
+        protected override string GetProjectNamespace()
+        {
+            return this.prefabProject.NameSpace;
         }
 
         #endregion overridden methods
