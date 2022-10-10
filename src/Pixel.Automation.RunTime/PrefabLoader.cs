@@ -98,10 +98,8 @@ namespace Pixel.Automation.RunTime
             prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
             IPrefabFileSystem prefabFileSystem = prefabEntityManager.GetServiceOfType<IPrefabFileSystem>();
             prefabFileSystem.Initialize(prefabProject, versionToLoad);
-            prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);
-          
-            ConfigureServices(parentEntityManager, prefabFileSystem);    
-
+            prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);    
+         
             string prefabAssembly = Path.Combine(prefabFileSystem.ReferencesDirectory, versionToLoad.DataModelAssembly);
             if (!prefabFileSystem.Exists(prefabAssembly))
             {
@@ -116,15 +114,18 @@ namespace Pixel.Automation.RunTime
                     $"and preafbId : {prefabId}");
             }
 
+            ConfigureServices(parentEntityManager, prefabFileSystem, prefabDataModelAssembly);
+
             PrefabInstance prefabInstance = new PrefabInstance(prefabEntityManager, prefabFileSystem, dataModelType);
             return prefabInstance;
         }
 
-        protected virtual void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem)
+        protected virtual void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem, Assembly prefabAssembly)
         {
             //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
             var scriptEngineFactory = parentEntityManager.GetServiceOfType<IScriptEngineFactory>();
             scriptEngineFactory.WithAdditionalSearchPaths(prefabFileSystem.ReferencesDirectory);
+            scriptEngineFactory.WithAdditionalAssemblyReferences(prefabAssembly);
           
         }
 
