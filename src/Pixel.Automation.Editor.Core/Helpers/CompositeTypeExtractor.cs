@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Editor.Core.Interfaces;
+﻿using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Editor.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,24 +18,30 @@ namespace Pixel.Automation.Editor.Core.Helpers
         {
             if (targetType.Assembly.Equals(containingAssembly))
             {
-                discoveredTypes.Add(targetType);
-                foreach (var property in targetType.GetProperties())
+                if (!discoveredTypes.Contains(targetType))
                 {
-                    foreach (var compositeType in ProcessType(property.PropertyType, containingAssembly, discoveredTypes))
+                    discoveredTypes.Add(targetType);
+                    foreach (var property in targetType.GetProperties())
                     {
-                        if(!discoveredTypes.Contains(compositeType))
+                        foreach (var compositeType in ProcessType(property.PropertyType, containingAssembly, discoveredTypes))
                         {
-                            discoveredTypes.Add(compositeType);
+                            if (!discoveredTypes.Contains(compositeType))
+                            {
+                                discoveredTypes.Add(compositeType);
+                            }
                         }
                     }
-                }                
+                }                     
             }
 
             if (targetType.IsGenericType)
             {
                 foreach (var argument in targetType.GetGenericArguments())
                 {
-                    ProcessType(argument, containingAssembly, discoveredTypes);
+                    if(!discoveredTypes.Contains(argument))
+                    {
+                        ProcessType(argument, containingAssembly, discoveredTypes);
+                    }
                 }
             }
 
