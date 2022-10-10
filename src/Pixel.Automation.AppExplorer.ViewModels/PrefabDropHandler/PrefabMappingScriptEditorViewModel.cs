@@ -64,14 +64,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             NotifyOfPropertyChange(nameof(this.ScriptEditor));
 
             this.ScriptEditor.Activate();
-
-            void AddProject(string[] projectReferences)
-            {
-                this.scriptEditorFactory.AddProject(GetProjectName(), projectReferences, prefabEntity.GetPrefabDataModelType());
-            }
-        
+          
             return base.OnActivateAsync(cancellationToken);
         }
+
+        protected abstract void AddProject(string[] projectReferences);
 
         /// <summary>
         /// Get the generated code for mapping
