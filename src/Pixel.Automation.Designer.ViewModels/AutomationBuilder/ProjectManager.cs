@@ -52,11 +52,27 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;            
         }
 
+        #region abstract methods
+
+        /// <summary>
+        /// Get the name of the project
+        /// </summary>
+        /// <returns></returns>
+        protected abstract string GetProjectName();
+
+        /// <summary>
+        /// Get the namespace of the project
+        /// </summary>
+        /// <returns></returns>
+        protected abstract string GetProjectNamespace();
+
         ///<inheritdoc/>
         public abstract Task Save();
 
         ///<inheritdoc/>
         public abstract Task Reload();
+
+        #endregion abstract methods
 
         ///<inheritdoc/>
         public IProjectManager WithEntityManager(EntityManager entityManager)
@@ -100,7 +116,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
         }
 
-
         /// <summary>
         /// Configure ScriptEditor with EntityManager->Arguments as globalsType. For subsequent calls, if Arguments change,
         /// underlying workspace will be disposed and new workspace will be created to reflect change in globalsType.
@@ -143,7 +158,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
         }
 
-
         /// <summary>
         /// Add data model assembly to arguments type provider so that it can show types defined in data model assembly 
         /// </summary>
@@ -152,7 +166,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {          
             this.argumentTypeProvider.WithDataModelAssembly(assembly);
         }
-
 
         /// <summary>
         /// Create a workspace manager. Add all the documents from data model directory to this workspace , compile the workspace and
@@ -163,7 +176,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected object CompileAndCreateDataModel(string dataModelName)
         {
             logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
-            this.codeEditorFactory.AddProject(this.GetProjectName(), $"Pixel.Automation.{this.GetProjectName()}", Array.Empty<string>());
+            this.codeEditorFactory.AddProject(this.GetProjectName(), this.GetProjectNamespace(), Array.Empty<string>());
 
             string dataModelDirectory = this.fileSystem.DataModelDirectory;
             string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");
@@ -208,14 +221,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
 
-        }
-        
-        /// <summary>
-        /// Get the name of the project
-        /// </summary>
-        /// <returns></returns>
-        protected abstract string GetProjectName();
-
+        }        
+       
         /// <summary>
         /// Check project temp folder for any existing assemblies and extract the iteration number that was used for naming that assembly.
         /// Generate the next assembly name by incrementing this iteration number e.g.  ProjectName_n+1 if n was the iteration used for last assembly.
@@ -237,13 +244,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             //There are some scenarios where the data model assembly with same name is already loaded in domain e.g. after deploying a version
             //and trying to open new version for edit.
             compilationIteration++;
-            string dataModelAssemblyName = $"{GetProjectName().Trim().Replace(' ', '_')}";
+            string dataModelAssemblyName = GetProjectNamespace();
             string dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             while(loadedAssemblies.Any(a => a.GetName().Name.Equals(dataModelAssemblyNameWithIteration)))
             {
                 compilationIteration++;
-                dataModelAssemblyNameWithIteration = $"{GetProjectName().Trim().Replace(' ', '_')}_{compilationIteration}";
+                dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
             }
            
             return dataModelAssemblyNameWithIteration;
@@ -253,8 +260,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             this.entityManager.RestoreParentChildRelation(entity);
         }
-             
-        #endregion helper methods
 
+        #endregion helper methods
+     
     }
 }

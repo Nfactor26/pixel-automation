@@ -3,10 +3,6 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Serilog;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -22,8 +18,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             get => prefabProject.PrefabName;
             set
             {
-                prefabProject.PrefabName = value.Trim();
-                prefabProject.NameSpace = $"{Constants.PrefabDataModelName}.{this.prefabProject.GetPrefabName()}";
+                prefabProject.PrefabName = value ?? string.Empty;              
                 NotifyOfPropertyChange(PrefabName);           
                 ValidateProperty(nameof(PrefabName));
             }
@@ -51,8 +46,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
         }
 
-
-
         public NewPrefabViewModel(ApplicationDescriptionViewModel applicationDescriptionViewModel, PrefabProject prefabToolBoxItem)
         {
             this.applicationDescriptionViewModel = applicationDescriptionViewModel;
@@ -71,6 +64,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             errorDescription = string.Empty;
             if(Validate())
             {
+                this.PrefabName = this.PrefabName.Trim();
+                this.prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.{this.PrefabName.Replace(' ', '.')}";
                 logger.Information($"Prefab name is : {PrefabName}. Moving to next screen");            
                 return true;
             }
@@ -89,8 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         }
 
         #region INotifyDataErrorInfo
-
-        Regex isValidNameSpace = new Regex(@"([A-Za-z_]{1,})((\.){1}([A-Za-z_]{1,}))*", RegexOptions.Compiled);
+      
         private void ValidateProperty(string propertyName)
         {            
             ClearErrors(propertyName);
@@ -98,10 +92,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             {
                 case nameof(PrefabName):
                     ValidateRequiredProperty(nameof(PrefabName), PrefabName);
-                    if(!isValidNameSpace.IsMatch(PrefabName))
-                    {
-                        AddOrAppendErrors(nameof(PrefabName), $"Value is not in expected format. Only characters, underscore and dots are allowed");
-                    }
+                    ValidatePattern("^([A-Za-z]|[._ ]){4,}$", nameof(PrefabName), PrefabName, "Name must contain only alphabets or ' ' or '_' and should be atleast 4 characters in length.");
                     if (this.applicationDescriptionViewModel.PrefabsCollection.Any(p => p.PrefabName.Equals(PrefabName)))
                     {
                         AddOrAppendErrors(nameof(PrefabName), $"Prefab with name {PrefabName} already exists for application {this.applicationDescriptionViewModel.ApplicationName}");                  

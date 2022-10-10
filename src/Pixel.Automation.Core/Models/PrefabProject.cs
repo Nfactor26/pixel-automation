@@ -28,7 +28,7 @@ namespace Pixel.Automation.Core.Models
         /// NameSpace for generated models. NameSpace must be unique
         /// </summary>
         [DataMember(IsRequired = true, Order = 40)]
-        public string NameSpace { get; set; }
+        public string Namespace { get; set; }
 
         /// <summary>
         /// Get all the versions created for this Prefab
@@ -76,16 +76,7 @@ namespace Pixel.Automation.Core.Models
         {
             this.PrefabRoot = prefabRoot;           
         }
-
-        /// <summary>
-        /// Get the name of the prefab. Empty spaces are replaced with _ .
-        /// </summary>
-        /// <returns></returns>
-        public string GetPrefabName()
-        {
-            return this.PrefabName.Trim().Replace(' ', '_');
-        }
-
+      
         ///</inheritdoc>
         public object Clone()
         {

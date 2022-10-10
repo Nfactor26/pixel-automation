@@ -132,7 +132,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
-            workspaceManager.AddProject(this.automationProject.Name, $"Pixel.Automation.{this.automationProject.GetProjectName()}",  Array.Empty<string>());
+            workspaceManager.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())
             {
@@ -147,7 +147,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 }
             }
 
-            string assemblyName = this.automationProject.Name.Trim().Replace(' ', '_');
+            string assemblyName = this.automationProject.Namespace;
             using (var compilationResult = workspaceManager.CompileProject(this.automationProject.Name, assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);            

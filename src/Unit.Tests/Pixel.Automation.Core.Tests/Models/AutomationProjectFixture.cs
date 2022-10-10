@@ -17,8 +17,7 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.IsTrue(!automationProject.AvailableVersions.Any());
             Assert.IsNotNull(automationProject.DeployedVersions);
             Assert.IsTrue(!automationProject.DeployedVersions.Any());
-            Assert.IsNull(automationProject.ActiveVersion);
-            Assert.IsEmpty(automationProject.GetProjectName());
+            Assert.IsNull(automationProject.ActiveVersion);          
         }
 
         [Test]

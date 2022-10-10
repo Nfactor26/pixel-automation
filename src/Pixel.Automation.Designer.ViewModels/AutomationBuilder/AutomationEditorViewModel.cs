@@ -147,12 +147,12 @@ namespace Pixel.Automation.Designer.ViewModels
               
                 //Add the project to workspace
                 var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.AddProject(this.CurrentProject.GetProjectName(), new string[] {}, this.EntityManager.Arguments.GetType());
-                scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), File.ReadAllText(scriptFile));
+                scriptEditorFactory.AddProject(this.CurrentProject.Name, new string[] {}, this.EntityManager.Arguments.GetType());
+                scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, File.ReadAllText(scriptFile));
                 //Create script editor and open the document to edit
                 using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                 {
-                    scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.GetProjectName(), string.Empty);
+                    scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, string.Empty);
                     var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                     if (result.HasValue && result.Value)
                     {
@@ -160,7 +160,7 @@ namespace Pixel.Automation.Designer.ViewModels
                         scriptEngine.ClearState();
                         await scriptEngine.ExecuteFileAsync(scriptFile);
                     }
-                    scriptEditorFactory.RemoveProject(this.CurrentProject.GetProjectName());
+                    scriptEditorFactory.RemoveProject(this.CurrentProject.Name);
                 }             
             }
             catch (Exception ex)

@@ -22,7 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
     {
         private readonly ILogger logger = Log.ForContext<PrefabScriptsImporterViewModel>();
 
-        private readonly PrefabProject prefabToolBoxItem;
+        private readonly PrefabProject prefabProject;
         private readonly Entity rootEntity;
 
         private readonly IScriptEngineFactory scriptEngineFactory;
@@ -39,7 +39,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public PrefabScriptsImporterViewModel(PrefabProject prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
             IArgumentExtractor argumentExtractor, IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory, IReferenceManager referenceManager)
         {
-            this.prefabToolBoxItem = Guard.Argument(prefabToolBoxItem).NotNull().Value;
+            this.prefabProject = Guard.Argument(prefabToolBoxItem).NotNull().Value;
             this.prefabFileSystem = Guard.Argument(prefabFileSystem).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor).NotNull().Value;
             this.argumentExtractor = Guard.Argument(argumentExtractor).NotNull().Value;
@@ -81,13 +81,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             await base.OnActivateAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Copy scripts from automation project to prefab project and update the automation project namespace to prefab project namespace
+        /// </summary>
         private void CopyScriptsToPrefabsDirectory()
         {
             foreach (var scriptFile in RequiredScripts)
             {
                 string filePath = Path.Combine(rootEntity.EntityManager.GetCurrentFileSystem().WorkingDirectory, scriptFile.ScriptName);
                 string fileContent = File.ReadAllText(filePath);
-                fileContent = fileContent.Replace("using Pixel.Automation.Project.DataModels;", $"using {prefabToolBoxItem.NameSpace};");
+                string projectNamespace = this.rootEntity.EntityManager.Arguments.GetType().Namespace;
+                fileContent = fileContent.Replace($"using {projectNamespace};", $"using {prefabProject.Namespace};");
                 File.WriteAllText(Path.Combine(prefabFileSystem.WorkingDirectory, $"Scripts\\{Path.GetFileName(scriptFile.ScriptName)}"), fileContent);
                 logger.Information($"Copied script file : {scriptFile} from {filePath}");
             }

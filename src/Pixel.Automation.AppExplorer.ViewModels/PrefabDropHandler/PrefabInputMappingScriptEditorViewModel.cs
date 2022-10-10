@@ -28,6 +28,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
+        protected override void AddProject(string[] projectReferences)
+        {
+            this.scriptEditorFactory.AddProject(GetProjectName(), projectReferences, dropTarget.EntityManager.Arguments.GetType());
+        }
+
+        /// <inheritdoc/>   
         protected override string GetProjectName()
         {
             return $"{prefabEntity.Id}-InputMapping-Script";
@@ -40,15 +46,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
-        public override bool Validate()
-        {
-            var editorText = this.ScriptEditor.GetEditorText();
-            var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, dropTarget.EntityManager.Arguments);
-            if (!isValid)
-            {
-                AddOrAppendErrors("", errors);
-            }
-            return isValid;
-        }
+        //public override bool Validate()
+        //{
+        //    var editorText = this.ScriptEditor.GetEditorText();
+        //    var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, dropTarget.EntityManager.Arguments);
+        //    if (!isValid)
+        //    {
+        //        AddOrAppendErrors("", errors);
+        //    }
+        //    return true;
+        //}
     }
 }

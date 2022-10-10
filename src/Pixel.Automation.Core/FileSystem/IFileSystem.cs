@@ -219,14 +219,6 @@ namespace Pixel.Automation.Core.Interfaces
         Entity GetPrefabEntity();
 
         /// <summary>
-        /// Load Prefab Entity and update all data model reference to use this new data model assembly.
-        /// This is required because every time prefab data model is compiled a new assembly is generated.
-        /// </summary>
-        /// <param name="withDataModelAssembly"></param>
-        /// <returns></returns>
-        Entity GetPrefabEntity(Assembly withDataModelAssembly);
-
-        /// <summary>
         /// Save the specified entity as the prefab template
         /// </summary>
         /// <param name="templateRoot"></param>

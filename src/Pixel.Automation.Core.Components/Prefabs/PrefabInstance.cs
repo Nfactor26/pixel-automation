@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.IO;
 
 namespace Pixel.Automation.Core.Components.Prefabs
 {
@@ -25,8 +26,12 @@ namespace Pixel.Automation.Core.Components.Prefabs
         /// </summary>
         /// <returns></returns>
         public Entity GetPrefabRootEntity()
-        {          
-            var prefabRoot = this.prefabFileSystem.GetPrefabEntity(this.dataModelType.GetType().Assembly);
+        {
+            if (!File.Exists(this.prefabFileSystem.PrefabFile))
+            {
+                throw new FileNotFoundException($"{this.prefabFileSystem.PrefabFile} not found");
+            }
+            var prefabRoot = this.prefabFileSystem.LoadFile<Entity>(this.prefabFileSystem.PrefabFile);
             prefabRoot.EntityManager = this.prefabEntityManager;
             this.prefabEntityManager.RestoreParentChildRelation(prefabRoot);
             //Setting argument will initialize all the required services such as script engine, argument processor , etc.
@@ -34,7 +39,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
             this.prefabEntityManager.Arguments = dataModelInstance;
             return prefabRoot;
         }
-
+      
         /// <summary>
         /// Get the data model type for prefab process
         /// </summary>

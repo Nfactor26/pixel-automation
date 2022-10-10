@@ -3,6 +3,17 @@
     public static class Constants
     {
         /// <summary>
+        /// Prefix for generate namespace for automation and prefab projects
+        /// </summary>
+        public static readonly string NamespacePrefix = "Pixel.Automation";
+
+        /// <summary>
+        /// Namespace prefix for prefab projects
+        /// </summary>
+        public static readonly string PrefabNameSpacePrefix = "Pixel.Prefabs";
+
+
+        /// <summary>
         /// Directory name where the controls belonging to application are stored locally
         /// </summary>
         public static readonly string ControlsDirectory = "Controls";
@@ -59,12 +70,7 @@
         /// Name of Prefab entity file which contains the automation workflow
         /// </summary>
         public static readonly string PrefabProcessFileName = "Prefab.proc";
-
-        /// <summary>
-        /// Namespace prefix for prefab projects
-        /// </summary>
-        public static readonly string PrefabNameSpace = "Pixel.Automation.Prefabs";
-
+     
         /// <summary>
         /// Data model name for the data model associated with the automation project.
         /// This data model acts as a global for scripts within Environment Setup and Environment TearDown

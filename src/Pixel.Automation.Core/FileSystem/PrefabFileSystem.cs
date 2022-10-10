@@ -73,26 +73,7 @@ namespace Pixel.Automation.Core
             }
             Entity prefabRoot = this.serializer.Deserialize<Entity>(PrefabFile);
             return prefabRoot;
-        }
-
-        /// <InheritDoc/>      
-        public Entity GetPrefabEntity(Assembly withDataModelAssembly)
-        {
-            if (!File.Exists(this.PrefabFile))
-            {
-                throw new FileNotFoundException($"{this.PrefabFile} not found");
-            }
-            string fileContents = File.ReadAllText(this.PrefabFile);
-            Regex regex = new Regex(@"(Pixel\.Automation\.Project\.DataModels)(\.\w*)(,\s)([\w|\d]*)");           
-            fileContents = regex.Replace(fileContents, (m) =>
-            {
-                string result = m.Value.Replace($"{m.Groups[4].Value}", withDataModelAssembly.GetName().Name);         //replace assembly name
-                result = result.Replace($"{m.Groups[1].Value}", withDataModelAssembly.GetTypes().First().Namespace);  //replace namesapce
-                return result;
-            });          
-            Entity prefabRoot = this.serializer.DeserializeContent<Entity>(fileContents);
-            return prefabRoot;
-        }
+        }     
 
         /// <InheritDoc/>      
         public Assembly GetDataModelAssembly()
