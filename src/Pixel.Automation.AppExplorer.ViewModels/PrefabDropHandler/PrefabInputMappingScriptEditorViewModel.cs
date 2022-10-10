@@ -46,15 +46,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
-        public override bool Validate()
-        {
-            var editorText = this.ScriptEditor.GetEditorText();
-            var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, dropTarget.EntityManager.Arguments);
-            if (!isValid)
-            {
-                AddOrAppendErrors("", errors);
-            }
-            return isValid;
-        }
+        //public override bool Validate()
+        //{
+        //    var editorText = this.ScriptEditor.GetEditorText();
+        //    var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, dropTarget.EntityManager.Arguments);
+        //    if (!isValid)
+        //    {
+        //        AddOrAppendErrors("", errors);
+        //    }
+        //    return true;
+        //}
     }
 }

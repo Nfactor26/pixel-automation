@@ -46,16 +46,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
-        public override bool Validate()
-        {
-            var editorText = this.ScriptEditor.GetEditorText();
-            var prefabArgument = Activator.CreateInstance(prefabEntity.GetPrefabDataModelType());
-            var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, prefabArgument);
-            if (!isValid)
-            {
-                AddOrAppendErrors("", errors);
-            }
-            return isValid;
-        }
+        //public override bool Validate()
+        //{
+        //    var editorText = this.ScriptEditor.GetEditorText();
+        //    var prefabArgument = Activator.CreateInstance(prefabEntity.GetPrefabDataModelType());    
+        //    var (isValid, errors) = this.scriptEngine.IsScriptValid(editorText, prefabArgument);
+        //    if (!isValid)
+        //    {
+        //        AddOrAppendErrors("", errors);
+        //    }
+        //    return true;
+        //}
     }
 }
