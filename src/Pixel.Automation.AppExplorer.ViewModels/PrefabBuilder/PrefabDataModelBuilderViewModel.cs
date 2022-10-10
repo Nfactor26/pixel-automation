@@ -90,11 +90,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information("Start creating Prefab data model");
 
             var imports = RequiredProperties.Where(r => r.IsRequired).Select(s => s.NameSpace)?
-                .Distinct().Except(new[] { prefabProject.NameSpace, currentDataModel.GetType().Namespace }) ?? new List<string>();
+                .Distinct().Except(new[] { prefabProject.Namespace, currentDataModel.GetType().Namespace }) ?? new List<string>();
             imports = imports.Append(typeof(ParameterUsage).Namespace); 
             imports = imports.Append(typeof(ParameterUsageAttribute).Namespace);
 
-            var classBuilder = codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, prefabProject.NameSpace, imports);
+            var classBuilder = codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, prefabProject.Namespace, imports);
             foreach (var property in RequiredProperties.Where(r => r.IsRequired))
             {
                 classBuilder.AddProperty(property.PropertyName, property.PropertyType);
@@ -113,7 +113,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private void MirrorTargetType(Type targetType)
         {
             var imports = targetType.GetProperties().Select(s => s.PropertyType.Namespace).Distinct();
-            string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabProject.NameSpace, imports);
+            string generatedCode = codeGenerator.GenerateClassForType(targetType, prefabProject.Namespace, imports);
             fileSystem.CreateOrReplaceFile(fileSystem.DataModelDirectory, $"{targetType.GetDisplayName()}.cs", generatedCode);
             logger.Information($"Mirror type created for type {targetType.GetDisplayName()}");
         }      

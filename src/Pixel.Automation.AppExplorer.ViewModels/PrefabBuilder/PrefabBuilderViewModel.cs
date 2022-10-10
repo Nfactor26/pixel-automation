@@ -120,7 +120,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var oldAssembly = prefabProject.PrefabRoot.EntityManager.Arguments.GetType()
                 .Assembly.GetName();
             var oldNameSpace = prefabProject.PrefabRoot.EntityManager.Arguments.GetType().Namespace;
-            var newAssemblyName = prefabProject.GetPrefabName();
+            var newAssemblyName = prefabProject.Namespace;
             string fileContents = File.ReadAllText(prefabFileSystem.PrefabFile);
             Regex assmelbyNameMatcher = new Regex($"{oldAssembly.Name}");
             fileContents = assmelbyNameMatcher.Replace(fileContents, (m) =>
@@ -129,7 +129,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 // Hence, we append _0 so that Regex matches as expected.
                 return $"{newAssemblyName}_0";
             });
-            fileContents = fileContents.Replace(oldNameSpace, prefabProject.NameSpace);
+            fileContents = fileContents.Replace(oldNameSpace, prefabProject.Namespace);
             File.WriteAllText(prefabFileSystem.PrefabFile, fileContents);
 
         }

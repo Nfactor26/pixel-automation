@@ -1,9 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -39,20 +37,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 this.prefabProject.PrefabName = value;
                 OnPropertyChanged();
             }
-        }
-
-        /// <summary>
-        /// NameSpace for generated models. NameSpace must be unique
-        /// </summary>     
-        public string NameSpace
-        {
-            get => this.prefabProject.NameSpace;
-            set
-            {
-                this.prefabProject.NameSpace = value;
-                OnPropertyChanged();
-            }
-        }
+        }      
 
         /// <summary>
         /// Group name used to group prefab on UI

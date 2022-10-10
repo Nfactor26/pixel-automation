@@ -18,7 +18,7 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.AreEqual(null, prefabProject.ApplicationId);
             Assert.AreEqual(null, prefabProject.PrefabId);
             Assert.AreEqual(null, prefabProject.PrefabName);
-            Assert.AreEqual(null, prefabProject.NameSpace);
+            Assert.AreEqual(null, prefabProject.Namespace);
             Assert.NotNull(prefabProject.AvailableVersions);
             Assert.NotNull(prefabProject.DeployedVersions);
             Assert.IsNull(prefabProject.ActiveVersion);
@@ -29,7 +29,7 @@ namespace Pixel.Automation.Core.Tests.Models
             prefabProject.ApplicationId = "ApplicationId";
             prefabProject.PrefabId = "PrefabId";
             prefabProject.PrefabName = "PrefabName";
-            prefabProject.NameSpace = "Prefab.PrefabName";
+            prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.PrefabName";
             prefabProject.AvailableVersions.Add(new PrefabVersion() { IsDeployed = true, Version = new Version(1, 0) });
             prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = true, Version = new Version(2, 0) });
             prefabProject.Description = "Description";
@@ -39,7 +39,7 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.AreEqual("ApplicationId", prefabProject.ApplicationId);
             Assert.AreEqual("PrefabId", prefabProject.PrefabId);
             Assert.AreEqual("PrefabName", prefabProject.PrefabName);
-            Assert.AreEqual("Prefab.PrefabName", prefabProject.NameSpace);
+            Assert.AreEqual($"{Constants.PrefabNameSpacePrefix}.PrefabName", prefabProject.Namespace);
             Assert.AreEqual(2, prefabProject.AvailableVersions.Count());
             Assert.AreEqual(1, prefabProject.DeployedVersions.Count());
             Assert.NotNull(prefabProject.ActiveVersion);

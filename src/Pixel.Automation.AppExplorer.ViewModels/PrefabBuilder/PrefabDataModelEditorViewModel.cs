@@ -1,14 +1,11 @@
-﻿using Pixel.Scripting.Editor.Core.Contracts;
+﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
-using System;
+using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Threading;
-using Pixel.Automation.Core;
-using Serilog;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 {
@@ -36,7 +33,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             try
             {               
-                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabProject.PrefabId, $"{this.prefabProject.PrefabName.Trim().Replace(' ', '_')}_{++iteration}"))
+                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabProject.PrefabId, $"{this.prefabProject.Namespace}_{++iteration}"))
                 {
                     logger.Information("Prefab assembly was successfuly compiled");
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
@@ -64,7 +61,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         protected override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
-            logger.Information($"Activate screen is {nameof(PrefabDataModelEditorViewModel)}");
+            logger.Information($"Activated screen {nameof(PrefabDataModelEditorViewModel)}");
           
             var generatedCode = this.PreviousScreen.GetProcessedResult();
             if(string.IsNullOrEmpty(generatedCode?.ToString()))
@@ -75,7 +72,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             //Can go back to previous screen and come back here again in which case CodeEditor should be already available.
             if(this.CodeEditor == null)
             {
-                this.codeEditorFactory.AddProject(prefabProject.PrefabId, prefabProject.NameSpace, Array.Empty<string>());
+                this.codeEditorFactory.AddProject(prefabProject.PrefabId, prefabProject.Namespace, Array.Empty<string>());
                 this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
             }
          

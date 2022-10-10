@@ -1,6 +1,5 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -124,10 +123,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
            
             this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
 
-            string prefabProjectName = this.prefabProject.GetPrefabName();
+            string prefabProjectName = this.prefabProject.PrefabName;
             ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
             workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
-            workspaceManager.AddProject(prefabProjectName, $"{Constants.PrefabDataModelName}.{this.prefabProject.GetPrefabName()}", Array.Empty<string>());
+            workspaceManager.AddProject(prefabProjectName, this.prefabProject.Namespace, Array.Empty<string>());
             string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
             if (existingDataModelFiles.Any())
             {
@@ -142,7 +141,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
             }
 
-            string assemblyName = this.prefabProject.GetPrefabName();
+            string assemblyName = this.prefabProject.Namespace;
             using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
             {
                 compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
@@ -176,7 +175,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             File.WriteAllText(processFile, fileContents);
 
         }
-
 
     }
 }

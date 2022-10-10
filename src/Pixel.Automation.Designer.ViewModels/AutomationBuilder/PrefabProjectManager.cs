@@ -208,11 +208,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected override string GetProjectName()
         {
-            return this.prefabProject.GetPrefabName();
+            return this.prefabProject.PrefabName;
+        }
 
         protected override string GetProjectNamespace()
         {
-            return this.prefabProject.NameSpace;
+            return this.prefabProject.Namespace;
         }
 
         #endregion overridden methods
