@@ -49,7 +49,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             Guard.Argument(compositeTypeExtractor).NotNull();
             Guard.Argument(argumentExtractor).NotNull();
             Guard.Argument(scriptEngine).NotNull();
-
+           
+            this.DisplayName = "(2/4) Select required properties";
             this.prefabProject = prefabProject;
             this.codeGenerator = codeGenerator;
             this.scriptEngine = scriptEngine;

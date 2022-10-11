@@ -35,7 +35,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory,
             IScriptEngineFactory scriptEngineFactory, IReferenceManagerFactory referenceManagerFactory)
         {
-            this.DisplayName = "Prefab Builder";
+            this.DisplayName = "(1/4) Create a new Prefab";
             this.prefabFileSystem = prefabFileSystem;
             this.codeGenerator = codeGenerator;
             this.codeEditorFactory = codeEditorFactory;

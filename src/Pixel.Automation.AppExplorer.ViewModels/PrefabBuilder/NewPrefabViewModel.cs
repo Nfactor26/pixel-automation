@@ -48,6 +48,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public NewPrefabViewModel(ApplicationDescriptionViewModel applicationDescriptionViewModel, PrefabProject prefabToolBoxItem)
         {
+            this.DisplayName = "(1/4) Create a new Prefab";
             this.applicationDescriptionViewModel = applicationDescriptionViewModel;
             this.prefabProject = prefabToolBoxItem;
             this.prefabProject.PrefabName = "Prefab";
