@@ -4,6 +4,8 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
@@ -65,8 +67,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         [Browsable(false)]
         public override List<IComponent> Components
         {
-            get => base.Components;
-            protected set => base.Components = value;
+            get => base.Components;            
         }
                
         public PrefabEntity() : base("Prefab Entity", "PrefabEntity")
@@ -76,12 +77,21 @@ namespace Pixel.Automation.Core.Components.Prefabs
 
         public override async Task BeforeProcessAsync()
         {
-            this.LoadPrefab();
-          
-            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScriptFile);
-            inputMappingAction.Invoke(prefabDataModel);
-            logger.Information($"Executed input mapping script : {this.InputMappingScriptFile} for Prefab : {this.PrefabId}");
+            try
+            {
+                Debug.Assert(!this.Components.Any(), "There should be no child componets in a Prefab Entity");
+                this.LoadPrefab();
+                this.Components.Add(this.prefabEntity);
+                IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+                var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScriptFile);
+                inputMappingAction.Invoke(prefabDataModel);
+                logger.Information($"Executed input mapping script : {this.InputMappingScriptFile} for Prefab : {this.PrefabId}");
+            }
+            catch
+            {
+                this.Components.Clear();
+                throw;
+            }
         }
 
         public void LoadPrefab()
@@ -91,9 +101,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
                 this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();              
             }           
             this.prefabEntity = prefabLoader.GetPrefabEntity(this.ApplicationId, this.PrefabId, this.EntityManager);
-            this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;
-            this.components.Clear();
-            this.components.Add(this.prefabEntity);
+            this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;                 
             logger.Information($"Loaded Prefab : {this.PrefabId} with data model type : {this.prefabDataModel.GetType()}");
         }
 
