@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core
     [Serializable]
     public class Entity : Component
     {
-        protected List<IComponent> components = new ();       
+        protected readonly List<IComponent> components = new ();       
         /// <summary>
         /// List of all components added to Entity
         /// </summary>
@@ -27,11 +27,7 @@ namespace Pixel.Automation.Core
             get
             {
                 return components;
-            }
-            protected set
-            {
-                components = value;
-            }
+            }           
         }
        
         /// <summary>

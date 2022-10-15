@@ -24,6 +24,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public PrefabDataModelEditorViewModel(PrefabProject prefabProject, IPrefabFileSystem projectFileSystem, ICodeEditorFactory codeEditorFactory)
         {
+            this.DisplayName = "(3/4) Edit data model";
             this.prefabProject = prefabProject;
             this.codeEditorFactory = codeEditorFactory;           
             this.prefabFileSystem = projectFileSystem;

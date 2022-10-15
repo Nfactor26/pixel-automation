@@ -39,6 +39,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         public PrefabScriptsImporterViewModel(PrefabProject prefabToolBoxItem, Entity rootEntity, IScriptExtactor scriptExtractor,
             IArgumentExtractor argumentExtractor, IPrefabFileSystem prefabFileSystem, IScriptEngineFactory scriptEngineFactory, IReferenceManager referenceManager)
         {
+            this.DisplayName = "(4/4) Import required scripts";
             this.prefabProject = Guard.Argument(prefabToolBoxItem).NotNull().Value;
             this.prefabFileSystem = Guard.Argument(prefabFileSystem).NotNull().Value;
             this.scriptExtractor = Guard.Argument(scriptExtractor).NotNull().Value;
