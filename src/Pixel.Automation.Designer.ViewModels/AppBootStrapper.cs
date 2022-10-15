@@ -27,7 +27,9 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public AppBootstrapper()
         {
+            #if DEBUG
             ConsoleManager.Show();
+            #endif
 
             Log.Logger = new LoggerConfiguration()
               .Enrich.WithThreadId()
