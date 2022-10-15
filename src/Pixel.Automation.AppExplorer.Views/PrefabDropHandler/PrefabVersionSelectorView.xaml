@@ -4,21 +4,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        mc:Ignorable="d"
-        MaxHeight="175" Width="350">
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"  
+        mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <Thickness x:Key="ControlMargin">0 5 0 0</Thickness>
+            <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="10">
+    <Grid Margin="10" DockPanel.Dock="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="10px"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>            
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="10px"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="10px"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="0">
-            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>        
+            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
             <TextBox DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}" VerticalAlignment="Center"
                          Text="{Binding PrefabName, Mode=OneWay}" IsReadOnly="True"
                          Controls:TextBoxHelper.Watermark="Prefab Name"
@@ -29,6 +35,32 @@
             <Label Content="Version" DockPanel.Dock="Left" MinWidth="80"></Label>
             <ComboBox ItemsSource="{Binding AvailableVersions}" DockPanel.Dock="Right" IsEnabled="{Binding CanChangeVersion}"
                   SelectedItem="{Binding SelectedVersion}" ToolTip="Prefab version to use"/>
-        </DockPanel>       
+        </DockPanel>
+        <DockPanel LastChildFill="True" Grid.Row="4">
+            <Label Content="Input Script" DockPanel.Dock="Left" MinWidth="80"></Label>
+            <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" DockPanel.Dock="Left">
+                <Button x:Name="PickInputMappingScriptFile"  Width="20" Height="Auto" Margin="0" Style="{StaticResource SquaredButtonStyle}" 
+                    Content="{iconPacks:FontAwesome Kind=FolderOpenRegular}" DockPanel.Dock="Right"
+                    BorderThickness="0,1,1,1"  Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                    RenderTransformOrigin="0.5,0.5" ToolTip="Browse for script"/>
+                <TextBox x:Name="InputMappingScriptFile" DockPanel.Dock="Right" VerticalAlignment="Center"                     
+                         Controls:TextBoxHelper.Watermark="Input Mapping Script" HorizontalAlignment="Stretch"
+                         Controls:TextBoxHelper.UseFloatingWatermark="True"                                                   
+                         ToolTip="Script for mapping external variables to prefab inputs" />
+            </DockPanel>
+        </DockPanel>
+        <DockPanel LastChildFill="True" Grid.Row="6">
+            <Label Content="Output Script" DockPanel.Dock="Left" MinWidth="80"></Label>
+            <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" DockPanel.Dock="Left">
+                <Button x:Name="PickOutputMappingScriptFile"  Width="20" Height="Auto" Margin="0" Style="{StaticResource SquaredButtonStyle}" 
+                    Content="{iconPacks:FontAwesome Kind=FolderOpenRegular}" DockPanel.Dock="Right"
+                    BorderThickness="0,1,1,1"  Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                    RenderTransformOrigin="0.5,0.5" ToolTip="Browse for script"/>
+                <TextBox x:Name="OutputMappingScriptFile" DockPanel.Dock="Right" VerticalAlignment="Center"                     
+                         Controls:TextBoxHelper.Watermark="Output Mapping Script"
+                         Controls:TextBoxHelper.UseFloatingWatermark="True" HorizontalAlignment="Stretch"                                                   
+                         ToolTip="Script for mapping external variables to prefab outputs" />
+            </DockPanel>
+        </DockPanel>
     </Grid>
 </UserControl>

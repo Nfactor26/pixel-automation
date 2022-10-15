@@ -31,7 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <param name="entityManager">EntityManager of the Entity which is the drop target</param>
         public PrefabDropHandlerViewModel(IEntityManager entityManager, PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
         {
-            this.DisplayName = "(1/3) Select prefab version";
+            this.DisplayName = "(1/3) Select prefab version and mapping scripts";
             this.scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>(); ;
             this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
             this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();

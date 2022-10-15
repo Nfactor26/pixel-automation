@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.AppExplorer.ViewModels.Prefab;
+﻿using Microsoft.Win32;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -24,14 +25,54 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IPrefabFileSystem prefabFileSystem;  
         
-    
+        /// <summary>
+        /// Name of the Prefab
+        /// </summary>
         public string PrefabName => prefabProject.PrefabName;
 
+        /// <summary>
+        /// Available versions of the Prefab
+        /// </summary>
         public IEnumerable<PrefabVersion> AvailableVersions { get; private set; }
 
+        /// <summary>
+        /// Select version of Prefab to use
+        /// </summary>
         public PrefabVersion SelectedVersion { get; set; }
 
+        /// <summary>
+        /// Indicates if the version can be changed.
+        /// Version change is not allowed if the process is already using specific version of this prefab.
+        /// </summary>
         public bool CanChangeVersion { get; private set; }
+
+        /// <summary>
+        /// Input mapping script file for the prefab
+        /// </summary>
+        public string InputMappingScriptFile
+        {
+            get => prefabEntity.InputMappingScriptFile;
+            set 
+            {
+                prefabEntity.InputMappingScriptFile = value;            
+                Validate();
+                NotifyOfPropertyChange();
+            }
+        }
+
+        /// <summary>
+        /// Output mapping script file for the prefab
+        /// </summary>
+        public string OutputMappingScriptFile
+        {
+            get => prefabEntity.OutputMappingScriptFile;
+            set
+            {
+                prefabEntity.OutputMappingScriptFile = value;              
+                Validate();
+                NotifyOfPropertyChange();
+            }
+        }
 
         /// <summary>
         /// constructor
@@ -45,7 +86,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             PrefabEntity prefabEntity,
             PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
         {
-            this.DisplayName = "(1/3) Select prefab version";
+            this.DisplayName = "(1/3) Select prefab version and mapping scripts";
             this.projectFileSystem = projectFileSystem;
             this.prefabFileSystem = prefabFileSystem;
             this.prefabEntity = prefabEntity;
@@ -70,6 +111,36 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             {
                 this.SelectedVersion = AvailableVersions.Last();
             }           
+        }
+
+        /// <summary>
+        /// Pick an existing input mapping script file
+        /// </summary>
+        public void PickInputMappingScriptFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "CSX File (*.csx)|*.csx";
+            openFileDialog.InitialDirectory = projectFileSystem.WorkingDirectory;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                this.InputMappingScriptFile = Path.GetRelativePath(projectFileSystem.WorkingDirectory, openFileDialog.FileName);
+                logger.Information("Input mapping script file changed to {0} for Prefab", this.InputMappingScriptFile);               
+            }
+        }
+
+        /// <summary>
+        /// Pick an existing output mapping script file
+        /// </summary>
+        public void PickOutputMappingScriptFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "CSX File (*.csx)|*.csx";
+            openFileDialog.InitialDirectory = projectFileSystem.WorkingDirectory;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                this.OutputMappingScriptFile = Path.GetRelativePath(projectFileSystem.WorkingDirectory, openFileDialog.FileName);
+                logger.Information("Output mapping script file changed to {0} for Prefab", this.OutputMappingScriptFile);
+            }
         }
 
         /// <inheritdoc/>   
@@ -128,9 +199,31 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             logger.Debug($"Updated control refrences file.");
         }
 
+        /// <inheritdoc/>
         public override object GetProcessedResult()
         {
             return this.SelectedVersion;
+        }
+
+        public override bool Validate()
+        {
+            ClearErrors("");
+            bool isValid;
+            isValid = ValidateScriptPath(nameof(this.InputMappingScriptFile), this.InputMappingScriptFile);
+            isValid = isValid && ValidateScriptPath(nameof(this.OutputMappingScriptFile), this.OutputMappingScriptFile);           
+            return isValid && base.Validate();
+        }
+
+        private bool ValidateScriptPath(string propertyName, string scriptFile)
+        {
+            ClearErrors(propertyName);
+            if (!Path.GetDirectoryName(Path.Combine(this.projectFileSystem.WorkingDirectory, scriptFile)).Equals(this.projectFileSystem.ScriptsDirectory))
+            {
+                AddOrAppendErrors(propertyName, $"{propertyName} file must be located in 'Scripts' directory");
+                AddOrAppendErrors("", $"{propertyName} file must be located in 'Scripts' directory");               
+                return false;
+            }
+            return true;
         }
     }
 }
