@@ -11,7 +11,7 @@ using System.Windows.Media;
 
 namespace Pixel.Scripting.Script.Editor.Script
 {
-    public class InlineScriptEditorViewModel : NotifyPropertyChanged, IInlineScriptEditor 
+    public class InlineScriptEditorViewModel : NotifyPropertyChanged, IInlineScriptEditor
     {
         private readonly ILogger logger = Log.ForContext<InlineScriptEditorViewModel>();
         private readonly string Identifier = Guid.NewGuid().ToString();
@@ -24,10 +24,10 @@ namespace Pixel.Scripting.Script.Editor.Script
 
 
         public InlineScriptEditorViewModel(IEditorService editorService) : this(editorService, EditorOptions.DefaultOptions)
-        {           
+        {
         }
 
-        public InlineScriptEditorViewModel(IEditorService editorService , EditorOptions editorOptions)
+        public InlineScriptEditorViewModel(IEditorService editorService, EditorOptions editorOptions)
         {
             Guard.Argument(editorService).NotNull();
             Guard.Argument(editorOptions).NotNull();
@@ -41,8 +41,8 @@ namespace Pixel.Scripting.Script.Editor.Script
                 Margin = new Thickness(editorOptions.Thickness),
                 FontSize = editorOptions.FontSize,
                 FontFamily = new FontFamily(editorOptions.FontFamily),
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Stretch,
@@ -82,18 +82,18 @@ namespace Pixel.Scripting.Script.Editor.Script
             };
             Debug.Assert(!string.IsNullOrEmpty(targetDocument));
             Debug.Assert(!string.IsNullOrEmpty(ownerProject));
-            if(!string.IsNullOrEmpty(targetDocument) && !string.IsNullOrEmpty(ownerProject))
+            if (!string.IsNullOrEmpty(targetDocument) && !string.IsNullOrEmpty(ownerProject))
             {
                 OpenDocument(this.targetDocument, this.ownerProject, string.Empty);
             }
             this.Editor.LostFocus += OnLostFocus;
             this.Editor.GotFocus += OnFocus;
-            OnPropertyChanged(nameof(Editor));          
+            OnPropertyChanged(nameof(Editor));
         }
 
         private void OnFocus(object sender, RoutedEventArgs e)
         {
-            Activate();         
+            Activate();
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -112,11 +112,11 @@ namespace Pixel.Scripting.Script.Editor.Script
             string fileContents = this.editorService.GetFileContentFromDisk(targetDocument);
             if (!this.editorService.HasDocument(this.targetDocument, this.ownerProject))
             {
-                this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);                
+                this.editorService.AddDocument(this.targetDocument, this.ownerProject, fileContents);
             }
             this.editorService.SetContent(targetDocument, ownerProject, fileContents);
             this.Editor.Text = fileContents;
-            this.Editor.OpenDocument(targetDocument, ownerProject);           
+            this.Editor.OpenDocument(targetDocument, ownerProject);
         }
 
 
@@ -125,17 +125,17 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.editorService.SetContent(targetDocument, ownerProject, documentContent);
             this.Editor.Text = documentContent;
         }
-     
+
         public void CloseDocument(bool save = true)
         {
-            if(this.targetDocument != null)
+            if (this.targetDocument != null)
             {
                 if (save)
                 {
                     this.editorService.SaveDocument(this.targetDocument, this.ownerProject);
                 }
                 this.editorService.TryCloseDocument(this.targetDocument, this.ownerProject);
-            }           
+            }
         }
 
         public void Activate()
@@ -158,13 +158,13 @@ namespace Pixel.Scripting.Script.Editor.Script
             this.Editor.LostFocus -= OnLostFocus;
             this.Editor.GotFocus -= OnFocus;
             this.Editor.Dispose();
-            this.Editor = null;                   
+            this.Editor = null;
             logger.Debug($"{nameof(InlineScriptEditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
         public void Dispose()
         {
-            Dispose(true);           
-        }      
+            Dispose(true);
+        }
     }
 }
