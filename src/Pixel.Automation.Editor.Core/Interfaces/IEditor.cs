@@ -20,7 +20,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Remove a component from view
         /// </summary>
         /// <param name="componentViewModel"></param>
-        void DeleteComponent(ComponentViewModel componentViewModel);
+        Task DeleteComponent(ComponentViewModel componentViewModel);
 
         /// <summary>
         /// Open code editor that can be used to add , remove or modify existing data models for the project

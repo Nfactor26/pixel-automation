@@ -10,7 +10,6 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
 using System.IO;
-using System.Text;
 using System.Windows;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 using MessageBox = System.Windows.MessageBox;
@@ -76,64 +75,41 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
-        public void DeleteComponent(ComponentViewModel componentViewModel)
-        {
-            //TODO : Disable delete button on the root entity
-            if (componentViewModel.Model.Tag.Equals("Root"))
-            {
-                logger.Warning("Root entity can't be deleted");               
-            }
-
-            IEnumerable<ScriptStatus> scripts = default;
-            if (componentViewModel.Model is Entity entity)
-            {
-                scripts = this.scriptExtractor.ExtractScripts(entity).ToList();
-            }
-            else
-            {
-                scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Are you sure you want to delete this Component?");
-            if(scripts?.Any() ?? false)
-            {
-                sb.AppendLine();
-                sb.AppendLine("Below scripts will be deleted : ");
-                foreach (var script in scripts)
+        public async Task DeleteComponent(ComponentViewModel componentViewModel)
+        {          
+            try
+            {              
+                if (componentViewModel.Model.Tag.Equals("Root"))
                 {
-                    sb.AppendLine(script.ScriptName);
+                    return;
                 }
-            }            
 
-            MessageBoxResult result = MessageBox.Show(sb.ToString(), "Delete Component", MessageBoxButton.OKCancel);
-            if (result != MessageBoxResult.OK)
-            {
-                return;
-            }           
-
-            if (scripts?.Any() ?? false)
-            {
-                foreach (var script in scripts)
+                IEnumerable<ScriptStatus> scripts = default;
+                if (componentViewModel.Model is Entity entity)
                 {
-                    try
-                    {
-                        File.Delete(Path.Combine(this.EntityManager.GetCurrentFileSystem().WorkingDirectory, script.ScriptName));
-                        logger.Information($"Deleted script file {script.ScriptName}");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error($"There was an error while trying to delete file : {script.ScriptName}", ex);                        
-                    }
+                    scripts = this.scriptExtractor.ExtractScripts(entity).ToList();
                 }
-            }
+                else
+                {
+                    scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
+                }
 
-            componentViewModel.Parent.RemoveComponent(componentViewModel);
-            if (componentViewModel.Model is IControlEntity controlEntity)
-            {
-                UpdateControlReferences(controlEntity);               
+                var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>());
+                var result = await this.windowManager.ShowDialogAsync(deleteScriptsViewModel);
+                if (!result.GetValueOrDefault())
+                {
+                    return;
+                }
+                if (componentViewModel.Model is IControlEntity controlEntity)
+                {
+                    UpdateControlReferences(controlEntity);
+                }
+                logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
             }
-            logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");         
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, ex);
+            }    
         }
 
         private void UpdateControlReferences(IControlEntity controlEntity)
