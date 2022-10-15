@@ -3,6 +3,7 @@ using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System.IO;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 {
@@ -37,7 +38,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <inheritdoc/>       
         protected override Task OnActivateAsync(CancellationToken cancellationToken)
         {
-            string generatedCode = GetGeneratedCode();
+            string scriptFile = GetScriptFile();
+            string generatedCode;
+            if (File.Exists(scriptFile))
+            {
+                generatedCode = File.ReadAllText(scriptFile);
+            }
+            else
+            {
+                generatedCode = GetGeneratedCode();
+            }           
             this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor(new EditorOptions() 
             {
                 EnableDiagnostics = true,

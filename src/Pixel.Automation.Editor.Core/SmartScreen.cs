@@ -21,6 +21,7 @@ namespace Pixel.Automation.Editor.Core
         public virtual void DismissModelErrors()
         {
             ClearErrors("");
+            NotifyOfPropertyChange(() => HasErrors);
             NotifyOfPropertyChange(() => ShowModelErrors);
         }
 
@@ -46,8 +47,7 @@ namespace Pixel.Automation.Editor.Core
             {
                 existingErrors.Add(error);               
             }
-            OnErrorsChanged(propertyName);
-            NotifyOfPropertyChange(() => ShowModelErrors);
+            OnErrorsChanged(propertyName);          
         }
 
 
@@ -59,8 +59,7 @@ namespace Pixel.Automation.Editor.Core
             }
             var existingErrors = propertyErrors[propertyName];         
             existingErrors.AddRange(errors);
-            OnErrorsChanged(propertyName);
-            NotifyOfPropertyChange(() => ShowModelErrors);
+            OnErrorsChanged(propertyName);           
         }
 
         protected virtual void ClearErrors(string propertyName)
@@ -75,6 +74,8 @@ namespace Pixel.Automation.Editor.Core
         protected virtual void OnErrorsChanged(string propertyName)
         {
             ErrorsChanged.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            NotifyOfPropertyChange(() => HasErrors);
+            NotifyOfPropertyChange(() => ShowModelErrors);
         }
 
         #endregion INotifyDataErrorInfo
