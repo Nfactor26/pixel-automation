@@ -3,7 +3,8 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
-		<AssemblyName>PixelRun</AssemblyName>
+		<AssemblyName>pixel-run</AssemblyName>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 
@@ -12,8 +13,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0" />
-		<PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.1" />
+		<PackageReference Include="Dawn.Guard" Version="1.12.0" />	
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
@@ -22,10 +22,11 @@
 		<PackageReference Include="ninject.extensions.conventions" Version="3.3.0" />
 		<PackageReference Include="Polly" Version="7.2.3" />
 		<PackageReference Include="Serilog" Version="2.11.0" />
-		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />		
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="Serilog.Sinks.SpectreConsole" Version="0.3.3" />
 		<PackageReference Include="Spectre.Console" Version="0.45.0" />
+		<PackageReference Include="Spectre.Console.Cli" Version="0.45.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,6 +38,7 @@
 		<ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
+		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
 	</ItemGroup>
 

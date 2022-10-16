@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
+using Spectre.Console;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,26 +10,32 @@ namespace Pixel.Automation.Test.Runner
 {
     public class TemplateManager
     {
-        private readonly ITemplateClient templateClient;
-        private readonly ProjectManager projectManager;
+        private readonly ITemplateClient templateClient;       
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IAnsiConsole ansiConsole;
 
-        public TemplateManager(ProjectManager projectManager, IApplicationDataManager applicationDataManager, ITemplateClient templateClient)
+        public TemplateManager(IApplicationDataManager applicationDataManager,
+            ITemplateClient templateClient, IAnsiConsole ansiConsole)
         {
             this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
-            this.templateClient = Guard.Argument(templateClient).NotNull().Value ;
-            this.projectManager = Guard.Argument(projectManager).NotNull();
+            this.templateClient = Guard.Argument(templateClient).NotNull().Value ;          
+            this.ansiConsole = Guard.Argument(ansiConsole).NotNull().Value;
         }
 
         public async Task ListAllAsync()
         {
             var templates = await this.templateClient.GetAllAsync();
-            Console.WriteLine("Name    | ProjectName   | ProjectVersion ");
-            Console.WriteLine("----------------------------------------");
+
+            var table = new Table();
+            table.AddColumn(new TableColumn("[blue]Template Name[/]"));
+            table.AddColumn(new TableColumn("[blue]Project Name[/]"));
+            table.AddColumn(new TableColumn("[blue]Initialization Script[/]"));
+            table.AddColumn(new TableColumn("[blue]Test Selector[/]"));
             foreach (var template in templates)
             {
-                Console.WriteLine($"{template.Name} | {template.ProjectName} | {template.ProjectVersion} ");
+                table.AddRow(template.Name, template.ProjectName, template.InitializeScript, template.Selector);               
             }
+            ansiConsole.Write(table);
         }
 
         public async Task<SessionTemplate> GetByNameAsync(string templateName)
@@ -39,18 +46,45 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task CreateNewAsync()
         {          
-            Console.WriteLine("Enter below details for the template :");
-            string name = TryGet(nameof(SessionTemplate.Name), (x) => !string.IsNullOrEmpty(x));
-            string projectName = TryGet(nameof(SessionTemplate.ProjectName), (x) => !string.IsNullOrEmpty(x));    
-            string projectVersion = TryGet(nameof(SessionTemplate.ProjectVersion), (x) => Version.TryParse(x, out Version version));
-            string selector = TryGet(nameof(SessionTemplate.Selector), (x) => !string.IsNullOrEmpty(x));
-            Console.Write($"{nameof(SessionTemplate.InitializeScript)} (optional): ");
-            string initializeScript = Console.ReadLine();          
+            ansiConsole.WriteLine("Enter below details for the template :");
+            string name = ansiConsole.Prompt(new TextPrompt<string>("[green]Template Name[/] :")
+                .PromptStyle("green")
+                .ValidationErrorMessage("[red]Tempalte Name is required.[/]")
+                .Validate(n =>
+                {
+                    if(string.IsNullOrEmpty(n) || string.IsNullOrWhiteSpace(n))
+                    {
+                        return ValidationResult.Error("[red]Template Name is required.[/]");
+                    }
+                    return ValidationResult.Success();
+                }));           
+            string projectName = ansiConsole.Prompt(new TextPrompt<string>("[green]Project Name[/] :")
+                .PromptStyle("green")
+                .ValidationErrorMessage("[red]Project Name is required.[/]")
+                .Validate(n =>
+                {
+                    if (string.IsNullOrEmpty(n) || string.IsNullOrWhiteSpace(n))
+                    {
+                        return ValidationResult.Error("[red]Project Name is required.[/]");
+                    }
+                    return ValidationResult.Success();
+                }));          
+            string selector = ansiConsole.Prompt(new TextPrompt<string>("[green]Test Selector[/] :")
+                .PromptStyle("green")
+                .ValidationErrorMessage("[red]Test Selector is required.[/]")
+                .Validate(n =>
+                {
+                    if (string.IsNullOrEmpty(n) || string.IsNullOrWhiteSpace(n))
+                    {
+                        return ValidationResult.Error("[red]Test Selector is required.[/]");
+                    }
+                    return ValidationResult.Success();
+                }));           
+            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialization Script[/] :").AllowEmpty());
             SessionTemplate template = new SessionTemplate()
             {
                 Name = name,
-                ProjectName = projectName,
-                ProjectVersion = projectVersion,
+                ProjectName = projectName,                
                 Selector = selector,
                 InitializeScript = initializeScript
             };
@@ -58,92 +92,52 @@ namespace Pixel.Automation.Test.Runner
             var targetProject = availableProjects.FirstOrDefault(a => a.Name.Equals(projectName)) ?? throw new ArgumentException($"Project with name :" +
                 $" {projectName} doesn't exist");
             template.ProjectId = targetProject.ProjectId;
-            await projectManager.LoadProjectAsync(template);
-            projectManager.LoadTestCases();
-            await projectManager.ListAllAsync(template.Selector);
-
-            Console.WriteLine($"Do you want to proceed and create  template : {name} ? Enter 'Y' to continue, 'N' to cancel.");
-            var confirmation = Console.ReadKey();
-            Console.WriteLine();
-            switch (confirmation.Key)
+           
+            if(AnsiConsole.Confirm($"Do you want to proceed and create  template : {name} ?"))
             {
-                case ConsoleKey.Y:
-                    await this.templateClient.CreateAsync(template);
-                    Console.WriteLine("Template created successfully.");
-                    break;
-                case ConsoleKey.N:
-                    Console.WriteLine("Operation was cancelled.");
-                    break;            
+                await this.templateClient.CreateAsync(template);
+                ansiConsole.WriteLine("Template created successfully.");                
+                await ListAllAsync();
+                return;
             }
+            ansiConsole.WriteLine("Operation was cancelled.");
         }
 
         public async Task UpdateAsync(SessionTemplate template)
         {
-            Console.WriteLine("-------------Update Template------------ ");
-            Console.WriteLine($"Template Id is : {template.Id}");
-            Console.WriteLine($"Template Name is : {template.Name}");
-            Console.WriteLine($"Project Id is : {template.ProjectId}");
-            Console.WriteLine($"Project Name is : {template.ProjectName}");
-            Console.WriteLine("----Review below fields for update------");
-            if (ShouldUpdate(nameof(SessionTemplate.ProjectVersion), template.ProjectVersion))
-            {
-                template.ProjectVersion = TryGet(nameof(SessionTemplate.ProjectVersion), (x) => Version.TryParse(x, out Version version));
-            }
-            if (ShouldUpdate(nameof(SessionTemplate.Selector), template.Selector))
-            {
-                template.Selector = TryGet(nameof(SessionTemplate.Selector), (x) => !string.IsNullOrEmpty(x));
-            }
-            if (ShouldUpdate(nameof(SessionTemplate.InitializeScript), template.InitializeScript))
-            {
-                Console.Write($"{nameof(SessionTemplate.InitializeScript)} (optional): ");
-                template.InitializeScript = Console.ReadLine();
-            }                    
-            await projectManager.LoadProjectAsync(template);
-            projectManager.LoadTestCases();
-            await projectManager.ListAllAsync(template.Selector);
+            var table = new Table();         
+            table.AddColumn(new TableColumn("Template Name"));           
+            table.AddColumn(new TableColumn("Project Name"));
+            table.AddColumn(new TableColumn("Test Selector"));
+            table.AddColumn(new TableColumn("Initialization Script"));
+            table.AddRow(template.Name, template.ProjectName, template.Selector, template.InitializeScript);
+           
+            ansiConsole.WriteLine("[blue]Enter below details to update template :[/]");
 
-            Console.WriteLine($"Do you want to proceed and create  template : {template.Name} ? Enter 'Y' to continue, 'N' to cancel, 'M' to modify.");
-            var confirmation = Console.ReadKey();
-            Console.WriteLine();
-            switch (confirmation.Key)
+            string name = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Template Name[/] ").AllowEmpty());
+            if(!string.IsNullOrEmpty(name) || !string.IsNullOrWhiteSpace(name))
             {
-                case ConsoleKey.Y:
-                    await this.templateClient.UpdateAsync(template);
-                    Console.WriteLine("Template updated successfully.");
-                    break;
-                case ConsoleKey.N:
-                    Console.WriteLine("Operation was cancelled.");
-                    break;              
+                template.Name = name;
             }
-        }
-
-        private bool ShouldUpdate(string fieldName, string existingValue)
-        {
-            Console.WriteLine($"{fieldName} : {existingValue}");
-            Console.WriteLine($"Press 'U' to update {fieldName}. Any other key to skip");
-            var confirmation = Console.ReadKey();
-            Console.WriteLine();
-            switch (confirmation.Key)
+            string selector = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Test Selector[/] ").AllowEmpty());
+            if (!string.IsNullOrEmpty(selector) || !string.IsNullOrWhiteSpace(selector))
             {
-                case ConsoleKey.U:
-                    return true;
-                default:
-                    break;
+                template.Selector = selector;
             }
-            return false;
-        }
-
-        private string TryGet(string fieldName, Func<string, bool> validator)
-        {
-            Console.Write($"{fieldName} : ");
-            string value = Console.ReadLine();
-            while (string.IsNullOrEmpty(value) || !validator(value))
+            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialization Script[/]").AllowEmpty());
+            if (!string.IsNullOrEmpty(initializeScript) || !string.IsNullOrWhiteSpace(initializeScript))
             {
-                Console.WriteLine("Empty or invalid format. Please enter value again.");
-                Console.Write($"{fieldName} : ");
-                value = Console.ReadLine();               
+                template.InitializeScript = initializeScript;
             }
-            return value;
+            
+            if (ansiConsole.Confirm($"Do you want to proceed and update  template : {template.Name} ?"))
+            {
+                await this.templateClient.UpdateAsync(template);
+                ansiConsole.WriteLine("Template updated successfully.");
+                await ListAllAsync();
+                return;
+            }
+            ansiConsole.WriteLine("Operation was cancelled.");
         }
     }
 }
