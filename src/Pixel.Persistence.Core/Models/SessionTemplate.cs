@@ -32,21 +32,14 @@ namespace Pixel.Persistence.Core.Models
         [Required]
         [DataMember]
         public string ProjectName { get; set; }
-
-        /// <summary>
-        /// Version of the project executed in test session
-        /// </summary>
-        [Required]
-        [DataMember]
-        public string ProjectVersion { get; set; }
-
+      
         /// <summary>
         /// Query script for selecting the tests
         /// </summary>
         [Required]
         [DataMember]
         public string Selector { get; set; }
-
+      
         /// <summary>
         /// Script file (*.csx) override that can be used to initialize the process data model e.g. 
         /// By default InitializeEnvironment.csx generated at design time is used

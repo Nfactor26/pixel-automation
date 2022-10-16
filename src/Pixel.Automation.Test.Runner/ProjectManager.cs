@@ -5,8 +5,10 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
+using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,7 +37,7 @@ namespace Pixel.Automation.Test.Runner
         private AutomationProject automationProject;
         private VersionInfo targetVersion;
         private List<TestFixture> availableFixtures = new List<TestFixture>();
-        private SessionTemplate sessionTemplate;
+        private SessionTemplate sessionTemplate;       
 
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IApplicationFileSystem applicationFileSystem,
             IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,
@@ -56,31 +58,34 @@ namespace Pixel.Automation.Test.Runner
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
 
-        public async Task<string> LoadProjectAsync(SessionTemplate template)
+        public async Task<string> LoadProjectAsync(SessionTemplate template, string projectVersion)
         {
             Guard.Argument(template).NotNull();
             this.sessionTemplate = template;
-            await LoadProjectAsync(template.ProjectId, template.ProjectVersion, template.InitializeScript);
+            await LoadProjectAsync(template.ProjectId, projectVersion, template.InitializeScript);
             return this.automationProject.ProjectId;
         }
 
         public async Task LoadProjectAsync(string projectId, string projectVersion, string initializationScript)
         {
-            Guard.Argument(projectId).NotNull().NotEmpty();
-            Guard.Argument(projectVersion).NotNull().NotEmpty();
-
-            logger.Information($"Trying to load version {projectVersion} for project : {projectId}");
-
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+           
             this.automationProject = serializer.Deserialize<AutomationProject>(this.applicationFileSystem.GetAutomationProjectFile(projectId), null);
+
+            if(string.IsNullOrEmpty(projectVersion) || string.IsNullOrWhiteSpace(projectVersion))
+            {
+                projectVersion = this.automationProject.AvailableVersions.OrderBy(a => a.Version).Last().Version.ToString();
+            }           
+            logger.Information($"Trying to load version {projectVersion} for project : {projectId}");
             if (!Version.TryParse(projectVersion, out Version version))
             {
                 throw new ArgumentException($"{nameof(projectVersion)} : {projectVersion} doesn't have a valid format");
             }
-            if(!automationProject.DeployedVersions.Any(a => a.Version.Equals(version)))
+            if(!automationProject.AvailableVersions.Any(a => a.Version.Equals(version)))
             {
                 logger.Error($"Version : {version} doesn't exist for project {automationProject.Name}");               
             }
-            this.targetVersion = automationProject.DeployedVersions.Where(a => a.Version.Equals(version)).Single();
+            this.targetVersion = automationProject.AvailableVersions.Where(a => a.Version.Equals(version)).Single();
 
             await this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
             this.projectFileSystem.Initialize(automationProject, targetVersion);
@@ -94,21 +99,67 @@ namespace Pixel.Automation.Test.Runner
                 throw new FileNotFoundException($"Script file {initializationScript} doesn't exist.");
             }
 
+            object dataModel;
             //Load the setup data model for the project.
-            Assembly dataModelAssembly = Assembly.LoadFrom(Path.Combine(projectFileSystem.ReferencesDirectory, targetVersion.DataModelAssembly));
-            Type setupDataModel = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName)) ?? throw new Exception($"Data model assembly {dataModelAssembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
-            var dateModel = Activator.CreateInstance(setupDataModel);
-            ConfigureScriptEngineFactory(referenceManager, dateModel);
+            if(this.targetVersion.IsDeployed)
+            {
+                Assembly dataModelAssembly = Assembly.LoadFrom(Path.Combine(projectFileSystem.ReferencesDirectory, targetVersion.DataModelAssembly));
+                Type setupDataModel = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName)) ?? throw new Exception($"Data model assembly {dataModelAssembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
+                dataModel = Activator.CreateInstance(setupDataModel);
+            }
+            else
+            {
+                dataModel = CompileAndCreateDataModel();
+            }
+         
+            ConfigureScriptEngineFactory(referenceManager, dataModel);
 
             var processEntity = serializer.Deserialize<Entity>(this.projectFileSystem.ProcessFile, typeProvider.GetKnownTypes());
             this.entityManager.RootEntity = processEntity;
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
-            this.entityManager.Arguments = Activator.CreateInstance(setupDataModel);
+            this.entityManager.Arguments = dataModel;
           
             initializationScript = string.IsNullOrEmpty(initializationScript) ? Constants.InitializeEnvironmentScript : initializationScript;
             await ExecuteInitializationScript(initializationScript);
 
-            logger.Information($"Project load completed.");
+            logger.Information($"Project {0} with version {1}  was loaded.", this.automationProject.Name, this.targetVersion.Version);
+        }
+
+        /// <summary>
+        /// Create a workspace manager. Add all the documents from data model directory to this workspace , compile the workspace and
+        /// create an instnace of data model from generated assembly.
+        /// </summary>
+        /// <param name="dataModelName"></param>
+        /// <returns>Instance of dataModel</returns>
+        protected object CompileAndCreateDataModel()
+        {
+            string dataModelAssembly = Path.Combine(this.projectFileSystem.ReferencesDirectory, $"{this.automationProject.Namespace}.dll");
+            if(!File.Exists(dataModelAssembly))
+            {
+                var referenceManager = this.referenceManagerFactory.CreateForAutomationProject(this.automationProject, this.targetVersion);
+
+                var workspace = new CodeWorkspaceManager(this.projectFileSystem.DataModelDirectory);
+                workspace.WithAssemblyReferences(referenceManager.GetCodeEditorReferences() ?? Array.Empty<string>());
+                workspace.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
+
+                string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
+                foreach (var dataModelFile in dataModelFiles)
+                {
+                    string documentName = Path.GetFileName(dataModelFile);
+                    workspace.AddDocument(documentName, this.automationProject.Name, File.ReadAllText(dataModelFile));
+                }
+                using (var compilationResult = workspace.CompileProject(this.automationProject.Name, this.automationProject.Namespace))
+                {
+                    compilationResult.SaveAssemblyToDisk(this.projectFileSystem.ReferencesDirectory);
+                }
+            }
+
+            Assembly assembly = Assembly.LoadFrom(dataModelAssembly);
+            logger.Information($"Data model assembly compiled and assembly loaded from {dataModelAssembly}");
+            Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName))
+                ?? throw new Exception($"Data model assembly {assembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
+            return Activator.CreateInstance(typeofDataModel);
+            throw new Exception($"Failed to compile data model project");
         }
 
         /// <summary>
@@ -129,13 +180,14 @@ namespace Pixel.Automation.Test.Runner
         /// Execute the Initialization script for Automation process.
         /// Empty Initialization script is created if script file doesn't exist already.
         /// </summary>
-        private async Task ExecuteInitializationScript(string scriptFile)
+        private async Task ExecuteInitializationScript(string fileName)
         {
             try
-            {                
+            {               
+                var scriptFile = Path.Combine(this.projectFileSystem.ScriptsDirectory, fileName);
                 if (!File.Exists(scriptFile))
                 {
-                    throw new FileNotFoundException("Script file doesn't exist.", nameof(scriptFile));
+                    throw new FileNotFoundException("Script file doesn't exist.", scriptFile);
                 }
                 var scriptEngine = this.entityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(scriptFile);
@@ -143,7 +195,7 @@ namespace Pixel.Automation.Test.Runner
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Failed to execute Initialization script {scriptFile}");
+                logger.Error(ex, $"Failed to execute Initialization script {fileName}");
             }
         }
        
@@ -162,39 +214,42 @@ namespace Pixel.Automation.Test.Runner
             logger.Information($"Found {this.availableFixtures.Select(s => s.Tests).Count()} test cases.");
         }
 
-        public async Task ListAllAsync(string selector)
+        public async Task ListAllAsync(string selector, IAnsiConsole console)
         {          
             await this.testSelector.Initialize(selector);
             logger.Information($"Listing tests that matches selection condition now.");
             try
             {
-              
+                var tree = new Tree($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
                 foreach (var testFixture in this.availableFixtures)
-                {
+                {                   
                     if (testFixture.IsMuted)
                     {
+                        tree.AddNode($"[red]{testFixture.DisplayName}[/]");
                         continue;
-                    }        
-                    Console.WriteLine($"{testFixture.DisplayName}");
+                    }
+                    var fixtureNode = tree.AddNode($"[green]{testFixture.DisplayName}[/]");
                     foreach (var testCase in testFixture.Tests)
                     {
                         if (!testSelector.CanRunTest(testFixture, testCase))
                         {
+                            fixtureNode.AddNode($"[red]{testCase.DisplayName}[/]");
                             continue;
                         }
-                        Console.WriteLine($"    -- {testCase.DisplayName}");
+                        fixtureNode.AddNode($"[green]{testCase.DisplayName}[/]");
                     }
-                }             
+                }
+                console.Write(tree);
             }
             catch (Exception ex)
             {
                 logger.Error(ex.Message, ex);
-            }
+            }           
         }
 
         public async Task RunAllAsync(string selector)
         {
-            TestSession testSession = new TestSession(this.sessionTemplate);
+            TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
             List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
             testSession.SessionId = await sessionClient.AddSessionAsync(testSession);
 
@@ -279,7 +334,7 @@ namespace Pixel.Automation.Test.Runner
                         ExecutedOn = DateTime.Today.ToUniversalTime(),
                         ExecutionTime = result.ExecutionTime.TotalSeconds                        
                     };
-                    if(result.Result == Core.TestData.TestStatus.Failed)
+                    if(result.Result == TestStatus.Failed)
                     {
                         testResult.FailureDetails = new FailureDetails(result.Error);
                         logger.Warning($"Test case failed with error : {testResult.FailureDetails.Message}");

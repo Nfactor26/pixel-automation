@@ -105,13 +105,13 @@ namespace Pixel.Persistence.Core.Models
         }
 
 
-        public TestSession(SessionTemplate template) : this()
+        public TestSession(SessionTemplate template, string projectVersion) : this()
         {
             this.TemplateId = template.Id;
             this.TemplateName = template.Name;
             this.ProjectId = template.ProjectId;
             this.ProjectName = template.ProjectName;
-            this.ProjectVersion = template.ProjectVersion;
+            this.ProjectVersion = projectVersion;
         }
 
         /// <summary>

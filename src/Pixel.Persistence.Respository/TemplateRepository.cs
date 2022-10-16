@@ -50,7 +50,7 @@ namespace Pixel.Persistence.Respository
             var filter = Builders<SessionTemplate>.Filter.Eq(t => t.Id, template.Id);
 
             var updateDefinition = Builders<SessionTemplate>.Update           
-            .Set(t => t.ProjectVersion, template.ProjectVersion)
+            .Set(t => t.Name, template.Name)
             .Set(t => t.Selector, template.Selector)
             .Set(t => t.InitializeScript, template.InitializeScript);            
 
