@@ -3,75 +3,106 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:core="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
              xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
              xmlns:cal="http://www.caliburnproject.org" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
-            <Style x:Key="LinkButton"
-           TargetType="Button">
-                <Setter Property="Cursor"
-                Value="Hand" />
-                <Setter Property="Foreground"  Value="{DynamicResource LinkButtonForeground}" />
+            <core:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
+            <Style x:Key="AddProjectButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <TextBlock><ContentPresenter /></TextBlock>
+                        <ControlTemplate>
+                            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                                <iconPacks:PackIconMaterial x:Name="PlusIcon" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                                        Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent2}"
+                                        Kind="PlusCircleOutline" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="PlusIcon" Property="Foreground" Value="Gray"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>                
+            </Style>            
+       
+            <Style TargetType="{x:Type ListBoxItem}" x:Key="ProjectItemStyle">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                            <Border x:Name="ProjectItemContainer" Padding="5,5,0,5">
+                                <DockPanel LastChildFill="False" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                                    <TextBlock Text="{Binding Name}" FontSize="16" VerticalAlignment="Center"
+                                              DockPanel.Dock="Left" ToolTip="Name of the project"/>
+                                    <ComboBox x:Name="EditableVersions" FontSize="14" BorderThickness="0,0,0,0"
+                                                  VerticalAlignment="Center" DockPanel.Dock="Left" Margin="12,2,0,0"
+                                                  ToolTip="Select version to open"
+                                                  ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion}"/>
+                                    <Button x:Name="OpenProject" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                                DockPanel.Dock="Right" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource inverseBooleanConverter}}"
+                                                Height="20" Width="20" ToolTip="Open selected version of project"                                 
+                                                Style="{StaticResource EditControlButtonStyle}" Visibility="Hidden"
+                                                cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+                                                cal:Message.Attach="[Event Click] = [Action OpenProject($dataContext)]"
+                                                Content="{iconPacks:FontAwesome Kind=EditRegular}"/>
+                                </DockPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
+                                    <Setter TargetName="EditableVersions" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
+                                    <Setter TargetName="OpenProject" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Highlight}"/>
+                                    <Setter TargetName="EditableVersions" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Highlight}"/>
+                                    <Setter TargetName="OpenProject" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver"
-                     Value="true">
-                        <Setter Property="Foreground" Value="{DynamicResource LinkButtonForegroundHighlighted}" />
-                    </Trigger>
-                </Style.Triggers>
             </Style>
+
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Background="{DynamicResource MahApps.Brushes.Window.Background}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
-            <ColumnDefinition Width="0px"></ColumnDefinition>
-            <ColumnDefinition Width="8*"></ColumnDefinition>
+            <ColumnDefinition Width="6*"></ColumnDefinition>
+            <ColumnDefinition Width="4*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Margin="10,0,0,0">
-            <TextBlock Margin="0,10,0,10"
-                           FontSize="18"                          
-                           Text="Projects" />
-            <Separator Background="#11FFFFFF" />
-            <Button FontSize="14" x:Name="CreateNewProject"
-                        Margin="0,10,0,3"
-                        Content="New Project..."                       
-                        Style="{DynamicResource LinkButton}" />
-            <Button FontSize="14" x:Name="OpenProject"
-                        Margin="0,3,0,10"
-                        Content="Open Project..."                      
-                        Style="{DynamicResource LinkButton}" />
-            <Separator Background="#11FFFFFF" />
-            <TextBlock Margin="0,10,0,5"
-                           FontSize="18"                          
-                           Text="Recent" />
-            <ListBox x:Name="RecentProjects">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border Padding="5,5,5,5">
-                            <StackPanel>
-                                <Button FontSize="14" x:Name="btnOpenProject" cal:Message.Attach="[Event Click] = [Action OpenProject($dataContext)]"
-                                    Content="{Binding Name}"                                 
-                                    Style="{DynamicResource LinkButton}" />
-                                <!--<TextBlock Text="{Binding GeneratedSlnPath}"></TextBlock>-->
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
-        <GridSplitter Grid.Column="1"></GridSplitter>
-        <StackPanel Grid.Column="2">
-
+        <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="CreateNewProject" Margin="0" VerticalAlignment="Center"                                                                                  
+                                            ToolTip="Create a new automation project"                                   
+                                            Style="{StaticResource AddProjectButtonStyle}"/>
+                <Label Content="Projects" FontSize="18" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Name="Filter" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" Margin="2,0,0,0"
+                     controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="False" 
+                     controls:TextBoxHelper.Watermark="Search" HorizontalAlignment="Left" Width="380"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" HorizontalAlignment="Stretch">
+                    <ListBox x:Name="Projects" ItemContainerStyle="{StaticResource ProjectItemStyle}" 
+                             ScrollViewer.VerticalScrollBarVisibility="Hidden" MaxHeight="400">
+                    </ListBox>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>
