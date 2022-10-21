@@ -29,13 +29,7 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         [DataMember(IsRequired = true, Order = 40)]
         public string Namespace { get; set; }
-
-        /// <summary>
-        /// Indicates when was the project last opened
-        /// </summary>
-        [DataMember(IsRequired = true, Order = 40)]
-        public DateTime LastOpened { get; set; } = DateTime.Now;
-
+      
         [DataMember(IsRequired = true, Order = 50)]
         public List<ProjectVersion> AvailableVersions { get; } = new List<ProjectVersion>();
 

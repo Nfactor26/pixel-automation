@@ -7,10 +7,14 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System.IO;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
+    /// <summary>
+    /// Screen for showing available projects and creating new projects when the application is launched
+    /// </summary>
     public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification>
     {
         private readonly ILogger logger = Log.ForContext<HomeViewModel>();
@@ -20,22 +24,41 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
         private readonly IApplicationFileSystem fileSystem;
-        private readonly List<AutomationProject> openProjects = new List<AutomationProject>();
+        
+        /// <summary>
+        /// Collection of availalbe projects
+        /// </summary>
+        public BindableCollection<AutomationProjectViewModel> Projects { get; private set; } = new ();
 
-        BindableCollection<AutomationProject> recentProjects = new BindableCollection<AutomationProject>();
-        public BindableCollection<AutomationProject> RecentProjects
+
+        string filterText = string.Empty;
+        /// <summary>
+        /// Filter available projects using filter text
+        /// </summary>
+        public string FilterText
         {
             get
             {
-                return recentProjects;
+                return filterText;
             }
             set
             {
-                recentProjects = value;
-                NotifyOfPropertyChange(() => RecentProjects);
+                filterText = value;
+                var view = CollectionViewSource.GetDefaultView(this.Projects);
+                view.Refresh();
+                NotifyOfPropertyChange(() => this.Projects);
+
             }
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="eventAggregator"></param>
+        /// <param name="serializer"></param>
+        /// <param name="windowManager"></param>
+        /// <param name="applicationDataManager"></param>
+        /// <param name="fileSystem"></param>
 
         public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager,
             IApplicationFileSystem fileSystem)
@@ -46,111 +69,127 @@ namespace Pixel.Automation.Designer.ViewModels
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;       
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
-            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            LoadRecentProjects();
+            this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+            LoadProjects();
+            CreateCollectionView();
         }
 
-        private void LoadRecentProjects()
+        private void LoadProjects()
         {
-            var availableProjects = this.applicationDataManager.GetAllProjects();           
-            int count = availableProjects.Count() > 5 ? 5 : availableProjects.Count();
-            this.RecentProjects.AddRange(availableProjects.OrderBy(a => a.LastOpened).Take(count));
-
+            var availableProjects = this.applicationDataManager.GetAllProjects();
+            this.Projects.AddRange(availableProjects.Select(p => new AutomationProjectViewModel(p)));          
         }
 
-        public async Task CreateNewProject()
+        private void CreateCollectionView()
         {
-            INewProject newProjectVM = IoC.Get<INewProject>();
-            AutomationProject newProject = newProjectVM.NewProject;
-            var result = await windowManager.ShowDialogAsync(newProjectVM);
-            if (result.HasValue && result.Value)
+            var groupedItems = CollectionViewSource.GetDefaultView(this.Projects);        
+            groupedItems.SortDescriptions.Add(new SortDescription(nameof(AutomationProjectViewModel.Name), ListSortDirection.Ascending));
+            groupedItems.Filter = new Predicate<object>((a) =>
             {
-               await OpenProject(newProject);
-            }
+                return (a as AutomationProjectViewModel).Name.ToLower().Contains(this.filterText.ToLower());
+            });
         }
 
-        public async Task OpenProject(AutomationProject automationProject)
+        /// <summary>
+        /// Create a new automation project
+        /// </summary>
+        /// <returns></returns>
+        public async Task CreateNewProject()
         {
             try
             {
-                if (automationProject == null)
+                INewProject newProjectVM = IoC.Get<INewProject>();
+                AutomationProject newProject = newProjectVM.NewProject;
+                var result = await windowManager.ShowDialogAsync(newProjectVM);
+                if (result.HasValue && result.Value)
                 {
-                    var fileToOpen = ShowOpenFileDialog();
-                    if (string.IsNullOrEmpty(fileToOpen))
+                    var newProjectViewModel = new AutomationProjectViewModel(newProject);
+                    this.Projects.Insert(0, newProjectViewModel);
+                    await OpenProject(newProjectViewModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error trying to create project.");               
+            }
+        }
+
+        private readonly object locker = new();
+        /// <summary>
+        /// Open an existng automation project
+        /// </summary>
+        /// <param name="automationProjectViewModel"></param>
+        /// <returns></returns>
+        public async Task OpenProject(AutomationProjectViewModel automationProjectViewModel)
+        {
+            try
+            {
+                Guard.Argument(automationProjectViewModel, nameof(automationProjectViewModel)).NotNull();
+                AutomationProject automationProject = automationProjectViewModel.Project;
+                lock (locker)
+                {
+                    if (automationProjectViewModel.IsOpenInEditor)
                     {
+                        logger.Information($"Project {automationProject.Name} is already open.");
                         return;
                     }
-
-                    string fileType = Path.GetExtension(fileToOpen);
-                    switch (fileType)
-                    {
-                        case ".atm":
-                            automationProject = serializer.Deserialize<AutomationProject>(fileToOpen, null);
-                            break;                    
-                    }
-                }
-
-                if(this.openProjects.Any(a => a.ProjectId.Equals(automationProject.ProjectId)))
-                {
-                    logger.Information($"Project {automationProject.Name} is already open.");
-                    return;
-                }
-
+                    automationProjectViewModel.IsOpenInEditor = true;
+                }      
+               
                 logger.Information($"Trying to open project : {automationProject.Name}");
 
                 var editorFactory = IoC.Get<IEditorFactory>();
                 var automationEditor = editorFactory.CreateAutomationEditor();
-                await automationEditor.DoLoad(automationProject);   
-                if(this.Parent is IConductor conductor)
+                await automationEditor.DoLoad(automationProject, automationProjectViewModel.SelectedVersion);
+                if (this.Parent is IConductor conductor)
                 {
                     await conductor.ActivateItemAsync(automationEditor as Caliburn.Micro.Screen);
-                    this.openProjects.Add(automationProject);
+                    automationProjectViewModel.IsOpenInEditor = true;
                     logger.Information($"Project : {automationProject.Name} is open now.");
                     return;
                 }
-                throw new Exception("Failed to activate automation editor after loading project");
+                throw new Exception("Failed to activate automation editor after loading project");           
 
             }
             catch (Exception ex)
-            {
-                logger.Warning($"There was an error while trying to open project : {automationProject.Name}");
-                logger.Error(ex, ex.Message);            
+            {               
+                logger.Error(ex, "There was an error trying to open project.");
+                automationProjectViewModel.IsOpenInEditor = false;
             }
-        }
-
-        private string ShowOpenFileDialog()
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            openFileDialog.Filter = "Automation Project (*.atm)|*.atm";
-            openFileDialog.InitialDirectory = this.fileSystem.GetAutomationsDirectory();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                return openFileDialog.FileName;
-            }
-            return string.Empty;
         }
 
         #region Close Screen
 
+        /// <summary>
+        /// Indicate whether the screen can be closed
+        /// </summary>
+        /// <returns></returns>
         public override bool CanClose()
         {
             return true;
         }
 
+        /// <inheritdoc/>    
         public override async void CloseScreen()
         {           
             await this.TryCloseAsync(true);        
             logger.Information($"{nameof(HomeViewModel)} was closed.");
         }
 
+        /// <summary>
+        /// Notificaton handler for <see cref="EditorClosedNotification"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task HandleAsync(EditorClosedNotification message, CancellationToken cancellationToken)
         {
             try
             {
-                var project = this.openProjects.FirstOrDefault(a => a.ProjectId.Equals(message.AutomationProject.ProjectId));
-                if (project != null)
+                var project = this.Projects.FirstOrDefault(a => a.ProjectId.Equals(message.AutomationProject.ProjectId));
+                if(project != null)
                 {
-                    this.openProjects.Remove(project);
+                    project.IsOpenInEditor = false;
                 }
             }
             catch (Exception ex)

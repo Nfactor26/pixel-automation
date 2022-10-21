@@ -55,8 +55,7 @@ namespace Pixel.Automation.Designer.ViewModels
             try
             {
                 this.NewProject.Name = this.NewProject.Name.Trim();
-                this.NewProject.Namespace = $"{Constants.NamespacePrefix}.{this.NewProject.Name.Replace(' ', '.')}";
-                this.NewProject.LastOpened = DateTime.Now;
+                this.NewProject.Namespace = $"{Constants.NamespacePrefix}.{this.NewProject.Name.Replace(' ', '.')}";              
 
                 //create a directory inside projects directory with name equal to newProject identifier
                 string projectFolder = this.fileSystem.GetAutomationProjectDirectory(this.NewProject);
