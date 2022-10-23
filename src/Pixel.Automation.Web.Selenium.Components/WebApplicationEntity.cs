@@ -26,16 +26,23 @@ public class WebApplicationEntity : ApplicationEntity
     [DataMember]
     [Display(Name = "Driver Location", GroupName = "WebDriver", Order = 10, Description = "Directory where WebDriver binary is located")]
     public Argument WebDriverLocation { get; set; } = new InArgument<string> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = ".//WebDrivers//" };
+
+    /// <summary>
+    /// Indicates if a compatible version of webdriver should be automatically downloaded
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Auto Download", GroupName = "WebDriver", Order = 20, Description = "Indicate if a compatible driver version should be automatically downloaded")]
+    public Argument AutoDownloadDriver { get; set; } = new InArgument<bool> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = true };
     
     /// <summary>
     /// Optional argument which can be used to override the preferred browser configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Browser", GroupName = "Overrides", Order = 20, Description = "[Optional] Override the preferred browser option set on Application")]
+    [Display(Name = "Browser", GroupName = "Overrides", Order = 30, Description = "[Optional] Override the preferred browser option set on Application")]
     public Argument BrowserOverride { get; set; } = new InArgument<Browsers>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
     [DataMember]
-    [Display(Name = "Driver Service", GroupName = "Overrides", Order = 30, Description = "[Optional] Specify a custom driver service")]
+    [Display(Name = "Driver Service", GroupName = "Overrides", Order = 40, Description = "[Optional] Specify a custom driver service")]
     public Argument DriverServiceOverride { get; set; } = new InArgument<DriverService> { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
     /// <summary>
@@ -43,7 +50,7 @@ public class WebApplicationEntity : ApplicationEntity
     /// If DriverOptions is not configured, default configuration is created and used.
     /// </summary>
     [DataMember]
-    [Display(Name = "Driver Options", GroupName = "Overrides", Order = 40, Description = "[Optional] Specify a custom configured driver options." +
+    [Display(Name = "Driver Options", GroupName = "Overrides", Order = 50, Description = "[Optional] Specify a custom configured driver options." +
         "Default configuration is used if not specified.")]
     public Argument DriverOptionsOverride { get; set; } = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
@@ -51,7 +58,7 @@ public class WebApplicationEntity : ApplicationEntity
     /// Optional argument which can be used to override the target url configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Target Url", GroupName = "Overrides", Order = 50, Description = "[Optional] Override the Target Url option set on Application")]
+    [Display(Name = "Target Url", GroupName = "Overrides", Order = 60, Description = "[Optional] Override the Target Url option set on Application")]
     public Argument TargetUriOverride { get; set; } = new InArgument<Uri>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
 
@@ -184,7 +191,7 @@ public class WebApplicationEntity : ApplicationEntity
                 return firefoxOptions as T;
             case Browsers.Chrome:
                 ChromeOptions chromeOptions = driverOptions as ChromeOptions ?? new ChromeOptions();
-                //TODO : Check what "test-type" parameter does and add a comment here.
+                //https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
                 chromeOptions.AddArgument("test-type");
                 chromeOptions.AddArgument(processIdentifier);
                 return chromeOptions as T;
@@ -212,7 +219,32 @@ public class WebApplicationEntity : ApplicationEntity
             return driverService as T;
         }
 
+        //download the webdriver in to target folder 
         var webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
+        var shouldDownloadDriver = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
+        if(shouldDownloadDriver)
+        {
+            if(!Directory.Exists(webDriverFolder))
+            {
+                Directory.CreateDirectory(webDriverFolder);
+            }
+            var webDriverDownloader = new WebDriverDownloader(webDriverFolder, browser);
+            switch(browser)
+            {
+                case Browsers.FireFox:
+                //For firefox, driver versions are usually compatible with 2-3 previous versions
+                //Also, there is no directy mapping between installed firefox version vs driver version
+                //Hence, we need to download latest
+                    webDriverFolder = webDriverDownloader.DownloadLatestVersion();                  
+                    break;
+                case Browsers.Chrome:
+                case Browsers.Edge:
+                    webDriverFolder = webDriverDownloader.DownloadMatchingVersion();                  
+                    break;
+                default:
+                    throw new ArgumentException($"{browser} is not supported");
+            }
+        }
         //Create a default driver service based on browser type
         switch (browser)
         {
