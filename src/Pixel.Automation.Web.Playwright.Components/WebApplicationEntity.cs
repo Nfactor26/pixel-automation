@@ -34,7 +34,7 @@ public class WebApplicationEntity : ApplicationEntity
     /// If ContextOptions is not configured, default configuration is created and used.
     /// </summary>
     [DataMember]
-    [Display(Name = "Context Options", GroupName = "Overrides", Order = 20, Description = "[Optional] Specify a custom browser new context options." +
+    [Display(Name = "Context Options", GroupName = "Overrides", Order = 30, Description = "[Optional] Specify a custom browser new context options." +
       " Default configuration is used if not specified.")]
     public Argument ContextOptions { get; set; } = new InArgument<BrowserNewContextOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
@@ -42,10 +42,16 @@ public class WebApplicationEntity : ApplicationEntity
     /// Optional argument which can be used to override the target url configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Target Url", GroupName = "Overrides", Order = 30, Description = "[Optional] Override the Target Url option set on Application")]
+    [Display(Name = "Target Url", GroupName = "Overrides", Order = 40, Description = "[Optional] Override the Target Url option set on Application")]
     public Argument TargetUriOverride { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
-
+    /// <summary>
+    /// Indicates if configured browser should be automatically installed
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Install Browser", GroupName = "Browser Management", Order = 50, Description = "Indicates if configured browser should be automatically installed")]
+    public Argument AutoInstallBrowser { get; set; } = new InArgument<bool> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = true };
+    
     /// <summary>
     /// Get the TargetApplicationDetails and apply any over-rides to it
     /// </summary>
@@ -75,7 +81,7 @@ public class WebApplicationEntity : ApplicationEntity
         Browsers preferredBrowser = await GetPreferredBrowser(webApplicationDetails);
         var browserLaunchOptions = await GetBrowserLaunchOptions(preferredBrowser);
         
-        InstallBrowser(preferredBrowser, browserLaunchOptions);
+        await InstallBrowser(preferredBrowser, browserLaunchOptions);
 
         webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
       
@@ -181,8 +187,15 @@ public class WebApplicationEntity : ApplicationEntity
         return preferredBrowser;
     }
 
-    void InstallBrowser(Browsers preferredBrowser, BrowserTypeLaunchOptions launchOptions)
+    async Task InstallBrowser(Browsers preferredBrowser, BrowserTypeLaunchOptions launchOptions)
     {
+        bool shouldInstallBrowser = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoInstallBrowser);
+        if(!shouldInstallBrowser)
+        {
+            logger.Information($"Browser installation will be skipped. Install Browser is configured as false.");
+            return;
+        }
+        
         Program.Main(new[] { "install", "--help" });      
         int exitCode = 0;
         string channel;
@@ -227,5 +240,7 @@ public class WebApplicationEntity : ApplicationEntity
         {
             throw new Exception($"Playwright exited with code {exitCode}");
         }
+        logger.Information("Browser: {0} was installed successfully.", preferredBrowser);
+
     }
 }
