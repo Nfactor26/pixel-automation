@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
-		<UseWPF>true</UseWPF>
+		<UseWPF>true</UseWPF>		
 	</PropertyGroup>
 
 	<ItemGroup>

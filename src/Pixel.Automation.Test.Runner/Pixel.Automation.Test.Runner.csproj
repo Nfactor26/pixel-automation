@@ -5,11 +5,15 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<AssemblyName>pixel-run</AssemblyName>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<!--<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>-->	
+		<!--<RuntimeIdentifier>win10-x64</RuntimeIdentifier>-->
+		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<OutputPath>..\..\.builds\$(Configuration)\Runner</OutputPath>
+		<OutputPath>..\..\.builds\$(Configuration)\Runner\</OutputPath>	
+		<UseWPF Condition="'$(TargetFramework)' == 'net6.0-windows'">true</UseWPF>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -33,16 +37,17 @@
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />	
-		<ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
+	
+	<Import Project="..\Pixel.Automation.Plugin.Automation.targets" />		
+	
+	<ItemGroup> 
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>

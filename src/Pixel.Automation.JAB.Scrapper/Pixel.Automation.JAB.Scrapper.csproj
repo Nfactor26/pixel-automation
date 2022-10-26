@@ -1,6 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	
-	<Import Project="..\Pixel.Automation.Plugin.targets" />
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
@@ -8,6 +6,8 @@
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>

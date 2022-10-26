@@ -1,0 +1,35 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<Target Name="BuildScrapperPlugins" AfterTargets="Build">		
+		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">			
+			<PluginProject Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj"/>	
+			<PluginProject Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj"/>	
+			<PluginProject Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj"/>	
+		</ItemGroup>
+		<Message Text="TargetFramework is $(TargetFramework)" Importance="high"/>	
+		<MSBuild Projects="@(PluginProject)" Targets="Build" Properties="Configuration=$(Configuration);
+				 RuntimeIdentifier=$(RuntimeIdentifier);"/>		
+	</Target>	
+
+	
+	<Target Name="CopyScrapperPlugins" AfterTargets="BuildPlugins">		
+		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">				
+			<PluginArtifacts Include="..\Pixel.Automation.Web.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Web.Scrapper</Name>
+			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.UIA.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.UIA.Scrapper</Name>
+			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.Image.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Image.Scrapper</Name>
+			</PluginArtifacts>			
+			<PluginArtifacts Include="..\Pixel.Automation.JAB.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.JAB.Scrapper</Name>
+			</PluginArtifacts>
+		</ItemGroup>
+		<Message Text="Copying %(PluginArtifacts.FullPath) to $(TargetDir)Plugin\%(PluginArtifacts.Name)" Importance="high"/>
+		<Copy SourceFiles="%(PluginArtifacts.FullPath)" DestinationFolder="$(TargetDir)Plugins\%(PluginArtifacts.Name)\%(RecursiveDir)"/>
+	</Target>
+	
+</Project>
