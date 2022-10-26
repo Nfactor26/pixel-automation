@@ -1,14 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-	
-	<Import Project="..\Pixel.Automation.Plugin.targets" />
-	
-	<!--Copy runtimes directory from plugin folder to working directory of application and delete runtimes directory from plugin -->
-	<!--This is required as plugin fails to load runtimes if it is not present in working directory of the application-->
-	<Import Project="..\Pixel.Automation.Runtime.targets" />
-		
+﻿<Project Sdk="Microsoft.NET.Sdk">	
+
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>

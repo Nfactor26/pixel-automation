@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Pixel.Automation.Plugin.targets" />
-
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>

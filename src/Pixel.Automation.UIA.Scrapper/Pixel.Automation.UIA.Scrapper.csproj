@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-	
-	<Import Project="..\Pixel.Automation.Plugin.targets" />
-	
+﻿<Project Sdk="Microsoft.NET.Sdk">	
+
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -35,7 +35,7 @@
 			<HintPath>..\Libs\Interop.UIAutomationClient.dll</HintPath>
 			<EmbedInteropTypes>false</EmbedInteropTypes>
 			<Aliases>uiaAutomationClient</Aliases>
-			<Private>False</Private>
+			<Private>False</Private>			
 		</Reference>
 		<Reference Include="UIAComWrapper">
 			<HintPath>..\Libs\UIAComWrapper.dll</HintPath>
