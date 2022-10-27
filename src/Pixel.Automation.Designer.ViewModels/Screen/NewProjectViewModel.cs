@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using Newtonsoft.Json.Linq;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -44,7 +43,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject();
-            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true, IsDeployed = false});
+            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true});
 
             this.existingProjects.AddRange(this.applicationDataManager.GetAllProjects());
         

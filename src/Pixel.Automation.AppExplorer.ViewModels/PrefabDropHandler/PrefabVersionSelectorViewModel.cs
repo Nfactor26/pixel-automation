@@ -100,7 +100,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             {
                 this.prefabReferences = new PrefabReferences();
             }
-            this.AvailableVersions = prefabProject.DeployedVersions;
+            this.AvailableVersions = prefabProject.PublishedVersions;
             this.CanChangeVersion = !prefabReferences.HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {

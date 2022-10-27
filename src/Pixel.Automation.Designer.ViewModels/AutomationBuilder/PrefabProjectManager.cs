@@ -199,8 +199,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             prefabParent.AddComponent(this.prefabbedEntity);
 
             //push the changes to database
-            await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, this.prefabProject.ActiveVersion);
-            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, this.prefabProject.ActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, this.prefabProject.LatestActiveVersion);
+            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, this.prefabProject.LatestActiveVersion);
         }
 
 

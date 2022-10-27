@@ -52,9 +52,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public IEnumerable<PrefabVersion> DeployedVersions 
-        { 
-            get => this.prefabProject.AvailableVersions.Where(a => a.IsDeployed).ToList(); 
+        public IEnumerable<PrefabVersion> PublishedVersion 
+        {
+            get => this.prefabProject.PublishedVersions; 
         }
 
         public PrefabProjectViewModel(PrefabProject prefabProject)

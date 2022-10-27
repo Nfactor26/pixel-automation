@@ -81,8 +81,7 @@ namespace Pixel.Persistence.Respository
                             {"applicationId", prefab.ApplicationId},
                             {"version", prefab.Version},
                             {"type", prefab.Type},
-                            {"isActive", prefab.IsActive},
-                            {"isDeployed", prefab.IsDeployed}
+                            {"isActive", prefab.IsActive}
                         }
                     });
                     break;
@@ -176,7 +175,6 @@ namespace Pixel.Persistence.Respository
                     {
                         Version = file.Metadata["version"].AsString,
                         IsActive = file.Metadata["isActive"].AsBoolean,
-                        IsDeployed = file.Metadata["isDeployed"].AsBoolean,
                         LastUpdated = file.UploadDateTime
                     });
                 }

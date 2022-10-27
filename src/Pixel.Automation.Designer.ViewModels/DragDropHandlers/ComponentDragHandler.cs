@@ -118,7 +118,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 {
                     if (dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
                     {
-                        if (prefabProject.DeployedVersions.Any())
+                        if (prefabProject.PublishedVersion.Any())
                         {
                             dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                             dropInfo.Effects = DragDropEffects.Copy;

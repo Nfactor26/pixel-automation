@@ -77,7 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.DisplayName = project.Name;
 
             //Always open the most recent non-deployed version if no version is specified
-            var targetVersion = versionToLoad ?? project.ActiveVersion;
+            var targetVersion = versionToLoad ?? project.LatestActiveVersion;
             logger.Information($"Version : {targetVersion} will be loaded.");
             if(targetVersion != null)
             {

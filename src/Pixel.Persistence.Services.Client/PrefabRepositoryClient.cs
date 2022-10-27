@@ -97,8 +97,7 @@ namespace Pixel.Persistence.Services.Client
                 ApplicationId = prefabProject.ApplicationId,
                 Type = "PrefabDataFiles",
                 Version = version.ToString(),
-                IsActive = version.IsActive,
-                IsDeployed = version.IsDeployed
+                IsActive = version.IsActive
             };
             restRequest.AddParameter(nameof(PrefabMetaData), serializer.Serialize<PrefabMetaData>(prefabMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", zippedDataFile);

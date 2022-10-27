@@ -41,7 +41,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.PrefabProject = prefabProject;
             this.DisplayName = prefabProject.PrefabName;
 
-            var targetVersion = versionToLoad ?? PrefabProject.ActiveVersion;
+            var targetVersion = versionToLoad ?? PrefabProject.LatestActiveVersion;
             if (targetVersion != null)
             {
                 this.projectManager.Load(prefabProject, targetVersion);
@@ -100,7 +100,7 @@ namespace Pixel.Automation.Designer.ViewModels
             if(result.HasValue && result.Value)
             {
                 var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-                fileSystem.SwitchToVersion(this.PrefabProject.ActiveVersion);
+                fileSystem.SwitchToVersion(this.PrefabProject.LatestActiveVersion);
 
                 //This will update Code editor and script editor to point to the new workspace directory
                 //This will update Code editor and script editor to point to the new workspace directory

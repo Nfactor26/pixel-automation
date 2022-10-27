@@ -32,18 +32,23 @@ namespace Pixel.Automation.Core.Models
       
         [DataMember(IsRequired = true, Order = 50)]
         public List<ProjectVersion> AvailableVersions { get; } = new List<ProjectVersion>();
+       
+        /// <summary>
+        /// Get all the versions that are active.
+        /// </summary>
+        public IEnumerable<ProjectVersion> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }
 
         /// <summary>
-        /// Get all the versions that are deployed.
+        /// Get all the versions that are published.
         /// </summary>
-        public IEnumerable<ProjectVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
-
+        public IEnumerable<ProjectVersion> PublishedVersions { get => AvailableVersions.Where(a => a.IsPublished).ToList(); }
+       
         /// <summary>
-        /// Active version of the project
+        /// Latest Active version of the project
         /// </summary>
-        public ProjectVersion ActiveVersion
+        public ProjectVersion LatestActiveVersion
         {
-            get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
+            get => this.ActiveVersions.OrderBy(a => a.Version).LastOrDefault();
         }
 
         /// <summary>

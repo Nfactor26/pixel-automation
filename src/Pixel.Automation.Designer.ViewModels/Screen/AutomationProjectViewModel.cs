@@ -71,8 +71,8 @@ namespace Pixel.Automation.Designer.ViewModels
         public AutomationProjectViewModel(AutomationProject automationProject)
         {
             this.automationProject = automationProject;
-            this.EditableVersions.AddRange(automationProject.AvailableVersions.Where(a => !a.IsDeployed));
-            this.SelectedVersion = automationProject.ActiveVersion;
+            this.EditableVersions.AddRange(automationProject.ActiveVersions);
+            this.SelectedVersion = automationProject.LatestActiveVersion;
         }
     }
 }

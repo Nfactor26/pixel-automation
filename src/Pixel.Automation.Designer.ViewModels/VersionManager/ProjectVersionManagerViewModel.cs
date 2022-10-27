@@ -22,14 +22,14 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly AutomationProject automationProject;
         private readonly ApplicationSettings applicationSettings;
 
-        private bool wasDeployed;
+        private bool wasPublished;
 
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
        
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
             IReferenceManagerFactory referenceManagerFactory, ISerializer serializer, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings)
         {
-            this.DisplayName = "Manage & Deploy Versions";
+            this.DisplayName = "Manage Project Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
@@ -44,36 +44,45 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
         /// <summary>
-        /// Create a copy of selected version and deploy the selected version.
+        /// Create a copy of selected version and mark the selected version as Published.
         /// </summary>
         /// <returns></returns>
-        public async Task Deploy(ProjectVersionViewModel projectVersionViewModel)
+        public async Task CloneAndPublishAsync(ProjectVersionViewModel projectVersionViewModel)
         {
             try
-            {               
-                if (projectVersionViewModel?.IsActive == true)
+            {
+                logger.Information($"Trying to clone version {projectVersionViewModel.Version} for Project : {this.automationProject.Name}");
+
+                //Create a new active version from selected version
+                ProjectVersion newVersion = projectVersionViewModel.Clone();
+                IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
+                projectFileSystem.Initialize(this.automationProject, newVersion);
+
+                //After cloning, we mark the curret version as published
+                if(!projectVersionViewModel.IsPublished)
                 {
-                    logger.Information($"Trying to deploy version {projectVersionViewModel.Version} for project : {this.automationProject.Name}");
-                  
-                    //Create a new active version from selected version
-                    ProjectVersion newVersion = projectVersionViewModel.Clone();
-                    IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
-                    projectFileSystem.Initialize(this.automationProject, newVersion);
+                    projectVersionViewModel.Publish(this.workspaceManagerFactory);
+                    logger.Information($"Version {projectVersionViewModel.Version} for project : {this.automationProject.Name} is published now.");
+                }
 
-                    //Deploy the selected version
-                    projectVersionViewModel.Deploy(this.workspaceManagerFactory);                   
+                int indexToInsert = 0;
+                foreach(var version in this.automationProject.AvailableVersions.Select(s => s.Version))
+                {
+                    if(version < newVersion.Version)
+                    {
+                        indexToInsert++;
+                        continue;
+                    }                               
+                    break;
+                }
+                this.automationProject.AvailableVersions.Insert(indexToInsert, newVersion);
+                serializer.Serialize<AutomationProject>(projectFileSystem.ProjectFile, this.automationProject);
 
-                    this.automationProject.AvailableVersions.Add(newVersion);
-                    serializer.Serialize<AutomationProject>(projectFileSystem.ProjectFile, this.automationProject);
+                await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
+                await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
 
-                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
-                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, newVersion);
-                   
-                    this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));
-                    logger.Information($"Completed deployment of version : {projectVersionViewModel.Version} for project : {this.automationProject.Name}");
-
-                    this.wasDeployed = true;
-                }              
+                this.AvailableVersions.Insert(indexToInsert, new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));
+                this.wasPublished = true;
             }
             catch (Exception ex)
             {
@@ -81,9 +90,31 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }           
         }
 
+        /// <summary>
+        /// Create a copy of selected version and mark the selected version as Published.
+        /// </summary>
+        /// <returns></returns>
+        public async Task PublishAsync(ProjectVersionViewModel projectVersionViewModel)
+        {
+            try
+            {               
+                if (projectVersionViewModel.CanPublish)
+                {
+                    projectVersionViewModel.Publish(this.workspaceManagerFactory);
+                    await this.applicationDataManager.AddOrUpdateProjectAsync(this.automationProject, projectVersionViewModel.ProjectVersion);
+                    logger.Information($"Version {projectVersionViewModel.Version} for project : {this.automationProject.Name} is published now.");
+                }                              
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+
         public async Task CloseAsync()
         {
-            await this.TryCloseAsync(this.wasDeployed);
+            await this.TryCloseAsync(this.wasPublished);
         }
     }
 }

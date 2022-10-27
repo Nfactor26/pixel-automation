@@ -26,9 +26,6 @@ namespace Pixel.Persistence.Core.Models
         [DataMember]
         public bool IsActive { get; set; }
 
-        [DataMember]
-        public bool IsDeployed { get; set; }
-
     }
 
     [DataContract]
@@ -67,9 +64,6 @@ namespace Pixel.Persistence.Core.Models
 
         [DataMember]
         public bool IsActive { get; set; }
-
-        [DataMember]
-        public bool IsDeployed { get; set; }
 
         [DataMember]
         public DateTime LastUpdated { get; set; }
