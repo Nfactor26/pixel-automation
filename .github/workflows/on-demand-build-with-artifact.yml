@@ -68,6 +68,9 @@ jobs:
     - name: Test
       run: dotnet test Pixel.Automation.sln -c Release --no-build --verbosity normal
 
+    - name: Publish Persistence Service
+      run: dotnet publish src/Pixel.Persistence.Services.Api/Pixel.Persistence.Services.Api.csproj -c Release --no-restore -o .builds/Release/Service
+
     - name: Upload Designer artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -84,4 +87,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: pixel-persistence-${{ matrix.os }}
-        path: .builds/Release/Persistence    
+        path: .builds/Release/Service   
