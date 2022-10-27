@@ -12,6 +12,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
+            <core:TrimmedTextConverter x:Key="trimmedTextConverter"/>
             <core:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
             <Style x:Key="AddProjectButtonStyle" TargetType="{x:Type Button}">
                 <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
@@ -45,9 +46,9 @@
                         <ControlTemplate TargetType="{x:Type ListBoxItem}">
                             <Border x:Name="ProjectItemContainer" Padding="5,5,0,5">
                                 <DockPanel LastChildFill="False" Background="{DynamicResource MahApps.Brushes.Control.Background}">
-                                    <TextBlock Text="{Binding Name}" FontSize="16" VerticalAlignment="Center"
-                                              DockPanel.Dock="Left" ToolTip="Name of the project"/>
-                                    <ComboBox x:Name="EditableVersions" FontSize="14" BorderThickness="0,0,0,0"
+                                    <TextBlock x:Name="ProjectName" Text="{Binding Name,  Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" FontSize="16" VerticalAlignment="Center"
+                                              DockPanel.Dock="Left" ToolTip="{Binding Name}" Width="180"/>
+                                    <ComboBox x:Name="EditableVersions" FontSize="12" BorderThickness="0,0,0,0"
                                                   VerticalAlignment="Center" DockPanel.Dock="Left" Margin="12,2,0,0"
                                                   ToolTip="Select version to open"
                                                   ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion}"/>
