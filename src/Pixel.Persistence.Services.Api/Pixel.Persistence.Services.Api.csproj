@@ -10,6 +10,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <AssemblyName>pixel-persistence</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

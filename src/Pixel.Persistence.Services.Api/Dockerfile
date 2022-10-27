@@ -22,4 +22,4 @@ RUN dotnet publish "Pixel.Persistence.Services.Api.csproj" -c Release -o /app/pu
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Pixel.Persistence.Services.Api.dll"]
+ENTRYPOINT ["dotnet", "pixel-persistence.dll"]
