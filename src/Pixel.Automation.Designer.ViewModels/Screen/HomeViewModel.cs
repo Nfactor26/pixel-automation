@@ -190,6 +190,8 @@ namespace Pixel.Automation.Designer.ViewModels
                 if(project != null)
                 {
                     project.IsOpenInEditor = false;
+                    this.Projects.Clear();
+                    this.LoadProjects();
                 }
             }
             catch (Exception ex)
