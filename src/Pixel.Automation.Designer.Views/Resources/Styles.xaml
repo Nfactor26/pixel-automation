@@ -14,9 +14,14 @@
     <converters:HorizontalLineConverter x:Key="horzLineConv"/>
     <converters:VerticalLineConverter x:Key="vertLineConv"/>
     <iconPacks:PackIconMaterial x:Key="IconDotsVertical" Kind="DotsVertical" x:Shared="false" />
+    <iconPacks:PackIconMaterial x:Key="CloudOnline" Width="20" Height="20" Kind="CloudOutline" />
+    <iconPacks:PackIconMaterial x:Key="CloudOffline" Width="20" Height="20" Kind="CloudOffOutline" />
     <iconPacks:PackIconModern x:Key="IconPageEdit" Kind="PageEdit" x:Shared="false" />
     <iconPacks:PackIconOcticons x:Key="IconInfo" Kind="Info"  x:Shared="false" />
+    <iconPacks:Modern x:Key="GithubOctoCat" Kind="SocialGithubOctocat" Width="20" Height="20" />
+    <iconPacks:Modern x:Key="Settings" Kind="Settings" Width="19" Height="19" />
     
+
     <Style  x:Key="LinkButton"  TargetType="Button">
         <Setter Property="Template">
             <Setter.Value>
