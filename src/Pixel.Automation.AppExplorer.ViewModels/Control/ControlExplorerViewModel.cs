@@ -6,17 +6,11 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -38,6 +32,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private ApplicationDescriptionViewModel activeApplication;
 
+        public ApplicationDescriptionViewModel ActiveApplication
+        {
+            get => this.activeApplication;
+            set
+            {
+                this.activeApplication = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
 
         public BindableCollection<string> Screens { get; set; } = new BindableCollection<string>();
 
@@ -49,7 +53,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 selectedScreen = value;
                 NotifyOfPropertyChange(() => SelectedScreen);
-                var controlsForSelectedScreen = LoadControlDetails(this.activeApplication, value);
+                var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, value);
                 this.Controls.Clear();
                 this.Controls.AddRange(controlsForSelectedScreen);
             }
@@ -206,12 +210,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="applicationDescriptionViewModel"></param>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            this.activeApplication = applicationDescriptionViewModel;
+            this.ActiveApplication = applicationDescriptionViewModel;
             this.Controls.Clear();
             this.Screens.Clear();
             if (applicationDescriptionViewModel != null)
             {                            
-                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);
                 this.SelectedScreen = this.Screens.First();               
             }
         }
@@ -254,16 +258,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task CreateScreen()
         {
-            var applicationScreenViewModel = new ApplicationScreenViewModel(this.activeApplication);
+            var applicationScreenViewModel = new ApplicationScreenViewModel(this.ActiveApplication);
             var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
             if (result.GetValueOrDefault())
             {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                 var lastSelectedScreen = this.selectedScreen;
                 this.Screens.Clear();
-                this.Screens.AddRange(this.activeApplication.ScreensCollection);
+                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);
                 this.SelectedScreen = lastSelectedScreen;
-                logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, this.activeApplication.ApplicationName);
+                logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, this.ActiveApplication.ApplicationName);
             }
         }
 
@@ -274,15 +278,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task RenameScreen()
         {
-            var renameScreenViewModel = new RenameScreenViewModel(this.activeApplication, this.selectedScreen);
+            var renameScreenViewModel = new RenameScreenViewModel(this.ActiveApplication, this.selectedScreen);
             var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
             if (result.GetValueOrDefault())
             {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);               
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);               
                 this.Screens.Clear();
-                this.Screens.AddRange(this.activeApplication.ScreensCollection);           
+                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);           
                 this.SelectedScreen = renameScreenViewModel.NewScreenName;
-                logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, this.activeApplication.ApplicationName);
+                logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, this.ActiveApplication.ApplicationName);
             }
         }
 
@@ -293,13 +297,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
         {
-            var moveToScreenViewModel = new MoveToScreenViewModel(this.activeApplication, controlDescription, this.selectedScreen, this.Screens);
+            var moveToScreenViewModel = new MoveToScreenViewModel(this.ActiveApplication, controlDescription, this.selectedScreen, this.Screens);
             var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
             if (result.GetValueOrDefault())
             {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                 this.Controls.Remove(controlDescription);
-                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.selectedScreen, moveToScreenViewModel.SelectedScreen, this.activeApplication.ApplicationName);
+                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.selectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
             }
         }
 
@@ -423,11 +427,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
             lock (locker)
             {
-                this.activeApplication.AddControl(controlToSave, this.SelectedScreen);
+                this.ActiveApplication.AddControl(controlToSave, this.SelectedScreen);
             }
             if (updateApplication)
             {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
             }
 
             var view = CollectionViewSource.GetDefaultView(Controls);
@@ -488,7 +492,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 return;
             }
-            if (this.activeApplication == null)
+            if (this.ActiveApplication == null)
             {
                 throw new InvalidOperationException("There is no active application in Application explorer");
             }
@@ -507,7 +511,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
                     else
                     {
-                        var ownerApplication = this.activeApplication.ApplicationDetails;
+                        var ownerApplication = this.ActiveApplication.ApplicationDetails;
                         var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
                             ?? throw new Exception("No control builder available to process scraped control");
                         var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
@@ -515,12 +519,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     }
 
                     //update the application id for each control identity in hierarchy
-                    control.ApplicationId = this.activeApplication.ApplicationId;
+                    control.ApplicationId = this.ActiveApplication.ApplicationId;
                     IControlIdentity current = control;
                     while (current.Next != null)
                     {
                         current = current.Next;
-                        current.ApplicationId = this.activeApplication.ApplicationId;
+                        current.ApplicationId = this.ActiveApplication.ApplicationId;
                     }
 
                     //create an instance of ControlToolBoxItem to display in the toolbox
@@ -545,7 +549,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 }
 
             }
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+            await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
         }
     }
 }

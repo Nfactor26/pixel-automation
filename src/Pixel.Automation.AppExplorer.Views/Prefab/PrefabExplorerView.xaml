@@ -140,6 +140,12 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <StackPanel DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
+                            Background="{DynamicResource MahApps.Brushes.Control.Background}" ToolTip="{Binding ApplicationName}" >
+                <ContentControl x:Name="ApplicationIcon"  Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
+                                Margin="2" Width="28" Height="28" Content="{StaticResource ApplicationIcon}" IsHitTestVisible="False">
+                </ContentControl>
+            </StackPanel>
             <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
                              controls:TextBoxHelper.UseFloatingWatermark="False"                     
                              controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
