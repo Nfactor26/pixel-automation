@@ -41,20 +41,28 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Is Deployed">
+                    <DataGridTemplateColumn Header="Is Published ?">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="Deployed" IsChecked="{Binding IsDeployed, Mode=OneWay}" IsEnabled="False" Margin="5,2,5,2" HorizontalAlignment="Center"  />
+                                <CheckBox x:Name="IsPublished" IsChecked="{Binding IsPublished, Mode=OneWay}" IsEnabled="False" Margin="5,2,5,2" HorizontalAlignment="Center"  />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Deploy">
+                    <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Visibility="{Binding IsActive, Converter={StaticResource boolToVisConverter}}">
-                                    <Button x:Name="Deploy" Content="DEPLOY" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                        cal:Message.Attach="[Event Click] = [Action Deploy($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" ToolTip="Deploy this version and create an incremented cloned version"  />
-                                </StackPanel>                                
+                                <Button x:Name="CloneAndPublish" Content="Clone and Publish" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        cal:Message.Attach="[Event Click] = [Action CloneAndPublishAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" ToolTip="Create a copy with incremented version and mark this version published."  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="Publish" Content="Publish" IsEnabled="{Binding CanPublish}"
+                                        cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        cal:Message.Attach="[Event Click] = [Action PublishAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center"
+                                        ToolTip="Mark the version as published. Published versions can be used in automation."  />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

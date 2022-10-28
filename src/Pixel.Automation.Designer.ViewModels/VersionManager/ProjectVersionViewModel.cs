@@ -27,18 +27,9 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             set => ProjectVersion.Version = value;
         }
 
-        public bool IsDeployed
+        public bool IsPublished
         {
-            get => ProjectVersion.IsDeployed;
-            set
-            {
-                //can be only set to true when version is not already deployed
-                if (!ProjectVersion.IsDeployed && value)
-                {
-                    ProjectVersion.IsDeployed = value;
-                }
-                NotifyOfPropertyChange(() => IsDeployed);
-            }
+            get => ProjectVersion.IsPublished;            
         }
 
         /// <summary>
@@ -55,16 +46,18 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     ProjectVersion.IsActive = value;
                 }
                 NotifyOfPropertyChange(() => IsActive);
+                NotifyOfPropertyChange(() => IsPublished);               
             }
         }
 
-
+        public bool CanPublish { get; private set; }
+        
         public string DataModelAssembly
         {
             get => ProjectVersion.DataModelAssembly;
             private set
             {
-                if (ProjectVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (ProjectVersion.IsPublished && !string.IsNullOrEmpty(value))
                 {
                     ProjectVersion.DataModelAssembly = value;
                 }
@@ -79,19 +72,29 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             this.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForAutomationProject(automationProject, projectVersion); });
+            this.CanPublish = !projectVersion.IsPublished && !projectVersion.Version.Equals(automationProject.LatestActiveVersion.Version);
         }
 
 
         public ProjectVersion Clone()
-        {
-            logger.Information($"Trying to clone version : {this.ProjectVersion} of project: {this.automationProject.Name}");
-            ////Increment active version for project        
-            ProjectVersion newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
+        {            
+            ProjectVersion newVersionInfo;
+            if (!this.automationProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.ProjectVersion.Version.Major + 1)))
             {
-                IsActive = true,
-                IsDeployed = false
-            };
-
+                newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
+                {
+                    IsActive = true
+                };
+            }
+            else
+            {
+                var versionsWithSameMajor = this.automationProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.ProjectVersion.Version.Major));
+                int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
+                newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major, nextMinor, 0, 0))
+                {
+                    IsActive = true
+                };
+            }       
             this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
             var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
@@ -122,61 +125,63 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         /// <summary>
         /// Copy last compiled dll from temp folder to References folder.
-        /// Set IsDeployed to true and set the assembly name
+        /// Set IsActive to false and set the assembly name
         /// </summary>
-        public void Deploy(IWorkspaceManagerFactory workspaceFactory)
+        public void Publish(IWorkspaceManagerFactory workspaceFactory)
         {          
-
-            this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
-            logger.Information($"Project file system has been initialized.");
-
-            ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
-            workspaceManager.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
-            string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
-            if (existingDataModelFiles.Any())
+            if(!this.IsPublished)
             {
-                //This will add all the documents to workspace so that they are available during compilation
-                foreach (var dataModelFile in existingDataModelFiles)
+                this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
+                logger.Information($"Project file system has been initialized.");
+
+                ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
+                workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
+                workspaceManager.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
+                string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
+                if (existingDataModelFiles.Any())
                 {
-                    string documentName = Path.GetFileName(dataModelFile);
-                    if (!workspaceManager.HasDocument(documentName, this.automationProject.Name))
+                    //This will add all the documents to workspace so that they are available during compilation
+                    foreach (var dataModelFile in existingDataModelFiles)
                     {
-                        workspaceManager.AddDocument(documentName, this.automationProject.Name, File.ReadAllText(dataModelFile));
+                        string documentName = Path.GetFileName(dataModelFile);
+                        if (!workspaceManager.HasDocument(documentName, this.automationProject.Name))
+                        {
+                            workspaceManager.AddDocument(documentName, this.automationProject.Name, File.ReadAllText(dataModelFile));
+                        }
                     }
                 }
-            }
 
-            string assemblyName = this.automationProject.Namespace;
-            using (var compilationResult = workspaceManager.CompileProject(this.automationProject.Name, assemblyName))
-            {
-                compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);            
-            }
-
-            logger.Information($"Workspace prepared and compilation done.");
-
-            this.IsDeployed = true;
-            this.IsActive = false;
-            this.DataModelAssembly = $"{assemblyName}.dll";
-
-            logger.Information($"Data model assembly name is : {this.DataModelAssembly}");
-
-            //Replace the assemly name in the process file
-            UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName);
-
-            logger.Information($"Assembly references updated in process file.");
-
-            //Replace the assembly name in all of the test process file
-            foreach (var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
-            {
-                var testProcessFile = Directory.GetFiles(directory, "*.proc").FirstOrDefault();
-                if(testProcessFile != null)
+                string assemblyName = this.automationProject.Namespace;
+                using (var compilationResult = workspaceManager.CompileProject(this.automationProject.Name, assemblyName))
                 {
-                    UpdateAssemblyReference(testProcessFile, assemblyName);
+                    compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
                 }
-            }
 
-            logger.Information($"Assembly references updated in all test cases.");
+                logger.Information($"Workspace prepared and compilation done.");
+
+                this.IsActive = false;
+                this.CanPublish = false;
+                this.DataModelAssembly = $"{assemblyName}.dll";
+
+                logger.Information($"Data model assembly name is : {this.DataModelAssembly}");
+
+                //Replace the assemly name in the process file
+                UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName);
+
+                //Replace the assembly name in all of the test process file
+                foreach (var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+                {
+                    var testProcessFile = Directory.GetFiles(directory, "*.proc").FirstOrDefault();
+                    if (testProcessFile != null)
+                    {
+                        UpdateAssemblyReference(testProcessFile, assemblyName);
+                    }
+                }
+
+                logger.Information($"Assembly references updated in process and test files.");
+
+                NotifyOfPropertyChange(() => CanPublish);
+            }            
         }
 
         /// <summary>

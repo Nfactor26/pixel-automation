@@ -49,13 +49,21 @@ namespace Pixel.Automation.Core.Models
         public string GroupName { get; set; } = "Default";
 
         /// <summary>
-        /// Get all the versions that are deployed. Deployed Prefabs can be used in an automation.
+        /// Get all the versions that are active.
         /// </summary>
-        public IEnumerable<PrefabVersion> DeployedVersions { get => AvailableVersions.Where(a => a.IsDeployed).ToList(); }
+        public IEnumerable<PrefabVersion> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }
 
-        public PrefabVersion ActiveVersion
+        /// <summary>
+        /// Get all the versions that are published. Published Prefabs can be used in an automation.
+        /// </summary>
+        public IEnumerable<PrefabVersion> PublishedVersions { get => AvailableVersions.Where(a => a.IsPublished).ToList(); }             
+       
+        /// <summary>
+        /// Latest Active version of the project
+        /// </summary>
+        public PrefabVersion LatestActiveVersion
         {
-            get => this.AvailableVersions.FirstOrDefault(a => a.IsActive);
+            get => this.ActiveVersions.OrderBy(a => a.Version).LastOrDefault();
         }
 
         public Interfaces.IComponent PrefabRoot { get; set; }

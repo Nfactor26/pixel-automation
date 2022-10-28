@@ -79,8 +79,7 @@ namespace Pixel.Persistence.Respository
                             {"projectId" , project.ProjectId},
                             {"version", project.Version},
                             {"type", project.Type},
-                            {"isActive", project.IsActive},
-                            {"isDeployed", project.IsDeployed}
+                            {"isActive", project.IsActive}
                         }
                     });
                     break;
@@ -176,7 +175,6 @@ namespace Pixel.Persistence.Respository
                         Version = file.Metadata["version"].AsString,
                         Type = file.Metadata["type"].AsString,
                         IsActive = file.Metadata["isActive"].AsBoolean,
-                        IsDeployed = file.Metadata["isDeployed"].AsBoolean,
                         LastUpdated = file.UploadDateTime
                     };
 

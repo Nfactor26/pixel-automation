@@ -20,8 +20,8 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.AreEqual(null, prefabProject.PrefabName);
             Assert.AreEqual(null, prefabProject.Namespace);
             Assert.NotNull(prefabProject.AvailableVersions);
-            Assert.NotNull(prefabProject.DeployedVersions);
-            Assert.IsNull(prefabProject.ActiveVersion);
+            Assert.NotNull(prefabProject.PublishedVersions);
+            Assert.IsNull(prefabProject.LatestActiveVersion);
             Assert.AreEqual(null, prefabProject.Description);
             Assert.AreEqual("Default", prefabProject.GroupName);
 
@@ -30,7 +30,7 @@ namespace Pixel.Automation.Core.Tests.Models
             prefabProject.PrefabId = "PrefabId";
             prefabProject.PrefabName = "PrefabName";
             prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.PrefabName";
-            prefabProject.AvailableVersions.Add(new PrefabVersion() { IsDeployed = true, Version = new Version(1, 0) });
+            prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = false, Version = new Version(1, 0) });
             prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = true, Version = new Version(2, 0) });
             prefabProject.Description = "Description";
             prefabProject.GroupName = "GroupName";
@@ -41,8 +41,8 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.AreEqual("PrefabName", prefabProject.PrefabName);
             Assert.AreEqual($"{Constants.PrefabNameSpacePrefix}.PrefabName", prefabProject.Namespace);
             Assert.AreEqual(2, prefabProject.AvailableVersions.Count());
-            Assert.AreEqual(1, prefabProject.DeployedVersions.Count());
-            Assert.NotNull(prefabProject.ActiveVersion);
+            Assert.AreEqual(1, prefabProject.PublishedVersions.Count());
+            Assert.NotNull(prefabProject.LatestActiveVersion);
             Assert.AreEqual("Description", prefabProject.Description);
             Assert.AreEqual("GroupName", prefabProject.GroupName);
         }

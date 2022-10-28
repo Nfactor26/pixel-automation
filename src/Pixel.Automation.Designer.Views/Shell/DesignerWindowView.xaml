@@ -65,8 +65,7 @@
             </MenuItem>
             
             <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
-                <MenuItem x:Name="Manage" Header="Manage">
-                    <MenuItem x:Name="ManageProjectVersionAsync" Header="Project Version" ToolTip="Manage versions and their deployment"/>
+                <MenuItem x:Name="Manage" Header="Manage">                   
                     <MenuItem x:Name="ManagePrefabReferencesAsync" Header="Prefab References" ToolTip="Manage prefab versions in use"/>
                     <MenuItem x:Name="ManageControlReferencesAsync" Header="Control References" ToolTip="Manage control versions in use"/>
                     <MenuItem x:Name="ManageAssemblyReferencesAsync" Header="Assembly References" ToolTip="Manage assembly references and imports for code editor, script editor and script engine"/>

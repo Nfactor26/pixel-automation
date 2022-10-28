@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Pixel.Persistence.Core.Models
 {
@@ -15,8 +13,6 @@ namespace Pixel.Persistence.Core.Models
         public string Type { get; set; }
 
         public bool IsActive { get; set; }
-
-        public bool IsDeployed { get; set; }
 
         public DateTime LastUpdated { get; set; }
     }

@@ -9,13 +9,8 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Save the project state in the current workspace
         /// </summary>
-        Task DoSave();      
-
-        /// <summary>
-        /// Manage different versions of project and their deployment
-        /// </summary>
-        Task ManageProjectVersionAsync();
-
+        Task DoSave();  
+               
         /// <summary>
         /// Remove a component from view
         /// </summary>

@@ -15,7 +15,7 @@ namespace Pixel.Automation.Designer.ViewModels
     /// <summary>
     /// Screen for showing available projects and creating new projects when the application is launched
     /// </summary>
-    public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification>
+    public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification<AutomationProject>>
     {
         private readonly ILogger logger = Log.ForContext<HomeViewModel>();
 
@@ -24,7 +24,8 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly IWindowManager windowManager;     
         private readonly IApplicationDataManager applicationDataManager;
         private readonly IApplicationFileSystem fileSystem;
-        
+        private readonly IVersionManagerFactory versionManagerFactory;
+
         /// <summary>
         /// Collection of availalbe projects
         /// </summary>
@@ -61,15 +62,17 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="fileSystem"></param>
 
         public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager,
-            IApplicationFileSystem fileSystem)
+            IApplicationFileSystem fileSystem, IVersionManagerFactory versionManagerFactory)
         {
             this.DisplayName = "Home";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.eventAggregator.SubscribeOnBackgroundThread(this);
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;       
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
+
             LoadProjects();
             CreateCollectionView();
         }
@@ -147,16 +150,38 @@ namespace Pixel.Automation.Designer.ViewModels
                     automationProjectViewModel.IsOpenInEditor = true;
                     logger.Information($"Project : {automationProject.Name} is open now.");
                     return;
-                }
-                throw new Exception("Failed to activate automation editor after loading project");           
+                }                   
 
             }
             catch (Exception ex)
-            {               
-                logger.Error(ex, "There was an error trying to open project.");
+            {         
                 automationProjectViewModel.IsOpenInEditor = false;
+                logger.Error(ex, "There was an error trying to open project.");
             }
         }
+
+        /// <summary>
+        /// Open manager window to manage available version of the automation project
+        /// </summary>
+        /// <param name="automationProjectViewModel"></param>
+        /// <returns></returns>
+        public async Task ManageProjectVersionAsync(AutomationProjectViewModel automationProjectViewModel)
+        {
+            try
+            {                
+                var versionManager = this.versionManagerFactory.CreateProjectVersionManager(automationProjectViewModel.Project);
+                var result = await this.windowManager.ShowDialogAsync(versionManager);
+                if(result.HasValue && result.Value)
+                {
+                    automationProjectViewModel.RefreshVersions();
+                }                
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
 
         #region Close Screen
 
@@ -182,14 +207,14 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task HandleAsync(EditorClosedNotification message, CancellationToken cancellationToken)
+        public async Task HandleAsync(EditorClosedNotification<AutomationProject> message, CancellationToken cancellationToken)
         {
             try
             {
-                var project = this.Projects.FirstOrDefault(a => a.ProjectId.Equals(message.AutomationProject.ProjectId));
+                var project = this.Projects.FirstOrDefault(a => a.ProjectId.Equals(message.Project.ProjectId));
                 if(project != null)
                 {
-                    project.IsOpenInEditor = false;
+                    project.IsOpenInEditor = false;                  
                 }
             }
             catch (Exception ex)

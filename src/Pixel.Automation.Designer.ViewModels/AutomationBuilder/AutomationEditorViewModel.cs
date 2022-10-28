@@ -30,17 +30,14 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ITestExplorer testExplorer;
         private readonly ITestExplorerHost testExplorerHost;        
         private readonly ITestDataRepository testDataRepository;
-        private readonly ITestDataRepositoryHost testDataRepositoryHost;
-        private readonly IPrefabLoader prefabLoader;
-      
-
+        private readonly ITestDataRepositoryHost testDataRepositoryHost;       
         #endregion data members
 
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
             IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
-            IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, IPrefabLoader prefabLoader, ApplicationSettings applicationSettings)
+            IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
             : base(globalEventAggregator, windowManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
 
@@ -48,8 +45,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
             this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
             this.testExplorer = Guard.Argument(testExplorer).NotNull().Value;
-            this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;
-            this.prefabLoader = Guard.Argument(prefabLoader).NotNull().Value;
+            this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;           
             Guard.Argument(anchorables).NotNull().NotEmpty().DoesNotContainNull();
 
             foreach (var item in anchorables)
@@ -81,7 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.DisplayName = project.Name;
 
             //Always open the most recent non-deployed version if no version is specified
-            var targetVersion = versionToLoad ?? project.ActiveVersion;
+            var targetVersion = versionToLoad ?? project.LatestActiveVersion;
             logger.Information($"Version : {targetVersion} will be loaded.");
             if(targetVersion != null)
             {
@@ -239,34 +235,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Error(ex, ex.Message);
             }
         }
-
-        public async override Task ManageProjectVersionAsync()
-        {
-            try
-            {
-                await DoSave();
-                var versionManager = this.versionManagerFactory.CreateProjectVersionManager(this.CurrentProject);
-                var result = await this.windowManager.ShowDialogAsync(versionManager);
-
-                if (result.HasValue && result.Value)
-                {
-                    var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-                    fileSystem.SwitchToVersion(this.CurrentProject.ActiveVersion);
-
-                    //This will update Code editor and script editor to point to the new workspace directory
-                    var codeEditorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-                    codeEditorFactory.SwitchWorkingDirectory(fileSystem.DataModelDirectory);
-                    var scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-                    scriptEditorFactory.SwitchWorkingDirectory(fileSystem.WorkingDirectory);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
-
+      
         /// <inheritdoc/>  
         public async Task ManagePrefabReferencesAsync()
         {
@@ -274,12 +243,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
                 var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(projectFileSystem);
-                var result = await this.windowManager.ShowDialogAsync(versionManager);
-                //if (result.HasValue && result.Value)
-                //{
-                //    var prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();
-                //    prefabLoader.ClearCache();
-                //}
+                await this.windowManager.ShowDialogAsync(versionManager);              
             }
             catch (Exception ex)
             {
@@ -321,7 +285,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, true);
             await this.testDataRepositoryHost.DeactivateItemAsync(this.testDataRepository, true);              
-            await this.globalEventAggregator.PublishOnBackgroundThreadAsync(new EditorClosedNotification(this.CurrentProject));
+            await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<AutomationProject>(this.CurrentProject));
             await this.TryCloseAsync(true);
            
             this.Dispose();

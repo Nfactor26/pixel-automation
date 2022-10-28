@@ -95,8 +95,7 @@ namespace Pixel.Persistence.Services.Client
                 ProjectId = automationProject.ProjectId,
                 Type = "ProjectDataFiles",
                 Version = version.ToString(),
-                IsActive = version.IsActive,
-                IsDeployed = version.IsDeployed
+                IsActive = version.IsActive
             };
             restRequest.AddParameter(nameof(ProjectMetaData), serializer.Serialize<ProjectMetaData>(projectMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", zippedDataFile);

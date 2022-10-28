@@ -28,16 +28,16 @@ namespace Pixel.Persistence.Core.Models
         [DataMember]
         public List<PrefabMetaDataCompact> PrefabsMeta { get; set; } = new List<PrefabMetaDataCompact>();
 
-        public void AddOrUpdatePrefabMetaData(string prefabId, string version, bool isDeployed)
+        public void AddOrUpdatePrefabMetaData(string prefabId, string version, bool isActive)
         {
             var prefabMetaDataEntry = PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(prefabId));
             if(prefabMetaDataEntry != null)
             {
-                prefabMetaDataEntry.AddOrUpdateVersionMetaData(new PrefabVersionMetaData() { Version = version, IsDeployed = isDeployed, IsActive = !isDeployed, LastUpdated = DateTime.UtcNow });
+                prefabMetaDataEntry.AddOrUpdateVersionMetaData(new PrefabVersionMetaData() { Version = version, IsActive = isActive, LastUpdated = DateTime.UtcNow });
                 return;
             }
             var prefabMetaData = new PrefabMetaDataCompact() { PrefabId = prefabId };
-            prefabMetaData.AddOrUpdateVersionMetaData(new PrefabVersionMetaData() { Version = version, IsDeployed = isDeployed, IsActive = !isDeployed, LastUpdated = DateTime.UtcNow });
+            prefabMetaData.AddOrUpdateVersionMetaData(new PrefabVersionMetaData() { Version = version, IsActive = isActive, LastUpdated = DateTime.UtcNow });
             this.PrefabsMeta.Add(prefabMetaData);
         }
                

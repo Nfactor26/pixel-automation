@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager;
 using Pixel.Scripting.Reference.Manager.Contracts;
+using Serilog;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -12,6 +13,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
     public class PrefabVersionViewModel : PropertyChangedBase
     {
+        private readonly ILogger logger = Log.ForContext<PrefabVersionViewModel>();
+
         private readonly PrefabProject prefabProject;
         private readonly PrefabVersion prefabVersion;
         private readonly IPrefabFileSystem fileSystem;
@@ -23,18 +26,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             set => prefabVersion.Version = value;
         }
 
-        public bool IsDeployed
+        public bool IsPublished
         {
-            get => prefabVersion.IsDeployed;
-            set
-            {
-                //can be only set to true when version is not already deployed
-                if (!prefabVersion.IsDeployed && value)
-                {
-                    prefabVersion.IsDeployed = value;
-                }
-                NotifyOfPropertyChange(() => IsDeployed);
-            }
+            get => prefabVersion.IsPublished;            
         }
 
         /// <summary>
@@ -51,8 +45,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     prefabVersion.IsActive = value;
                 }
                 NotifyOfPropertyChange(() => IsActive);
+                NotifyOfPropertyChange(() => IsPublished);
             }
         }
+
+        public bool CanPublish { get; private set; }
 
 
         public string PrefabAssembly
@@ -60,7 +57,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => prefabVersion.DataModelAssembly;
             private set
             {
-                if (prefabVersion.IsDeployed && !string.IsNullOrEmpty(value))
+                if (prefabVersion.IsPublished && !string.IsNullOrEmpty(value))
                 {
                     prefabVersion.DataModelAssembly = value;
                 }
@@ -75,16 +72,28 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             this.prefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForPrefabProject(prefabProject, prefabVersion); });
+            this.CanPublish = !prefabVersion.IsPublished && !prefabVersion.Version.Equals(prefabProject.LatestActiveVersion.Version);
         }
 
         public PrefabVersion Clone()
         {
-            ////Increment active version for project        
-            PrefabVersion newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
+            PrefabVersion newVersionInfo;
+            if (!this.prefabProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.prefabVersion.Version.Major + 1)))
             {
-                IsActive = true,
-                IsDeployed = false
-            };
+                newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
+                {
+                    IsActive = true
+                };
+            }
+            else
+            {               
+                var versionsWithSameMajor = this.prefabProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.prefabVersion.Version.Major));
+                int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
+                newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major, nextMinor, 0, 0))
+                {
+                    IsActive = true
+                };
+            }
 
             this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
             var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
@@ -109,7 +118,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     CopyAll(diSourceSubDir, nextTargetSubDir);
                 }
             }
-
+            logger.Information($"Completed cloning version : {this.prefabVersion} of Prefab: {this.prefabProject.PrefabName}. Cloned version is : {newVersionInfo}");
             return newVersionInfo;
         }
 
@@ -118,45 +127,53 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Copy last compiled dll from temp folder to References folder.
         /// Set IsDeployed to true and set the assembly name
         /// </summary>
-        public void Deploy(IWorkspaceManagerFactory workspaceFactory)
+        public void Publish(IWorkspaceManagerFactory workspaceFactory)
         {           
-           
-            this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
-
-            string prefabProjectName = this.prefabProject.PrefabName;
-            ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
-            workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
-            workspaceManager.AddProject(prefabProjectName, this.prefabProject.Namespace, Array.Empty<string>());
-            string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
-            if (existingDataModelFiles.Any())
+            if(!this.IsPublished)
             {
-                //This will add all the documents to workspace so that they are available during compilation
-                foreach (var dataModelFile in existingDataModelFiles)
+                this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
+                logger.Information($"Prefab file system has been initialized.");
+
+                string prefabProjectName = this.prefabProject.PrefabName;
+                ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
+                workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
+                workspaceManager.AddProject(prefabProjectName, this.prefabProject.Namespace, Array.Empty<string>());
+                string[] existingDataModelFiles = Directory.GetFiles(this.fileSystem.DataModelDirectory, "*.cs");
+                if (existingDataModelFiles.Any())
                 {
-                    string documentName = Path.GetFileName(dataModelFile);
-                    if (!workspaceManager.HasDocument(documentName, prefabProjectName))
+                    //This will add all the documents to workspace so that they are available during compilation
+                    foreach (var dataModelFile in existingDataModelFiles)
                     {
-                        workspaceManager.AddDocument(documentName, prefabProjectName, File.ReadAllText(dataModelFile));
+                        string documentName = Path.GetFileName(dataModelFile);
+                        if (!workspaceManager.HasDocument(documentName, prefabProjectName))
+                        {
+                            workspaceManager.AddDocument(documentName, prefabProjectName, File.ReadAllText(dataModelFile));
+                        }
                     }
                 }
-            }
 
-            string assemblyName = this.prefabProject.Namespace;
-            using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
-            {
-                compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
-            }
-            this.IsDeployed = true;
-            this.IsActive = false;
-            this.PrefabAssembly = $"{assemblyName}.dll";
+                string assemblyName = this.prefabProject.Namespace;
+                using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
+                {
+                    compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
+                }
+                logger.Information($"Workspace prepared and compilation done.");
 
-            //Replace the assemly name in the process and template file
-            UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
-            if(File.Exists(this.fileSystem.TemplateFile))
-            {
-                UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
-            }
+                this.IsActive = false;
+                this.CanPublish = false;
+                this.PrefabAssembly = $"{assemblyName}.dll";
 
+                //Replace the assemly name in the process and template file
+                UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
+                if (File.Exists(this.fileSystem.TemplateFile))
+                {
+                    UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
+                }
+
+                logger.Information($"Assembly references updated in process and template files.");
+
+                NotifyOfPropertyChange(() => CanPublish);
+            }            
         }
 
         /// <summary>

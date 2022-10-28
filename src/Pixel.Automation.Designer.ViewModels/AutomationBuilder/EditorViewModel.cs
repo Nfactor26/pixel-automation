@@ -209,8 +209,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public abstract Task DoSave();
 
-        public abstract Task ManageProjectVersionAsync();
-
         public abstract Task EditDataModelAsync();
 
         protected void UpdateWorkFlowRoot()

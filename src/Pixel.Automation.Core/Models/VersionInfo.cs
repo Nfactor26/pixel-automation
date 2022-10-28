@@ -15,30 +15,26 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
         public Version Version { get; set; }
-
-        /// <summary>
-        /// Indicates if the version is deployed
-        /// </summary>
-        [DataMember(IsRequired = true, Order = 20)]
-        public bool IsDeployed { get; set; } = false;
-
+      
         /// <summary>
         /// Indicates if the version is active
         /// </summary>
-        [DataMember(IsRequired = true, Order = 30)]
+        [DataMember(IsRequired = true, Order = 20)]
         public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Data model assembly name for the automation or prefab project
         /// </summary>
-        [DataMember(IsRequired = false, Order = 40)]
+        [DataMember(IsRequired = false, Order = 30)]
         public string DataModelAssembly { get; set; }
 
         /// <summary>
         /// Description 
         /// </summary>
-        [DataMember(IsRequired = false, Order = 50)]
+        [DataMember(IsRequired = false, Order = 40)]
         public string Description { get; set; }
+
+        public bool IsPublished => !this.IsActive;
 
         ///</inheritdoc>
         public override bool Equals(object obj)

@@ -22,7 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly PrefabProject prefabProject;
         private readonly ApplicationSettings applicationSettings;
 
-        private bool wasDeployed = false;
+        private bool wasPublished = false;
 
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
        
@@ -30,7 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory, IReferenceManagerFactory referenceManagerFactory,
             ISerializer serializer, IApplicationDataManager applicationDataManager,  ApplicationSettings applicationSettings)
         {
-            this.DisplayName = "Manage & Deploy Versions";
+            this.DisplayName = "Manage Prefab Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
@@ -45,36 +45,70 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
         /// <summary>
-        /// Create a copy of selected version and deploy the selected version.
+        /// Create a copy of selected version and mark the selected version as published.
         /// </summary>
         /// <returns></returns>
-        public async Task Deploy(PrefabVersionViewModel prefabVersionViewModel)
+        public async Task CloneAndPublishAsync(PrefabVersionViewModel prefabVersionViewModel)
         {
             try
             {
-                if (prefabVersionViewModel?.IsActive == true)
+                logger.Information($"Trying to clone version {prefabVersionViewModel.Version} for Prefab : {this.prefabProject.PrefabName}");
+
+                //Create a new active version from selected version
+                PrefabVersion newVersion = prefabVersionViewModel.Clone();
+                IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
+                fileSystem.Initialize(this.prefabProject, newVersion);
+
+                //Publish the selected version
+                if(!prefabVersionViewModel.IsPublished)
                 {
-                    //Create a new active version from selected version
-                    PrefabVersion newVersion = prefabVersionViewModel.Clone();
-
-                    IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
-                    fileSystem.Initialize(this.prefabProject, newVersion);                  
-
-                    //Deploy the selected version
-                    prefabVersionViewModel.Deploy(this.workspaceManagerFactory);
-
-                    this.prefabProject.AvailableVersions.Add(newVersion);
-                    serializer.Serialize<PrefabProject>(fileSystem.PrefabDescriptionFile, this.prefabProject);
-
-                    await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
-                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsDeployed = true, IsActive = false });
-                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, newVersion);
-                   
-                    this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));
-
-                    this.wasDeployed = true;
+                    prefabVersionViewModel.Publish(this.workspaceManagerFactory);
+                    logger.Information($"Version {prefabVersionViewModel.Version} for Prefab : {this.prefabProject.PrefabName} is published now.");
                 }
 
+                int indexToInsert = 0;
+                foreach (var version in this.prefabProject.AvailableVersions.Select(s => s.Version))
+                {                   
+                    if (version < newVersion.Version)
+                    {
+                        indexToInsert++;
+                        continue;
+                    }                          
+                    break;
+                }
+
+                this.prefabProject.AvailableVersions.Insert(indexToInsert, newVersion);
+                serializer.Serialize<PrefabProject>(fileSystem.PrefabDescriptionFile, this.prefabProject);
+
+                await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsActive = false });
+                await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsActive = false });
+                await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, newVersion);
+
+                this.AvailableVersions.Insert(indexToInsert, new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));
+                this.wasPublished = true;
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Create a copy of selected version and mark the selected version as published.
+        /// </summary>
+        /// <returns></returns>
+        public async Task PublishAsync(PrefabVersionViewModel prefabVersionViewModel)
+        {
+            try
+            {
+                if (prefabVersionViewModel.CanPublish)
+                {
+                    prefabVersionViewModel.Publish(this.workspaceManagerFactory);
+                    await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsActive = false });
+                    await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsActive = false });
+                    logger.Information($"Version {prefabVersionViewModel.Version} for project : {this.prefabProject.PrefabName} is published now.");
+                }
             }
             catch (Exception ex)
             {
@@ -84,7 +118,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public async Task CloseAsync()
         {
-            await this.TryCloseAsync(this.wasDeployed);
+            await this.TryCloseAsync(this.wasPublished);
         }
     }
 }

@@ -52,10 +52,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public IEnumerable<PrefabVersion> DeployedVersions 
-        { 
-            get => this.prefabProject.AvailableVersions.Where(a => a.IsDeployed).ToList(); 
+        public IEnumerable<PrefabVersion> PublishedVersion 
+        {
+            get => this.prefabProject.PublishedVersions; 
         }
+
+        private bool isOpenInEditor;
+        /// <summary>
+        /// Indicate if the project is open in editor
+        /// </summary>
+        public bool IsOpenInEditor
+        {
+            get => this.isOpenInEditor;
+            set
+            {
+                this.isOpenInEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public PrefabProjectViewModel(PrefabProject prefabProject)
         {
