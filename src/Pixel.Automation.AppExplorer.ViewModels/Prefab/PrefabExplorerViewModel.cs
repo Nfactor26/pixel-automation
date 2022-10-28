@@ -22,10 +22,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
-        private readonly IApplicationDataManager applicationDataManager;   
-        private ApplicationDescriptionViewModel activeApplication;
+        private readonly IApplicationDataManager applicationDataManager;          
         private IPrefabBuilderFactory prefabBuilderFactory;
-       
+
+        private ApplicationDescriptionViewModel activeApplication;
+        public ApplicationDescriptionViewModel ActiveApplication
+        {
+            get => this.activeApplication;
+            set
+            {
+                this.activeApplication = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public BindableCollection<PrefabProjectViewModel> Prefabs { get; set; } = new ();
       
         public PrefabProjectViewModel SelectedPrefab { get; set; }
@@ -49,12 +59,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <inheritdoc/>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            this.activeApplication = applicationDescriptionViewModel;          
+            this.ActiveApplication = applicationDescriptionViewModel;          
             this.Prefabs.Clear();
-            if(this.activeApplication != null)
+            if(this.ActiveApplication != null)
             {
                 LoadPrefabs(applicationDescriptionViewModel);
-                this.Prefabs.AddRange(this.activeApplication.PrefabsCollection);
+                this.Prefabs.AddRange(this.ActiveApplication.PrefabsCollection);
             }                     
         }
 
@@ -82,15 +92,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 Guard.Argument(entity).NotNull();
 
                 var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
-                prefabBuilder.Initialize(this.activeApplication, entity);
+                prefabBuilder.Initialize(this.ActiveApplication, entity);
                 var result = await windowManager.ShowDialogAsync(prefabBuilder);
                 if (result.HasValue && result.Value)
                 {
                     var createdPrefab = await prefabBuilder.SavePrefabAsync();
                     var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
                     this.Prefabs.Add(prefabViewModel);
-                    this.activeApplication.AddPrefab(prefabViewModel);
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.activeApplication.Model);
+                    this.ActiveApplication.AddPrefab(prefabViewModel);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                 }
             }
             catch (Exception ex)

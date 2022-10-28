@@ -20,7 +20,7 @@
     <iconPacks:PackIconOcticons x:Key="IconInfo" Kind="Info"  x:Shared="false" />
     <iconPacks:Modern x:Key="GithubOctoCat" Kind="SocialGithubOctocat" Width="20" Height="20" />
     <iconPacks:Modern x:Key="Settings" Kind="Settings" Width="19" Height="19" />
-    
+    <iconPacks:Modern x:Key="ApplicationIcon" Kind="App" Width="26" Height="26" />
 
     <Style  x:Key="LinkButton"  TargetType="Button">
         <Setter Property="Template">
