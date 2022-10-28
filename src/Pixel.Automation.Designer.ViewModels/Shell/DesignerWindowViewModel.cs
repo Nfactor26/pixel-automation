@@ -187,25 +187,6 @@ namespace Pixel.Automation.Designer.ViewModels
             await activeItem.EditScriptAsync();
         }
 
-        public bool CanManageProjectVersion
-        {
-            get
-            {
-                return this.ActiveItem is IEditor;
-            }
-
-        }
-
-        public async Task ManageProjectVersionAsync()
-        {
-            var activeItem = this.ActiveItem as IEditor;
-            if (activeItem != null)
-            {
-                await activeItem.ManageProjectVersionAsync();
-            }
-        }
-
-
         public bool CanManagePrefabReferences
         {
             get
@@ -274,8 +255,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanEditDataModel);
                 NotifyOfPropertyChange(() => CanEditScript);
                 NotifyOfPropertyChange(() => CanSave);
-                NotifyOfPropertyChange(() => CanSaveAll);
-                NotifyOfPropertyChange(() => CanManageProjectVersion);
+                NotifyOfPropertyChange(() => CanSaveAll);                
                 NotifyOfPropertyChange(() => CanManagePrefabReferences);
                 NotifyOfPropertyChange(() => CanManageControlReferences);
                 NotifyOfPropertyChange(() => CanManageAssemblyReferences);

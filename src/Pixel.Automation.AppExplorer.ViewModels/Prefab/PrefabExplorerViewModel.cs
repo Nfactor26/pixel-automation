@@ -4,6 +4,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
@@ -15,7 +16,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
     /// <summary>
     /// PrefabExplorer allows creating prefabs which are reusable components for a given application.
     /// </summary>
-    public class PrefabExplorerViewModel : Screen, IApplicationAware
+    public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<EditorClosedNotification<PrefabProject>>
     {
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly IWindowManager windowManager;
@@ -37,6 +38,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             this.DisplayName = "Prefab Explorer";
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
+            this.eventAggregator.SubscribeOnPublishedThread(this);
             this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager).NotNull().Value;
             this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
@@ -97,22 +99,32 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-       
+        private readonly object locker = new();
         /// <summary>
         /// Open Prefab process for editing in process designer
         /// </summary>
         /// <param name="prefabToEdit"></param>
-        public void EditPrefab(PrefabProjectViewModel prefabToEdit)
+        public async Task EditPrefab(PrefabProjectViewModel prefabToEdit)
         {
             try
             {
-                var editorFactory = IoC.Get<IEditorFactory>();              
-                var prefabEditor = editorFactory.CreatePrefabEditor();              
-                prefabEditor.DoLoad(prefabToEdit.PrefabProject);               
-                this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });               
+                lock (locker)
+                {
+                    if (prefabToEdit.IsOpenInEditor)
+                    {
+                        logger.Information($"Project {prefabToEdit.PrefabName} is already open.");
+                        return;
+                    }                   
+                    prefabToEdit.IsOpenInEditor = true;
+                }
+                var editorFactory = IoC.Get<IEditorFactory>();
+                var prefabEditor = editorFactory.CreatePrefabEditor();
+                prefabEditor.DoLoad(prefabToEdit.PrefabProject);
+                await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });                
             }
             catch (Exception ex)
             {
+                prefabToEdit.IsOpenInEditor = false;
                 logger.Error(ex, ex.Message);
             }
         }
@@ -178,6 +190,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {
                 return (a as PrefabProjectViewModel).PrefabName.ToLower().Contains(this.filterText.ToLower());
             });
+        }
+
+        /// <summary>
+        /// Notificaton handler for <see cref="EditorClosedNotification"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(EditorClosedNotification<PrefabProject> message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var project = this.Prefabs.FirstOrDefault(a => a.PrefabId.Equals(message.Project.PrefabId));
+                if (project != null)
+                {
+                    project.IsOpenInEditor = false;                   
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+            await Task.CompletedTask;
         }
 
         #endregion Filter      

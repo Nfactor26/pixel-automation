@@ -1,14 +1,13 @@
 ﻿using Dawn;
-using Pixel.Automation.Core.Models;
 
 namespace Pixel.Automation.Editor.Notifications;
 
-public class EditorClosedNotification
+public class EditorClosedNotification<T> where T: class
 {
-    public AutomationProject AutomationProject { get; }
+    public T Project { get; }
 
-    public EditorClosedNotification(AutomationProject automationProject)
+    public EditorClosedNotification(T project)
     {
-        this.AutomationProject = Guard.Argument(automationProject).NotNull();            
+        this.Project = Guard.Argument(project).NotNull();            
     }
 }

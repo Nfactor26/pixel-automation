@@ -57,6 +57,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => this.prefabProject.PublishedVersions; 
         }
 
+        private bool isOpenInEditor;
+        /// <summary>
+        /// Indicate if the project is open in editor
+        /// </summary>
+        public bool IsOpenInEditor
+        {
+            get => this.isOpenInEditor;
+            set
+            {
+                this.isOpenInEditor = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         public PrefabProjectViewModel(PrefabProject prefabProject)
         {
             this.prefabProject = Guard.Argument(prefabProject).NotNull();

@@ -89,34 +89,15 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async Task DoSave()
         {
             await projectManager.Save();           
-        }
-
-        public async override Task ManageProjectVersionAsync()
-        {
-            await DoSave();
-
-            var versionManager = this.versionManagerFactory.CreatePrefabVersionManager(this.PrefabProject);          
-            var result  = await this.windowManager.ShowDialogAsync(versionManager);
-            if(result.HasValue && result.Value)
-            {
-                var fileSystem = this.projectManager.GetProjectFileSystem() as IVersionedFileSystem;
-                fileSystem.SwitchToVersion(this.PrefabProject.LatestActiveVersion);
-
-                //This will update Code editor and script editor to point to the new workspace directory
-                //This will update Code editor and script editor to point to the new workspace directory
-                var codeEditorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-                codeEditorFactory.SwitchWorkingDirectory(fileSystem.DataModelDirectory);
-                var scriptEditorFactory = this.EntityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.SwitchWorkingDirectory(fileSystem.WorkingDirectory);
-            }         
-        }
+        }      
 
         #endregion Save project
 
         protected override async Task CloseAsync()
         {
             this.Dispose();         
-            await this.TryCloseAsync(true);        
+            await this.TryCloseAsync(true);
+            await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<PrefabProject>(this.PrefabProject));
         }
 
         protected override void Dispose(bool isDisposing)

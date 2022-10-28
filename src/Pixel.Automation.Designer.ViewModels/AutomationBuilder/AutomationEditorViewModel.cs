@@ -235,27 +235,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Error(ex, ex.Message);
             }
         }
-
-        /// <inheritdoc/>  
-        public async override Task ManageProjectVersionAsync()
-        {
-            try
-            {
-                await DoSave();
-                var versionManager = this.versionManagerFactory.CreateProjectVersionManager(this.CurrentProject);
-                var result = await this.windowManager.ShowDialogAsync(versionManager);
-                if (result.HasValue && result.Value)
-                {                   
-                    await CloseAsync();
-                    MessageBox.Show($"Project \"{this.CurrentProject.Name}\" is closed now. Please open the new version.", "New Version Created");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-            }
-        }
-
+      
         /// <inheritdoc/>  
         public async Task ManagePrefabReferencesAsync()
         {
@@ -305,7 +285,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, true);
             await this.testDataRepositoryHost.DeactivateItemAsync(this.testDataRepository, true);              
-            await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification(this.CurrentProject));
+            await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<AutomationProject>(this.CurrentProject));
             await this.TryCloseAsync(true);
            
             this.Dispose();

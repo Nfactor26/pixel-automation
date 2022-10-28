@@ -5,8 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:core="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
-             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"
+             xmlns:core="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"           
              xmlns:cal="http://www.caliburnproject.org" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
@@ -38,8 +37,8 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>                
-            </Style>            
-       
+            </Style>
+            
             <Style TargetType="{x:Type ListBoxItem}" x:Key="ProjectItemStyle">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -51,14 +50,21 @@
                                     <ComboBox x:Name="EditableVersions" FontSize="12" BorderThickness="0,0,0,0"
                                                   VerticalAlignment="Center" DockPanel.Dock="Left" Margin="12,2,0,0"
                                                   ToolTip="Select version to open"
-                                                  ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion}"/>
-                                    <Button x:Name="OpenProject" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                                  ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion}"/>                                    
+                                    <Button x:Name="OpenProject" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,0,0" 
                                                 DockPanel.Dock="Right" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource inverseBooleanConverter}}"
                                                 Height="20" Width="20" ToolTip="Open selected version of project"                                 
                                                 Style="{StaticResource EditControlButtonStyle}" Visibility="Hidden"
                                                 cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
                                                 cal:Message.Attach="[Event Click] = [Action OpenProject($dataContext)]"
                                                 Content="{iconPacks:FontAwesome Kind=EditRegular}"/>
+                                    <Button x:Name="ManageVersion" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                                DockPanel.Dock="Right" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource inverseBooleanConverter}}"
+                                                Height="20" Width="20" ToolTip="Manage available versions of project."                                 
+                                                Style="{StaticResource EditControlButtonStyle}" Visibility="Hidden"
+                                                cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
+                                                cal:Message.Attach="[Event Click] = [Action ManageProjectVersionAsync($dataContext)]"
+                                                Content="{iconPacks:FontAwesome Kind=CogSolid}"/>
                                 </DockPanel>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -66,11 +72,13 @@
                                     <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
                                     <Setter TargetName="EditableVersions" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
                                     <Setter TargetName="OpenProject" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="ManageVersion" Property="Visibility" Value="Visible"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Highlight}"/>
                                     <Setter TargetName="EditableVersions" Property="Foreground" Value="{DynamicResource MahApps.Brushes.Highlight}"/>
                                     <Setter TargetName="OpenProject" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="ManageVersion" Property="Visibility" Value="Visible"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
