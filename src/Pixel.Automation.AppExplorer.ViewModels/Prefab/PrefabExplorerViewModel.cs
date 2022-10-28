@@ -117,10 +117,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     }                   
                     prefabToEdit.IsOpenInEditor = true;
                 }
-                var editorFactory = IoC.Get<IEditorFactory>();
-                var prefabEditor = editorFactory.CreatePrefabEditor();
-                prefabEditor.DoLoad(prefabToEdit.PrefabProject);
-                await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });                
+
+                var versionPicker = new PrefabVersionPickerViewModel(prefabToEdit.PrefabProject);
+                var result = await windowManager.ShowDialogAsync(versionPicker);
+                if (result.HasValue && result.Value)
+                {
+                    var versionToEdit = versionPicker.SelectedVersion;
+                    var editorFactory = IoC.Get<IEditorFactory>();
+                    var prefabEditor = editorFactory.CreatePrefabEditor();
+                    prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
+                    await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
+                }
+                else
+                {
+                    prefabToEdit.IsOpenInEditor = false;
+                }
             }
             catch (Exception ex)
             {
