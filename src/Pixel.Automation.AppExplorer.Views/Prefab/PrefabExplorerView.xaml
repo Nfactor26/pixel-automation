@@ -11,23 +11,6 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
 
-
-        <Style x:Key="BackButton" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <Rectangle Fill="{DynamicResource MahApps.Brushes.Accent}" Width="28" Height="28">
-                                <Rectangle.OpacityMask>
-                                    <VisualBrush Visual="{iconPacks:FontAwesome Kind=ArrowAltCircleLeftRegular}" Stretch="Fill" />
-                                </Rectangle.OpacityMask>
-                            </Rectangle>
-                        </StackPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style x:Key="PrefabLabel" TargetType="{x:Type TextBox}">
             <Setter Property="IsReadOnly" Value="True"></Setter>
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
@@ -105,10 +88,11 @@
                         <ContextMenu.Template>
                             <ControlTemplate>
                                 <StackPanel>
-                                    <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditPrefab($dataContext)]" ></MenuItem>
+                                    <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditPrefab($dataContext)]"></MenuItem>
                                     <MenuItem x:Name="Manage" Header="Manage" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource InverseBoolConverter}}"
-                                              cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ManagePrefab($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="ShowUsage" Header="Show Usage" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ShowUsage($dataContext)]" ></MenuItem>
+                                              cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ManagePrefab($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="ShowUsage" Header="Show Usage" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ShowUsage($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="MoveToScreen" Header="Move To Screen" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action MoveToScreen($dataContext)]"></MenuItem>
                                 </StackPanel>
                             </ControlTemplate>
                         </ContextMenu.Template>
@@ -138,23 +122,47 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-
-        <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <StackPanel DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
+        <DockPanel Grid.Row="0">
+            <!-- SearchBox and Back button on left-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
+                <StackPanel x:Name="ApplicationIcon" DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
                             Background="{DynamicResource MahApps.Brushes.Control.Background}" ToolTip="{Binding ApplicationName}" >
-                <ContentControl x:Name="ApplicationIcon"  Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
+                    <ContentControl Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
                                 Margin="2" Width="28" Height="28" Content="{StaticResource ApplicationIcon}" IsHitTestVisible="False">
-                </ContentControl>
-            </StackPanel>
-            <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
+                    </ContentControl>
+                </StackPanel>
+
+                <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
                              controls:TextBoxHelper.UseFloatingWatermark="False"                     
                              controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
                                  Width="250"/>
-            <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-            <Button x:Name="BackButton" HorizontalAlignment="Right" cal:Message.Attach="[Event Click] = [Action GoBack()]"  Margin="0,0,10,0" Style="{StaticResource BackButton}">
-            </Button>
-        </StackPanel>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="BackButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                                            Height="28" Width="28" ToolTip="Go back to application view"                                                                                      
+                                            cal:Message.Attach="[Event Click] = [Action GoBack()]"
+                                            Style="{StaticResource BackButton}"/>             
+              
+            </StackPanel>
+            <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
+            <!-- Screen management on right-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
+                <ComboBox x:Name="Screens" ItemsSource="{Binding ScreenCollection.Screens}" SelectedItem="{Binding ScreenCollection.SelectedScreen}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="AddScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                                            Height="28" Width="28" ToolTip="Create a new application screen"                                                                                    
+                                            cal:Message.Attach="[Event Click] = [Action CreateScreen(ApplicationIcon.DataContext)]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material PlusCircleOutline, Width=24, Height=24}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="RenameScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                                            Height="26" Width="26" ToolTip="Create a new application screen"                                                                                    
+                                            cal:Message.Attach="[Event Click] = [Action RenameScreen(ApplicationIcon.DataContext, Screens.SelectedItem)]"
+                                            Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:FontAwesome PencilAltSolid, Width=24, Height=24}"/>
+            </StackPanel>
 
+        </DockPanel>
+      
         <ListBox  x:Name="Prefabs" Grid.Row="1" SelectedItem="{Binding SelectedPrefab}"
                           ItemTemplate="{StaticResource PrefabItemTemplate}"
                           ItemContainerStyle="{StaticResource PrefabListBoxItem}"

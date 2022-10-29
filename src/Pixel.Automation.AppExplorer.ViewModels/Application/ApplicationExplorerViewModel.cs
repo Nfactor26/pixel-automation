@@ -153,7 +153,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             Guard.Argument(applicationDescriptionViewModel).NotNull();
 
-            IsApplicationOpen = true;
+            IsApplicationOpen = true;          
             foreach (var childView in ChildViews)
             {
                 childView.SetActiveApplication(applicationDescriptionViewModel);
@@ -189,6 +189,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             ApplicationDescription newApplication = new ApplicationDescription(application);
             var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
             applicationDescriptionViewModel.AddScreen("Home");
+            applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
             if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
             {
                 applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
@@ -218,7 +219,55 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             this.Applications.Add(applicationDescriptionViewModel);
         }
 
+        /// <summary>
+        /// Create a new screen for the application. Screens are used to group application controls.
+        /// </summary>
+        /// <returns></returns>
+        public async Task CreateScreen(ApplicationDescriptionViewModel applicationDescription)
+        {
+            try
+            {
+                var applicationScreenViewModel = new ApplicationScreenViewModel(applicationDescription);
+                var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
+                if (result.GetValueOrDefault())
+                {
+                    applicationDescription.ScreenCollection.RefreshScreens();
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
+                    logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while creating new screen");
+            }
+        }
 
+        /// <summary> 
+        /// Rename screen to a new value
+        /// </summary>
+        /// <param name="selectedScreen"></param>
+        /// <returns></returns>
+        public async Task RenameScreen(ApplicationDescriptionViewModel applicationDescription, string screenName)
+        {
+            try
+            {
+                var renameScreenViewModel = new RenameScreenViewModel(applicationDescription, screenName);
+                var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
+                if (result.GetValueOrDefault())
+                {
+                    applicationDescription.ScreenCollection.RefreshScreens();
+                    applicationDescription.ScreenCollection.SetActiveScreen(renameScreenViewModel.NewScreenName);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);                  
+                    logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, applicationDescription.ApplicationName);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while renaming the screen");
+            }
+        }
+
+        /// <summary>
 
         private void InitializeKnownApplications()
         {

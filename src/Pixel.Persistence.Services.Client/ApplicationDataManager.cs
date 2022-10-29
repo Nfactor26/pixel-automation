@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client
 {
@@ -471,10 +472,7 @@ namespace Pixel.Persistence.Services.Client
 
         private readonly Dictionary<string, List<PrefabProject>> prefabsCache = new ();
 
-        /// <summary>
-        /// Get all the applications available on disk
-        /// </summary>
-        /// <returns></returns>
+        ///<inheritdoc/>
         public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
         {
             if(!prefabsCache.ContainsKey(applicationId))
@@ -484,12 +482,33 @@ namespace Pixel.Persistence.Services.Client
             return prefabsCache[applicationId];
         }
 
+
+        ///<inheritdoc/>
+        public IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName)
+        {
+            if (applicationDescription.AvailablePrefabs.ContainsKey(screenName))
+            {
+                var prefabs = GetAllPrefabs(applicationDescription.ApplicationId);              
+                foreach (var prefabId in applicationDescription.AvailablePrefabs[screenName])
+                {
+                    var prefab = prefabs.FirstOrDefault(p => p.PrefabId.Equals(prefabId));
+                    if(prefab != null)
+                    {
+                        yield return prefab;
+                    }
+                }
+            }
+            yield break;
+        }
+
+        ///<inheritdoc/>
         public PrefabProject GetPrefab(string applicationId, string prefabId)
         {           
            var prefab = GetAllPrefabs(applicationId).FirstOrDefault(p => p.PrefabId.Equals(prefabId));
            return prefab ?? throw new ArgumentException($"No Prefab exists with applicationId {applicationId} and prefabId {prefabId}");
         }
 
+        ///<inheritdoc/>
         public async Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             if (IsOnlineMode)
@@ -513,6 +532,7 @@ namespace Pixel.Persistence.Services.Client
             }         
         }
 
+        ///<inheritdoc/>
         public async Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
         {
             Guard.Argument(prefabProject).NotNull();
@@ -537,6 +557,7 @@ namespace Pixel.Persistence.Services.Client
             }
         }
 
+        ///<inheritdoc/>
         public async Task DownloadPrefabFileAsync(string applicationId, string prefabId)
         {
             if (IsOnlineMode)
@@ -551,7 +572,8 @@ namespace Pixel.Persistence.Services.Client
                 this.serializer.Serialize<PrefabProject>(prefabProjectFile, prefabProject);
             }         
         }
-       
+
+        ///<inheritdoc/>
         public async Task DownloadPrefabDataAsync(PrefabProject prefabProject, string version)
         {
             if (IsOnlineMode)

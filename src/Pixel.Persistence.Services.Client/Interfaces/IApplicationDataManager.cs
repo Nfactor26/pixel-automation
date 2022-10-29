@@ -116,6 +116,14 @@ namespace Pixel.Persistence.Services.Client
         IEnumerable<PrefabProject> GetAllPrefabs(string applicationId);
 
         /// <summary>
+        /// Load all the prefab projects for a given screen of an application.
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <param name="screenName"></param>
+        /// <returns></returns>
+        IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName);
+
+        /// <summary>
         /// Find and load PrefabProject from local storage
         /// </summary>
         /// <param name="applicationId">applicationId of the prefab</param>

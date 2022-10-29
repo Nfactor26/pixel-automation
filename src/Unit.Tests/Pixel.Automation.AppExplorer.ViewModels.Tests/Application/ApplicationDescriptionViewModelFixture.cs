@@ -24,11 +24,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             {
                 ApplicationName = "NotePad",
                 ApplicationDetails = applicationDetails
-            };           
+            };
         }
 
         [Test]
-        public void ValidateThatApplicatoinDescriptionViewModelCanBeCorrectlyInitialized()
+        public void ValidateThatApplicationDescriptionViewModelCanBeCorrectlyInitialized()
         {
             var applicationDescription = CreateApplicationDescription();
             var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(applicationDescription)
@@ -55,13 +55,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             {
                 ApplicationType = "WinApplication"
             };
+            applicationDescriptionViewModel.AddScreen("Home");
 
             var control = new Control.ControlDescriptionViewModel(new ControlDescription());
             applicationDescriptionViewModel.AddControl(control, "Home");
                     
             Assert.AreEqual(1, applicationDescriptionViewModel.AvailableControls["Home"].Count);           
             Assert.AreEqual(1, applicationDescriptionViewModel.ControlsCollection.Count);
-            Assert.AreEqual(1, applicationDescriptionViewModel.ScreensCollection.Count());
+            Assert.AreEqual(1, applicationDescriptionViewModel.ScreenCollection.Screens.Count());
 
             applicationDescriptionViewModel.DeleteControl(control, "Home");
 
@@ -69,7 +70,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             Assert.AreEqual(0, applicationDescriptionViewModel.ControlsCollection.Count);
 
             applicationDescriptionViewModel.DeleteScreen("Home");
-            Assert.AreEqual(0, applicationDescriptionViewModel.ScreensCollection.Count());
+            Assert.AreEqual(0, applicationDescriptionViewModel.ScreenCollection.Screens.Count());
 
         }
 
@@ -81,17 +82,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             {
                 ApplicationType = "WinApplication"
             };
+            applicationDescriptionViewModel.AddScreen("Home");
 
             var prefab = new PrefabProject() { ApplicationId = "application-id", PrefabId = "prefab-id" };
             var prefabViewModel = new PrefabProjectViewModel(prefab);
-            applicationDescriptionViewModel.AddPrefab(prefabViewModel);
+            applicationDescriptionViewModel.AddPrefab(prefabViewModel, "Home");
 
-            Assert.AreEqual(1, applicationDescriptionViewModel.AvailablePrefabs.Count);           
+            Assert.AreEqual(1, applicationDescriptionViewModel.AvailablePrefabs.Count);
+            Assert.AreEqual(1, applicationDescriptionViewModel.AvailablePrefabs["Home"].Count);
             Assert.AreEqual(1, applicationDescriptionViewModel.PrefabsCollection.Count);
 
-            applicationDescriptionViewModel.DeletePrefab(prefabViewModel);
+            applicationDescriptionViewModel.DeletePrefab(prefabViewModel, "Home");
 
-            Assert.AreEqual(0, applicationDescriptionViewModel.AvailablePrefabs.Count);
+            Assert.AreEqual(1, applicationDescriptionViewModel.AvailablePrefabs.Count);
+            Assert.AreEqual(0, applicationDescriptionViewModel.AvailablePrefabs["Home"].Count);
             Assert.AreEqual(0, applicationDescriptionViewModel.PrefabsCollection.Count);
         }
     }

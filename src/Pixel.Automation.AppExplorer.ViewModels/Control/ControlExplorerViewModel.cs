@@ -42,27 +42,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
-
-        public BindableCollection<string> Screens { get; set; } = new BindableCollection<string>();
-
-        private string selectedScreen;
-        public string SelectedScreen
-        {
-            get => selectedScreen;
-            set
-            {
-                selectedScreen = value;
-                NotifyOfPropertyChange(() => SelectedScreen);
-                var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, value);
-                this.Controls.Clear();
-                this.Controls.AddRange(controlsForSelectedScreen);
-            }
-        }
+        public ApplicationScreenCollection ScreenCollection { get; private set; }      
 
         /// <summary>
         /// Controls belonging to the active application
         /// </summary>
-        public BindableCollection<ControlDescriptionViewModel> Controls { get; set; } = new BindableCollection<ControlDescriptionViewModel>();
+        public BindableCollection<ControlDescriptionViewModel> Controls { get; set; } = new();
 
         private ControlDescriptionViewModel selectedControl;
         /// <summary>
@@ -210,14 +195,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="applicationDescriptionViewModel"></param>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            this.ActiveApplication = applicationDescriptionViewModel;
-            this.Controls.Clear();
-            this.Screens.Clear();
-            if (applicationDescriptionViewModel != null)
-            {                            
-                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);
-                this.SelectedScreen = this.Screens.First();               
+            if(this.ScreenCollection != null)
+            {
+                this.ScreenCollection.ScreenChanged -= OnScreenChanged;
             }
+            this.ActiveApplication = applicationDescriptionViewModel;
+            this.ScreenCollection = applicationDescriptionViewModel?.ScreenCollection;            
+            this.Controls.Clear();
+            if(this.ScreenCollection != null)
+            {
+                this.ScreenCollection.ScreenChanged += OnScreenChanged;
+                OnScreenChanged(this, this.ScreenCollection.SelectedScreen);
+            }
+            NotifyOfPropertyChange(nameof(this.ScreenCollection));
+        }
+
+        private void OnScreenChanged(object sender, string selectedScreen)
+        {
+            if(!string.IsNullOrEmpty(selectedScreen))
+            {
+                var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
+                this.Controls.Clear();
+                this.Controls.AddRange(controlsForSelectedScreen);
+            }           
         }
 
         private IEnumerable<ControlDescriptionViewModel> LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
@@ -251,59 +251,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }          
             return controlsList;
         }
-
-        /// <summary>
-        /// Create a new screen for the application. Screens are used to group application controls.
-        /// </summary>
-        /// <returns></returns>
-        public async Task CreateScreen()
-        {
-            var applicationScreenViewModel = new ApplicationScreenViewModel(this.ActiveApplication);
-            var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
-            if (result.GetValueOrDefault())
-            {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
-                var lastSelectedScreen = this.selectedScreen;
-                this.Screens.Clear();
-                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);
-                this.SelectedScreen = lastSelectedScreen;
-                logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, this.ActiveApplication.ApplicationName);
-            }
-        }
-
-        /// <summary>
-        /// Rename screen to a new value
-        /// </summary>
-        /// <param name="selectedScreen"></param>
-        /// <returns></returns>
-        public async Task RenameScreen()
-        {
-            var renameScreenViewModel = new RenameScreenViewModel(this.ActiveApplication, this.selectedScreen);
-            var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
-            if (result.GetValueOrDefault())
-            {
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);               
-                this.Screens.Clear();
-                this.Screens.AddRange(this.ActiveApplication.ScreensCollection);           
-                this.SelectedScreen = renameScreenViewModel.NewScreenName;
-                logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, this.ActiveApplication.ApplicationName);
-            }
-        }
-
-        /// <summary>
+       
         /// Move a control from one screen to another
         /// </summary>
         /// <param name="controlDescription"></param>
         /// <returns></returns>
         public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
         {
-            var moveToScreenViewModel = new MoveToScreenViewModel(this.ActiveApplication, controlDescription, this.selectedScreen, this.Screens);
+            var moveToScreenViewModel = new MoveToScreenViewModel(controlDescription.ControlName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
             var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
             if (result.GetValueOrDefault())
             {
+                this.ActiveApplication.MoveControlToScreen(controlDescription, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
                 await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                 this.Controls.Remove(controlDescription);
-                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.selectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
             }
         }
 
@@ -427,7 +389,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
             lock (locker)
             {
-                this.ActiveApplication.AddControl(controlToSave, this.SelectedScreen);
+                this.ActiveApplication.AddControl(controlToSave, this.ScreenCollection.SelectedScreen);
             }
             if (updateApplication)
             {

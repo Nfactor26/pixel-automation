@@ -43,16 +43,22 @@ namespace Pixel.Automation.Core.Models
         public IApplication ApplicationDetails { get; set; }
 
         /// <summary>
-        /// Control identifier collection for a given application screen
+        /// Screens for the application. Screens are used to group control and prefabs.
         /// </summary>
         [DataMember(Order = 30)]
-        public Dictionary<string, List<string>> AvailableControls { get; private set; } = new ();
+        public List<string> Screens { get; private set; } = new();
+
+        /// <summary>
+        /// Control identifier collection for a given application screen
+        /// </summary>
+        [DataMember(Order = 40)]
+        public Dictionary<string, List<string>> AvailableControls { get; private set; } = new();
 
         /// <summary>
         /// Identifier of the prefabs belonging to this application
         /// </summary>
-        [DataMember(Order = 40)]
-        public List<string> AvailablePrefabs { get; private set; } = new List<string>();
+        [DataMember(Order = 50)]
+        public Dictionary<string, List<string>> AvailablePrefabs { get; private set; } = new();
 
         /// <summary>
         /// constructor

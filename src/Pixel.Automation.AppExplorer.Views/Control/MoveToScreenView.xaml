@@ -24,9 +24,9 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="0">
-            <Label Content="Control" MinWidth="80" DockPanel.Dock="Left" ></Label>
+            <Label Content="Name" MinWidth="80" DockPanel.Dock="Left" ></Label>
             <TextBlock DockPanel.Dock="Right" Margin="{StaticResource ControlMargin}"
-                         Text="{Binding ControlName, Mode=OneWay}" VerticalAlignment="Top"
+                         Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Top"
                          Controls:TextBoxHelper.Watermark="Control Name"
                          Controls:TextBoxHelper.UseFloatingWatermark="True"                                                   
                          ToolTip="Name of Prefab" />

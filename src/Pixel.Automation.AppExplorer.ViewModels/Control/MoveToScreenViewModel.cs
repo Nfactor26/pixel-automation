@@ -1,23 +1,24 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.Editor.Core;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Control
 {
-    public class MoveToScreenViewModel : SmartScreen
-    {
-        private readonly ApplicationDescriptionViewModel applicationDescription;
-        private readonly ControlDescriptionViewModel controlDescription;
-        private readonly string currentScreen;
-      
+    /// <summary>
+    /// Allow users to pick a new screen name for control or prefab
+    /// </summary>
+    public class MoveToScreenViewModel : SmartScreen 
+    {    
+        /// <summary>
+        /// Available screen names
+        /// </summary>
         public BindableCollection<string> Screens { get; private set; } = new ();
 
         private string selectedScreen;
 
+        /// <summary>
+        /// Selected screen name
+        /// </summary>
         public string SelectedScreen
         {
             get => this.selectedScreen;
@@ -30,35 +31,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
-        public string ControlName { get; private set; }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="applicationDescription"></param>
-        /// <param name="controlDescription"></param>
-        /// <param name="screens"></param>
-        public MoveToScreenViewModel(ApplicationDescriptionViewModel applicationDescription, ControlDescriptionViewModel controlDescription,
-            string currentScreen, IEnumerable<string> screens)
-        {
-            this.DisplayName = "Move Control To Screen";
-            this.applicationDescription = Guard.Argument(applicationDescription).NotNull();
-            this.controlDescription = Guard.Argument(controlDescription).NotNull();
-            this.currentScreen = Guard.Argument(currentScreen).NotNull().NotEmpty();
-            Guard.Argument(screens).NotNull();
-            this.Screens.AddRange(screens.Except(new[] { currentScreen }));
-            this.SelectedScreen = this.Screens.FirstOrDefault();
-            this.ControlName = controlDescription.ControlName;
-        }
-
-        public async Task MoveToScreen()
-        {
-            if (this.CanMoveToScreen)
-            {          
-                this.applicationDescription.MoveControlToScreen(controlDescription, currentScreen, SelectedScreen);
-                await this.TryCloseAsync(true);
-            }
-        }
+        public string Name { get; private set; }
 
         public bool CanMoveToScreen
         {
@@ -68,12 +41,43 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
         }
 
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="screens"></param>
+        public MoveToScreenViewModel(string name, IEnumerable<string> screens, string currentScreen)
+        {
+            this.DisplayName = "Move To Screen";         
+            Guard.Argument(screens, nameof(screens)).NotNull();
+            this.Screens.AddRange(screens.Except(new[] { currentScreen }));
+            this.SelectedScreen = this.Screens.FirstOrDefault();
+            this.Name = Guard.Argument(name, nameof(name)).NotNull().NotEmpty();
+        }
+
+       
         private void ValidateScreenName(string screenName)
         {
             ClearErrors(nameof(SelectedScreen));
             ValidateRequiredProperty(nameof(SelectedScreen), screenName);           
         }
 
+        /// <summary>
+        /// Close the dialog with true result
+        /// </summary>
+        /// <returns></returns>
+        public async Task MoveToScreen()
+        {
+            if (this.CanMoveToScreen)
+            {
+                await this.TryCloseAsync(true);
+            }
+        }
+
+        /// <summary>
+        /// Close the dialog with false result
+        /// </summary>
         public async void Cancel()
         {
             await this.TryCloseAsync(false);

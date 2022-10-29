@@ -60,7 +60,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         private bool IsNameAvailable(string screenName)
         {
-            return !this.applicationDescriptionViewModel.ScreensCollection.Any(a => a.Equals(screenName));
+            return !this.applicationDescriptionViewModel.ScreenCollection.Screens.Any(a => a.Equals(screenName));
         }
 
         public async void Cancel()
