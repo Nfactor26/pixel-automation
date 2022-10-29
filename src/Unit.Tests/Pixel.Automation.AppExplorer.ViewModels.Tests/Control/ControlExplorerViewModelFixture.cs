@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using NSubstitute;
 using NUnit.Framework;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
@@ -72,7 +73,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToRename = controlExplorer.Controls.First();
 
             controlExplorer.SelectedControl = controlToRename;
@@ -90,8 +91,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public void ValidateThatControlsAreLoadedWhenApplicationIsActivated()
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
-            var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            var applicationDescription = CreateApplicationDescription();           
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
             Assert.AreEqual(1, controlExplorer.Controls.Count);
             Assert.AreEqual(1, applicationDescription.AvailableControls.Count);
@@ -115,7 +116,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToConfigure = controlExplorer.Controls.First();
 
             await controlExplorer.ConfigureControlAsync(controlToConfigure);           
@@ -137,8 +138,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public async Task ValidateThatPropertyGridDisplayControlDetailsToBeEditedWhenEditOptionIsSelected()
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
-            var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            var applicationDescription = CreateApplicationDescription();           
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
       
             await controlExplorer.EditControlAsync(controlToEdit);
@@ -155,7 +156,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
 
             await controlExplorer.CloneControl(controlToEdit);
@@ -176,7 +177,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
             using (var bitMap = Bitmap.FromFile("Resources\\Image.Png"))
             {
@@ -211,7 +212,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             var controlExplorer = new ControlExplorerViewModel(windowManager, eventAggregator, controlEditorFactory, applicationDataManager);
             var applicationDescription = CreateApplicationDescription();
-            controlExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
 
             await controlExplorer.SaveControlDetails(controlToEdit, true);
@@ -238,6 +239,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             return controlDescription;
         }
 
+        ApplicationDescriptionViewModel CreateApplicationDescriptionViewModel(ApplicationDescription applicationDescription)
+        {
+            var viewModel = new ApplicationDescriptionViewModel(applicationDescription);
+            viewModel.AddScreen("Home");
+            viewModel.ScreenCollection.SetActiveScreen("Home");
+            return viewModel;
+        }
+
         ApplicationDescription CreateApplicationDescription()
         {
             IApplication applicationDetails = Substitute.For<IApplication>();
@@ -247,9 +256,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             {
                 ApplicationName = "NotePad",
                 ApplicationDetails = applicationDetails
-            };
-            var controls = applicationDataManager.GetControlsForScreen(applicationDescription, "Home");
-            applicationDescription.AvailableControls.Add("Home", new System.Collections.Generic.List<string>(controls.Select(s => s.ControlId)));
+            };           
             return applicationDescription;
         }        
     }

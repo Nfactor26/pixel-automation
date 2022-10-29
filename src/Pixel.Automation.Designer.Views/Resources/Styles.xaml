@@ -41,6 +41,23 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Used on Control and Prefab exlorer -->
+    <Style x:Key="BackButton" TargetType="Button">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="{DynamicResource MahApps.Brushes.Accent}" Width="28" Height="28">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush Visual="{iconPacks:FontAwesome Kind=ArrowAltCircleLeftRegular}" Stretch="Fill" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="EditControlButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.Circle}">
         <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
         <Setter Property="Width" Value="20"></Setter>

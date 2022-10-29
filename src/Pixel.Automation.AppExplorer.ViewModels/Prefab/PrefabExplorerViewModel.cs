@@ -2,6 +2,7 @@
 using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
@@ -36,6 +37,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
+        public ApplicationScreenCollection ScreenCollection { get; private set; }
+    
         public BindableCollection<PrefabProjectViewModel> Prefabs { get; set; } = new ();
       
         public PrefabProjectViewModel SelectedPrefab { get; set; }
@@ -59,24 +62,79 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <inheritdoc/>
         public void SetActiveApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            this.ActiveApplication = applicationDescriptionViewModel;          
-            this.Prefabs.Clear();
-            if(this.ActiveApplication != null)
+            if (this.ScreenCollection != null)
             {
-                LoadPrefabs(applicationDescriptionViewModel);
-                this.Prefabs.AddRange(this.ActiveApplication.PrefabsCollection);
-            }                     
+                this.ScreenCollection.ScreenChanged -= OnScreenChanged;
+            }
+            this.ActiveApplication = applicationDescriptionViewModel;  
+            this.ScreenCollection = applicationDescriptionViewModel?.ScreenCollection;
+            this.Prefabs.Clear();
+            if (this.ScreenCollection != null)
+            {
+                this.ScreenCollection.ScreenChanged += OnScreenChanged;
+                OnScreenChanged(this, this.ScreenCollection.SelectedScreen);
+            }
+            NotifyOfPropertyChange(nameof(this.ScreenCollection));
         }
 
-        private void LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel)
+        private void OnScreenChanged(object sender, string selectedScreen)
         {
-            if(applicationDescriptionViewModel.PrefabsCollection.Count() == 0)
+            if(!string.IsNullOrEmpty(selectedScreen))
             {
-                foreach(var prefab in applicationDataManager.GetAllPrefabs(applicationDescriptionViewModel.ApplicationId))
+                var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);
+                this.Prefabs.Clear();
+                this.Prefabs.AddRange(prefabsForSelectedScreen);
+            }          
+        }      
+
+        private List<PrefabProjectViewModel> LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
+        {           
+            List<PrefabProjectViewModel> prefabsList = new ();
+            if (applicationDescriptionViewModel.AvailablePrefabs.ContainsKey(screenName))
+            {
+                var prefabIdentifiers = applicationDescriptionViewModel.AvailablePrefabs[screenName];
+                if (prefabIdentifiers.Any() && applicationDescriptionViewModel.PrefabsCollection.Any(a => a.PrefabId.Equals(prefabIdentifiers.First())))
                 {
-                    applicationDescriptionViewModel.AddPrefab(new PrefabProjectViewModel(prefab));
+                    foreach (var prefabId in prefabIdentifiers)
+                    {
+                        var prefabs = applicationDescriptionViewModel.PrefabsCollection.Where(a => a.PrefabId.Equals(prefabId));
+                        if (prefabs.Any())
+                        {
+                            prefabsList.AddRange(prefabs);
+                        }
+                    }
                 }
-            }       
+                else
+                {
+                    var prefabs = this.applicationDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
+                    foreach (var prefab in prefabs)
+                    {
+                        var prefabProjectViewModel = new PrefabProjectViewModel(prefab);
+                        applicationDescriptionViewModel.AddPrefab(prefabProjectViewModel, screenName);
+                        prefabsList.Add(prefabProjectViewModel);
+                    }
+                }
+
+            }
+            return prefabsList;
+        }
+
+
+        /// Move a prefab from one screen to another
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        public async Task MoveToScreen(PrefabProjectViewModel prefabProject)
+        {
+            var moveToScreenViewModel = new MoveToScreenViewModel(prefabProject.PrefabName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
+            var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+            if (result.GetValueOrDefault())
+            {
+                this.ActiveApplication.MovePrefabToScreen(prefabProject, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                this.Prefabs.Remove(prefabProject);
+                logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+            }
         }
 
         /// <summary>
@@ -99,7 +157,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     var createdPrefab = await prefabBuilder.SavePrefabAsync();
                     var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
                     this.Prefabs.Add(prefabViewModel);
-                    this.ActiveApplication.AddPrefab(prefabViewModel);
+                    this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen);
                     await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                 }
             }

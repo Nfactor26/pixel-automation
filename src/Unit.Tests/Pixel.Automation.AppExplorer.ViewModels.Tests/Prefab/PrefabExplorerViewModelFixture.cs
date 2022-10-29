@@ -1,8 +1,10 @@
 ﻿using Caliburn.Micro;
 using NSubstitute;
 using NUnit.Framework;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -33,8 +35,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             prefabBuilderFactory = Substitute.For<IPrefabBuilderFactory>();          
             applicationDataManager = Substitute.For<IApplicationDataManager>();
 
-            var prefab = CreatePrefabProject("prefab-one");
-            applicationDataManager.GetAllPrefabs(Arg.Any<string>()).Returns(new[] { prefab });
+            var prefab = CreatePrefabProject("prefab-one");        
+            applicationDataManager.GetPrefabsForScreen(Arg.Any<ApplicationDescription>(), Arg.Any<string>()).Returns(new[] { prefab });
         }
 
 
@@ -61,14 +63,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, versionManagerFactory, applicationDataManager, prefabBuilderFactory);
             var applicationDescription = CreateApplicationDescription();
-            prefabExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
             Assert.AreEqual(1, prefabExplorer.Prefabs.Count);
             Assert.AreEqual(1, applicationDescription.AvailablePrefabs.Count);
+            Assert.AreEqual(1, applicationDescription.AvailablePrefabs["Home"].Count);
 
             prefabExplorer.SetActiveApplication(null);
             Assert.AreEqual(0, prefabExplorer.Prefabs.Count);
             Assert.AreEqual(1, applicationDescription.AvailablePrefabs.Count);
+            Assert.AreEqual(1, applicationDescription.AvailablePrefabs["Home"].Count);
+
         }
 
 
@@ -84,7 +89,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, versionManagerFactory, applicationDataManager, prefabBuilderFactory);
             var applicationDescription = CreateApplicationDescription();
-            prefabExplorer.SetActiveApplication(new Application.ApplicationDescriptionViewModel(applicationDescription));
+            prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var prefabToManage = prefabExplorer.Prefabs.First();
             
             await prefabExplorer.ManagePrefab(prefabToManage);
@@ -114,16 +119,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             };
         }
 
+        ApplicationDescriptionViewModel CreateApplicationDescriptionViewModel(ApplicationDescription applicationDescription)
+        {
+            var viewModel = new ApplicationDescriptionViewModel(applicationDescription);
+            viewModel.AddScreen("Home");
+            viewModel.ScreenCollection.SetActiveScreen("Home");
+            return viewModel;
+        }
+
         ApplicationDescription CreateApplicationDescription()
         {
             IApplication applicationDetails = Substitute.For<IApplication>();
             applicationDetails.ApplicationName.Returns("NotePad");
             applicationDetails.ApplicationId.Returns("application-id");
-            return new ApplicationDescription(applicationDetails)
+            var applicationDescription = new ApplicationDescription(applicationDetails)
             {
                 ApplicationName = "NotePad",
                 ApplicationDetails = applicationDetails
-            };
+            };           
+            return applicationDescription;
         }
     }
 }

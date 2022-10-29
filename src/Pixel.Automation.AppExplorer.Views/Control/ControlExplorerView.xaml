@@ -69,13 +69,13 @@
                         <ContextMenu.Template>
                             <ControlTemplate>
                                 <StackPanel>
-                                    <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditControlAsync($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="Configure" Header="Configure" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ConfigureControlAsync($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="Clone" Header="Clone" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CloneControl($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="CreateRevision" Header="Create Revision" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CreateRevision($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="ChangeImage" Header="Change Image" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ChangeImageFromExistingAsync($dataContext)]" ></MenuItem>
-                                    <MenuItem x:Name="MoveToScreen" Header="Move To Screen" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action MoveToScreen($dataContext)]" ></MenuItem>
+                                    <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action EditControlAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="Configure" Header="Configure" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ConfigureControlAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="Clone" Header="Clone" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CloneControl($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="CreateRevision" Header="Create Revision" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action CreateRevision($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="ChangeImage" Header="Change Image" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action ChangeImageFromExistingAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="MoveToScreen" Header="Move To Screen" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action MoveToScreen($dataContext)]"></MenuItem>
                                 </StackPanel>
                             </ControlTemplate>
                         </ContextMenu.Template>
@@ -119,9 +119,9 @@
         <DockPanel Grid.Row="0">
             <!-- SearchBox and Back button on left-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
-                <StackPanel DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
+                <StackPanel x:Name="ApplicationIcon" DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
                             Background="{DynamicResource MahApps.Brushes.Control.Background}" ToolTip="{Binding ApplicationName}" >
-                    <ContentControl x:Name="ApplicationIcon"  Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
+                    <ContentControl Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
                                 Margin="2" Width="28" Height="28" Content="{StaticResource ApplicationIcon}" IsHitTestVisible="False">
                     </ContentControl>
                 </StackPanel>
@@ -134,23 +134,22 @@
                 <Button x:Name="BackButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
                                             Height="28" Width="28" ToolTip="Go back to application view"                                                                                      
                                             cal:Message.Attach="[Event Click] = [Action GoBack()]"
-                                            Style="{StaticResource EditControlButtonStyle}"
-                                            Content="{iconPacks:FontAwesome ArrowAltCircleLeftRegular, Width=24, Height=24}"/>
+                                            Style="{StaticResource BackButton}"/>
             </StackPanel>
             <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
             <!-- Screen management on right-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
-                <ComboBox x:Name="Screens" SelectedItem="{Binding SelectedScreen}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <ComboBox x:Name="Screens" ItemsSource="{Binding ScreenCollection.Screens}" SelectedItem="{Binding ScreenCollection.SelectedScreen}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
                 <Button x:Name="AddScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
                                             Height="28" Width="28" ToolTip="Create a new application screen"                                                                                    
-                                            cal:Message.Attach="[Event Click] = [Action CreateScreen()]"
+                                            cal:Message.Attach="[Event Click] = [Action CreateScreen(ApplicationIcon.DataContext)]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:Material PlusCircleOutline, Width=24, Height=24}"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
                 <Button x:Name="RenameScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
                                             Height="26" Width="26" ToolTip="Create a new application screen"                                                                                    
-                                            cal:Message.Attach="[Event Click] = [Action RenameScreen()]"
+                                            cal:Message.Attach="[Event Click] = [Action RenameScreen(ApplicationIcon.DataContext, Screens.SelectedItem)]"
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:FontAwesome PencilAltSolid, Width=24, Height=24}"/>
             </StackPanel>
