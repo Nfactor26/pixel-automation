@@ -66,9 +66,9 @@ namespace Pixel.Persistence.Respository
                     using (var cursor = await bucket.FindAsync(filter, options))
                     {
                         var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-                        if (fileInfo?.Metadata["isDeployed"].AsBoolean ?? false)
+                        if (!(fileInfo?.Metadata["isActive"].AsBoolean ?? true))
                         {
-                            throw new InvalidOperationException($"Version : {project.Version} for project with id : {project.ProjectId} is deployed. Can't update a deployed version");
+                            throw new InvalidOperationException($"Version : {project.Version} for project with id : {project.ProjectId} is not active. Can't update a published version");
                         }
                     }
 
@@ -235,9 +235,8 @@ namespace Pixel.Persistence.Respository
                     //Delete all the revisions that exceed max allowed number of revisions
                     foreach (var fileRevision in fileRevisions.Skip(policy.MaxNumberOfRevisions))
                     {
-                        //don't delete the deployed version as there will be a single
-                        //entry per version with isDeployed = true
-                        if(fileRevision.Metadata["isDeployed"].AsBoolean)
+                        //don't delete the published version as there will be a single entry per version with isActive = false
+                        if(!fileRevision.Metadata["isActive"].AsBoolean)
                         {
                             continue;
                         }
@@ -250,9 +249,8 @@ namespace Pixel.Persistence.Respository
                     //Delete all the revisions that are older then the allowed age
                     foreach (var fileRevision in fileRevisions.Skip(1))
                     {
-                        //don't delete the deployed version as there will be a single
-                        //entry per version with isDeployed = true
-                        if (fileRevision.Metadata["isDeployed"].AsBoolean)
+                        //don't delete the published version as there will be a single entry per version with isActive = false
+                        if (!fileRevision.Metadata["isActive"].AsBoolean)
                         {
                             continue;
                         }                        
