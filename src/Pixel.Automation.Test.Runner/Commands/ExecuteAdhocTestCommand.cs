@@ -4,7 +4,6 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteAdhocTestCommand;
 
@@ -54,8 +53,7 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
 
     /// <inheritdoc/>    
     public override async Task<int> ExecuteAsync(CommandContext context, AdhocTestSettings settings)
-    {
-        Debugger.Launch();
+    {       
         var sessionTemplate = new SessionTemplate()
         {
             Name = Guid.NewGuid().ToString(),

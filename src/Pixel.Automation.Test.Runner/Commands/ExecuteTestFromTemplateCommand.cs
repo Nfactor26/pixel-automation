@@ -3,7 +3,6 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteTestFromTemplateCommand;
 
@@ -43,8 +42,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings)
-    {
-        Debugger.Launch();
+    {       
         var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
             throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
         await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
