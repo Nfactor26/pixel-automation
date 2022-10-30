@@ -152,7 +152,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     }
                 }
 
-                string assemblyName = this.prefabProject.Namespace;
+                string assemblyName = $"{this.prefabProject.Namespace}.v{Version.Major}";
                 using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
                 {
                     compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
@@ -164,10 +164,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 this.PrefabAssembly = $"{assemblyName}.dll";
 
                 //Replace the assemly name in the process and template file
-                UpdateAssemblyReference(this.fileSystem.PrefabFile, assemblyName);
+                UpdateAssemblyReference(this.fileSystem.PrefabFile, this.prefabProject.Namespace, assemblyName);
                 if (File.Exists(this.fileSystem.TemplateFile))
                 {
-                    UpdateAssemblyReference(this.fileSystem.TemplateFile, assemblyName);
+                    UpdateAssemblyReference(this.fileSystem.TemplateFile, this.prefabProject.Namespace, assemblyName);
                 }
 
                 logger.Information($"Assembly references updated in process and template files.");
@@ -181,13 +181,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         /// <param name="processFile"></param>
         /// <param name="assemblyName"></param>
-        private void UpdateAssemblyReference(string processFile, string assemblyName)
+        private void UpdateAssemblyReference(string processFile, string assemblyName, string replaceWith)
         {
             string fileContents = File.ReadAllText(processFile);
             Regex regex = new Regex($"({assemblyName})(_\\d+)");
             fileContents = regex.Replace(fileContents, (m) =>
             {
-                return assemblyName;
+                return replaceWith;
             });
             File.WriteAllText(processFile, fileContents);
 
