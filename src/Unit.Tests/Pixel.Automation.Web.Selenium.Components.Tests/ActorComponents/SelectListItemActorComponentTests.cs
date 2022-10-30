@@ -28,9 +28,11 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 
 
             IWebElement optionElement = Substitute.For<IWebElement>();
+            optionElement.Enabled.Returns(true);
             optionElement.GetAttribute(Arg.Is<string>("index")).Returns("2");
 
             IWebElement targetControl = Substitute.For<IWebElement>();
+            targetControl.Enabled.Returns(true);
             targetControl.TagName.Returns("select");
             targetControl.FindElements(Arg.Any<By>()).Returns(new System.Collections.ObjectModel.ReadOnlyCollection<IWebElement>(new[] { optionElement }));        
 
