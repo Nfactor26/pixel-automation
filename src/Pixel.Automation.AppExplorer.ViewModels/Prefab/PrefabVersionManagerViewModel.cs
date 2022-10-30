@@ -22,8 +22,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly PrefabProject prefabProject;
         private readonly ApplicationSettings applicationSettings;
 
-        private bool wasPublished = false;
-
         public BindableCollection<PrefabVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<PrefabVersionViewModel>();
        
 
@@ -84,9 +82,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, new PrefabVersion(prefabVersionViewModel.Version) { IsActive = false });
                 await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, newVersion);
 
-                this.AvailableVersions.Insert(indexToInsert, new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));
-                this.wasPublished = true;
-
+                this.AvailableVersions.Insert(indexToInsert, new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));                
             }
             catch (Exception ex)
             {
@@ -118,7 +114,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public async Task CloseAsync()
         {
-            await this.TryCloseAsync(this.wasPublished);
+            await this.TryCloseAsync(false);
         }
     }
 }
