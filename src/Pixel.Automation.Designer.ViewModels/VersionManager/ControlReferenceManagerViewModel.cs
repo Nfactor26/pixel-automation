@@ -1,10 +1,10 @@
 ﻿using Dawn;
-using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.Collections.ObjectModel;
-using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
@@ -13,8 +13,8 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
     /// This screen will allow to manage revisions of control used in a given version of project.
     /// </summary>
     public class ControlReferenceManagerViewModel : Caliburn.Micro.Screen, IVersionManager
-    {
-        private readonly IFileSystem fileSystem;
+    {       
+        private readonly IReferenceManager referenceManager;
         public readonly ControlReferences controlReferences;
 
         /// <summary>
@@ -27,11 +27,11 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// </summary>
         /// <param name="projectFileSystem"></param>
         /// <param name="applicationDataManager"></param>
-        public ControlReferenceManagerViewModel(IFileSystem projectFileSystem, IApplicationDataManager applicationDataManager)
+        public ControlReferenceManagerViewModel(IApplicationDataManager applicationDataManager, IReferenceManager referenceManager)
         {
-            this.DisplayName = "Manage Control References";
-            this.fileSystem = Guard.Argument(projectFileSystem).NotNull().Value;
-            this.controlReferences = this.fileSystem.LoadFile<ControlReferences>(fileSystem.ControlReferencesFile);
+            this.DisplayName = "Manage Control References";          
+            this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
+            this.controlReferences = this.referenceManager.GetControlReferences();
             foreach(var reference in this.controlReferences.References)
             {
                 var controls = applicationDataManager.GetControlsById(reference.ApplicationId, reference.ControlId);
@@ -43,9 +43,13 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// <summary>
         /// Save all the changes done on screen.
         /// </summary>
-        public async void SaveAsync()
+        public async Task SaveAsync()
         {
-            this.fileSystem.SaveToFile<ControlReferences>(this.controlReferences, Path.GetDirectoryName(fileSystem.ControlReferencesFile), Path.GetFileName(fileSystem.ControlReferencesFile));
+            var modifiedReferences = this.References.Where(r => r.IsDirty).Select(r => r.controlReference) ?? Enumerable.Empty<ControlReference>();
+            if(modifiedReferences.Any())
+            {
+                await this.referenceManager.UpdateControlReferencesAsync(modifiedReferences);
+            }
             await this.TryCloseAsync(true);
         }
 

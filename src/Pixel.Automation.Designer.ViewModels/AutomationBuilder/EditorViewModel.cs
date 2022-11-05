@@ -93,16 +93,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 {
                     scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
                 }
-
+          
                 var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>());
                 var result = await this.windowManager.ShowDialogAsync(deleteScriptsViewModel);
                 if (!result.GetValueOrDefault())
                 {
                     return;
-                }
-                if (componentViewModel.Model is IControlEntity controlEntity)
-                {
-                    UpdateControlReferences(controlEntity);
                 }
                 logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
             }
@@ -111,18 +107,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 logger.Error(ex.Message, ex);
             }    
         }
-
-        private void UpdateControlReferences(IControlEntity controlEntity)
-        {
-            var fileSystem = this.projectManager.GetProjectFileSystem();
-            var controlReferences = fileSystem.LoadFile<ControlReferences>(fileSystem.ControlReferencesFile);
-            if (controlReferences.HasReference(controlEntity.ControlId))
-            {
-                controlReferences.RemoveControlReference(controlReferences.GetControlReference(controlEntity.ControlId));
-            }
-            fileSystem.SaveToFile<ControlReferences>(controlReferences, fileSystem.ControlReferencesFile);
-        }
-
 
         private bool isRunInProgress = false;
         public bool CanRunComponent
@@ -240,7 +224,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                var versionManager = this.versionManagerFactory.CreateControlReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                var versionManager = this.versionManagerFactory.CreateControlReferenceManager(this.projectManager.GetReferenceManager());
                 await this.windowManager.ShowDialogAsync(versionManager);
             }
             catch (Exception ex)
@@ -254,7 +238,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem());
+                var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem(),
+                    this.projectManager.GetReferenceManager());
                 var result = await this.windowManager.ShowDialogAsync(versionManager);
                 if(result.HasValue && result.Value)
                 {
@@ -426,16 +411,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public async Task HandleAsync(ControlAddedEventArgs control, CancellationToken cancellationToken)
         {
-            var controlDescription = control.Control;
-            var fileSystem = this.projectManager.GetProjectFileSystem();
-            ControlReferences controlReferences = File.Exists(fileSystem.ControlReferencesFile) ? fileSystem.LoadFile<ControlReferences>(fileSystem.ControlReferencesFile) : new ControlReferences();
-            //Even if we drop a new version, we won't update the versoin in ControlReferences file. Version needs to be manually changed using control reference manager.
-            if (!controlReferences.HasReference(controlDescription.ControlId))
-            {
-                controlReferences.AddControlReference(new ControlReference(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version));
-            }
-            fileSystem.SaveToFile<ControlReferences>(controlReferences, Path.GetDirectoryName(fileSystem.ControlReferencesFile), Path.GetFileName(fileSystem.ControlReferencesFile));
-            await Task.CompletedTask;
+            var controlDescription = control.Control;            
+            var referenceManager = this.projectManager.GetReferenceManager();
+            await referenceManager.AddControlReferenceAsync(new ControlReference(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version));      
         }
 
 

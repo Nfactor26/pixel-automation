@@ -78,66 +78,6 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="imageFile"></param>
         /// <returns></returns>
         Task DeleteControlImageAsync(ControlDescription controlDescription, string imageFile);
-
-        /// <summary>
-        /// Load all the automatin project from disk and return loaded projects
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<AutomationProject> GetAllProjects();
-
-        /// <summary>
-        /// Add or update project along with its data files for a given version
-        /// </summary>
-        /// <param name="automationProject"></param>
-        /// <param name="projectVersion"></param>
-        /// <returns></returns>
-        Task AddOrUpdateProjectAsync(AutomationProject automationProject, VersionInfo projectVersion);
        
-     
-        /// <summary>
-        /// Download project data files for a given version if newer
-        /// </summary>
-        /// <param name="automationProject"></param>
-        /// <param name="projectVersion"></param>
-        /// <returns></returns>
-        Task DownloadProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion);
-       
-        /// <summary>
-        /// Download all the newer project files
-        /// </summary>
-        /// <returns></returns>
-        Task DownloadProjectsAsync();
-
-        /// <summary>
-        /// Load all the prefabs for a given applicationId from local storage
-        /// </summary>
-        /// <param name="applicationId"></param>
-        /// <returns></returns>
-        IEnumerable<PrefabProject> GetAllPrefabs(string applicationId);
-
-        /// <summary>
-        /// Load all the prefab projects for a given screen of an application.
-        /// </summary>
-        /// <param name="applicationDescription"></param>
-        /// <param name="screenName"></param>
-        /// <returns></returns>
-        IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName);
-
-        /// <summary>
-        /// Find and load PrefabProject from local storage
-        /// </summary>
-        /// <param name="applicationId">applicationId of the prefab</param>
-        /// <param name="prefabId">string prefabId of the prefab</param>
-        /// <returns></returns>
-        PrefabProject GetPrefab(string applicationId, string prefabId);
-
-        Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
-
-        Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
-
-        Task DownloadPrefabFileAsync(string applicationId, string prefabId);
-
-        Task DownloadPrefabDataAsync(PrefabProject prefabProject, string version);
     }
-
 }

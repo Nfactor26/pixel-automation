@@ -21,6 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected IEntityManager entityManager;
         protected readonly ISerializer serializer;
         protected readonly IFileSystem fileSystem;
+        protected IReferenceManager referenceManager;
         protected readonly ITypeProvider typeProvider;    
         protected readonly ICodeEditorFactory codeEditorFactory;
         protected readonly IScriptEditorFactory scriptEditorFactory;
@@ -87,7 +88,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             return this.fileSystem;
         }
-               
+
+        public IReferenceManager GetReferenceManager()
+        {
+            return this.referenceManager;
+        }
+
         ///<inheritdoc/>
         public T Load<T>(string fileName) where T : new()
         {         

@@ -3,7 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client
 {
@@ -20,14 +19,14 @@ namespace Pixel.Persistence.Services.Client
         private readonly ILogger logger = Log.ForContext<ApplicationDataManager>();
 
         private readonly IApplicationRepositoryClient appRepositoryClient;
-        private readonly IControlRepositoryClient controlRepositoryClient;
-        private readonly IProjectRepositoryClient projectRepositoryClient;
-        private readonly IPrefabRepositoryClient prefabRepositoryClient;
+        private readonly IControlRepositoryClient controlRepositoryClient;       
         private readonly IMetaDataClient metaDataClient;
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
         private readonly ApplicationSettings applicationSettings;
         private readonly IApplicationFileSystem applicationFileSystem;
+        private readonly IAutomationsRepositoryClient automationRepositoryClient;
+        private readonly IProjectFilesRepositoryClient projectFilesRepositoryClient;
 
         bool IsOnlineMode
         {
@@ -37,8 +36,8 @@ namespace Pixel.Persistence.Services.Client
         #region Constructor
 
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
-            IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,
-            IProjectRepositoryClient projectRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient, 
+            IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,           
+            IAutomationsRepositoryClient automationRepositoryClient, IProjectFilesRepositoryClient projectFilesRepositoryClient,
             ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
         {
             this.serializer = Guard.Argument(serializer).NotNull().Value;
@@ -46,10 +45,10 @@ namespace Pixel.Persistence.Services.Client
             this.metaDataClient = Guard.Argument(metaDataClient).NotNull().Value;
             this.appRepositoryClient = Guard.Argument(appRepositoryClient).NotNull().Value;
             this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;
-            this.projectRepositoryClient = Guard.Argument(projectRepositoryClient).NotNull().Value;
-            this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient).NotNull().Value;
+            this.projectFilesRepositoryClient = Guard.Argument(projectFilesRepositoryClient).NotNull().Value;          
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
             this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
+            this.automationRepositoryClient = Guard.Argument(automationRepositoryClient, nameof(automationRepositoryClient)).NotNull().Value;
             
             CreateLocalDataDirectories();
         }
@@ -157,7 +156,7 @@ namespace Pixel.Persistence.Services.Client
 
                     if (controlsToDownload.Any())
                     {
-                        GetControlDataForApplicationRequest request = new GetControlDataForApplicationRequest()
+                        var request = new Core.Models.GetControlDataForApplicationRequest()
                         {
                             ApplicationId = serverApplicationMetaData.ApplicationId,
                             ControlIdCollection = new List<string>(controlsToDownload)
@@ -180,27 +179,7 @@ namespace Pixel.Persistence.Services.Client
                         logger.Information("Updated local copy for {count} controls for application : {applicationName} with Id : {applicationId}.",
                             controlsToDownload.Count(), serverApplicationMetaData.ApplicationName, serverApplicationMetaData.ApplicationId);
                     }
-
-                    //download prefabs belonging to application of newer version of prefab is available or prefab data doesn't already exist locally
-                    foreach (var serverPrefabMetaData in serverApplicationMetaData.PrefabsMeta)
-                    {
-                        var localPrefabMetaData = localApplicationMetaData?.PrefabsMeta.FirstOrDefault(p => p.PrefabId.Equals(serverPrefabMetaData.PrefabId));
-                        if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabMetaData.LastUpdated) ?? false))
-                        {
-                            await DownloadPrefabFileAsync(serverPrefabMetaData.ApplicationId, serverPrefabMetaData.PrefabId);
-                            logger.Information($"PrefabProject file for prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} has been updated.");
-                        }
-                        foreach (var serverPrefabVersionMetaData in serverPrefabMetaData.Versions)
-                        {
-                            var localPrefabVersionMetaData = localPrefabMetaData?.Versions.FirstOrDefault(v => v.Version.Equals(serverPrefabVersionMetaData.Version));
-                            var prefabProject = new PrefabProject() { ApplicationId = serverPrefabMetaData.ApplicationId, PrefabId = serverPrefabMetaData.PrefabId };
-                            if (!(localPrefabMetaData?.LastUpdated.Equals(serverPrefabVersionMetaData.LastUpdated) ?? false))
-                            {
-                                await DownloadPrefabDataAsync(prefabProject, serverPrefabVersionMetaData.Version);
-                                logger.Information($"Prefab data files for version {serverPrefabVersionMetaData.Version} of prefab {serverPrefabMetaData.PrefabId} belonging to application {serverPrefabMetaData.ApplicationId} have been updated.");
-                            }
-                        }
-                    }
+                   
                     CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
                 }
             }          
@@ -356,324 +335,30 @@ namespace Pixel.Persistence.Services.Client
         }
 
         #endregion Controls
-
-        #region Project
-       
-        public IEnumerable<AutomationProject> GetAllProjects()
-        {          
-            foreach (var item in Directory.EnumerateDirectories(this.applicationSettings.AutomationDirectory))
-            {
-                string automationProjectFile = $"{item}\\{Path.GetFileName(item)}.atm";
-                if(File.Exists(automationProjectFile))
-                {
-                    var automationProject = serializer.Deserialize<AutomationProject>(automationProjectFile, null);
-                    yield return automationProject;
-                    continue;
-                }
-                logger.Warning("Project file {file} doesn't exist.", automationProjectFile);
-            }
-            yield break;
-        }
-
-        public async Task AddOrUpdateProjectAsync(AutomationProject automationProject, VersionInfo projectVersion)
-        {
-            if(IsOnlineMode)
-            {
-                string projectFileLocation = this.applicationFileSystem.GetAutomationProjectFile(automationProject);
-                await this.projectRepositoryClient.AddOrUpdateProject(automationProject, projectFileLocation);
-                if (projectVersion != null)
-                {
-                    string versionDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion));
-                    if (!Directory.Exists(versionDirectory))
-                    {
-                        throw new ArgumentException($"Save project version data failed.{projectVersion} directory doesn't exist for project : {automationProject.Name}");
-                    }
-                    string zipLocation = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), $"{automationProject.ProjectId}.zip");
-                    if (File.Exists(zipLocation))
-                    {
-                        File.Delete(zipLocation);
-                    }
-                    ZipFile.CreateFromDirectory(versionDirectory, zipLocation);
-                    await this.projectRepositoryClient.AddOrUpdateProjectDataFiles(automationProject, projectVersion, zipLocation);
-                    File.Delete(zipLocation);
-                }
-            }         
-        }
-
-        public async Task DownloadProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion)
-        {
-            if (IsOnlineMode)
-            {
-                var serverProjectMetaDataCollection = await this.metaDataClient.GetProjectMetaData(automationProject.ProjectId);
-                var localProjectsMetaDataCollection = GetLocalProjectVersionMetaData(automationProject);
-
-                var serverVersion = serverProjectMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
-                    a.Version.Equals(projectVersion.ToString()));
-                var localVersion = localProjectsMetaDataCollection.FirstOrDefault(a => a.ProjectId.Equals(automationProject.ProjectId) &&
-                    a.Version.Equals(projectVersion.ToString()));
-
-                if (serverVersion?.LastUpdated > (localVersion?.LastUpdated ?? DateTime.MinValue))
-                {
-                    var zippedContent = await this.projectRepositoryClient.GetProjectDataFiles(automationProject.ProjectId, projectVersion.ToString());
-                    string versionDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion);
-                    using (var memoryStream = new MemoryStream(zippedContent, false))
-                    {
-                        var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                        zipArchive.ExtractToDirectory(versionDirectory, true);
-                    }
-
-                    //append only entry for the projectVersion being downloaded to local copy of metadata.
-                    var updatedLocalMetaDataCollection = new List<ProjectMetaData>(localProjectsMetaDataCollection);
-                    updatedLocalMetaDataCollection.Add(serverVersion);
-                    CreateOrUpdateProjectVersionMetaData(automationProject, updatedLocalMetaDataCollection);
-                }
-            }
-        }
-
-        public async Task DownloadProjectsAsync()
-        {
-            if(IsOnlineMode)
-            {
-                var serverProjectsMetaDataCollection = await this.metaDataClient.GetProjectsMetaData();
-                var localProjectsMetaDataCollection = GetLocalProjectsMetaData();
-                foreach (var projectMetaData in serverProjectsMetaDataCollection)
-                {
-                    if (localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId) && a.LastUpdated < projectMetaData.LastUpdated)
-                             || !localProjectsMetaDataCollection.Any(a => a.ProjectId.Equals(projectMetaData.ProjectId)))
-                    {
-                        var projectFile = await this.projectRepositoryClient.GetProjectFile(projectMetaData.ProjectId);
-                        SaveProjectToDisk(projectFile);
-                    }
-                    CreateOrUpdateProjectsMetaData(serverProjectsMetaDataCollection);
-                }
-            }           
-        }
-
-        private void SaveProjectToDisk(AutomationProject automationProject)
-        {
-            string projectDirectory = this.applicationFileSystem.GetAutomationProjectDirectory(automationProject);
-            if (!Directory.Exists(projectDirectory))
-            {
-                Directory.CreateDirectory(projectDirectory);
-            }
-
-            string projectFile = this.applicationFileSystem.GetAutomationProjectFile(automationProject);
-            if (File.Exists(projectFile))
-            {
-                File.Delete(projectFile);
-            }
-
-            serializer.Serialize(projectFile, automationProject, typeProvider.GetKnownTypes());          
-        }
-      
-        #endregion Project
-
-        #region Prefabs
-
-        private readonly Dictionary<string, List<PrefabProject>> prefabsCache = new ();
-
-        ///<inheritdoc/>
-        public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
-        {
-            if(!prefabsCache.ContainsKey(applicationId))
-            {
-                prefabsCache.Add(applicationId, LoadPrefabsFromLocalStorage(applicationId));
-            }
-            return prefabsCache[applicationId];
-        }
-
-
-        ///<inheritdoc/>
-        public IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName)
-        {
-            if (applicationDescription.AvailablePrefabs.ContainsKey(screenName))
-            {
-                var prefabs = GetAllPrefabs(applicationDescription.ApplicationId);              
-                foreach (var prefabId in applicationDescription.AvailablePrefabs[screenName])
-                {
-                    var prefab = prefabs.FirstOrDefault(p => p.PrefabId.Equals(prefabId));
-                    if(prefab != null)
-                    {
-                        yield return prefab;
-                    }
-                }
-            }
-            yield break;
-        }
-
-        ///<inheritdoc/>
-        public PrefabProject GetPrefab(string applicationId, string prefabId)
-        {           
-           var prefab = GetAllPrefabs(applicationId).FirstOrDefault(p => p.PrefabId.Equals(prefabId));
-           return prefab ?? throw new ArgumentException($"No Prefab exists with applicationId {applicationId} and prefabId {prefabId}");
-        }
-
-        ///<inheritdoc/>
-        public async Task AddOrUpdatePrefabAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
-        {
-            if (IsOnlineMode)
-            {
-                string prefabProjectFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
-                await this.prefabRepositoryClient.AddOrUpdatePrefabAsync(prefabProject, prefabProjectFile);              
-            }
-           
-            //when a new prefab is created , add it to the prefabs cache
-            if(prefabsCache.ContainsKey(prefabProject.ApplicationId))
-            {
-                var prefabsForApplicationId = prefabsCache[prefabProject.ApplicationId];
-                if (!prefabsForApplicationId.Any(p =>  p.PrefabId.Equals(prefabProject.PrefabId)))
-                {
-                    prefabsForApplicationId.Add(prefabProject);
-                }
-            }
-            else
-            {
-                prefabsCache.Add(prefabProject.ApplicationId, new List<PrefabProject>() { prefabProject });
-            }         
-        }
-
-        ///<inheritdoc/>
-        public async Task AddOrUpdatePrefabDataFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion)
-        {
-            Guard.Argument(prefabProject).NotNull();
-            Guard.Argument(prefabVersion).NotNull();
-            if(IsOnlineMode)
-            {
-                string prefabWorkingDirectory = this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, prefabVersion);
-                string prefabDirectory = this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject);
-                if (!Directory.Exists(prefabWorkingDirectory))
-                {
-                    throw new ArgumentException($"Version {prefabVersion} data directory doesn't exist for prefab : {prefabProject.PrefabName}");
-                }
-
-                string zipLocation = Path.Combine(prefabDirectory, $"{prefabProject.PrefabId}.zip");
-                if (File.Exists(zipLocation))
-                {
-                    File.Delete(zipLocation);
-                }
-                ZipFile.CreateFromDirectory(prefabWorkingDirectory, zipLocation);
-                await this.prefabRepositoryClient.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabVersion, zipLocation);
-                File.Delete(zipLocation);
-            }
-        }
-
-        ///<inheritdoc/>
-        public async Task DownloadPrefabFileAsync(string applicationId, string prefabId)
-        {
-            if (IsOnlineMode)
-            {
-                var prefabProject = await prefabRepositoryClient.GetPrefabFileAsync(prefabId);
-                string prefabDirectory = this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject);
-                var prefabProjectFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
-                if(!Directory.Exists(prefabDirectory))
-                {
-                    Directory.CreateDirectory(prefabDirectory);
-                }
-                this.serializer.Serialize<PrefabProject>(prefabProjectFile, prefabProject);
-            }         
-        }
-
-        ///<inheritdoc/>
-        public async Task DownloadPrefabDataAsync(PrefabProject prefabProject, string version)
-        {
-            if (IsOnlineMode)
-            {               
-                var prefabWorkingDirectory = this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, version);                
-                var zippedContent = await this.prefabRepositoryClient.GetPrefabDataFilesAsync(prefabProject.PrefabId, version);         
-                using (var memoryStream = new MemoryStream(zippedContent, false))
-                {
-                    var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                    zipArchive.ExtractToDirectory(prefabWorkingDirectory, true);
-                }               
-            }
-        }
-
-        private List<PrefabProject> LoadPrefabsFromLocalStorage(string applicationId)
-        {
-            List<PrefabProject> prefabProjects = new ();
-            var prefabDirectory = this.applicationFileSystem.GetApplicationPrefabsDirectory(applicationId);
-            if(Directory.Exists(prefabDirectory))
-            {
-                foreach (var prefab in Directory.GetDirectories(prefabDirectory))
-                {
-                    string prefabProjectFile = Directory.GetFiles(prefab, "*.atm", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                    if (File.Exists(prefabProjectFile))
-                    {
-                        PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabProjectFile);
-                        prefabProjects.Add(prefabProject);
-                        continue;
-                    }
-                    logger.Warning("Prefab project file : {0} doesn't exist", prefabProjectFile);
-                }
-            }
-            return prefabProjects;
-        }
-
-        #endregion Prefabs
-
+             
         #region Metadata
 
-        private IEnumerable<ApplicationMetaData> GetLocalApplicationMetaData()
+        private IEnumerable<Core.Models.ApplicationMetaData> GetLocalApplicationMetaData()
         {
             string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
             if (File.Exists(metaDataFile))
             {
-                return this.serializer.Deserialize<List<ApplicationMetaData>>(metaDataFile);
+                return this.serializer.Deserialize<List<Core.Models.ApplicationMetaData>>(metaDataFile);
             }
-            return Array.Empty<ApplicationMetaData>();
+            return Array.Empty<Core.Models.ApplicationMetaData>();
         }
 
-        private void CreateOrUpdateApplicationMetaData(IEnumerable<ApplicationMetaData> applicationMetaDatas)
+        private void CreateOrUpdateApplicationMetaData(IEnumerable<Core.Models.ApplicationMetaData> applicationMetaDatas)
         {
             string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
             if (File.Exists(metaDataFile))
             {
                 File.Delete(metaDataFile);
             }
-            this.serializer.Serialize<IEnumerable<ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
+            this.serializer.Serialize<IEnumerable<Core.Models.ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
             logger.Information("Local application metadata has been updated.");
         }
-
-        private IEnumerable<ProjectMetaData> GetLocalProjectsMetaData()
-        {
-            string metaDataFile = Path.Combine(applicationSettings.AutomationDirectory, Constants.ProjectsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
-            }
-            return Array.Empty<ProjectMetaData>();
-        }     
-      
-        private void CreateOrUpdateProjectsMetaData(IEnumerable<ProjectMetaData> projects)
-        {
-            string metaDataFile = Path.Combine(this.applicationSettings.AutomationDirectory, Constants.ProjectsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
-        }
-
-        private IEnumerable<ProjectMetaData> GetLocalProjectVersionMetaData(AutomationProject automationProject)
-        {
-            string metaDataFile = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), Constants.VersionsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<ProjectMetaData>>(metaDataFile);
-            }
-            return Array.Empty<ProjectMetaData>();
-        }
-
-        private void CreateOrUpdateProjectVersionMetaData(AutomationProject automationProject, IEnumerable<ProjectMetaData> projects)
-        {
-            string metaDataFile = Path.Combine(this.applicationFileSystem.GetAutomationProjectDirectory(automationProject), Constants.VersionsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<ProjectMetaData>>(metaDataFile, projects);
-        }     
-
+        
         #endregion Metadata
     }
 }

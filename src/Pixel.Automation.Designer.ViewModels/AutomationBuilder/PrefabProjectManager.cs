@@ -10,9 +10,9 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
-using Pixel.Scripting.Reference.Manager.Models;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -24,32 +24,38 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IPrefabFileSystem prefabFileSystem;
         private readonly IReferenceManagerFactory referenceManagerFactory;
-        private IReferenceManager referenceManager;
+        private readonly IPrefabDataManager prefabDataManager;
         private readonly ApplicationSettings applicationSettings;
-        private PrefabProject prefabProject;       
+        private PrefabProject prefabProject;
+        private PrefabVersion loadedVersion;
         private Entity prefabbedEntity;       
              
         public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
-            ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, ApplicationSettings applicationSettings,
+            ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager, ApplicationSettings applicationSettings,
             IReferenceManagerFactory referenceManagerFactory)
             : base(serializer, entityManager, prefabFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
             this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
+            this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
         }
 
         #region load project
 
-        public Entity Load(PrefabProject prefabProject, VersionInfo versionToLoad)
+        public async Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
-            this.prefabProject = prefabProject;           
+            this.prefabProject = prefabProject;
+            this.loadedVersion = versionToLoad as PrefabVersion;
             this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
+
+            await this.prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.loadedVersion);
+
             this.entityManager.SetCurrentFileSystem(this.fileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-            this.referenceManager = referenceManagerFactory.CreateForPrefabProject(prefabProject, versionToLoad);
-            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
+            this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.PrefabId, versionToLoad.ToString(), this.prefabFileSystem);
+            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);         
 
             ConfigureCodeEditor(this.referenceManager);
 
@@ -59,7 +65,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.entityManager.Arguments = dataModel;
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();          
-            return this.RootEntity;
+            return await Task.FromResult(this.RootEntity);
         }
     
 
@@ -173,8 +179,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             await this.Save();
             this.Initialize();                      
-            var reference = this.fileSystem.LoadFile<ReferenceCollection>(this.fileSystem.AssemblyReferencesFile);
-            this.referenceManager.SetReferenceCollection(reference);
+            var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
+            this.referenceManager.SetProjectReferences(reference);
             var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
             ConfigureScriptEngine(this.referenceManager, dataModel);
             ConfigureScriptEditor(this.referenceManager, dataModel);           
@@ -190,17 +196,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         public override async Task Save()
         {
-            this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetKnownTypes());
+            try
+            {
+                this.RootEntity.ResetHierarchy();
+                serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetKnownTypes());
 
-            var prefabParent = this.prefabbedEntity.Parent;
-            prefabParent.RemoveComponent(this.prefabbedEntity);
-            this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
-            prefabParent.AddComponent(this.prefabbedEntity);
+                var prefabParent = this.prefabbedEntity.Parent;
+                prefabParent.RemoveComponent(this.prefabbedEntity);
+                this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
+                prefabParent.AddComponent(this.prefabbedEntity);
 
-            //push the changes to database
-            await this.applicationDataManager.AddOrUpdatePrefabAsync(this.prefabProject, this.prefabProject.LatestActiveVersion);
-            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(this.prefabProject, this.prefabProject.LatestActiveVersion);
+                //push the changes to database           
+                await this.prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.loadedVersion);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to save Prefab");
+            }
         }
 
 

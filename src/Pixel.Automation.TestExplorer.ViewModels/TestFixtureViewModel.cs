@@ -32,9 +32,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Identifier for the Fixture
         /// </summary>
-        public string Id
+        public string FixtureId
         {
-            get => TestFixture.Id;           
+            get => TestFixture.FixtureId;           
         }       
 
         /// <summary>

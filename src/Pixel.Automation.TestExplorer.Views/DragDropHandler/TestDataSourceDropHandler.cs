@@ -33,7 +33,7 @@ namespace Pixel.Automation.TestExplorer.Views
                 if (dropInfo.Data is TestDataSource testDataSource)
                 {
                     var testCase = (dropInfo.VisualTarget as FrameworkElement).DataContext as TestCaseViewModel;
-                    testCase.SetTestDataSource(testDataSource.Id);             
+                    testCase.SetTestDataSource(testDataSource.DataSourceId);             
                 }
             }
             catch (Exception ex)

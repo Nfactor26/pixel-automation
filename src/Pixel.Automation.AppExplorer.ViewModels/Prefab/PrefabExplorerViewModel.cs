@@ -8,6 +8,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -23,8 +24,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
-        private readonly IApplicationDataManager applicationDataManager;          
+        private readonly IApplicationDataManager applicationDataManager;
+        private readonly IPrefabDataManager prefabDataManager;
         private IPrefabBuilderFactory prefabBuilderFactory;
+
 
         private ApplicationDescriptionViewModel activeApplication;
         public ApplicationDescriptionViewModel ActiveApplication
@@ -47,7 +50,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
             IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
-            IPrefabBuilderFactory prefabBuilderFactory)
+            IPrefabDataManager prefabDataManager, IPrefabBuilderFactory prefabBuilderFactory)
         {
             this.DisplayName = "Prefab Explorer";
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
@@ -56,6 +59,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             this.windowManager = Guard.Argument(windowManager).NotNull().Value;
             this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.prefabDataManager = Guard.Argument(prefabDataManager).NotNull().Value;
             CreateCollectionView();
         }
 
@@ -106,7 +110,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
                 else
                 {
-                    var prefabs = this.applicationDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
+                    var prefabs = this.prefabDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
                     foreach (var prefab in prefabs)
                     {
                         var prefabProjectViewModel = new PrefabProjectViewModel(prefab);
@@ -193,7 +197,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     var versionToEdit = versionPicker.SelectedVersion;
                     var editorFactory = IoC.Get<IEditorFactory>();
                     var prefabEditor = editorFactory.CreatePrefabEditor();
-                    prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
+                    await prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
                     await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
                 }
                 else

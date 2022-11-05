@@ -10,19 +10,19 @@ namespace Pixel.Automation.Core.Tests.TestData
         public void ValidateThatTestDataSourceCanBeInitialized()
         {
             var testDataSource = new TestDataSource();
-            Assert.IsNull(testDataSource.Id);
+            Assert.IsNull(testDataSource.DataSourceId);
             Assert.IsNull(testDataSource.Name);
             Assert.IsNull(testDataSource.ScriptFile);
             Assert.AreEqual(DataSource.Code, testDataSource.DataSource);
             Assert.IsNull(testDataSource.MetaData);
 
-            testDataSource.Id = Guid.NewGuid().ToString();
+            testDataSource.DataSourceId = Guid.NewGuid().ToString();
             testDataSource.Name = "TestDataSource";
             testDataSource.ScriptFile = "Script.csx";
             testDataSource.DataSource = DataSource.Code;
             testDataSource.MetaData = new DataSourceConfiguration() { TargetTypeName = "Person" };
 
-            Assert.IsNotNull(testDataSource.Id);
+            Assert.IsNotNull(testDataSource.DataSourceId);
             Assert.AreEqual("TestDataSource", testDataSource.Name);
             Assert.AreEqual("Script.csx", testDataSource.ScriptFile);
             Assert.AreEqual(DataSource.Code, testDataSource.DataSource);

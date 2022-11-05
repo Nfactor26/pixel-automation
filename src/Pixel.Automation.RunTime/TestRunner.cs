@@ -283,7 +283,7 @@ namespace Pixel.Automation.RunTime
                 Guard.Argument(fixture).NotNull();
                 
                 var allFixtures = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(Core.Enums.SearchScope.Children);
-                if (!allFixtures.Any(f => f.Tag.Equals(fixture.Id)))
+                if (!allFixtures.Any(f => f.Tag.Equals(fixture.FixtureId)))
                 {
                     TestFixtureEntity fixtureEntity = fixture.TestFixtureEntity as TestFixtureEntity;
                     EntityManager fixtureEntityManager = new EntityManager(this.entityManager);
@@ -323,12 +323,12 @@ namespace Pixel.Automation.RunTime
                 });
 
                 var allFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(Core.Enums.SearchScope.Children);
-                if (allFixtureEntities.Any(f => f.Tag.Equals(fixture.Id)))
+                if (allFixtureEntities.Any(f => f.Tag.Equals(fixture.FixtureId)))
                 {
-                    var fixtureEntity = allFixtureEntities.First(a => a.Tag.Equals(fixture.Id));
+                    var fixtureEntity = allFixtureEntities.First(a => a.Tag.Equals(fixture.FixtureId));
                     foreach (var testCase in fixture.Tests)
                     {
-                        if (fixtureEntity.GetComponentsByTag(testCase.Id, Core.Enums.SearchScope.Children).Any())
+                        if (fixtureEntity.GetComponentsByTag(testCase.TestCaseId, Core.Enums.SearchScope.Children).Any())
                         {
                             throw new InvalidOperationException($"All tests belonging to a fixture : {fixture.DisplayName} must be closed before fixture can be closed");
                         }
@@ -373,7 +373,7 @@ namespace Pixel.Automation.RunTime
                                       
                     //if fixture entity is not already added to process tree, add it.
                     var allFixtures = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(Core.Enums.SearchScope.Children);
-                    var parentFixture = allFixtures.FirstOrDefault(f => f.Tag.Equals(fixture.Id));
+                    var parentFixture = allFixtures.FirstOrDefault(f => f.Tag.Equals(fixture.FixtureId));
 
                     if(parentFixture == null)
                     {

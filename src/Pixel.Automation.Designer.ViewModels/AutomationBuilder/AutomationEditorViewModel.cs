@@ -227,7 +227,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
-                this.testExplorer.SaveAll();
+                await this.testExplorer.SaveAll();
                 await projectManager.Save();
             }
             catch (Exception ex)
@@ -242,7 +242,7 @@ namespace Pixel.Automation.Designer.ViewModels
             try
             {
                 var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
-                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(projectFileSystem);
+                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.projectManager.GetReferenceManager());
                 await this.windowManager.ShowDialogAsync(versionManager);              
             }
             catch (Exception ex)

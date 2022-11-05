@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
@@ -26,6 +27,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         private IArgumentTypeBrowserFactory typeBrowserFactory;
         private IWindowManager windowManager;
         private IEventAggregator eventAggregator;
+        private IProjectAssetsDataManager dataManager;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -36,6 +38,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             typeBrowserFactory = Substitute.For<IArgumentTypeBrowserFactory>();
             windowManager = Substitute.For<IWindowManager>();
             eventAggregator = Substitute.For<IEventAggregator>();
+            dataManager = Substitute.For<IProjectAssetsDataManager>();
 
 
             var codeDataSource = new TestDataSource()
@@ -60,7 +63,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                     TargetFile = "Empty.csv"
                 }
             };
-
+            
             projectFileSystem.WorkingDirectory.Returns(Environment.CurrentDirectory);
             projectFileSystem.TestDataRepository.Returns(Path.Combine(Environment.CurrentDirectory, "TestDataRepository"));
             projectFileSystem.GetTestDataSources().Returns(new[] { codeDataSource, csvDataSource });
@@ -78,6 +81,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             serializer.ClearReceivedCalls();
             projectFileSystem.ClearReceivedCalls();
+            dataManager.ClearReceivedCalls();
             scriptEditorFactory.ClearReceivedCalls();
             typeBrowserFactory.ClearReceivedCalls();
             windowManager.ClearReceivedCalls();
@@ -86,7 +90,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatTestDataRepositoryViewModelCanBeCorrectlyInitialized()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
 
             Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
             Assert.IsNull(testDataRepositoryViewModel.SelectedTestDataSource);
@@ -96,31 +100,32 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             await testDataRepositoryViewModel.ActivateAsync();
 
             Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            await dataManager.Received(1).DownloadAllTestDataSourcesAsync();
         }
 
         [TestCase]
         public async Task ValidateThatCanCreateNewCodeDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory , dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
             testDataRepositoryViewModel.CreateCodedTestDataSource();
 
-            Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);
-            serializer.Received(1).Serialize<TestDataSource>(Arg.Any<string>(), Arg.Any<TestDataSource>());
+            Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);          
+            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
         }
 
         [TestCase]
         public async Task ValidateThatCanCreateNewCsvDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
             testDataRepositoryViewModel.CreateCsvTestDataSource();
 
             Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);
-            serializer.Received(1).Serialize<TestDataSource>(Arg.Any<string>(), Arg.Any<TestDataSource>());
+            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
         }
 
@@ -134,7 +139,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>())).Do(XamlGeneratedNamespace => { });
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(x => { });
 
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
             var codeDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.Code));
 
@@ -146,6 +151,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.Received(1).CreateScriptEditorScreen();
             scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>());
             scriptEditor.Received(1).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Is<string>(string.Empty));
+            await dataManager.Received(1).SaveTestDataSourceDataAsync(Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IScriptEditorScreen>());
         }
 
@@ -153,7 +159,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanEditCsvDataSource()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
             var csvDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.CsvFile));
 
@@ -161,7 +167,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             testDataRepositoryViewModel.EditDataSource(csvDataSource);
 
             //Assert
-            serializer.Received(1).Serialize<TestDataSource>(Arg.Any<string>(), Arg.Any<TestDataSource>());
+            await dataManager.Received(1).UpdateTestDataSourceAsync(Arg.Any<TestDataSource>());            //Assert
+            await dataManager.Received(1).SaveTestDataSourceDataAsync(Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
         }
 
@@ -169,7 +176,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatTestDataSourceIsClearedWhenDeactivated()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
 
             await testDataRepositoryViewModel.ActivateAsync();
             Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
@@ -182,7 +189,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanHandleShowTestDataSourceNotificationMessage()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
 
             //Act
             await testDataRepositoryViewModel.HandleAsync(new ShowTestDataSourceNotification("test-data-id"), CancellationToken.None);

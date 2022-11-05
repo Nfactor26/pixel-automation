@@ -54,6 +54,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Save all the open test cases locally on disk
         /// Changes are pushed to persistent storage when project is saved.
         /// </summary>
-        void SaveAll();
+        Task SaveAll();
     }
 }

@@ -8,9 +8,9 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
-using Pixel.Scripting.Reference.Manager.Models;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -19,17 +19,22 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IReferenceManagerFactory referenceManagerFactory;
-        private IReferenceManager referenceManager;
+        private readonly IProjectDataManager projectDataManager;
+        private readonly IPrefabDataManager prefabDataManager;
+        private readonly IProjectAssetsDataManager projectAssetDataManager;
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
         public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager,
-            IReferenceManagerFactory referenceManagerFactory) 
+            IReferenceManagerFactory referenceManagerFactory, IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, IProjectAssetsDataManager projectAssetDataManager) 
         : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;          
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
+            this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
+            this.projectAssetDataManager = Guard.Argument(projectAssetDataManager, nameof(projectAssetDataManager)).NotNull().Value;
+            this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
         }
 
         #region Load Project
@@ -38,15 +43,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             this.activeProject = activeProject;
             this.loadedVersion = versionToLoad;
-            
-            await this.applicationDataManager.DownloadProjectDataAsync(activeProject, versionToLoad);
-            
             this.projectFileSystem.Initialize(activeProject, versionToLoad);
-            this.entityManager.SetCurrentFileSystem(this.fileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-            this.referenceManager = this.referenceManagerFactory.CreateForAutomationProject(activeProject, versionToLoad);
+            this.projectAssetDataManager.Initialize(activeProject, versionToLoad);
+          
+            await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad as ProjectVersion);          
+        
+            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
             this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
+            foreach(var prefabReference in this.referenceManager.GetPrefabReferences().References)
+            {
+                await this.prefabDataManager.DownloadPrefabDataAsync(new PrefabProject() { ApplicationId = prefabReference.ApplicationId, PrefabId = prefabReference.PrefabId },
+                    prefabReference.Version);
+            }
+
+            this.entityManager.SetCurrentFileSystem(this.fileSystem);
+            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);         
+            
             await CreateDataModelFile();
             ConfigureCodeEditor(this.referenceManager);
 
@@ -153,8 +166,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {        
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
-            var reference = this.fileSystem.LoadFile<ReferenceCollection>(this.fileSystem.AssemblyReferencesFile);
-            this.referenceManager.SetReferenceCollection(reference);
+            var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
+            this.referenceManager.SetProjectReferences(reference);
             var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
             ConfigureScriptEngine(this.referenceManager, dataModel);
             ConfigureScriptEditor(this.referenceManager, dataModel);          
@@ -198,13 +211,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
             this.RootEntity.ResetHierarchy();
             serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
-            await this.applicationDataManager.AddOrUpdateProjectAsync(this.activeProject, this.loadedVersion);
-
+            
             //Add back the test cases that were already open
             foreach (var testFixtureEntity in testFixtureEntities)
             {
                 parentEntity.AddComponent(testFixtureEntity);
             }
+
+            await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
         }
 
         protected override string GetProjectName()

@@ -3,6 +3,8 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -19,13 +21,16 @@ namespace Pixel.Automation.RunTime
     /// </summary>
     public class PrefabLoader : IPrefabLoader, IDisposable
     {
-        private readonly ILogger logger = Log.ForContext<PrefabLoader>();
-        private readonly IProjectFileSystem projectFileSystem;
-        private readonly Dictionary<string, PrefabInstance> Prefabs = new Dictionary<string, PrefabInstance>();
+        protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
+        protected readonly IProjectFileSystem projectFileSystem;
+        protected readonly IReferenceManager referenceManager;
+        protected readonly Dictionary<string, PrefabInstance> Prefabs = new Dictionary<string, PrefabInstance>();
+        private PrefabReferences prefabReferences;
        
-        public PrefabLoader(IProjectFileSystem projectFileSystem)
+        public PrefabLoader(IProjectFileSystem projectFileSystem, IReferenceManager referenceManager)
         {
-            this.projectFileSystem = projectFileSystem;
+            this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
+            this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
             logger.Debug($"Created a new instance of {nameof(PrefabLoader)} for Thread with Id : {Thread.CurrentThread.ManagedThreadId}");
         }
 
@@ -131,8 +136,7 @@ namespace Pixel.Automation.RunTime
 
         protected virtual PrefabReferences GetPrefabReferences()
         {
-          //We load this each time since this can change at design time
-          return  this.projectFileSystem.LoadFile<PrefabReferences>(this.projectFileSystem.PrefabReferencesFile);
+            return this.referenceManager.GetPrefabReferences();
         }
 
 

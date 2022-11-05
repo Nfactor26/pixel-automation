@@ -28,24 +28,6 @@ namespace Pixel.Persistence.Services.Client
             var client = this.clientFactory.GetOrCreateClient();
             var response = await client.GetAsync<IEnumerable<ApplicationMetaData>>(restRequest);          
             return response;
-        }
-
-        ///<inheritdoc/>
-        public async Task<IEnumerable<ProjectMetaData>> GetProjectsMetaData()
-        {
-            RestRequest restRequest = new RestRequest("metadata/project");   
-            var client = this.clientFactory.GetOrCreateClient();
-            var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
-            return response.Data ?? Array.Empty<ProjectMetaData>();
-        }
-
-        ///<inheritdoc/>
-        public async Task<IEnumerable<ProjectMetaData>> GetProjectMetaData(string projectId)
-        {
-            RestRequest restRequest = new RestRequest($"metadata/project/{projectId}");
-            var client = this.clientFactory.GetOrCreateClient();
-            var response = await client.ExecuteGetAsync<IEnumerable<ProjectMetaData>>(restRequest);
-            return response.Data ?? Array.Empty<ProjectMetaData>();
-        }
+        }      
     }
 }

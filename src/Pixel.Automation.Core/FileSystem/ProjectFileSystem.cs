@@ -20,10 +20,7 @@ namespace Pixel.Automation.Core
         public string ProjectFile { get; private set; }
 
         /// <InheritDoc/>      
-        public string ProcessFile { get; private set; }
-
-        /// <InheritDoc/>      
-        public string PrefabReferencesFile { get; private set; }
+        public string ProcessFile { get; private set; }      
 
         /// <InheritDoc/>      
         public string TestCaseRepository { get; protected set; }
@@ -63,8 +60,7 @@ namespace Pixel.Automation.Core
           
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());       
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
-            this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);
-            this.PrefabReferencesFile = Path.Combine(this.WorkingDirectory, Constants.PrefabRefrencesFileName);
+            this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);        
             this.TestCaseRepository = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory);
             this.TestDataRepository = Path.Combine(this.WorkingDirectory, Constants.TestDataDirectory);
 
@@ -81,11 +77,15 @@ namespace Pixel.Automation.Core
         }
 
         /// <InheritDoc/>      
-        public ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId)
+        public TestCaseFiles GetTestCaseFiles(TestCase testCase)
         {
-            var fileSystem = new TestCaseFileSystem();           
-            fileSystem.Initialize(this.WorkingDirectory, testFixtureId);
-            return fileSystem;
+            return new TestCaseFiles(testCase, this.TestCaseRepository);
+        }
+
+        /// <InheritDoc/>      
+        public TestFixtureFiles GetTestFixtureFiles(TestFixture fixture)
+        {
+            return new TestFixtureFiles(fixture, this.TestCaseRepository);
         }
 
         /// <InheritDoc/>      

@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Enums;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using System;
 using System.Collections.ObjectModel;
@@ -29,9 +28,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Identifier of the TestCase
         /// </summary>
-        public string Id
+        public string TestCaseId
         {
-            get => TestCase.Id;           
+            get => TestCase.TestCaseId;           
         }
 
         /// <summary>
@@ -157,16 +156,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 OnPropertyChanged(nameof(CanOpenForEdit));
             }
         }
-
-        /// <summary>
-        /// MetaData identifying all the <see cref="PrefabProject"/> used within this TestCase
-        /// </summary>
-        public PrefabReferences PrefabReferences
-        {
-            get => TestCase.PrefabReferences;
-            set => TestCase.PrefabReferences = value;
-        }
-
+        
         bool isSelected;
         /// <summary>
         /// Indicates if the TestCase is currently selected in TestExplorer
@@ -293,10 +283,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         case "name":
                             IsVisible = this.DisplayName.ToLower().Contains(query[1]);
-                            break;                       
-                        case "prefab":
-                            IsVisible = this.PrefabReferences.HasReference(query[1]);
-                            break;
+                            break;                      
                         default:
                             IsVisible = this.Tags.Contains(query[0]) && this.Tags[query[0]].Equals(query[1]);
                             break;

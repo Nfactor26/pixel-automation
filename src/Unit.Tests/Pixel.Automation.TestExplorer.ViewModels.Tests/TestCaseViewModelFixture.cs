@@ -32,7 +32,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
 
             Assert.IsNotNull(testCaseViewModel.TestCase);
-            Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.Id));
+            Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.TestCaseId));
             Assert.AreEqual("TestCase#1", testCaseViewModel.DisplayName);
             Assert.AreEqual(1, testCaseViewModel.Order);
             Assert.AreEqual("Test case description", testCaseViewModel.Description);
@@ -112,9 +112,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         [TestCase("#2", false)]
         [TestCase("name:", true)] 
         [TestCase("name:#1:Test", true)] 
-        [TestCase("name:#1", true)] 
-        [TestCase("prefab:Prefab#1", true)] 
-        [TestCase("prefab:Prefab#2", false)] 
+        [TestCase("name:#1", true)]        
         [TestCase("module:test", false)] 
         [TestCase("module:test explorer", true)]
         public void ValidateThatVisibilityIsCorrectlyUpdatedWhenFilterTextChanges(string filterText, bool shouldBeVisible)
@@ -123,8 +121,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             {
                 DisplayName = "TestCase#1"               
             };
-            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
-            testCaseViewModel.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference() { PrefabId = "Prefab#1" });
+            TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);           
             testCaseViewModel.Tags.Add("module", "test explorer");
 
             testCaseViewModel.UpdateVisibility(filterText);

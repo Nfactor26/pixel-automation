@@ -8,7 +8,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
     public class PrefabReferenceViewModel : NotifyPropertyChanged
     {
-        private readonly PrefabReference prefabReference;
+        internal readonly PrefabReference prefabReference;
 
         public string PrefabName { get; private set; }
 
@@ -20,11 +20,17 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             get => this.selectedVersion;
             set
             {
-                this.selectedVersion = value;
-                this.prefabReference.Version = value;
-                OnPropertyChanged();
+                if(this.selectedVersion != value)
+                {
+                    this.selectedVersion = value;
+                    this.prefabReference.Version = value;
+                    this.IsDirty = true;
+                    OnPropertyChanged();
+                }
             }
         }
+
+        public bool IsDirty { get; private set; }
 
         public ObservableCollection<PrefabVersion> AvailableVersions { get; private set; } = new();
 
@@ -40,6 +46,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
             this.SelectedVersion = this.AvailableVersions.FirstOrDefault(a => a.Equals(prefabReference.Version))
                 ?? this.AvailableVersions.First();
+            this.IsDirty = false;
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
+using Pixel.Persistence.Respository.Interfaces;
 using Pixel.Persistence.Services.Api.Services;
 using Serilog;
 
@@ -43,16 +44,21 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<IProjectStatisticsRepository, ProjectStatisticsRepository>();
             services.AddTransient<IApplicationRepository, ApplicationRepository>();
             services.AddTransient<IControlRepository, ControlRepository>();
-            services.AddTransient<IProjectRepository, ProjectRepository>();
-            services.AddTransient<IPrefabRepository, PrefabRepository>();
+            services.AddTransient<IProjectsRepository, ProjectsRepository>();
+            services.AddTransient<IReferencesRepository, ReferencesRepository>();          
+            services.AddTransient<IProjectFilesRepository, ProjectFilesRepository>();
+            services.AddTransient<IPrefabFilesRepository, PrefabFilesRepository>();
+            services.AddTransient<ITestFixtureRepository, TestFixtureRepository>();
+            services.AddTransient<ITestCaseRepository, TestCaseRepository>();
+            services.AddTransient<ITestDataRepository, TestDataRepository>();           
+            services.AddTransient<IPrefabsRepository, PrefabsRepository>();
             services.AddTransient<ITemplateRepository, TemplateRepository>();                      
           
             services.AddControllers();
             services.AddRazorPages();
 
             services.AddSwaggerGen();
-            services.AddHostedService<StatisticsProcessorService>();
-            services.AddHostedService<PurgeFileService>();
+            services.AddHostedService<StatisticsProcessorService>();           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

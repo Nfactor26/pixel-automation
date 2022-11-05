@@ -15,7 +15,7 @@ namespace Pixel.Automation.Core.TestData
         /// Identifier of the data source
         /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
-        public string Id { get; set; }
+        public string DataSourceId { get; set; }
 
         /// <summary>
         /// Name of the data source

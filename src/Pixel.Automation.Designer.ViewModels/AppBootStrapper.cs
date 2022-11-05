@@ -10,6 +10,7 @@ using Pixel.Automation.Designer.ViewModels.Shell;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.Serialization;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.Diagnostics;
 using System.IO;
@@ -54,12 +55,16 @@ namespace Pixel.Automation.Designer.ViewModels
                         try
                         {
                             var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                            var projectDataManager = IoC.Get<IProjectDataManager>();
+                            var prefabDataManager = IoC.Get<IPrefabDataManager>();
                             logger.Information("Downloading application data now");
                             await applicationDataManger.DownloadApplicationsDataAsync();
                             logger.Information("Download of application data completed");
                             logger.Information("Downloading project information now");
-                            await applicationDataManger.DownloadProjectsAsync();
+                            await projectDataManager.DownloadProjectsAsync();
                             logger.Information("Download of project information completed");
+                            await prefabDataManager.DownloadPrefabsAsync();
+                            logger.Information("Download of prefabs completed");
                         }
                         catch (Exception ex)
                         {

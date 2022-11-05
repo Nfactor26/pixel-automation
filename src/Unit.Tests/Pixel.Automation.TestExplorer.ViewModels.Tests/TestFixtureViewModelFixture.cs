@@ -30,7 +30,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
             Assert.IsNotNull(testFixtureviewModel.TestFixture);
-            Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.Id));
+            Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.FixtureId));
             Assert.AreEqual("TestFixture#1", testFixtureviewModel.DisplayName);
             Assert.AreEqual(1, testFixtureviewModel.Order);
             Assert.AreEqual("Test fixture description", testFixtureviewModel.Description);          

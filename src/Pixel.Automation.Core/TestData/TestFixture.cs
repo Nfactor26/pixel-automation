@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Pixel.Automation.Core.TestData
 {
@@ -14,7 +15,7 @@ namespace Pixel.Automation.Core.TestData
         /// Identifier of the fixture
         /// </summary>
         [DataMember(IsRequired = true, Order = 10)]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string FixtureId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Display name for the test fixture
@@ -64,15 +65,17 @@ namespace Pixel.Automation.Core.TestData
         /// </summary>
         [DataMember(IsRequired = true, Order = 90)]
         public TagCollection Tags { get; private set; } = new TagCollection();
-        
+
         /// <summary>
         /// Collection of tests belonging to a fixture 
         /// </summary>
+        [JsonIgnore]
         public List<TestCase> Tests { get; private set; } = new List<TestCase>();
 
         /// <summary>
         /// Test fixture entity
         /// </summary>
+        [JsonIgnore]       
         public Entity TestFixtureEntity { get; set; }
 
         ///</inheritdoc>
@@ -94,7 +97,7 @@ namespace Pixel.Automation.Core.TestData
         ///</inheritdoc>
         public override string ToString()
         {
-            return $"{Id}";
+            return $"{FixtureId}";
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.RunTime;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -10,7 +11,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     /// </summary>
     public class DesignTimePrefabLoader : PrefabLoader
     {
-        public DesignTimePrefabLoader(IProjectFileSystem projectFileSystem) : base(projectFileSystem)
+        public DesignTimePrefabLoader(IProjectFileSystem projectFileSystem, IReferenceManager referenceManager) : base(projectFileSystem, referenceManager)
         {
 
         }
@@ -23,7 +24,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             //at design time
             var scriptEditorFactory = parentEntityManager.GetServiceOfType<IScriptEditorFactory>();
             scriptEditorFactory.AddSearchPaths(prefabFileSystem.ReferencesDirectory);
-        }
+        }    
     }
 
 }

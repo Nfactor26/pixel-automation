@@ -1,10 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
@@ -13,7 +10,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
     /// </summary>
     public class ControlReferenceViewModel : NotifyPropertyChanged
     {
-        private readonly ControlReference controlReference;
+        internal readonly ControlReference controlReference;
 
         /// <summary>
         /// Name of the Control
@@ -34,11 +31,17 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             get => this.selectedVersion;
             set
             {
-                this.selectedVersion = value;
-                this.controlReference.Version = value;
+                if(this.selectedVersion != value)
+                {
+                    this.selectedVersion = value;
+                    this.controlReference.Version = value;
+                    this.IsDirty = true;
+                }                
                 OnPropertyChanged();
             }
         }
+
+        public bool IsDirty { get; private set; }
 
         /// <summary>
         /// Available versions of Control
@@ -62,6 +65,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 this.AvailableVersions.Add(version);
             }
             this.SelectedVersion = this.AvailableVersions.FirstOrDefault(a => a.ToString().Equals(versionInUse)) ?? this.AvailableVersions.First();
+            this.IsDirty = false;
         }
     }
 }

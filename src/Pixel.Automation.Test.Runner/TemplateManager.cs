@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Spectre.Console;
 using System;
 using System.Linq;
@@ -11,13 +12,13 @@ namespace Pixel.Automation.Test.Runner
     public class TemplateManager
     {
         private readonly ITemplateClient templateClient;       
-        private readonly IApplicationDataManager applicationDataManager;
+        private readonly IProjectDataManager projectDataManager;
         private readonly IAnsiConsole ansiConsole;
 
-        public TemplateManager(IApplicationDataManager applicationDataManager,
+        public TemplateManager(IProjectDataManager projectDataManager,
             ITemplateClient templateClient, IAnsiConsole ansiConsole)
         {
-            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.projectDataManager = Guard.Argument(projectDataManager).NotNull().Value;
             this.templateClient = Guard.Argument(templateClient).NotNull().Value ;          
             this.ansiConsole = Guard.Argument(ansiConsole).NotNull().Value;
         }
@@ -88,7 +89,7 @@ namespace Pixel.Automation.Test.Runner
                 Selector = selector,
                 InitializeScript = initializeScript
             };
-            var availableProjects = this.applicationDataManager.GetAllProjects();
+            var availableProjects = this.projectDataManager.GetAllProjects();
             var targetProject = availableProjects.FirstOrDefault(a => a.Name.Equals(projectName)) ?? throw new ArgumentException($"Project with name :" +
                 $" {projectName} doesn't exist");
             template.ProjectId = targetProject.ProjectId;
