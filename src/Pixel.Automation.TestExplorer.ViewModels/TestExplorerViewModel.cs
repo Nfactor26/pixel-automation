@@ -1,13 +1,13 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -40,6 +40,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         private readonly IEventAggregator eventAggregator;
         private readonly IWindowManager windowManager;
         private readonly IPlatformProvider platformProvider;
+        private readonly ITestCaseManager testCaseManager;
+        private readonly ITestFixtureManager testFixtureManager;
         private readonly ApplicationSettings applicationSettings;
         private bool isInitialized = false;
 
@@ -82,13 +84,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <param name="testRunner"></param>
         /// <param name="windowManager"></param>
         /// <param name="applicationSettings"></param>
-        public TestExplorerViewModel(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, IProjectFileSystem fileSystem, ITestRunner testRunner, 
-            IComponentViewBuilder componentViewBuilder, IWindowManager windowManager, IPlatformProvider platformProvider, ApplicationSettings applicationSettings)
+        public TestExplorerViewModel(IEventAggregator eventAggregator, IAutomationProjectManager projectManager, 
+            IProjectFileSystem fileSystem, ITestRunner testRunner, IProjectAssetsDataManager projectAssetsDataManager,
+            IComponentViewBuilder componentViewBuilder, IWindowManager windowManager, IPlatformProvider platformProvider,
+            ApplicationSettings applicationSettings)
         {
             this.projectManager = Guard.Argument(projectManager).NotNull().Value;
             this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
             this.TestRunner = Guard.Argument(testRunner).NotNull().Value;
+            this.testCaseManager = Guard.Argument(projectAssetsDataManager).NotNull().Value;
+            this.testFixtureManager = Guard.Argument(projectAssetsDataManager).NotNull().Value;
             this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager).NotNull().Value;
             this.platformProvider = Guard.Argument(platformProvider).NotNull().Value;
@@ -101,23 +107,34 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Load the fixtures and test case from local storage
         /// </summary>
-        void Initialize()
+        async Task LoadDataAsync()
         {
-            if (!isInitialized)
+            try
             {
-                foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+                if (!isInitialized)
                 {
-                    var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
-                    TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
-                    this.TestFixtures.Add(testFixtureVM);
-
-                    foreach (var testCase in this.fileSystem.LoadFiles<TestCase>(testFixtureDirectory))
+                    await this.testFixtureManager.DownloadAllFixturesAsync();
+                    await this.testCaseManager.DownloadAllTestsAsync();
+                    foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
                     {
-                        TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
-                        testFixtureVM.Tests.Add(testCaseVM);
+                        var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
+                        TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
+                        this.TestFixtures.Add(testFixtureVM);
+
+                        foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixture.FixtureId)))
+                        {
+                            var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
+                            TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
+                            testFixtureVM.Tests.Add(testCaseVM);
+                        }
+
                     }
+                    isInitialized = true;
                 }
-                isInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to load the fixtures and test cases");
             }
         }
 
@@ -175,8 +192,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 bool? result = await this.windowManager.ShowDialogAsync(testFixtureEditor);
                 if (result.HasValue && result.Value)
                 {
+                    await this.testFixtureManager.AddTestFixtureAsync(newTestFixture);
                     this.TestFixtures.Add(testFixtureVM);
-                    SaveTestFixture(testFixtureVM);
                     logger.Information("Added new fixture {0}", newTestFixture.DisplayName);
                 }
             }
@@ -201,7 +218,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 if (result.HasValue && result.Value)
                 {
                     fixtureVM.Refresh();
-                    SaveTestFixture(fixtureVM, false);
+                    await this.testFixtureManager.UpdateTestFixtureAsync(fixtureVM.TestFixture);
                     logger.Information("Edited fixture {0}", fixtureVM.DisplayName);
                 }
             }
@@ -215,13 +232,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Delete an existing TestFixture
         /// </summary>
         /// <param name="testFixtureVM"></param>
-        public void DeleteTestFixture(TestFixtureViewModel testFixtureVM)
+        public async void DeleteTestFixture(TestFixtureViewModel testFixtureVM)
         {
             MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test fixture along with all tests?", "Confirm Delete", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                this.TestFixtures.Remove(testFixtureVM);
-                Directory.Delete(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureVM.Id));
+                await this.testFixtureManager.DeleteTestFixtureAsync(testFixtureVM.TestFixture);
+                this.TestFixtures.Remove(testFixtureVM);              
                 logger.Information("TestFixture {0} was deleted from local storage.", testFixtureVM.DisplayName);
 
             }
@@ -244,11 +261,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     return;
                 }
 
-                ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(fixtureVM.Id);
-                fixtureVM.TestFixtureEntity = this.projectManager.Load<Entity>(testCaseFileSystem.FixtureProcessFile);
+                await this.testFixtureManager.DownloadFixtureDataAsync(fixtureVM.TestFixture);
+
+                var fixtureFiles = this.fileSystem.GetTestFixtureFiles(fixtureVM.TestFixture);
+                fixtureVM.TestFixtureEntity = this.projectManager.Load<Entity>(fixtureFiles.ProcessFile);
                 fixtureVM.TestFixtureEntity.Name = fixtureVM.DisplayName;
-                fixtureVM.TestFixtureEntity.Tag = fixtureVM.Id;
-              
+                fixtureVM.TestFixtureEntity.Tag = fixtureVM.FixtureId;
+           
                 if (await this.TestRunner.TryOpenTestFixture(fixtureVM.TestFixture))
                 {
                     OpenInEditor();
@@ -271,9 +290,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                         IScriptEditorFactory editorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                        editorFactory.AddProject(fixtureVM.Id, Array.Empty<string>(), typeof(EmptyModel));
-                        string fixtureScriptContent = this.fileSystem.ReadAllText(testCaseFileSystem.FixtureScript);
-                        editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.Id, fixtureScriptContent);
+                        editorFactory.AddProject(fixtureVM.FixtureId, Array.Empty<string>(), typeof(EmptyModel));
+                        string fixtureScriptContent = this.fileSystem.ReadAllText(fixtureFiles.ScriptFile);
+                        editorFactory.AddDocument(fixtureVM.ScriptFile, fixtureVM.FixtureId, fixtureScriptContent);
                     }                    
                    
                 }
@@ -295,7 +314,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             try
             {
-                var fixtureToOpen = this.TestFixtures.FirstOrDefault(f => f.Id.Equals(fixtureId));
+                var fixtureToOpen = this.TestFixtures.FirstOrDefault(f => f.FixtureId.Equals(fixtureId));
                 if (fixtureToOpen != null)
                 {
                     await OpenTestFixtureAsync(fixtureToOpen);
@@ -316,15 +335,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public async Task CloseTestFixtureAsync(TestFixtureViewModel fixtureVM, bool autoSave)
         {
             if (fixtureVM.IsOpenForEdit)
-            {               
-                if (autoSave)
-                {
-                    SaveTestFixture(fixtureVM);
-                }
-
+            { 
                 foreach (var testCase in fixtureVM.Tests)
                 {
                     await CloseTestCaseAsync(testCase, autoSave);
+                }
+
+                if (autoSave)
+                {
+                    await SaveTestFixtureDataAsync(fixtureVM);
                 }
 
                 CleanUpScriptEditor();
@@ -342,7 +361,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         var fixtureEntityManager = fixtureVM.TestFixtureEntity.EntityManager;
                         IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
-                        scriptEditorFactory.RemoveProject(fixtureVM.Id);
+                        scriptEditorFactory.RemoveProject(fixtureVM.FixtureId);
                         fixtureVM.TestFixtureEntity.DisposeEditors();
                     }
                 }
@@ -355,6 +374,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         this.eventAggregator.PublishOnUIThreadAsync(new TestEntityRemovedEventArgs(fixtureVM.TestFixtureEntity));
                     }
                 }
+
+
             }
             NotifyOfPropertyChange(nameof(CanSaveAll));
         }
@@ -368,7 +389,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             try
             {
-                var fixtureToClose = this.TestFixtures.FirstOrDefault(f => f.Id.Equals(fixtureId));
+                var fixtureToClose = this.TestFixtures.FirstOrDefault(f => f.FixtureId.Equals(fixtureId));
                 if (fixtureToClose != null)
                 {
                     await CloseTestFixtureAsync(fixtureToClose, true);
@@ -395,7 +416,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     IScriptEditorFactory scriptEditorFactory = fixtureEntityManager.GetServiceOfType<IScriptEditorFactory>();
                     using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
-                        scriptEditorScreen.OpenDocument(fixtureVM.ScriptFile, fixtureVM.Id, string.Empty);
+                        scriptEditorScreen.OpenDocument(fixtureVM.ScriptFile, fixtureVM.FixtureId, string.Empty);
                         var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                         if (result.HasValue && result.Value)
                         {
@@ -425,46 +446,26 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
-        /// Save the details of TestFixture locally.
+        /// Save data files belonging to the TestFixture
         /// </summary>
-        /// <param name="testFixtureVM"></param>
-        /// <param name="saveFixtureEntity"></param>
-        public void SaveTestFixture(TestFixtureViewModel testFixtureVM, bool saveFixtureEntity = true)
+        /// <param name="fixtureVM"></param>
+        /// <returns></returns>
+        public async Task SaveTestFixtureDataAsync(TestFixtureViewModel fixtureVM)
         {
-            try
+            //Remove the test case entities before saving test fixture entity
+            var testCaseEntities = fixtureVM.TestFixtureEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
+            foreach (var testEntity in testCaseEntities)
             {
-                ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testFixtureVM.Id);
-                if (string.IsNullOrEmpty(testFixtureVM.ScriptFile))
-                {
-                    testFixtureVM.ScriptFile = this.fileSystem.GetRelativePath(testCaseFileSystem.FixtureScript);
-                    this.fileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testFixtureVM.ScriptFile), string.Empty);
-                }
-
-                this.fileSystem.SaveToFile<TestFixture>(testFixtureVM.TestFixture, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureFile));
-              
-                if (saveFixtureEntity)
-                {
-                    //Remove the test case entities before saving test fixture entity
-                    var testCaseEntities = testFixtureVM.TestFixtureEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-                    foreach (var testEntity in testCaseEntities)
-                    {
-                        testEntity.Parent.RemoveComponent(testEntity);
-                    }
-
-                    this.fileSystem.SaveToFile<Entity>(testFixtureVM.TestFixtureEntity, testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseFileSystem.FixtureProcessFile));
-
-                    //Add back the test cases that were removed earlier
-                    foreach (var testEntity in testCaseEntities)
-                    {
-                        testFixtureVM.TestFixtureEntity.AddComponent(testEntity);
-                    }
-                }
-                logger.Information("Changes to TestFixture {0} were saved to local storage.", testFixtureVM.DisplayName);
+                testEntity.Parent.RemoveComponent(testEntity);
             }
-            catch (Exception ex)
+
+            await this.testFixtureManager.SaveFixtureDataAsync(fixtureVM.TestFixture);
+
+            //Add back the test cases that were removed earlier
+            foreach (var testEntity in testCaseEntities)
             {
-                logger.Error(ex, ex.Message);
-            }
+                fixtureVM.TestFixtureEntity.AddComponent(testEntity);
+            }           
         }
 
         #endregion Test Fixture
@@ -482,7 +483,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 TestCase testCase = new TestCase()
                 {
-                    FixtureId = testFixtureVM.Id,
+                    FixtureId = testFixtureVM.FixtureId,
                     DisplayName = $"Test#{testFixtureVM.Tests.Count() + 1}",
                     Order = testFixtureVM.Tests.Count() + 1,
                     TestCaseEntity = new TestCaseEntity() { Name = $"Test#{testFixtureVM.Tests.Count() + 1}" }
@@ -497,8 +498,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         DelayFactor = testFixtureVM.DelayFactor
                     };
 
+                    await this.testCaseManager.AddTestCaseAsync(testCase);
                     testFixtureVM.Tests.Add(testCaseVM);
-                    SaveTestCase(testCaseVM);
+                   
                     logger.Information("Added new TestCase {0} to Fixture {1}", testCase.DisplayName, testFixtureVM.DisplayName);
                 }
             }
@@ -517,7 +519,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             try
             {
-                var parentFixture = TestFixtures.First(t => t.Id.Equals(testCaseVM.FixtureId));
+                var parentFixture = TestFixtures.First(t => t.FixtureId.Equals(testCaseVM.FixtureId));
                 var existingTestCases = parentFixture.Tests.Except(new[] { testCaseVM }).Select(s => s.DisplayName);
                 var testCaseEditor = new EditTestCaseViewModel(testCaseVM.TestCase, existingTestCases);
                 bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);
@@ -528,7 +530,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
                     }
-                    SaveTestCase(testCaseVM, false);
+                    await this.testCaseManager.UpdateTestCaseAsync(testCaseVM.TestCase);
                     logger.Information("Edited TestCase {0}", testCaseVM.DisplayName);
                 }
             }
@@ -542,7 +544,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Delete an existing TestCase
         /// </summary>
         /// <param name="testCaseVM"></param>
-        public void DeleteTestCase(TestCaseViewModel testCaseVM)
+        public async void DeleteTestCase(TestCaseViewModel testCaseVM)
         {
             try
             {
@@ -552,14 +554,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     return;
                 }
 
-                TestFixtureViewModel testFixtureVM = this.TestFixtures.FirstOrDefault(c => c.Id.Equals(testCaseVM.FixtureId));
+                TestFixtureViewModel testFixtureVM = this.TestFixtures.FirstOrDefault(c => c.FixtureId.Equals(testCaseVM.FixtureId));
                 if (testFixtureVM != null)
                 {
                     MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test", "Confirm Delete", MessageBoxButton.OKCancel);
                     if (result == MessageBoxResult.OK)
                     {
-                        ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testCaseVM.FixtureId);
-                        testCaseFileSystem.DeleteTestCase(testCaseVM.Id);
+                        await this.testCaseManager.DeleteTestCaseAsync(testCaseVM.TestCase);
                         testFixtureVM.Tests.Remove(testCaseVM);
                         logger.Information("Deleted TestCase {0} from fixture {1}", testCaseVM.DisplayName, testFixtureVM.DisplayName);
                     }
@@ -587,13 +588,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     return;
                 }
 
-                ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testCaseVM.FixtureId);
-                string testCaseProcessFile = testCaseFileSystem.GetTestProcessFile(testCaseVM.Id);
-                testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testCaseProcessFile);
-                testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
-                testCaseVM.TestCaseEntity.Tag = testCaseVM.Id;
+                await this.testCaseManager.DownloadTestDataAsync(testCaseVM.TestCase);
 
-                var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+                var testFiles = this.fileSystem.GetTestCaseFiles(testCaseVM.TestCase);               
+                testCaseVM.TestCaseEntity = this.projectManager.Load<Entity>(testFiles.ProcessFile);
+                testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
+                testCaseVM.TestCaseEntity.Tag = testCaseVM.TestCaseId;
+
+                var parentFixture = this.TestFixtures.First(f => f.FixtureId.Equals(testCaseVM.FixtureId));
                 if (!parentFixture.IsOpenForEdit)
                 {
                     await this.OpenTestFixtureAsync(parentFixture);
@@ -628,9 +630,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         IScriptEditorFactory editorFactory = testEntityManager.GetServiceOfType<IScriptEditorFactory>();
 
                         //Add the test script project and script file to script editor
-                        editorFactory.AddProject(testCaseVM.Id, new string[] { parentFixture.Id }, testEntityManager.Arguments.GetType());
-                        string scriptFileContent = this.fileSystem.ReadAllText(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
-                        editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.Id, scriptFileContent);
+                        editorFactory.AddProject(testCaseVM.TestCaseId, new string[] { parentFixture.FixtureId }, testEntityManager.Arguments.GetType());
+                        string scriptFileContent = this.fileSystem.ReadAllText(testFiles.ScriptFile);
+                        editorFactory.AddDocument(testCaseVM.ScriptFile, testCaseVM.TestCaseId, scriptFileContent);
                     }                   
                 }
             }
@@ -652,7 +654,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 foreach (var testFixture in this.TestFixtures)
                 {
-                    var targetTestCase = testFixture.Tests.FirstOrDefault(t => t.Id.Equals(testCaseId));
+                    var targetTestCase = testFixture.Tests.FirstOrDefault(t => t.TestCaseId.Equals(testCaseId));
                     if (targetTestCase != null)
                     {
                         await OpenTestCaseAsync(targetTestCase);
@@ -680,9 +682,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {                  
                     if (autoSave)
                     {
-                        SaveTestCase(testCaseVM);
+                        await SaveTestCaseDataAsync(testCaseVM);
                     }
-                    var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+                    var parentFixture = this.TestFixtures.First(f => f.FixtureId.Equals(testCaseVM.FixtureId));
 
                     CleanUpScriptEditor();
                     RemoveFromEditor();                    
@@ -709,7 +711,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                             //Remove the script editor project that was added while opening the test case
                             var entityManager = testCaseVM.TestCaseEntity.EntityManager;
                             var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                            scriptEditorFactory.RemoveProject(testCaseVM.Id);
+                            scriptEditorFactory.RemoveProject(testCaseVM.TestCaseId);
                             testCaseVM.TestCaseEntity.DisposeEditors();
                         }
                     }
@@ -740,7 +742,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     }
                     foreach (var test in fixture.Tests)
                     {
-                        if (test.Id.Equals(testCaseId))
+                        if (test.TestCaseId.Equals(testCaseId))
                         {
                             await CloseTestCaseAsync(test, true);
                             break;
@@ -769,14 +771,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
                     using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
-                        scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.Id, string.Empty);
+                        scriptEditorScreen.OpenDocument(testCaseVM.ScriptFile, testCaseVM.TestCaseId, string.Empty);
                         var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                         if (result.HasValue && result.Value)
                         {
                             logger.Information("TestCase script {0} was edited.", testCaseVM.ScriptFile);                          
                             var scriptEngine = entityManager.GetScriptEngine();
                             scriptEngine.ClearState();
-                            var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+                            var parentFixture = this.TestFixtures.First(f => f.FixtureId.Equals(testCaseVM.FixtureId));
                             await scriptEngine.ExecuteFileAsync(parentFixture.ScriptFile);
                             await scriptEngine.ExecuteFileAsync(testCaseVM.ScriptFile);                            
                         }
@@ -792,44 +794,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
-        /// Save the details of TestCase locally.
+        /// Save data files belonging to the TestFixture
         /// </summary>
-        /// <param name="testCaseVM">TestCaseViewModel to be saved</param>
-        /// <param name="saveTestEntity">Indicates if the process entity should be saved as well</param>
-        public void SaveTestCase(TestCaseViewModel testCaseVM, bool saveTestEntity = true)
+        /// <param name="fixtureVM"></param>
+        /// <returns></returns>
+        public async Task SaveTestCaseDataAsync(TestCaseViewModel testCaseVM)
         {
-            ITestCaseFileSystem testCaseFileSystem = this.fileSystem.CreateTestCaseFileSystemFor(testCaseVM.FixtureId);
-            TestFixtureViewModel testFixtureVM = this.TestFixtures.FirstOrDefault(c => c.Id.Equals(testCaseVM.FixtureId));
-            if (testFixtureVM != null)
-            {
-                if (string.IsNullOrEmpty(testCaseVM.ScriptFile))
-                {
-                    testCaseVM.ScriptFile = this.fileSystem.GetRelativePath(testCaseFileSystem.GetTestScriptFile(testCaseVM.Id));
-                    this.fileSystem.CreateOrReplaceFile(testCaseFileSystem.FixtureDirectory, Path.GetFileName(testCaseVM.ScriptFile), string.Empty);
-                }
-
-                //e.g. while assigning test data source , test case is not open for edit and hence will have
-                // TestCaseEntity null causing prefab lookup to fail
-                if (testCaseVM.IsOpenForEdit)
-                {
-                    var prefabsUsed = testCaseVM.TestCaseEntity.GetComponentsOfType<PrefabEntity>(SearchScope.Descendants);
-                    if (prefabsUsed.Any())
-                    {
-                        testCaseVM.PrefabReferences = new Core.Models.PrefabReferences();
-                        foreach (var prefab in prefabsUsed)
-                        {
-                            testCaseVM.PrefabReferences.AddPrefabReference(new Core.Models.PrefabReference(prefab.ApplicationId, prefab.PrefabId));
-                        }
-                    }
-                }
-
-                this.fileSystem.SaveToFile<TestCase>(testCaseVM.TestCase, testCaseFileSystem.FixtureDirectory);
-                if (saveTestEntity)
-                {
-                    this.fileSystem.SaveToFile<Entity>(testCaseVM.TestCaseEntity, testCaseFileSystem.FixtureDirectory, testCaseFileSystem.GetTestProcessFile(testCaseVM.Id));
-                }
-                logger.Information("Changes to TestCase {0} were saved to local storage.", testCaseVM.DisplayName);
-            }
+            await this.testCaseManager.SaveTestDataAsync(testCaseVM.TestCase);
         }
 
         /// <summary>
@@ -851,10 +822,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
-        /// Save all open test fixtures and test cases locally.
-        /// Changes are not pushed to persistent store by this operation.
+        /// Save all open test fixtures and test cases locally.     
         /// </summary>
-        public void SaveAll()
+        public async Task SaveAll()
         {
             foreach (var fixture in this.TestFixtures)
             {
@@ -862,12 +832,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     if (fixture.IsOpenForEdit)
                     {
-                        SaveTestFixture(fixture, true);
+                        await SaveTestFixtureDataAsync(fixture);
                         foreach (var testCase in fixture.Tests)
                         {
                             if (testCase.IsOpenForEdit)
                             {
-                                SaveTestCase(testCase, true);
+                               await SaveTestCaseDataAsync(testCase);
                             }
                         }
                     }
@@ -1134,7 +1104,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     testCaseVM.OpenForExecute = false;
                 }             
 
-                var parentFixture = this.TestFixtures.First(f => f.Id.Equals(testCaseVM.FixtureId));
+                var parentFixture = this.TestFixtures.First(f => f.FixtureId.Equals(testCaseVM.FixtureId));
                 await foreach (var result in this.TestRunner.RunTestAsync(parentFixture.TestFixture, testCaseVM.TestCase))
                 {
                     System.Action addTestResult = () => testCaseVM.TestResults.Add(result);
@@ -1163,16 +1133,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
 
         #region life cycle
 
+
         /// <summary>
         /// Called just before view is activiated for the first time.
         /// Fixtures and TestCases are loaded from local storage during initialization.
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected override Task OnInitializeAsync(CancellationToken cancellationToken)
+        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
         {
-            Initialize();
-            return base.OnInitializeAsync(cancellationToken);
+            await LoadDataAsync();
+            await base.OnInitializeAsync(cancellationToken);
         }
 
         /// <summary>
@@ -1191,7 +1162,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             return base.OnDeactivateAsync(close, cancellationToken);
 
         }
-
+    
         #endregion life cycle
 
         #region Notifications        

@@ -1,11 +1,10 @@
 ﻿using Caliburn.Micro;
 using Dawn;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -21,9 +20,8 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private readonly IEventAggregator eventAggregator;
         private readonly ISerializer serializer;
-        private readonly IWindowManager windowManager;     
-        private readonly IApplicationDataManager applicationDataManager;
-        private readonly IApplicationFileSystem fileSystem;
+        private readonly IWindowManager windowManager;            
+        private readonly IProjectDataManager projectDataManager;      
         private readonly IVersionManagerFactory versionManagerFactory;
 
         /// <summary>
@@ -61,16 +59,15 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="applicationDataManager"></param>
         /// <param name="fileSystem"></param>
 
-        public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager, IApplicationDataManager applicationDataManager,
-            IApplicationFileSystem fileSystem, IVersionManagerFactory versionManagerFactory)
+        public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager,
+            IProjectDataManager projectDataManager, IVersionManagerFactory versionManagerFactory)
         {
             this.DisplayName = "Home";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.eventAggregator.SubscribeOnBackgroundThread(this);
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
-            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
-            this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
+            this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;           
             this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
 
             LoadProjects();
@@ -79,7 +76,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private void LoadProjects()
         {
-            var availableProjects = this.applicationDataManager.GetAllProjects();
+            var availableProjects = this.projectDataManager.GetAllProjects();
             this.Projects.AddRange(availableProjects.Select(p => new AutomationProjectViewModel(p)));          
         }
 

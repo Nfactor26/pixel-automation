@@ -2,8 +2,8 @@
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
@@ -17,7 +17,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         private readonly AutomationProject automationProject;
         private readonly IProjectFileSystem fileSystem;
-        private readonly Lazy<ReferenceManager> referenceManager;
+        private readonly Lazy<IReferenceManager> referenceManager;
 
         public ProjectVersion ProjectVersion { get; }
 
@@ -71,17 +71,17 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
             this.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForAutomationProject(automationProject, projectVersion); });
+            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager(this.automationProject.ProjectId, this.ProjectVersion.ToString(), this.fileSystem); });
             this.CanPublish = !projectVersion.IsPublished && !projectVersion.Version.Equals(automationProject.LatestActiveVersion.Version);
         }
 
 
-        public ProjectVersion Clone()
+        public async Task<ProjectVersion> CloneAsync(IProjectDataManager projectDataManager)
         {            
-            ProjectVersion newVersionInfo;
+            ProjectVersion newVersion;
             if (!this.automationProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.ProjectVersion.Version.Major + 1)))
             {
-                newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
+                newVersion = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
                 {
                     IsActive = true
                 };
@@ -90,36 +90,13 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             {
                 var versionsWithSameMajor = this.automationProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.ProjectVersion.Version.Major));
                 int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
-                newVersionInfo = new ProjectVersion(new Version(this.ProjectVersion.Version.Major, nextMinor, 0, 0))
+                newVersion = new ProjectVersion(new Version(this.ProjectVersion.Version.Major, nextMinor, 0, 0))
                 {
                     IsActive = true
                 };
-            }       
-            this.fileSystem.Initialize(this.automationProject, this.ProjectVersion);
-            var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
-            var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
-            Directory.CreateDirectory(newWorkingDirectory);
-
-            ////copy contents from previous version directory to new version directory
-            CopyAll(currentWorkingDirectory, new DirectoryInfo(newWorkingDirectory));
-         
-            void CopyAll(DirectoryInfo source, DirectoryInfo target)
-            {
-                // Copy each file into the new directory.
-                foreach (FileInfo fi in source.GetFiles())
-                {
-                    fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-                }
-
-                // Copy each subdirectory using recursion.
-                foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-                {
-                    DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-                    CopyAll(diSourceSubDir, nextTargetSubDir);
-                }
             }
-            logger.Information($"Completed cloning version : {this.ProjectVersion} of project: {this.automationProject.Name}. Cloned version is : {newVersionInfo}");
-            return newVersionInfo;
+            await projectDataManager.AddProjectVersionAsync(this.automationProject, newVersion, this.ProjectVersion);
+            return newVersion;
         }
 
 
@@ -127,7 +104,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// Copy last compiled dll from temp folder to References folder.
         /// Set IsActive to false and set the assembly name
         /// </summary>
-        public void Publish(IWorkspaceManagerFactory workspaceFactory)
+        public async Task PublishAsync(IWorkspaceManagerFactory workspaceFactory, IProjectDataManager projectDataManager)
         {          
             if(!this.IsPublished)
             {
@@ -165,18 +142,32 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
                 logger.Information($"Data model assembly name is : {this.DataModelAssembly}");
 
-                //Replace the assemly name in the process file
-                UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName);
+                //save the datamodel assembly file
+                string dataModelAssemblyFile = Path.Combine(this.fileSystem.ReferencesDirectory, this.DataModelAssembly);
+                await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, dataModelAssemblyFile, automationProject.ProjectId);
+              
+                //Replace the assemly name in the process file and save process file
+                if(UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName))
+                {
+                    await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, this.fileSystem.ProcessFile, automationProject.ProjectId);
+                }
 
-                //Replace the assembly name in all of the test process file
+                //Replace the assembly name in all of the fixture and test process file and save these files if there was a replacement done
                 foreach (var directory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
                 {
-                    var testProcessFile = Directory.GetFiles(directory, "*.proc").FirstOrDefault();
-                    if (testProcessFile != null)
+                    var processFiles = Directory.GetFiles(directory, "*.proc", SearchOption.AllDirectories);
+                    foreach(var processFile in processFiles)
                     {
-                        UpdateAssemblyReference(testProcessFile, assemblyName);
-                    }
+                        if(UpdateAssemblyReference(processFile, assemblyName))
+                        {
+                            //Fixtures and Test process files are named based on Identifier. This is what we need to tag these files with.
+                            await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, processFile, Path.GetFileNameWithoutExtension(processFile));
+                        }
+                    }                   
                 }
+
+                //save the updates to the project version
+                await projectDataManager.UpdateProjectVersionAsync(this.automationProject, this.ProjectVersion);
 
                 logger.Information($"Assembly references updated in process and test files.");
 
@@ -189,16 +180,17 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// </summary>
         /// <param name="processFile"></param>
         /// <param name="assemblyName"></param>
-        private void UpdateAssemblyReference(string processFile, string assemblyName)
+        private bool UpdateAssemblyReference(string processFile, string assemblyName)
         {
             string fileContents = File.ReadAllText(processFile);
             Regex regex = new Regex($"({assemblyName})(_\\d+)");
+            bool isMatch = regex.Matches(fileContents).Any();
             fileContents = regex.Replace(fileContents, (m) =>
             {
                 return assemblyName;
             });
             File.WriteAllText(processFile, fileContents);
-
+            return isMatch;
         }
 
     }

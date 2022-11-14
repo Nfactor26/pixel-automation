@@ -12,7 +12,7 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testFixture = new TestFixture();
 
-            Assert.IsFalse(string.IsNullOrEmpty(testFixture.Id));
+            Assert.IsFalse(string.IsNullOrEmpty(testFixture.FixtureId));
             Assert.IsNull(testFixture.DisplayName);
             Assert.AreEqual(0, testFixture.Order);
             Assert.IsFalse(testFixture.IsMuted);
@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.AreEqual("Default", testFixture.Category);
             Assert.IsNotNull(testFixture.Tests);
             Assert.IsNull(testFixture.TestFixtureEntity);
-            Assert.AreEqual(testFixture.Id, testFixture.ToString());
+            Assert.AreEqual(testFixture.FixtureId, testFixture.ToString());
 
             testFixture.DisplayName = "TestFixture";
             testFixture.Order = 10;

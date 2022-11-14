@@ -165,8 +165,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.typeBrowser = Guard.Argument(typeBrowser, nameof(typeBrowser)).NotNull().Value;
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
        
-            this.TestDataSource = new TestDataSource() { Id = Guid.NewGuid().ToString() };
-            this.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.Id}.csx"));
+            this.TestDataSource = new TestDataSource() { DataSourceId = Guid.NewGuid().ToString() };
+            this.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.DataSourceId}.csx"));
             this.DataSource = dataSource;
             this.existingDataSources = existingDataSources;
         }

@@ -34,7 +34,7 @@ namespace Pixel.Automation.Designer.ViewModels
        
         public PrefabProject PrefabProject { get; private set; }       
 
-        public virtual void DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
+        public async Task DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
         {
             Debug.Assert(prefabProject != null);
    
@@ -44,7 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels
             var targetVersion = versionToLoad ?? PrefabProject.LatestActiveVersion;
             if (targetVersion != null)
             {
-                this.projectManager.Load(prefabProject, targetVersion);
+                await this.projectManager.Load(prefabProject, targetVersion);
                 UpdateWorkFlowRoot();
                 return;
             }

@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
@@ -53,8 +54,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 
             this.stagedScreens.Clear();
 
-            var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, this.prefabEntity,
-                prefabProjectViewModel, dropTarget);
+            var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, entityManager.GetServiceOfType<IReferenceManager>(),
+                this.prefabEntity, prefabProjectViewModel, dropTarget);
             var prefabInputMappingScript = new PrefabInputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
             var prefabOutputMappingScript = new PrefabOutputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
 

@@ -5,6 +5,8 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
 
@@ -21,9 +23,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private readonly PrefabProject prefabProject;
         private readonly PrefabEntity prefabEntity;
         private readonly EntityComponentViewModel dropTarget;
-        private readonly PrefabReferences prefabReferences;
+       
         private readonly IProjectFileSystem projectFileSystem;
-        private readonly IPrefabFileSystem prefabFileSystem;  
+        private readonly IPrefabFileSystem prefabFileSystem;
+        private readonly IReferenceManager projectReferenceManager;
         
         /// <summary>
         /// Name of the Prefab
@@ -83,28 +86,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <param name="prefabProjectViewModel">Prefab which needs to be added to automation process</param>
         /// <param name="dropTarget">EntityComponentViewModel wrapping an Entity to which Prefab needs to be added</param>
         public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, IPrefabFileSystem prefabFileSystem,
-            PrefabEntity prefabEntity,
+            IReferenceManager projectReferenceManager,  PrefabEntity prefabEntity,
             PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
         {
             this.DisplayName = "(1/3) Select prefab version and mapping scripts";
             this.projectFileSystem = projectFileSystem;
             this.prefabFileSystem = prefabFileSystem;
+            this.projectReferenceManager = projectReferenceManager;
             this.prefabEntity = prefabEntity;
             this.prefabProject = prefabProjectViewModel.PrefabProject;
-            this.dropTarget = dropTarget;
-            if(File.Exists(projectFileSystem.PrefabReferencesFile))
-            {
-                this.prefabReferences = projectFileSystem.LoadFile<PrefabReferences>(projectFileSystem.PrefabReferencesFile);
-            }
-            else
-            {
-                this.prefabReferences = new PrefabReferences();
-            }
+            this.dropTarget = dropTarget;          
             this.AvailableVersions = prefabProject.PublishedVersions;
-            this.CanChangeVersion = !prefabReferences.HasReference(prefabProject);
+            this.CanChangeVersion = !projectReferenceManager.GetPrefabReferences().HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {
-                var referencedVersion = prefabReferences.GetPrefabVersionInUse(prefabProject);
+                var referencedVersion = projectReferenceManager.GetPrefabReferences().GetPrefabVersionInUse(prefabProject);
                 this.SelectedVersion = AvailableVersions.First(a => a.Equals(referencedVersion));
             }
             else
@@ -146,6 +142,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <inheritdoc/>   
         public override bool TryProcessStage(out string errorDescription)
         {
+            //TODO : Can we make this asyc ?
             if(this.SelectedVersion != null && !dropTarget.ComponentCollection.Any(a => a.Model.Equals(prefabEntity)))
             {
                 UpdatePrefabReferences();
@@ -163,11 +160,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// </summary>
         private void UpdatePrefabReferences()
         {
-            if (!prefabReferences.HasReference(prefabProject))
-            {
-                prefabReferences.AddPrefabReference(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
-            }
-            this.projectFileSystem.SaveToFile<PrefabReferences>(prefabReferences, this.projectFileSystem.WorkingDirectory, Path.GetFileName(this.projectFileSystem.PrefabReferencesFile));
+            _ = this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
             logger.Debug($"Updated prefab refrences file.");
         }
 
@@ -179,23 +172,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         {
             //Load control references file for prefab project
             this.prefabFileSystem.Initialize(this.prefabProject, this.SelectedVersion);
-            ControlReferences prefabControlReferences = File.Exists(this.prefabFileSystem.ControlReferencesFile) ?
-                this.prefabFileSystem.LoadFile<ControlReferences>(this.prefabFileSystem.ControlReferencesFile) : new ControlReferences();
+            ProjectReferences prefabProjectReferences = File.Exists(this.prefabFileSystem.ReferencesFile) ?
+                this.prefabFileSystem.LoadFile<ProjectReferences>(this.prefabFileSystem.ReferencesFile) : new ProjectReferences();
 
             //Load control references file for project to which prefab is being added
-            ControlReferences projectControlReferences = File.Exists(this.projectFileSystem.ControlReferencesFile) ?
-                this.projectFileSystem.LoadFile<ControlReferences>(this.projectFileSystem.ControlReferencesFile) : new ControlReferences();
+            ControlReferences projectControlReferences = this.projectReferenceManager.GetControlReferences();
 
             //Add control references from prefab project to automation project if it doesn't already exists and save it
-            foreach (var controlReference in prefabControlReferences.References)
+            //TODO : Batch all the additions
+            foreach (var controlReference in prefabProjectReferences.ControlReferences)
             {
                 if (!projectControlReferences.HasReference(controlReference.ControlId))
                 {
-                    projectControlReferences.AddControlReference(controlReference);
+                    _ = this.projectReferenceManager.AddControlReferenceAsync(controlReference);
                 }
-            }
-            this.projectFileSystem.SaveToFile<ControlReferences>(projectControlReferences, Path.GetDirectoryName(this.projectFileSystem.ControlReferencesFile), Path.GetFileName(this.projectFileSystem.ControlReferencesFile));
-
+            }           
             logger.Debug($"Updated control refrences file.");
         }
 

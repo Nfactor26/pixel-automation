@@ -11,7 +11,7 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testCase = new TestCase();
 
-            Assert.IsFalse(string.IsNullOrEmpty(testCase.Id));
+            Assert.IsFalse(string.IsNullOrEmpty(testCase.TestCaseId));
             Assert.IsNull(testCase.FixtureId);
             Assert.IsNull(testCase.DisplayName);
             Assert.AreEqual(0, testCase.Order);
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.IsNull(testCase.Description);
             Assert.IsNotNull(testCase.Tags);
             Assert.IsNull(testCase.TestCaseEntity);
-            Assert.AreEqual(testCase.Id, testCase.ToString());
+            Assert.AreEqual(testCase.TestCaseId, testCase.ToString());
 
             testCase.FixtureId = Guid.NewGuid().ToString();
             testCase.DisplayName = "TestCase";

@@ -1,9 +1,11 @@
 ﻿using Dawn;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteAdhocTestCommand;
 
@@ -39,16 +41,18 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
 
     private readonly IAnsiConsole console;
     private readonly ProjectManager projectManager;
+    private readonly IProjectDataManager projectDataManager;
 
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="console"></param>
     /// <param name="projectManager"></param>
-    public ExecuteAdhocTestCommand(IAnsiConsole console, ProjectManager projectManager)
+    public ExecuteAdhocTestCommand(IAnsiConsole console, ProjectManager projectManager, IProjectDataManager projectDataManager)
     {
         this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull();
         this.console = Guard.Argument(console, nameof(console)).NotNull().Value;
+        this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
     }
 
     /// <inheritdoc/>    
@@ -60,10 +64,15 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
             ProjectName = settings.Project,            
             Selector = settings.Selector,
             InitializeScript =  settings.InitializationScript
-        };       
-    
+        };
+
+        var projects = this.projectDataManager.GetAllProjects();
+        var targetProject = projects.FirstOrDefault(p => p.Name.Equals(settings.Project))
+            ?? throw new ArgumentException($"Project with name {settings.Project} doesn't exist.");
+        sessionTemplate.ProjectId = targetProject.ProjectId;
+        
         await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
-        projectManager.LoadTestCases();
+        await projectManager.LoadTestCasesAsync();
         if (settings.List.GetValueOrDefault())
         {
             await projectManager.ListAllAsync(sessionTemplate.Selector, console);

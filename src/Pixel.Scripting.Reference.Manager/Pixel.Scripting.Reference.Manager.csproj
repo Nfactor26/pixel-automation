@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
+    <ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

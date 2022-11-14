@@ -31,16 +31,11 @@ namespace Pixel.Automation.Core.Interfaces
         /// All assemblies in this folder will be added as references to editors and script engine
         /// </summary>
         string ReferencesDirectory { get;  }
-
-        /// <summary>
-        /// Path of the control references file. This store metadata for the controls used in a project.
-        /// </summary>
-        string ControlReferencesFile { get; }
-
+       
         /// <summary>
         /// Path of the assembly references file. This store references and imports for script editor, code editor and script engine for the project.
         /// </summary>
-        string AssemblyReferencesFile { get; }
+        string ReferencesFile { get; }
 
         /// <summary>
         /// Returns path relative to working directory of file system for a given path.
@@ -135,13 +130,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Path to process file for the project
         /// </summary>
         string ProcessFile { get; }
-
-        /// <summary>
-        /// Prefab references file path which maintains details of all the
-        /// prefabs used in the automation project
-        /// </summary>
-        string PrefabReferencesFile { get; }
-
+        
         /// <summary>
         /// Directory containing the test cases
         /// </summary>
@@ -157,21 +146,25 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>       
         /// <param name="automationProject">Automation project</param>
         ///<param name="versionInfo">Target version of the project</param>
-        void Initialize(AutomationProject automationProject, VersionInfo versionInfo);      
+        void Initialize(AutomationProject automationProject, VersionInfo versionInfo);
 
         /// <summary>
-        /// Create ITestCaseFileSystem for a given fixtureId
-        /// </summary>
-        /// <param name="testFixtureId"></param>
+        /// Get an instance of <see cref="TestCaseFiles"/> for a given TestCase
+        /// </summary>       
         /// <returns></returns>
-        ITestCaseFileSystem CreateTestCaseFileSystemFor(string testFixtureId);
+        TestCaseFiles GetTestCaseFiles(TestCase testCase);
+
+        /// <summary>
+        /// Get an instance of <see cref="TestFixtureFiles"/> for a given TestFixture
+        /// </summary>       
+        /// <returns></returns>
+        TestFixtureFiles GetTestFixtureFiles(TestFixture fixture);
 
         /// <summary>
         /// Load TestDataSources available on local storage
         /// </summary>
         /// <returns></returns>
         IEnumerable<TestDataSource> GetTestDataSources();
-
 
     }
 
@@ -231,66 +224,5 @@ namespace Pixel.Automation.Core.Interfaces
         Entity GetTemplate();
 
     }
-
-    /// <summary>
-    /// <see cref="ITestCaseFileSystem"/> is a simplified file system which only knows about the structure of the test fixtures and test cases and related assets.
-    /// However, it doesn't provide any methods to actually interact with the file system like <see cref="IFileSystem"/>
-    /// </summary>
-    public interface ITestCaseFileSystem
-    {
-        /// <summary>
-        /// Working directory for the test case file system
-        /// </summary>
-        string WorkingDirectory { get; }
-
-        /// <summary>
-        /// Path of test fixture directory which contains test fixture file along with  test case file  test process file and test scripts for all tests belonging to it
-        /// </summary>
-        string FixtureDirectory { get; }
-        
-        /// <summary>
-        /// Path of the test fixture file
-        /// </summary>
-        string FixtureFile { get; }
-
-        /// <summary>
-        /// Path of the test fixture process file
-        /// </summary>
-        string FixtureProcessFile { get; }
-
-        /// <summary>
-        /// A script file that can be used to share common data between tests. Script variable retain values as subsequent executions of test case use and modify these values.
-        /// </summary>
-        string FixtureScript { get; }
-
-        /// <summary>
-        /// Get the test case file for a test case given it's id
-        /// </summary>
-        /// <param name="testCaseId"></param>
-        /// <returns></returns>
-        string GetTestCaseFile(string testCaseId);
-
-
-        /// <summary>
-        /// Get the test process file for a test case given it's id
-        /// </summary>
-        /// <param name="testCaseId"></param>
-        /// <returns></returns>
-        string GetTestProcessFile(string testCaseId);
-
-        /// <summary>
-        /// Get the test script file for a test case given it's id
-        /// </summary>
-        /// <param name="testCaseId"></param>
-        /// <returns></returns>
-        string GetTestScriptFile(string testCaseId);
-
-        void Initialize(string projectWorkingDirectory, string testFixtureId);
-
-        /// <summary>
-        /// Delete test case
-        /// </summary>
-        /// <param name="testCaseId"></param>
-        void DeleteTestCase(string testCaseId);
-    }
+   
 }

@@ -1,12 +1,11 @@
 ﻿using Dawn;
 using ICSharpCode.AvalonEdit;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Scripting.Reference.Manager.Models;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
-using System.IO;
 using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager;
@@ -19,6 +18,7 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
     private readonly ILogger logger = Log.ForContext<AssemblyReferenceManagerViewModel>();
     private readonly IFileSystem fileSystem;
     private readonly ISerializer serializer;
+    private readonly IReferenceManager referenceManager;
 
     public TextEditor JsonEditor { get; set; } = new TextEditor()
     {
@@ -39,12 +39,13 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
     /// </summary>
     /// <param name="fileSystem"></param>
     /// <param name="serializer"></param>
-    public AssemblyReferenceManagerViewModel(IFileSystem fileSystem, ISerializer serializer)
+    public AssemblyReferenceManagerViewModel(IFileSystem fileSystem, ISerializer serializer, IReferenceManager referenceManager)
     {
         this.DisplayName = "Manager Assembly References";
         this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
         this.serializer = Guard.Argument(serializer).NotNull().Value;
-        this.JsonEditor.Text = this.fileSystem.ReadAllText(fileSystem.AssemblyReferencesFile);
+        this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
+        this.JsonEditor.Text = this.serializer.Serialize(this.referenceManager.GetEditorReferences());
     }
 
     /// <summary>
@@ -58,9 +59,9 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
             try
             {
                 ClearErrors("");
-                var referenceCollection = this.serializer.DeserializeContent<ReferenceCollection>(jsonText);
-                this.fileSystem.SaveToFile<ReferenceCollection>(referenceCollection, Path.GetDirectoryName(fileSystem.AssemblyReferencesFile), Path.GetFileName(fileSystem.AssemblyReferencesFile));
-                logger.Information("{0} was updated", fileSystem.AssemblyReferencesFile);
+                var editorReferences = this.serializer.DeserializeContent<EditorReferences>(jsonText);
+                await this.referenceManager.SetEditorReferencesAsync(editorReferences);              
+                logger.Information("{0} was updated", fileSystem.ReferencesFile);
                 await this.TryCloseAsync(true);
             }
             catch(Exception ex)

@@ -81,22 +81,12 @@
         /// Name of entity file for an automaiton project which contains the automation workflow
         /// </summary>
         public static readonly string AutomationProcessFileName = "Automation.proc";
-
-        /// <summary>
-        /// Name of the file which store details of the controls that have been used in a automation or prefab project.
-        /// </summary>
-        public static readonly string ControlRefrencesFileName = "ControlReferences.ref";
-
+       
         /// <summary>
         /// Name of the file which store references and imports for script editor, code editor and script engine for the project.
         /// </summary>
 
-        public static readonly string AssemblyReferencesFileName = "AssemblyReferences.ref";
-
-        /// <summary>
-        /// Name of the file which store details of the prefabs that have been used in a automation project.
-        /// </summary>
-        public static readonly string PrefabRefrencesFileName = "PrefabReferences.ref";
+        public static readonly string ReferencesFileName = "References.ref";       
 
         /// <summary>
         /// Default name for the Initialization script for configuring ProcessDaaModel used at design time.

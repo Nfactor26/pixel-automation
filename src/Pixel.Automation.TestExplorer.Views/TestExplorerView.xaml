@@ -123,7 +123,7 @@
                                             <MenuItem x:Name="Close" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestCaseAsync($dataContext,'false')]"/>
                                             <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
-                                                cal:Message.Attach="[Event Click] = [Action SaveTestCase($dataContext, 'true')]"/>
+                                                cal:Message.Attach="[Event Click] = [Action SaveTestCaseDataAsync($dataContext)]"/>
                                             <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestCaseAsync($dataContext,'true')]"/>
                                             <MenuItem x:Name="Edit" Header="Edit Details"                                       
@@ -197,7 +197,7 @@
                                         <MenuItem x:Name="OpenTestFixture" Header="Open"                                       
                                             cal:Message.Attach="[Event Click] = [Action OpenTestFixtureAsync($dataContext)]"/>
                                         <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
-                                                cal:Message.Attach="[Event Click] = [Action SaveTestFixture($dataContext, 'true')]"/>
+                                                cal:Message.Attach="[Event Click] = [Action SaveTestFixtureDataAsync($dataContext)]"/>
                                         <MenuItem x:Name="CloseTestFixture" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'false')]"/>
                                         <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           

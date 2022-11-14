@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core.Models;
+﻿using Pixel.Automation.Core.Interfaces;
 
 namespace Pixel.Scripting.Reference.Manager.Contracts;
 
@@ -8,16 +8,11 @@ namespace Pixel.Scripting.Reference.Manager.Contracts;
 public interface IReferenceManagerFactory
 {
     /// <summary>
-    /// Create <see cref="ReferenceManager"/> for the active version of a given AutomationProject
+    /// Create a reference manager and initilize it for a given version of project to manage
     /// </summary>
-    /// <param name="project"></param>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="fileSystem"></param>
     /// <returns></returns>
-    ReferenceManager CreateForAutomationProject(AutomationProject project, VersionInfo version);
-
-    /// <summary>
-    /// Create <see cref="ReferenceManager"/> for the active verison of a given PrefabProject
-    /// </summary>
-    /// <param name="project"></param>
-    /// <returns></returns>
-    ReferenceManager CreateForPrefabProject(PrefabProject project, VersionInfo version);
+    IReferenceManager CreateReferenceManager(string projectId, string projectVersion, IFileSystem fileSystem);
 }

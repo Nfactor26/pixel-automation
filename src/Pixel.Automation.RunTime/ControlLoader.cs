@@ -3,6 +3,8 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Reference.Manager;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.Collections.Generic;
 using System.IO;
@@ -13,19 +15,20 @@ namespace Pixel.Automation.RunTime
     {
         protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
         protected readonly IFileSystem fileSystem;
+        protected readonly IReferenceManager referenceManager;
         protected readonly ApplicationSettings applicationSettings;
         protected readonly Dictionary<string, ControlDescription> Controls = new Dictionary<string, ControlDescription>();
-        protected ControlReferences controlReferences;
-
+       
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="applicationSettings"></param>
         /// <param name="fileSystem"></param>
-        public ControlLoader(ApplicationSettings applicationSettings, IFileSystem fileSystem)
+        public ControlLoader(ApplicationSettings applicationSettings, IFileSystem fileSystem, IReferenceManager referenceManager)
         {
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
-            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;            
+            this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
+            this.referenceManager = Guard.Argument(referenceManager).NotNull().Value;
         }
 
         /// <inheritdoc/>      
@@ -72,11 +75,7 @@ namespace Pixel.Automation.RunTime
         /// <returns></returns>
         protected virtual ControlReferences GetControlReferences()
         {
-            if(this.controlReferences == null)
-            {             
-                this.controlReferences = this.fileSystem.LoadFile<ControlReferences>(this.fileSystem.ControlReferencesFile);
-            }
-            return this.controlReferences;
+           return referenceManager.GetControlReferences();
         }
     }
 }

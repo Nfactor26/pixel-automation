@@ -12,6 +12,8 @@ using Serilog;
 using Serilog.Events;
 using Spectre.Console.Cli;
 using System.Threading.Tasks;
+using Serilog.Sinks.SpectreConsole;
+using Pixel.Persistence.Services.Client.Interfaces;
 
 namespace Pixel.Automation.Test.Runner
 {
@@ -51,8 +53,12 @@ namespace Pixel.Automation.Test.Runner
 
                 var applicationDataManager = kernel.Get<IApplicationDataManager>();
                 await applicationDataManager.DownloadApplicationsDataAsync();
-                await applicationDataManager.DownloadProjectsAsync();
-              
+                var projectDataManger = kernel.Get<IProjectDataManager>();
+                await projectDataManger.DownloadProjectsAsync();
+                var prefabDataManager = kernel.Get<IPrefabDataManager>();
+                await prefabDataManager.DownloadPrefabsAsync();
+
+                //System.Diagnostics.Debugger.Launch();
                 var registrar = new TypeRegistrar(kernel);
                 var app = new CommandApp(registrar);
                 app.Configure(config =>

@@ -46,7 +46,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
         var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
             throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
         await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
-        projectManager.LoadTestCases();
+        await projectManager.LoadTestCasesAsync();
         if(settings.List.GetValueOrDefault())
         {
             await projectManager.ListAllAsync(sessionTemplate.Selector, console);

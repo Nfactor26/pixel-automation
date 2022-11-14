@@ -9,6 +9,7 @@ using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
@@ -27,11 +28,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly ISerializer serializer;
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly IPrefabDataManager prefabDataManager;
         private readonly IReferenceManagerFactory referenceManagerFactory;
+        private IReferenceManager referenceManager;
 
         private PrefabProject prefabProject;
 
-        public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager,
+        public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager,
             IPrefabFileSystem prefabFileSystem, ICodeGenerator codeGenerator, ICodeEditorFactory codeEditorFactory,
             IScriptEngineFactory scriptEngineFactory, IReferenceManagerFactory referenceManagerFactory)
         {
@@ -42,6 +45,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.scriptEngineFactory = scriptEngineFactory;
             this.serializer = serializer;
             this.applicationDataManager = applicationDataManager;
+            this.prefabDataManager = prefabDataManager;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
 
@@ -71,7 +75,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
 
-            var referenceManager = this.referenceManagerFactory.CreateForPrefabProject(prefabProject, prefabVersion);                
+            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(prefabProject.PrefabId, prefabVersion.ToString(), this.prefabFileSystem);                
             this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());  
             var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabProject, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
@@ -94,11 +98,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             serializer.Serialize<PrefabProject>(prefabFileSystem.PrefabDescriptionFile, prefabProject);
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabProject.PrefabRoot as Entity);
             UpdateAssemblyReferenceAndNameSpace(prefabProject, prefabFileSystem);
-            UpdateControlReferencesFile(prefabProject.PrefabRoot as Entity);
+            await UpdateControlReferencesFileAsync(prefabProject.PrefabRoot as Entity);
             logger.Information($"Created new prefab : {this.prefabProject.PrefabName}");
            
-            await this.applicationDataManager.AddOrUpdatePrefabAsync(prefabProject, prefabFileSystem.ActiveVersion);
-            await this.applicationDataManager.AddOrUpdatePrefabDataFilesAsync(prefabProject, prefabFileSystem.ActiveVersion);           
+            await this.prefabDataManager.AddPrefabAsync(prefabProject);                
             return this.prefabProject;
         }
 
@@ -141,17 +144,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         /// However, the automation project control references will always decide what version of control is used.
         /// </summary>
         /// <param name="prefabRoot"></param>
-        private void UpdateControlReferencesFile(Entity prefabRoot)
-        {
-            var controlReferences = new ControlReferences();
+        private async Task UpdateControlReferencesFileAsync(Entity prefabRoot)
+        {          
+            //TODO : Batch addition of controls in a single call
             var referencedControls = prefabRoot.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
             foreach(var control in referencedControls)
             {
                 var mostRecentVersionOfControl = this.applicationDataManager.GetControlsById(control.ApplicationId, control.ControlId).OrderBy(a => a.Version).Last();
-                controlReferences.AddControlReference(new ControlReference(mostRecentVersionOfControl.ApplicationId, mostRecentVersionOfControl.ControlId, mostRecentVersionOfControl.Version));
-            }
-            this.prefabFileSystem.SaveToFile<ControlReferences>(controlReferences, Path.GetDirectoryName(this.prefabFileSystem.ControlReferencesFile),
-                Path.GetFileName(this.prefabFileSystem.ControlReferencesFile));
+                await this.referenceManager.AddControlReferenceAsync(new ControlReference(mostRecentVersionOfControl.ApplicationId, mostRecentVersionOfControl.ControlId, mostRecentVersionOfControl.Version));
+            }            
         }
 
         public override async Task Cancel()

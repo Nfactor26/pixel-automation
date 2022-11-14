@@ -31,13 +31,10 @@ namespace Pixel.Automation.Core
         public string DataModelDirectory { get; protected set; }
 
         /// <InheritDoc/>  
-        public string ReferencesDirectory { get; protected set; }
+        public string ReferencesDirectory { get; protected set; }    
 
         /// <InheritDoc/>
-        public string ControlReferencesFile { get; protected set; }
-
-        /// <InheritDoc/>
-        public string AssemblyReferencesFile { get; protected set; }
+        public string ReferencesFile { get; protected set; }
 
         /// <summary>
         /// constructor
@@ -61,9 +58,8 @@ namespace Pixel.Automation.Core
             this.ScriptsDirectory = Path.Combine(this.WorkingDirectory, Constants.ScriptsDirectory);
             this.TempDirectory = Path.Combine(this.WorkingDirectory, Constants.TemporaryDirectory);
             this.DataModelDirectory = Path.Combine(this.WorkingDirectory, Constants.DataModelDirectory);
-            this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, Constants.ReferencesDirectory);
-            this.ControlReferencesFile = Path.Combine(this.WorkingDirectory, Constants.ControlRefrencesFileName);
-            this.AssemblyReferencesFile = Path.Combine(this.WorkingDirectory, Constants.AssemblyReferencesFileName);
+            this.ReferencesDirectory = Path.Combine(this.WorkingDirectory, Constants.ReferencesDirectory);           
+            this.ReferencesFile = Path.Combine(this.WorkingDirectory, Constants.ReferencesFileName);
 
             if (!Directory.Exists(WorkingDirectory))
             {

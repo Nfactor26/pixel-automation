@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Pixel.Automation.Core.Models
 {
@@ -66,6 +67,7 @@ namespace Pixel.Automation.Core.Models
             get => this.ActiveVersions.OrderBy(a => a.Version).LastOrDefault();
         }
 
+        [JsonIgnore]
         public Interfaces.IComponent PrefabRoot { get; set; }
 
         /// <summary>

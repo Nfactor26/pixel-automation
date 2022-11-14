@@ -51,7 +51,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {         
             var typeDefinition = new Editor.Core.TypeDefinition(typeof(EmptyModel));         
             var testDataSourceViewModel = Substitute.For<IStagedScreen>();
-            testDataSourceViewModel.GetProcessedResult().Returns(new TestDataSourceResult(new TestDataSource() { Id = Guid.NewGuid().ToString() }, typeDefinition.ActualType));
+            testDataSourceViewModel.GetProcessedResult().Returns(new TestDataSourceResult(new TestDataSource() { DataSourceId = Guid.NewGuid().ToString() }, typeDefinition.ActualType));
 
             var testDataModelEditorViewModel = new TestDataModelEditorViewModel(scriptEditorFactory)
             {

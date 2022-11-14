@@ -1,10 +1,10 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
@@ -16,6 +16,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TestCase = Pixel.Automation.Core.TestData.TestCase;
+using TestFixture = Pixel.Automation.Core.TestData.TestFixture;
 
 namespace Pixel.Automation.Test.Runner
 {
@@ -31,18 +33,21 @@ namespace Pixel.Automation.Test.Runner
         private readonly ITestSessionClient sessionClient;
         private readonly ITestRunner testRunner;
         private readonly ITestSelector testSelector;
-        private readonly IApplicationDataManager applicationDataManager;
+        private readonly IProjectDataManager projectDataManager;
+        private readonly IProjectAssetsDataManager projectAssetsDataManager;
+        private readonly IPrefabDataManager prefabDataManager;
         private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly IReferenceManagerFactory referenceManagerFactory;
-        private AutomationProject automationProject;
-        private VersionInfo targetVersion;
+        private IReferenceManager referenceManager;
+        private Core.Models.AutomationProject automationProject;
+        private Core.Models.VersionInfo targetVersion;
         private List<TestFixture> availableFixtures = new List<TestFixture>();
         private SessionTemplate sessionTemplate;       
 
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IApplicationFileSystem applicationFileSystem,
             IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,
-            IApplicationDataManager applicationDataManager, ITestRunner testRunner,
-            ITestSelector testSelector, ITestSessionClient sessionClient, IScriptEngineFactory scriptEngineFactory,
+            IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetsDataManager, IPrefabDataManager prefabDataManager,
+            ITestRunner testRunner, ITestSelector testSelector, ITestSessionClient sessionClient, IScriptEngineFactory scriptEngineFactory,
             IReferenceManagerFactory referenceManagerFactory)
         {
             this.entityManager = Guard.Argument(entityManager).NotNull().Value;
@@ -53,7 +58,9 @@ namespace Pixel.Automation.Test.Runner
             this.sessionClient = Guard.Argument(sessionClient).NotNull().Value;
             this.testRunner = Guard.Argument(testRunner).NotNull().Value;
             this.testSelector = Guard.Argument(testSelector).NotNull().Value;
-            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.projectDataManager = Guard.Argument(projectDataManager).NotNull().Value;
+            this.projectAssetsDataManager = Guard.Argument(projectAssetsDataManager).NotNull().Value;
+            this.prefabDataManager = Guard.Argument(prefabDataManager).NotNull().Value;
             this.scriptEngineFactory = Guard.Argument(scriptEngineFactory).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
@@ -70,7 +77,7 @@ namespace Pixel.Automation.Test.Runner
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
            
-            this.automationProject = serializer.Deserialize<AutomationProject>(this.applicationFileSystem.GetAutomationProjectFile(projectId), null);
+            this.automationProject = serializer.Deserialize<Core.Models.AutomationProject>(this.applicationFileSystem.GetAutomationProjectFile(projectId), null);
 
             if(string.IsNullOrEmpty(projectVersion) || string.IsNullOrWhiteSpace(projectVersion))
             {
@@ -87,12 +94,29 @@ namespace Pixel.Automation.Test.Runner
             }
             this.targetVersion = automationProject.AvailableVersions.Where(a => a.Version.Equals(version)).Single();
 
-            await this.applicationDataManager.DownloadProjectDataAsync(this.automationProject, targetVersion);
-            this.projectFileSystem.Initialize(automationProject, targetVersion);
+            this.projectFileSystem.Initialize(this.automationProject, this.targetVersion);
+            this.projectAssetsDataManager.Initialize(this.automationProject, this.targetVersion);
+
+            await this.projectDataManager.DownloadProjectDataFilesAsync(this.automationProject, (this.targetVersion as Core.Models.ProjectVersion));
+            await this.projectAssetsDataManager.DownloadAllFixturesAsync();
+            await this.projectAssetsDataManager.DownloadAllTestsAsync();
+            await this.projectAssetsDataManager.DownloadAllTestDataSourcesAsync();
+
+            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.automationProject.ProjectId, this.targetVersion.ToString(), this.projectFileSystem);
+            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
+
+            foreach (var prefabReference in this.referenceManager.GetPrefabReferences().References)
+            {
+                await this.prefabDataManager.DownloadPrefabDataAsync(new Core.Models.PrefabProject()
+                {
+                    ApplicationId = prefabReference.ApplicationId,
+                    PrefabId = prefabReference.PrefabId
+                },
+                prefabReference.Version);
+            }
+         
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);
-            var referenceManager = this.referenceManagerFactory.CreateForAutomationProject(this.automationProject, this.targetVersion);
-            this.entityManager.RegisterDefault<IReferenceManager>(referenceManager);
+            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);           
 
             if (!string.IsNullOrEmpty(initializationScript) && !File.Exists(Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)))
             {
@@ -133,11 +157,14 @@ namespace Pixel.Automation.Test.Runner
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel()
         {
+            DirectoryInfo directoryInfo = new DirectoryInfo(this.projectFileSystem.ReferencesDirectory);
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
             string dataModelAssembly = Path.Combine(this.projectFileSystem.ReferencesDirectory, $"{this.automationProject.Namespace}.dll");
             if(!File.Exists(dataModelAssembly))
-            {
-                var referenceManager = this.referenceManagerFactory.CreateForAutomationProject(this.automationProject, this.targetVersion);
-
+            {              
                 var workspace = new CodeWorkspaceManager(this.projectFileSystem.DataModelDirectory);
                 workspace.WithAssemblyReferences(referenceManager.GetCodeEditorReferences() ?? Array.Empty<string>());
                 workspace.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
@@ -199,16 +226,18 @@ namespace Pixel.Automation.Test.Runner
             }
         }
        
-        public void LoadTestCases()
+        public async Task LoadTestCasesAsync()
         {
             foreach (var testFixtureDirectory in Directory.GetDirectories(this.projectFileSystem.TestCaseRepository))
             {
                 var testFixture = this.projectFileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();            
                 this.availableFixtures.Add(testFixture);
-
-                foreach (var testCase in this.projectFileSystem.LoadFiles<TestCase>(testFixtureDirectory))
+                await this.projectAssetsDataManager.DownloadFixtureDataAsync(testFixture);
+                foreach (var testCaseDirectory in Directory.GetDirectories(testFixtureDirectory))
                 {
+                    var testCase = this.projectFileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
                     testFixture.Tests.Add(testCase);
+                    await this.projectAssetsDataManager.DownloadTestDataAsync(testCase);
                 }
             }
             logger.Information($"Found {this.availableFixtures.Select(s => s.Tests).Count()} test cases.");
@@ -266,10 +295,10 @@ namespace Pixel.Automation.Test.Runner
                         continue;
                     }
 
-                    ITestCaseFileSystem testCaseFileSystem = this.projectFileSystem.CreateTestCaseFileSystemFor(testFixture.Id);
-                    testFixture.TestFixtureEntity = this.Load<Entity>(testCaseFileSystem.FixtureProcessFile);
+                    var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
+                    testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
                     testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
-                    testFixture.TestFixtureEntity.Tag = testFixture.Id;
+                    testFixture.TestFixtureEntity.Tag = testFixture.FixtureId;
                     await this.testRunner.TryOpenTestFixture(testFixture);
                     foreach (var testCase in testFixture.Tests)
                     {                      
@@ -312,11 +341,10 @@ namespace Pixel.Automation.Test.Runner
         {           
             logger.Information($"Start execution of test case : {testCase.DisplayName}");
 
-            ITestCaseFileSystem testCaseFileSystem = this.projectFileSystem.CreateTestCaseFileSystemFor(fixture.Id);
-            string testCaseProcessFile = testCaseFileSystem.GetTestProcessFile(testCase.Id);
-            testCase.TestCaseEntity = this.Load<Entity>(testCaseProcessFile);
+            var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);          
+            testCase.TestCaseEntity = this.Load<Entity>(testCaseFiles.ProcessFile);
             testCase.TestCaseEntity.Name = testCase.DisplayName;
-            testCase.TestCaseEntity.Tag = testCase.Id;
+            testCase.TestCaseEntity.Tag = testCase.TestCaseId;
 
             if (await this.testRunner.TryOpenTestCase(fixture, testCase))
             {
@@ -326,9 +354,9 @@ namespace Pixel.Automation.Test.Runner
                     {
                         ProjectId = automationProject.ProjectId,
                         ProjectName = automationProject.Name,
-                        TestId = testCase.Id,
+                        TestId = testCase.TestCaseId,
                         TestName = testCase.DisplayName,
-                        FixtureId = fixture.Id,
+                        FixtureId = fixture.FixtureId,
                         FixtureName = fixture.DisplayName,
                         Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
                         ExecutedOn = DateTime.Today.ToUniversalTime(),

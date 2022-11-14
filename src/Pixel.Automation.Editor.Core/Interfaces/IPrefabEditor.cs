@@ -1,9 +1,10 @@
 ﻿using Pixel.Automation.Core.Models;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
     public interface IPrefabEditor : IEditor
     {      
-       void DoLoad(PrefabProject prefabProject, VersionInfo versionInfo = null);
+       Task DoLoad(PrefabProject prefabProject, VersionInfo versionInfo = null);
     }
 }

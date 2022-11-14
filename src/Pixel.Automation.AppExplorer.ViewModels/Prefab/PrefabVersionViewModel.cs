@@ -2,8 +2,8 @@
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager;
 using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
@@ -18,7 +18,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly PrefabProject prefabProject;
         private readonly PrefabVersion prefabVersion;
         private readonly IPrefabFileSystem fileSystem;
-        private readonly Lazy<ReferenceManager> referenceManager;
+        private readonly Lazy<IReferenceManager> referenceManager;
 
         public Version Version
         {
@@ -71,16 +71,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
             this.prefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.referenceManager = new Lazy<ReferenceManager>(() => { return referenceManagerFactory.CreateForPrefabProject(prefabProject, prefabVersion); });
+            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.prefabVersion.ToString(), this.fileSystem); });
             this.CanPublish = !prefabVersion.IsPublished && !prefabVersion.Version.Equals(prefabProject.LatestActiveVersion.Version);
         }
 
-        public PrefabVersion Clone()
+        public async  Task<PrefabVersion> CloneAsync(IPrefabDataManager prefabDataManager)
         {
-            PrefabVersion newVersionInfo;
+            PrefabVersion newVersion;
             if (!this.prefabProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.prefabVersion.Version.Major + 1)))
             {
-                newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
+                newVersion = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
                 {
                     IsActive = true
                 };
@@ -89,37 +89,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {               
                 var versionsWithSameMajor = this.prefabProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.prefabVersion.Version.Major));
                 int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
-                newVersionInfo = new PrefabVersion(new Version(this.prefabVersion.Version.Major, nextMinor, 0, 0))
+                newVersion = new PrefabVersion(new Version(this.prefabVersion.Version.Major, nextMinor, 0, 0))
                 {
                     IsActive = true
                 };
             }
 
-            this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);
-            var currentWorkingDirectory = new DirectoryInfo(this.fileSystem.WorkingDirectory);
-            var newWorkingDirectory = Path.Combine(currentWorkingDirectory.Parent.FullName, newVersionInfo.ToString());
-            Directory.CreateDirectory(newWorkingDirectory);
-
-            ////copy contents from previous version directory to new version directory
-            CopyAll(currentWorkingDirectory, new DirectoryInfo(newWorkingDirectory));
-
-            void CopyAll(DirectoryInfo source, DirectoryInfo target)
-            {
-                // Copy each file into the new directory.
-                foreach (FileInfo fi in source.GetFiles())
-                {
-                    fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-                }
-
-                // Copy each subdirectory using recursion.
-                foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-                {
-                    DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-                    CopyAll(diSourceSubDir, nextTargetSubDir);
-                }
-            }
-            logger.Information($"Completed cloning version : {this.prefabVersion} of Prefab: {this.prefabProject.PrefabName}. Cloned version is : {newVersionInfo}");
-            return newVersionInfo;
+            //Download the prefab data given it might not be locally available and then add new version by cloning from current version
+            await prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.prefabVersion);            
+            await prefabDataManager.AddPrefabVersionAsync(this.prefabProject, newVersion, this.prefabVersion);
+            return newVersion;
         }
 
 
@@ -127,7 +106,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// Copy last compiled dll from temp folder to References folder.
         /// Set IsDeployed to true and set the assembly name
         /// </summary>
-        public void Publish(IWorkspaceManagerFactory workspaceFactory)
+        public async Task PublishAsync(IWorkspaceManagerFactory workspaceFactory, IPrefabDataManager prefabDataManager)
         {           
             if(!this.IsPublished)
             {
@@ -163,14 +142,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 this.CanPublish = false;
                 this.PrefabAssembly = $"{assemblyName}.dll";
 
+                logger.Information($"Data model assembly name is : {this.PrefabAssembly}");
+             
                 //Replace the assemly name in the process and template file
                 UpdateAssemblyReference(this.fileSystem.PrefabFile, this.prefabProject.Namespace, assemblyName);
+             
                 if (File.Exists(this.fileSystem.TemplateFile))
                 {
-                    UpdateAssemblyReference(this.fileSystem.TemplateFile, this.prefabProject.Namespace, assemblyName);
+                    UpdateAssemblyReference(this.fileSystem.TemplateFile, this.prefabProject.Namespace, assemblyName);                   
                 }
 
                 logger.Information($"Assembly references updated in process and template files.");
+
+                //save all the files belonging to Prefab
+                await prefabDataManager.UpdatePrefabVersionAsync(this.prefabProject, this.prefabVersion);
+                await prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.prefabVersion);
 
                 NotifyOfPropertyChange(() => CanPublish);
             }            

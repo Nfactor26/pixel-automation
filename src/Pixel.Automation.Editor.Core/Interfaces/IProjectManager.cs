@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Reference.Manager.Contracts;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -10,6 +11,8 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         IProjectManager WithEntityManager(EntityManager entityManager);
 
         IFileSystem GetProjectFileSystem();
+
+        IReferenceManager GetReferenceManager();
        
         /// <summary>
         /// Save all project data
@@ -41,6 +44,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
     public interface IPrefabProjectManager : IProjectManager
     {
-        Entity Load(PrefabProject prefabProject, VersionInfo versionInfo);
+        Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionInfo);
     }
 }

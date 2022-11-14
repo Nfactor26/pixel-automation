@@ -4,10 +4,21 @@
     {
         public string FileName { get; set; }
 
+        public string FilePath { get; set; }
+
         public string Version { get; set; }
 
         public string Type { get; set; }
 
         public byte[] Bytes { get; set; }
     } 
+
+    public class ProjectDataFile : DataFile
+    {
+        public string ProjectId { get; set; }
+
+        public string ProjectVersion { get; set; }
+
+        public string Tag { get; set; }
+    }
 }

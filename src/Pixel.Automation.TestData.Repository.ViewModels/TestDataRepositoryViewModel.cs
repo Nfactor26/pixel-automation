@@ -5,6 +5,7 @@ using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
@@ -31,6 +32,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly IArgumentTypeBrowserFactory typeBrowserFactory;
         private readonly IWindowManager windowManager;
         private readonly IEventAggregator eventAggregator;
+        private readonly ITestDataManager testDataManager;
 
         /// <summary>
         /// Collection of TestDataSource available for the associated automation project
@@ -63,7 +65,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="typeProvider"></param>
         /// <param name="typeBrowserFactory"></param>
         public TestDataRepositoryViewModel(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
-            IWindowManager windowManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory)
+            IWindowManager windowManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory, IProjectAssetsDataManager projectAssetsDataManager)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
@@ -71,7 +73,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
             this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
-           
+            this.testDataManager = Guard.Argument(projectAssetsDataManager, nameof(projectAssetsDataManager)).NotNull().Value;
+
             this.eventAggregator.SubscribeOnPublishedThread(this);
             CreateCollectionView();          
         }
@@ -79,8 +82,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <summary>
         /// Load the available TestDataSources from local storage
         /// </summary>
-        private void LoadDataSources()
-        {           
+        private async Task  LoadDataSourcesAsync()
+        {
+            await this.testDataManager.DownloadAllTestDataSourcesAsync();
             foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
             {               
                 this.TestDataSourceCollection.Add(testDataSource);
@@ -124,7 +128,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             groupedItems.Filter = new Predicate<object>((a) =>
             {
                 var testDataSource = a as TestDataSource;
-                return testDataSource.Name.ToLower().Contains(this.filterText.ToLower()) || testDataSource.Id.ToLower().Contains(this.filterText.ToLower());
+                return testDataSource.Name.ToLower().Contains(this.filterText.ToLower()) || testDataSource.DataSourceId.ToLower().Contains(this.filterText.ToLower());
             });
         }
 
@@ -163,8 +167,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
                 var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
                 if (result.HasValue && result.Value)
-                {
-                    serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{newTestDataSource.TestDataSource.Id}.dat"), newTestDataSource.TestDataSource);
+                {                                   
+                    await this.testDataManager.AddTestDataSourceAsync(newTestDataSource.TestDataSource);
                     this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
                     //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
                 }
@@ -176,12 +180,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
-        private void CreateEmptyDataSource()
+        private async Task CreateEmptyDataSourceAsync()
         {
             string testDataId = Guid.NewGuid().ToString();
             var testDataSource = new TestDataSource()
             {
-                Id = testDataId,
+                DataSourceId = testDataId,
                 Name = "EmptyDataSource",
                 ScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, $"{this.projectFileSystem.TestDataRepository}\\{testDataId}.csx"),
                 DataSource = DataSource.Code,
@@ -207,6 +211,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             scriptTextBuilder.Append(Environment.NewLine);
             scriptTextBuilder.Append("}");
             File.WriteAllText(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.csx"), scriptTextBuilder.ToString());
+
+            await this.testDataManager.AddTestDataSourceAsync(testDataSource);
+            await this.testDataManager.SaveTestDataSourceDataAsync(testDataSource);
+
         }
 
         #endregion Create Test Data Source       
@@ -241,13 +249,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="testDataSource"></param>
         private async void EditCodedDataSource(TestDataSource testDataSource)
         {
-            string projectName = testDataSource.Id;          
+            string projectName = testDataSource.DataSourceId;          
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(EmptyModel));
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditorScreen())
             {
                 scriptEditor.OpenDocument(testDataSource.ScriptFile, projectName, string.Empty); //File contents will be fetched from disk         
                 var result = await windowManager.ShowDialogAsync(scriptEditor);
                 this.scriptEditorFactory.RemoveProject(projectName);
+                await this.testDataManager.SaveTestDataSourceDataAsync(testDataSource);
             }
     
         }
@@ -263,7 +272,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
             if (result.HasValue && result.Value)
             {
-                serializer.Serialize<TestDataSource>(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataSource.Id}.dat"), testDataSource);                
+                await this.testDataManager.UpdateTestDataSourceAsync(testDataSource);
+                await this.testDataManager.SaveTestDataSourceDataAsync(testDataSource);
             }
         }
 
@@ -277,15 +287,18 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected override Task OnInitializeAsync(CancellationToken cancellationToken)
-        {
-            LoadDataSources();
+        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
+        {            
+            await LoadDataSourcesAsync();
             if (this.TestDataSourceCollection.Count == 0)
             {
-                CreateEmptyDataSource();
-                LoadDataSources();
+                await CreateEmptyDataSourceAsync();
+                foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
+                {
+                    this.TestDataSourceCollection.Add(testDataSource);
+                }
             }
-            return base.OnInitializeAsync(cancellationToken);
+            await base.OnInitializeAsync(cancellationToken);
         }
 
         /// <summary>

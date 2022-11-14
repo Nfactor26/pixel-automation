@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Scripting.Reference.Manager.Contracts;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -14,10 +15,10 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
         IVersionManager CreatePrefabVersionManager(PrefabProject prefabProject);
 
-        IVersionManager CreatePrefabReferenceManager(IProjectFileSystem projectFileSystem);
+        IVersionManager CreatePrefabReferenceManager(IReferenceManager referenceManager);
 
-        IVersionManager CreateControlReferenceManager(IFileSystem projectFileSystem);
+        IVersionManager CreateControlReferenceManager(IReferenceManager referenceManager);
 
-        IVersionManager CreateAssemblyReferenceManager(IFileSystem projectFileSystem);
+        IVersionManager CreateAssemblyReferenceManager(IFileSystem projectFileSystem, IReferenceManager referenceManager);
     }
 }
