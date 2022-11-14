@@ -208,10 +208,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private bool ValidateScriptPath(string propertyName, string scriptFile)
         {
             ClearErrors(propertyName);
-            if (!Path.GetDirectoryName(Path.Combine(this.projectFileSystem.WorkingDirectory, scriptFile)).Equals(this.projectFileSystem.ScriptsDirectory))
+            string scriptDirectory = Path.GetDirectoryName(Path.Combine(this.projectFileSystem.WorkingDirectory, scriptFile));
+            if (!(scriptDirectory.Contains(this.projectFileSystem.ScriptsDirectory) || scriptDirectory.Contains(this.projectFileSystem.TestCaseRepository)))
             {
-                AddOrAppendErrors(propertyName, $"{propertyName} file must be located in 'Scripts' directory");
-                AddOrAppendErrors("", $"{propertyName} file must be located in 'Scripts' directory");               
+                AddOrAppendErrors(propertyName, $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");
+                AddOrAppendErrors("", $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");               
                 return false;
             }
             return true;
