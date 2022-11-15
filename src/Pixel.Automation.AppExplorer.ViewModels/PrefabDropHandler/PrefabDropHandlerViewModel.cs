@@ -45,12 +45,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
                 PrefabId = prefabProjectViewModel.PrefabId,
                 ApplicationId = prefabProjectViewModel.ApplicationId
             };
+
+            //We add and remove prefab entity to drop target so that the ScriptInitializer can correctly generate input and output mapping script location
+            dropTarget.AddComponent(this.prefabEntity);
             var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
             foreach (var intializer in initializers)
             {
                 IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
-                componentInitializer.IntializeComponent(prefabEntity, dropTarget.Model.EntityManager);
+                componentInitializer.IntializeComponent(prefabEntity, entityManager);
             }
+            dropTarget.RemoveComponent(this.prefabEntity);
 
             this.stagedScreens.Clear();
 
