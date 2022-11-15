@@ -5,7 +5,6 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Entities;
 using Pixel.Automation.Core.Components.Processors;
 using Pixel.Automation.Core.Components.Sequences;
-using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -13,6 +12,7 @@ using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Pixel.Scripting.Reference.Manager.Contracts;
+using System;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -28,8 +28,24 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private readonly ApplicationSettings applicationSettings;
         private PrefabProject prefabProject;
         private PrefabVersion loadedVersion;
-        private Entity prefabbedEntity;       
+        private Entity prefabEntity;       
              
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="entityManager">EntityManager</param>
+        /// <param name="prefabFileSystem">Prefab file system</param>
+        /// <param name="typeProvider">Known Type provider</param>
+        /// <param name="argumentTypeProvider">Argument type provider</param>
+        /// <param name="codeEditorFactory">Factory for creading code editorss</param>
+        /// <param name="scriptEditorFactory">Factory for creating script editors</param>
+        /// <param name="scriptEngineFactory">Factory for creating script enginess</param>
+        /// <param name="codeGenerator">Code generator for generating initial data model code</param>
+        /// <param name="applicationDataManager">Data manager for application data</param>
+        /// <param name="prefabDataManager">Data manager for prefab data</param>
+        /// <param name="applicationSettings">Application settings</param>
+        /// <param name="referenceManagerFactory">Factory for creating Reference Manager</param>
         public PrefabProjectManager(ISerializer serializer, IEntityManager entityManager, IPrefabFileSystem prefabFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
             ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager, ApplicationSettings applicationSettings,
@@ -46,6 +62,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
+            Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+            Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
+
             this.prefabProject = prefabProject;
             this.loadedVersion = versionToLoad as PrefabVersion;
             this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
@@ -65,7 +84,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.entityManager.Arguments = dataModel;
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             Initialize();          
-            return await Task.FromResult(this.RootEntity);
+            
+            return this.RootEntity;
         }
     
 
@@ -81,30 +101,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         private Entity AddEntitiesAndPrefab()
         {
-            this.prefabbedEntity = this.Load<Entity>(this.prefabFileSystem.PrefabFile);
-            Entity templateRoot = default;
-            
-            if(File.Exists(this.prefabFileSystem.TemplateFile))
-            {
-                templateRoot = this.Load<Entity>(this.prefabFileSystem.TemplateFile); ;
-            }           
+            this.prefabEntity = this.Load<Entity>(this.prefabFileSystem.PrefabFile);     
+            var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
 
-            if (templateRoot != null)
+            if (!File.Exists(this.prefabFileSystem.TemplateFile))
             {
-                templateRoot.EntityManager = this.entityManager;
-                RestoreParentChildRelation(templateRoot);
-                Entity prefabPlaceHolder = templateRoot.GetComponentsOfType<SequentialEntityProcessor>(SearchScope.Children).Last();
-                prefabPlaceHolder.AddComponent(this.prefabbedEntity);
-                RestoreParentChildRelation(prefabPlaceHolder);
-            }
-            else
-            {
-                templateRoot = new ProcessRootEntity();
+                var templateRoot = new ProcessRootEntity();
                 templateRoot.EntityManager = entityManager;
 
-                var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
-
-                ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();          
+                ApplicationPoolEntity appPoolEntity = new ApplicationPoolEntity();
                 templateRoot.AddComponent(appPoolEntity);
 
                 var applicationEntity = CreateApplicationEntity(targetApplication);
@@ -112,12 +117,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 SequentialEntityProcessor launchProcessor = new SequentialEntityProcessor() { Name = "Launch Applications" };
                 templateRoot.AddComponent(launchProcessor);
-                launchProcessor.AddComponent(new SequenceEntity() 
+                launchProcessor.AddComponent(new SequenceEntity()
                 {
                     Name = $"Sequence : {targetApplication.ApplicationName}",
-                    TargetAppId = applicationEntity.ApplicationId 
+                    TargetAppId = applicationEntity.ApplicationId
                 });
-               
+
 
                 SequentialEntityProcessor shutDownProcessor = new SequentialEntityProcessor() { Name = "Shutdown Applications" };
                 templateRoot.AddComponent(shutDownProcessor);
@@ -127,24 +132,39 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     TargetAppId = applicationEntity.ApplicationId
                 });
 
-                SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "Run Prefab" };                           
+                SequentialEntityProcessor prefabProcessor = new SequentialEntityProcessor() { Name = "Run Prefab", Tag = "RunPrefab" };
                 templateRoot.AddComponent(prefabProcessor);
                 prefabProcessor.AddComponent(new SequenceEntity()
                 {
-                    Name = $"Sequence : {targetApplication.ApplicationName}",
+                    Name = $"Initialize Data",
                     TargetAppId = applicationEntity.ApplicationId
-                });
-
-                var applicationSequence = prefabProcessor.Components.First() as Entity;                            
-                applicationSequence.AddComponent(new SequenceEntity() { Name = "Initialize Data" });
-            
+                });               
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);
+            }           
 
-                applicationSequence.AddComponent(prefabbedEntity);               
-                RestoreParentChildRelation(templateRoot);
+            var root = this.Load<Entity>(this.prefabFileSystem.TemplateFile);
+            root.EntityManager = this.entityManager;
+            RestoreParentChildRelation(root);
+            var runPrefabProcessor = root.GetComponentsByTag("RunPrefab").Single() as Entity;
+
+            //In order to run prefab, it must belong to a SequenceEntity. We can create a prefab from any entity.
+            //Hence, we check if the prefab root is not a SequenceEntity, we create a placeholder SequenceEntity first and add prefab entity to it.
+            if(this.prefabEntity is SequenceEntity)
+            {
+                runPrefabProcessor.AddComponent(this.prefabEntity);
             }
-
-            return templateRoot;
+            else
+            {
+                var applicationSequence = new SequenceEntity()
+                {
+                    Name = $"Initialize Data",
+                    TargetAppId = targetApplication.ApplicationId
+                };
+                runPrefabProcessor.AddComponent(applicationSequence);
+                applicationSequence.AddComponent(this.prefabEntity);
+            }          
+            RestoreParentChildRelation(runPrefabProcessor);        
+            return root;
         }
 
         private ApplicationEntity CreateApplicationEntity(ApplicationDescription targetApplication)        {
@@ -199,14 +219,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             try
             {
                 this.RootEntity.ResetHierarchy();
-                serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabbedEntity, typeProvider.GetKnownTypes());
+                serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabEntity, typeProvider.GetKnownTypes());
 
-                var prefabParent = this.prefabbedEntity.Parent;
-                prefabParent.RemoveComponent(this.prefabbedEntity);
+                var prefabParent = this.prefabEntity.Parent;
+                prefabParent.RemoveComponent(this.prefabEntity);
                 this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
-                prefabParent.AddComponent(this.prefabbedEntity);
-
-                //push the changes to database           
+                prefabParent.AddComponent(this.prefabEntity);
+                                       
                 await this.prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.loadedVersion);
             }
             catch (Exception ex)
@@ -215,12 +234,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-
+        /// <inheritdoc/>       
         protected override string GetProjectName()
         {
             return this.prefabProject.PrefabName;
         }
 
+        /// <inheritdoc/>   
         protected override string GetProjectNamespace()
         {
             return this.prefabProject.Namespace;
