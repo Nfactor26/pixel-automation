@@ -23,12 +23,8 @@
         <local:TestDataSourceDropHandler x:Key="dataSourceDropHandler"/>
 
         <HierarchicalDataTemplate DataType="{x:Type localVM:TestFixtureViewModel}" ItemsSource="{Binding Tests}">
-
         </HierarchicalDataTemplate>
 
-        <!--<iconPacks:PackIconFontAwesome x:Key="SuccessIcon" Kind="ThumbsUpSolid" Foreground="Green" x:Shared="False" />
-        <iconPacks:PackIconFontAwesome  x:Key="FailureIcon" Kind="ThumbsDownSolid" Foreground="Red" x:Shared="False" />
-        <iconPacks:PackIconOcticons x:Key="AbortedIcon" Kind="Stop"  Foreground="Yellow" x:Shared="False"/>-->
         <iconPacks:PackIconEntypo x:Key="SuccessIcon" Kind="EmojiHappy" Foreground="Green" x:Shared="False"/>
         <iconPacks:PackIconEntypo x:Key="FailureIcon" Kind="EmojiSad" Foreground="Red" x:Shared="False"/>
         <iconPacks:PackIconEntypo x:Key="AbortedIcon" Kind="EmojiNeutral" Foreground="Yellow" x:Shared="False"/>
@@ -196,10 +192,10 @@
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                         <MenuItem x:Name="OpenTestFixture" Header="Open"                                       
                                             cal:Message.Attach="[Event Click] = [Action OpenTestFixtureAsync($dataContext)]"/>
-                                        <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
-                                                cal:Message.Attach="[Event Click] = [Action SaveTestFixtureDataAsync($dataContext)]"/>
                                         <MenuItem x:Name="CloseTestFixture" Header="Close"  IsEnabled="{Binding IsOpenForEdit}"                                            
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'false')]"/>
+                                        <MenuItem x:Name="Save" Header="Save" IsEnabled="{Binding IsOpenForEdit}"                                
+                                                cal:Message.Attach="[Event Click] = [Action SaveTestFixtureDataAsync($dataContext)]"/>                                      
                                         <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'true')]"/>
                                         <MenuItem x:Name="AddTestCase" Header="Add Test"                                       
@@ -207,7 +203,9 @@
                                         <MenuItem x:Name="Edit" Header="Edit Details"                                       
                                             cal:Message.Attach="[Event Click] = [Action EditTestFixtureAsync($dataContext)]"/>
                                         <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                        
-                                            cal:Message.Attach="[Event Click] = [Action EditTestFixtureScriptAsync($dataContext)]"/>                                     
+                                            cal:Message.Attach="[Event Click] = [Action EditTestFixtureScriptAsync($dataContext)]"/>
+                                        <MenuItem x:Name="Delete" Header="Delete" IsEnabled="{Binding IsOpenForEdit, Converter={StaticResource inverseBoolConverter}}" 
+                                                cal:Message.Attach="[Event Click] = [Action DeleteTestFixtureAsync($dataContext)]"/>
                                     </ContextMenu>
                                 </Expander.ContextMenu>
                             </Expander>

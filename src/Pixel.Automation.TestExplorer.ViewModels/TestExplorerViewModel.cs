@@ -232,15 +232,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Delete an existing TestFixture
         /// </summary>
         /// <param name="testFixtureVM"></param>
-        public async void DeleteTestFixture(TestFixtureViewModel testFixtureVM)
+        public async Task DeleteTestFixtureAsync(TestFixtureViewModel testFixtureVM)
         {
+            Guard.Argument(testFixtureVM, nameof(testFixtureVM)).NotNull();
             MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test fixture along with all tests?", "Confirm Delete", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
                 await this.testFixtureManager.DeleteTestFixtureAsync(testFixtureVM.TestFixture);
                 this.TestFixtures.Remove(testFixtureVM);              
-                logger.Information("TestFixture {0} was deleted from local storage.", testFixtureVM.DisplayName);
-
+                logger.Information("TestFixture @{0} was deleted.", testFixtureVM.DisplayName);
             }
         }
 
