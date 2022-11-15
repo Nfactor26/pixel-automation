@@ -389,11 +389,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {       
         if (IsOnlineMode)
         {
-            await this.fixturesClient.DeleteFixtureAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), testFixture.FixtureId);
-            foreach(var testCase in testFixture.Tests)
-            {
-                await DeleteTestCaseAsync(testCase);
-            }
+            await this.fixturesClient.DeleteFixtureAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), testFixture.FixtureId);            
         }
         var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
         Directory.Delete(fixtureFiles.FixtureDirectory, true);
