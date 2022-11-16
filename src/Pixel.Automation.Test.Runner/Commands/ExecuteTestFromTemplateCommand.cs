@@ -53,7 +53,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
         }
         else
         {
-            await projectManager.RunAllAsync(sessionTemplate.Selector);
+            await projectManager.RunAllAsync(sessionTemplate.Selector, console);
         }
         return 0;
     }

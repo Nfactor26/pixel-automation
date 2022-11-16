@@ -79,7 +79,7 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
         }
         else
         {
-            await projectManager.RunAllAsync(sessionTemplate.Selector);
+            await projectManager.RunAllAsync(sessionTemplate.Selector, console);
         }
         return 0;
     }
