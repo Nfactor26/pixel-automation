@@ -94,7 +94,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
                 }
           
-                var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>());
+                var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>(), projectManager);
                 var result = await this.windowManager.ShowDialogAsync(deleteScriptsViewModel);
                 if (!result.GetValueOrDefault())
                 {

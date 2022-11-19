@@ -124,13 +124,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             if (!File.Exists(this.projectFileSystem.ProcessFile))
             {
                 this.RootEntity = new ProcessRootEntity();
+                this.RootEntity.AddComponent(new ApplicationPoolEntity());
+                this.RootEntity.AddComponent(new OneTimeSetUpEntity() { Name = "Environment Setup" });
+                this.RootEntity.AddComponent(new OneTimeTearDownEntity() { Name = "Environment Teardown" });
+                this.serializer.Serialize<Entity>(this.projectFileSystem.ProcessFile, this.RootEntity);
             }
             else
             {
                 this.RootEntity = DeserializeProject();
             }
-                       
-            AddDefaultEntities();
+            RestoreParentChildRelation(this.RootEntity);
+
             logger.Information($"Project file for {this.GetProjectName()} has been loaded ");
         }
 
@@ -138,19 +142,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {                     
             var entity = this.Load<Entity>(this.projectFileSystem.ProcessFile);         
             return entity;
-        }
-
-
-        private void AddDefaultEntities()
-        {
-            if (this.RootEntity.Components.Count() == 0)
-            {
-                this.RootEntity.AddComponent(new ApplicationPoolEntity());
-                this.RootEntity.AddComponent(new OneTimeSetUpEntity() { Name = "Environment Setup" });
-                this.RootEntity.AddComponent(new OneTimeTearDownEntity() { Name = "Environment Teardown" });
-            }
-            RestoreParentChildRelation(this.RootEntity);
-        }
+        }       
 
         #endregion Load Project
 
@@ -194,6 +186,30 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region overridden methods
 
+        ///<inheritdoc/>
+        public override async Task AddOrUpdateDataFileAsync(string targetFile)
+        {
+            await this.projectDataManager.AddOrUpdateDataFileAsync(this.activeProject, this.loadedVersion as ProjectVersion, targetFile, this.activeProject.ProjectId);
+        }
+
+        ///<inheritdoc/>
+        public override async Task DeleteDataFileAsync(string fileToDelete)
+        {
+            await this.projectDataManager.DeleteDataFileAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileToDelete);
+        }
+
+        ///<inheritdoc/>
+        protected override string GetProjectName()
+        {
+            return this.activeProject.Name;
+        }
+
+        ///<inheritdoc/>
+        protected override string GetProjectNamespace()
+        {
+            return this.activeProject.Namespace;
+        }
+
         /// <summary>
         /// Save automation project and process
         /// </summary>
@@ -219,16 +235,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
 
             await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
-        }
-
-        protected override string GetProjectName()
-        {
-            return this.activeProject.Name;
-        }
-
-        protected override string GetProjectNamespace()
-        {
-            return this.activeProject.Namespace;
         }
 
         #endregion overridden methods

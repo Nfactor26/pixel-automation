@@ -144,12 +144,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
                 //save the datamodel assembly file
                 string dataModelAssemblyFile = Path.Combine(this.fileSystem.ReferencesDirectory, this.DataModelAssembly);
-                await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, dataModelAssemblyFile, automationProject.ProjectId);
+                await projectDataManager.AddOrUpdateDataFileAsync(automationProject, this.ProjectVersion, dataModelAssemblyFile, automationProject.ProjectId);
               
                 //Replace the assemly name in the process file and save process file
                 if(UpdateAssemblyReference(this.fileSystem.ProcessFile, assemblyName))
                 {
-                    await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, this.fileSystem.ProcessFile, automationProject.ProjectId);
+                    await projectDataManager.AddOrUpdateDataFileAsync(automationProject, this.ProjectVersion, this.fileSystem.ProcessFile, automationProject.ProjectId);
                 }
 
                 //Replace the assembly name in all of the fixture and test process file and save these files if there was a replacement done
@@ -161,7 +161,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                         if(UpdateAssemblyReference(processFile, assemblyName))
                         {
                             //Fixtures and Test process files are named based on Identifier. This is what we need to tag these files with.
-                            await projectDataManager.AddDataFileAsync(automationProject, this.ProjectVersion, processFile, Path.GetFileNameWithoutExtension(processFile));
+                            await projectDataManager.AddOrUpdateDataFileAsync(automationProject, this.ProjectVersion, processFile, Path.GetFileNameWithoutExtension(processFile));
                         }
                     }                   
                 }

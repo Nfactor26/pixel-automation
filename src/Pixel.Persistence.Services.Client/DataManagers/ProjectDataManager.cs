@@ -104,6 +104,15 @@ public class ProjectDataManager : IProjectDataManager
     {
         if (IsOnlineMode)
         {
+            //Delete the data models and scripts directory. If any of the data model file or scipe file was deleted by other user, we don't want that leftover
+            string projectWorkingDirectory = applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion);
+            Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory), true);
+            Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory), true);
+          
+            //create the data models and scripts directory
+            Directory.CreateDirectory(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory));
+            Directory.CreateDirectory(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory));
+          
             //Download data model files and scripts
             var zippedContent = await this.filesClient.DownloadProjectDataFilesWithTags(automationProject.ProjectId, projectVersion.ToString(), tags);
             if (zippedContent.Length > 0)
@@ -194,13 +203,8 @@ public class ProjectDataManager : IProjectDataManager
         serializer.Serialize(automationProjectsFile, automationProject);
     }
 
-    /// <summary>
-    /// Add data file to the version of AutomationProject being managed.
-    /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="tag"></param>
-    /// <returns></returns>
-    public async Task AddDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag)
+    /// <inheritdoc/>  
+    public async Task AddOrUpdateDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag)
     {
         if (IsOnlineMode)
         {
@@ -216,33 +220,45 @@ public class ProjectDataManager : IProjectDataManager
         }
     }
 
+    /// <inheritdoc/>  
+    public async Task DeleteDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileToDelete)
+    {
+        if (IsOnlineMode)
+        {            
+            await this.filesClient.DeleteProjectDataFile(automationProject.ProjectId, projectVersion.ToString(), Path.GetFileName(fileToDelete));
+        }
+        if(File.Exists(fileToDelete))
+        {
+            File.Delete(fileToDelete);
+        }
+    }
 
     /// <inheritdoc/>  
     public async Task SaveProjectDataAsync(AutomationProject automationProject, ProjectVersion projectVersion)
     {
         if (IsOnlineMode)
         {
-
             string projectDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion));
 
             string processsFile = Path.Combine(projectDirectory, Constants.AutomationProcessFileName);
-            await AddDataFileAsync(automationProject, projectVersion, processsFile, automationProject.ProjectId);
-
+            await AddOrUpdateDataFileAsync(automationProject, projectVersion, processsFile, automationProject.ProjectId);
 
             //save the datamodel assembly file
             foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.ReferencesDirectory), "*.*"))
             {
-                await AddDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
+                await AddOrUpdateDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
             }
-
-            foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.DataModelDirectory), "*.cs"))
-            {
-                await AddDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
-            }
-
+         
+            //Save script files other than the initialization script
             foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.ScriptsDirectory), "*.csx"))
             {
-                await AddDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
+                //Initialization script file will be saved immediately when the file is edited in script editor.Hence, we skip it as there could have been
+                //additional edits by other users between this file was saved last time and now.
+                if(Path.GetFileName(file).Equals(Constants.InitializeEnvironmentScript))
+                {
+                    continue;
+                }
+                await AddOrUpdateDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
             }
         }
     }
@@ -428,6 +444,14 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
+            //There can be abandoned script files locally if some other user delted a component from test fixture along with it's script files.
+            //We don't want this script file to be saved back from this user after he edits and saves the test fixture. Hence, we delete all script files
+            //before retrieving latest data.
+            var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
+            foreach (var file in Directory.GetFiles(fixtureFiles.FixtureDirectory, "*.csx"))
+            {
+                File.Delete(file);
+            }
             await DownloadFilesWithTagsAsync(new[] { testFixture.FixtureId });
         }
     }
@@ -502,8 +526,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
 
     /// <inheritdoc/>  
     public async Task SaveTestDataAsync(TestCase testCase)
-    {
-        await UpdateTestCaseAsync(testCase);
+    {        
         var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);
         this.projectFileSystem.SaveToFile<Entity>(testCase.TestCaseEntity, testCaseFiles.TestDirectory, testCaseFiles.ProcessFile);
         if (IsOnlineMode)
@@ -521,6 +544,14 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
+            //There can be abandoned script files locally if some other user delted a component from test cases along with it's script files.
+            //We don't want this script file to be saved back from this user after he edits and saves the test case. Hence, we delete all script files
+            //before retrieving latest data.
+            var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);
+            foreach(var file in Directory.GetFiles(testCaseFiles.TestDirectory, "*.csx"))
+            {
+                File.Delete(file);
+            }
             await DownloadFilesWithTagsAsync(new[] { testCase.TestCaseId });
         }
     }

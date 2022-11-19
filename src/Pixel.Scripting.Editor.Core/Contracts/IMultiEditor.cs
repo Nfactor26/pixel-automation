@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pixel.Scripting.Editor.Core.Models.Editors;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
@@ -31,7 +33,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         bool HasDocument(string documentName, string ownerProject);
 
         /// <summary>
-        /// Add a new document to workspace
+        /// Add an existing document to workspace
         /// </summary>
         /// <param name="documentName"></param>
         /// <param name="ownerProject"></param>
@@ -40,7 +42,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         Task AddDocumentAsync(string documentName, string ownerProject, string initialContent, bool openAfterAdd);
 
         /// <summary>
-        /// Auto generate the default content for document and add to workspace
+        /// Create a new document, generate default content and add it to the workspace
         /// </summary>
         /// <param name="documentName"></param>
         /// <param name="ownerProject"></param>
@@ -49,7 +51,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         Task AddNewDocumentAsync(string documentName, string ownerProject, bool openAfterAdd);
 
         /// <summary>
-        /// Delete document
+        /// Remove an existing document from the workspace
         /// </summary>
         /// <param name="documentName"></param>
         void DeleteDocument(string documentName, string ownerProject);
@@ -66,5 +68,11 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="documentName"></param>
         void SaveDocument(string documentName, string ownerProject);
+
+        /// <summary>
+        /// Get the DocumentState for each document that was loaded in editor to apply the modifications if user decides to save the changes
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<DocumentState> GetCurrentEditorState();
     }
 }

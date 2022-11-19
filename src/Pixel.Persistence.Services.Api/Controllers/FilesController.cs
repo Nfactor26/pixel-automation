@@ -160,11 +160,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="fileName"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult> DeleteFileAsync(string projectId, string projectVersion, string fileName)
+        public async Task<ActionResult> DeleteFileAsync([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(DeleteProjectFileRequest))] DeleteProjectFileRequest deleteFileRequest)
         {
             try
             {
-                await this.filesRepository.DeleteFileAsync(projectId, projectVersion, fileName);
+                await this.filesRepository.DeleteFileAsync(deleteFileRequest.ProjectId, deleteFileRequest.ProjectVersion, deleteFileRequest.FileName);
                 return Ok();
             }
             catch (Exception ex)

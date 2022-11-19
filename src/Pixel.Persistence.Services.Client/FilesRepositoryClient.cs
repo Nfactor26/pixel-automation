@@ -122,9 +122,17 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
         Guard.Argument(fileName, nameof(fileName)).NotNull().NotEmpty();
 
-        RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/{projectVersion}/{fileName}");
+        var deleteFileRequest = new DeleteProjectFileRequest()
+        {
+            ProjectId = projectId,
+            ProjectVersion = projectVersion,
+            FileName = fileName
+        };
+
+        RestRequest restRequest = new RestRequest(baseUrl);
+        restRequest.AddParameter(nameof(DeleteProjectFileRequest), serializer.Serialize<DeleteProjectFileRequest>(deleteFileRequest), ParameterType.RequestBody);
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.PostAsync(restRequest);
+        var result = await client.DeleteAsync(restRequest);
         result.EnsureSuccess();       
     }
 }

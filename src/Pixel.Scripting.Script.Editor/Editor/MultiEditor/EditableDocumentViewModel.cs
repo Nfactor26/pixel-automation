@@ -31,15 +31,30 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         public CodeTextEditor Editor { get; private set; }
 
+        private bool isModified;
         public bool IsModified
         {
-            get => Editor?.IsModified ?? false;
+            get => Editor?.IsModified ?? isModified;
             set
             {
                 if(Editor != null)
                 {
                     Editor.IsModified = value;
+                    isModified = value;
                 }
+            }
+        }
+
+        public bool IsNewDocument { get; set; }
+
+        private bool isDeleted;
+        public bool IsDeleted
+        {
+            get => isDeleted;
+            set
+            {
+                isDeleted = value;
+                NotifyOfPropertyChange();
             }
         }
 
@@ -57,7 +72,12 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             this.ProjectName = projectName;
             this.DisplayName = Path.GetFileName(fileName);
         }
-       
+
+        public EditableDocumentViewModel(string fileName, string projectName, bool isNewDocument): this(fileName, projectName)
+        {
+            this.IsNewDocument = isNewDocument;
+        }
+
         public void OpenForEdit(IMultiEditor editor, IEditorService editorService)
         {
             this.editor = editor;          

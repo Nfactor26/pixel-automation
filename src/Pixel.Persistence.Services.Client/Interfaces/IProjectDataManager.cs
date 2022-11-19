@@ -47,8 +47,16 @@ public interface IProjectDataManager
     /// <param name="filePath"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    Task AddDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag);
+    Task AddOrUpdateDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag);
 
+    /// <summary>
+    /// Delete a data file belonging to given version of project
+    /// </summary>
+    /// <param name="automationProject"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="filePath"></param>
+    /// <returns></returns>
+    Task DeleteDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath);
 
     /// <summary>
     /// Download all the newer project files
