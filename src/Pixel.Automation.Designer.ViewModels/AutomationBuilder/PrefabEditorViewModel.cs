@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Serilog;
 using System.Diagnostics;
 using System.IO;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
@@ -14,6 +15,7 @@ namespace Pixel.Automation.Designer.ViewModels
 {
     public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
     {
+        private readonly ILogger logger = Log.ForContext<PrefabEditorViewModel>();
         private readonly IServiceResolver serviceResolver;
         private readonly IPrefabProjectManager projectManager;  
           
@@ -60,6 +62,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async Task EditDataModelAsync()
         {
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+            var prefabFileSystem = this.projectManager.GetProjectFileSystem();
             using (var editor = editorFactory.CreateMultiCodeEditorScreen())
             {
                 foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
@@ -67,13 +70,39 @@ namespace Pixel.Automation.Designer.ViewModels
                     await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
                 }
                 await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
-                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);                            
-             
-                await this.windowManager.ShowDialogAsync(editor);
+                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
 
-                await this.Reload();
-            }
-           
+                bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
+                var editorDocumentStates = editor.GetCurrentEditorState();
+
+                if (hasChanges.HasValue && !hasChanges.Value)
+                {
+                    logger.Information("Discarding changes for data model files");
+                    foreach (var document in editorDocumentStates)
+                    {
+                        if (document.IsNewDocument)
+                        {
+                            File.Delete(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                            logger.Information("Delete file {@0} from data model files", document);
+                        }
+                    }
+                    return;
+                }
+              
+                foreach (var document in editorDocumentStates)
+                {
+                    if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
+                    {
+                        await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                    }
+                    if (document.IsDeleted && !document.IsNewDocument)
+                    {
+                        await this.projectManager.DeleteDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                    }
+                    logger.Information("Updated state of data model file {@0}", document);
+                }             
+            }       
+            await this.Reload();
         }
 
         protected override async Task Reload()

@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -7,6 +8,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Data;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -23,6 +25,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly IWindowManager windowManager;            
         private readonly IProjectDataManager projectDataManager;      
         private readonly IVersionManagerFactory versionManagerFactory;
+        private readonly IApplicationFileSystem applicationFileSystem;
 
         /// <summary>
         /// Collection of availalbe projects
@@ -60,7 +63,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="fileSystem"></param>
 
         public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager,
-            IProjectDataManager projectDataManager, IVersionManagerFactory versionManagerFactory)
+            IProjectDataManager projectDataManager, IVersionManagerFactory versionManagerFactory, IApplicationFileSystem applicationFileSystem)
         {
             this.DisplayName = "Home";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
@@ -69,6 +72,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
             this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;           
             this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
+            this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
 
             LoadProjects();
             CreateCollectionView();
@@ -106,6 +110,13 @@ namespace Pixel.Automation.Designer.ViewModels
                     var newProjectViewModel = new AutomationProjectViewModel(newProject);
                     this.Projects.Insert(0, newProjectViewModel);
                     await OpenProject(newProjectViewModel);
+                    var projectsDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(newProject, newProject.LatestActiveVersion);
+                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion, 
+                        Path.Combine(projectsDirectory, Constants.AutomationProcessFileName), newProject.ProjectId);                 
+                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
+                      Path.Combine(projectsDirectory, Constants.DataModelDirectory, $"{Constants.AutomationProcessDataModelName}.cs"), newProject.ProjectId);
+                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
+                     Path.Combine(projectsDirectory, Constants.ScriptsDirectory, Constants.InitializeEnvironmentScript), newProject.ProjectId);
                 }
             }
             catch (Exception ex)

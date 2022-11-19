@@ -211,6 +211,30 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region overridden methods
 
+        ///<inheritdoc/>
+        public override async Task AddOrUpdateDataFileAsync(string targetFile)
+        {
+            await this.prefabDataManager.AddOrUpdateDataFileAsync(this.prefabProject, this.loadedVersion, targetFile, this.prefabProject.PrefabId);
+        }
+
+        ///<inheritdoc/>
+        public override async Task DeleteDataFileAsync(string fileToDelete)
+        {
+            await this.prefabDataManager.DeleteDataFileAsync(this.prefabProject, this.loadedVersion, fileToDelete);
+        }
+
+        /// <inheritdoc/>       
+        protected override string GetProjectName()
+        {
+            return this.prefabProject.PrefabName;
+        }
+
+        /// <inheritdoc/>   
+        protected override string GetProjectNamespace()
+        {
+            return this.prefabProject.Namespace;
+        }
+
         /// <summary>
         /// Save prefab data
         /// </summary>
@@ -234,18 +258,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-        /// <inheritdoc/>       
-        protected override string GetProjectName()
-        {
-            return this.prefabProject.PrefabName;
-        }
-
-        /// <inheritdoc/>   
-        protected override string GetProjectNamespace()
-        {
-            return this.prefabProject.Namespace;
-        }
-
+       
         #endregion overridden methods
     }
 }

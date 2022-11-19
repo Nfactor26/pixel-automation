@@ -68,7 +68,16 @@ public interface IPrefabDataManager
     /// <param name="filePath"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    Task AddPrefabDataFileAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string filePath, string tag);
+    Task AddOrUpdateDataFileAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string filePath, string tag);
+
+    /// <summary>
+    /// Delete a data file belonging to given version of prefab project
+    /// </summary>
+    /// <param name="prefabProject"></param>
+    /// <param name="prefabVersion"></param>
+    /// <param name="fileToDelete"></param>
+    /// <returns></returns>
+    Task DeleteDataFileAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string fileToDelete);
 
     /// <summary>
     /// Save all the data files belonging to a specific version of Prefab

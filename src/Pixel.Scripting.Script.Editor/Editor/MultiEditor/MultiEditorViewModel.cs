@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
+using Pixel.Scripting.Editor.Core.Models.Editors;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -105,7 +106,8 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             string className = Path.GetFileNameWithoutExtension(documentName);
             string nameSpace = this.editorService.GetDefaultNameSpace(ownerProject);
             string initialContent = this.editorService.CreateDocument(className, nameSpace, new[] { "System" });
-            await AddDocumentAsync(documentName, ownerProject, initialContent, openAfterAdd);          
+            await AddDocumentAsync(documentName, ownerProject, initialContent, openAfterAdd);
+            Documents.Single(s => s.DocumentName.Equals(documentName)).IsNewDocument = true;
         }
 
         private void AddDocument(string documentName, string ownerProject, string initialContent)
@@ -136,15 +138,10 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             {
                 if (this.editorService.HasDocument(documentName, ownerProject))
                 {
-                    this.editorService.RemoveDocument(documentName, ownerProject);
-
-                    var documentToRemove = this.Documents.Where(a => a.DocumentName.Equals(documentName)).FirstOrDefault();
-                    if (documentToRemove != null)
-                    {                    
-                        this.Documents.Remove(documentToRemove);
-                    }                         
-                    logger.Information($"{documentName} was deleted from workspace");
-                }                
+                    this.editorService.RemoveDocument(documentName, ownerProject);                  
+                }
+                this.Documents.Where(a => a.DocumentName.Equals(documentName)).Single().IsDeleted = true;
+                logger.Information($"{documentName} was deleted from workspace");
             }
             catch (Exception ex)
             {
@@ -203,9 +200,25 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
             await this.TryCloseAsync(true);
         }
 
+        ///<inheritdoc/>
+        public IEnumerable<DocumentState> GetCurrentEditorState()
+        {
+            foreach(var document in this.Documents)
+            {
+                yield return new DocumentState()
+                {
+                    TargetDocument = document.DocumentName,
+                    IsNewDocument = document.IsNewDocument,
+                    IsDeleted = document.IsDeleted,
+                    IsModified = document.IsModified
+                };
+            }
+            yield break;
+        }
+
         /// <summary>
-       /// Close all document without saving any changes when Cancel button is clicked
-       /// </summary>
+        /// Close all document without saving any changes when Cancel button is clicked
+        /// </summary>
         public async void Cancel()
         {
             this.Close();

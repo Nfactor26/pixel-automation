@@ -272,8 +272,8 @@ namespace Pixel.Script.Editor.Services.CSharp
         {
             if(this.workspaceManager.TryRemoveDocument(targetDocument, removeFromProject))
             {
-                string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetDocument);
-                File.Delete(documentLocation);
+                //string documentLocation = Path.Combine(workspaceManager.GetWorkingDirectory(), targetDocument);
+                //File.Delete(documentLocation);
                 return;
                
             }

@@ -100,24 +100,47 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 logger.Information($"Opening code editor for editing data model for project : {this.CurrentProject.Name}");
                 var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                var projectFileSystem = this.projectManager.GetProjectFileSystem();
                 using (var editor = editorFactory.CreateMultiCodeEditorScreen())
                 {
-                    foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                    foreach (var file in Directory.GetFiles(projectFileSystem.DataModelDirectory, "*.cs"))
                     {
                         await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
                     }
 
                     await editor.AddDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
-                    await editor.OpenDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name);                 
-              
+                    await editor.OpenDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name);
+                                      
                     bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
+                    var editorDocumentStates = editor.GetCurrentEditorState();
+
                     if (hasChanges.HasValue && !hasChanges.Value)
                     {
+                        logger.Information("Discarding changes for data model files");
+                        foreach (var document in editorDocumentStates)
+                        {
+                            if(document.IsNewDocument)
+                            {
+                                File.Delete(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
+                                logger.Information("Delete file {@0} from data model files", document);
+                            }
+                        }
                         return;
                     }
-                }
-                logger.Information($"Editing data model completed for project : {this.CurrentProject.Name}");
-
+                                                      
+                    foreach (var document in editorDocumentStates)
+                    {
+                        if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
+                        {
+                            await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));                            
+                        }
+                        if(document.IsDeleted && !document.IsNewDocument)
+                        {
+                            await this.projectManager.DeleteDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
+                        }
+                        logger.Information("Updated state of data model file {@0}", document);
+                    }
+                }               
                 await this.Reload();
             }
             catch (Exception ex)
@@ -155,6 +178,8 @@ namespace Pixel.Automation.Designer.ViewModels
                         var scriptEngine = entityManager.GetScriptEngine();
                         scriptEngine.ClearState();
                         await scriptEngine.ExecuteFileAsync(scriptFile);
+                        await this.projectManager.AddOrUpdateDataFileAsync(scriptFile);
+                        logger.Information("Updated script file : {0}", scriptFile);
                     }
                     scriptEditorFactory.RemoveProject(this.CurrentProject.Name);
                 }             

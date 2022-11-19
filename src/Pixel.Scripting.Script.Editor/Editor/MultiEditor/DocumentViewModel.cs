@@ -33,7 +33,7 @@ namespace Pixel.Scripting.Script.Editor.MultiEditor
 
         }
 
-        public async void AddDocument()
+        public async Task AddDocument()
         {
             var newDocumentViewModel = new NewDocumentViewModel(this.editor, this.Documents);
             var windowManager = IoC.Get<IWindowManager>();

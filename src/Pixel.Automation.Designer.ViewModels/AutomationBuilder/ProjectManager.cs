@@ -68,27 +68,26 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected abstract string GetProjectNamespace();
 
         ///<inheritdoc/>
+        public abstract Task AddOrUpdateDataFileAsync(string targetFile);
+
+        ///<inheritdoc/>
+        public abstract Task DeleteDataFileAsync(string fileToDelete);
+
+        ///<inheritdoc/>
         public abstract Task Save();
 
         ///<inheritdoc/>
         public abstract Task Reload();
 
         #endregion abstract methods
-
-        ///<inheritdoc/>
-        public IProjectManager WithEntityManager(EntityManager entityManager)
-        {
-            this.entityManager = entityManager;
-            this.entityManager.SetCurrentFileSystem(this.fileSystem);
-            return this;
-        }
-
+        
         ///<inheritdoc/>
         public IFileSystem GetProjectFileSystem()
         {
             return this.fileSystem;
         }
 
+        ///<inheritdoc/>
         public IReferenceManager GetReferenceManager()
         {
             return this.referenceManager;
