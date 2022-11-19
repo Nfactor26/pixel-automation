@@ -55,10 +55,10 @@ public class TestFixtureRepository : ITestFixtureRepository
     }
 
     /// <inheritdoc/>  
-    public async Task<IEnumerable<TestFixture>> GetFixturesAsync(string projectId, string projectVersion, CancellationToken cancellationToken)
+    public async Task<IEnumerable<TestFixture>> GetFixturesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken)
     {
         var filter = Builders<TestFixture>.Filter.Eq(x => x.ProjectId, projectId) & Builders<TestFixture>.Filter.Eq(x => x.ProjectVersion, projectVersion) &
-             Builders<TestFixture>.Filter.Eq(x => x.IsDeleted, false);
+             Builders<TestFixture>.Filter.Gt(x => x.LastUpdated, laterThan);
         var fixtures = await fixturesCollection.FindAsync(filter, FindOptions, cancellationToken);
         return await fixtures.ToListAsync();       
     }

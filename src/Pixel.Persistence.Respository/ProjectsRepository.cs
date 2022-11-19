@@ -105,21 +105,23 @@ namespace Pixel.Persistence.Respository
             projectReference.Id = ObjectId.Empty;
             await this.referencesRepository.AddProjectReferences(projectId, newVersion.ToString(), projectReference);
 
-            var fixtures = await this.fixturesRepository.GetFixturesAsync(projectId, cloneFrom.ToString(), cancellationToken);
+
+            DateTime laterThan = DateTime.MinValue.ToUniversalTime();
+            var fixtures = await this.fixturesRepository.GetFixturesAsync(projectId, cloneFrom.ToString(), laterThan, cancellationToken);
             foreach(var fixture in fixtures)
             {
                 fixture.Id = ObjectId.Empty;
             }
             await this.fixturesRepository.AddFixturesAsync(projectId, newVersion.ToString(), fixtures, cancellationToken);
 
-            var tests = await this.testCaseRepository.GetTestCasesAsync(projectId, cloneFrom.ToString(), cancellationToken);
+            var tests = await this.testCaseRepository.GetTestCasesAsync(projectId, cloneFrom.ToString(), laterThan, cancellationToken);
             foreach(var test in tests)
             {
                 test.Id = ObjectId.Empty;
             }
             await this.testCaseRepository.AddTestCasesAsync(projectId, newVersion.ToString(), tests, cancellationToken);
 
-            var dataSources = await this.testDataRepository.GetDataSourcesAsync(projectId, cloneFrom.ToString(), cancellationToken);
+            var dataSources = await this.testDataRepository.GetDataSourcesAsync(projectId, cloneFrom.ToString(), laterThan, cancellationToken);
             foreach(var dataSource in dataSources)
             {
                 dataSource.Id = ObjectId.Empty;

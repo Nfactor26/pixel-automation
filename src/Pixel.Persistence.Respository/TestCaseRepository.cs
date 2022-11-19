@@ -52,10 +52,10 @@ public class TestCaseRepository : ITestCaseRepository
     }
 
     /// <inheritdoc/>  
-    public async Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, CancellationToken cancellationToken)
+    public async Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken)
     {
-        var filter = Builders<TestCase>.Filter.Eq(x => x.ProjectId, projectId) & Builders<TestCase>.Filter.Eq(x => x.ProjectVersion, projectVersion)
-            & Builders<TestCase>.Filter.Eq(x => x.IsDeleted, false);
+        var filter = Builders<TestCase>.Filter.Eq(x => x.ProjectId, projectId) & Builders<TestCase>.Filter.Eq(x => x.ProjectVersion, projectVersion) &
+            Builders<TestCase>.Filter.Gt(x => x.LastUpdated, laterThan);
         var tests = await testsCollection.FindAsync(filter, FindOptions, cancellationToken);
         return await tests.ToListAsync();
     }

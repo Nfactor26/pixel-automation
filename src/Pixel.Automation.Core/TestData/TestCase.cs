@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using System;
+using System.Diagnostics.SymbolStore;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -80,6 +81,12 @@ namespace Pixel.Automation.Core.TestData
         /// </summary>
         [DataMember(IsRequired = true, Order = 110)]
         public TagCollection Tags { get; private set; } = new TagCollection();
+
+        /// <summary>
+        /// Indicates if the TestCase is deleted. Deleted test cases are not loaded in explorer.
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 1000)]
+        public bool IsDeleted { get; set; }
 
         /// <summary>
         /// Root entity for the test case

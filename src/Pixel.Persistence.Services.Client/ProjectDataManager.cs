@@ -262,6 +262,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     private readonly ApplicationSettings applicationSettings;
     private AutomationProject automationProject;
     private VersionInfo projectVersion;
+    private DateTime lastUpdated;
 
     bool IsOnlineMode
     {
@@ -271,9 +272,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     /// <summary>
     /// constructor
     /// </summary>
-    /// <param name="serializer"></param>
-    /// <param name="projectsClient"></param>
-    /// <param name="referencesRepositoryClient"></param>
+    /// <param name="serializer"></param>  
     /// <param name="filesClient"></param>
     /// <param name="fixturesClient"></param>
     /// <param name="testsClient"></param>
@@ -293,7 +292,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
         this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
-        this.testDataRepositoryClient = Guard.Argument(testDataRepositoryClient, nameof(testDataRepositoryClient)).NotNull().Value;
+        this.testDataRepositoryClient = Guard.Argument(testDataRepositoryClient, nameof(testDataRepositoryClient)).NotNull().Value;       
     }
 
     /// <inheritdoc/>  
@@ -301,6 +300,20 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
         this.projectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+        string lastUpdatedDataFile = Path.Combine(this.projectFileSystem.WorkingDirectory, Constants.LastUpdatedFileName);
+        if (File.Exists(lastUpdatedDataFile))
+        {
+            if(!DateTime.TryParse(File.ReadAllText(lastUpdatedDataFile), out lastUpdated))
+            {
+                throw new Exception($"Failed to read last updated data from file : {lastUpdatedDataFile}");
+            }
+            File.Delete(lastUpdatedDataFile);
+        }
+        else
+        {
+            lastUpdated = DateTime.MinValue.ToUniversalTime();
+        }
+        File.WriteAllText(lastUpdatedDataFile, DateTime.Now.ToUniversalTime().ToString());
     }
 
 
@@ -424,7 +437,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
-            var fixtures = await this.fixturesClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString());
+            var fixtures = await this.fixturesClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString(), lastUpdated);
             var workingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
             foreach (var fixture in fixtures)
             {
@@ -517,7 +530,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
-            var tests = await this.testsClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString());
+            var tests = await this.testsClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString(), lastUpdated);
             var workingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
             foreach (var test in tests)
             {
@@ -590,7 +603,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
-            var dataSources = await this.testDataRepositoryClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString());
+            var dataSources = await this.testDataRepositoryClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString(), lastUpdated);
             foreach (var dataSource in dataSources)
             {
                 var dataSourceFile = Path.Combine(this.projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat");

@@ -67,15 +67,16 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
         }
+        
 
         [HttpGet("{projectId}/{projectVersion}")]
-        public async Task<ActionResult<List<TestFixture>>> GetAllForProjectAsync(string projectId, string projectVersion)
+        public async Task<ActionResult<List<TestFixture>>> GetAllForProjectAsync(string projectId, string projectVersion, [FromBody] DateTime laterThan)
         {
             try
             {
                 Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();               
-                var result = await fixturesRepository.GetFixturesAsync(projectId, projectVersion, CancellationToken.None) ?? Enumerable.Empty<TestFixture>();
+                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+                var result = await fixturesRepository.GetFixturesAsync(projectId, projectVersion, laterThan, CancellationToken.None) ?? Enumerable.Empty<TestFixture>();
                 return Ok(result);
             }
             catch (Exception ex)

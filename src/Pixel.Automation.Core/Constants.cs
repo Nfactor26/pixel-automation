@@ -99,14 +99,7 @@
         /// </summary>
         public static readonly string ApplicationsMeta = "Applications.meta";
 
-        /// <summary>
-        /// Meta data file name for projects
-        /// </summary>
-        public static readonly string ProjectsMeta = "Projects.meta";
-
-        /// <summary>
-        /// Meta data file name for project versions
-        /// </summary>
-        public static readonly string VersionsMeta = "Versions.meta";
+        public static readonly string LastUpdatedFileName = "lastupdated";
+     
     }
 }

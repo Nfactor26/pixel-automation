@@ -118,12 +118,20 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
                     {
                         var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
+                        if(testFixture.IsDeleted)
+                        {
+                            continue; 
+                        }
                         TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
                         this.TestFixtures.Add(testFixtureVM);
 
                         foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixture.FixtureId)))
                         {
                             var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
+                            if(testCase.IsDeleted)
+                            {
+                                continue;
+                            }
                             TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
                             testFixtureVM.Tests.Add(testCaseVM);
                         }

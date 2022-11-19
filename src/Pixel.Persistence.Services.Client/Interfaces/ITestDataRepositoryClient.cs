@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.TestData;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -25,12 +26,13 @@ namespace Pixel.Persistence.Services.Client
         Task<TestDataSource> GetByNameAsync(string projectId, string projectVersion, string name);
 
         /// <summary>
-        /// Get all the TestDataSources belonging to a given version of project
+        /// Get all the TestDataSources belonging to a given version of project which were updated since specified time
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="projectVersion"></param>
+        /// <param name="laterThan"></param>
         /// <returns></returns>
-        Task<IEnumerable<TestDataSource>> GetAllForProjectAsync(string projectId, string projectVersion);
+        Task<IEnumerable<TestDataSource>> GetAllForProjectAsync(string projectId, string projectVersion, DateTime laterThan);
 
         /// <summary>
         /// Add a TestDataSource to a given version of project

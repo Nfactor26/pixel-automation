@@ -67,6 +67,12 @@ namespace Pixel.Automation.Core.TestData
         public TagCollection Tags { get; private set; } = new TagCollection();
 
         /// <summary>
+        /// Indicates if the fixture was deleted. Deleted fixtures are not loaded in explorer.
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 1000)]
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// Collection of tests belonging to a fixture 
         /// </summary>
         [JsonIgnore]

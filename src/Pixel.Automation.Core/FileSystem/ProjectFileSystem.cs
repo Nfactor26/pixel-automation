@@ -96,6 +96,10 @@ namespace Pixel.Automation.Core
             foreach (var dataSourceFile in dataSourceFiles)
             {
                 var testDataSource = serializer.Deserialize<TestDataSource>(dataSourceFile);
+                if(testDataSource.IsDeleted)
+                {
+                    continue;
+                }
                 yield return testDataSource;              
             }
             yield break;
