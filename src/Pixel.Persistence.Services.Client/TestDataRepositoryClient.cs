@@ -4,6 +4,7 @@ using Pixel.Automation.Core.TestData;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -70,12 +71,13 @@ public class TestDataRepositoryClient : ITestDataRepositoryClient
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<TestDataSource>> GetAllForProjectAsync(string projectId, string projectVersion)
+    public async Task<IEnumerable<TestDataSource>> GetAllForProjectAsync(string projectId, string projectVersion, DateTime laterThan)
     {
         Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
 
         RestRequest restRequest = new RestRequest($"testdata/{projectId}/{projectVersion}");
+        restRequest.AddBody(laterThan);
         var client = this.clientFactory.GetOrCreateClient();
         var result = await client.ExecuteGetAsync(restRequest);
         result.EnsureSuccess();

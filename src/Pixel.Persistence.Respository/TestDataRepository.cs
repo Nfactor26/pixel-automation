@@ -7,7 +7,6 @@ using System.Threading;
 using System.Collections.Generic;
 using System;
 using Pixel.Persistence.Respository.Interfaces;
-using static System.Net.Mime.MediaTypeNames;
 using System.Linq;
 
 namespace Pixel.Persistence.Respository
@@ -54,10 +53,11 @@ namespace Pixel.Persistence.Respository
         }
 
         /// <inheritdoc/>  
-        public async Task<IEnumerable<TestDataSource>> GetDataSourcesAsync(string projectId, string projectVersion, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TestDataSource>> GetDataSourcesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken)
         {
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
-                Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion));
+                Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion)) &
+                Builders<TestDataSource>.Filter.Eq(x => x.LastUpdated, laterThan);
             var dataSources = await testDataCollection.FindAsync(filter, FindOptions, cancellationToken);
             return await dataSources.ToListAsync();
         }

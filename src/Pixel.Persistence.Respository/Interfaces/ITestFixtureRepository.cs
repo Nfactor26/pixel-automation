@@ -9,12 +9,13 @@ namespace Pixel.Persistence.Respository.Interfaces;
 public interface ITestFixtureRepository
 {
     /// <summary>
-    /// Get all test fixtures for a given project version
+    /// Get all test fixtures for a given project version which have been modified since specified datetime
     /// </summary>
     /// <param name="projectId">Identifier of the automation project</param>
     /// <param name="projectVersion">Version of the automation project</param>
     /// <returns></returns>
-    Task<IEnumerable<TestFixture>> GetFixturesAsync(string projectId, string projectVersion, CancellationToken cancellationToken);
+    Task<IEnumerable<TestFixture>> GetFixturesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken);
+
 
     /// <summary>
     /// Get a test fixture given it's Id

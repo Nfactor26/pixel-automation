@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.TestData;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -25,12 +26,13 @@ public interface IFixturesRepositoryClient
     Task<TestFixture> GetByNameAsync(string projectId, string projectVersion, string displayName);
 
     /// <summary>
-    /// Get all TestFixtures for a given version of project
+    /// Get all TestFixtures for a given version of project which were modified since specified time
     /// </summary>
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
+    /// <param name="laterThan"></param>
     /// <returns></returns>
-    Task<IEnumerable<TestFixture>> GetAllForProjectAsync(string projectId, string projectVersion);
+    Task<IEnumerable<TestFixture>> GetAllForProjectAsync(string projectId, string projectVersion, DateTime laterThan);
 
     /// <summary>
     /// Add a new TestFixture for a given version of project

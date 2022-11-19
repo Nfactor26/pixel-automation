@@ -1,4 +1,5 @@
 ﻿using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,36 @@ namespace Pixel.Persistence.Respository.Interfaces
 {
     public interface ITestDataRepository
     {
+        /// <summary>
+        /// Get TestDataSource by Id for a given version of project
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="projectVersion"></param>
+        /// <param name="fixtureId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<TestDataSource> FindByIdAsync(string projectId, string projectVersion, string fixtureId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get TestDataSource by name for a given version of project
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="projectVersion"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<TestDataSource> FindByNameAsync(string projectId, string projectVersion, string name, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get all the TestDataSources available for a given version of project that were modified since specified datetime
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="projectVersion"></param>
+        /// <param name="laterThan"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<IEnumerable<TestDataSource>> GetDataSourcesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken);
+
         /// <summary>
         /// Add a TestDataSource to a given version of project
         /// </summary>
@@ -33,37 +64,8 @@ namespace Pixel.Persistence.Respository.Interfaces
         /// <param name="dataSourceId"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId, CancellationToken cancellationToken);
-       
-        /// <summary>
-        /// Get TestDataSource by Id for a given version of project
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="projectVersion"></param>
-        /// <param name="fixtureId"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<TestDataSource> FindByIdAsync(string projectId, string projectVersion, string fixtureId, CancellationToken cancellationToken);
-       
-        /// <summary>
-        /// Get TestDataSource by name for a given version of project
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="projectVersion"></param>
-        /// <param name="name"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<TestDataSource> FindByNameAsync(string projectId, string projectVersion, string name, CancellationToken cancellationToken);
-        
-        /// <summary>
-        /// Get all the TestDataSources available for a given version of project
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="projectVersion"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<IEnumerable<TestDataSource>> GetDataSourcesAsync(string projectId, string projectVersion, CancellationToken cancellationToken);
-      
+        Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId, CancellationToken cancellationToken);   
+             
         /// <summary>
         /// Update a TestDataSource for a given version of project
         /// </summary>

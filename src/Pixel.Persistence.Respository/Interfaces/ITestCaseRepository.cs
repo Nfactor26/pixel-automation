@@ -1,4 +1,5 @@
 ﻿using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,13 +9,13 @@ namespace Pixel.Persistence.Respository.Interfaces;
 public interface ITestCaseRepository
 {
     /// <summary>
-    /// Get all test cases for a given project version
+    /// Get all test cases for a given project version which were modified after specified datetime
     /// </summary>
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, CancellationToken cancellationToken);
+    Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get test cases by Id for a given version of project

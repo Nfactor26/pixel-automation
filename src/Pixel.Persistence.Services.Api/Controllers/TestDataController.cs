@@ -69,13 +69,13 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         [HttpGet("{projectId}/{projectVersion}")]
-        public async Task<ActionResult<List<TestDataSource>>> GetAllForProjectAsync(string projectId, string projectVersion)
+        public async Task<ActionResult<List<TestDataSource>>> GetAllForProjectAsync(string projectId, string projectVersion, [FromBody] DateTime laterThan)
         {
             try
             {
                 Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
                 Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                var result = await testDataRepository.GetDataSourcesAsync(projectId, projectVersion, CancellationToken.None) ?? Enumerable.Empty<TestDataSource>();
+                var result = await testDataRepository.GetDataSourcesAsync(projectId, projectVersion, laterThan, CancellationToken.None) ?? Enumerable.Empty<TestDataSource>();
                 return Ok(result);
             }
             catch (Exception ex)

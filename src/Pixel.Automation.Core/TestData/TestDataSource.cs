@@ -40,6 +40,13 @@ namespace Pixel.Automation.Core.TestData
         /// </summary>
         [DataMember(IsRequired = true, Order = 50)]
         public DataSourceConfiguration MetaData { get; set; }
+
+
+        /// <summary>
+        /// Indicates if the TestDataSource is deleted. Deleted data sources are not loaded in explorer.
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 1000)]
+        public bool IsDeleted { get; set; }
     }
 
     /// <summary>
