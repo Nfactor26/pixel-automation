@@ -276,7 +276,7 @@ namespace Pixel.Automation.Test.Runner
             }           
         }
 
-        public async Task RunAllAsync(string selector)
+        public async Task RunAllAsync(string selector, IAnsiConsole console)
         {
             TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
             List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
@@ -288,13 +288,16 @@ namespace Pixel.Automation.Test.Runner
                 await this.testSelector.Initialize(selector);
                 await this.testRunner.SetUpEnvironment();
 
+                console.MarkupLine($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
                 foreach (var testFixture in this.availableFixtures)
                 {
-                    if(testFixture.IsMuted)
-                    {
+                    console.MarkupLine($" - [cyan3]{testFixture.DisplayName}[/]");
+                   
+                    if (testFixture.IsMuted)
+                    {                        
                         continue;
                     }
-
+                    
                     var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
                     testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
                     testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
@@ -304,6 +307,7 @@ namespace Pixel.Automation.Test.Runner
                     {                      
                         if (!testSelector.CanRunTest(testFixture, testCase))
                         {
+                            console.MarkupLine($"  - [yellow]{testCase.DisplayName}[/]");
                             continue;
                         }
                        
@@ -313,6 +317,15 @@ namespace Pixel.Automation.Test.Runner
                             testResult.ExecutionOrder = ++counter;
                             await sessionClient.AddResultAsync(testResult);
                             testResults.Add(testResult);
+                            if(testResult.Result == Persistence.Core.Enums.TestStatus.Success)
+                            {
+                                console.MarkupLine($"  - [green]{testCase.DisplayName}[/]");
+                            }
+                            else
+                            {
+                                console.MarkupLine($"  - [red]{testCase.DisplayName}[/]");
+                                console.MarkupLine($"    [red]{testResult.FailureDetails.Exception} - {testResult.FailureDetails.Message}[/]");
+                            }
                         }
                                 
                     }
