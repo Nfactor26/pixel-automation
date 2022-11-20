@@ -52,7 +52,7 @@ namespace Pixel.Automation.Test.Runner
                 #endif
 
                 var applicationDataManager = kernel.Get<IApplicationDataManager>();
-                await applicationDataManager.DownloadApplicationsDataAsync();
+                await applicationDataManager.UpdateApplicationRepository();
                 var projectDataManger = kernel.Get<IProjectDataManager>();
                 await projectDataManger.DownloadProjectsAsync();
                 var prefabDataManager = kernel.Get<IPrefabDataManager>();

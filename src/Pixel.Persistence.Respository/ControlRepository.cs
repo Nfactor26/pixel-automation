@@ -6,11 +6,12 @@ using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
-{    
+{
     public class ControlRepository : IControlRepository
     {
         private readonly IMongoCollection<BsonDocument> controlsCollection;    
@@ -30,6 +31,87 @@ namespace Pixel.Persistence.Respository
                 BucketName = dbSettings.ImagesBucketName
             });
 
+        }
+
+        ///<inheritdoc/>
+        public async IAsyncEnumerable<DataFile> GetControlFiles(string applicationId, string controlId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+            Guard.Argument(controlId, nameof(controlId)).NotNull().NotEmpty();
+
+            //Get all the versoins of the control
+            var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated");
+            var result = controlsCollection.Find<BsonDocument>(CreateControlFilter(applicationId, controlId)).Project(projection);
+            var documents = await result.ToListAsync();
+            foreach (var document in documents)
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.UTF8))
+                    {
+                        var jsonData = JsonSerializer.Serialize(BsonTypeMapper.MapToDotNetValue(document), new JsonSerializerOptions()
+                        {
+                            WriteIndented = true
+                        });
+                        sw.Write(jsonData);
+                        sw.Flush();
+                        yield return new DataFile() { FileName = $"{controlId}.dat", Version = document["Version"].AsString, Bytes = ms.ToArray(), Type = "ControlFile" };
+
+                    }
+                }
+            }
+
+            //Get all the versions of the images
+            var filter = CreateImageFilter(applicationId, controlId);
+            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+            var options = new GridFSFindOptions
+            {
+                Sort = sort
+            };
+            using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
+            {
+                var imageFiles = await cursor.ToListAsync();
+                foreach (var imageFile in imageFiles)
+                {
+                    var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
+                    yield return new DataFile() { FileName = imageFile.Filename, Version = imageFile.Metadata["version"].AsString, Bytes = imageBytes, Type = "ControlImage" };
+                }
+            }
+
+        }
+
+        ///<inheritdoc/>
+        public async Task<IEnumerable<object>> GetAllControlsForApplication(string applicationId, DateTime laterThan)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+            var controlFilter = Builders<BsonDocument>.Filter.Eq(x => x["ApplicationId"], applicationId) & Builders<BsonDocument>.Filter.Gt(x => x["LastUpdated"], laterThan);
+            var controls = (await (await controlsCollection.FindAsync<BsonDocument>(controlFilter)).ToListAsync()).Select( s => BsonTypeMapper.MapToDotNetValue(s));
+            return controls;
+        }
+
+        ///<inheritdoc/>
+        public async Task<IEnumerable<ControlImageDataFile>> GetAllControlImagesForApplication(string applicationId, DateTime laterThan)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+            List<ControlImageDataFile> controlImages = new();
+            var imageFilter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata["applicationId"], applicationId) & Builders<GridFSFileInfo>.Filter.Gt(x => x.UploadDateTime, laterThan);
+            using (var cursor = await imageBucket.FindAsync(imageFilter, new GridFSFindOptions()))
+            {
+                var imageFiles = await cursor.ToListAsync();
+                
+                foreach (var imageFile in imageFiles)
+                {
+                    var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
+                    controlImages.Add(new ControlImageDataFile() 
+                            { 
+                                FileName = imageFile.Filename, 
+                                ControlId = imageFile.Metadata["controlId"].AsString, 
+                                Version = imageFile.Metadata["version"].AsString,
+                                Bytes = imageBytes 
+                            });
+                }              
+            }
+            return controlImages;
         }
 
         ///<inheritdoc/>
@@ -101,74 +183,7 @@ namespace Pixel.Persistence.Respository
                     await imageBucket.DeleteAsync(imageFile.Id);
                 }
             }
-        }
-
-        ///<inheritdoc/>
-        public async IAsyncEnumerable<DataFile> GetControlFiles(string applicationId, string controlId)
-        {
-            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
-            Guard.Argument(controlId, nameof(controlId)).NotNull().NotEmpty();
-
-            //Get all the versoins of the control
-            var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated");
-            var result = controlsCollection.Find<BsonDocument>(CreateControlFilter(applicationId, controlId)).Project(projection);
-            var documents = await result.ToListAsync();   
-            foreach(var document in documents)
-            {
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.UTF8))
-                    {
-                        var jsonData = JsonSerializer.Serialize(BsonTypeMapper.MapToDotNetValue(document), new JsonSerializerOptions()
-                        {
-                            WriteIndented = true
-                        });
-                        sw.Write(jsonData);
-                        sw.Flush();
-                        yield return new DataFile() { FileName = $"{controlId}.dat", Version = document["Version"].AsString, Bytes = ms.ToArray(), Type = "ControlFile" };
-
-                    }
-                }
-            }           
-
-            //Get all the versions of the images
-            var filter = CreateImageFilter(applicationId, controlId);
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            var options = new GridFSFindOptions
-            {                
-                Sort = sort
-            };          
-            using (var cursor = await imageBucket.FindAsync(filter, new GridFSFindOptions()))
-            {
-                var imageFiles = await cursor.ToListAsync();
-                foreach(var imageFile in imageFiles)
-                {
-                    var imageBytes = await imageBucket.DownloadAsBytesAsync(imageFile.Id);
-                    yield return new DataFile() { FileName = imageFile.Filename, Version = imageFile.Metadata["version"].AsString, Bytes = imageBytes, Type = "ControlImage" };
-                }
-            }
-           
-        }
-
-        ///<inheritdoc/>
-        public async IAsyncEnumerable<ControlMetaData> GetMetadataAsync(string applicationId)
-        {
-            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
-
-            var filterBuilder = Builders<BsonDocument>.Filter;
-            var filter = filterBuilder.Eq(x => x["ApplicationId"], applicationId);
-            var projection = Builders<BsonDocument>.Projection.Include("ControlId").Include("Version").Include("LastUpdated");
-            var results = await controlsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
-            foreach (var doc in results)
-            {
-                yield return new ControlMetaData()
-                {
-                    ControlId = doc["ControlId"].AsString,
-                    Version = doc["Version"].AsString,
-                    LastUpdated = doc["LastUpdated"].ToUniversalTime()
-                };
-            }
-        }
+        }   
 
         /// <summary>
         /// Create filter condition for control file with given applicationId and controlId

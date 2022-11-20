@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,11 +16,10 @@ namespace Pixel.Persistence.Respository
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             applicationsCollection = database.GetCollection<BsonDocument>(dbSettings.ApplicationsCollectionName);
-
         }
 
         ///<inheritdoc/>
-        public async Task<object> GetApplicationData(string applicationId)
+        public async Task<object> GetApplication(string applicationId)
         {
             Guard.Argument(applicationId).NotNull().NotEmpty();
           
@@ -34,22 +32,18 @@ namespace Pixel.Persistence.Respository
         }
 
         ///<inheritdoc/>
-        public async IAsyncEnumerable<ApplicationMetaData> GetMetadataAsync()
+        public async Task<IEnumerable<object>> GetAllApplications(DateTime laterThan)
         {
-            var filter = Builders<BsonDocument>.Filter.Empty;
-            var projection = Builders<BsonDocument>.Projection.Include("ApplicationId").Include("LastUpdated");
-            var results = await applicationsCollection.Find<BsonDocument>(filter).Project(projection).ToListAsync();
-
-            foreach (var doc in results)
+            var filter = Builders<BsonDocument>.Filter.Gt(x => x["LastUpdated"], laterThan);
+            var results = await applicationsCollection.FindAsync<BsonDocument>(filter);
+            List<object> applications = new List<object>();
+            foreach(var application in (await results.ToListAsync()))
             {
-                yield return new ApplicationMetaData()
-                {
-                    ApplicationId = doc["ApplicationId"].AsString,
-                    LastUpdated = doc["LastUpdated"].ToUniversalTime()
-                };
+                applications.Add(BsonTypeMapper.MapToDotNetValue(application));
             }
+            return applications;
         }
-
+       
         ///<inheritdoc/>
         public async Task AddOrUpdate(string applicationDescriptionJson)
         {

@@ -1,34 +1,33 @@
-﻿using Pixel.Persistence.Core.Models;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Pixel.Persistence.Respository
+namespace Pixel.Persistence.Respository;
+
+/// <summary>
+/// IApplicationRepository is used to manage the ApplicationDescription data stored in database
+/// </summary>
+public interface IApplicationRepository
 {
     /// <summary>
-    /// IApplicationRepository is used to manage the ApplicationDescription data stored in database
+    /// Get the application data document for a given applicationId
     /// </summary>
-    public interface IApplicationRepository
-    {
-        /// <summary>
-        /// Get the application data document for a given applicationId
-        /// </summary>
-        /// <param name="applicationId"></param>
-        /// <returns>Contents of application file</returns>
-        Task<object> GetApplicationData(string applicationId);
+    /// <param name="applicationId"></param>
+    /// <returns>Contents of application file</returns>
+    Task<object> GetApplication(string applicationId);
 
-        /// <summary>
-        /// Get the <see cref="ApplicationMetaData"/>. This is used on client side to compare if there are any 
-        /// newer files on server
-        /// </summary>
-        /// <returns>Collection of <see cref="ApplicationMetaData"/></returns>
-        IAsyncEnumerable<ApplicationMetaData> GetMetadataAsync();
+    /// <summary>
+    /// Get all applications that were modified since specified 
+    /// </summary>
+    /// <param name="laterThan"></param>
+    /// <returns></returns>
+    Task<IEnumerable<object>> GetAllApplications(DateTime laterThan);
+   
+    /// <summary>
+    /// Add or update the ApplicationDescription data 
+    /// </summary>
+    /// <param name="applicationDescriptionJson">json serialized application description </param>
+    /// <returns></returns>
+    Task AddOrUpdate(string applicationDescriptionJson);
 
-        /// <summary>
-        /// Add or update the ApplicationDescription data 
-        /// </summary>
-        /// <param name="applicationDescriptionJson">json serialized application description </param>
-        /// <returns></returns>
-        Task AddOrUpdate(string applicationDescriptionJson);
-
-    }
 }

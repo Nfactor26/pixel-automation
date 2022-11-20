@@ -1,5 +1,5 @@
 ﻿using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,11 +15,11 @@ namespace Pixel.Persistence.Services.Client
         Task<ApplicationDescription> GetApplication(string applicationId);
 
         /// <summary>
-        /// Get ApplicationDescription for all the specified application
+        /// Get all the applications that have been modified since specified datetime
         /// </summary>
         /// <param name="applicationsToDownload"></param>
         /// <returns></returns>
-        Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload);
+        Task<IEnumerable<ApplicationDescription>> GetApplications(DateTime laterThan);
 
         /// <summary>
         /// Add or update application description

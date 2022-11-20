@@ -1,6 +1,6 @@
 ﻿using Pixel.Automation.Core.Controls;
-using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -8,12 +8,21 @@ namespace Pixel.Persistence.Services.Client
     public interface IControlRepositoryClient
     {
         /// <summary>
-        /// Get all the requested controls for a given application
+        /// Get all the controls modified since specified time for a given application
         /// </summary>
-        /// <param name="controlDataRequest"></param>
+        /// <param name="applicationId"></param>
+        /// <param name="laterThan"></param>
         /// <returns></returns>
-        Task<byte[]> GetControls(GetControlDataForApplicationRequest controlDataRequest);
-      
+        Task<IEnumerable<ControlDescription>> GetControls(string applicationId, DateTime laterThan);
+
+        /// <summary>
+        /// Get all the control images modified since specified time for a given applications
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="laterThan"></param>
+        /// <returns></returns>
+        Task<IEnumerable<Core.Models.ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan);
+
         /// <summary>
         /// Add or upate a control 
         /// </summary>

@@ -76,7 +76,7 @@ public class FixturesRepositoryClient : IFixturesRepositoryClient
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
     
         RestRequest restRequest = new RestRequest($"fixtures/{projectId}/{projectVersion}");
-        restRequest.AddBody(laterThan);
+        restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));
         var client = this.clientFactory.GetOrCreateClient();
         var result = await client.ExecuteGetAsync(restRequest);
         result.EnsureSuccess();

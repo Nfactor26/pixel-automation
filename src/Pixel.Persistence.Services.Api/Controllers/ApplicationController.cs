@@ -27,16 +27,36 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         /// <summary>
-        /// Get the applicatoin data for a given applicationId 
+        /// Get the application data for a given applicationId 
         /// </summary>
         /// <param name="applicationId"></param>
         /// <returns></returns>
-        [HttpGet("{applicationId}")]
+        [HttpGet("id/{applicationId}")]
         public async Task<ActionResult> Get(string applicationId)
         {
             try
             {
-                var applicationData = await applicationRepository.GetApplicationData(applicationId);              
+                var applicationData = await applicationRepository.GetApplication(applicationId);              
+                return Ok(applicationData);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get all applications modified since specified datetime
+        /// </summary>
+        /// <param name="laterThan"></param>
+        /// <returns></returns>
+        [HttpGet()]
+        public async Task<ActionResult> GetAll([FromHeader] DateTime laterThan)
+        {
+            try
+            {
+                var applicationData = await applicationRepository.GetAllApplications(laterThan);
                 return Ok(applicationData);
             }
             catch (Exception ex)

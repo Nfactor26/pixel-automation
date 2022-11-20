@@ -8,8 +8,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
     {
         public override void Load()
         {
-            Kernel.Bind<IRestClientFactory>().To<RestClientFactory>().InSingletonScope();
-            Kernel.Bind<IMetaDataClient>().To<MetaDataClient>();
+            Kernel.Bind<IRestClientFactory>().To<RestClientFactory>().InSingletonScope();          
             Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>();
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();          
             Kernel.Bind<ITestSessionClient>().To<TestSessionClient>();
