@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client;
 
@@ -329,7 +330,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         {
             lastUpdated = DateTime.MinValue.ToUniversalTime();
         }
-        File.WriteAllText(lastUpdatedDataFile, DateTime.Now.ToUniversalTime().ToString());
+        File.WriteAllText(lastUpdatedDataFile, DateTime.Now.ToUniversalTime().ToString("O"));
     }
 
 
@@ -472,6 +473,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                     Directory.CreateDirectory(fixtureDirectory);
                 }
                 serializer.Serialize(fixtureFile, fixture);
+                logger.Information("Updated local copy of Fixture : {0}", fixture.DisplayName);
             }
         }
     }
@@ -573,6 +575,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                     Directory.CreateDirectory(testDirectory);
                 }
                 serializer.Serialize(testFile, test);
+                logger.Information("Updated local copy of Test Case : {0}", test.DisplayName);
             }
         }
     }
@@ -639,6 +642,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             {
                 var dataSourceFile = Path.Combine(this.projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat");
                 this.projectFileSystem.SaveToFile(dataSource, Path.GetDirectoryName(dataSourceFile), Path.GetFileName(dataSourceFile));
+                logger.Information("Updated local copy of Test Data Source : {0}", dataSource.Name);
             }
             var tags = dataSources.Select(d => d.DataSourceId).ToArray();
             if (tags.Any())

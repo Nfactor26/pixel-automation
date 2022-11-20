@@ -19,19 +19,34 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         IEnumerable<ApplicationDescription> GetAllApplications();
 
+
+        /// <summary>
+        /// Download most recent version of application and controls
+        /// </summary>
+        /// <returns></returns>
+        Task UpdateApplicationRepository();
+
+
+        /// <summary>
+        /// Download most recent version of all the applications
+        /// </summary>
+        /// <returns></returns>
+        Task DownloadApplicationsAsync();
+
+        /// <summary>
+        /// Download most recent version of all the controls and their images for a given application
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        Task DownloadControlsAsync(string applicationId);
+
         /// <summary>
         /// Add or update a application file
         /// </summary>
         /// <param name="applicationDescription"></param>
         /// <returns></returns>
         Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription);
-
-        /// <summary>
-        /// Download all the newer application files
-        /// </summary>
-        /// <returns></returns>
-        Task DownloadApplicationsDataAsync();
-        
+                     
 
         /// <summary>
         /// Load all the control files from disk for a given application (e.g. for use in control explorer) and return loaded control descriptions

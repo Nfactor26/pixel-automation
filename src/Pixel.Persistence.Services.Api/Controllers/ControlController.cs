@@ -7,7 +7,6 @@ using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
@@ -31,35 +30,39 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }        
 
         /// <summary>
-        /// Get all the control data including control images as a zipped file for the control id's 
-        /// specified in request
+        /// Get all the controls for a given application which have beem modified since specified datetime
         /// </summary>
         /// <param name="controlDataReqest"></param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] GetControlDataForApplicationRequest controlDataReqest)
+        [HttpGet("{applicationId}")]
+        public async Task<ActionResult> GetControls(string applicationId, [FromHeader] DateTime laterThan)
         {
             try
             {
-                using (var stream = new MemoryStream())
-                {
-                    using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create))
-                    {
-                        foreach (var controlId in controlDataReqest.ControlIdCollection)
-                        {
-                            await foreach (var file in this.controlRepository.GetControlFiles(controlDataReqest.ApplicationId, controlId))
-                            {
-                                var zipEntry = zipArchive.CreateEntry(Path.Combine(controlId, file.Version, file.FileName));
-                                using (var zipEntryStream = zipEntry.Open())
-                                {
-                                    zipEntryStream.Write(file.Bytes);
-                                }
-                            }
-                        }
+                var controls = await this.controlRepository.GetAllControlsForApplication(applicationId, laterThan);
+                return Ok(controls);
+                
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
 
-                    }
-                    return File(stream.ToArray(), "application/zip", "ControlData.zip");
-                }
+
+        /// <summary>
+        /// Get all the control images for a given application which have beem modified since specified datetime
+        /// </summary>
+        /// <param name="controlDataReqest"></param>
+        /// <returns></returns>       
+        [HttpGet("image/{applicationId}")]
+        public async Task<ActionResult> GetControlImages(string applicationId, [FromHeader] DateTime laterThan)
+        {
+            try
+            {
+                var images = await this.controlRepository.GetAllControlImagesForApplication(applicationId, laterThan);
+                return Ok(images);
             }
             catch (Exception ex)
             {
@@ -98,9 +101,8 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// </summary>
         /// <param name="controlImage">Metadata for the image</param>
         /// <param name="imageFile">Image file</param>
-        /// <returns></returns>
-        [Route("image")]
-        [HttpPost]    
+        /// <returns></returns>        
+        [HttpPost("image")]    
         public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlImageMetaData))] ControlImageMetaData controlImage, [FromForm(Name = "file")] IFormFile imageFile)
         {
             try

@@ -5,7 +5,10 @@ using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -28,23 +31,38 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public async Task<byte[]> GetControls(GetControlDataForApplicationRequest controlDataRequest)
+        public async Task<IEnumerable<ControlDescription>> GetControls(string applicationId, DateTime laterThan)
         {
-            Guard.Argument(controlDataRequest).NotNull();
-            logger.Debug("Get controls for applicationId : {0}", controlDataRequest.ApplicationId);
-
-            //Note : RestSharp doesn't support content body in get request. Hence, we are adding as query string
-            RestRequest restRequest = new RestRequest("control") { Method = Method.Get, RequestFormat = DataFormat.Json };
-            restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ApplicationId), controlDataRequest.ApplicationId, ParameterType.QueryString);
-            foreach(var controlId in controlDataRequest.ControlIdCollection)
-            {
-                restRequest.AddParameter(nameof(GetControlDataForApplicationRequest.ControlIdCollection), controlId, ParameterType.QueryString);
-            }
-
+            Guard.Argument(applicationId).NotNull().NotEmpty();       
+            RestRequest restRequest = new RestRequest($"control/{applicationId}") { Method = Method.Get, RequestFormat = DataFormat.Json };
+            restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));          
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteGetAsync(restRequest);
             result.EnsureSuccess();
-            return result.RawBytes;
+            using (var stream = new MemoryStream(result.RawBytes))
+            {
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
+                    return serializer.DeserializeContent<List<ControlDescription>>(reader.ReadToEnd());
+                }
+            }
+        }
+
+        public async Task<IEnumerable<Core.Models.ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan)
+        {
+            Guard.Argument(applicationId).NotNull().NotEmpty();
+            RestRequest restRequest = new RestRequest($"control/image/{applicationId}") { Method = Method.Get, RequestFormat = DataFormat.Json };
+            restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            using (var stream = new MemoryStream(result.RawBytes))
+            {
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
+                    return serializer.DeserializeContent<List<ControlImageDataFile>>(reader.ReadToEnd());
+                }
+            }
         }
 
         ///<inheritdoc/>

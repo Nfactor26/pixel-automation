@@ -70,7 +70,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         
 
         [HttpGet("{projectId}/{projectVersion}")]
-        public async Task<ActionResult<List<TestFixture>>> GetAllForProjectAsync(string projectId, string projectVersion, [FromBody] DateTime laterThan)
+        public async Task<ActionResult<List<TestFixture>>> GetAllForProjectAsync(string projectId, string projectVersion, [FromHeader] DateTime laterThan)
         {
             try
             {

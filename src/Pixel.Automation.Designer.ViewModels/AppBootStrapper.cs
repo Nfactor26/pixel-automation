@@ -58,7 +58,7 @@ namespace Pixel.Automation.Designer.ViewModels
                             var projectDataManager = IoC.Get<IProjectDataManager>();
                             var prefabDataManager = IoC.Get<IPrefabDataManager>();
                             logger.Information("Downloading application data now");
-                            await applicationDataManger.DownloadApplicationsDataAsync();
+                            await applicationDataManger.UpdateApplicationRepository();
                             logger.Information("Download of application data completed");
                             logger.Information("Downloading project information now");
                             await projectDataManager.DownloadProjectsAsync();

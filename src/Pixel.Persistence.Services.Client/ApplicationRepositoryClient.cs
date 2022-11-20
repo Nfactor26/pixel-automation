@@ -1,10 +1,10 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(applicationId).NotNull().NotEmpty();
             logger.Debug("Get ApplicationDescription for applicationId : {0}", applicationId);
 
-            RestRequest restRequest = new RestRequest($"application/{applicationId}");
+            RestRequest restRequest = new RestRequest($"application/id/{applicationId}");
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteGetAsync(restRequest);
             result.EnsureSuccess();
@@ -50,17 +50,20 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public async Task<IEnumerable<ApplicationDescription>> GetApplications(IEnumerable<ApplicationMetaData> applicationsToDownload)
+        public async Task<IEnumerable<ApplicationDescription>> GetApplications(DateTime laterThan)
         {
-            Guard.Argument(applicationsToDownload).NotNull();
-
-            List<ApplicationDescription> applicationDescriptions = new List<ApplicationDescription>();
-            foreach (var application in applicationsToDownload)
+            RestRequest restRequest = new RestRequest("application");
+            restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteGetAsync(restRequest);
+            result.EnsureSuccess();
+            using (var stream = new MemoryStream(result.RawBytes))
             {
-                var applicationDescription = await GetApplication(application.ApplicationId);
-                applicationDescriptions.Add(applicationDescription);
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
+                    return serializer.DeserializeContent<List<ApplicationDescription>>(reader.ReadToEnd());
+                }
             }
-            return applicationDescriptions;
         }
 
         ///<inheritdoc/>

@@ -13,6 +13,11 @@
         public byte[] Bytes { get; set; }
     } 
 
+    public class ControlImageDataFile : DataFile
+    {
+        public string ControlId { get; set; }
+    }
+
     public class ProjectDataFile : DataFile
     {
         public string ProjectId { get; set; }

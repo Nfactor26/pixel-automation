@@ -3,12 +3,10 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,14 +17,12 @@ namespace Pixel.Persistence.Services.Client
         private readonly ILogger logger = Log.ForContext<ApplicationDataManager>();
 
         private readonly IApplicationRepositoryClient appRepositoryClient;
-        private readonly IControlRepositoryClient controlRepositoryClient;       
-        private readonly IMetaDataClient metaDataClient;
+        private readonly IControlRepositoryClient controlRepositoryClient;              
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
         private readonly ApplicationSettings applicationSettings;
         private readonly IApplicationFileSystem applicationFileSystem;
-        private readonly IAutomationsRepositoryClient automationRepositoryClient;
-        private readonly IProjectFilesRepositoryClient projectFilesRepositoryClient;
+        private readonly DateTime lastUpdated;
 
         bool IsOnlineMode
         {
@@ -35,22 +31,35 @@ namespace Pixel.Persistence.Services.Client
 
         #region Constructor
 
-        public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IMetaDataClient metaDataClient,
-            IApplicationRepositoryClient appRepositoryClient, IControlRepositoryClient controlRepositoryClient,           
-            IAutomationsRepositoryClient automationRepositoryClient, IProjectFilesRepositoryClient projectFilesRepositoryClient,
-            ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
+        public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IApplicationRepositoryClient appRepositoryClient,
+            IControlRepositoryClient controlRepositoryClient, ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
         {
             this.serializer = Guard.Argument(serializer).NotNull().Value;
-            this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;
-            this.metaDataClient = Guard.Argument(metaDataClient).NotNull().Value;
+            this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;            
             this.appRepositoryClient = Guard.Argument(appRepositoryClient).NotNull().Value;
-            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;
-            this.projectFilesRepositoryClient = Guard.Argument(projectFilesRepositoryClient).NotNull().Value;          
+            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;            
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
-            this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
-            this.automationRepositoryClient = Guard.Argument(automationRepositoryClient, nameof(automationRepositoryClient)).NotNull().Value;
+            this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;            
             
             CreateLocalDataDirectories();
+
+            if(IsOnlineMode)
+            {
+                string lastUpdatedDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.LastUpdatedFileName);
+                if (File.Exists(lastUpdatedDataFile))
+                {
+                    if (!DateTime.TryParse(File.ReadAllText(lastUpdatedDataFile), out lastUpdated))
+                    {
+                        throw new Exception($"Failed to read last updated data from file : {lastUpdatedDataFile}");
+                    }
+                    File.Delete(lastUpdatedDataFile);
+                }
+                else
+                {
+                    lastUpdated = DateTime.MinValue.ToUniversalTime();
+                }
+                File.WriteAllText(lastUpdatedDataFile, DateTime.Now.ToUniversalTime().ToString("O"));
+            }            
         }
 
         void CreateLocalDataDirectories()
@@ -117,74 +126,62 @@ namespace Pixel.Persistence.Services.Client
             
         }
 
-        /// <summary>
-        /// Download application data from database which are not already available on disk.
-        /// Application data includes controls and prefabs belonging to an application.
-        /// </summary>
-        /// <returns></returns>
-        public async Task DownloadApplicationsDataAsync()
+        public async Task UpdateApplicationRepository()
         {
-            if (IsOnlineMode)
+            await DownloadApplicationsAsync();
+            var applications = GetAllApplications();
+            foreach(var application in applications)
             {
-                var serverApplicationMetaDataCollection = await this.metaDataClient.GetApplicationMetaData();
-                var localApplicationMetaDataCollection = GetLocalApplicationMetaData();
-                foreach (var serverApplicationMetaData in serverApplicationMetaDataCollection)
-                {
-                    //download application file if there is a newer version available or data doesn't already exist locally
-                    bool isNewerApplicationVersionAvailable = localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId) && (a.LastUpdated < serverApplicationMetaData.LastUpdated));
-                    bool isApplicationNotAvailableLocally = !localApplicationMetaDataCollection.Any(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
-                    if (isNewerApplicationVersionAvailable || isApplicationNotAvailableLocally)
-                    {
-                        var applicationDescription = await this.appRepositoryClient.GetApplication(serverApplicationMetaData.ApplicationId);
-                        SaveApplicationToDisk(applicationDescription);
-                        logger.Information("Updated local copy of Application : {applicationName} with Id {applicationId}.", applicationDescription.ApplicationName, applicationDescription.ApplicationId);
-                    }
-
-                    var localApplicationMetaData = localApplicationMetaDataCollection.FirstOrDefault(a => a.ApplicationId.Equals(serverApplicationMetaData.ApplicationId));
-
-                    //download controls belonging to application if newer version of control is available or control data doesn't already exist locally
-                    List<string> controlsToDownload = new List<string>();
-                    foreach (var controlMetaData in serverApplicationMetaData.ControlsMeta)
-                    {
-                        bool isNewerControlVersionAvailable = localApplicationMetaData?.ControlsMeta.Any(c => c.ControlId.Equals(controlMetaData.ControlId) && (c.LastUpdated < controlMetaData.LastUpdated)) ?? true;
-                        if (!isNewerControlVersionAvailable)
-                        {
-                            continue;
-                        }
-                        controlsToDownload.Add(controlMetaData.ControlId);
-                    }
-
-                    if (controlsToDownload.Any())
-                    {
-                        var request = new Core.Models.GetControlDataForApplicationRequest()
-                        {
-                            ApplicationId = serverApplicationMetaData.ApplicationId,
-                            ControlIdCollection = new List<string>(controlsToDownload)
-                        };
-                        var zippedContent = await this.controlRepositoryClient.GetControls(request);
-
-                        using (var memoryStream = new MemoryStream(zippedContent, false))
-                        {
-                            var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
-                            foreach (var entry in zipArchive.Entries)
-                            {
-                                var targetFile = Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, Constants.ControlsDirectory, entry.FullName);
-                                if (!Directory.Exists(Path.GetDirectoryName(targetFile)))
-                                {
-                                    Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
-                                }
-                                entry.ExtractToFile(Path.Combine(applicationSettings.ApplicationDirectory, serverApplicationMetaData.ApplicationId, Constants.ControlsDirectory, entry.FullName), true);
-                            }
-                        }
-                        logger.Information("Updated local copy for {count} controls for application : {applicationName} with Id : {applicationId}.",
-                            controlsToDownload.Count(), serverApplicationMetaData.ApplicationName, serverApplicationMetaData.ApplicationId);
-                    }
-                   
-                    CreateOrUpdateApplicationMetaData(serverApplicationMetaDataCollection);
-                }
-            }          
+                await DownloadControlsAsync(application.ApplicationId);
+            }
         }
 
+        public async Task DownloadApplicationsAsync()
+        {
+            if(IsOnlineMode)
+            {
+                var applications = await this.appRepositoryClient.GetApplications(this.lastUpdated);
+                foreach (var application in applications)
+                {
+                    SaveApplicationToDisk(application);
+                    logger.Information("Updated local copy of Application : {applicationName}", application.ApplicationName);
+                }
+            }            
+        }
+
+        public async Task DownloadControlsAsync(string applicationId)
+        {
+            if(IsOnlineMode)
+            {
+                var controls = await this.controlRepositoryClient.GetControls(applicationId, this.lastUpdated);
+                foreach (var control in controls)
+                {
+                    SaveControlToDisk(control);
+                    logger.Information("Updated local copy of control : {0} for application : {1}", control.ControlName, control.ApplicationId);
+                }
+
+                var controlImages = await this.controlRepositoryClient.GetControlImages(applicationId, this.lastUpdated);
+                foreach (var image in controlImages)
+                {
+                    string imageFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, image.ControlId,
+                        image.Version, image.FileName);
+                    if(File.Exists(imageFile))
+                    {
+                        File.Delete(imageFile);
+                    }
+                    using(MemoryStream ms = new MemoryStream(image.Bytes))
+                    {
+                        using(FileStream fs = new FileStream(imageFile, FileMode.CreateNew))
+                        {
+                            ms.Seek(0, SeekOrigin.Begin);
+                            ms.CopyTo(fs);
+                        }
+                    }
+                }
+            }            
+        }
+
+       
         /// <summary>
         /// Save the ApplicationDetails of ApplicationToolBoxItem to File
         /// </summary>
@@ -335,30 +332,6 @@ namespace Pixel.Persistence.Services.Client
         }
 
         #endregion Controls
-             
-        #region Metadata
-
-        private IEnumerable<Core.Models.ApplicationMetaData> GetLocalApplicationMetaData()
-        {
-            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                return this.serializer.Deserialize<List<Core.Models.ApplicationMetaData>>(metaDataFile);
-            }
-            return Array.Empty<Core.Models.ApplicationMetaData>();
-        }
-
-        private void CreateOrUpdateApplicationMetaData(IEnumerable<Core.Models.ApplicationMetaData> applicationMetaDatas)
-        {
-            string metaDataFile = Path.Combine(applicationSettings.ApplicationDirectory, Constants.ApplicationsMeta);
-            if (File.Exists(metaDataFile))
-            {
-                File.Delete(metaDataFile);
-            }
-            this.serializer.Serialize<IEnumerable<Core.Models.ApplicationMetaData>>(metaDataFile, applicationMetaDatas);
-            logger.Information("Local application metadata has been updated.");
-        }
-        
-        #endregion Metadata
+       
     }
 }
