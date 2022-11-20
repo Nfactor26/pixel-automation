@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
@@ -7,6 +8,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Automation.TestExplorer.Views;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -46,6 +48,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         private bool isInitialized = false;
 
         public ITestRunner TestRunner { get; private set; }
+
+        public IDropTarget TestDataSourceDropHandler { get;}
 
         /// <summary>
         /// A collection of TestFixtures belonging to the Automation Project
@@ -100,6 +104,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             this.platformProvider = Guard.Argument(platformProvider).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
             this.eventAggregator.SubscribeOnPublishedThread(this);
+            this.TestDataSourceDropHandler = new TestDataSourceDropHandler(this.testCaseManager);
 
             CreateDefaultView();
         }

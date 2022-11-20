@@ -20,8 +20,6 @@
         <converters:TrimmedTextConverter x:Key="trimmedTextConverter"/>
         <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
 
-        <local:TestDataSourceDropHandler x:Key="dataSourceDropHandler"/>
-
         <HierarchicalDataTemplate DataType="{x:Type localVM:TestFixtureViewModel}" ItemsSource="{Binding Tests}">
         </HierarchicalDataTemplate>
 
@@ -83,7 +81,7 @@
                     <ControlTemplate TargetType="TreeViewItem">
                         <Border x:Name="TestCase" ToolTip="{Binding Description}" ToolTipService.Placement="Right">
                             <StackPanel Orientation="Vertical" dd:DragDrop.IsDropTarget="True"  
-                                        dd:DragDrop.DropHandler="{StaticResource dataSourceDropHandler}">
+                                        dd:DragDrop.DropHandler="{Binding DataContext.TestDataSourceDropHandler, ElementName=TestExplorerTreeView}">
                                 <StackPanel Orientation="Horizontal" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"
                                         Background="{DynamicResource MahApps.Brushes.Control.Background}"
                                         Tag="{Binding DataContext, ElementName=TestExplorerTreeView}">
