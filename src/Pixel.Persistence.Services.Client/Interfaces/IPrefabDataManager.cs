@@ -28,6 +28,15 @@ public interface IPrefabDataManager
     Task DownloadPrefabsAsync();
 
     /// <summary>
+    /// Download data files for a given version of prefab
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="prefabId"></param>
+    /// <param name="prefabVersion"></param>
+    /// <returns></returns>
+    Task DownloadPrefabDataAsync(string applicationId, string prefabId, string prefabVersion);
+
+    /// <summary>
     /// Download data files for a given version of Prefab
     /// </summary>
     /// <param name="prefabProject"></param>

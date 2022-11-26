@@ -53,8 +53,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
             foreach(var prefabReference in this.referenceManager.GetPrefabReferences().References)
             {
-                await this.prefabDataManager.DownloadPrefabDataAsync(new PrefabProject() { ApplicationId = prefabReference.ApplicationId, PrefabId = prefabReference.PrefabId },
-                    prefabReference.Version);
+                await this.prefabDataManager.DownloadPrefabDataAsync(prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
             }
 
             this.entityManager.SetCurrentFileSystem(this.fileSystem);

@@ -146,10 +146,15 @@ namespace Pixel.Persistence.Respository
             var projectVersions = (await this.projectsCollection.FindAsync<List<ProjectVersion>>(filter, new FindOptions<AutomationProject, List<ProjectVersion>>()
             {
                 Projection = Builders<AutomationProject>.Projection.Expression(u => u.AvailableVersions)
-            })).ToList().FirstOrDefault();
+            }))
+            .ToList().FirstOrDefault();
 
             if (projectVersions?.Contains(projectVersion) ?? false)
             {
+                if (!projectVersion.IsActive && projectVersion.PublishedOn is null)
+                {
+                    projectVersion.PublishedOn = DateTime.UtcNow;
+                }
                 var update = Builders<AutomationProject>.Update.Set(x => x.AvailableVersions[-1], projectVersion);
                 await this.projectsCollection.UpdateOneAsync(filter, update);
                 logger.LogInformation("Project version {0} was updated for project : {1}", projectVersion, projectId);

@@ -27,6 +27,11 @@ public abstract class VersionInfo
     [DataMember(IsRequired = false, Order = 30)]
     public string DataModelAssembly { get; set; }
 
+
+    [DataMember(IsRequired = false, Order = 40)]
+    public DateTime? PublishedOn { get; set; }
+
+
     public override bool Equals(object obj)
     {
         if(obj is VersionInfo versionInfo)
@@ -38,7 +43,7 @@ public abstract class VersionInfo
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Version, IsActive, DataModelAssembly);
+        return HashCode.Combine(Version, IsActive);
     }
 
     public override string ToString()

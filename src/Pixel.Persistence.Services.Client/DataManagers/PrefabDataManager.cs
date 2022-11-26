@@ -26,6 +26,15 @@ public class PrefabDataManager : IPrefabDataManager
 
     bool IsOnlineMode => !this.applicationSettings.IsOfflineMode;
    
+    /// <summary>
+    /// constructor
+    /// </summary>
+    /// <param name="applicationSettings"></param>
+    /// <param name="serializer"></param>
+    /// <param name="applicationFileSystem"></param>
+    /// <param name="prefabsRepositoryClient"></param>
+    /// <param name="filesRepositoryClient"></param>
+    /// <param name="referencesRepositoryClient"></param>
     public PrefabDataManager(ApplicationSettings applicationSettings, ISerializer serializer, IApplicationFileSystem applicationFileSystem, 
         IPrefabsRepositoryClient prefabsRepositoryClient, IPrefabFilesRepositoryClient filesRepositoryClient, IReferencesRepositoryClient referencesRepositoryClient)
     {
@@ -37,6 +46,7 @@ public class PrefabDataManager : IPrefabDataManager
         this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
     }
 
+    ///<inheritdoc/>
     public IEnumerable<PrefabProject> GetAllPrefabs(string applicationId)
     {
         if (!prefabsCache.ContainsKey(applicationId))
@@ -46,6 +56,7 @@ public class PrefabDataManager : IPrefabDataManager
         return prefabsCache[applicationId];
     }
 
+    ///<inheritdoc/>
     public IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName)
     {
         if (applicationDescription.AvailablePrefabs.ContainsKey(screenName))
@@ -63,15 +74,38 @@ public class PrefabDataManager : IPrefabDataManager
         yield break;
     }
 
+    ///<inheritdoc/>
+    public async Task DownloadPrefabDataAsync(string applicationId, string prefabId, string prefabVersion)
+    {
+        Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
+        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+        Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull().NotEmpty();       
+        var prefabProject = LoadPrefabFromLocalStorage(applicationId, prefabId);
+        var versionToDownload = prefabProject.AvailableVersions.FirstOrDefault(a => a.Version.ToString().Equals(prefabVersion))
+            ?? throw new ArgumentException($"Version {prefabVersion} doesn't exist for prefab {prefabProject.PrefabName}");
+        await DownloadPrefabDataAsync(prefabProject, versionToDownload);
+    }
+
+    ///<inheritdoc/>
     public async Task DownloadPrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
     {
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+
         var prefabsDirectory = Path.Combine(this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject), prefabVersion.ToString());
-        if(!Directory.Exists(prefabsDirectory))
+        if (!Directory.Exists(prefabsDirectory))
         {
             Directory.CreateDirectory(prefabsDirectory);
-        }        
+        }    
+      
         if(IsOnlineMode)
-        {
+        {           
+            if(HasMostRecentDataAlreadyAvailable())
+            {
+                logger.Information("Skip download of version {0} of prefab project {1}. Data already available.", prefabVersion, prefabProject.PrefabName);
+                return;
+            }
+            
             //Download project references data
             var projectReferences = await this.referencesRepositoryClient.GetProjectReferencesAsync(prefabProject.PrefabId, prefabVersion.ToString());
             if (projectReferences != null)
@@ -80,9 +114,27 @@ public class PrefabDataManager : IPrefabDataManager
                 this.serializer.Serialize(prefabReferencesFile, projectReferences);
             }
             await DownloadFilesWithTagsAsync(prefabProject, prefabVersion, new[] { prefabProject.PrefabId });
+            logger.Information("Download completed for version {0} of prefab project {1}", prefabVersion, prefabProject.PrefabName);
+        }
+
+        bool HasMostRecentDataAlreadyAvailable()
+        {
+            string lastUpdatedDataFile = Path.Combine(prefabsDirectory, Constants.LastUpdatedFileName);
+            DateTime lastUpdated = DateTime.MinValue.ToUniversalTime();
+            if (File.Exists(lastUpdatedDataFile))
+            {
+                if (!DateTime.TryParse(File.ReadAllText(lastUpdatedDataFile), out lastUpdated))
+                {
+                    throw new Exception($"Failed to read last updated data from file : {lastUpdatedDataFile}");
+                }
+                File.Delete(lastUpdatedDataFile);
+            }
+            File.WriteAllText(lastUpdatedDataFile, DateTime.Now.ToUniversalTime().ToString("O"));
+            return (prefabVersion.IsPublished && prefabVersion.PublishedOn < lastUpdated);           
         }
     }
 
+    ///<inheritdoc/>
     public async Task DownloadPrefabsAsync()
     {
         if (IsOnlineMode)
@@ -102,10 +154,11 @@ public class PrefabDataManager : IPrefabDataManager
                 }
                 serializer.Serialize(prefabFile, prefab);
             }
+            logger.Information("Download of Prefabs completed");
         }
     }
 
-
+    ///<inheritdoc/>
     public async Task AddPrefabAsync(PrefabProject prefabProject)
     {
         if (IsOnlineMode)
@@ -127,6 +180,8 @@ public class PrefabDataManager : IPrefabDataManager
             {
                 await AddOrUpdateDataFileAsync(prefabProject, prefabProject.LatestActiveVersion, file, prefabProject.PrefabId);
             }
+
+            logger.Information("Prefab project {@prefabProject} was added.", prefabProject);
         }
 
         ////when a new prefab is created , add it to the prefabs cache
@@ -159,6 +214,7 @@ public class PrefabDataManager : IPrefabDataManager
                 FilePath = Path.GetRelativePath(prefabsDirectory, filePath),
                 Tag = tag,
             }, filePath);
+            logger.Information("File {0} belonging to version {1} of prefab project {2} was added/updated.", Path.GetFileName(filePath), prefabVersion.ToString(), prefabProject.PrefabName);
         }
     }
 
@@ -173,8 +229,10 @@ public class PrefabDataManager : IPrefabDataManager
         {
             File.Delete(fileToDelete);
         }
+        logger.Information("File {0} belonging to version {1} of prefab project {2} was deleted.", Path.GetFileName(fileToDelete), prefabVersion.ToString(), prefabProject.PrefabName);
     }
 
+    ///<inheritdoc/>
     public async Task AddPrefabVersionAsync(PrefabProject prefabProject, PrefabVersion newVersion, PrefabVersion cloneFrom)
     {
         if (IsOnlineMode)
@@ -197,7 +255,6 @@ public class PrefabDataManager : IPrefabDataManager
                 {
                     fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
                 }
-
                 // Copy each subdirectory using recursion.
                 foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
                 {
@@ -207,13 +264,13 @@ public class PrefabDataManager : IPrefabDataManager
             }
         }
 
-
         prefabProject.AvailableVersions.Add(newVersion);
         string prefabDescriptionFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
         serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
-
+        logger.Information("Added new version {0} of prefab {1} from version {2}.", newVersion.ToString(), prefabProject.PrefabName, cloneFrom.ToString());
     }
 
+    ///<inheritdoc/>
     public async Task UpdatePrefabVersionAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
     {
         if (IsOnlineMode)
@@ -222,37 +279,41 @@ public class PrefabDataManager : IPrefabDataManager
         }
         string prefabDescriptionFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
         serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
+        logger.Information("Version {0} of prefab {1} was updated.", prefabVersion.ToString(), prefabProject.PrefabName);
     }
-    
-    public async Task SavePrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVerssion)
+
+    ///<inheritdoc/>
+    public async Task SavePrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
     {
         if (IsOnlineMode)
         {
-            string projectDirectory = Path.Combine(this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject), prefabVerssion.ToString());
+            string projectDirectory = Path.Combine(this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject), prefabVersion.ToString());
             
             string processsFile = Path.Combine(projectDirectory, Constants.PrefabProcessFileName);
-            await AddOrUpdateDataFileAsync(prefabProject, prefabVerssion, processsFile, prefabProject.PrefabId);
+            await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, processsFile, prefabProject.PrefabId);
 
             string templateFile = Path.Combine(projectDirectory, Constants.PrefabTemplateFileName);
             if(File.Exists(templateFile))
             {
-                await AddOrUpdateDataFileAsync(prefabProject, prefabVerssion, templateFile, prefabProject.PrefabId);
+                await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, templateFile, prefabProject.PrefabId);
             }
                        
             foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.ReferencesDirectory), "*.*"))
             {
-                await AddOrUpdateDataFileAsync(prefabProject, prefabVerssion, file, prefabProject.PrefabId);
+                await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, file, prefabProject.PrefabId);
             }            
 
             foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.DataModelDirectory), "*.cs"))
             {
-                await AddOrUpdateDataFileAsync(prefabProject, prefabVerssion, file, prefabProject.PrefabId);
+                await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, file, prefabProject.PrefabId);
             }
 
             foreach (var file in Directory.EnumerateFiles(Path.Combine(projectDirectory, Constants.ScriptsDirectory), "*.csx"))
             {
-                await AddOrUpdateDataFileAsync(prefabProject, prefabVerssion, file, prefabProject.PrefabId);
+                await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, file, prefabProject.PrefabId);
             }
+
+            logger.Information("Data for version {0} of prefab {1} was saved.", prefabVersion.ToString(), prefabProject.PrefabName);
         }
     }
 
@@ -298,6 +359,17 @@ public class PrefabDataManager : IPrefabDataManager
             }
         }
         return prefabProjects;
+    }
+
+    private PrefabProject LoadPrefabFromLocalStorage(string applicationId, string prefabId)
+    {        
+        var prefabProjectFile = Path.Combine(this.applicationFileSystem.GetApplicationPrefabsDirectory(applicationId), prefabId, $"{prefabId}.atm");      
+        if (File.Exists(prefabProjectFile))
+        {
+            PrefabProject prefabProject = serializer.Deserialize<PrefabProject>(prefabProjectFile);
+            return prefabProject;
+        }
+        throw new FileNotFoundException($"File {prefabProjectFile} doesn't exist.");
     }
 
 }
