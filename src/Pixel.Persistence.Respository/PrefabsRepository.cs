@@ -80,7 +80,9 @@ namespace Pixel.Persistence.Respository
             var projectVersions = (await this.prefabsCollection.FindAsync<List<PrefabVersion>>(filter, new FindOptions<PrefabProject, List<PrefabVersion>>()
             {
                 Projection = Builders<PrefabProject>.Projection.Expression(u => u.AvailableVersions)
-            })).ToList().FirstOrDefault();
+            }))
+            .ToList().FirstOrDefault();
+            
             if (projectVersions?.Contains(newVersion) ?? false)
             {
                 throw new InvalidOperationException($"Version {newVersion} already exists for prefab {prefabId}");
@@ -113,6 +115,10 @@ namespace Pixel.Persistence.Respository
 
             if (prefabVersions?.Contains(prefabVersion) ?? false)
             {
+                if(!prefabVersion.IsActive && prefabVersion.PublishedOn is null)
+                {
+                    prefabVersion.PublishedOn = DateTime.UtcNow;
+                }
                 var update = Builders<PrefabProject>.Update.Set(x => x.AvailableVersions[-1], prefabVersion);
                 await this.prefabsCollection.UpdateOneAsync(filter, update);
                 logger.LogInformation("Project version {0} was updated for project : {1}", prefabVersion, prefabId);

@@ -107,12 +107,7 @@ namespace Pixel.Automation.Test.Runner
 
             foreach (var prefabReference in this.referenceManager.GetPrefabReferences().References)
             {
-                await this.prefabDataManager.DownloadPrefabDataAsync(new Core.Models.PrefabProject()
-                {
-                    ApplicationId = prefabReference.ApplicationId,
-                    PrefabId = prefabReference.PrefabId
-                },
-                prefabReference.Version);
+                await this.prefabDataManager.DownloadPrefabDataAsync( prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
             }
          
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);

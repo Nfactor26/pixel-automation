@@ -29,6 +29,12 @@ namespace Pixel.Automation.Core.Models
         public string DataModelAssembly { get; set; }
 
         /// <summary>
+        /// DateTime when the version was publisheds
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 40)]
+        public DateTime? PublishedOn { get; set; }
+
+        /// <summary>
         /// Description 
         /// </summary>
         [DataMember(IsRequired = false, Order = 40)]
@@ -44,6 +50,12 @@ namespace Pixel.Automation.Core.Models
                 return this.Version.Equals(other.Version);
             }
             return false;
+        }
+
+        ///</inheritdoc>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.Version, this.IsActive);
         }
 
         ///</inheritdoc>

@@ -63,8 +63,7 @@ namespace Pixel.Automation.Designer.ViewModels
                             logger.Information("Downloading project information now");
                             await projectDataManager.DownloadProjectsAsync();
                             logger.Information("Download of project information completed");
-                            await prefabDataManager.DownloadPrefabsAsync();
-                            logger.Information("Download of prefabs completed");
+                            await prefabDataManager.DownloadPrefabsAsync();                           
                         }
                         catch (Exception ex)
                         {
