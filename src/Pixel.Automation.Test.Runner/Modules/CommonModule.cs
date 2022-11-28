@@ -1,11 +1,11 @@
 ﻿using Ninject.Modules;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Reference.Manager;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.RunTime.Serialization;
-using Pixel.Scripting.Reference.Manager;
-using Pixel.Scripting.Reference.Manager.Contracts;
 
 namespace Pixel.Automation.Test.Runner.Modules
 {

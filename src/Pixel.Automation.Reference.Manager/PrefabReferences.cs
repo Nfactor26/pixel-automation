@@ -2,7 +2,7 @@
 using Pixel.Automation.Core.Models;
 using System.Runtime.Serialization;
 
-namespace Pixel.Scripting.Reference.Manager
+namespace Pixel.Automation.Reference.Manager
 {
     /// <summary>
     /// Maintains a mapping of Prefabs (along with PrefabEntity identifer) used in a AutomationProcess.

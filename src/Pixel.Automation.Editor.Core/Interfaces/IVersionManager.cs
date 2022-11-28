@@ -1,7 +1,7 @@
 ﻿using Caliburn.Micro;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager.Contracts;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {

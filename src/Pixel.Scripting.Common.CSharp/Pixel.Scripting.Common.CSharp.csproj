@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pixel.Automation.Reference.Manager\Pixel.Automation.Reference.Manager.csproj" />
     <ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj">
       <ExcludeAssets>All</ExcludeAssets>
       <Private>false</Private>

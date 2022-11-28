@@ -2,11 +2,11 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using Spectre.Console;
 using System;

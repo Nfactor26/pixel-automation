@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Pixel.Scripting.Reference.Manager;
+namespace Pixel.Automation.Reference.Manager;
 
 /// <summary>
 /// Runtime references for Projects

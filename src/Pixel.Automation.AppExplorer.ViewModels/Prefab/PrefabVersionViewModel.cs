@@ -2,9 +2,9 @@
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
 using System.Text.RegularExpressions;

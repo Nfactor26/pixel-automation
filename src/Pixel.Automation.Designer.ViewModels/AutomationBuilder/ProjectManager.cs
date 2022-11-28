@@ -2,9 +2,9 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
 using System.Reflection;

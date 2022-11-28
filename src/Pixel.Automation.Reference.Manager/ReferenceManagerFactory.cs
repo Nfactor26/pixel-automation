@@ -2,9 +2,9 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Persistence.Services.Client.Interfaces;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager.Contracts;
 
-namespace Pixel.Scripting.Reference.Manager;
+namespace Pixel.Automation.Reference.Manager;
 
 /// <summary>
 /// Use ReferenceManagerFactor to create an instance of ReferenceManager for a given version of Automation Project or Prefab Project

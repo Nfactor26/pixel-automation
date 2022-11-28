@@ -5,8 +5,8 @@ using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler

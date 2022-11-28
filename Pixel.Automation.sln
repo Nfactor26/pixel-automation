@@ -141,8 +141,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pixel-browser-scrapper", "p
 		src\Extensions\pixel-browser-scrapper\jquery-1.6.4.min.js = src\Extensions\pixel-browser-scrapper\jquery-1.6.4.min.js
 		src\Extensions\pixel-browser-scrapper\manifest.json = src\Extensions\pixel-browser-scrapper\manifest.json
 		src\Extensions\pixel-browser-scrapper\optimal-select.min.js = src\Extensions\pixel-browser-scrapper\optimal-select.min.js
-		src\Extensions\pixel-browser-scrapper\Web.Scrapper.js = src\Extensions\pixel-browser-scrapper\Web.Scrapper.js
 		src\Extensions\pixel-browser-scrapper\playwright.js = src\Extensions\pixel-browser-scrapper\playwright.js
+		src\Extensions\pixel-browser-scrapper\Web.Scrapper.js = src\Extensions\pixel-browser-scrapper\Web.Scrapper.js
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Input.Devices.Components", "src\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj", "{329AD7C0-8CF7-4EB0-A143-BDE1576A94CC}"
@@ -161,9 +161,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Not
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Notifications.Tests", "src\Unit.Tests\Pixel.Automation.Editor.Notifications.Tests\Pixel.Automation.Editor.Notifications.Tests.csproj", "{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Reference.Manager", "src\Pixel.Scripting.Reference.Manager\Pixel.Scripting.Reference.Manager.csproj", "{6DCD4843-5F19-4E63-929B-2CEE107C862E}"
-EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4110C527-9DBC-44A8-9349-34C72C78B722}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Reference.Manager", "src\Pixel.Automation.Reference.Manager\Pixel.Automation.Reference.Manager.csproj", "{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -411,14 +411,14 @@ Global
 		{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DCD4843-5F19-4E63-929B-2CEE107C862E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4110C527-9DBC-44A8-9349-34C72C78B722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4110C527-9DBC-44A8-9349-34C72C78B722}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4110C527-9DBC-44A8-9349-34C72C78B722}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4110C527-9DBC-44A8-9349-34C72C78B722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -489,8 +489,8 @@ Global
 		{D7AC21DE-DDF5-4C4E-A487-98C62693F1A9} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{3387DC18-1B51-47AD-B4F0-ED3411E88597} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{FFE188B5-B8A7-48A1-B043-DEF5D590D8A5} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
-		{6DCD4843-5F19-4E63-929B-2CEE107C862E} = {4E906FCE-BF6F-44B0-8E8D-C3F6AFEE6874}
 		{4110C527-9DBC-44A8-9349-34C72C78B722} = {AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}
+		{12BE6BAC-2CF4-4661-A8DD-7E00ABF514D5} = {7E4532E6-7928-4E6F-8874-15482508447F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

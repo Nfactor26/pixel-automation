@@ -1,8 +1,8 @@
 ﻿using Dawn;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Reference.Manager;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
-using Pixel.Scripting.Reference.Manager;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using System.Collections.ObjectModel;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager

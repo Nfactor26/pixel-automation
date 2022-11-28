@@ -4,9 +4,9 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using Serilog;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
