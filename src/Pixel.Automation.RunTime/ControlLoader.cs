@@ -2,9 +2,8 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
-using Pixel.Scripting.Reference.Manager;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System.Collections.Generic;
 using System.IO;

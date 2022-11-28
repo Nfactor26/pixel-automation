@@ -2,7 +2,7 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 
-namespace Pixel.Scripting.Reference.Manager.Contracts;
+namespace Pixel.Automation.Reference.Manager.Contracts;
 
 /// <summary>
 /// IReferenceManager defines the contract for retrieving assmbly references and imports for code editor, script editor and script engine associated

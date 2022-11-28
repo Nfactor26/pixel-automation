@@ -1,7 +1,7 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager.Contracts;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces

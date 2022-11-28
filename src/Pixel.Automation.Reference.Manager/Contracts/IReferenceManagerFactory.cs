@@ -1,6 +1,6 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 
-namespace Pixel.Scripting.Reference.Manager.Contracts;
+namespace Pixel.Automation.Reference.Manager.Contracts;
 
 /// <summary>
 /// IReferenceManagerFactory defined the contract for creating <see cref="ReferenceManager"/> for a given version of AutomationProject or PrefabProject

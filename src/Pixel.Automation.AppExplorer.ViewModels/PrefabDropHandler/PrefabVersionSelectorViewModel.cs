@@ -5,8 +5,8 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
-using Pixel.Scripting.Reference.Manager;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
 

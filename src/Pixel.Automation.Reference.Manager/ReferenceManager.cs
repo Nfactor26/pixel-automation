@@ -2,10 +2,10 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Scripting.Reference.Manager.Contracts;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 
-namespace Pixel.Scripting.Reference.Manager;
+namespace Pixel.Automation.Reference.Manager;
 
 /// <summary>
 /// ReferenceManager is used to retrieve required assembly references and imports for code editor , script editor and script runtime for a automation project 

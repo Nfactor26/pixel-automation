@@ -2,8 +2,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Scripting;
 using Pixel.Automation.Core;
+using Pixel.Automation.Reference.Manager;
 using Pixel.Scripting.Common.CSharp;
-using Pixel.Scripting.Reference.Manager;
 using Serilog;
 using System;
 using System.Collections.Generic;

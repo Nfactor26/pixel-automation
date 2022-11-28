@@ -7,10 +7,10 @@ using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder

@@ -1,7 +1,7 @@
 ﻿using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Automation.RunTime;
 using Pixel.Scripting.Editor.Core.Contracts;
-using Pixel.Scripting.Reference.Manager.Contracts;
 using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
