@@ -22,10 +22,19 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly AutomationProject automationProject;
         private readonly ApplicationSettings applicationSettings;
 
-        private bool wasPublished;
+        private bool wasPublishedOrCloned;
 
         public BindableCollection<ProjectVersionViewModel> AvailableVersions { get; set; } = new BindableCollection<ProjectVersionViewModel>();
        
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="automationProject"></param>
+        /// <param name="workspaceManagerFactory"></param>
+        /// <param name="referenceManagerFactory"></param>
+        /// <param name="serializer"></param>
+        /// <param name="projectDataManager"></param>
+        /// <param name="applicationSettings"></param>
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
             IReferenceManagerFactory referenceManagerFactory, ISerializer serializer, IProjectDataManager projectDataManager, ApplicationSettings applicationSettings)
         {
@@ -44,50 +53,24 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
         /// <summary>
-        /// Create a copy of selected version and mark the selected version as Published.
-        /// </summary>
-        /// <returns></returns>
-        public async Task CloneAndPublishAsync(ProjectVersionViewModel projectVersionViewModel)
-        {
-            try
-            {
-                logger.Information($"Trying to clone version {projectVersionViewModel.Version} for Project : {this.automationProject.Name}");
-
-                //Create a new active version from selected version
-                ProjectVersion newVersion = await projectVersionViewModel.CloneAsync(this.projectDataManager);                
-
-                IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
-                projectFileSystem.Initialize(this.automationProject, newVersion);
-
-                //After cloning, we mark the curret version as published
-                if(!projectVersionViewModel.IsPublished)
-                {
-                    await projectVersionViewModel.PublishAsync(this.workspaceManagerFactory, this.projectDataManager);                
-                    logger.Information($"Version {projectVersionViewModel.Version} for project : {this.automationProject.Name} is published now.");
-                }                              
-                   
-                this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));
-                this.wasPublished = true;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);              
-            }           
-        }
-
-        /// <summary>
-        /// Create a copy of selected version and mark the selected version as Published.
+        /// Set the state of version as published.
         /// </summary>
         /// <returns></returns>
         public async Task PublishAsync(ProjectVersionViewModel projectVersionViewModel)
         {
             try
-            {               
-                if (projectVersionViewModel.CanPublish)
+            {
+                if (!projectVersionViewModel.IsPublished)
                 {
-                    await projectVersionViewModel.PublishAsync(this.workspaceManagerFactory, this.projectDataManager);                   
-                    logger.Information($"Version {projectVersionViewModel.Version} for project : {this.automationProject.Name} is published now.");
-                }                              
+                    bool isLatestActieVersion = automationProject.LatestActiveVersion.Version.Equals(projectVersionViewModel.Version);
+                    await projectVersionViewModel.PublishAsync(this.workspaceManagerFactory, this.projectDataManager);
+                    if (isLatestActieVersion)
+                    {
+                        await CloneAsync(projectVersionViewModel);
+                    }
+                    this.wasPublishedOrCloned = true;
+                    logger.Information("Version {0} for project : {1} is published now.", projectVersionViewModel.Version, this.automationProject.Name);
+                }
             }
             catch (Exception ex)
             {
@@ -96,9 +79,37 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
 
+        /// <summary>
+        /// Create a copy of selected version. Only published versions can be cloned.
+        /// </summary>
+        /// <returns></returns>
+        public async Task CloneAsync(ProjectVersionViewModel projectVersionViewModel)
+        {
+            try
+            {
+                if (projectVersionViewModel.IsPublished)
+                {
+                    //Create a new active version from selected version
+                    ProjectVersion newVersion = await projectVersionViewModel.CloneAsync(this.projectDataManager);
+                    IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
+                    projectFileSystem.Initialize(this.automationProject, newVersion);
+                    this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));
+                    this.wasPublishedOrCloned = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);              
+            }           
+        }
+
+        /// <summary>
+        /// Close Project version manager screen
+        /// </summary>
+        /// <returns></returns>
         public async Task CloseAsync()
         {
-            await this.TryCloseAsync(this.wasPublished);
+            await this.TryCloseAsync(this.wasPublishedOrCloned);
         }
     }
 }

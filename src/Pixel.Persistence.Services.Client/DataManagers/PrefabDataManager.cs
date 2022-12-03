@@ -106,12 +106,12 @@ public class PrefabDataManager : IPrefabDataManager
                 return;
             }
             
-            //Download project references data
-            var projectReferences = await this.referencesRepositoryClient.GetProjectReferencesAsync(prefabProject.PrefabId, prefabVersion.ToString());
-            if (projectReferences != null)
+            //Download prefab references data
+            var prefabReferences = await this.referencesRepositoryClient.GetProjectReferencesAsync(prefabProject.PrefabId, prefabVersion.ToString());
+            if (prefabReferences != null)
             {
                 var prefabReferencesFile = Path.Combine(this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject), prefabVersion.ToString(), Constants.ReferencesFileName);
-                this.serializer.Serialize(prefabReferencesFile, projectReferences);
+                this.serializer.Serialize(prefabReferencesFile, prefabReferences);
             }
             await DownloadFilesWithTagsAsync(prefabProject, prefabVersion, new[] { prefabProject.PrefabId });
             logger.Information("Download completed for version {0} of prefab project {1}", prefabVersion, prefabProject.PrefabName);
@@ -181,7 +181,7 @@ public class PrefabDataManager : IPrefabDataManager
                 await AddOrUpdateDataFileAsync(prefabProject, prefabProject.LatestActiveVersion, file, prefabProject.PrefabId);
             }
 
-            logger.Information("Prefab project {@prefabProject} was added.", prefabProject);
+            logger.Information("Prefab project {0} was added.", prefabProject.PrefabName);
         }
 
         ////when a new prefab is created , add it to the prefabs cache
@@ -236,8 +236,9 @@ public class PrefabDataManager : IPrefabDataManager
     public async Task AddPrefabVersionAsync(PrefabProject prefabProject, PrefabVersion newVersion, PrefabVersion cloneFrom)
     {
         if (IsOnlineMode)
-        {
+        {           
             await this.prefabsRepositoryClient.AddPrefabVersionAsync(prefabProject.PrefabId, newVersion, cloneFrom);
+            await DownloadPrefabDataAsync(prefabProject, newVersion);
         }
         else
         {

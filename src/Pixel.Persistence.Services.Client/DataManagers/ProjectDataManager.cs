@@ -82,13 +82,22 @@ public class ProjectDataManager : IProjectDataManager
     /// <inheritdoc/>  
     public async Task DownloadProjectDataFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion)
     {
+        Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+
+        var projectDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion));
+        if (!Directory.Exists(projectDirectory))
+        {
+            Directory.CreateDirectory(projectDirectory);
+        }
+
         if (IsOnlineMode)
         {
             //Download project references data
             var projectReferences = await this.referencesRepositoryClient.GetProjectReferencesAsync(automationProject.ProjectId, projectVersion.ToString());
             if (projectReferences != null)
             {
-                var prefabReferencesFile = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion), Constants.ReferencesFileName);
+                var prefabReferencesFile = Path.Combine(projectDirectory, Constants.ReferencesFileName);
                 this.serializer.Serialize(prefabReferencesFile, projectReferences);
             }
             await DownloadFilesWithTagsAsync(automationProject, projectVersion, new[] { automationProject.ProjectId });
@@ -106,9 +115,15 @@ public class ProjectDataManager : IProjectDataManager
         {
             //Delete the data models and scripts directory. If any of the data model file or scipe file was deleted by other user, we don't want that leftover
             string projectWorkingDirectory = applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion);
-            Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory), true);
-            Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory), true);
-          
+            if(Directory.Exists(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory)))
+            {
+                Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory), true);
+            }
+            if(Directory.Exists(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory)))
+            {
+                Directory.Delete(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory), true);
+            }
+
             //create the data models and scripts directory
             Directory.CreateDirectory(Path.Combine(projectWorkingDirectory, Constants.DataModelDirectory));
             Directory.CreateDirectory(Path.Combine(projectWorkingDirectory, Constants.ScriptsDirectory));
@@ -159,7 +174,8 @@ public class ProjectDataManager : IProjectDataManager
         if (IsOnlineMode)
         {
             await this.projectsClient.AddProjectVersionAsync(automationProject.ProjectId, newVersion, versionToClone);
-        }
+            await DownloadProjectDataFilesAsync(automationProject, newVersion);
+        }   
         else
         {
             var cloneFromVersionDirectory = Path.Combine(applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, versionToClone));

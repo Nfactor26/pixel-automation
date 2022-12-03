@@ -51,18 +51,19 @@
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button x:Name="CloneAndPublish" Content="Clone and Publish" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                        cal:Message.Attach="[Event Click] = [Action CloneAndPublishAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" ToolTip="Create a copy with incremented version and mark this version published."  />
+                                <Button x:Name="Publish" Content="Publish" IsEnabled="{Binding CanPublish}" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        cal:Message.Attach="[Event Click] = [Action PublishAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" 
+                                        ToolTip="Set the state of version as published"  />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button x:Name="Publish" Content="Publish" IsEnabled="{Binding CanPublish}"
+                                <Button x:Name="Clone" Content="Clone" IsEnabled="{Binding CanClone}"
                                         cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                        cal:Message.Attach="[Event Click] = [Action PublishAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center"
-                                        ToolTip="Mark the version as published. Published versions can be used in automation."  />
+                                        cal:Message.Attach="[Event Click] = [Action CloneAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center"
+                                        ToolTip="Create an incremented version by cloning this version"  />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
