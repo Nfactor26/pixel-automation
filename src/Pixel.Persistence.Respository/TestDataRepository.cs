@@ -57,7 +57,7 @@ namespace Pixel.Persistence.Respository
         {
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                 Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion)) &
-                Builders<TestDataSource>.Filter.Eq(x => x.LastUpdated, laterThan);
+                Builders<TestDataSource>.Filter.Gt(x => x.LastUpdated, laterThan);
             var dataSources = await testDataCollection.FindAsync(filter, FindOptions, cancellationToken);
             return await dataSources.ToListAsync();
         }
