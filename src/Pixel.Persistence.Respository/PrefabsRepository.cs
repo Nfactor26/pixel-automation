@@ -7,6 +7,7 @@ using Pixel.Persistence.Respository.Extensions;
 using Pixel.Persistence.Respository.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -95,6 +96,11 @@ namespace Pixel.Persistence.Respository
             
             await foreach (var file in this.prefabFilesRepossitory.GetFilesAsync(prefabId, cloneFrom.ToString(), new string[] { }))
             {
+                //when creating a copy from previous version, we don't want dll and pdb files to be brough in to new version.                
+                if(Path.GetExtension(file.FileName).Equals(".dll") || Path.GetExtension(file.FileName).Equals(".pdb"))
+                {                  
+                    continue;
+                }
                 await this.prefabFilesRepossitory.AddOrUpdateFileAsync(prefabId, newVersion.ToString(), file);
             }
 
