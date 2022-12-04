@@ -80,7 +80,21 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
     }
 
     /// <inheritdoc/>  
-    public async Task<byte[]> DownProjectDataFile(string projectId, string projectVersion, string fileName)
+    public async Task<byte[]> DownloadProjectDataFilesOfType(string projectId, string projectVersion, string fileExtension)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(fileExtension, nameof(fileExtension)).NotNull().NotEmpty();
+
+        RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/{projectVersion}/type/{fileExtension}");      
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteGetAsync(restRequest);
+        result.EnsureSuccess();
+        return result.RawBytes;
+    }
+
+    /// <inheritdoc/>  
+    public async Task<ProjectDataFile> DownProjectDataFile(string projectId, string projectVersion, string fileName)
     {
         Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
@@ -88,9 +102,7 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
 
         RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/{projectVersion}/name/{fileName}");
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.ExecuteGetAsync(restRequest);
-        result.EnsureSuccess();
-        return result.RawBytes;
+        return await client.GetAsync<ProjectDataFile>(restRequest);     
     }
 
     /// <inheritdoc/>  

@@ -74,6 +74,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public abstract Task DeleteDataFileAsync(string fileToDelete);
 
         ///<inheritdoc/>
+        public abstract Task DownloadDataModelFilesAsync();
+
+        ///<inheritdoc/>
         public abstract Task Save();
 
         ///<inheritdoc/>

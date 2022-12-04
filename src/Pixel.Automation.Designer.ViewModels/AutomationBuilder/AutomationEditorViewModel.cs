@@ -99,6 +99,7 @@ namespace Pixel.Automation.Designer.ViewModels
             try
             {
                 logger.Information($"Opening code editor for editing data model for project : {this.CurrentProject.Name}");
+                await this.projectManager.DownloadDataModelFilesAsync();
                 var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
                 var projectFileSystem = this.projectManager.GetProjectFileSystem();
                 using (var editor = editorFactory.CreateMultiCodeEditorScreen())
@@ -160,6 +161,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
+                await this.projectManager.DownloadFileByNameAsync(Constants.InitializeEnvironmentScript);
                 var entityManager = this.EntityManager;
                 var fileSystem = entityManager.GetCurrentFileSystem();
                 var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);             

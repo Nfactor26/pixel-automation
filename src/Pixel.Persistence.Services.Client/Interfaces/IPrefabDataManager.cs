@@ -45,6 +45,14 @@ public interface IPrefabDataManager
     Task DownloadPrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
 
     /// <summary>
+    /// Download dta model files (*.cs) for a given version of prefab
+    /// </summary>
+    /// <param name="prefabProject"></param>
+    /// <param name="prefabVersion"></param>
+    /// <returns></returns>
+    Task DownloadDataModelFilesAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
+
+    /// <summary>
     /// Add a new prefab
     /// </summary>
     /// <param name="prefabProject"></param>

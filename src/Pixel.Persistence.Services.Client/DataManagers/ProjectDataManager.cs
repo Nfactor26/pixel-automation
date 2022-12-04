@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client;
 
@@ -104,6 +105,55 @@ public class ProjectDataManager : IProjectDataManager
         }
     }
 
+    /// <inheritdoc/>  
+    public async Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileName)
+    {
+        Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+        Guard.Argument(fileName, nameof(fileName)).NotNull().NotEmpty();      
+
+        if (IsOnlineMode)
+        {
+            var file = await this.filesClient.DownProjectDataFile(automationProject.ProjectId, projectVersion.ToString(), fileName);
+            using (MemoryStream ms = new MemoryStream(file.Bytes))
+            {
+                using (FileStream fs = new FileStream(file.FilePath, FileMode.CreateNew))
+                {
+                    ms.Seek(0, SeekOrigin.Begin);
+                    ms.CopyTo(fs);
+                }
+            }
+            logger.Information("File {0} was downloaded.", file.FilePath);
+        }
+    }
+
+    /// <inheritdoc/> 
+    public async Task DownloadDataModelFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion)
+    {
+        Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+       
+        if (IsOnlineMode)
+        {
+            var dataModelsDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion), Constants.DataModelDirectory);
+            if (Directory.Exists(dataModelsDirectory))
+            {
+                Directory.Delete(dataModelsDirectory, true);
+            }
+            Directory.CreateDirectory(dataModelsDirectory);
+            var zippedContent = await this.filesClient.DownloadProjectDataFilesOfType(automationProject.ProjectId, projectVersion.ToString(), "cs");
+            if (zippedContent.Length > 0)
+            {
+                string versionDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion);
+                using (var memoryStream = new MemoryStream(zippedContent, false))
+                {
+                    var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                    zipArchive.ExtractToDirectory(versionDirectory, true);
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Download all the files having specific tags belonging to the version of the AutomationProject being managed
     /// </summary>
@@ -141,7 +191,7 @@ public class ProjectDataManager : IProjectDataManager
             }
         }
     }
-
+   
     /// <inheritdoc/>  
     public IEnumerable<AutomationProject> GetAllProjects()
     {

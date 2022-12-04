@@ -222,6 +222,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             await this.prefabDataManager.DeleteDataFileAsync(this.prefabProject, this.loadedVersion, fileToDelete);
         }
 
+        ///<inheritdoc/>
+        public override async Task DownloadDataModelFilesAsync()
+        {
+            await this.prefabDataManager.DownloadDataModelFilesAsync(this.prefabProject, this.loadedVersion);
+        }
+
         /// <inheritdoc/>       
         protected override string GetProjectName()
         {

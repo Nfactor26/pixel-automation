@@ -26,13 +26,22 @@ public interface IFilesRepository
     IAsyncEnumerable<ProjectDataFile> GetFilesAsync(string projectId, string projectVersion, string[] tags);
 
     /// <summary>
+    /// Get all the files with a matching extension
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="fileExtension"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<ProjectDataFile> GetFilesOfTypeAsync(string projectId, string projectVersion, string fileExtension);
+
+    /// <summary>
     /// Get a file by name for a given version of project
     /// </summary>
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<ProjectDataFile> GetFileAsync(string projectId, string projectVersion, string fileName);
+    Task<ProjectDataFile> GetFileAsync(string projectId, string projectVersion, string fileName); 
 
     /// <summary>
     /// Add a new file to a given version of project
