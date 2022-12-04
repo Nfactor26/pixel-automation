@@ -35,6 +35,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         Task DeleteDataFileAsync(string fileToDelete);
 
         /// <summary>
+        /// Download the data model files (*.cs) belonging the the loaded version of project
+        /// </summary>
+        /// <returns></returns>
+        Task DownloadDataModelFilesAsync();
+
+        /// <summary>
         /// Deserialize the contents of a file to given type while ensuring that any references to data model assembly in file are replaced with current session's
         /// data model assembly. Use this to load a process file, prefab file or a test file.
         /// </summary>

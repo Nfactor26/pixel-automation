@@ -134,6 +134,33 @@ public class PrefabDataManager : IPrefabDataManager
         }
     }
 
+    /// <inheritdoc/> 
+    public async Task DownloadDataModelFilesAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
+    {
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+
+        if (IsOnlineMode)
+        {
+            var dataModelsDirectory = Path.Combine(this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, prefabVersion), Constants.DataModelDirectory);
+            if (Directory.Exists(dataModelsDirectory))
+            {
+                Directory.Delete(dataModelsDirectory, true);
+            }
+            Directory.CreateDirectory(dataModelsDirectory);
+            var zippedContent = await this.filesClient.DownloadProjectDataFilesOfType(prefabProject.PrefabId, prefabVersion.ToString(), "cs");
+            if (zippedContent.Length > 0)
+            {
+                string versionDirectory = this.applicationFileSystem.GetPrefabProjectWorkingDirectory(prefabProject, prefabVersion);
+                using (var memoryStream = new MemoryStream(zippedContent, false))
+                {
+                    var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                    zipArchive.ExtractToDirectory(versionDirectory, true);
+                }
+            }
+        }
+    }
+
     ///<inheritdoc/>
     public async Task DownloadPrefabsAsync()
     {

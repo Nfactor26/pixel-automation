@@ -66,10 +66,18 @@ public interface IProjectDataManager
 
 
     /// <summary>
-    /// Download all the data files belong to the version of AutomationProject being managed
+    /// Download all the data files belonging to the version of AutomationProject being managed
     /// </summary>
     /// <returns></returns>
     Task DownloadProjectDataFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion);
+
+    /// <summary>
+    /// Download data model files (*.cs) belonging to the version of AutomationProject being managed
+    /// </summary>
+    /// <param name="automationProject"></param>
+    /// <param name="projectVersion"></param>
+    /// <returns></returns>
+    Task DownloadDataModelFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion);
 
     /// <summary>
     /// Save the data files belonging to the version of AutomationProject being managed

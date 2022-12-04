@@ -198,6 +198,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         ///<inheritdoc/>
+        public override async Task DownloadDataModelFilesAsync()
+        {
+            await this.projectDataManager.DownloadDataModelFilesAsync(this.activeProject, this.loadedVersion as ProjectVersion);
+        }
+
+        ///<inheritdoc/>
         protected override string GetProjectName()
         {
             return this.activeProject.Name;

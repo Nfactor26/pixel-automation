@@ -61,6 +61,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
+            await this.projectManager.DownloadDataModelFilesAsync();
             var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
             var prefabFileSystem = this.projectManager.GetProjectFileSystem();
             using (var editor = editorFactory.CreateMultiCodeEditorScreen())
