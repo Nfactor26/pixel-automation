@@ -112,7 +112,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Load the fixtures and test case from local storage
         /// </summary>
-        async Task LoadDataAsync()
+        async Task LoadFixturesAsync()
         {
             try
             {
@@ -129,18 +129,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         }
                         TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
                         this.TestFixtures.Add(testFixtureVM);
-
-                        foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixture.FixtureId)))
-                        {
-                            var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
-                            if(testCase.IsDeleted)
-                            {
-                                continue;
-                            }
-                            TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
-                            testFixtureVM.Tests.Add(testCaseVM);
-                        }
-
                     }
                     isInitialized = true;
                 }
@@ -150,6 +138,27 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 logger.Error(ex, "There was an error while trying to load the fixtures and test cases");
             }
         }
+
+        void LoadTestCasesForFixture(TestFixtureViewModel testFixtureViewModel)
+        {
+            try
+            {
+                foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureViewModel.FixtureId)))
+                {
+                    var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
+                    if (testCase.IsDeleted)
+                    {
+                        continue;
+                    }
+                    TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
+                    testFixtureViewModel.Tests.Add(testCaseVM);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to load test cases for fixture : {0}", testFixtureViewModel.DisplayName);
+            }
+        }        
 
         /// <summary>
         /// Setup the collection view with grouping and sorting
@@ -169,6 +178,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 }
                 return true;
             });
+        }
+
+        public void OnFixtureExpanded(TestFixtureViewModel testFixtureViewModel)
+        {
+            if(!testFixtureViewModel.Tests.Any())
+            {
+                LoadTestCasesForFixture(testFixtureViewModel);
+            }
         }
 
         #endregion Constructor
@@ -1155,7 +1172,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
         {
-            await LoadDataAsync();
+            if(!isInitialized)
+            {
+                await LoadFixturesAsync();
+            }
             await base.OnInitializeAsync(cancellationToken);
         }
 
