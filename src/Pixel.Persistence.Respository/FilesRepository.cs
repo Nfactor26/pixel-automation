@@ -159,6 +159,41 @@ public abstract class FilesRepository : IFilesRepository
     }
 
     /// <inheritdoc/>   
+    public async IAsyncEnumerable<ProjectDataFile> GetFilesOfTypeAsync(string projectId, string projectVersion, string fileExtension)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(fileExtension, nameof(fileExtension)).NotNull().NotEmpty();
+
+        var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata[this.IdField], projectId) &
+                     Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata[this.versionField], projectVersion) &
+                     Builders<GridFSFileInfo>.Filter.Regex(x => x.Filename, $"({fileExtension})$");     
+
+        var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
+        var options = new GridFSFindOptions
+        {
+            Sort = sort
+        };
+
+        using (var cursor = await bucket.FindAsync(filter, options))
+        {
+            foreach (var file in (await cursor.ToListAsync()))
+            {
+                var fileData = await bucket.DownloadAsBytesAsync(file.Id);
+                yield return new ProjectDataFile()
+                {
+                    ProjectId = projectId,
+                    ProjectVersion = projectVersion,
+                    FileName = file.Filename,
+                    FilePath = file.Metadata[this.filePathField].AsString,
+                    Tag = file.Metadata[this.tagField].AsString,
+                    Bytes = fileData
+                };
+            }
+        }
+    }
+
+    /// <inheritdoc/>   
     public async Task AddOrUpdateFileAsync(string projectId, string projectVersion, ProjectDataFile dataFile)
     {
         var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Metadata[this.IdField], projectId) &

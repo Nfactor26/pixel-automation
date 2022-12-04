@@ -43,6 +43,15 @@ public interface IFilesRepositoryClient
     Task<byte[]> DownloadProjectDataFilesWithTags(string projectId, string projectVersion, string[] tags);
 
     /// <summary>
+    /// Download data files with matching extension
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="fileExtension"></param>
+    /// <returns></returns>
+    Task<byte[]> DownloadProjectDataFilesOfType(string projectId, string projectVersion, string fileExtension);
+
+    /// <summary>
     /// Add a project data file for a given version of project
     /// </summary>
     /// <param name="file"></param>

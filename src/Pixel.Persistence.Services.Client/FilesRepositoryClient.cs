@@ -80,6 +80,20 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
     }
 
     /// <inheritdoc/>  
+    public async Task<byte[]> DownloadProjectDataFilesOfType(string projectId, string projectVersion, string fileExtension)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(fileExtension, nameof(fileExtension)).NotNull().NotEmpty();
+
+        RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/{projectVersion}/type/{fileExtension}");      
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteGetAsync(restRequest);
+        result.EnsureSuccess();
+        return result.RawBytes;
+    }
+
+    /// <inheritdoc/>  
     public async Task<byte[]> DownProjectDataFile(string projectId, string projectVersion, string fileName)
     {
         Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();

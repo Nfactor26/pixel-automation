@@ -117,6 +117,37 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }
         }
 
+        [HttpGet("{projectId}/{projectVersion}/type/{fileExtension}")]
+        public async Task<ActionResult> GetFilesOfType(string projectId, string projectVersion, string fileExtension)
+        {
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create))
+                    {
+                        await foreach (var file in this.filesRepository.GetFilesOfTypeAsync(projectId, projectVersion, fileExtension))
+                        {
+                            var zipEntry = zipArchive.CreateEntry(Path.Combine(file.FilePath));
+                            using (var zipEntryStream = zipEntry.Open())
+                            {
+                                zipEntryStream.Write(file.Bytes);
+                            }
+                        }
+                    }
+                    return File(stream.ToArray(), "application/zip", $"{projectId}.zip");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
         /// <summary>
         /// Add a new file to a given version of project
         /// </summary>
