@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client;
 
@@ -101,6 +102,28 @@ public class ProjectDataManager : IProjectDataManager
                 this.serializer.Serialize(prefabReferencesFile, projectReferences);
             }
             await DownloadFilesWithTagsAsync(automationProject, projectVersion, new[] { automationProject.ProjectId });
+        }
+    }
+
+    /// <inheritdoc/>  
+    public async Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileName)
+    {
+        Guard.Argument(automationProject, nameof(automationProject)).NotNull();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
+        Guard.Argument(fileName, nameof(fileName)).NotNull().NotEmpty();      
+
+        if (IsOnlineMode)
+        {
+            var file = await this.filesClient.DownProjectDataFile(automationProject.ProjectId, projectVersion.ToString(), fileName);
+            using (MemoryStream ms = new MemoryStream(file.Bytes))
+            {
+                using (FileStream fs = new FileStream(file.FilePath, FileMode.CreateNew))
+                {
+                    ms.Seek(0, SeekOrigin.Begin);
+                    ms.CopyTo(fs);
+                }
+            }
+            logger.Information("File {0} was downloaded.", file.FilePath);
         }
     }
 

@@ -161,6 +161,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
+                await this.projectManager.DownloadFileByNameAsync(Constants.InitializeEnvironmentScript);
                 var entityManager = this.EntityManager;
                 var fileSystem = entityManager.GetCurrentFileSystem();
                 var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);             

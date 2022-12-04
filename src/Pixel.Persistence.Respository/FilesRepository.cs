@@ -112,7 +112,8 @@ public abstract class FilesRepository : IFilesRepository
                     ProjectId = projectId,
                     ProjectVersion = projectVersion,
                     FileName = fileInfo.Filename,
-                    FilePath = fileInfo.Metadata[this.filePathField].AsString
+                    FilePath = fileInfo.Metadata[this.filePathField].AsString,
+                    Bytes = fileData
                 };
             }          
         }

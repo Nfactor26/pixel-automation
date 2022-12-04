@@ -64,7 +64,9 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
     public interface IAutomationProjectManager: IProjectManager
     {
-        Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);       
+        Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);
+
+        Task DownloadFileByNameAsync(string fileName);
     }
     
 

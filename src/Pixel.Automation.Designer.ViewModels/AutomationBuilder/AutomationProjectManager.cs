@@ -25,6 +25,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="entityManager"></param>
+        /// <param name="projectFileSystem"></param>
+        /// <param name="typeProvider"></param>
+        /// <param name="argumentTypeProvider"></param>
+        /// <param name="codeEditorFactory"></param>
+        /// <param name="scriptEditorFactory"></param>
+        /// <param name="scriptEngineFactory"></param>
+        /// <param name="codeGenerator"></param>
+        /// <param name="applicationDataManager"></param>
+        /// <param name="referenceManagerFactory"></param>
+        /// <param name="projectDataManager"></param>
+        /// <param name="prefabDataManager"></param>
+        /// <param name="projectAssetDataManager"></param>
         public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager,
             IReferenceManagerFactory referenceManagerFactory, IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, IProjectAssetsDataManager projectAssetDataManager) 
@@ -37,7 +54,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
         }
 
-        #region Load Project
+        #region methods
 
         public async  Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad)
         {
@@ -141,9 +158,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {                     
             var entity = this.Load<Entity>(this.projectFileSystem.ProcessFile);         
             return entity;
-        }       
-
-        #endregion Load Project
+        }
 
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
@@ -154,34 +169,42 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="entityManager"></param>
         /// <returns></returns>
         public override async Task Reload()
-        {        
+        {
 
             logger.Information($"{this.GetProjectName()} will be re-loaded");
             var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
             this.referenceManager.SetProjectReferences(reference);
             var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
             ConfigureScriptEngine(this.referenceManager, dataModel);
-            ConfigureScriptEditor(this.referenceManager, dataModel);          
+            ConfigureScriptEditor(this.referenceManager, dataModel);
             this.entityManager.Arguments = dataModel;
             SetupInitializationScriptProject(dataModel);
-            await ExecuteInitializationScript();        
+            await ExecuteInitializationScript();
             ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
             this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());            
-                   
+            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
+
             var rootEntity = DeserializeProject();
             //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
-            foreach(var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
+            foreach (var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
             {
                 var newApplicationEntity = rootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
                 newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
-            }         
+            }
             this.RootEntity = rootEntity;
             RestoreParentChildRelation(this.RootEntity);
             await Task.CompletedTask;
             logger.Information($"Reload completed for project {this.GetProjectName()}");
 
         }
+
+        ///<inheritdoc/>
+        public async Task DownloadFileByNameAsync(string fileName)
+        {
+            await this.projectDataManager.DownloadProjectDataFileByNameAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileName);
+        }
+
+        #endregion methods
 
         #region overridden methods
 

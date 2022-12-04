@@ -31,7 +31,7 @@ public interface IFilesRepositoryClient
     /// <param name="projectVersion"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<byte[]> DownProjectDataFile(string projectId, string projectVersion, string fileName);
+    Task<ProjectDataFile> DownProjectDataFile(string projectId, string projectVersion, string fileName);
 
     /// <summary>
     /// Download data files matching any of the specified tags for a given version of project

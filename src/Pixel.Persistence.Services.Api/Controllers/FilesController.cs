@@ -68,7 +68,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 var file = await filesRepository.GetFileAsync(projectId, projectversion, fileName);
                 if(file != null)
                 {
-                    return File(file.Bytes, file.Type, file.FileName);
+                    return Ok(file);
                 }
                 return NotFound();
 
