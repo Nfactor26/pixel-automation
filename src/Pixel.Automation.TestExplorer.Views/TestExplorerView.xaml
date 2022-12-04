@@ -181,8 +181,9 @@
                     <ControlTemplate TargetType="TreeViewItem">
                         <StackPanel Orientation="Vertical">
                             <Expander x:Name="TestCategory" Header="{Binding DisplayName, Converter={StaticResource trimmedTextConverter}, ConverterParameter = 20}" 
-                                     Tag="{Binding DataContext, ElementName=TestExplorerTreeView}"
-                                     Background="{DynamicResource MahApps.Brushes.Window.Background}"   
+                                     Tag="{Binding DataContext, ElementName=TestExplorerTreeView}" Background="{DynamicResource MahApps.Brushes.Window.Background}" 
+                                     cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=TestExplorerTreeView}"    
+                                     cal:Message.Attach="[Event Expanded] = [Action OnFixtureExpanded($dataContext)]"
                                      controls:HeaderedControlHelper.HeaderBackground="{DynamicResource MahApps.Brushes.Window.Background}"
                                      BorderThickness="0" Margin="5,0,0,0" FontSize="11">
                                 <ItemsPresenter x:Name="ItemsHost"/>
