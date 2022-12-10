@@ -44,6 +44,23 @@ public interface IControlRepository
     Task AddOrUpdateControl(string controlDataJson);
 
     /// <summary>
+    /// Check if a control is marked deleted.
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="controlId"></param>
+    /// <returns></returns>
+    Task<bool> IsControlDeleted(string applicationId, string controlId);
+
+    /// <summary>
+    /// Set IsDeleted flag on all versionf of control to true.
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="controlId"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">Thrown if the control is in use acrosss any project</exception>
+    Task DeleteControlAsync(string applicationId, string controlId);
+
+    /// <summary>
     /// Add or Update Control image
     /// </summary>
     /// <param name="imageMetaData"><see cref="ControlImageMetaData"/> of the Control Image</param>

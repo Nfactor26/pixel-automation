@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
@@ -77,10 +78,20 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="controlDescription"></param>
         /// <returns></returns>
         [HttpPost]       
-        public async Task<IActionResult> Post([FromBody] object controlDescription)
+        public async Task<IActionResult> AddOrUpdateControl([FromBody] object controlDescription)
         {
             try
             {
+                if (BsonDocument.TryParse(controlDescription.ToString(), out BsonDocument document))
+                {
+                    string applicationId = document["ApplicationId"].AsString;
+                    string controlId = document["ControlId"].AsString;
+                    if (await controlRepository.IsControlDeleted(applicationId, controlId))
+                    {
+                        return Conflict($"Control : {document["ControlName"].AsString} is marked deleted.");
+                    }
+                }
+                  
                 await controlRepository.AddOrUpdateControl(controlDescription.ToString());
                 return Ok();
             }
@@ -96,6 +107,20 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }         
         }
 
+        [HttpDelete("delete/{applicationId}/{controlId}")]
+        public async Task<IActionResult> DeleteControl(string applicationId, string controlId)
+        {
+            try
+            {
+                await controlRepository.DeleteControlAsync(applicationId, controlId);
+                return Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
         /// <summary>
         /// Save the control image in database
         /// </summary>
@@ -103,10 +128,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="imageFile">Image file</param>
         /// <returns></returns>        
         [HttpPost("image")]    
-        public async Task<IActionResult> Post([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlImageMetaData))] ControlImageMetaData controlImage, [FromForm(Name = "file")] IFormFile imageFile)
+        public async Task<IActionResult> AddImage([FromBody][ModelBinder(typeof(JsonModelBinder), Name = nameof(ControlImageMetaData))] ControlImageMetaData controlImage, [FromForm(Name = "file")] IFormFile imageFile)
         {
             try
             {
+                if (await controlRepository.IsControlDeleted(controlImage.ApplicationId, controlImage.ControlId))
+                {
+                    return Conflict("Can't add image. Control is marked deleted.");
+                }
                 using (var ms = new MemoryStream())
                 {
                     imageFile.CopyTo(ms);
@@ -128,11 +157,15 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="controlImage"></param>
         /// <returns></returns>
         [Route("image/delete")]
-        [HttpPost]       
-        public async Task<IActionResult> Delete([FromBody] ControlImageMetaData controlImage)
+        [HttpDelete]       
+        public async Task<IActionResult> DeleteImage([FromBody] ControlImageMetaData controlImage)
         {
             try
             {
+                if (await controlRepository.IsControlDeleted(controlImage.ApplicationId, controlImage.ControlId))
+                {
+                    return Conflict("Can't delete image. Control is marked deleted.");
+                }
                 await controlRepository.DeleteImageAsync(controlImage);
                 return Ok();
             }

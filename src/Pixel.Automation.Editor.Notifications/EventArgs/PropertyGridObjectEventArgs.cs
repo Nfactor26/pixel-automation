@@ -6,7 +6,7 @@ public class PropertyGridObjectEventArgs : EventArgs
 
     public bool IsReadOnly { get; private set; }
 
-    public Action SaveCommand { get; private set; }
+    public Func<Task> SaveCommand { get; private set; }
 
     public Func<bool> CanSaveCommand { get; private set; }
 
@@ -21,7 +21,7 @@ public class PropertyGridObjectEventArgs : EventArgs
         this.IsReadOnly = isReadOnly;
     }
 
-    public PropertyGridObjectEventArgs(Object objectToDisplay, Action saveCommand, Func<bool> canSaveCommand) : this(objectToDisplay, false)
+    public PropertyGridObjectEventArgs(Object objectToDisplay, Func<Task> saveCommand, Func<bool> canSaveCommand) : this(objectToDisplay, false)
     {
         this.SaveCommand = saveCommand;
         this.CanSaveCommand = canSaveCommand;

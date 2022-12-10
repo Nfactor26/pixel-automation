@@ -13,7 +13,13 @@ namespace Pixel.Persistence.Services.Client
         {
             if (!response.IsSuccessful)
             {
-                throw new Exception(response.ErrorMessage, response.ErrorException);
+                switch(response.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.Conflict:
+                        throw new Exception(response.Content, response.ErrorException);
+                    default:
+                        throw new Exception(response.ErrorMessage, response.ErrorException);
+                }
             }
         }
     }

@@ -14,7 +14,8 @@ namespace Pixel.Persistence.Respository
 {
     public class ControlRepository : IControlRepository
     {
-        private readonly IMongoCollection<BsonDocument> controlsCollection;    
+        private readonly IMongoCollection<BsonDocument> controlsCollection;
+        private readonly IMongoCollection<ProjectReferences> referencesCollection;
         private readonly IGridFSBucket imageBucket;
 
         /// <summary>
@@ -26,6 +27,7 @@ namespace Pixel.Persistence.Respository
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             controlsCollection = database.GetCollection<BsonDocument>(dbSettings.ControlsCollectionName);
+            referencesCollection = database.GetCollection<ProjectReferences>(dbSettings.ProjectReferencesCollectionName);
             imageBucket = new GridFSBucket(database, new GridFSBucketOptions
             {
                 BucketName = dbSettings.ImagesBucketName
@@ -141,6 +143,34 @@ namespace Pixel.Persistence.Respository
             }
 
             throw new ArgumentException("Failed to parse control data in to BsonDocument");
+        }
+
+        ///<inheritdoc/>
+        public async Task<bool> IsControlDeleted(string applicationId, string controlId)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq(x => x["ApplicationId"], applicationId) &
+                            Builders<BsonDocument>.Filter.Eq(x => x["ControlId"], controlId) &
+                             Builders<BsonDocument>.Filter.Eq(x => x["IsDeleted"], true);
+            long count = await this.controlsCollection.CountDocumentsAsync(filter, new CountOptions() { Limit = 1 });
+            return count > 0;
+        }
+
+        ///<inheritdoc/>
+        public async Task DeleteControlAsync(string applicationId, string controlId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull();
+            Guard.Argument(controlId, nameof(controlId)).NotNull();
+            
+            var filter = Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences,
+                Builders<ControlReference>.Filter.Eq(x => x.ApplicationId, applicationId) &
+                Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlId));
+            long count = await this.referencesCollection.CountDocumentsAsync(filter);
+            if(count > 0)
+            {
+                throw new InvalidOperationException("Control is in use across one or more projects");
+            }
+            var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true);
+            await controlsCollection.FindOneAndUpdateAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), updateDefinition);          
         }
 
         ///<inheritdoc/>

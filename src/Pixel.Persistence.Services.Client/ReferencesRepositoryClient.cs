@@ -69,7 +69,8 @@ public class ReferencesRepositoryClient : IReferencesRepositoryClient
         RestRequest restRequest = new RestRequest($"references/controls/{projectId}/{projectVersion}");
         restRequest.AddJsonBody(controlReference);
         var client = this.clientFactory.GetOrCreateClient();
-        await client.PostAsync<ControlReference>(restRequest);
+        var result = await client.ExecuteAsync<ControlReference>(restRequest, Method.Post);
+        result.EnsureSuccess();
     }
 
     /// <inheritdoc/>

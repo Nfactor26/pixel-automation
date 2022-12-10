@@ -31,15 +31,34 @@ public interface IReferencesRepository
     /// <returns></returns>
     Task SetEditorReferences(string projectId, string projectVersion, EditorReferences editorReferences);
 
+
     /// <summary>
-    /// Add or update ControlReference for a given version of project
+    /// Check if a given version of project has an existing reference to specified control
     /// </summary>
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
     /// <param name="controlReference"></param>
     /// <returns></returns>
-    Task AddOrUpdateControlReference(string projectId, string projectVersion, ControlReference controlReference);
-   
+    Task<bool> HasControlReference(string projectId, string projectVersion, ControlReference controlReference);
+
+    /// <summary>
+    /// Add a new ControlReference to a given version of project
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="controlReference"></param>
+    /// <returns></returns>
+    Task AddControlReference(string projectId, string projectVersion, ControlReference controlReference);
+
+    /// <summary>
+    /// Update existing ControlReference for a given version of project
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="controlReference"></param>
+    /// <returns></returns>
+    Task UpdateControlReference(string projectId, string projectVersion, ControlReference controlReference);
+
     /// <summary>
     /// Add or update PrefabReferences for a given version of project
     /// </summary>

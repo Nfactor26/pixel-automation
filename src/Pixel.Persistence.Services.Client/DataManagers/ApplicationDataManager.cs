@@ -219,6 +219,18 @@ namespace Pixel.Persistence.Services.Client
         }
 
         /// <inheritdoc/>      
+        public async Task DeleteControlAsync(ControlDescription controlDescription)
+        {         
+            if (IsOnlineMode)
+            {
+                await controlRepositoryClient.DeleteControl(controlDescription);
+            }
+            controlDescription.IsDeleted = true;
+            SaveControlToDisk(controlDescription);
+            logger.Information("Control {0} was deleted", controlDescription.ControlName);
+        }
+
+        /// <inheritdoc/>      
         public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream)
         {
             Directory.CreateDirectory(GetControlDirectory(controlDescription));
