@@ -29,7 +29,14 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="controlDescription"></param>     
         /// <returns></returns>
         Task AddOrUpdateControl(ControlDescription controlDescription);
-    
+
+        /// <summary>
+        /// Delete control
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        Task DeleteControl(ControlDescription controlDescription);
+
         /// <summary>
         /// Add or update control image  at a given resolution for a control
         /// </summary>

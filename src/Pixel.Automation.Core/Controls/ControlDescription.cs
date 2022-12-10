@@ -55,6 +55,12 @@ namespace Pixel.Automation.Core.Controls
         public IControlIdentity ControlDetails { get; set; }
 
         /// <summary>
+        /// Indicates if the Control was deleted.
+        /// </summary>
+        [DataMember(Order = 1000)]
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public ControlDescription()

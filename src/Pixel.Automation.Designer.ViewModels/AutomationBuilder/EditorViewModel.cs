@@ -411,9 +411,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public async Task HandleAsync(ControlAddedEventArgs control, CancellationToken cancellationToken)
         {
-            var controlDescription = control.Control;            
-            var referenceManager = this.projectManager.GetReferenceManager();
-            await referenceManager.AddControlReferenceAsync(new ControlReference(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version));      
+            var controlDescription = control.Control;
+            try
+            {             
+                var referenceManager = this.projectManager.GetReferenceManager();
+                await referenceManager.AddControlReferenceAsync(new ControlReference(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version));
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to add control reference for control : {0}", controlDescription.ControlName);
+                MessageBox.Show(ex.Message, $"Error while adding control : {controlDescription.ControlName}");
+            }  
         }
 
 

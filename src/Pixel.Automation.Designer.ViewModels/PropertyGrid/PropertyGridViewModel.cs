@@ -33,11 +33,11 @@ namespace Pixel.Automation.Designer.ViewModels
             this.SaveCommand = new RelayCommand(p => Save(), p => CanSave());
         }
 
-        public void SetState(object selectedObject, bool isReadOnly, Action saveCommand, Func<bool> canSave)
+        public void SetState(object selectedObject, bool isReadOnly, Func<Task> saveCommand, Func<bool> canSave)
         {
             this.selectedObject = selectedObject;
             this.isReadOnly = isReadOnly;
-            this.onSave = saveCommand;
+            this.onSave = () => saveCommand();
             this.canSave = canSave;
             NotifyOfPropertyChange(() => SelectedObject);
             NotifyOfPropertyChange(() => IsReadOnly);

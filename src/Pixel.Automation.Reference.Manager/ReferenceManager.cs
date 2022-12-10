@@ -127,11 +127,11 @@ internal class ReferenceManager : IReferenceManager
         Guard.Argument(controlReference, nameof(controlReference)).NotNull();
         if (!this.controlReferences.HasReference(controlReference))
         {
-            this.controlReferences.AddControlReference(controlReference);
             if (IsOnlineMode)
             {
                 await this.referencesRepositoryClient.AddOrUpdateControlReferences(this.projectId, this.projectVersion, controlReference);
             }
+            this.controlReferences.AddControlReference(controlReference);
             SaveLocal();
         }
     }

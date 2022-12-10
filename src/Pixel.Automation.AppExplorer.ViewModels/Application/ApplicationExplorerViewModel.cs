@@ -206,7 +206,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task EditApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, () => { _ = SaveApplicationAsync(applicationDescriptionViewModel); }, () => { return true; }));
+            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, 
+                async () => {
+                    await SaveApplicationAsync(applicationDescriptionViewModel);
+                }, 
+                () => { 
+                    return true; 
+                }));
         }
 
         public async Task SaveApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)

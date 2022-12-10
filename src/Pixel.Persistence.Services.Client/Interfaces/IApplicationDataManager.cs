@@ -77,7 +77,14 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="controlDescription"></param>
         /// <returns></returns>
         Task AddOrUpdateControlAsync(ControlDescription controlDescription);
-      
+
+        /// <summary>
+        /// Delete a given control
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        Task DeleteControlAsync(ControlDescription controlDescription);
+
         /// <summary>
         /// Add or update control image for control
         /// </summary>

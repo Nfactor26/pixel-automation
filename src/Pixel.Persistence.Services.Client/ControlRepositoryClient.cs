@@ -48,7 +48,8 @@ namespace Pixel.Persistence.Services.Client
             }
         }
 
-        public async Task<IEnumerable<Core.Models.ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan)
+        ///<inheritdoc/>
+        public async Task<IEnumerable<ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan)
         {
             Guard.Argument(applicationId).NotNull().NotEmpty();
             RestRequest restRequest = new RestRequest($"control/image/{applicationId}") { Method = Method.Get, RequestFormat = DataFormat.Json };
@@ -71,10 +72,21 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(controlDescription).NotNull();
             logger.Debug("Add or update {@ControlDescription}", controlDescription);
 
-            RestRequest restRequest = new RestRequest("control") { Method = Method.Post };
+            RestRequest restRequest = new RestRequest("control");
             restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Post);
+            result.EnsureSuccess();
+        }
+
+
+        ///<inheritdoc/>
+        public async Task DeleteControl(ControlDescription controlDescription)
+        {
+            Guard.Argument(controlDescription).NotNull();
+            RestRequest restRequest = new RestRequest($"control/delete/{controlDescription.ApplicationId}/{controlDescription.ControlId}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Delete);
             result.EnsureSuccess();
         }
 
@@ -85,7 +97,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(imageFile).NotNull().NotEmpty();           
             logger.Debug("Add or update control image for control : {0} with Id : {1}", controlDescription.ControlName, controlDescription.ControlId);
 
-            RestRequest restRequest = new RestRequest("control/image") { Method = Method.Post };
+            RestRequest restRequest = new RestRequest("control/image");
             var controlImageMetaData = new ControlImageMetaData()
             {
                 ApplicationId = controlDescription.ApplicationId,
@@ -96,7 +108,7 @@ namespace Pixel.Persistence.Services.Client
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.ExecuteAsync(restRequest);
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
             result.EnsureSuccess();
         }
 
@@ -107,7 +119,7 @@ namespace Pixel.Persistence.Services.Client
             string fileName = Path.GetFileName(imageFile);
             logger.Debug("Delete control image {0} for control : {1} with Id : {2}", fileName, controlDescription.ControlName, controlDescription.ControlId);
 
-            RestRequest restRequest = new RestRequest("control/image/delete") { Method = Method.Post };
+            RestRequest restRequest = new RestRequest("control/image/delete");
             var controlImageMetaData = new ControlImageMetaData()
             {
                 ApplicationId = controlDescription.ApplicationId,
@@ -117,7 +129,7 @@ namespace Pixel.Persistence.Services.Client
             };
             restRequest.AddJsonBody(serializer.Serialize<ControlImageMetaData>(controlImageMetaData));    
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.ExecuteAsync(restRequest);
+            var result = await client.ExecuteAsync(restRequest, Method.Delete);
             result.EnsureSuccess();
         }
     }

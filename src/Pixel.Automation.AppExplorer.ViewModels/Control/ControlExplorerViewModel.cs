@@ -162,6 +162,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
         {
+            string currentName = controlToRename.ControlName;
             try
             {
                 var keyArgs = context.EventArgs as KeyEventArgs;
@@ -180,7 +181,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
+                controlToRename.ControlName = currentName;
                 CanEdit = false;
+                MessageBox.Show(ex.Message, $"Error while renaming control : {controlToRename.ControlName}");
             }
         }
 
@@ -242,7 +245,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     var controls = this.applicationDataManager.GetControlsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
                     foreach (var control in controls)
                     {
-                        var controlDescriptionViewModel = new ControlDescriptionViewModel(control);                       
+                        if(control.IsDeleted)
+                        {
+                            continue;
+                        }
+                        var controlDescriptionViewModel = new ControlDescriptionViewModel(control);
                         applicationDescriptionViewModel.AddControl(controlDescriptionViewModel, screenName);
                         controlsList.Add(controlDescriptionViewModel);
                     }
@@ -276,21 +283,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
-            Guard.Argument(controlToEdit).NotNull();
-
-            //Make a copy of ControlDescription that is opened for edit
-            var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
-            copyOfControlToEdit.ControlId = controlToEdit.ControlId;
-            var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
-            controlEditor.Initialize(copyOfControlToEdit);
-            var result = await windowManager.ShowDialogAsync(controlEditor);
-            //if save was clicked, assign back changes in ControlDetails to controlToEdit.
-            //Editor only allows editing ControlDetails. Description won't be modified.
-            if (result.HasValue && result.Value)
+            try
             {
-                controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
-                await SaveControlDetails(controlToEdit, false);
-                await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
+                Guard.Argument(controlToEdit).NotNull();
+
+                //Make a copy of ControlDescription that is opened for edit
+                var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
+                copyOfControlToEdit.ControlId = controlToEdit.ControlId;
+                var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
+                controlEditor.Initialize(copyOfControlToEdit);
+                var result = await windowManager.ShowDialogAsync(controlEditor);
+                //if save was clicked, assign back changes in ControlDetails to controlToEdit.
+                //Editor only allows editing ControlDetails. Description won't be modified.
+                if (result.HasValue && result.Value)
+                {
+                    controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
+                    await SaveControlDetails(controlToEdit, false);
+                    await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);               
+                MessageBox.Show(ex.Message, $"Error while configuring control : {controlToEdit.ControlName}");
             }
         }
 
@@ -301,8 +316,42 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task EditControlAsync(ControlDescriptionViewModel controlToEdit)
         {
-            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, () => { _ = SaveControlDetails(controlToEdit, false); }, () => { return true; }));
+            await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, 
+                async () => {
+                    try
+                    {
+                        await SaveControlDetails(controlToEdit, false);
+                    }
+                    catch(Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to edit control : {0}", controlToEdit.ControlName);
+                        MessageBox.Show(ex.Message, $"Error while editing control : {controlToEdit.ControlName}");
+                    }
+                }, 
+                () => { 
+                    return true; 
+                }));
         }
+
+        /// <summary>
+        /// Delete the control
+        /// </summary>
+        /// <param name="controlToDelete"></param>
+        public async Task DeleteControlAsync(ControlDescriptionViewModel controlToDelete)
+        {
+            try
+            {
+                Guard.Argument(controlToDelete, nameof(controlToDelete)).NotNull();
+                await this.applicationDataManager.DeleteControlAsync(controlToDelete.ControlDescription);
+                this.Controls.Remove(controlToDelete);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to delete control : {0}", controlToDelete.ControlName);
+                MessageBox.Show(ex.Message, $"Error while deleting control : {controlToDelete.ControlName}");
+            }
+        }
+
 
         /// <summary>
         /// Show file browse dialog and let user pick a new image for the control.
@@ -312,24 +361,32 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task ChangeImageFromExistingAsync(ControlDescriptionViewModel selectedControl)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "PNG File (*.Png)|*.Png";
-            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-            if (openFileDialog.ShowDialog() == true)
+            try
             {
-                string fileName = openFileDialog.FileName;
-                File.Delete(selectedControl.ControlImage);
-                using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "PNG File (*.Png)|*.Png";
+                openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+                if (openFileDialog.ShowDialog() == true)
                 {
-                    //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
-                    //unless file name changes
-                    selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
-                    await SaveControlDetails(selectedControl, false);
-                    // This will force reload image on control explorer
-                    selectedControl.ImageSource = null;
-                    // This will force reload image on process designer
-                    await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
+                    string fileName = openFileDialog.FileName;                  
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    {
+                        //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
+                        //unless file name changes
+                        selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
+                        await SaveControlDetails(selectedControl, false);
+                        // This will force reload image on control explorer
+                        selectedControl.ImageSource = null;
+                        // This will force reload image on process designer
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
+                    }
+                    File.Delete(selectedControl.ControlImage);
                 }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
+                MessageBox.Show(ex.Message, $"Error while changing image for control : {selectedControl.ControlName}");
             }
         }
 
@@ -353,7 +410,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "There was an error while trying to clone the control.");
+                logger.Error(ex, "There was an error while trying to clone control : {0}", selectedControl.ControlName);
+                MessageBox.Show(ex.Message, $"Error while cloning control : {selectedControl.ControlName}");
             }
         }
 
@@ -363,18 +421,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task CreateRevision(ControlDescriptionViewModel control)
         {
-            Guard.Argument(control).NotNull();
+            try
+            {
+                Guard.Argument(control).NotNull();
 
-            var clonedControl = control.ControlDescription.Clone() as ControlDescription;
-            clonedControl.ControlId = control.ControlId;
-            clonedControl.Version = new Version(control.Version.Major + 1, 0);
-            var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
-            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-            await SaveControlDetails(controlDescriptionViewModel, true);
-            //we remove the visible version and add the new revised version in explorer.
-            this.Controls.Remove(control);
-            this.Controls.Add(controlDescriptionViewModel);
-            logger.Information("Created a new revision for control : {0}", control.ControlDescription);
+                var clonedControl = control.ControlDescription.Clone() as ControlDescription;
+                clonedControl.ControlId = control.ControlId;
+                clonedControl.Version = new Version(control.Version.Major + 1, 0);
+                var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+                await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                await SaveControlDetails(controlDescriptionViewModel, true);
+                //we remove the visible version and add the new revised version in explorer.
+                this.Controls.Remove(control);
+                this.Controls.Add(controlDescriptionViewModel);
+                logger.Information("Created a new revision for control : {0}", control.ControlDescription);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while creating revision of control : {0}", selectedControl.ControlName);
+                MessageBox.Show(ex.Message, $"Error while creating revision for control : {selectedControl.ControlName}");
+            }
         }
 
         private readonly object locker = new object();

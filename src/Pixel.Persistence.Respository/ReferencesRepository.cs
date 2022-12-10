@@ -50,28 +50,34 @@ public class ReferencesRepository : IReferencesRepository
     }
 
     /// <inheritdoc/>  
-    public async Task AddOrUpdateControlReference(string projectId, string projectVersion, ControlReference controlReference)
+    public async Task<bool> HasControlReference(string projectId, string projectVersion, ControlReference controlReference)
     {
         var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
-                        & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
+                      & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
         var controlReferences = (await this.referencesCollection.FindAsync<List<ControlReference>>(filter, new FindOptions<ProjectReferences, List<ControlReference>>()
         {
             Projection = Builders<ProjectReferences>.Projection.Expression(u => u.ControlReferences)
         })).ToList().FirstOrDefault();
+        return controlReferences?.Contains(controlReference) ?? false;
+    }
 
-        if (controlReferences?.Contains(controlReference) ?? false)
-        {
-            var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences[-1].Version, controlReference.Version);
-            await this.referencesCollection.UpdateOneAsync(filter, update);
-            logger.LogInformation("Control reference {0} was updated for project : {1}", controlReference, projectId);
-        }
-        else
-        {
-            filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId);
-            var push = Builders<ProjectReferences>.Update.Push(t => t.ControlReferences, controlReference);
-            await this.referencesCollection.UpdateOneAsync(filter, push);
-            logger.LogInformation("Control reference {0} was added to project : {1}", controlReference, projectId);
-        }
+    /// <inheritdoc/>  
+    public async Task AddControlReference(string projectId, string projectVersion, ControlReference controlReference)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+                        & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
+        var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences[-1].Version, controlReference.Version);
+        await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Control reference {0} was updated for project : {1}", controlReference, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task UpdateControlReference(string projectId, string projectVersion, ControlReference controlReference)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId);
+        var push = Builders<ProjectReferences>.Update.Push(t => t.ControlReferences, controlReference);
+        await this.referencesCollection.UpdateOneAsync(filter, push);
+        logger.LogInformation("Control reference {0} was added to project : {1}", controlReference, projectId);
     }
 
     /// <inheritdoc/>  
