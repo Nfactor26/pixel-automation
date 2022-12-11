@@ -231,14 +231,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
             }
             NotifyOfPropertyChange(() => MetaData);
-        }   
-
-        ///<inheritdoc/>
-        public override bool TryProcessStage(out string errorDescription)
-        {
-            errorDescription = string.Empty;
-            return true;
-        }
+        }         
 
         ///<inheritdoc/>
         public override object GetProcessedResult()

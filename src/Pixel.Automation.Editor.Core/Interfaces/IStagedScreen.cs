@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core
 {
@@ -10,19 +11,19 @@ namespace Pixel.Automation.Editor.Core
 
         bool IsValid { get; }
 
-        bool TryProcessStage(out string errorDescription);
+        Task<bool> TryProcessStage();
 
         object GetProcessedResult();
 
         bool Validate();
 
-        void OnNextScreen();
+        Task OnNextScreen();
 
-        void OnPreviousScreen();
+        Task OnPreviousScreen();
 
-        void OnCancelled();
+        Task OnCancelled();
 
-        void OnFinished();
+        Task OnFinished();
 
     }
 }

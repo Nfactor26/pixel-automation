@@ -11,11 +11,6 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
@@ -62,12 +57,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             currentDataModel = rootEntity.EntityManager.Arguments;        
         }            
 
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {
             ClearErrors("");
             if(!RequiredProperties.Any(a => a.IsRequired))
             {
-                errorDescription = string.Empty;
                 logger.Information("None of the properties were marked as required proerties");               
             }
 
@@ -101,14 +95,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 classBuilder.AddProperty(property.PropertyName, property.PropertyType);
                 classBuilder.AddAttribute(property.PropertyName,typeof(ParameterUsage), new List<KeyValuePair<string, object>>() { new KeyValuePair<string, object>("", $"ParameterUsage.{property.Usage}") });
             }
-            if (!classBuilder.HasErrors(out errorDescription))
+            if (!classBuilder.HasErrors(out string errorDescription))
             {
                 this.generatedCode = classBuilder.GetGeneratedCode();
                 logger.Information($"Created prefab data model class : {Constants.PrefabDataModelName} with {RequiredProperties.Count()} properties");
-                return true;
+                return await Task.FromResult(true);
             }
             AddOrAppendErrors("", errorDescription);
-            return false;
+            return await Task.FromResult(false);
         }
 
         private void MirrorTargetType(Type targetType)
@@ -196,12 +190,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         }
 
 
-        public override void OnPreviousScreen()
+        public override async Task OnPreviousScreen()
         {
             ClearErrors("");
             RequiredProperties.Clear();
             arguments.Clear();
-            base.OnPreviousScreen();
+            await base.OnPreviousScreen();
         }
 
     }

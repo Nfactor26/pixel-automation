@@ -7,6 +7,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 {
@@ -47,9 +48,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase(DataSource.Code, false)]
         [TestCase(DataSource.CsvFile, true)]
         [TestCase(DataSource.CsvFile, false)]
-        public void ValidateThatCanGenerateCodeVariousDataSources(DataSource dataSource, bool wasCancelled)
+        public async Task ValidateThatCanGenerateCodeVariousDataSources(DataSource dataSource, bool wasCancelled)
         {         
-            var typeDefinition = new Editor.Core.TypeDefinition(typeof(EmptyModel));         
+            var typeDefinition = new TypeDefinition(typeof(EmptyModel));         
             var testDataSourceViewModel = Substitute.For<IStagedScreen>();
             testDataSourceViewModel.GetProcessedResult().Returns(new TestDataSourceResult(new TestDataSource() { DataSourceId = Guid.NewGuid().ToString() }, typeDefinition.ActualType));
 
@@ -59,7 +60,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             };
 
 
-            testDataModelEditorViewModel.ActivateAsync();
+            await testDataModelEditorViewModel.ActivateAsync();
             scriptEditorFactory.Received(1).CreateInlineScriptEditor(Arg.Any<EditorOptions>());
             scriptEditorFactory.Received(1).AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Is<Type>(typeof(EmptyModel)));
             scriptEditor.Received(1).OpenDocument(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
@@ -67,21 +68,20 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             if(!wasCancelled)
             {
-                bool couldProcessStage = testDataModelEditorViewModel.TryProcessStage(out string errorDescription);
-                Assert.IsTrue(couldProcessStage);
-                Assert.IsEmpty(errorDescription);
+                var couldProcessStage  = await testDataModelEditorViewModel.TryProcessStage();
+                Assert.IsTrue(couldProcessStage);          
                 scriptEditor.Received(1).CloseDocument(Arg.Is(true));
 
                 var result = testDataModelEditorViewModel.GetProcessedResult();
                 Assert.IsTrue((bool)result);
 
-                testDataModelEditorViewModel.OnFinished();
+                await testDataModelEditorViewModel.OnFinished();
                 Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);              
                 scriptEditor.Received(1).Dispose();
             }
             else
             {
-                testDataModelEditorViewModel.OnCancelled();
+                await testDataModelEditorViewModel.OnCancelled();
                 Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);               
                 scriptEditor.Received(1).CloseDocument(Arg.Is(false));
                 scriptEditor.Received(1).Dispose();

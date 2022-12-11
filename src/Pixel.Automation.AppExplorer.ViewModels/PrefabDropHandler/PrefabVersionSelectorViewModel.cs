@@ -140,27 +140,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {
             //TODO : Can we make this asyc ?
             if(this.SelectedVersion != null && !dropTarget.ComponentCollection.Any(a => a.Model.Equals(prefabEntity)))
             {
-                UpdatePrefabReferences();
-                UpdateControlReferences();
+                await UpdatePrefabReferencesAsync();
+                await UpdateControlReferencesAsync();
                 dropTarget.AddComponent(prefabEntity);
                 this.CanChangeVersion = false;
                 logger.Information("Added version {0} of {1} to {2}.", this.SelectedVersion, this.prefabProject, this.dropTarget);
-            }
-            errorDescription = String.Empty;
+            }          
             return true;        
         }
 
         /// <summary>
         /// When adding a Prefab, make an entry of the Prefab in to the Prefab References file of the automation Process if it doesn't already exist.
         /// </summary>
-        private void UpdatePrefabReferences()
+        private async Task UpdatePrefabReferencesAsync()
         {
-            _ = this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
+            await this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
             logger.Debug($"Updated prefab refrences file.");
         }
 
@@ -168,7 +167,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// A Prefab might use one or more control. When adding a Prefab to an automation process, we need to update the Control References file
         /// of the automation process to include details of controls being used by the Prefab.
         /// </summary>
-        private void UpdateControlReferences()
+        private async Task UpdateControlReferencesAsync()
         {
             //Load control references file for prefab project
             this.prefabFileSystem.Initialize(this.prefabProject, this.SelectedVersion);
@@ -184,7 +183,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             {
                 if (!projectControlReferences.HasReference(controlReference.ControlId))
                 {
-                    _ = this.projectReferenceManager.AddControlReferenceAsync(controlReference);
+                   await this.projectReferenceManager.AddControlReferenceAsync(controlReference);
                 }
             }           
             logger.Debug($"Updated control refrences file.");

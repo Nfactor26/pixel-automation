@@ -30,7 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.prefabFileSystem = projectFileSystem;
         }      
 
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {
             try
             {               
@@ -40,17 +40,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
                     dataModelAssembly = Assembly.LoadFrom(Path.Combine(this.prefabFileSystem.TempDirectory, compilationResult.OutputAssemblyName));    
                     logger.Information($"Loaded prefab assembly : {compilationResult.OutputAssemblyName}");
-                    errorDescription = string.Empty;
-                    return true;
+                    return await Task.FromResult(true);
                 }
 
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
-                errorDescription = ex.Message;
-                AddOrAppendErrors("", errorDescription);
-                return false;
+                logger.Error(ex, ex.Message);              
+                AddOrAppendErrors("", ex.Message);
+                return await Task.FromResult(false);
             }
 
         }
@@ -93,16 +91,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
         }
 
-        public override void OnFinished()
+        public override async Task OnFinished()
         {          
             CleanUp();
-            base.OnPreviousScreen();
+            await base.OnPreviousScreen();
         }
 
-        public override void OnCancelled()
+        public override async Task OnCancelled()
         {          
             CleanUp();
-            base.OnCancelled();
+            await base.OnCancelled();
         }
 
         private void CleanUp()
