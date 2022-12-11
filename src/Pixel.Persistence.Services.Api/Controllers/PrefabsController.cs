@@ -107,6 +107,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 Guard.Argument(request, nameof(request)).NotNull();
                 Guard.Argument(request, nameof(request)).Require(r => r.NewVersion != null, r => "NewVersion is required");
                 Guard.Argument(request, nameof(request)).Require(r => r.CloneFrom != null, r => "CloneFrom is required");
+                
+                if (await prefabsRepository.IsPrefabDeleted(prefabId))
+                {
+                    return Conflict($"Prefab : {prefabId} is marked deleted. New version can't be added.");
+                }
                 await prefabsRepository.AddPrefabVersionAsync(prefabId, request.NewVersion, request.CloneFrom, CancellationToken.None);
                 return Ok(request.NewVersion);
             }
@@ -125,6 +130,10 @@ namespace Pixel.Persistence.Services.Api.Controllers
             {
                 Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
                 Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+                if (await prefabsRepository.IsPrefabDeleted(prefabId))
+                {
+                    return Conflict($"Prefab : {prefabId} is marked deleted. Version : {prefabVersion} can't be added.");
+                }
                 await prefabsRepository.UpdatePrefabVersionAsync(prefabId, prefabVersion, CancellationToken.None);
                 return Ok(prefabVersion);
             }
@@ -132,6 +141,28 @@ namespace Pixel.Persistence.Services.Api.Controllers
             {
                 logger.LogError(ex, ex.Message);
                 return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        [HttpGet("isdeleted/{prefabId}")]
+        public async Task<ActionResult<bool>> IsDeleted(string prefabId)
+        {           
+            bool isDeleted = await this.prefabsRepository.IsPrefabDeleted(prefabId);
+            return Ok(isDeleted);
+        }
+
+        [HttpDelete("{prefabId}")]
+        public async Task<IActionResult> DeletePrefab(string prefabId)
+        {
+            try
+            {             
+                await prefabsRepository.DeletePrefabAsync(prefabId);
+                return Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
             }
         }
     }

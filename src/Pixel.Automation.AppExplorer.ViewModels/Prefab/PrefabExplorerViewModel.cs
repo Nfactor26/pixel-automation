@@ -11,6 +11,7 @@ using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Data;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
@@ -113,6 +114,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     var prefabs = this.prefabDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
                     foreach (var prefab in prefabs)
                     {
+                        if(prefab.IsDeleted)
+                        {
+                            continue;
+                        }
                         var prefabProjectViewModel = new PrefabProjectViewModel(prefab);
                         applicationDescriptionViewModel.AddPrefab(prefabProjectViewModel, screenName);
                         prefabsList.Add(prefabProjectViewModel);
@@ -230,6 +235,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 logger.Error(ex, ex.Message);
             }
         }
+
+        /// <summary>
+        /// Delete the prefab
+        /// </summary>
+        /// <param name="prefabToDelete"></param>
+        public async Task DeletePrefabAsync(PrefabProjectViewModel prefabToDelete)
+        {
+            try
+            {
+                Guard.Argument(prefabToDelete, nameof(prefabToDelete)).NotNull();
+                await this.prefabDataManager.DeletePrefbAsync(prefabToDelete.PrefabProject);
+                this.Prefabs.Remove(prefabToDelete);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to delete prefab : {0}", prefabToDelete.PrefabName);
+                MessageBox.Show($"Error while deleting prefab : {prefabToDelete.PrefabName}", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         /// <summary>
         /// Broadcast a FilterTestMessage which is processed by Test explorer view to filter and show only those test cases

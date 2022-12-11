@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
@@ -16,17 +15,20 @@ namespace Pixel.Persistence.Services.Api.Controllers
         private readonly ILogger<ReferencesController> logger;
         private readonly IReferencesRepository referencesRepository;
         private readonly IControlRepository controlsRepository;
+        private readonly IPrefabsRepository prefabsRepository;
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="projectRepository"></param>
-        public ReferencesController(ILogger<ReferencesController> logger, IReferencesRepository referencesRepository, IControlRepository controlsRepository)
+        public ReferencesController(ILogger<ReferencesController> logger, IReferencesRepository referencesRepository, 
+            IControlRepository controlsRepository, IPrefabsRepository prefabsRepository)
         {
             this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
             this.referencesRepository = Guard.Argument(referencesRepository, nameof(referencesRepository)).NotNull().Value;
             this.controlsRepository = Guard.Argument(controlsRepository, nameof(controlsRepository)).NotNull().Value;
+            this.prefabsRepository = Guard.Argument(prefabsRepository, nameof(prefabsRepository)).NotNull().Value;
         }
 
         [HttpGet("{projectId}/{projectVersion}")]
@@ -65,6 +67,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
         [HttpPost("prefabs/{projectId}/{projectVersion}")]
         public async Task<IActionResult> AddOrUpdatePrefabReference(string projectId, string projectVersion, [FromBody] PrefabReference prefabReference)
         {
+            if (await this.prefabsRepository.IsPrefabDeleted(prefabReference.PrefabId))
+            {
+                logger.LogWarning("Can't add prefab reference to project : {0}, version : {1}. Prefab {@2} is marked deleted.", projectId, projectVersion, prefabReference);
+                return Conflict("Can't add prefab reference. Prefab is marked deleted.");
+            }
             await this.referencesRepository.AddOrUpdatePrefabReference(projectId, projectVersion, prefabReference);
             return Ok();
         }

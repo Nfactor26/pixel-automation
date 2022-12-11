@@ -119,8 +119,9 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
             DataModelAssembly = cloneFrom.DataModelAssembly
         }));
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.PostAsync<PrefabVersion>(restRequest);
-        return result;
+        var result = await client.ExecuteAsync<PrefabVersion>(restRequest, Method.Post);
+        result.EnsureSuccess();
+        return result.Data;
     }
 
     /// <inheritdoc/>  
@@ -131,7 +132,28 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
         RestRequest restRequest = new RestRequest($"{baseUrl}/{prefabId}/versions");
         restRequest.AddJsonBody(prefabVersion);
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.PutAsync<PrefabVersion>(restRequest);
+        var result = await client.ExecuteAsync<PrefabVersion>(restRequest, Method.Put);
+        result.EnsureSuccess();
+        return result.Data;
+    }
+
+    /// <inheritdoc/>  
+    public async Task<bool> CheckIfDeletedAsync(string prefabId)
+    {
+        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+        RestRequest restRequest = new RestRequest($"{baseUrl}/isdeleted/{prefabId}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.GetAsync<bool>(restRequest);
         return result;
+    }
+
+    /// <inheritdoc/>  
+    public async Task DeletePrefabAsync(string prefabId)
+    {
+        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+        RestRequest restRequest = new RestRequest($"{baseUrl}/{prefabId}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteAsync(restRequest, Method.Delete);
+        result.EnsureSuccess();
     }
 }

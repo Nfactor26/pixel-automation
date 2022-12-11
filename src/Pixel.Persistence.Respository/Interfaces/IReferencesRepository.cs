@@ -59,6 +59,23 @@ public interface IReferencesRepository
     /// <returns></returns>
     Task UpdateControlReference(string projectId, string projectVersion, ControlReference controlReference);
 
+
+    /// <summary>
+    /// Check if any version of prefab is in use by any version of any project
+    /// </summary>
+    /// <param name="prefabId"></param>
+    /// <returns></returns>
+    Task<bool> IsPrefabInUse(string prefabId);
+
+    /// <summary>
+    /// Check if any of the projets has a reference to any version of this prefab
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="controlReference"></param>
+    /// <returns></returns>
+    //Task<bool> HasPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
+
     /// <summary>
     /// Add or update PrefabReferences for a given version of project
     /// </summary>

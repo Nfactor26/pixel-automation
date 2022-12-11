@@ -8,6 +8,7 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
+using System.Windows;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -61,7 +62,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task PublishAsync(PrefabVersionViewModel prefabVersionViewModel)
         {
             try
-            {              
+            {
+                Guard.Argument(prefabVersionViewModel, nameof(prefabVersionViewModel)).NotNull();           
                 if (!prefabVersionViewModel.IsPublished)
                 {                  
                     bool isLatestActieVersion = prefabProject.LatestActiveVersion.Version.Equals(prefabVersionViewModel.Version);
@@ -75,7 +77,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to publish verion : {0} of prefab : {1}", prefabVersionViewModel.Version, prefabVersionViewModel.PrefabName);
+                MessageBox.Show($"Error while publishing version {prefabVersionViewModel.Version} of prefab {prefabVersionViewModel.PrefabName}", "Publish Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -87,6 +90,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             try
             {
+                Guard.Argument(prefabVersionViewModel, nameof(prefabVersionViewModel)).NotNull();
                 if (prefabVersionViewModel.IsPublished)
                 {               
                     PrefabVersion newVersion = await prefabVersionViewModel.CloneAsync(this.prefabDataManager);
@@ -98,7 +102,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to create a new verion of prefab : {0} from version : {1}", prefabVersionViewModel.PrefabName, prefabVersionViewModel.Version);
+                MessageBox.Show($"Error while cloning version {prefabVersionViewModel.Version} of prefab {prefabVersionViewModel.PrefabName}", "Clone Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

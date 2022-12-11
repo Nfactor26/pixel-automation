@@ -77,6 +77,20 @@ public interface IPrefabDataManager
     Task UpdatePrefabVersionAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
 
     /// <summary>
+    /// Check if a Prefb project is marked deleted.
+    /// </summary>
+    /// <param name="prefabProject"></param>
+    /// <returns></returns>
+    Task<bool> CheckIfDeletedAsync(PrefabProject prefabProject);
+
+    /// <summary>
+    /// Mark the Prefab project as deleted.
+    /// </summary>
+    /// <param name="prefabProject"></param>
+    /// <returns></returns>
+    Task DeletePrefbAsync(PrefabProject prefabProject);
+
+    /// <summary>
     /// Add a data file to a given version of prefab project
     /// </summary>
     /// <param name="prefabProject"></param>

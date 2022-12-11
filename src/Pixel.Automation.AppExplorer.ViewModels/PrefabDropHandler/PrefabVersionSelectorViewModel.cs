@@ -7,8 +7,10 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Automation.Reference.Manager;
 using Pixel.Automation.Reference.Manager.Contracts;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.IO;
+using System.Windows;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 {
@@ -86,13 +88,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <param name="prefabProjectViewModel">Prefab which needs to be added to automation process</param>
         /// <param name="dropTarget">EntityComponentViewModel wrapping an Entity to which Prefab needs to be added</param>
         public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, IPrefabFileSystem prefabFileSystem,
-            IReferenceManager projectReferenceManager,  PrefabEntity prefabEntity,
+            IReferenceManager projectReferenceManager, PrefabEntity prefabEntity,
             PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
         {
             this.DisplayName = "(1/3) Select prefab version and mapping scripts";
             this.projectFileSystem = projectFileSystem;
             this.prefabFileSystem = prefabFileSystem;
-            this.projectReferenceManager = projectReferenceManager;
+            this.projectReferenceManager = projectReferenceManager;          
             this.prefabEntity = prefabEntity;
             this.prefabProject = prefabProjectViewModel.PrefabProject;
             this.dropTarget = dropTarget;          
@@ -142,16 +144,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <inheritdoc/>   
         public override async Task<bool> TryProcessStage()
         {
-            //TODO : Can we make this asyc ?
-            if(this.SelectedVersion != null && !dropTarget.ComponentCollection.Any(a => a.Model.Equals(prefabEntity)))
+            try
             {
-                await UpdatePrefabReferencesAsync();
-                await UpdateControlReferencesAsync();
-                dropTarget.AddComponent(prefabEntity);
-                this.CanChangeVersion = false;
-                logger.Information("Added version {0} of {1} to {2}.", this.SelectedVersion, this.prefabProject, this.dropTarget);
-            }          
-            return true;        
+                if (this.SelectedVersion != null && !dropTarget.ComponentCollection.Any(a => a.Model.Equals(prefabEntity)))
+                {
+                    await UpdatePrefabReferencesAsync();
+                    await UpdateControlReferencesAsync();
+                    dropTarget.AddComponent(prefabEntity);
+                    this.CanChangeVersion = false;
+                    logger.Information("Added version {0} of {1} to {2}.", this.SelectedVersion, this.prefabProject, this.dropTarget);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to process stage for the prefab version selector screen");
+                MessageBox.Show("Error while trying to add prefab", "Add Prefab Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }  
         }
 
         /// <summary>

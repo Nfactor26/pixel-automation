@@ -310,6 +310,31 @@ public class PrefabDataManager : IPrefabDataManager
         logger.Information("Version {0} of prefab {1} was updated.", prefabVersion.ToString(), prefabProject.PrefabName);
     }
 
+
+    ///<inheritdoc/>
+    public async Task<bool> CheckIfDeletedAsync(PrefabProject prefabProject)
+    {
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        if (IsOnlineMode)
+        {
+            return await this.prefabsRepositoryClient.CheckIfDeletedAsync(prefabProject.PrefabId);
+        } 
+        return prefabProject.IsDeleted;
+    }
+
+    ///<inheritdoc/>
+    public async Task DeletePrefbAsync(PrefabProject prefabProject)
+    {
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        if(IsOnlineMode)
+        {
+            await this.prefabsRepositoryClient.DeletePrefabAsync(prefabProject.PrefabId);
+        }
+        prefabProject.IsDeleted = true;
+        string prefabDescriptionFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
+        serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
+    }
+
     ///<inheritdoc/>
     public async Task SavePrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
     {
