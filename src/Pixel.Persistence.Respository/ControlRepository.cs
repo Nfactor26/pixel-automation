@@ -127,7 +127,7 @@ namespace Pixel.Persistence.Respository
                 string controlId = document["ControlId"].AsString;
                 string version = document["Version"].AsString;
 
-                document.Add("LastUpdated", DateTime.Now.ToUniversalTime());            
+                document.Add("LastUpdated", DateTime.UtcNow);            
               
                 //if document already exists, replace it
                 if (controlsCollection.CountDocuments<BsonDocument>(x => x["ApplicationId"].Equals(applicationId) 
@@ -169,7 +169,8 @@ namespace Pixel.Persistence.Respository
             {
                 throw new InvalidOperationException("Control is in use across one or more projects");
             }
-            var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true);
+            var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true)
+                .Set("LastUpdated", DateTime.UtcNow);
             await controlsCollection.FindOneAndUpdateAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), updateDefinition);          
         }
 
@@ -189,8 +190,7 @@ namespace Pixel.Persistence.Respository
                     {"controlId" , imageMetaData.ControlId },
                     {"version", imageMetaData.Version.ToString() }
                 }
-            });
-          
+            });           
         }
 
         ///<inheritdoc/>
@@ -213,6 +213,9 @@ namespace Pixel.Persistence.Respository
                     await imageBucket.DeleteAsync(imageFile.Id);
                 }
             }
+
+            var updateDefinition = Builders<BsonDocument>.Update.Set("LastUpdated", DateTime.UtcNow);
+            await controlsCollection.FindOneAndUpdateAsync<BsonDocument>(CreateControlFilter(imageMetaData.ApplicationId, imageMetaData.ControlId, imageMetaData.Version), updateDefinition);
         }   
 
         /// <summary>
