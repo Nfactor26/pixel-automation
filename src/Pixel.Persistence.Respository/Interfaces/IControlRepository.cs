@@ -52,7 +52,7 @@ public interface IControlRepository
     Task<bool> IsControlDeleted(string applicationId, string controlId);
 
     /// <summary>
-    /// Set IsDeleted flag on all versionf of control to true.
+    /// Set IsDeleted flag on all versions of control to true.
     /// </summary>
     /// <param name="applicationId"></param>
     /// <param name="controlId"></param>

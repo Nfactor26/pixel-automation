@@ -17,7 +17,7 @@ namespace Pixel.Persistence.Respository
     public class PrefabsRepository : IPrefabsRepository
     {
         private readonly ILogger logger;
-        private readonly IMongoCollection<PrefabProject> prefabsCollection;
+        private readonly IMongoCollection<PrefabProject> prefabsCollection;     
         private readonly IPrefabFilesRepository prefabFilesRepossitory;
         private readonly IReferencesRepository referencesRepository;
         private static readonly InsertOneOptions InsertOneOptions = new InsertOneOptions();
@@ -105,7 +105,9 @@ namespace Pixel.Persistence.Respository
             }
 
             filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId);
-            var push = Builders<PrefabProject>.Update.Push(t => t.AvailableVersions, newVersion);
+            var push = Builders<PrefabProject>.Update.Push(t => t.AvailableVersions, newVersion)
+                .Set(t => t.LastUpdated, DateTime.UtcNow)
+                .Inc(t => t.Revision, 1);
             await this.prefabsCollection.UpdateOneAsync(filter, push);
         }
 
@@ -125,12 +127,39 @@ namespace Pixel.Persistence.Respository
                 {
                     prefabVersion.PublishedOn = DateTime.UtcNow;
                 }
-                var update = Builders<PrefabProject>.Update.Set(x => x.AvailableVersions[-1], prefabVersion);
+                var update = Builders<PrefabProject>.Update.Set(x => x.AvailableVersions[-1], prefabVersion)
+                     .Set(t => t.LastUpdated, DateTime.UtcNow)
+                     .Inc(t => t.Revision, 1); ;
                 await this.prefabsCollection.UpdateOneAsync(filter, update);
                 logger.LogInformation("Project version {0} was updated for project : {1}", prefabVersion, prefabId);
                 return;
             }
             throw new InvalidOperationException($"Version {prefabVersion} doesn't exist on prefab {prefabId}");
+        }
+
+        ///<inheritdoc/>
+        public async Task<bool> IsPrefabDeleted(string prefabId)
+        {
+            Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+            var filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId) &
+                Builders<PrefabProject>.Filter.Eq(x => x.IsDeleted, true);
+            long count = await this.prefabsCollection.CountDocumentsAsync(filter, new CountOptions() { Limit = 1 });
+            return count > 0;
+        }
+
+        /// <inheritdoc/>
+        public async Task DeletePrefabAsync(string prefabId)
+        {
+            Guard.Argument(prefabId, nameof(prefabId)).NotNull();
+            if(await this.referencesRepository.IsPrefabInUse(prefabId))
+            {
+                throw new InvalidOperationException("Prefab is in use across one or more projects");
+            }
+            var updateFilter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId);
+            var updateDefinition = Builders<PrefabProject>.Update.Set(x => x.IsDeleted, true)
+                .Set(x => x.LastUpdated, DateTime.UtcNow)
+                .Inc(t => t.Revision, 1);
+            await this.prefabsCollection.FindOneAndUpdateAsync<PrefabProject>(updateFilter, updateDefinition);
         }
     }
 }

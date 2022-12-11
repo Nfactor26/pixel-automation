@@ -50,6 +50,12 @@ namespace Pixel.Automation.Core.Models
         public string GroupName { get; set; } = "Default";
 
         /// <summary>
+        /// Indicates if Prefab project is marked deleted.
+        /// </summary>
+        [DataMember(Order = 1000)]
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// Get all the versions that are active.
         /// </summary>
         public IEnumerable<PrefabVersion> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }

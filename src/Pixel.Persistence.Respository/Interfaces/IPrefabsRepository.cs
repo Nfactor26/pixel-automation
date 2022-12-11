@@ -59,5 +59,19 @@ namespace Pixel.Persistence.Respository
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task UpdatePrefabVersionAsync(string prefabId, PrefabVersion version, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Check if a Prefab is marked deleted
+        /// </summary>
+        /// <param name="prefabId"></param>
+        /// <returns></returns>
+        Task<bool> IsPrefabDeleted(string prefabId);
+
+        /// <summary>
+        /// Mark prefab as deleted.
+        /// </summary>
+        /// <param name="prefabId"></param>
+        /// <returns></returns>
+        Task DeletePrefabAsync(string prefabId);
     }
 }

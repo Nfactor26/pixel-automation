@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Respository;
 
@@ -78,6 +79,15 @@ public class ReferencesRepository : IReferencesRepository
         var push = Builders<ProjectReferences>.Update.Push(t => t.ControlReferences, controlReference);
         await this.referencesCollection.UpdateOneAsync(filter, push);
         logger.LogInformation("Control reference {0} was added to project : {1}", controlReference, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task<bool> IsPrefabInUse(string prefabId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.ElemMatch(x => x.PrefabReferences,
+               Builders<PrefabReference>.Filter.Eq(x => x.PrefabId, prefabId));
+        long count = await this.referencesCollection.CountDocumentsAsync(filter);
+        return count > 0;
     }
 
     /// <inheritdoc/>  

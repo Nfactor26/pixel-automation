@@ -20,6 +20,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IPrefabFileSystem fileSystem;
         private readonly Lazy<IReferenceManager> referenceManager;
 
+        public string PrefabName
+        {
+            get => prefabProject.PrefabName;
+        }
+
         public Version Version
         {
             get => prefabVersion.Version;
