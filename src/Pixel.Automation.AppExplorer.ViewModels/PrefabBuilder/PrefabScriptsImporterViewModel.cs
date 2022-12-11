@@ -50,21 +50,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         }      
 
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {
             try
             {
                 UpdateScriptFilePath();
-                ClearErrors("");               
-                errorDescription = string.Empty;
-                return true;
+                ClearErrors("");
+                return await Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
-                errorDescription = ex.Message;
+                logger.Error(ex, ex.Message);             
                 AddOrAppendErrors("", ex.Message);
-                return false;
+                return await Task.FromResult(true);
             }
         }
 

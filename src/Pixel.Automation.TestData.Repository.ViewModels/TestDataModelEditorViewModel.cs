@@ -118,11 +118,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public override bool IsValid => true;
 
         ///<inheritdoc/>
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {
             this.ScriptEditor.CloseDocument(true);
-            errorDescription = string.Empty;
-            return true;
+            return await Task.FromResult(true);
         }
 
         ///<inheritdoc/>
@@ -159,7 +158,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         }
 
         ///<inheritdoc/>
-        public override void OnCancelled()
+        public override async Task OnCancelled()
         {
             if(this.ScriptEditor != null)
             {
@@ -167,11 +166,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 this.ScriptEditor.Dispose();
                 this.ScriptEditor = null;
                 logger.Debug("Operation cancelled by user");
-            }           
+            }
+            await base.OnCancelled();
         }
 
         ///<inheritdoc/>
-        public override void OnFinished()
+        public override async Task OnFinished()
         {
             if (this.ScriptEditor != null)
             {
@@ -179,7 +179,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 this.ScriptEditor.Dispose();
                 this.ScriptEditor = null;
                 logger.Debug("Operation completed by user");
-            }         
+            }
+            await base.OnFinished();
         }
     }
 }

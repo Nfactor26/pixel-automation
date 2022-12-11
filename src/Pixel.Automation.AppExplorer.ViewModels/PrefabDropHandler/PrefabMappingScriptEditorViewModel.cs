@@ -105,25 +105,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/> 
-        public override bool TryProcessStage(out string errorDescription)
+        public override async Task<bool> TryProcessStage()
         {          
             this.ScriptEditor.Deactivate();
-            errorDescription = String.Empty;
-            return true;
+            return await Task.FromResult(true);
         }
 
         /// <inheritdoc/> 
-        public override void OnFinished()
+        public override async Task OnFinished()
         {
             DisposeEditor();
-            base.OnFinished();
+            await base.OnFinished();
         }
 
         /// <inheritdoc/> 
-        public override void OnCancelled()
+        public override async Task OnCancelled()
         {
             DisposeEditor();
-            base.OnCancelled();
+            await base.OnCancelled();
         }
 
         /// <summary>

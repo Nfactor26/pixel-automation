@@ -60,17 +60,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             get => IsValid;
         }
 
-        public override bool TryProcessStage(out string errorDescription)
-        {
-            errorDescription = string.Empty;
+        public override async Task<bool> TryProcessStage()
+        {            
             if(Validate())
             {
                 this.PrefabName = this.PrefabName.Trim();
                 this.prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.{this.PrefabName.Replace(' ', '.')}";
                 logger.Information($"Prefab name is : {PrefabName}. Moving to next screen");            
-                return true;
+                return await Task.FromResult(true);
             }
-            return false;
+            return await Task.FromResult(false);
         }
 
         public override object GetProcessedResult()

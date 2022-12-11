@@ -1,55 +1,56 @@
-﻿namespace Pixel.Automation.Editor.Core
+﻿using System.Threading.Tasks;
+
+namespace Pixel.Automation.Editor.Core;
+
+public abstract class StagedSmartScreen : SmartScreen, IStagedScreen
 {
-    public abstract class StagedSmartScreen : SmartScreen, IStagedScreen
+    public IStagedScreen NextScreen
     {
-        public IStagedScreen NextScreen
+        get; set;
+    }
+
+    public IStagedScreen PreviousScreen
+    {
+        get; set;
+    }
+
+    public virtual bool IsValid
+    {
+        get
         {
-            get; set;
+            return !HasErrors;
         }
+    }
 
-        public IStagedScreen PreviousScreen
-        {
-            get; set;
-        }
+    public abstract object GetProcessedResult();
 
-        public virtual bool IsValid
-        {
-            get
-            {
-                return !HasErrors;
-            }
-        }
+    public virtual async Task OnCancelled()
+    {
+        await Task.CompletedTask;
+    }
+ 
+    public virtual async Task OnFinished()
+    {
+        await Task.CompletedTask;
+    }
 
+    public virtual async Task OnNextScreen()
+    {
+        await Task.CompletedTask;
+    }
 
-        public abstract object GetProcessedResult();
+    public virtual async Task OnPreviousScreen()
+    {
+        await Task.CompletedTask;
+    }
 
-        public virtual void OnCancelled()
-        {
-           
-        }
-
-        public virtual void OnFinished()
-        {
-           
-        }
-
-        public virtual void OnNextScreen()
-        {
-            
-        }
-
-        public virtual void OnPreviousScreen()
-        {
-          
-        }
-
-        public abstract bool TryProcessStage(out string errorDescription);
-       
-        public virtual bool Validate()
-        {
-            return IsValid;
-        }
-
-
+    public virtual async Task<bool> TryProcessStage()
+    {
+        return await Task.FromResult(true);
+    }
+   
+    public virtual bool Validate()
+    {
+        return IsValid;
     }
 }

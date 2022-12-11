@@ -24,15 +24,16 @@ namespace Pixel.Automation.Editor.Core
             }
         }
 
-        public virtual void GoToNext()
+        public virtual async Task GoToNext()
         {
             var currentStage = ActiveItem as IStagedScreen;
-            if (currentStage.Validate() && currentStage.TryProcessStage(out string errorDescription))
+            if (currentStage.Validate())
             {
-                if (currentStage.NextScreen != null)
+                bool success = await currentStage.TryProcessStage();
+                if (success && currentStage.NextScreen != null)
                 {
-                    currentStage.OnNextScreen();                   
-                    ActivateItemAsync(currentStage.NextScreen, CancellationToken.None);
+                    await currentStage.OnNextScreen();                   
+                    await ActivateItemAsync(currentStage.NextScreen, CancellationToken.None);
                     if (!string.IsNullOrEmpty(currentStage.NextScreen.DisplayName))
                     {
                         this.DisplayName = currentStage.NextScreen.DisplayName;
@@ -53,13 +54,13 @@ namespace Pixel.Automation.Editor.Core
             }
         }
 
-        public virtual void GoToPrevious()
+        public virtual async Task GoToPrevious()
         {
             var currentStage = ActiveItem as IStagedScreen;
             if (currentStage.PreviousScreen != null)
             {
-                currentStage.OnPreviousScreen();
-                ActivateItemAsync(currentStage.PreviousScreen, CancellationToken.None);
+                await currentStage.OnPreviousScreen();
+                await ActivateItemAsync(currentStage.PreviousScreen, CancellationToken.None);
                 if (!string.IsNullOrEmpty(currentStage.PreviousScreen.DisplayName))
                 {
                     this.DisplayName = currentStage.PreviousScreen.DisplayName;
@@ -92,12 +93,16 @@ namespace Pixel.Automation.Editor.Core
         public virtual async Task Finish()
         {
             IStagedScreen screen = this.ActiveItem as IStagedScreen;
-            if (screen.Validate() && screen.TryProcessStage(out string errorDescription))
+            if (screen.Validate())
             {
-                foreach(var stagedScreen in this.stagedScreens)
+                bool success = await screen.TryProcessStage();
+                if(success)
                 {
-                    stagedScreen.OnFinished();
-                }
+                    foreach (var stagedScreen in this.stagedScreens)
+                    {
+                        await stagedScreen.OnFinished();
+                    }
+                }              
                 await this.TryCloseAsync(true);
             }
         }
@@ -106,7 +111,7 @@ namespace Pixel.Automation.Editor.Core
         {
             foreach (var stagedScreen in this.stagedScreens)
             {
-                stagedScreen.OnCancelled();
+                await stagedScreen.OnCancelled();
             }
             await this.TryCloseAsync(false);
         }

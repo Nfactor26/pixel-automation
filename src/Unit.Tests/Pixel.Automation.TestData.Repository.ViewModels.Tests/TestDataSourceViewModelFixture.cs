@@ -109,18 +109,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         }
 
         [Test]
-        public void ValidateThatCanProcessStage()
+        public async Task ValidateThatCanProcessStage()
         {
             //Arrange           
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, DataSource.Code, Enumerable.Empty<string>(), typeBrowser);
             testDataSourceViewModel.SelectTestDataType();
            
             //Act
-            var couldProcessStage = testDataSourceViewModel.TryProcessStage(out string errors);
+            var couldProcessStage = await testDataSourceViewModel.TryProcessStage();
             var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
 
-            //Assert
-            Assert.IsEmpty(errors);
+            //Assert          
             Assert.IsTrue(couldProcessStage);
             Assert.AreSame(testDataSourceViewModel.TestDataSource, result.TestDataSource);
             Assert.AreEqual(typeof(EmptyModel), result.DataSourceType);
