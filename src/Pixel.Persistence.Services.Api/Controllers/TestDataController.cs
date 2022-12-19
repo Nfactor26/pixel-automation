@@ -34,10 +34,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<ActionResult<TestDataSource>> FindByIdAsync(string projectId, string projectVersion, string dataSourceId)
         {
             try
-            {
-                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                Guard.Argument(dataSourceId, nameof(dataSourceId)).NotNull().NotEmpty();
+            {               
                 var result = await testDataRepository.FindByIdAsync(projectId, projectVersion, dataSourceId, CancellationToken.None) ??
                     throw new ArgumentException($"Test Data Source with Id : {dataSourceId} doesn't exist");
                 return Ok(result);
@@ -53,10 +50,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<ActionResult<TestDataSource>> FindByNameAsync(string projectId, string projectVersion, string name)
         {
             try
-            {
-                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                Guard.Argument(name, nameof(name)).NotNull().NotEmpty();
+            {               
                 var result = await testDataRepository.FindByNameAsync(projectId, projectVersion, name, CancellationToken.None) ??
                     throw new ArgumentException($"Test Data Source with name : {name} doesn't exist");
                 return Ok(result);
@@ -72,9 +66,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<ActionResult<List<TestDataSource>>> GetAllForProjectAsync(string projectId, string projectVersion, [FromHeader] DateTime laterThan)
         {
             try
-            {
-                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            {          
                 var result = await testDataRepository.GetDataSourcesAsync(projectId, projectVersion, laterThan, CancellationToken.None) ?? Enumerable.Empty<TestDataSource>();
                 return Ok(result);
             }
@@ -108,9 +100,6 @@ namespace Pixel.Persistence.Services.Api.Controllers
         {
             try
             {
-                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                Guard.Argument(dataSource, nameof(dataSource)).NotNull();
                 await testDataRepository.UpdateDataSourceAsync(projectId, projectVersion, dataSource, CancellationToken.None);
                 return Ok();
             }
@@ -125,17 +114,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<ActionResult<TestCase>> DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId)
         {
             try
-            {
-                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                Guard.Argument(dataSourceId, nameof(dataSourceId)).NotNull().NotEmpty();
+            {                
                 await testDataRepository.DeleteDataSourceAsync(projectId, projectVersion, dataSourceId, CancellationToken.None);
                 return Ok();
             }
-            catch (Exception ex)
+            catch(InvalidOperationException ex)
             {
-                logger.LogError(ex, ex.Message);
-                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+                logger.LogError(ex, "Failed to delete test data source with Id {0}", dataSourceId);
+                return Conflict(ex.Message);
             }
         }
     }

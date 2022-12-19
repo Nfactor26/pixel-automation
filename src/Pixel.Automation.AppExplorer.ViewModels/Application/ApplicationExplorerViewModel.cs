@@ -7,6 +7,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -105,7 +106,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             var applications = this.applicationDataManager.GetAllApplications();
             foreach (var application in applications)
             {
-                this.Applications.Add(new ApplicationDescriptionViewModel(application));
+                if(!application.IsDeleted)
+                {
+                    this.Applications.Add(new ApplicationDescriptionViewModel(application));
+                }
             }
             Applications.OrderBy(a => a.ApplicationName);
         }
@@ -223,6 +227,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             await this.eventAggregator.PublishOnUIThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
             this.Applications.Remove(applicationDescriptionViewModel);
             this.Applications.Add(applicationDescriptionViewModel);
+        }
+
+        /// <summary>
+        /// Mark the application as deleted and remove from application explorer views
+        /// </summary>
+        /// <param name="applicationDescriptionViewModel"></param>
+        /// <returns></returns>
+        public async Task DeleteApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
+        {
+            Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
+            try
+            {
+                MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this application?", "Confirm Delete", MessageBoxButton.OKCancel);
+                if (result == MessageBoxResult.OK)
+                {
+                    await this.applicationDataManager.DeleteApplicationAsync(applicationDescriptionViewModel.Model);
+                    this.Applications.Remove(applicationDescriptionViewModel);                   
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
         }
 
         /// <summary>

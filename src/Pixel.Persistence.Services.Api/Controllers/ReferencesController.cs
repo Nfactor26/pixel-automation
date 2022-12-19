@@ -1,9 +1,11 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Schema;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Respository.Interfaces;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
@@ -62,7 +64,6 @@ namespace Pixel.Persistence.Services.Api.Controllers
             await this.referencesRepository.AddControlReference(projectId, projectVersion, controlReference);
             return Ok();
         }
-
 
         [HttpPost("prefabs/{projectId}/{projectVersion}")]
         public async Task<IActionResult> AddOrUpdatePrefabReference(string projectId, string projectVersion, [FromBody] PrefabReference prefabReference)

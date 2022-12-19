@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
@@ -14,6 +15,7 @@ namespace Pixel.Persistence.Respository
 {
     public class ControlRepository : IControlRepository
     {
+        private readonly ILogger logger;
         private readonly IMongoCollection<BsonDocument> controlsCollection;
         private readonly IMongoCollection<ProjectReferences> referencesCollection;
         private readonly IGridFSBucket imageBucket;
@@ -22,8 +24,9 @@ namespace Pixel.Persistence.Respository
         /// constructor
         /// </summary>
         /// <param name="dbSettings"></param>
-        public ControlRepository(IMongoDbSettings dbSettings)
+        public ControlRepository(ILogger<ControlRepository> logger, IMongoDbSettings dbSettings)
         {
+            this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             controlsCollection = database.GetCollection<BsonDocument>(dbSettings.ControlsCollectionName);
@@ -172,6 +175,18 @@ namespace Pixel.Persistence.Respository
             var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true)
                 .Set("LastUpdated", DateTime.UtcNow);
             await controlsCollection.FindOneAndUpdateAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), updateDefinition);          
+        }
+
+        ///<inheritdoc/>
+        public async Task DeleteAllControlsForApplicationAsync(string applicationId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull();
+          
+            var filter = Builders<BsonDocument>.Filter.Eq(x => x["ApplicationId"], applicationId);
+            var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true)
+              .Set("LastUpdated", DateTime.UtcNow);
+            var result = await controlsCollection.UpdateManyAsync(filter, updateDefinition);
+            logger.LogInformation("{0} controls were marked deleted for application with Id : '{1}'", result.ModifiedCount, applicationId);
         }
 
         ///<inheritdoc/>

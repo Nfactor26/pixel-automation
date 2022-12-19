@@ -61,6 +61,13 @@ public interface IControlRepository
     Task DeleteControlAsync(string applicationId, string controlId);
 
     /// <summary>
+    /// Mark all the controls as deleted for a given application
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <returns></returns>
+    Task DeleteAllControlsForApplicationAsync(string applicationId);
+
+    /// <summary>
     /// Add or Update Control image
     /// </summary>
     /// <param name="imageMetaData"><see cref="ControlImageMetaData"/> of the Control Image</param>

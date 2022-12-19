@@ -73,5 +73,12 @@ namespace Pixel.Persistence.Respository
         /// <param name="prefabId"></param>
         /// <returns></returns>
         Task DeletePrefabAsync(string prefabId);
+
+        /// <summary>
+        /// Mark all the prefabs belonging to an application as deleted
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        Task DeleteAllPrefabsForApplicationAsync(string applicationId);
     }
 }

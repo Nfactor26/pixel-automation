@@ -109,7 +109,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory , dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
-            testDataRepositoryViewModel.CreateCodedTestDataSource();
+            await testDataRepositoryViewModel.CreateCodedTestDataSource();
 
             Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);          
             await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
@@ -122,7 +122,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
-            testDataRepositoryViewModel.CreateCsvTestDataSource();
+            await testDataRepositoryViewModel.CreateCsvTestDataSource();
 
             Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);
             await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
@@ -144,7 +144,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var codeDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.Code));
 
             //Act
-            testDataRepositoryViewModel.EditDataSource(codeDataSource);
+            await testDataRepositoryViewModel.EditDataSource(codeDataSource);
 
             //Assert
             serializer.Received(0).Serialize<TestDataSource>(Arg.Any<string>(), Arg.Any<TestDataSource>());
@@ -164,7 +164,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var csvDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.CsvFile));
 
             //Act
-            testDataRepositoryViewModel.EditDataSource(csvDataSource);
+            await testDataRepositoryViewModel.EditDataSource(csvDataSource);
 
             //Assert
             await dataManager.Received(1).UpdateTestDataSourceAsync(Arg.Any<TestDataSource>());            //Assert

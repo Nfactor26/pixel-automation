@@ -79,5 +79,14 @@ namespace Pixel.Persistence.Services.Client
             result.EnsureSuccess();
         }
 
+        ///<inheritdoc/>
+        public async Task DeleteApplicationAsync(ApplicationDescription applicationDescription)
+        {
+            Guard.Argument(applicationDescription, nameof(applicationDescription)).NotNull();
+            RestRequest restRequest = new RestRequest($"/application/{applicationDescription.ApplicationId}");           
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Delete);
+            result.EnsureSuccess();
+        }
     }
 }

@@ -28,5 +28,12 @@ namespace Pixel.Persistence.Services.Client
         /// <returns></returns>
         Task AddOrUpdateApplication(ApplicationDescription applicationDescription);
 
+        /// <summary>
+        /// Mark the application as deleted
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
+        Task DeleteApplicationAsync(ApplicationDescription applicationDescription);
+
     }
 }
