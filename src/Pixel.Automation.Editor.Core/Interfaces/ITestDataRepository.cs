@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.TestData;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -10,17 +11,17 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Show the wizard for creating a coded test data source
         /// </summary>
-        void CreateCodedTestDataSource();
+        Task CreateCodedTestDataSource();
 
         /// <summary>
         /// Show the wizard for creating a csv backed test data source
         /// </summary>
-        void CreateCsvTestDataSource();
+        Task CreateCsvTestDataSource();
 
         /// <summary>
         /// Open an existing TestData source for edit
         /// </summary>
         /// <param name="testDataSource"></param>
-        void EditDataSource(TestDataSource testDataSource);
+        Task EditDataSource(TestDataSource testDataSource);
     }
 }

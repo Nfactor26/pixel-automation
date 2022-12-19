@@ -676,12 +676,12 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     /// <inheritdoc/>  
     public async Task DeleteTestDataSourceAsync(TestDataSource dataSource)
     {
-        File.Delete(Path.Combine(this.projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat"));
-        File.Delete(Path.Combine(this.projectFileSystem.TestDataRepository, dataSource.ScriptFile));
         if (IsOnlineMode)
         {
             await this.testDataRepositoryClient.DeleteDataSourceAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), dataSource.DataSourceId);
         }
+        dataSource.IsDeleted = true;
+        this.projectFileSystem.SaveToFile<TestDataSource>(dataSource, projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat");
     }
 
     /// <inheritdoc/>  

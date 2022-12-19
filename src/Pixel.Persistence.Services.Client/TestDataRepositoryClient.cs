@@ -102,19 +102,6 @@ public class TestDataRepositoryClient : ITestDataRepositoryClient
     }
 
     /// <inheritdoc/>
-    public async Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId)
-    {
-        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-        Guard.Argument(dataSourceId, nameof(dataSourceId)).NotNull().NotEmpty();
-
-        RestRequest restRequest = new RestRequest($"testdata/{projectId}/{projectVersion}/{dataSourceId}") { Method = Method.Delete };
-        var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.DeleteAsync(restRequest);
-        result.EnsureSuccess();
-    }
-
-    /// <inheritdoc/>
     public async Task<TestDataSource> UpdateDataSourceAsync(string projectId, string projectVersion, TestDataSource dataSource)
     {
         Guard.Argument(dataSource).NotNull();
@@ -125,4 +112,16 @@ public class TestDataRepositoryClient : ITestDataRepositoryClient
         return result;
     }
 
+    /// <inheritdoc/>
+    public async Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(dataSourceId, nameof(dataSourceId)).NotNull().NotEmpty();
+
+        RestRequest restRequest = new RestRequest($"testdata/{projectId}/{projectVersion}/{dataSourceId}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteAsync(restRequest, Method.Delete);
+        result.EnsureSuccess();
+    }  
 }

@@ -36,7 +36,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         {
             try
             {
-                var applicationData = await applicationRepository.GetApplication(applicationId);              
+                var applicationData = await applicationRepository.FindByIdAsync(applicationId);              
                 return Ok(applicationData);
             }
             catch (Exception ex)
@@ -91,5 +91,25 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Save the application description data in to database
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
+        [HttpDelete("{applicationId}")]
+        public async Task<IActionResult> Delete(string applicationId)
+        {
+            try
+            {
+                await applicationRepository.DeleteAsync(applicationId);
+                return Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Conflict(ex.Message);
+            }            
+        }
     }
 }

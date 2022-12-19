@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
@@ -87,7 +88,10 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             await this.testDataManager.DownloadAllTestDataSourcesAsync();
             foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
             {               
-                this.TestDataSourceCollection.Add(testDataSource);
+                if(!testDataSource.IsDeleted)
+                {
+                    this.TestDataSourceCollection.Add(testDataSource);
+                }
             }            
         }
 
@@ -137,15 +141,15 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         #region Create Test Data Source
 
         ///<inheritdoc/>
-        public void CreateCodedTestDataSource()
+        public async Task CreateCodedTestDataSource()
         {
-            _ = CreateDataSource(DataSource.Code);            
+            await CreateDataSource(DataSource.Code);            
         }
 
         ///<inheritdoc/>
-        public void CreateCsvTestDataSource()
+        public async Task CreateCsvTestDataSource()
         {
-            _ = CreateDataSource(DataSource.CsvFile);
+            await CreateDataSource(DataSource.CsvFile);
         }
      
         private async Task CreateDataSource(DataSource dataSourceType)
@@ -222,17 +226,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         #region Edit Test Data Source
 
         ///<inheritdoc/>
-        public void EditDataSource(TestDataSource testDataSource)
+        public async Task EditDataSource(TestDataSource testDataSource)
         {
             try
             {
                 switch (testDataSource.DataSource)
                 {
                     case DataSource.Code:
-                        EditCodedDataSource(testDataSource);
+                        await EditCodedDataSource(testDataSource);
                         break;
                     case DataSource.CsvFile:
-                        EditCsvDataSource(testDataSource);
+                        await EditCsvDataSource(testDataSource);
                         break;
                 }
             }
@@ -247,7 +251,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// show script editor screen to edit the script for Code data source
         /// </summary>
         /// <param name="testDataSource"></param>
-        private async void EditCodedDataSource(TestDataSource testDataSource)
+        private async Task EditCodedDataSource(TestDataSource testDataSource)
         {
             string projectName = testDataSource.DataSourceId;          
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(EmptyModel));
@@ -265,7 +269,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// Show the TestDataSource screen to edit the details for CSV data source
         /// </summary>
         /// <param name="testDataSource"></param>
-        private async void EditCsvDataSource(TestDataSource testDataSource)
+        private async Task EditCsvDataSource(TestDataSource testDataSource)
         {            
             TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource);
             TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { dataSourceViewModel });
@@ -277,10 +281,34 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
+
+        /// <summary>
+        /// Mark the test data source as deleted
+        /// </summary>
+        /// <param name="testDataSource"></param>
+        public async Task DeleteDataSource(TestDataSource testDataSource)
+        {
+            Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
+            try
+            {
+                MessageBoxResult result = MessageBox.Show("Are you sure you want to delete data source", "Confirm Delete", MessageBoxButton.OKCancel);
+                if (result == MessageBoxResult.OK)
+                {
+                    await this.testDataManager.DeleteTestDataSourceAsync(testDataSource);
+                    this.TestDataSourceCollection.Remove(testDataSource);
+                    logger.Information("TestDataSource : '{0}' was deleted ", testDataSource.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+            }
+        }
+
         #endregion Edit Data Source
 
         #region life cycle
-      
+
         /// <summary>
         /// Called just before view is activiated for the first time.
         /// Available TestDataSource are loaded from local storage during initialization.

@@ -161,5 +161,17 @@ namespace Pixel.Persistence.Respository
                 .Inc(t => t.Revision, 1);
             await this.prefabsCollection.FindOneAndUpdateAsync<PrefabProject>(updateFilter, updateDefinition);
         }
+
+        /// <inheritdoc/>
+        public async Task DeleteAllPrefabsForApplicationAsync(string applicationId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull();
+            var updateFilter = Builders<PrefabProject>.Filter.Eq(x => x.ApplicationId, applicationId);
+            var updateDefinition = Builders<PrefabProject>.Update.Set(x => x.IsDeleted, true)
+               .Set(x => x.LastUpdated, DateTime.UtcNow)
+               .Inc(t => t.Revision, 1);
+            var result = await this.prefabsCollection.UpdateManyAsync(updateFilter, updateDefinition);
+            logger.LogInformation("{0} prefabs were marked deleted for application with Id : '{1}'", result.ModifiedCount, applicationId);
+        }
     }
 }

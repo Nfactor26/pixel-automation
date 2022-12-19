@@ -46,7 +46,13 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="applicationDescription"></param>
         /// <returns></returns>
         Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription);
-                     
+
+        /// <summary>
+        /// Mark the application as deleted
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
+        Task DeleteApplicationAsync(ApplicationDescription applicationDescription);                     
 
         /// <summary>
         /// Load all the control files from disk for a given application (e.g. for use in control explorer) and return loaded control descriptions

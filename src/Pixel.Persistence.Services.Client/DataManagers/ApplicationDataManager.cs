@@ -114,16 +114,25 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="applicationDescription"></param>
         public async Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription)
         {
-            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId));
-            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory));           
-
-            SaveApplicationToDisk(applicationDescription);
-            
-            if(IsOnlineMode)
+            if (IsOnlineMode)
             {
                 await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription);
             }
-            
+
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId));
+            Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory));   
+            SaveApplicationToDisk(applicationDescription);                 
+        }
+
+        public async Task DeleteApplicationAsync(ApplicationDescription applicationDescription)
+        {
+            if (IsOnlineMode)
+            {
+                await this.appRepositoryClient.DeleteApplicationAsync(applicationDescription);
+            }
+            applicationDescription.IsDeleted = true;
+            SaveApplicationToDisk(applicationDescription);
+            logger.Information("Application : '{0}; was deleted", applicationDescription.ApplicationName);
         }
 
         public async Task UpdateApplicationRepository()

@@ -59,8 +59,7 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="projectVersion"></param>
         /// <param name="dataSourceId"></param>
         /// <returns></returns>
-        Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId);
-     
+        Task DeleteDataSourceAsync(string projectId, string projectVersion, string dataSourceId);     
     
     }
 }

@@ -61,6 +61,12 @@ namespace Pixel.Automation.Core.Models
         public Dictionary<string, List<string>> AvailablePrefabs { get; private set; } = new();
 
         /// <summary>
+        /// Indicates if the TestCase is deleted. Deleted test cases are not loaded in explorer.
+        /// </summary>
+        [DataMember(IsRequired = false, Order = 1000)]
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
         /// constructor
         /// </summary>
         public ApplicationDescription()

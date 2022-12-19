@@ -13,9 +13,9 @@ namespace Pixel.Persistence.Respository
 {
     public class TestDataRepository : ITestDataRepository
     {
-
         private readonly ILogger logger;
         private readonly IMongoCollection<TestDataSource> testDataCollection;
+        private readonly IMongoCollection<TestCase> testsCollection;       
 
         private static readonly InsertOneOptions InsertOneOptions = new InsertOneOptions();
         private static readonly FindOptions<TestDataSource> FindOptions = new FindOptions<TestDataSource>();
@@ -32,20 +32,28 @@ namespace Pixel.Persistence.Respository
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
             testDataCollection = database.GetCollection<TestDataSource>(dbSettings.TestDataCollectionName);
+            testsCollection = database.GetCollection<TestCase>(dbSettings.TestsCollectionName);            
         }
 
         /// <inheritdoc/>  
-        public async Task<TestDataSource> FindByIdAsync(string projectId, string projectVersion, string fixtureId, CancellationToken cancellationToken)
+        public async Task<TestDataSource> FindByIdAsync(string projectId, string projectVersion, string dataSSourceId, CancellationToken cancellationToken)
         {
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            Guard.Argument(dataSSourceId, nameof(dataSSourceId)).NotNull().NotEmpty();
+
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                                 Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion),
-                                Builders<TestDataSource>.Filter.Eq(x => x.DataSourceId, fixtureId));
+                                Builders<TestDataSource>.Filter.Eq(x => x.DataSourceId, dataSSourceId));
             return (await testDataCollection.FindAsync(filter, FindOptions, cancellationToken)).FirstOrDefault();
         }
 
         /// <inheritdoc/>  
         public async Task<TestDataSource> FindByNameAsync(string projectId, string projectVersion, string name, CancellationToken cancellationToken)
         {
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                                 Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion),
                                 Builders<TestDataSource>.Filter.Eq(x => x.Name, name));
@@ -55,6 +63,9 @@ namespace Pixel.Persistence.Respository
         /// <inheritdoc/>  
         public async Task<IEnumerable<TestDataSource>> GetDataSourcesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken)
         {
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                 Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion)) &
                 Builders<TestDataSource>.Filter.Gt(x => x.LastUpdated, laterThan);
@@ -65,38 +76,46 @@ namespace Pixel.Persistence.Respository
         /// <inheritdoc/>  
         public async Task AddDataSourceAsync(string projectId, string projectVersion, TestDataSource dataSource, CancellationToken cancellationToken)
         {
-            Guard.Argument(dataSource).NotNull();
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            Guard.Argument(dataSource, nameof(dataSource)).NotNull();
+
             var exists = await FindByIdAsync(projectId, projectVersion, dataSource.DataSourceId, cancellationToken) != null;
             if (exists)
             {
-                throw new InvalidOperationException($"Test Data Source with Id : {dataSource.DataSourceId} alreadye exists for Project : {dataSource.ProjectId} , Version : {dataSource.ProjectVersion}");
+                throw new InvalidOperationException($"Test Data Source with Id : {dataSource.DataSourceId} already exists for Project : {dataSource.ProjectId} , Version : {dataSource.ProjectVersion}");
             }
             dataSource.ProjectId = projectId;
             dataSource.ProjectVersion = projectVersion;
             await testDataCollection.InsertOneAsync(dataSource, InsertOneOptions, cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Test Data Source {0} was added.", dataSource);
+            logger.LogInformation("Test Data Source {0} was added  to version {1} of project {2}", dataSource.Name, projectVersion, projectId);
         }
 
         /// <inheritdoc/>  
         public async Task AddDataSourcesAsync(string projectId, string projectVersion, IEnumerable<TestDataSource> dataSources, CancellationToken cancellationToken)
         {
-            Guard.Argument(dataSources).NotNull();
-            if (dataSources.Any())
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            Guard.Argument(dataSources, nameof(dataSources)).NotNull().NotEmpty();
+
+            foreach (var dataSource in dataSources)
             {
-                foreach (var dataSource in dataSources)
-                {
-                    dataSource.ProjectId = projectId;
-                    dataSource.ProjectVersion = projectVersion;
-                }
-
-                await testDataCollection.InsertManyAsync(dataSources, new InsertManyOptions(), cancellationToken).ConfigureAwait(false);
+                dataSource.ProjectId = projectId;
+                dataSource.ProjectVersion = projectVersion;
             }
+            await testDataCollection.InsertManyAsync(dataSources, new InsertManyOptions(), cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("{0} test data sources were added to version {1} of project {2}", dataSources.Count(), projectVersion, projectId);
         }
-
 
         /// <inheritdoc/>  
         public async Task UpdateDataSourceAsync(string projectId, string projectVersion, TestDataSource dataSource, CancellationToken cancellationToken)
         {
+            Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+            Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            Guard.Argument(dataSource, nameof(dataSource)).NotNull();
+
+            var testDataSource = await FindByIdAsync(projectId, projectVersion, dataSource.DataSourceId, cancellationToken);
+
             var filter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                                  Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion),
                                  Builders<TestDataSource>.Filter.Eq(x => x.DataSourceId, dataSource.DataSourceId));
@@ -108,7 +127,7 @@ namespace Pixel.Persistence.Respository
               .Set(t => t.LastUpdated, DateTime.UtcNow)
               .Inc(t => t.Revision, 1);
             var result = await testDataCollection.FindOneAndUpdateAsync(filter, updateDefinition, FindOneAndUpdateOptions, cancellationToken);
-            logger.LogInformation("Fixture with Id : {0} was updated to {1}", dataSource.DataSourceId, result);
+            logger.LogInformation("Test data source : {0} was updated for version {1} of project {2}", testDataSource.Name, projectVersion, projectId);
         }
 
         /// <inheritdoc/>  
@@ -117,6 +136,18 @@ namespace Pixel.Persistence.Respository
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
             Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
             Guard.Argument(dataSourceId, nameof(dataSourceId)).NotNull();
+
+            var testDataSource = await FindByIdAsync(projectId, projectVersion, dataSourceId, cancellationToken);
+
+            //Check if any of the test case is using the data source
+            var filter = Builders<TestCase>.Filter.Eq(x => x.TestDataId, dataSourceId) 
+                        & Builders<TestCase>.Filter.Eq(x => x.ProjectId, projectId)
+                        & Builders<TestCase>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+            long count = await this.testsCollection.CountDocumentsAsync(filter);
+            if (count > 0)
+            {
+                throw new InvalidOperationException($"Test data source : {testDataSource.Name} is in use by {count} test cases");
+            }
 
             var fixtureFilter = Builders<TestDataSource>.Filter.And(Builders<TestDataSource>.Filter.Eq(x => x.ProjectId, projectId),
                                  Builders<TestDataSource>.Filter.Eq(x => x.ProjectVersion, projectVersion),
@@ -128,6 +159,7 @@ namespace Pixel.Persistence.Respository
                 .Inc(t => t.Revision, 1);
 
             await testDataCollection.FindOneAndUpdateAsync(fixtureFilter, updateDefinition, FindOneAndUpdateOptions, cancellationToken);
+            logger.LogInformation("Test data souce {0} was marked deleted for version {1} of project {2}", testDataSource.Name, projectVersion, projectId);
         }
 
     }

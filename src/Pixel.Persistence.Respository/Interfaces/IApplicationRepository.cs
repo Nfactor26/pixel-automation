@@ -14,7 +14,7 @@ public interface IApplicationRepository
     /// </summary>
     /// <param name="applicationId"></param>
     /// <returns>Contents of application file</returns>
-    Task<object> GetApplication(string applicationId);
+    Task<object> FindByIdAsync(string applicationId);
 
     /// <summary>
     /// Get all applications that were modified since specified 
@@ -29,5 +29,12 @@ public interface IApplicationRepository
     /// <param name="applicationDescriptionJson">json serialized application description </param>
     /// <returns></returns>
     Task AddOrUpdate(string applicationDescriptionJson);
+
+    /// <summary>
+    /// Mark application as deleted
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <returns></returns>
+    Task DeleteAsync(string applicationId);
 
 }
