@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Pixel.Automation.Core
 {
@@ -26,6 +27,33 @@ namespace Pixel.Automation.Core
                 }
             }
             return childComponents;
+        }
+
+        /// <summary>
+        /// Check if a component of given type exists within specified SearchScope of the Entity
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="rootEntity"></param>
+        /// <param name="searchScope"></param>
+        /// <returns></returns>
+        public static bool HasComponentsOfType<T>(this Entity rootEntity, SearchScope searchScope = SearchScope.Descendants)
+        {
+            switch (searchScope)
+            {
+                case SearchScope.Children:
+                    return rootEntity.Components.OfType<T>().Any();                  
+                case SearchScope.Descendants:
+                    List<IComponent> childComponents = GetAllComponents(rootEntity);                   
+                    foreach (var component in childComponents)
+                    {
+                        if (component is T)
+                        {
+                            return true;
+                        }
+                    }
+                    break;              
+            }
+            return false;
         }
 
         /// <summary>
@@ -310,7 +338,7 @@ namespace Pixel.Automation.Core
         /// <param name="component"></param>
         /// <returns></returns>
         /// <exception cref="MissingComponentException">Thrown when ancestor of specified  type T could not be found</exception>
-        public static T GetAnsecstorOfType<T>(this IComponent component) where T : class,IComponent
+        public static T GetAnsecstorOfType<T>(this IComponent component) where T : class, IComponent
         {
             var parent = component.Parent;
             while(parent!=null)
@@ -323,7 +351,7 @@ namespace Pixel.Automation.Core
             }
             throw new MissingComponentException($"Ancestor of type :{typeof(T)} could not be located");
         }
-
+      
         /// <summary>
         /// Try to get an ancestor component of type T
         /// </summary>

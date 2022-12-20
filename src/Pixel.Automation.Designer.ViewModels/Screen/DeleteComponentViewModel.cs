@@ -1,5 +1,10 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.TestCase;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
@@ -16,6 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<DeleteComponentViewModel>();
         private readonly IProjectManager projectManager;
+        private readonly IEventAggregator eventAggregator;
 
         /// <summary>
         /// Component being deleted
@@ -40,13 +46,15 @@ namespace Pixel.Automation.Designer.ViewModels
         /// </summary>
         /// <param name="componentViewModel"></param>
         /// <param name="scripts"></param>
-        public DeleteComponentViewModel(ComponentViewModel componentViewModel, IEnumerable<ScriptStatus> scripts, IProjectManager projectManager)
+        public DeleteComponentViewModel(ComponentViewModel componentViewModel, IEnumerable<ScriptStatus> scripts,
+            IProjectManager projectManager, IEventAggregator eventAggregator)
         {
             this.DisplayName = "Delete Component";
             this.componentViewModel = Guard.Argument(componentViewModel, nameof(componentViewModel)).NotNull();
             Guard.Argument(scripts).NotNull();
             this.Scripts.AddRange(scripts.Select(s => new SelectableItem<string>(s.ScriptName, true)));
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
         }
 
         /// <summary>
@@ -72,8 +80,76 @@ namespace Pixel.Automation.Designer.ViewModels
                     logger.Error($"There was an error while trying to delete file : {script.Item}", ex);
                 }
             }
+
+            await NotifyOfRemovedControls(componentViewModel.Model);
+            await NotifyOfRemovedPrefabs(componentViewModel.Model);           
             componentViewModel.Parent.RemoveComponent(componentViewModel);
             await this.TryCloseAsync(true);         
+        }
+
+
+        private async Task NotifyOfRemovedPrefabs(IComponent componentToDelete)
+        {      
+            //If deleted component is a PrefabEntity or present as a descendant, Raise a notification that Prefab was removed
+            if (componentToDelete is Entity entity)
+            {
+                List<PrefabEntity> prefabsToBeRemoved = new();
+                if (entity is PrefabEntity prefabEntity)
+                {
+                    prefabsToBeRemoved.Add(prefabEntity);
+                }
+                else if (entity.HasComponentsOfType<PrefabEntity>())
+                {
+                    prefabsToBeRemoved.AddRange(entity.GetComponentsOfType<PrefabEntity>(Core.Enums.SearchScope.Descendants));
+                }
+
+                if (componentToDelete.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                {
+                    foreach (var prefab in prefabsToBeRemoved)
+                    {
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabRemovedEventArgs(prefab.PrefabId, testCaseEntity.Tag));
+                    }
+                }
+                else if (componentToDelete.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                {
+                    foreach (var prefab in prefabsToBeRemoved)
+                    {
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabRemovedEventArgs(prefab.PrefabId, testFixtureEntity.Tag));
+                    }
+                }              
+            }           
+        }
+
+        private async Task NotifyOfRemovedControls(IComponent componentToDelete)
+        {
+            //If deleted component is a ControlEntity or present as a descendant, Raise a notification that Control was removed
+            if (componentToDelete is Entity entity)
+            {
+                List<ControlEntity> controlsToBeRemoved = new();
+                if (entity is ControlEntity controlEntity)
+                {
+                    controlsToBeRemoved.Add(controlEntity);
+                }
+                else if (entity.HasComponentsOfType<ControlEntity>())
+                {
+                    controlsToBeRemoved.AddRange(entity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants));
+                }
+
+                if (componentToDelete.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                {
+                    foreach (var control in controlsToBeRemoved)
+                    {
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlRemovedEventArgs(control.ControlId, testCaseEntity.Tag));
+                    }
+                }
+                else if (componentToDelete.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                {
+                    foreach (var control in controlsToBeRemoved)
+                    {
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new  ControlRemovedEventArgs(control.ControlId, testFixtureEntity.Tag));
+                    }
+                }
+            }
         }
 
         /// <summary>

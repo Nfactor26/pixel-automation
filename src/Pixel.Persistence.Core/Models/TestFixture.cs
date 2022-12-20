@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models;
 
@@ -58,7 +59,19 @@ public class TestFixture : Document
     /// This can be used for filtering test fixture during execution.
     /// </summary>
     [DataMember(IsRequired = true, Order = 110)]
-    public TagCollection Tags { get; private set; } = new TagCollection();
+    public TagCollection Tags { get; set; } = new TagCollection();
+
+    /// <summary>
+    /// Collection of Identifiers of controls used by the test case
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 120)]
+    public List<ControlUsage> ControlsUsed { get; set; } = new();
+
+    /// <summary>
+    /// Collection of Identifiers of Prefabs used by the test case
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 130)]
+    public List<PrefabUsage> PrefabsUsed { get; set; } = new();
 
     /// <summary>
     /// Identifier of the Project

@@ -106,6 +106,8 @@ public class TestCaseRepository : ITestCaseRepository
           .Set(t => t.Priority, testCase.Priority)
           .Set(t => t.Description, testCase.Description)
           .Set(t => t.Tags, testCase.Tags)
+          .Set(t => t.ControlsUsed, testCase.ControlsUsed)
+          .Set(t => t.PrefabsUsed, testCase.PrefabsUsed)
           .Set(t => t.LastUpdated, DateTime.UtcNow)
           .Inc(t => t.Revision, 1);
        

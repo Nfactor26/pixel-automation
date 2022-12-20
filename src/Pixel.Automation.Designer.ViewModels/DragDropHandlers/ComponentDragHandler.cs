@@ -10,6 +10,7 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.Sequences;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
@@ -304,7 +305,18 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     controlEntity.ControlId = controlItem.ControlId;
                     targetItem.AddComponent(controlEntity);
                     //Notify on event aggregator so that control references file for the project  can be updated
-                    this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription));
+                    if(targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                    {
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testCaseEntity.Tag));
+                    }
+                    else if(targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                    {
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag));
+                    }
+                    else
+                    {
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription));
+                    }
                 }
             }
 

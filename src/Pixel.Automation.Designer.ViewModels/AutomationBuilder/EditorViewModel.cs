@@ -9,7 +9,6 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
-using System.IO;
 using System.Windows;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 using MessageBox = System.Windows.MessageBox;
@@ -94,7 +93,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
                 }
           
-                var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>(), projectManager);
+                var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>(), 
+                    this.projectManager, this.globalEventAggregator);
                 var result = await this.windowManager.ShowDialogAsync(deleteScriptsViewModel);
                 if (!result.GetValueOrDefault())
                 {

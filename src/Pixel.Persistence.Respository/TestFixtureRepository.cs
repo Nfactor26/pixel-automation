@@ -107,6 +107,8 @@ public class TestFixtureRepository : ITestFixtureRepository
           .Set(t => t.Description, fixture.Description)
           .Set(t => t.DelayFactor, fixture.DelayFactor)
           .Set(t => t.Tags, fixture.Tags)
+          .Set(t => t.ControlsUsed, fixture.ControlsUsed)
+          .Set(t => t.PrefabsUsed, fixture.PrefabsUsed)
           .Set(t => t.LastUpdated, DateTime.UtcNow)
           .Inc(t => t.Revision, 1);
         var result =  await fixturesCollection.FindOneAndUpdateAsync(filter, updateDefinition, FindOneAndUpdateOptions, cancellationToken);
