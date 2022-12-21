@@ -177,11 +177,11 @@ internal class ReferenceManager : IReferenceManager
         Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
         if (!this.prefabReferences.HasReference(prefabReference))
         {
-            this.prefabReferences.AddPrefabReference(prefabReference);
             if (IsOnlineMode)
             {
                 await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
             }
+            this.prefabReferences.AddPrefabReference(prefabReference);          
             SaveLocal();
         }
     }

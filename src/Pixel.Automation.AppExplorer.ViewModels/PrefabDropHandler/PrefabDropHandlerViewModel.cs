@@ -1,7 +1,10 @@
-﻿using Pixel.Automation.AppExplorer.ViewModels.Prefab;
+﻿using Caliburn.Micro;
+using Dawn;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
@@ -22,6 +25,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IScriptEngine scriptEngine;
         private readonly IScriptEditorFactory scriptEditorFactory;
+        private readonly IEventAggregator eventAggregator;
 
         private PrefabEntity prefabEntity;
         private EntityComponentViewModel dropTarget;
@@ -30,14 +34,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// constructor
         /// </summary>
         /// <param name="entityManager">EntityManager of the Entity which is the drop target</param>
-        public PrefabDropHandlerViewModel(IEntityManager entityManager, PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
+        public PrefabDropHandlerViewModel(IEntityManager entityManager, PrefabProjectViewModel prefabProjectViewModel,
+            EntityComponentViewModel dropTarget)
         {
-            this.DisplayName = "(1/3) Select prefab version and mapping scripts";
+            Guard.Argument(entityManager, nameof(entityManager)).NotNull();
+            Guard.Argument(prefabProjectViewModel, nameof(prefabProjectViewModel)).NotNull();
+            this.DisplayName = "(1/3) Select prefab version and mapping scripts";         
             this.scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>(); ;
             this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
             this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();
             this.scriptEngine = entityManager.GetScriptEngine();
-            this.dropTarget = dropTarget;
+            this.eventAggregator = entityManager.GetServiceOfType<IEventAggregator>();
+            this.dropTarget = Guard.Argument(dropTarget, nameof(dropTarget)).NotNull();
 
             this.prefabEntity = new PrefabEntity()
             {
@@ -69,6 +77,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             this.stagedScreens.Add(prefabVersionSelector);
             this.stagedScreens.Add(prefabInputMappingScript);
             this.stagedScreens.Add(prefabOutputMappingScript);
+        }
+
+
+        public override async Task Finish()
+        {
+            var addToComponent = this.dropTarget.Model;
+            if (addToComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            {
+                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testCaseEntity.Tag));
+            }
+            else if (addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+            {
+                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag));               
+            }
+            await base.Finish();
         }
 
         public override async Task Cancel()

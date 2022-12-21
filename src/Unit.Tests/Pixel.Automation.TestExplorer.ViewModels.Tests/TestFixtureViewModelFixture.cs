@@ -127,6 +127,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testfixtureViewModel.Tags.Add("module", "test explorer");
             testfixtureViewModel.Tests.Add(testCaseViewModel);
             testfixtureViewModel.UpdateVisibility(filterText);
+            testCaseViewModel.UpdateVisibility(filterText);
 
             Assert.AreEqual(shouldBeVisible, testfixtureViewModel.IsVisible);
         }

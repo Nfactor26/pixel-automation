@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -65,6 +66,18 @@ namespace Pixel.Automation.Core.TestData
         /// </summary>
         [DataMember(IsRequired = true, Order = 90)]
         public TagCollection Tags { get; private set; } = new TagCollection();
+
+        /// <summary>
+        /// Collection of Identifiers of controls used by the test fixture
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 120)]
+        public List<ControlUsage> ControlsUsed { get; private set; } = new();
+
+        /// <summary>
+        /// Collection of Identifiers of Prefabs used by the test fixture
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 130)]
+        public List<PrefabUsage> PrefabsUsed { get; private set; } = new();
 
         /// <summary>
         /// Indicates if the fixture was deleted. Deleted fixtures are not loaded in explorer.

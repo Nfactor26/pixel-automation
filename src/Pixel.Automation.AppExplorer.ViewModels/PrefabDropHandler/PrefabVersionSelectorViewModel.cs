@@ -1,13 +1,13 @@
 ﻿using Microsoft.Win32;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Automation.Reference.Manager;
 using Pixel.Automation.Reference.Manager.Contracts;
-using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.IO;
 using System.Windows;

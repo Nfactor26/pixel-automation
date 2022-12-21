@@ -17,6 +17,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,7 +31,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
     /// Changes are pushed to a persistent store only when project is saved. 
     /// It also allows to execute test cases and see results at design time.
     /// </summary>
-    public class TestExplorerViewModel : Screen, ITestExplorer, IHandle<TestFilterNotification>
+    public class TestExplorerViewModel : Screen, ITestExplorer, IHandle<ControlAddedEventArgs>, IHandle<ControlRemovedEventArgs>,
+        IHandle<PrefabAddedEventArgs>,  IHandle<PrefabRemovedEventArgs>, 
+        IHandle<TestFilterNotification>
     {
         #region Data members
 
@@ -174,6 +177,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 if (a is TestFixtureViewModel fixture)
                 {
                     fixture.UpdateVisibility(filterText);
+                    foreach (var test in fixture.Tests)
+                    {
+                        test.UpdateVisibility(filterText);
+                    }
                     return fixture.IsVisible;
                 }
                 return true;
@@ -249,6 +256,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     fixtureVM.Refresh();
                     await this.testFixtureManager.UpdateTestFixtureAsync(fixtureVM.TestFixture);
+                    fixtureVM.IsDirty = false;
                     logger.Information("Edited fixture {0}", fixtureVM.DisplayName);
                 }
             }
@@ -489,6 +497,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 testEntity.Parent.RemoveComponent(testEntity);
             }
 
+            if(fixtureVM.IsDirty)
+            {
+                await this.testFixtureManager.UpdateTestFixtureAsync(fixtureVM.TestFixture);
+                fixtureVM.IsDirty = false;
+            }
             await this.testFixtureManager.SaveFixtureDataAsync(fixtureVM.TestFixture);
 
             //Add back the test cases that were removed earlier
@@ -561,6 +574,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         testCaseVM.TestCaseEntity.Name = testCaseVM.DisplayName;
                     }
                     await this.testCaseManager.UpdateTestCaseAsync(testCaseVM.TestCase);
+                    testCaseVM.IsDirty = false;
                     logger.Information("Edited TestCase {0}", testCaseVM.DisplayName);
                 }
             }
@@ -830,6 +844,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task SaveTestCaseDataAsync(TestCaseViewModel testCaseVM)
         {
+            if(testCaseVM.IsDirty)
+            {
+                await this.testCaseManager.UpdateTestCaseAsync(testCaseVM.TestCase);
+                testCaseVM.IsDirty = false;
+            }
             await this.testCaseManager.SaveTestDataAsync(testCaseVM.TestCase);
         }
 
@@ -1209,6 +1228,119 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public async Task HandleAsync(TestFilterNotification message, CancellationToken cancellationToken)
         {
             this.FilterText = message?.FilterText ?? string.Empty;
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Associate usage of a prefab with fixture or test case to which it is added
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>s
+        public async Task HandleAsync(PrefabAddedEventArgs message, CancellationToken cancellationToken)
+        {            
+            foreach(var fixture in this.TestFixtures)
+            {
+                if(fixture.FixtureId.Equals(message.AddedTo))
+                {
+                    fixture.AddPrefabUsage(message.PrefabId);                
+                    return;
+                }
+                foreach(var testCase in fixture.Tests)
+                {
+                    if(testCase.TestCaseId.Equals(message.AddedTo))
+                    {
+                        testCase.AddPrefabUsage(message.PrefabId);                       
+                        return;
+                    }
+                }
+            }
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Remove usage of prefab from fixture or test case
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(PrefabRemovedEventArgs message, CancellationToken cancellationToken)
+        {
+            foreach (var fixture in this.TestFixtures)
+            {
+                if (fixture.FixtureId.Equals(message.RemovedFrom))
+                {
+                    fixture.RemovePrefabUsage(message.PrefabId);                   
+                    return;
+                }
+                foreach (var testCase in fixture.Tests)
+                {
+                    if (testCase.TestCaseId.Equals(message.RemovedFrom))
+                    {
+                        testCase.RemovePrefabUsage(message.PrefabId);                        
+                        return;
+                    }
+                }
+            }
+            await Task.CompletedTask;
+      
+        }
+
+        /// <summary>
+        /// Associate usage of a control with fixture or test case to which it is added
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(ControlAddedEventArgs message, CancellationToken cancellationToken)
+        {
+            if(!string.IsNullOrEmpty(message.AddedTo))
+            {
+                foreach (var fixture in this.TestFixtures)
+                {
+                    if (fixture.FixtureId.Equals(message.AddedTo))
+                    {
+                        fixture.AddControlUsage(message.Control.ControlId);                      
+                        return;
+                    }
+                    foreach (var testCase in fixture.Tests)
+                    {
+                        if (testCase.TestCaseId.Equals(message.AddedTo))
+                        {
+                            testCase.AddControlUsage(message.Control.ControlId);                          
+                            return;
+                        }
+                    }
+                }
+            }            
+            await Task.CompletedTask;
+        }
+
+
+        /// <summary>
+        /// Remove usage of a control from fixture or test case
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(ControlRemovedEventArgs message, CancellationToken cancellationToken)
+        {
+            foreach (var fixture in this.TestFixtures)
+            {
+                if (fixture.FixtureId.Equals(message.RemovedFrom))
+                {
+                    fixture.RemoveControlUsage(message.ControlId);                   
+                    return;
+                }
+                foreach (var testCase in fixture.Tests)
+                {
+                    if (testCase.TestCaseId.Equals(message.RemovedFrom))
+                    {
+                        testCase.RemoveControlUsage(message.ControlId);                       
+                        return;
+                    }
+                }
+            }
             await Task.CompletedTask;
         }
 

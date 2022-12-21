@@ -192,6 +192,85 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public bool OpenForExecute { get; set; } = false;
 
         /// <summary>
+        /// Indicates if there is a pending change
+        /// </summary>
+        public bool IsDirty { get; set; } = false;
+
+        /// <summary>
+        /// Associate usage of control to the test fixture by storing the identifier of control
+        /// </summary>
+        /// <param name="prefabId"></param>
+        public void AddControlUsage(string controlId)
+        {
+            if (this.TestFixture.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
+            {
+                var entry = this.TestFixture.ControlsUsed.First(a => a.ControlId.Equals(controlId));
+                entry.Count++;
+            }
+            else
+            {
+                this.TestFixture.ControlsUsed.Add(new Core.Models.ControlUsage() { ControlId = controlId, Count = 1 });
+            }
+            this.IsDirty = true;
+        }
+
+        /// <summary>
+        /// Remove usage of control from the test fixture
+        /// </summary>
+        /// <param name="controlId"></param>
+        public void RemoveControlUsage(string controlId)
+        {
+            if (this.TestFixture.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
+            {
+                var entry = this.TestFixture.ControlsUsed.First(a => a.ControlId.Equals(controlId));
+                if (entry.Count > 1)
+                {
+                    entry.Count--;
+                    return;
+                }
+                this.TestFixture.ControlsUsed.Remove(entry);
+                this.IsDirty = true;
+            }
+        }
+
+        /// <summary>
+        /// Associate usage of prefab to the test fixture by storing the identifier of prefab
+        /// </summary>
+        /// <param name="prefabId"></param>
+        public void AddPrefabUsage(string prefabId)
+        {
+            if (this.TestFixture.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
+            {
+                var entry = this.TestFixture.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
+                entry.Count++;
+            }
+            else
+            {
+                this.TestFixture.PrefabsUsed.Add(new Core.Models.PrefabUsage() { PrefabId = prefabId, Count = 1 });
+            }
+            this.IsDirty = true;
+        }
+
+        /// <summary>
+        /// Remove usage of prefab from the test fixture
+        /// </summary>
+        /// <param name="prefabId"></param>
+        public void RemovePrefabUsage(string prefabId)
+        {
+            if (this.TestFixture.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
+            {
+                var entry = this.TestFixture.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
+                if(entry.Count > 1)
+                {
+                    entry.Count--;
+                    return;
+                }
+                this.TestFixture.PrefabsUsed.Remove(entry);
+                this.IsDirty = true;
+            }
+        }
+
+        /// <summary>
         /// Determine whether this TestFixture should be visible on the TestExplorer
         /// </summary>
         /// <param name="filterText"></param>
@@ -199,7 +278,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {
             if (string.IsNullOrEmpty(filterText))
             {
-                isVisible = true;
+                IsVisible = true;
+                return;
             }
 
             string[] query = filterText.Split(new char[] { ':' });
@@ -207,7 +287,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 if (string.IsNullOrEmpty(part))
                 {
-                    isVisible = true;
+                    IsVisible = true;
                     return;
                 }
             }
@@ -221,18 +301,19 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         case "name":
                             IsVisible = this.DisplayName.ToLower().Contains(query[1]);
-                            break;                       
+                            break;
+                        case "prefab":
+                            IsVisible = this.TestFixture.PrefabsUsed.Any(p => p.PrefabId.Equals(query[1]));
+                            break;
+                        case "control":
+                            IsVisible = this.TestFixture.ControlsUsed.Any(p => p.ControlId.Equals(query[1]));
+                            break;
                         default:
                             IsVisible = this.Tags.Contains(query[0]) && this.Tags[query[0]].Equals(query[1]);
                             break;
                     }
                     break;
-            }
-            
-            foreach (var test in this.Tests)
-            {
-                test.UpdateVisibility(filterText);
-            }         
+            }            
         }
     }
 }

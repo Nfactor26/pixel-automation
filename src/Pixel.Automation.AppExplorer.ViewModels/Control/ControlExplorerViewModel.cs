@@ -363,6 +363,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             try
             {
+                Guard.Argument(selectedControl, nameof(selectedControl)).NotNull();
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "PNG File (*.Png)|*.Png";
                 openFileDialog.InitialDirectory = Environment.CurrentDirectory;
@@ -398,8 +399,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             try
             {
-                Guard.Argument(controlToClone).NotNull();
-
+                Guard.Argument(controlToClone, nameof(controlToClone)).NotNull();
                 var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
                 var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
                 controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
@@ -423,8 +423,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             try
             {
-                Guard.Argument(control).NotNull();
-
+                Guard.Argument(control, nameof(control)).NotNull();
                 var clonedControl = control.ControlDescription.Clone() as ControlDescription;
                 clonedControl.ControlId = control.ControlId;
                 clonedControl.Version = new Version(control.Version.Major + 1, 0);
@@ -452,6 +451,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task SaveControlDetails(ControlDescriptionViewModel controlToSave, bool updateApplication)
         {
+            Guard.Argument(controlToSave, nameof(controlToSave)).NotNull();
             await this.applicationDataManager.AddOrUpdateControlAsync(controlToSave.ControlDescription);
             lock (locker)
             {
@@ -503,6 +503,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 return;
             }
             throw new ArgumentException($"{nameof(imageSource)} must be a BitmapImage");
+        }
+
+
+        /// <summary>
+        /// Broadcast a FilterTestMessage which is processed by Test explorer view to filter and show only those test cases
+        /// which uses this prefab
+        /// </summary>
+        /// <param name="targetPrefab"></param>
+        /// <returns></returns>
+        public async Task ShowUsage(ControlDescriptionViewModel controlDescription)
+        {
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+            await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("control", controlDescription.ControlId));
         }
 
         #endregion Manage Controls
