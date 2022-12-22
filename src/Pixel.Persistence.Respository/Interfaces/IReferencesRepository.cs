@@ -31,6 +31,12 @@ public interface IReferencesRepository
     /// <returns></returns>
     Task SetEditorReferences(string projectId, string projectVersion, EditorReferences editorReferences);
 
+    /// <summary>
+    /// Check if any version of control is in use by any version of any project
+    /// </summary>
+    /// <param name="controlId"></param>
+    /// <returns></returns>
+    Task<bool> IsControlInUse(string controlId);
 
     /// <summary>
     /// Check if a given version of project has an existing reference to specified control
@@ -74,15 +80,24 @@ public interface IReferencesRepository
     /// <param name="projectVersion"></param>
     /// <param name="controlReference"></param>
     /// <returns></returns>
-    //Task<bool> HasPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
-
+    Task<bool> HasPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
+    
     /// <summary>
-    /// Add or update PrefabReferences for a given version of project
+    /// Add PrefabReference for a given version of project
     /// </summary>
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
     /// <param name="prefabReference"></param>
     /// <returns></returns>
-    Task AddOrUpdatePrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
+    Task AddPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
+
+    /// <summary>
+    /// Update an existing PrefabReference for a given version of project
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="prefabReference"></param>
+    /// <returns></returns>
+    Task UpdatePrefabReference(string projectId, string projectVersion, PrefabReference prefabReference);
 
 }

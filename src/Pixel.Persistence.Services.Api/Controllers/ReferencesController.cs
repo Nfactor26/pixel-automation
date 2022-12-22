@@ -68,12 +68,18 @@ namespace Pixel.Persistence.Services.Api.Controllers
         [HttpPost("prefabs/{projectId}/{projectVersion}")]
         public async Task<IActionResult> AddOrUpdatePrefabReference(string projectId, string projectVersion, [FromBody] PrefabReference prefabReference)
         {
+            var hasExistingReference = await this.referencesRepository.HasPrefabReference(projectId, projectVersion, prefabReference);
+            if (hasExistingReference)
+            {
+                await this.referencesRepository.UpdatePrefabReference(projectId, projectVersion, prefabReference);
+                return Ok();
+            }
             if (await this.prefabsRepository.IsPrefabDeleted(prefabReference.PrefabId))
             {
                 logger.LogWarning("Can't add prefab reference to project : {0}, version : {1}. Prefab {@2} is marked deleted.", projectId, projectVersion, prefabReference);
                 return Conflict("Can't add prefab reference. Prefab is marked deleted.");
             }
-            await this.referencesRepository.AddOrUpdatePrefabReference(projectId, projectVersion, prefabReference);
+            await this.referencesRepository.AddPrefabReference(projectId, projectVersion, prefabReference);
             return Ok();
         }
 

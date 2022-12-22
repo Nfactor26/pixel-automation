@@ -47,6 +47,16 @@ public class ReferencesRepository : IReferencesRepository
         projectReferences.ProjectId = projectId;
         projectReferences.ProjectVersion = projectVersion;      
         await this.referencesCollection.InsertOneAsync(projectReferences);
+        logger.LogInformation("ProjectReferences was added to version : '{0}' of project : '{1}'", projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task<bool> IsControlInUse(string controlId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences,
+               Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlId));
+        long count = await this.referencesCollection.CountDocumentsAsync(filter);
+        return count > 0;
     }
 
     /// <inheritdoc/>  
@@ -64,20 +74,21 @@ public class ReferencesRepository : IReferencesRepository
     /// <inheritdoc/>  
     public async Task AddControlReference(string projectId, string projectVersion, ControlReference controlReference)
     {
-        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
-                        & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
-        var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences[-1].Version, controlReference.Version);
-        await this.referencesCollection.UpdateOneAsync(filter, update);
-        logger.LogInformation("Control reference {0} was updated for project : {1}", controlReference, projectId);
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+        var push = Builders<ProjectReferences>.Update.Push(t => t.ControlReferences, controlReference);
+        await this.referencesCollection.UpdateOneAsync(filter, push);
+        logger.LogInformation("Control reference {@0} was added to version : '{1}' of  project : {2}", controlReference, projectVersion, projectId);
     }
 
     /// <inheritdoc/>  
     public async Task UpdateControlReference(string projectId, string projectVersion, ControlReference controlReference)
     {
-        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId);
-        var push = Builders<ProjectReferences>.Update.Push(t => t.ControlReferences, controlReference);
-        await this.referencesCollection.UpdateOneAsync(filter, push);
-        logger.LogInformation("Control reference {0} was added to project : {1}", controlReference, projectId);
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+                      & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
+        var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences[-1].Version, controlReference.Version);
+        await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Control reference {@0} was updated for version : '{1}' of  project : {2}", controlReference, projectVersion, projectId);
+
     }
 
     /// <inheritdoc/>  
@@ -90,28 +101,34 @@ public class ReferencesRepository : IReferencesRepository
     }
 
     /// <inheritdoc/>  
-    public async Task AddOrUpdatePrefabReference(string projectId, string projectVersion, PrefabReference prefabReference)
+    public async Task<bool> HasPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference)
     {
         var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
-                       & Builders<ProjectReferences>.Filter.ElemMatch(x => x.PrefabReferences, Builders<PrefabReference>.Filter.Eq(x => x.PrefabId, prefabReference.PrefabId));
+                      & Builders<ProjectReferences>.Filter.ElemMatch(x => x.PrefabReferences, Builders<PrefabReference>.Filter.Eq(x => x.PrefabId, prefabReference.PrefabId));
         var prefabReferences = (await this.referencesCollection.FindAsync<List<PrefabReference>>(filter, new FindOptions<ProjectReferences, List<PrefabReference>>()
         {
             Projection = Builders<ProjectReferences>.Projection.Expression(u => u.PrefabReferences)
         })).ToList().FirstOrDefault();
+        return prefabReferences?.Contains(prefabReference) ?? false;
+    }
 
-        if (prefabReferences?.Contains(prefabReference) ?? false)
-        {
-            var update = Builders<ProjectReferences>.Update.Set(x => x.PrefabReferences[-1].Version, prefabReference.Version);
-            await this.referencesCollection.UpdateOneAsync(filter, update);
-            logger.LogInformation("Prefab reference {0} was updated for project : {1}", prefabReference, projectId);
-        }
-        else
-        {
-            filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
-            var push = Builders<ProjectReferences>.Update.Push(t => t.PrefabReferences, prefabReference);
-            await this.referencesCollection.UpdateOneAsync(filter, push);
-            logger.LogInformation("Prefab reference {0} was added to project : {1}", prefabReference, projectId);
-        }
+    /// <inheritdoc/>  
+    public async Task AddPrefabReference(string projectId, string projectVersion, PrefabReference prefabReference)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+        var push = Builders<ProjectReferences>.Update.Push(t => t.PrefabReferences, prefabReference);
+        await this.referencesCollection.UpdateOneAsync(filter, push);
+        logger.LogInformation("Prefab reference {@0} was added to version : '{1}' of  project : {2}", prefabReference, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task UpdatePrefabReference(string projectId, string projectVersion, PrefabReference prefabReference)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+                       & Builders<ProjectReferences>.Filter.ElemMatch(x => x.PrefabReferences, Builders<PrefabReference>.Filter.Eq(x => x.PrefabId, prefabReference.PrefabId));
+        var update = Builders<ProjectReferences>.Update.Set(x => x.PrefabReferences[-1].Version, prefabReference.Version);
+        await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Prefab reference {@0} was updated for version : '{1}' of  project : {2}", prefabReference, projectVersion, projectId);
     }
 
     /// <inheritdoc/>  
