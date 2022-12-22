@@ -7,6 +7,8 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
@@ -18,7 +20,29 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly INotificationManager notificationManager;
         public readonly PrefabReferences prefabReferences;
 
+        /// <summary>
+        /// Collection of <see cref="PrefabReference"/> usesd in the project
+        /// </summary>
         public ObservableCollection<PrefabReferenceViewModel> PrefabReferences { get; private set; } = new();
+
+        /// <summary>
+        /// Filter text to filter for prefabs
+        /// </summary>
+        string filterText = string.Empty;
+        public string FilterText
+        {
+            get
+            {
+                return filterText;
+            }
+            set
+            {
+                filterText = value;
+                var fixtureView = CollectionViewSource.GetDefaultView(PrefabReferences);
+                fixtureView.Refresh();
+                NotifyOfPropertyChange(() => FilterText);
+            }
+        }
 
         public PrefabReferenceManagerViewModel(IPrefabDataManager prefabDataManager, IReferenceManager referenceManager,
             INotificationManager notificationManager)
@@ -40,6 +64,24 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                     }
                 }
             }
+            CreateDefaultView();
+        }
+
+        /// <summary>
+        /// Setup the collection view with grouping and sorting
+        /// </summary>
+        private void CreateDefaultView()
+        {
+            var fixtureGroupedItems = CollectionViewSource.GetDefaultView(PrefabReferences);       
+            fixtureGroupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabReferenceViewModel.PrefabName), ListSortDirection.Ascending));
+            fixtureGroupedItems.Filter = new Predicate<object>((a) =>
+            {
+                if (a is PrefabReferenceViewModel prefabReference)
+                {
+                    return prefabReference.PrefabName.Contains(FilterText) || prefabReference.PrefabName.Equals(FilterText);
+                }
+                return true;
+            });
         }
 
         public async Task SaveAsync()

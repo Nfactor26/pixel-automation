@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Models;
 using System.Collections.ObjectModel;
 
@@ -10,7 +11,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
     /// </summary>
     public class ControlReferenceViewModel : NotifyPropertyChanged
     {
-        internal readonly ControlReference controlReference;
+        internal readonly ControlReference controlReference;       
 
         /// <summary>
         /// Name of the Control
@@ -41,6 +42,9 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             }
         }
 
+        // <summary>
+        /// Indicate if version was changed
+        /// </summary>
         public bool IsDirty { get; private set; }
 
         /// <summary>
@@ -55,16 +59,18 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// <param name="controlName"></param>
         /// <param name="versionInUse"></param>
         /// <param name="availableVersions"></param>
-        public ControlReferenceViewModel(ControlReference controlReference, string controlName, string versionInUse, IEnumerable<Version> availableVersions)
+        public ControlReferenceViewModel(ControlReference controlReference, IEnumerable<ControlDescription> controls)
         {
-            this.controlReference = Guard.Argument(controlReference).NotNull();         
-            this.ControlName = controlName;
-            this.VersionInUse = versionInUse;
-            foreach (var version in availableVersions)
+            Guard.Argument(controls, nameof(controls)).NotNull().NotEmpty();
+            this.controlReference = Guard.Argument(controlReference, nameof(controlReference)).NotNull();
+            var controlInUse = controls.FirstOrDefault(a => a.Version.Equals(controlReference.Version));          
+            this.ControlName = controlInUse.ControlName;
+            this.VersionInUse = controlReference.Version.ToString();
+            foreach (var version in controls.Select(s => s.Version))
             {
                 this.AvailableVersions.Add(version);
             }
-            this.SelectedVersion = this.AvailableVersions.FirstOrDefault(a => a.ToString().Equals(versionInUse)) ?? this.AvailableVersions.First();
+            this.SelectedVersion = this.AvailableVersions.FirstOrDefault(a => a.ToString().Equals(this.VersionInUse)) ?? this.AvailableVersions.First();
             this.IsDirty = false;
         }
     }

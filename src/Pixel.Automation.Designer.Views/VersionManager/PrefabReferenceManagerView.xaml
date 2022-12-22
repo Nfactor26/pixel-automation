@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views.VersionManager"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"           
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight"
              d:DesignHeight="450" d:DesignWidth="800" MinHeight="450">
@@ -13,16 +12,22 @@
     </controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" x:Name="PrefabReferences" ItemsSource="{Binding PrefabReferences}" MaxHeight="600"
+        <TextBox x:Name="Filter" Grid.Row="0" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                 controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
+                 controls:TextBoxHelper.Watermark="Search"  HorizontalAlignment="Left" MinWidth="400"
+                 VerticalAlignment="Top" Margin="15,20,10,10"></TextBox>
+
+        <DataGrid Grid.Row="1" x:Name="PrefabReferences" ItemsSource="{Binding PrefabReferences}" MaxHeight="600"
                   CanUserSortColumns="True" CanUserAddRows="False" CanUserResizeRows="False" CanUserResizeColumns="True"                 
                   Grid.Column="1" GridLinesVisibility="All"
                   Margin="10" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled"    
-                  AutoGenerateColumns="False"           
+                  AutoGenerateColumns="False"  EnableRowVirtualization="True"            
                   RowHeaderWidth="0" HorizontalAlignment="Center" VerticalAlignment="Top">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Prefab Name">
@@ -53,13 +58,13 @@
             </DataGrid.Columns>
         </DataGrid>
         
-        <StackPanel Grid.Row="1" x:Name="WarningPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{StaticResource ControlMargin}" 
+        <StackPanel Grid.Row="2" x:Name="WarningPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="{StaticResource ControlMargin}" 
                             Background="{DynamicResource MahApps.Brushes.ValidationSummary3}" Orientation="Horizontal">
             <iconPacks:PackIconMaterial Kind="Alert" Margin="10,0,0,0" VerticalAlignment="Center"/>
             <TextBlock x:Name="WarningMessage" Margin="10,0,0,0" VerticalAlignment="Center"
                                Text="Upgrading Prefab version can be a breaking change. You might need to redo input and output mapping script for Prefab."/>
         </StackPanel>
-        <DockPanel Grid.Row="2" LastChildFill="False">
+        <DockPanel Grid.Row="3" LastChildFill="False">
             <Border DockPanel.Dock="Top" BorderThickness="1" Height="1" HorizontalAlignment="Stretch" Width="{Binding Path=Width,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type DockPanel}}}" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
             <Button x:Name="CloseAsync" Content="CANCEL" Width="100" DockPanel.Dock="Right"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square}"/>
             <Button x:Name="SaveAsync" Content="Save" DockPanel.Dock="Right" Width="100"  Margin="{StaticResource ControlMargin}" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}"/>
