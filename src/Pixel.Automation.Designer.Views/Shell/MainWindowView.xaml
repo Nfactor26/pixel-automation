@@ -6,9 +6,9 @@
         xmlns:cal="http://www.caliburnproject.org" 
         xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"      
+        xmlns:notifications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
         mc:Ignorable="d" ShowActivated="True" WindowState="Maximized"
         ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}">
-
 
     <Controls:MetroWindow.Resources>
         <ResourceDictionary>
@@ -60,7 +60,8 @@
     </Controls:MetroWindow.RightWindowCommands> 
     
     <Grid>
-        <ContentControl Grid.Row="1" x:Name="ActiveItem" />
+        <ContentControl Grid.Row="1" x:Name="ActiveItem" />     
+        <notifications:NotificationArea x:Name="windowBottomRight" Position="BottomRight"/>
     </Grid>
     
 </Controls:MetroWindow>

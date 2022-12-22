@@ -1,14 +1,15 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
-using System.Windows;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 {
@@ -20,6 +21,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private readonly ISerializer serializer;    
         private readonly IPrefabDataManager prefabDataManager;
+        private readonly INotificationManager notificationManager;
         private readonly PrefabProject prefabProject;
         private readonly ApplicationSettings applicationSettings;
 
@@ -39,13 +41,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="applicationSettings"></param>
         public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory,
             IReferenceManagerFactory referenceManagerFactory, ISerializer serializer,
-            IPrefabDataManager prefabDataManager, ApplicationSettings applicationSettings)
+            IPrefabDataManager prefabDataManager, INotificationManager notificationManager, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage Prefab Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;           
             this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             foreach (var version in this.prefabProject.AvailableVersions)
@@ -77,8 +80,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "There was an error while trying to publish verion : {0} of prefab : {1}", prefabVersionViewModel.Version, prefabVersionViewModel.PrefabName);
-                MessageBox.Show($"Error while publishing version {prefabVersionViewModel.Version} of prefab {prefabVersionViewModel.PrefabName}", "Publish Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                logger.Error(ex, "There was an error while trying to publish verion : {0} of prefab : {1}", prefabVersionViewModel?.Version, prefabVersionViewModel?.PrefabName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -102,8 +105,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "There was an error while trying to create a new verion of prefab : {0} from version : {1}", prefabVersionViewModel.PrefabName, prefabVersionViewModel.Version);
-                MessageBox.Show($"Error while cloning version {prefabVersionViewModel.Version} of prefab {prefabVersionViewModel.PrefabName}", "Clone Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                logger.Error(ex, "There was an error while trying to create a new verion of prefab : {0} from version : {1}", prefabVersionViewModel?.PrefabName, prefabVersionViewModel?.Version);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 

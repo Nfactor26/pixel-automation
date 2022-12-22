@@ -49,7 +49,7 @@ namespace Pixel.Automation.TestExplorer.Views
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to set test data source on test case");
             }
         }
     }

@@ -11,7 +11,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Pixel.Persistence.Services.Client;
 
@@ -74,9 +73,8 @@ public class ProjectDataManager : IProjectDataManager
                     File.Delete(projectFile);
                 }
                 serializer.Serialize(projectFile, project);
-
             }
-
+            logger.Information("Downloaded details for {0} automation project.", projects.Count());
         }
     }
 
@@ -102,6 +100,7 @@ public class ProjectDataManager : IProjectDataManager
                 this.serializer.Serialize(prefabReferencesFile, projectReferences);
             }
             await DownloadFilesWithTagsAsync(automationProject, projectVersion, new[] { automationProject.ProjectId });
+            logger.Information("Downloaded data files for version : '{0}' of automation project : '{1}'", projectVersion, automationProject.Name);
         }
     }
 
@@ -123,7 +122,7 @@ public class ProjectDataManager : IProjectDataManager
                     ms.CopyTo(fs);
                 }
             }
-            logger.Information("File {0} was downloaded.", file.FilePath);
+            logger.Information("File : '{0}' was downloaded for version : '{1}' of automation project : '{2}'.", file.FilePath, projectVersion, automationProject.Name);
         }
     }
 
@@ -151,6 +150,7 @@ public class ProjectDataManager : IProjectDataManager
                     zipArchive.ExtractToDirectory(versionDirectory, true);
                 }
             }
+            logger.Information("Downloded data model files for version : '{0}' of automation project : '{1}'.", projectVersion, automationProject.Name);
         }
     }
 
@@ -188,7 +188,7 @@ public class ProjectDataManager : IProjectDataManager
                     var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
                     zipArchive.ExtractToDirectory(versionDirectory, true);
                 }
-            }
+            }          
         }
     }
    
@@ -215,6 +215,7 @@ public class ProjectDataManager : IProjectDataManager
         if (IsOnlineMode)
         {
             await this.projectsClient.AddProjectAsync(automationProject);
+            logger.Information("Automation project : '{1}' was added.", automationProject.Name);
         }
     }
 
@@ -255,6 +256,7 @@ public class ProjectDataManager : IProjectDataManager
         automationProject.AvailableVersions.Add(newVersion);
         string automationProjectsFile =this.applicationFileSystem.GetAutomationProjectFile(automationProject);
         serializer.Serialize(automationProjectsFile, automationProject);
+        logger.Information("Added version : '{0}' for automation project : '{1}' cloned from version : '{2}'.", newVersion, automationProject.Name, versionToClone);
 
     }
 
@@ -267,6 +269,7 @@ public class ProjectDataManager : IProjectDataManager
         }
         string automationProjectsFile = this.applicationFileSystem.GetAutomationProjectFile(automationProject);
         serializer.Serialize(automationProjectsFile, automationProject);
+        logger.Information("Updated version : '{0}' of automation project : '{1}'.",  projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -283,6 +286,7 @@ public class ProjectDataManager : IProjectDataManager
                 FileName = Path.GetFileName(filePath),
                 FilePath = Path.GetRelativePath(projectsDirectory, filePath),
             }, filePath);
+            logger.Information("Data file : '{0}' for version : '{1}' of automation project : '{2}' was added  or updated.", Path.GetFileName(filePath), projectVersion, automationProject.Name);
         }
     }
 
@@ -293,10 +297,11 @@ public class ProjectDataManager : IProjectDataManager
         {            
             await this.filesClient.DeleteProjectDataFile(automationProject.ProjectId, projectVersion.ToString(), Path.GetFileName(fileToDelete));
         }
-        if(File.Exists(fileToDelete))
+        if (File.Exists(fileToDelete))
         {
             File.Delete(fileToDelete);
         }
+        logger.Information("Deleted data file : '{0}' for version : '{1}' of automation project : '{2}'.", projectVersion, automationProject.Name, fileToDelete);
     }
 
     /// <inheritdoc/>  
@@ -326,13 +331,14 @@ public class ProjectDataManager : IProjectDataManager
                 }
                 await AddOrUpdateDataFileAsync(automationProject, projectVersion, file, automationProject.ProjectId);
             }
+            logger.Information("Saved project data for version : '{0}' of automation project : '{1}'.", projectVersion, automationProject.Name);
         }
     }
 }
 
 public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
 {
-    private readonly ILogger logger = Log.ForContext<ProjectDataManager>();
+    private readonly ILogger logger = Log.ForContext<TestAndFixtureAndTestDataManager>();
 
     private readonly IFixturesRepositoryClient fixturesClient;
     private readonly ITestsRepositoryClient testsClient;   
@@ -416,7 +422,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                 Tag = tag,
                 FileName = Path.GetFileName(filePath),
                 FilePath = this.projectFileSystem.GetRelativePath(filePath),
-            }, filePath);
+            }, filePath);           
         }
     }
 
@@ -439,7 +445,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                     var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
                     zipArchive.ExtractToDirectory(versionDirectory, true);
                 }
-            }
+            }           
         }
     }
 
@@ -463,6 +469,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             await AddDataFileAsync(fixtureFiles.ProcessFile, testFixture.FixtureId);
             await AddDataFileAsync(fixtureFiles.ScriptFile, testFixture.FixtureId);
         }
+        logger.Information("Added test fixture : '{0}' to version : '{1}' of automation project : '{2}'.", testFixture.DisplayName, projectVersion, automationProject.Name);
 
         return testFixture;
     }
@@ -476,6 +483,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         {
             await this.fixturesClient.UpdateFixtureAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), testFixture);
         }
+        logger.Information("Updated test fixture : '{0}' for version : '{1}' of automation project : '{2}'.", testFixture.DisplayName, projectVersion, automationProject.Name);
         return testFixture;
     }
 
@@ -488,6 +496,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         }
         var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
         Directory.Delete(fixtureFiles.FixtureDirectory, true);
+        logger.Information("Deleted test fixture : '{0}' from version : '{1}' of automation project : '{2}'.", testFixture.DisplayName, projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -503,6 +512,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                 await AddDataFileAsync(scriptFile, testFixture.FixtureId);
             }
         }
+        logger.Information("Saved data file for test fixture : '{0}' for version : '{1}' of automation project : '{2}'.", testFixture.DisplayName, projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -519,6 +529,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                 File.Delete(file);
             }
             await DownloadFilesWithTagsAsync(new[] { testFixture.FixtureId });
+            logger.Information("Downloaded data for test fixture : '{0}' for version : '{1}' of automation project : '{2}'.", testFixture.DisplayName, projectVersion, automationProject.Name);
         }
     }
 
@@ -565,6 +576,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             await AddDataFileAsync(testCaseFiles.ProcessFile, testCase.TestCaseId);
             await AddDataFileAsync(testCaseFiles.ScriptFile, testCase.TestCaseId);
         }
+        logger.Information("Added test case : '{0}' to version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
         return testCase;
     }
 
@@ -577,6 +589,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         {
             await this.testsClient.UpdateTestCaseAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), testCase);
         }
+        logger.Information("Updated test case : '{0}' for version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
         return testCase;
     }
 
@@ -589,6 +602,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         }
         var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);
         Directory.Delete(testCaseFiles.TestDirectory, true);
+        logger.Information("Deleted test case : '{0}' from version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -604,6 +618,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                 await AddDataFileAsync(scriptFile, testCase.FixtureId);
             }
         }
+        logger.Information("Saved data files for test case : '{0}' for version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -620,6 +635,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
                 File.Delete(file);
             }
             await DownloadFilesWithTagsAsync(new[] { testCase.TestCaseId });
+            logger.Information("Downloaded data files for test case : '{0}' for version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
         }
     }
 
@@ -659,6 +675,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             await this.testDataRepositoryClient.AddDataSourceAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), dataSource);
             await SaveTestDataSourceDataAsync(dataSource);
         }
+        logger.Information("Added test data source : '{0}' to version : '{1}' of automation project : '{2}'.", dataSource.Name, projectVersion, automationProject.Name);
         return dataSource;
     }
 
@@ -670,6 +687,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         {
             await this.testDataRepositoryClient.UpdateDataSourceAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), dataSource);
         }
+        logger.Information("Updated test data source : '{0}' for version : '{1}' of automation project : '{2}'.", dataSource.Name, projectVersion, automationProject.Name);
         return dataSource;
     }
 
@@ -682,6 +700,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         }
         dataSource.IsDeleted = true;
         this.projectFileSystem.SaveToFile<TestDataSource>(dataSource, projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat");
+        logger.Information("Deleteds test data source : '{0}' from version : '{1}' of automation project : '{2}'.", dataSource.Name, projectVersion, automationProject.Name);
     }
 
     /// <inheritdoc/>  
@@ -694,6 +713,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             {
                 await AddDataFileAsync(Path.Combine(this.projectFileSystem.TestDataRepository, csvMetaData.TargetFile), dataSource.DataSourceId);
             }
+            logger.Information("Saved test data source : '{0}' for version : '{1}' of automation project : '{2}'.", dataSource.Name, projectVersion, automationProject.Name);
         }
     }
 

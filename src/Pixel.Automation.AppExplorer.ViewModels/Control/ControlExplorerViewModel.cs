@@ -1,11 +1,13 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Microsoft.Win32;
+using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
@@ -28,6 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         private readonly IControlEditorFactory controlEditorFactory;
         private readonly IEventAggregator eventAggregator;
         private readonly IWindowManager windowManager;
+        private readonly INotificationManager notificationManager;
         private readonly IApplicationDataManager applicationDataManager;
 
         private ApplicationDescriptionViewModel activeApplication;
@@ -72,12 +75,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="eventAggregator"></param>
         /// <param name="controlEditor"></param>
         /// <param name="applicationDataManager"></param>
-        public ControlExplorerViewModel(IWindowManager windowManager, IEventAggregator eventAggregator, IControlEditorFactory controlEditorFactory,
-            IApplicationDataManager applicationDataManager)
+        public ControlExplorerViewModel(IWindowManager windowManager, INotificationManager notificationManager, IEventAggregator eventAggregator, 
+            IControlEditorFactory controlEditorFactory, IApplicationDataManager applicationDataManager)
         {
             this.DisplayName = "Control Explorer";
-            this.windowManager = windowManager;
-            this.eventAggregator = eventAggregator;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).Value;
             this.eventAggregator.SubscribeOnPublishedThread(this);
             this.controlEditorFactory = controlEditorFactory;
             this.applicationDataManager = applicationDataManager;
@@ -183,7 +187,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 logger.Error(ex, ex.Message);
                 controlToRename.ControlName = currentName;
                 CanEdit = false;
-                MessageBox.Show(ex.Message, $"Error while renaming control : {controlToRename.ControlName}");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -215,12 +219,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private void OnScreenChanged(object sender, string selectedScreen)
         {
-            if(!string.IsNullOrEmpty(selectedScreen))
+            try
             {
-                var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
-                this.Controls.Clear();
-                this.Controls.AddRange(controlsForSelectedScreen);
-            }           
+                if (!string.IsNullOrEmpty(selectedScreen))
+                {
+                    var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
+                    this.Controls.Clear();
+                    this.Controls.AddRange(controlsForSelectedScreen);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "An error occured while loading controls for screen : '{0}'", selectedScreen);
+                _ = notificationManager.ShowErrorNotificationAsync(ex);
+            }    
         }
 
         private IEnumerable<ControlDescriptionViewModel> LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
@@ -265,14 +277,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
         {
-            var moveToScreenViewModel = new MoveToScreenViewModel(controlDescription.ControlName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
-            var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
-            if (result.GetValueOrDefault())
+            try
             {
-                this.ActiveApplication.MoveControlToScreen(controlDescription, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
-                this.Controls.Remove(controlDescription);
-                logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+                var moveToScreenViewModel = new MoveToScreenViewModel(controlDescription.ControlName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
+                var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+                if (result.GetValueOrDefault())
+                {
+                    this.ActiveApplication.MoveControlToScreen(controlDescription, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                    this.Controls.Remove(controlDescription);
+                    logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while moving control : '{0}' to another screen", controlDescription?.ControlName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -285,7 +306,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         {
             try
             {
-                Guard.Argument(controlToEdit).NotNull();
+                Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
 
                 //Make a copy of ControlDescription that is opened for edit
                 var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
@@ -304,8 +325,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);               
-                MessageBox.Show(ex.Message, $"Error while configuring control : {controlToEdit.ControlName}");
+                logger.Error(ex, "There was an error while trying to modify configuration of control : '{0}'", controlToEdit?.ControlName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -316,6 +337,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task EditControlAsync(ControlDescriptionViewModel controlToEdit)
         {
+            Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, 
                 async () => {
                     try
@@ -325,7 +347,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     catch(Exception ex)
                     {
                         logger.Error(ex, "There was an error while trying to edit control : {0}", controlToEdit.ControlName);
-                        MessageBox.Show(ex.Message, $"Error while editing control : {controlToEdit.ControlName}");
+                        await notificationManager.ShowErrorNotificationAsync(ex);
                     }
                 }, 
                 () => { 
@@ -348,7 +370,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while trying to delete control : {0}", controlToDelete.ControlName);
-                MessageBox.Show(ex.Message, $"Error while deleting control : {controlToDelete.ControlName}");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -387,7 +409,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
-                MessageBox.Show(ex.Message, $"Error while changing image for control : {selectedControl.ControlName}");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -411,7 +433,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while trying to clone control : {0}", selectedControl.ControlName);
-                MessageBox.Show(ex.Message, $"Error while cloning control : {selectedControl.ControlName}");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -438,7 +460,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while creating revision of control : {0}", selectedControl.ControlName);
-                MessageBox.Show(ex.Message, $"Error while creating revision for control : {selectedControl.ControlName}");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -523,74 +545,80 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <summary>
         /// Receive a collection of ScrapedControl and process them and save as ControlDescription
         /// </summary>
-        /// <param name="scrapedControls"></param>
+        /// <param name="captureControls"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task HandleAsync(IEnumerable<ScrapedControl> scrapedControls, CancellationToken cancellationToken)
+        public async Task HandleAsync(IEnumerable<ScrapedControl> captureControls, CancellationToken cancellationToken)
         {
-            logger.Information("Received {count} scraped controls to process", scrapedControls.Count());
-            if (!scrapedControls.Any())
+            try
             {
-                return;
-            }
-            if (this.ActiveApplication == null)
-            {
-                throw new InvalidOperationException("There is no active application in Application explorer");
-            }
-            foreach (ScrapedControl scrapedControl in scrapedControls)
-            {
-                try
+                Guard.Argument(captureControls, nameof(captureControls)).NotNull();
+                logger.Information("Received {count} scraped controls to process", captureControls.Count());               
+                if (this.ActiveApplication == null)
                 {
-
-                    IControlIdentity control;
-
-                    //The plugin can already provide the scraped data as IControlIdentity
-                    if (scrapedControl.ControlData is IControlIdentity controlIdentity)
-                    {
-                        control = controlIdentity;
-                    }
-                    //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
-                    else
-                    {
-                        var ownerApplication = this.ActiveApplication.ApplicationDetails;
-                        var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
-                            ?? throw new Exception("No control builder available to process scraped control");
-                        var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
-                        control = controlBuilder.CreateFromData(scrapedControl.ControlData);
-                    }
-
-                    //update the application id for each control identity in hierarchy
-                    control.ApplicationId = this.ActiveApplication.ApplicationId;
-                    IControlIdentity current = control;
-                    while (current.Next != null)
-                    {
-                        current = current.Next;
-                        current.ApplicationId = this.ActiveApplication.ApplicationId;
-                    }
-
-                    //create an instance of ControlToolBoxItem to display in the toolbox
-                    var controlDescription = new ControlDescription(control)
-                    {
-                        Version = new Version(1, 0)
-                    };
-                    ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
-                    controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                    controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
-
-                    //save the captured control details                        
-                    await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-                    await SaveControlDetails(controlDescriptionViewModel, false);
-                    this.Controls.Add(controlDescriptionViewModel);
-
-                    logger.Information($"Added control with details {controlDescription}");
+                    throw new InvalidOperationException("There is no active application in Application explorer");
                 }
-                catch (Exception ex)
+                foreach (ScrapedControl scrapedControl in captureControls)
                 {
-                    logger.Error(ex, ex.Message);
-                }
+                    try
+                    {
 
+                        IControlIdentity control;
+
+                        //The plugin can already provide the scraped data as IControlIdentity
+                        if (scrapedControl.ControlData is IControlIdentity controlIdentity)
+                        {
+                            control = controlIdentity;
+                        }
+                        //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
+                        else
+                        {
+                            var ownerApplication = this.ActiveApplication.ApplicationDetails;
+                            var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
+                                ?? throw new Exception("No control builder available to process scraped control");
+                            var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
+                            control = controlBuilder.CreateFromData(scrapedControl.ControlData);
+                        }
+
+                        //update the application id for each control identity in hierarchy
+                        control.ApplicationId = this.ActiveApplication.ApplicationId;
+                        IControlIdentity current = control;
+                        while (current.Next != null)
+                        {
+                            current = current.Next;
+                            current.ApplicationId = this.ActiveApplication.ApplicationId;
+                        }
+
+                        //create an instance of ControlToolBoxItem to display in the toolbox
+                        var controlDescription = new ControlDescription(control)
+                        {
+                            Version = new Version(1, 0)
+                        };
+                        ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
+                        controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
+                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+
+                        //save the captured control details                        
+                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                        await SaveControlDetails(controlDescriptionViewModel, false);
+                        this.Controls.Add(controlDescriptionViewModel);
+
+                        logger.Information("Capture control details for control : '{0}'", controlDescription.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to capture control details");
+                        await notificationManager.ShowErrorNotificationAsync(ex);
+                    }
+
+                }
+                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
             }
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to capture control details");
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
         }
     }
 }

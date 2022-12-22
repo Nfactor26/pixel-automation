@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Notifications.Wpf.Core;
 using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
@@ -24,7 +25,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         private IApplicationDataManager applicationDataManager;
         private IApplicationAware childScreen;
         private IWindowManager windowManager;
-    
+        private INotificationManager notificationManager;
+
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
@@ -33,6 +35,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             applicationDataManager = Substitute.For<IApplicationDataManager>();
             childScreen = Substitute.For<IApplicationAware>();
             windowManager = Substitute.For<IWindowManager>();
+            notificationManager = Substitute.For<INotificationManager>();
 
             var application = CreateApplicationDescription();
             applicationDataManager.GetAllApplications().Returns(new[] { application });
@@ -53,7 +56,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatApplicationExplorerViewModelCanBeCorrectlyInitialized()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider,
+                new[] { childScreen }, windowManager, notificationManager);
 
             Assert.AreEqual(1, applicationExplorerViewModel.Applications.Count);
             Assert.AreEqual(1, applicationExplorerViewModel.KnownApplications.Count);
@@ -70,7 +74,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanOpenChildView()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, 
+                new[] { childScreen }, windowManager, notificationManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             applicationExplorerViewModel.OpenApplication(applicationDescription);
 
@@ -86,7 +91,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanGoBackToParentView()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider,
+                new[] { childScreen }, windowManager, notificationManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             
             applicationExplorerViewModel.OpenApplication(applicationDescription);
@@ -102,7 +108,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public async Task ValidateThatNewApplicationCanBeAdded()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider,
+                new[] { childScreen }, windowManager, notificationManager);
             var knownApplication = applicationExplorerViewModel.KnownApplications.First();
 
             await applicationExplorerViewModel.AddApplication(knownApplication);
@@ -117,7 +124,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         [Test]
         public void ValidateThatCanToggleRename()
         {
-            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider, new[] { childScreen }, windowManager);
+            var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider,
+                new[] { childScreen }, windowManager, notificationManager);
             var applicationDescription = applicationExplorerViewModel.Applications.First();
 
             applicationExplorerViewModel.SelectedApplication = applicationDescription;

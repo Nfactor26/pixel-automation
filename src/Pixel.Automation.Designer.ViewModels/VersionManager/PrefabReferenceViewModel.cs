@@ -2,7 +2,6 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {

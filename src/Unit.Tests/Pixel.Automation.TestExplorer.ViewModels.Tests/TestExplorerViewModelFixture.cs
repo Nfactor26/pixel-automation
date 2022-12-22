@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Notifications.Wpf.Core;
 using NSubstitute;
 using NSubstitute.Core;
 using NUnit.Framework;
@@ -30,6 +31,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange
             var eventAggregator = Substitute.For<IEventAggregator>();
             var windowManager = Substitute.For<IWindowManager>();
+            var notificationManager = Substitute.For<INotificationManager>();
             var platformProvider = Substitute.For<IPlatformProvider>();
             var projectManager = Substitute.For<IAutomationProjectManager>();
             var dataManager = Substitute.For<IProjectAssetsDataManager>();
@@ -40,7 +42,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, 
-                dataManager, componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                dataManager, componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
 
             //Assert
             Assert.AreEqual(0, testExplorerViewModel.TestFixtures.Count());
@@ -61,6 +63,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
         private IEventAggregator eventAggregator;
         private IWindowManager windowManager;
+        private INotificationManager notificationManger;
         private IPlatformProvider platformProvider;
         private IAutomationProjectManager projectManager;
         private IProjectFileSystem projectFileSystem;
@@ -77,6 +80,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             eventAggregator = Substitute.For<IEventAggregator>();
             windowManager = Substitute.For<IWindowManager>();
+            notificationManger = Substitute.For<INotificationManager>();
             platformProvider = Substitute.For<IPlatformProvider>();
             projectManager = Substitute.For<IAutomationProjectManager>();
             projectFileSystem = Substitute.For<IProjectFileSystem>();
@@ -170,7 +174,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager, componentViewBuilder,
-                windowManager, platformProvider, applicationSettings);
+                windowManager, notificationManger, platformProvider, applicationSettings);
             Assert.IsTrue(testExplorerViewModel.CanAddTestFixture);
             await testExplorerViewModel.AddTestFixtureAsync();
 
@@ -194,7 +198,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange
             windowManager.ShowDialogAsync(Arg.Any<EditTestFixtureViewModel>()).Returns(dialogResult);
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             var fixtureViewModel = CreateTestFixtureViewModel(false);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
 
@@ -233,7 +237,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             await testExplorerViewModel.OpenTestFixtureAsync(fixtureViewModel.FixtureId);
 
@@ -278,7 +282,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             await testExplorerViewModel.CloseTestFixtureAsync(fixtureViewModel.FixtureId);
 
@@ -341,7 +345,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager, componentViewBuilder,
-                windowManager, platformProvider, applicationSettings);
+                windowManager, notificationManger, platformProvider, applicationSettings);
             await testExplorerViewModel.EditTestFixtureScriptAsync(fixtureViewModel);
 
             //Assert
@@ -371,7 +375,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             fixtureEntity.AddComponent(new TestCaseEntity());
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager, componentViewBuilder,
-                windowManager, platformProvider, applicationSettings);
+                windowManager, notificationManger, platformProvider, applicationSettings);
             await testExplorerViewModel.SaveTestFixtureDataAsync(testFixtureViewModel);
 
             await dataManager.Received(1).SaveFixtureDataAsync(Arg.Any<TestFixture>());
@@ -391,6 +395,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
         private IEventAggregator eventAggregator;
         private IWindowManager windowManager;
+        private INotificationManager notificationManger;
         private IPlatformProvider platformProvider;
         private IAutomationProjectManager projectManager;
         private IProjectFileSystem projectFileSystem;
@@ -407,6 +412,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             eventAggregator = Substitute.For<IEventAggregator>();
             windowManager = Substitute.For<IWindowManager>();
+            notificationManger = Substitute.For<INotificationManager>();
             platformProvider = Substitute.For<IPlatformProvider>();
             projectManager = Substitute.For<IAutomationProjectManager>();
             projectFileSystem = Substitute.For<IProjectFileSystem>();
@@ -508,7 +514,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             windowManager.ShowDialogAsync(Arg.Any<EditTestCaseViewModel>()).Returns(dialogResult);
             var testFixtureViewModel = CreateTestFixtureViewModel(false);
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(testFixtureViewModel);
 
             //Act
@@ -533,7 +539,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange
             windowManager.ShowDialogAsync(Arg.Any<EditTestCaseViewModel>()).Returns(dialogResult);
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             var fixtureViewModel = CreateTestFixtureViewModel(false);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, true);
@@ -571,7 +577,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             fixtureViewModel.Tests.Add(testCaseViewModel);
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
 
             projectManager.Load<Entity>(Arg.Any<string>()).Returns(testCaseViewModel.TestCaseEntity);
@@ -619,7 +625,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testRunner.TryCloseTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase)).Returns(true);
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
 
             //Act            
@@ -676,7 +682,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             await testExplorerViewModel.EditTestScriptAsync(testCaseViewModel);
 
@@ -707,7 +713,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             await testExplorerViewModel.SaveTestCaseDataAsync(testCaseViewModel);
 
@@ -730,6 +736,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
         private IEventAggregator eventAggregator;
         private IWindowManager windowManager;
+        private INotificationManager notificationManager;
         private IPlatformProvider platformProvider;
         private IAutomationProjectManager projectManager;
         private IProjectFileSystem projectFileSystem;
@@ -746,6 +753,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             eventAggregator = Substitute.For<IEventAggregator>();
             windowManager = Substitute.For<IWindowManager>();
+            notificationManager = Substitute.For<INotificationManager>();
             platformProvider = Substitute.For<IPlatformProvider>();
             projectManager = Substitute.For<IAutomationProjectManager>();
             projectFileSystem = Substitute.For<IProjectFileSystem>();
@@ -853,7 +861,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         public async Task ValidateCanSetupAndTearDownEnvironment()
         {
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
 
             Assert.IsTrue(testExplorerViewModel.CanSetUpEnvironment);
 
@@ -882,7 +890,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCaseViewModel.IsSelected = true;
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                                  componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                                  componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
 
             await testExplorerViewModel.RunSelected();
@@ -905,7 +913,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCaseViewModel.IsSelected = true;
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
-                                                        componentViewBuilder, windowManager, platformProvider, applicationSettings);
+                                                        componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
 
             await testExplorerViewModel.RunAll();

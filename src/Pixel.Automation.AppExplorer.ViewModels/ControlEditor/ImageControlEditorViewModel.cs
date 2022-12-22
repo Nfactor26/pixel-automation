@@ -1,15 +1,15 @@
 ﻿using Dawn;
 using Microsoft.Win32;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
-using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 
@@ -19,6 +19,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
     {
         private readonly ILogger logger = Log.ForContext<ImageControlEditorViewModel>();
         private readonly IApplicationDataManager applicationDataManager;
+        private readonly INotificationManager notificationManager;
 
         private ControlDescription controlDescription;
         private IImageControlIdentity controlIdentity;          
@@ -64,10 +65,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             get => this.selectedImage != null;
         }
 
-        public ImageControlEditorViewModel(IApplicationDataManager applicationDataManager)
+        public ImageControlEditorViewModel(IApplicationDataManager applicationDataManager, INotificationManager notificationManager)
         {
             this.DisplayName = "Control Editor";
-            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             CreateCollectionView();
         }
 
@@ -181,7 +183,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             this.SelectedImage.PivotPoint = pivotPoint;
         }
        
-        public async void Save()
+        public async Task Save()
         {
             try
             {
@@ -204,7 +206,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
             }
             catch (Exception ex)
             {
-                logger.Error("Error occured while saving changes in image control editor", ex);
+                logger.Error(ex, "There was an error occured while saving changes in image control editor");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
             await this.TryCloseAsync(true);
         }

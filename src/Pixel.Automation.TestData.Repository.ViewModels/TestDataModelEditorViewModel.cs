@@ -35,8 +35,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="editorFactory"></param>
         public TestDataModelEditorViewModel(IScriptEditorFactory editorFactory)
         {
-            this.editorFactory = editorFactory;
-            logger.Debug("Created a new instance of {0}", nameof(TestDataModelEditorViewModel));
+            this.editorFactory = editorFactory;           
         }
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                     generatedCode = GenerateScriptForCsvDataSource(dataSourceType);
                     break;
                 default:
-                    errorDescription = $"DataSource {testDataSource.DataSource} isn't supported";
+                    errorDescription = $"Data Source {testDataSource.DataSource} isn't supported";
                     return false;
             }
 

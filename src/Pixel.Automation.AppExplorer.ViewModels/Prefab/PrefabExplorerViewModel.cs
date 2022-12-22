@@ -1,17 +1,18 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Data;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
@@ -23,6 +24,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
     {
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly IWindowManager windowManager;
+        private readonly INotificationManager notificationManager;
         private readonly IEventAggregator eventAggregator;    
         private readonly IVersionManagerFactory versionManagerFactory;
         private readonly IApplicationDataManager applicationDataManager;
@@ -49,18 +51,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public PrefabDragHandler PrefabDragHandler { get; private set; } = new ();
 
-        public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager,
-            IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager,
-            IPrefabDataManager prefabDataManager, IPrefabBuilderFactory prefabBuilderFactory)
+        public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager, 
+            INotificationManager notificationManager, IVersionManagerFactory versionManagerFactory, 
+            IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager, IPrefabBuilderFactory prefabBuilderFactory)
         {
             this.DisplayName = "Prefab Explorer";
-            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.eventAggregator.SubscribeOnPublishedThread(this);
-            this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
-            this.versionManagerFactory = Guard.Argument(versionManagerFactory).NotNull().Value;
-            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
-            this.prefabDataManager = Guard.Argument(prefabDataManager).NotNull().Value;
+            this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory, nameof(prefabBuilderFactory)).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
             CreateCollectionView();
         }
 
@@ -84,12 +87,20 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         private void OnScreenChanged(object sender, string selectedScreen)
         {
-            if(!string.IsNullOrEmpty(selectedScreen))
+            try
             {
-                var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);
-                this.Prefabs.Clear();
-                this.Prefabs.AddRange(prefabsForSelectedScreen);
-            }          
+                if (!string.IsNullOrEmpty(selectedScreen))
+                {
+                    var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);
+                    this.Prefabs.Clear();
+                    this.Prefabs.AddRange(prefabsForSelectedScreen);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to load prefabs for screen : '{0}'", selectedScreen);
+                _ = notificationManager.ShowErrorNotificationAsync(ex);
+            } 
         }      
 
         private List<PrefabProjectViewModel> LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
@@ -135,14 +146,23 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <returns></returns>
         public async Task MoveToScreen(PrefabProjectViewModel prefabProject)
         {
-            var moveToScreenViewModel = new MoveToScreenViewModel(prefabProject.PrefabName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
-            var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
-            if (result.GetValueOrDefault())
+            try
             {
-                this.ActiveApplication.MovePrefabToScreen(prefabProject, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
-                this.Prefabs.Remove(prefabProject);
-                logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+                var moveToScreenViewModel = new MoveToScreenViewModel(prefabProject.PrefabName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
+                var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+                if (result.GetValueOrDefault())
+                {
+                    this.ActiveApplication.MovePrefabToScreen(prefabProject, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                    this.Prefabs.Remove(prefabProject);
+                    logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while moving prefab : '{0}' to another screen", prefabProject?.PrefabName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -172,7 +192,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to create a new prefab");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -213,7 +234,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             catch (Exception ex)
             {
                 prefabToEdit.IsOpenInEditor = false;
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to open prefab for edit");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -232,7 +254,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to manage prefab");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -251,7 +274,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while trying to delete prefab : {0}", prefabToDelete.PrefabName);
-                MessageBox.Show($"Error while deleting prefab : {prefabToDelete.PrefabName}", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -318,7 +341,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "An error occured while handling the notification for editor closed");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
             await Task.CompletedTask;
         }
