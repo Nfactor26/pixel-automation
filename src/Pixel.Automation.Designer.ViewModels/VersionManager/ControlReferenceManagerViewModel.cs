@@ -1,13 +1,17 @@
 ﻿using Dawn;
 using Notifications.Wpf.Core;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Reference.Manager;
 using Pixel.Automation.Reference.Manager.Contracts;
+using Pixel.Automation.TestExplorer.ViewModels;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace Pixel.Automation.Designer.ViewModels.VersionManager
 {
@@ -28,6 +32,25 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         public ObservableCollection<ControlReferenceViewModel> References { get; private set; } = new();
 
         /// <summary>
+        /// Filter text to filter for controls
+        /// </summary>
+        string filterText = string.Empty;
+        public string FilterText
+        {
+            get
+            {
+                return filterText;
+            }
+            set
+            {
+                filterText = value;
+                var fixtureView = CollectionViewSource.GetDefaultView(References);
+                fixtureView.Refresh();
+                NotifyOfPropertyChange(() => FilterText);
+            }
+        }
+
+        /// <summary>
         /// constructor
         /// </summary>
         /// <param name="projectFileSystem"></param>
@@ -41,10 +64,27 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             this.controlReferences = this.referenceManager.GetControlReferences();
             foreach(var reference in this.controlReferences.References)
             {
-                var controls = applicationDataManager.GetControlsById(reference.ApplicationId, reference.ControlId);
-                var controlInUse = controls.FirstOrDefault(a => a.Version.Equals(reference.Version));
-                this.References.Add(new ControlReferenceViewModel( reference, controlInUse.ControlName , reference.Version.ToString(), controls.Select(s => s.Version)));
+                var controls = applicationDataManager.GetControlsById(reference.ApplicationId, reference.ControlId);               
+                this.References.Add(new ControlReferenceViewModel( reference, controls));
             }
+            CreateDefaultView();
+        }
+
+        /// <summary>
+        /// Setup the collection view with grouping and sorting
+        /// </summary>
+        private void CreateDefaultView()
+        {
+            var fixtureGroupedItems = CollectionViewSource.GetDefaultView(References);           
+            fixtureGroupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlReferenceViewModel.ControlName), ListSortDirection.Ascending));          
+            fixtureGroupedItems.Filter = new Predicate<object>((a) =>
+            {
+                if (a is ControlReferenceViewModel controlReference)
+                {
+                    return controlReference.ControlName.Contains(FilterText) || controlReference.ControlName.Equals(FilterText);
+                }
+                return true;
+            });
         }
 
         /// <summary>
