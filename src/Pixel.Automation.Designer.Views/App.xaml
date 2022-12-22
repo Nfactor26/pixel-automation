@@ -1,7 +1,9 @@
 ﻿<Application x:Class="Pixel.Automation.Designer.Views.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Pixel.Automation.Designer.Views"         
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:notifications="clr-namespace:Notifications.Wpf.Core.Controls;assembly=Notifications.Wpf.Core"
+             xmlns:micro="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro.Core"
              xmlns:VM="clr-namespace:Pixel.Automation.Designer.ViewModels;assembly=Pixel.Automation.Designer.ViewModels">
     <Application.Resources>
         <ResourceDictionary>
@@ -12,8 +14,7 @@
                 <ResourceDictionary Source="/Resources/Styles.xaml" />
                 <ResourceDictionary Source="/Resources/Components.TreeViewItem.xaml"/>
                 <ResourceDictionary Source="/Resources/Component.Templates.Common.xaml" />
-                <ResourceDictionary Source="/Resources/Component.Templates.Slim.xaml" />
-                <!--<ResourceDictionary Source="/Resources/Component.Templates.Fat.xaml" />-->
+                <ResourceDictionary Source="/Resources/Component.Templates.Slim.xaml" />             
                 <ResourceDictionary Source="/Resources/Control.Components.xaml" />
                 <ResourceDictionary Source="/Resources/Scripting.Components.xaml" />
                 <ResourceDictionary Source="/Resources/Loops.Components.xaml" />           
@@ -25,8 +26,18 @@
                 <ResourceDictionary Source="pack://application:,,,/Pixel.Automation.Editor.Controls;component/Resources/PropertyGridStyle.xaml"/>
                 <ResourceDictionary>
                     <VM:AppBootstrapper x:Key="bootstrapper" />
-                </ResourceDictionary>
+                </ResourceDictionary>               
             </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+            <Style TargetType="notifications:Notification">
+                <Style.Resources>
+                    <DataTemplate DataType="{x:Type micro:PropertyChangedBase}">
+                        <ContentControl cal:View.Model="{Binding}"/>
+                    </DataTemplate>
+                </Style.Resources>
+            </Style>
+            <Style TargetType="notifications:NotificationArea">
+                <Setter Property="MaxItems" Value="3" />
+            </Style>
+        </ResourceDictionary>       
     </Application.Resources>
 </Application>

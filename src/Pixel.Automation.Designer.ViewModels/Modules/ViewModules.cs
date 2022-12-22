@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Ninject.Extensions.Factory;
 using Ninject.Modules;
+using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
 using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
@@ -19,6 +20,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
         {
             Kernel.Bind<IEventAggregator>().To<EventAggregator>().InSingletonScope();
             Kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();
+            Kernel.Bind<INotificationManager>().To<NotificationManager>().InSingletonScope();
             Kernel.Bind<IPlatformProvider>().To<XamlPlatformProvider>().InSingletonScope();
 
             Kernel.Bind<IShell>().To<DesignerWindowViewModel>();

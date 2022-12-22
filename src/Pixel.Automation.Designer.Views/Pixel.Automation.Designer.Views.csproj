@@ -21,6 +21,10 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />

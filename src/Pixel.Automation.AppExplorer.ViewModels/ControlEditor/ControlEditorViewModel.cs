@@ -3,7 +3,6 @@ using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
-using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;

@@ -1,11 +1,13 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Serilog;
@@ -28,6 +30,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         protected readonly ApplicationSettings applicationSettings;
         protected readonly IVersionManagerFactory versionManagerFactory;
         protected readonly IWindowManager windowManager;
+        protected readonly INotificationManager notificationManager;
         private readonly IProjectManager projectManager;
       
         public IEntityManager EntityManager { get; private set; }
@@ -53,7 +56,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region constructor
 
-        public EditorViewModel(IEventAggregator globalEventAggregator, IWindowManager windowManager, ISerializer serializer,
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="globalEventAggregator"></param>
+        /// <param name="windowManager"></param>
+        /// <param name="notificationManager"></param>
+        /// <param name="serializer"></param>
+        /// <param name="entityManager"></param>
+        /// <param name="projectManager"></param>
+        /// <param name="scriptExtractor"></param>
+        /// <param name="versionManagerFactory"></param>
+        /// <param name="componentDropHandler"></param>
+        /// <param name="applicationSettings"></param>
+        public EditorViewModel(IEventAggregator globalEventAggregator, IWindowManager windowManager, INotificationManager notificationManager, ISerializer serializer,
             IEntityManager entityManager, IProjectManager projectManager, IScriptExtactor scriptExtractor, IVersionManagerFactory versionManagerFactory,
             IDropTarget componentDropHandler, ApplicationSettings applicationSettings)
         { 
@@ -61,6 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.globalEventAggregator.SubscribeOnPublishedThread(this);
 
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.EntityManager = Guard.Argument(entityManager, nameof(entityManager)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
@@ -74,10 +91,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Manage Components
 
+        /// <summary>
+        /// Delete a component from the designer
+        /// </summary>
+        /// <param name="componentViewModel"></param>
+        /// <returns></returns>
         public async Task DeleteComponent(ComponentViewModel componentViewModel)
         {          
             try
-            {              
+            {
+                Guard.Argument(componentViewModel, nameof(componentViewModel)).NotNull();
                 if (componentViewModel.Model.Tag.Equals("Root"))
                 {
                     return;
@@ -104,7 +127,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex.Message, ex);
+                logger.Error(ex, "There was an error while deleting component : '{0}'", componentViewModel?.ToString());
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }    
         }
 
@@ -127,9 +151,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     NotifyOfPropertyChange(() => CanRunComponent);
                     NotifyOfPropertyChange(() => CanResetProcessorComponents);
                     var component = componentViewModel.Model; 
-                    if(component is ActorComponent asyncActorComponent)
+                    if(component is ActorComponent actorComponent)
                     {
-                        await asyncActorComponent.ActAsync();
+                        await actorComponent.ActAsync();
                     }
                     else if (component is IEntityProcessor entityProcessor)
                     {
@@ -138,7 +162,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, ex.Message);
+                    logger.Error(ex, "There was an error while trying to run component : '{0}'", componentViewModel?.Model.ToString());
+                    await notificationManager.ShowErrorNotificationAsync(ex);
                 }
                 finally
                 {
@@ -158,33 +183,31 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-        public void ResetProcessorComponents(IComponent component)
+        public async Task ResetProcessorComponents(IComponent component)
         {
-            Task componentRunner = new Task(() =>
+            try
             {
-                try
-                {
-                    isRunInProgress = true;
-                    NotifyOfPropertyChange(() => CanRunComponent);
-                    NotifyOfPropertyChange(() => CanResetProcessorComponents);
+                Guard.Argument(component, nameof(component)).NotNull();
+                isRunInProgress = true;
+                NotifyOfPropertyChange(() => CanRunComponent);
+                NotifyOfPropertyChange(() => CanResetProcessorComponents);
 
-                    if (component is IEntityProcessor)
-                    {
-                        (component as IEntityProcessor).ResetComponents();
-                    }
-                }
-                catch (Exception ex)
+                if (component is IEntityProcessor)
                 {
-                    logger.Error(ex, ex.Message);
+                    (component as IEntityProcessor).ResetComponents();
                 }
-                finally
-                {
-                    isRunInProgress = false;
-                    NotifyOfPropertyChange(() => CanRunComponent);
-                    NotifyOfPropertyChange(() => CanResetProcessorComponents);
-                }
-            });
-            componentRunner.Start();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to reset components");
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
+            finally
+            {
+                isRunInProgress = false;
+                NotifyOfPropertyChange(() => CanRunComponent);
+                NotifyOfPropertyChange(() => CanResetProcessorComponents);
+            }
         }
 
         #endregion Manage Components
@@ -229,7 +252,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error on control references screen");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -248,7 +272,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error on asssembly reference screen");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -257,7 +282,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region Utilities    
 
-        public void ZoomInToEntity(EntityComponentViewModel entityComponentViewModel)
+        public async Task ZoomInToEntity(EntityComponentViewModel entityComponentViewModel)
         {
             try
             {
@@ -282,11 +307,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error("There was an error trying to change active item", ex);
+                logger.Error(ex, "There was an error trying to zoom in to component");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
-        public void ZoomOutToEntity(EntityComponentViewModel entityComponentViewModel)
+        public async Task ZoomOutToEntity(EntityComponentViewModel entityComponentViewModel)
         {
             try
             {
@@ -300,7 +326,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error("There was an error trying to change active item", ex);
+                logger.Error(ex, "There was an error trying to zoom out of component");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -361,7 +388,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to handle control updated notification for control : '{0}'", updatedControl?.ControlId);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -380,7 +408,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to handle application updated notification for application : '{0}'", updatedApplication?.ApplicationId);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -397,10 +426,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 if(item.Model == removedEntity.RemovedEntity)
                 {
-                    ZoomOutToEntity(this.BreadCrumbItems.First());
+                    await ZoomOutToEntity(this.BreadCrumbItems.First());
                 }
-            }
-            await Task.CompletedTask;
+            }           
         }
 
         /// <summary>
@@ -419,8 +447,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "There was an error while trying to add control reference for control : {0}", controlDescription.ControlName);
-                MessageBox.Show(ex.Message, $"Error while adding control : {controlDescription.ControlName}");
+                logger.Error(ex, "There was an error while trying to add control reference for control : {0}", controlDescription?.ControlName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }  
         }
 

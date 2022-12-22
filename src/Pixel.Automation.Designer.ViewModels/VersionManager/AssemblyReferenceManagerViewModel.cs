@@ -1,8 +1,10 @@
 ﻿using Dawn;
 using ICSharpCode.AvalonEdit;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
@@ -19,6 +21,7 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
     private readonly IFileSystem fileSystem;
     private readonly ISerializer serializer;
     private readonly IReferenceManager referenceManager;
+    private readonly INotificationManager notificationManager;
 
     public TextEditor JsonEditor { get; set; } = new TextEditor()
     {
@@ -39,19 +42,21 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
     /// </summary>
     /// <param name="fileSystem"></param>
     /// <param name="serializer"></param>
-    public AssemblyReferenceManagerViewModel(IFileSystem fileSystem, ISerializer serializer, IReferenceManager referenceManager)
+    public AssemblyReferenceManagerViewModel(IFileSystem fileSystem, ISerializer serializer,
+        IReferenceManager referenceManager, INotificationManager notificationManager)
     {
         this.DisplayName = "Manager Assembly References";
-        this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-        this.serializer = Guard.Argument(serializer).NotNull().Value;
+        this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
+        this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
         this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
+        this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
         this.JsonEditor.Text = this.serializer.Serialize(this.referenceManager.GetEditorReferences());
     }
 
     /// <summary>
     /// Save all the changes done on screen.
     /// </summary>
-    public async void SaveAsync()
+    public async Task SaveAsync()
     {
         string jsonText = this.JsonEditor.Text;
         if(!string.IsNullOrEmpty(jsonText))
@@ -67,7 +72,8 @@ public class AssemblyReferenceManagerViewModel : SmartScreen, IVersionManager
             catch(Exception ex)
             {
                 AddOrAppendErrors("", ex.Message);
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to save changes to assembly references");
+                await notificationManager.ShowErrorNotificationAsync(ex.Message);
             }
         }        
     }

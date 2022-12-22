@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
@@ -7,6 +8,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -35,18 +37,18 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
-            ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
+            INotificationManager notificationManager, ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
             IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
-            : base(globalEventAggregator, windowManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
+            : base(globalEventAggregator, windowManager, notificationManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
 
-            this.serviceResolver = Guard.Argument(serviceResolver).NotNull().Value;
-            this.projectManager = Guard.Argument(projectManager).NotNull().Value;
-            this.componentViewBuilder = Guard.Argument(componentViewBuilder).NotNull().Value;
-            this.testExplorer = Guard.Argument(testExplorer).NotNull().Value;
-            this.testDataRepository = Guard.Argument(testDataRepository).NotNull().Value;           
-            Guard.Argument(anchorables).NotNull().NotEmpty().DoesNotContainNull();
+            this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
+            this.componentViewBuilder = Guard.Argument(componentViewBuilder, nameof(componentViewBuilder)).NotNull().Value;
+            this.testExplorer = Guard.Argument(testExplorer, nameof(testExplorer)).NotNull().Value;
+            this.testDataRepository = Guard.Argument(testDataRepository, nameof(testDataRepository)).NotNull().Value;           
+            Guard.Argument(anchorables, nameof(anchorables)).NotNull().NotEmpty().DoesNotContainNull();
 
             foreach (var item in anchorables)
             {               
@@ -78,7 +80,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
             //Always open the most recent non-deployed version if no version is specified
             var targetVersion = versionToLoad ?? project.LatestActiveVersion;
-            logger.Information($"Version : {targetVersion} will be loaded.");
+            logger.Information("Version : '{0}' of project : '{1}' will be loaded.", targetVersion, project.Name);
             if(targetVersion != null)
             {
                 await this.projectManager.Load(project, targetVersion);            
@@ -146,7 +148,8 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             { 
-                logger.Information(ex, ex.Message);
+                logger.Information(ex, "There was an error while trying to edit data model for project : '{0}'", this.CurrentProject.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -188,7 +191,8 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.CurrentProject.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -256,10 +260,12 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 await this.testExplorer.SaveAll();
                 await projectManager.Save();
+                await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to save project : '{0}'", this.CurrentProject.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
       
@@ -274,7 +280,8 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error on manage prefab reference screen");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }      
 
@@ -295,7 +302,8 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to close project : '{0}'", this.CurrentProject.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 

@@ -1,9 +1,11 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -22,9 +24,9 @@ namespace Pixel.Automation.Designer.ViewModels
         #region constructor
 
         public PrefabEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager,
-            ISerializer serializer, IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, 
+            INotificationManager notificationManager, ISerializer serializer, IEntityManager entityManager, IPrefabProjectManager projectManager, IScriptExtactor scriptExtractor, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings):
-            base(globalEventAggregator, windowManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
+            base(globalEventAggregator, windowManager, notificationManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
             this.serviceResolver = Guard.Argument(serviceResolver, nameof(serviceResolver)).NotNull().Value;
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
@@ -61,49 +63,57 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
-            await this.projectManager.DownloadDataModelFilesAsync();
-            var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-            var prefabFileSystem = this.projectManager.GetProjectFileSystem();
-            using (var editor = editorFactory.CreateMultiCodeEditorScreen())
+            try
             {
-                foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                await this.projectManager.DownloadDataModelFilesAsync();
+                var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                var prefabFileSystem = this.projectManager.GetProjectFileSystem();
+                using (var editor = editorFactory.CreateMultiCodeEditorScreen())
                 {
-                    await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
-                }
-                await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
-                await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
+                    foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                    {
+                        await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
+                    }
+                    await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
+                    await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
 
-                bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
-                var editorDocumentStates = editor.GetCurrentEditorState();
+                    bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
+                    var editorDocumentStates = editor.GetCurrentEditorState();
 
-                if (hasChanges.HasValue && !hasChanges.Value)
-                {
-                    logger.Information("Discarding changes for data model files");
+                    if (hasChanges.HasValue && !hasChanges.Value)
+                    {
+                        logger.Information("Discarding changes for data model files");
+                        foreach (var document in editorDocumentStates)
+                        {
+                            if (document.IsNewDocument)
+                            {
+                                File.Delete(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                                logger.Information("Delete file {@0} from data model files", document);
+                            }
+                        }
+                        return;
+                    }
+
                     foreach (var document in editorDocumentStates)
                     {
-                        if (document.IsNewDocument)
+                        if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
                         {
-                            File.Delete(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                            logger.Information("Delete file {@0} from data model files", document);
+                            await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
                         }
+                        if (document.IsDeleted && !document.IsNewDocument)
+                        {
+                            await this.projectManager.DeleteDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                        }
+                        logger.Information("Updated state of data model file {@0}", document);
                     }
-                    return;
                 }
-              
-                foreach (var document in editorDocumentStates)
-                {
-                    if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
-                    {
-                        await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                    }
-                    if (document.IsDeleted && !document.IsNewDocument)
-                    {
-                        await this.projectManager.DeleteDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                    }
-                    logger.Information("Updated state of data model file {@0}", document);
-                }             
-            }       
-            await this.Reload();
+                await this.Reload();
+            }
+            catch (Exception ex)
+            {
+                logger.Information(ex, "There was an error while trying to edit data model for prefab : '{0}'", this.PrefabProject.PrefabName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
         }
 
         protected override async Task Reload()
@@ -118,16 +128,33 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            await projectManager.Save();           
+            try
+            {
+                await projectManager.Save();
+                await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to save project : '{0}'", this.PrefabProject.PrefabName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }    
         }      
 
         #endregion Save project
 
         protected override async Task CloseAsync()
         {
-            this.Dispose();         
-            await this.TryCloseAsync(true);
-            await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<PrefabProject>(this.PrefabProject));
+            try
+            {
+                this.Dispose();
+                await this.TryCloseAsync(true);
+                await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<PrefabProject>(this.PrefabProject));
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to close project : '{0}'", this.PrefabProject.PrefabName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
         }
 
         protected override void Dispose(bool isDisposing)

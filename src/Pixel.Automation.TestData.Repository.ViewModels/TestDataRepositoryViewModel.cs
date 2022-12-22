@@ -1,8 +1,10 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
 using Pixel.Persistence.Services.Client.Interfaces;
@@ -32,6 +34,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly ISerializer serializer;      
         private readonly IArgumentTypeBrowserFactory typeBrowserFactory;
         private readonly IWindowManager windowManager;
+        private readonly INotificationManager notificationManager;
         private readonly IEventAggregator eventAggregator;
         private readonly ITestDataManager testDataManager;
 
@@ -66,12 +69,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="typeProvider"></param>
         /// <param name="typeBrowserFactory"></param>
         public TestDataRepositoryViewModel(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
-            IWindowManager windowManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory, IProjectAssetsDataManager projectAssetsDataManager)
+            IWindowManager windowManager, INotificationManager notificationManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory, IProjectAssetsDataManager projectAssetsDataManager)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.testDataManager = Guard.Argument(projectAssetsDataManager, nameof(projectAssetsDataManager)).NotNull().Value;
@@ -173,14 +177,15 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 if (result.HasValue && result.Value)
                 {                                   
                     await this.testDataManager.AddTestDataSourceAsync(newTestDataSource.TestDataSource);
-                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
-                    //OnDataSouceChanged(newTestDataSource.TestDataSource.Id);
+                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);                   
                 }
+                logger.Information("Data source of type {0} was created", dataSourceType.ToString());
 
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to create data source of type {0}", dataSourceType.ToString());
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -230,6 +235,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         {
             try
             {
+                Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
                 switch (testDataSource.DataSource)
                 {
                     case DataSource.Code:
@@ -239,10 +245,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                         await EditCsvDataSource(testDataSource);
                         break;
                 }
+                logger.Information("Data source : '{0}' was edited", testDataSource.Name);
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to edit data source :'{0}'", testDataSource?.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }      
          
         }
@@ -281,7 +289,6 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
-
         /// <summary>
         /// Mark the test data source as deleted
         /// </summary>
@@ -296,12 +303,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 {
                     await this.testDataManager.DeleteTestDataSourceAsync(testDataSource);
                     this.TestDataSourceCollection.Remove(testDataSource);
-                    logger.Information("TestDataSource : '{0}' was deleted ", testDataSource.Name);
+                    logger.Information("Data source : '{0}' was deleted ", testDataSource.Name);
                 }
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to delete data source : '{0}'", testDataSource?.Name);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 

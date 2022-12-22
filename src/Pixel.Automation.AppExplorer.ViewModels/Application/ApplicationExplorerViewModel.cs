@@ -1,9 +1,11 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
+using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.ComponentModel;
@@ -26,6 +28,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         private readonly ITypeProvider typeProvider;
         private readonly IApplicationDataManager applicationDataManager;
         private readonly IWindowManager windowManager;
+        private readonly INotificationManager notificationManager;
 
         /// <summary>
         /// Child views that are dependent on the selected application such as control explorer and prefab explorer
@@ -90,13 +93,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="typeProvider"></param>
         /// <param name="childView"></param>
         public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager,
-            ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView, IWindowManager windowManager)
+            ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView, IWindowManager windowManager, INotificationManager notificationManager)
         {
             this.DisplayName = "Application Repository";
-            this.eventAggregator = Guard.Argument(eventAggregator).NotNull().Value; ;
-            this.typeProvider = Guard.Argument(typeProvider).NotNull().Value; ;
-            this.applicationDataManager = Guard.Argument(applicationDataManager).NotNull().Value;
-            this.windowManager = Guard.Argument(windowManager).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value; ;
+            this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value; ;
+            this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+            this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.ChildViews.AddRange(childView);
             this.SelectedView = this.ChildViews[0];
 
@@ -155,7 +159,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public void OpenApplication(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(applicationDescriptionViewModel).NotNull();
+            Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
 
             IsApplicationOpen = true;          
             foreach (var childView in ChildViews)
@@ -186,33 +190,49 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task AddApplication(KnownApplication knownApplication)
         {
-            Guard.Argument(knownApplication).NotNull();
-
-            IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
-
-            ApplicationDescription newApplication = new ApplicationDescription(application);
-            var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
-            applicationDescriptionViewModel.AddScreen("Home");
-            applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
-            if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
+            try
             {
-                applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
-                applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
-            }
+                Guard.Argument(knownApplication).NotNull();
 
-            this.Applications.Add(applicationDescriptionViewModel);
-            this.SelectedApplication = applicationDescriptionViewModel;
-            await SaveApplicationAsync(applicationDescriptionViewModel);
-            await EditApplicationAsync(applicationDescriptionViewModel);
-            NotifyOfPropertyChange(() => Applications);
-            logger.Information("New application of type {0} has been added to the application repository", application.ToString());
+                IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
+
+                ApplicationDescription newApplication = new ApplicationDescription(application);
+                var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
+                applicationDescriptionViewModel.AddScreen("Home");
+                applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
+                if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
+                {
+                    applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
+                    applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
+                }
+
+                this.Applications.Add(applicationDescriptionViewModel);
+                this.SelectedApplication = applicationDescriptionViewModel;
+                await SaveApplicationAsync(applicationDescriptionViewModel);
+                await EditApplicationAsync(applicationDescriptionViewModel);
+                NotifyOfPropertyChange(() => Applications);
+                logger.Information("New application of type {0} has been added to the application repository", application.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to add a '{0}' application", knownApplication.ToString());
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
         }
 
         public async Task EditApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, 
                 async () => {
-                    await SaveApplicationAsync(applicationDescriptionViewModel);
+                    try
+                    {
+                        await SaveApplicationAsync(applicationDescriptionViewModel);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to save application : '{0}' after edit", applicationDescriptionViewModel?.ApplicationName);
+                        await notificationManager.ShowErrorNotificationAsync(ex);
+                    }
                 }, 
                 () => { 
                     return true; 
@@ -221,7 +241,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task SaveApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(applicationDescriptionViewModel).NotNull();
+            Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
             await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescriptionViewModel.Model);
             logger.Information($"Saved application data for : {applicationDescriptionViewModel.ApplicationName}");
             await this.eventAggregator.PublishOnUIThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
@@ -236,9 +256,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task DeleteApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
             try
             {
+                Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
                 MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this application?", "Confirm Delete", MessageBoxButton.OKCancel);
                 if (result == MessageBoxResult.OK)
                 {
@@ -248,7 +268,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to delete application : '{0}'", applicationDescriptionViewModel?.ApplicationName);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -272,6 +293,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while creating new screen");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -297,6 +319,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             catch (Exception ex)
             {
                 logger.Error(ex, "There was an error while renaming the screen");
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 
@@ -351,6 +374,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     if (this.Applications.Any(a => a.ApplicationName.Equals(newName)))
                     {
                         logger.Warning($"An application already exists with name {newName}.");
+                        await notificationManager.ShowErrorNotificationAsync($"An application already exists with name {newName}");
                         return;
                     }
                     if (newName != applicationDescriptionViewModel.ApplicationName)
@@ -366,8 +390,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             }
             catch (Exception ex)
             {
-                logger.Error(ex, ex.Message);
+                logger.Error(ex, "There was an error while trying to rename application : '{0}'", applicationDescriptionViewModel.ApplicationName);                 
                 CanEdit = false;
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
 

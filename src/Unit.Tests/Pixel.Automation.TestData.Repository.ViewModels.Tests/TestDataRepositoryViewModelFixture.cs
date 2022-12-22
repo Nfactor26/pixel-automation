@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using Notifications.Wpf.Core;
 using NSubstitute;
 using NUnit.Framework;
 using Pixel.Automation.Core.Interfaces;
@@ -26,6 +27,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         private IScriptEditorFactory scriptEditorFactory;
         private IArgumentTypeBrowserFactory typeBrowserFactory;
         private IWindowManager windowManager;
+        private INotificationManager notificationManager;
         private IEventAggregator eventAggregator;
         private IProjectAssetsDataManager dataManager;
 
@@ -37,6 +39,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory = Substitute.For<IScriptEditorFactory>();
             typeBrowserFactory = Substitute.For<IArgumentTypeBrowserFactory>();
             windowManager = Substitute.For<IWindowManager>();
+            notificationManager = Substitute.For<INotificationManager>();
             eventAggregator = Substitute.For<IEventAggregator>();
             dataManager = Substitute.For<IProjectAssetsDataManager>();
 
@@ -90,7 +93,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatTestDataRepositoryViewModelCanBeCorrectlyInitialized()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
             Assert.IsNull(testDataRepositoryViewModel.SelectedTestDataSource);
@@ -106,7 +110,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatCanCreateNewCodeDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory , dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory , dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
             await testDataRepositoryViewModel.CreateCodedTestDataSource();
@@ -119,7 +124,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatCanCreateNewCsvDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
 
             await testDataRepositoryViewModel.CreateCsvTestDataSource();
@@ -139,7 +145,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>())).Do(XamlGeneratedNamespace => { });
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(x => { });
 
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
             var codeDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.Code));
 
@@ -159,7 +166,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanEditCsvDataSource()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
             var csvDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.CsvFile));
 
@@ -176,7 +184,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatTestDataSourceIsClearedWhenDeactivated()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             await testDataRepositoryViewModel.ActivateAsync();
             Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
@@ -189,7 +198,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanHandleShowTestDataSourceNotificationMessage()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory, windowManager, eventAggregator, typeBrowserFactory, dataManager);
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+                windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             //Act
             await testDataRepositoryViewModel.HandleAsync(new ShowTestDataSourceNotification("test-data-id"), CancellationToken.None);
