@@ -22,13 +22,13 @@ namespace Pixel.Automation.Core.Tests.Arguments
         }
 
         [Test]
-        public void ValidatethatArgumentValueCanBeSetUsingSetValueExtensionMethod()
+        public async Task ValidatethatArgumentValueCanBeSetUsingSetValueExtensionMethod()
         {
             var argument = new InArgument<int>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             argumentProcessor.When(x => x.SetValueAsync<int>(Arg.Any<Argument>(), Arg.Any<int>())).Do(x => argument.DefaultValue = x.ArgAt<int>(1));
 
-            argument.SetValue(argumentProcessor, 10);
+            await argument.SetValue(argumentProcessor, 10);
 
             Assert.AreEqual(10, argument.DefaultValue);
 
@@ -58,7 +58,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatInitialScriptCanBeGeneratedForPredicateArgument()
         {
             var argument = new PredicateArgument<int>();
-            var expected = "using System;\r\nusing Pixel.Automation.Core.Interfaces;\r\nbool IsMatch(IComponent current, Int32 argument)\r\n{\r\n    return false;\r\n}\r\nreturn ((Func<IComponent, Int32, bool>)IsMatch);";
+            var expected = "using System;\r\nusing Pixel.Automation.Core.Interfaces;\r\nTask<bool> IsMatch(IComponent current, Int32 argument)\r\n{\r\n    return Task.FromResult(false);\r\n}\r\nreturn ((Func<IComponent, Int32, Task<bool>>)IsMatch);";
             var result = argument.GenerateInitialScript();
 
             Assert.AreEqual(expected, result);
