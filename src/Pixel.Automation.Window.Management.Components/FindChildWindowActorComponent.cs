@@ -162,10 +162,8 @@ namespace Pixel.Automation.Window.Management.Components
         protected async Task<bool> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
         {
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-
-            var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, bool>>(predicateScriptFile);
-
-            bool isMatch = fn(this, applicationWindow);
+            var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>(predicateScriptFile);
+            bool isMatch = await fn(this, applicationWindow);
             return isMatch;
 
         }

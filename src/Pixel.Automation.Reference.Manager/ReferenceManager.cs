@@ -47,7 +47,10 @@ internal class ReferenceManager : IReferenceManager
         else
         {
             this.projectReferences = CreateDefault();
-            _ = this.referencesRepositoryClient.AddProjectReferencesAsync(this.projectId, this.projectVersion, this.projectReferences);
+            if(!applicationSettings.IsOfflineMode)
+            {
+                _ = this.referencesRepositoryClient.AddProjectReferencesAsync(this.projectId, this.projectVersion, this.projectReferences);
+            }
             SaveLocal();
         }
 

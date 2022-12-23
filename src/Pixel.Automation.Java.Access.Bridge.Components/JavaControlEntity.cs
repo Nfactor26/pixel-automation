@@ -1,12 +1,10 @@
-﻿using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Components;
+﻿using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components
 {
@@ -15,15 +13,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         private readonly ILogger logger = Log.ForContext<JavaControlEntity>();
 
         private UIControl control;
-
-        protected override void InitializeFilter()
-        {
-            if (this.Filter == null)
-            {
-                this.Filter = new PredicateArgument<AccessibleContextNode>();
-            }
-        }
-
+      
         /// <summary>
         /// Clear the located control once entity is processed
         /// </summary>

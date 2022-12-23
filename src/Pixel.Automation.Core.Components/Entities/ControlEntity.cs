@@ -134,7 +134,16 @@ namespace Pixel.Automation.Core.Components
           
         }
 
-        protected abstract void InitializeFilter();
+        /// <summary>
+        /// Initialize the Filter Argument.
+        /// </summary>
+        protected virtual void InitializeFilter()
+        {
+            if (this.Filter == null)
+            {
+                this.Filter = new PredicateArgument<UIControl>() { CanChangeType = false };
+            }
+        }
 
         public ControlEntity(string name = "Control Entity", string tag = "ControlEntity") : base(name, tag)
         {
@@ -194,8 +203,8 @@ namespace Pixel.Automation.Core.Components
         protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
         {
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, bool>>(predicateScriptFile);
-            bool isMatch = fn(this, targetElement);
+            var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, Task<bool>>>(predicateScriptFile);
+            bool isMatch = await fn(this, targetElement);
             return isMatch;
         }
     }

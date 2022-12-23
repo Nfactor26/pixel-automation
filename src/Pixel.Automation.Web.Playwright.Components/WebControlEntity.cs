@@ -11,15 +11,7 @@ namespace Pixel.Automation.Web.Playwright.Components
     {
         private readonly ILogger logger = Log.ForContext<WebControlEntity>();
 
-        private UIControl control;
-
-        protected override void InitializeFilter()
-        {
-            if (this.Filter == null)
-            {
-                this.Filter = new PredicateArgument<ILocator>();
-            }
-        }
+        private UIControl control;     
 
         /// <summary>
         /// Clear the located control once entity is processed

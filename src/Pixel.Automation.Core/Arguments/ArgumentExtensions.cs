@@ -15,8 +15,8 @@ namespace Pixel.Automation.Core
         private static readonly string setValueAction = "return ((Action<{0}>)SetValue);";
         private static readonly string getValueTemplate = "{0} GetValue(){1}{{{1}    return default;{1}}}";
         private static readonly string getValueDelegate = "return ((Func<{0}>)GetValue);";
-        private static readonly string predicateScriptTemplate = "bool IsMatch(IComponent current, {0} argument){1}{{{1}    return false;{1}}}";
-        private static readonly string predicateDelegate = "return ((Func<IComponent, {0}, bool>)IsMatch);";
+        private static readonly string predicateScriptTemplate = "Task<bool> IsMatch(IComponent current, {0} argument){1}{{{1}    return Task.FromResult(false);{1}}}";
+        private static readonly string predicateDelegate = "return ((Func<IComponent, {0}, Task<bool>>)IsMatch);";
 
         /// <summary>
         /// Get the value of the argument

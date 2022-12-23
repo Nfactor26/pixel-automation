@@ -122,14 +122,14 @@ namespace Pixel.Automation.Window.Management.Components.Tests
             argumentProcessor.GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>()).Returns(parentWindow);
 
             var scriptEngine = Substitute.For<IScriptEngine>();
-            scriptEngine.CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>(Arg.Any<string>())
+            scriptEngine.CreateDelegateAsync<Func<IComponent, ApplicationWindow, Task<bool>>>(Arg.Any<string>())
                 .Returns((c, a) =>
                 {
                     if(a.Equals(childWindowTwo))
                     {
-                        return true;
+                        return Task.FromResult(true);
                     }
-                    return false;
+                    return Task.FromResult(false);
                 });
 
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
@@ -156,7 +156,7 @@ namespace Pixel.Automation.Window.Management.Components.Tests
             await argumentProcessor.Received(1).GetValueAsync<string>(Arg.Any<InArgument<string>>());
             await argumentProcessor.Received(1).GetValueAsync<ApplicationWindow>(Arg.Any<InArgument<ApplicationWindow>>());
             windowManager.Received(1).FindAllChildWindows(parentWindow, childWindowTitle, MatchType.Equals, true);
-            await scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, bool>>("FindWindow.csx"); // 1 for each window in collecton until match found
+            await scriptEngine.Received(2).CreateDelegateAsync<Func<IComponent, ApplicationWindow, Task<bool>>>("FindWindow.csx"); // 1 for each window in collecton until match found
             await argumentProcessor.Received(1).SetValueAsync<ApplicationWindow>(Arg.Any<OutArgument<ApplicationWindow>>(), childWindowTwo);
         }
     }

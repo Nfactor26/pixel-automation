@@ -96,7 +96,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             ClearErrors(nameof(Name));
             ValidateRequiredProperty(nameof(Name), projectName);
-            ValidatePattern("^([A-Za-z]|[._ ]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or ' ' or '_' and should be atleast 4 characters in length.");
+            ValidatePattern("^([A-Za-z]|[_ ]){4,}$", nameof(Name), projectName, "Name must contain only alphabets or ' ' or '_' and should be atleast 4 characters in length.");
             if(!IsNameAvailable(projectName))
             {
                 this.AddOrAppendErrors(nameof(Name), "An application already exists with this name");
