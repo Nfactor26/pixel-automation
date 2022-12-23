@@ -1,12 +1,14 @@
-﻿using Ninject.Extensions.Conventions;
+﻿using Ninject;
+using Ninject.Extensions.Conventions;
 using Ninject.Modules;
+using Pixel.Automation.Core.Interfaces;
 using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
 {
     internal class NativeModules : NinjectModule
     {
-        private ICollection<Assembly> assemblies = new List<Assembly>();
+        private List<Assembly> assemblies = new ();
 
         public NativeModules(IEnumerable<Assembly> assemblies)
         {
@@ -20,6 +22,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             foreach(var assembly in assemblies)
             {               
                 Kernel.Bind(x => x.From(assembly).SelectAllClasses().BindAllInterfaces().Configure(b => b.InSingletonScope()));
+                //HighlightRectangle instance must be created on UIThread or it won't display
+                _ = Kernel.Get<IHighlightRectangle>();
             }         
         }
     }
