@@ -84,16 +84,7 @@ public class ImageControlEntity : ControlEntity
     [DataMember]
     [Display(Name = "Area on screen", GroupName = "Search Strategy", Order = 15)]
     [Description("Target window within which image lookup will be restricted")]    
-    public Argument AreaOnScreen { get; set; } = new InArgument<BoundingBox>() { Mode = ArgumentMode.DataBound };
-
-    ///<inheritdoc/>
-    protected override void InitializeFilter()
-    {
-        if (this.Filter == null)
-        {
-            this.Filter = new PredicateArgument<BoundingBox>() { CanChangeType = false };
-        }
-    }
+    public Argument AreaOnScreen { get; set; } = new InArgument<BoundingBox>() { Mode = ArgumentMode.DataBound };  
 
     ///<inheritdoc/>
     public override async Task<UIControl> GetControl()

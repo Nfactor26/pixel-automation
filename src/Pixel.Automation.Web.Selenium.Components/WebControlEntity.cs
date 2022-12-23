@@ -1,5 +1,4 @@
 ﻿using OpenQA.Selenium;
-using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
@@ -16,14 +15,6 @@ public class WebControlEntity : ControlEntity
     private readonly ILogger logger = Log.ForContext<WebControlEntity>();
 
     private UIControl control;
-
-    protected override void InitializeFilter()
-    {
-        if (this.Filter == null)
-        {
-            this.Filter = new PredicateArgument<IWebElement>();
-        }
-    }
 
     /// <summary>
     /// Clear the located control once entity is processed

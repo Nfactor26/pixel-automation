@@ -134,7 +134,16 @@ namespace Pixel.Automation.Core.Components
           
         }
 
-        protected abstract void InitializeFilter();
+        /// <summary>
+        /// Initialize the Filter Argument.
+        /// </summary>
+        protected virtual void InitializeFilter()
+        {
+            if (this.Filter == null)
+            {
+                this.Filter = new PredicateArgument<UIControl>() { CanChangeType = false };
+            }
+        }
 
         public ControlEntity(string name = "Control Entity", string tag = "ControlEntity") : base(name, tag)
         {

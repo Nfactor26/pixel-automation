@@ -1,5 +1,4 @@
 ﻿extern alias uiaComWrapper;
-using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
@@ -7,7 +6,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using uiaComWrapper::System.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -16,15 +14,7 @@ namespace Pixel.Automation.UIA.Components
         private readonly ILogger logger = Log.ForContext<WinControlEntity>();
 
         private UIControl control;
-        
-        protected override void InitializeFilter()
-        {
-            if (this.Filter == null)
-            {
-                this.Filter = new PredicateArgument<AutomationElement>();
-            }
-        }
-
+       
         /// <summary>
         /// Clear the located control once entity is processed
         /// </summary>
