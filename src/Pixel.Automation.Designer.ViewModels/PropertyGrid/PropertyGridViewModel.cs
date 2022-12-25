@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public bool ShowSaveButton => this.onSave != null;
 
-        private Action onSave;
+        private Func<Task> onSave;
 
         private Func<bool> canSave;
 
@@ -37,7 +37,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             this.selectedObject = selectedObject;
             this.isReadOnly = isReadOnly;
-            this.onSave = () => saveCommand();
+            this.onSave = saveCommand;
             this.canSave = canSave;
             NotifyOfPropertyChange(() => SelectedObject);
             NotifyOfPropertyChange(() => IsReadOnly);

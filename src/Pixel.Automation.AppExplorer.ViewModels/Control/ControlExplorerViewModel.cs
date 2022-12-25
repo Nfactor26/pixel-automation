@@ -343,10 +343,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     try
                     {
                         await SaveControlDetails(controlToEdit, false);
+                        await notificationManager.ShowSuccessNotificationAsync("Control was saved");
                     }
                     catch(Exception ex)
                     {
-                        logger.Error(ex, "There was an error while trying to edit control : {0}", controlToEdit.ControlName);
+                        logger.Error(ex, "There was an error while trying to save control : {0}", controlToEdit.ControlName);
                         await notificationManager.ShowErrorNotificationAsync(ex);
                     }
                 }, 

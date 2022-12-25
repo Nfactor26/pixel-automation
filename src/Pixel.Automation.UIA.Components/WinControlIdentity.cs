@@ -60,7 +60,7 @@ namespace Pixel.Automation.UIA.Components
 
         [DataMember(Order = 310)]
         [Category("Supported Patterns")]
-        public List<string> SupportedPatterns { get; set; }
+        public List<string> SupportedPatterns { get; set; } = new();
 
 
         #region required during scraping
@@ -84,7 +84,7 @@ namespace Pixel.Automation.UIA.Components
 
         public WinControlIdentity() : base()
         {
-            this.SupportedPatterns = new List<string>();
+           
         }
 
 
@@ -114,6 +114,7 @@ namespace Pixel.Automation.UIA.Components
                 Next = this.Next?.Clone() as WinControlIdentity
 
             };
+            clone.SupportedPatterns.AddRange(this.SupportedPatterns);
             return clone;
         }
 
