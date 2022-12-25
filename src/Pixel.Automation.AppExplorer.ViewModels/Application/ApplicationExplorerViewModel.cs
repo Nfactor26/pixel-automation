@@ -227,6 +227,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     try
                     {
                         await SaveApplicationAsync(applicationDescriptionViewModel);
+                        await notificationManager.ShowSuccessNotificationAsync("Application was saved");
                     }
                     catch (Exception ex)
                     {
