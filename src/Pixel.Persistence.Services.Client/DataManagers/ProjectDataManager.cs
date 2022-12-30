@@ -114,9 +114,10 @@ public class ProjectDataManager : IProjectDataManager
         if (IsOnlineMode)
         {
             var file = await this.filesClient.DownProjectDataFile(automationProject.ProjectId, projectVersion.ToString(), fileName);
+            var projectDirectory = Path.Combine(this.applicationFileSystem.GetAutomationProjectWorkingDirectory(automationProject, projectVersion));
             using (MemoryStream ms = new MemoryStream(file.Bytes))
             {
-                using (FileStream fs = new FileStream(file.FilePath, FileMode.CreateNew))
+                using (FileStream fs = new FileStream(Path.Combine(projectDirectory, file.FilePath), FileMode.Create))
                 {
                     ms.Seek(0, SeekOrigin.Begin);
                     ms.CopyTo(fs);
