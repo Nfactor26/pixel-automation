@@ -616,7 +616,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
             await AddDataFileAsync(testCaseFiles.ProcessFile, testCase.TestCaseId);
             foreach (var scriptFile in Directory.EnumerateFiles(testCaseFiles.TestDirectory, "*.csx"))
             {
-                await AddDataFileAsync(scriptFile, testCase.FixtureId);
+                await AddDataFileAsync(scriptFile, testCase.TestCaseId);
             }
         }
         logger.Information("Saved data files for test case : '{0}' for version : '{1}' of automation project : '{2}'.", testCase.DisplayName, projectVersion, automationProject.Name);
