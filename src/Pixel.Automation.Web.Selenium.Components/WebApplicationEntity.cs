@@ -2,15 +2,12 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
-using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Web.Selenium.Components.Enums;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Selenium.Components;
@@ -115,7 +112,7 @@ public class WebApplicationEntity : ApplicationEntity
                 webApplicationDetails.WebDriver = new EdgeDriver(edgeDriverService, edgeDriverOptions);
                 break;
             default:
-                throw new ArgumentException("Requested web driver type is not supported");
+                throw new ArgumentException($"Browser : '{preferredBrowser}' is not supported");
         }
 
         logger.Information("{browserToLaunch} has been launched.", preferredBrowser);

@@ -1,5 +1,5 @@
 ﻿
-namespace Pixel.Automation.Web.Playwright.Components;
+namespace Pixel.Automation.Web.Common;
 
 public enum Browsers
 {
