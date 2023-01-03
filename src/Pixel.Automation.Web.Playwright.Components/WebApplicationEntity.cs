@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Playwright.Components;
@@ -51,7 +52,14 @@ public class WebApplicationEntity : ApplicationEntity
     [DataMember]
     [Display(Name = "Install Browser", GroupName = "Browser Management", Order = 50, Description = "Indicates if configured browser should be automatically installed")]
     public Argument AutoInstallBrowser { get; set; } = new InArgument<bool> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = true };
-    
+
+    /// <summary>
+    /// Remote debugging port to use to connect over CDP. Use this for automation of a WebView2 application
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Remote Debugging Port", GroupName = "WebView2", Order = 20, Description = "Remote debugging port to use")]
+    public Argument RemoteDebuggingPort { get; set; } = new InArgument<string>() { CanChangeType = false };
+
     /// <summary>
     /// Get the TargetApplicationDetails and apply any over-rides to it
     /// </summary>
@@ -78,43 +86,55 @@ public class WebApplicationEntity : ApplicationEntity
             return;
         }
 
-        Browsers preferredBrowser = await GetPreferredBrowser(webApplicationDetails);
-        var browserLaunchOptions = await GetBrowserLaunchOptions(preferredBrowser);
-        
-        await InstallBrowser(preferredBrowser, browserLaunchOptions);
-
-        webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-      
-        switch (preferredBrowser)
+        //For WebView2 process           
+        if(this.RemoteDebuggingPort.IsConfigured())
         {
-            case Browsers.Chrome:
-            case Browsers.Edge:
-                webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.LaunchAsync(browserLaunchOptions);
-                break;            
-            case Browsers.FireFox:
-                webApplicationDetails.Browser = await webApplicationDetails.Playwright.Firefox.LaunchAsync(browserLaunchOptions);
-                break;
-            
-            case Browsers.WebKit:
-                webApplicationDetails.Browser = await webApplicationDetails.Playwright.Webkit.LaunchAsync(browserLaunchOptions);
-                break;
-            default:
-                throw new ArgumentException("Requested web driver type is not supported");
+            var remoteDebuggingPort = await this.ArgumentProcessor.GetValueAsync<string>(this.RemoteDebuggingPort);          
+            webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+            webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.ConnectOverCDPAsync($"http://localhost:{remoteDebuggingPort}");
+            webApplicationDetails.ActiveContext = webApplicationDetails.Browser.Contexts[0];
+            webApplicationDetails.ActivePage = webApplicationDetails.ActiveContext.Pages[0];
         }
-
-        var browserContextOptions = await GetBrowserNewContextOptions();
-        webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync(browserContextOptions);
-        webApplicationDetails.ActivePage = await webApplicationDetails.ActiveContext.NewPageAsync();
-
-        string goToUrl = webApplicationDetails.TargetUri.ToString();
-        if (this.TargetUriOverride.IsConfigured())
+        else
         {
-            goToUrl = await this.ArgumentProcessor.GetValueAsync<string>(this.TargetUriOverride);
-            logger.Information($"TargetUri was over-ridden to {goToUrl} for application : {applicationDetails.ApplicationName}");
-        }
-        await webApplicationDetails.ActivePage.GotoAsync(goToUrl);
+            Browsers preferredBrowser = await GetPreferredBrowser(webApplicationDetails);
+            var browserLaunchOptions = await GetBrowserLaunchOptions(preferredBrowser);
 
-        logger.Information("{browserToLaunch} has been launched.", preferredBrowser);
+            await InstallBrowser(preferredBrowser, browserLaunchOptions);
+
+            webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+
+            switch (preferredBrowser)
+            {
+                case Browsers.Chrome:
+                case Browsers.Edge:
+                    webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.LaunchAsync(browserLaunchOptions);
+                    break;
+                case Browsers.FireFox:
+                    webApplicationDetails.Browser = await webApplicationDetails.Playwright.Firefox.LaunchAsync(browserLaunchOptions);
+                    break;
+
+                case Browsers.WebKit:
+                    webApplicationDetails.Browser = await webApplicationDetails.Playwright.Webkit.LaunchAsync(browserLaunchOptions);
+                    break;
+                default:
+                    throw new ArgumentException("Requested web driver type is not supported");
+            }
+
+            var browserContextOptions = await GetBrowserNewContextOptions();
+            webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync(browserContextOptions);
+            webApplicationDetails.ActivePage = await webApplicationDetails.ActiveContext.NewPageAsync();
+            logger.Information("{browserToLaunch} has been launched.", preferredBrowser);\
+
+            string goToUrl = webApplicationDetails.TargetUri.ToString();
+            if (this.TargetUriOverride.IsConfigured())
+            {
+                goToUrl = await this.ArgumentProcessor.GetValueAsync<string>(this.TargetUriOverride);
+                logger.Information($"TargetUri was over-ridden to {goToUrl} for application : {applicationDetails.ApplicationName}");
+            }
+            await webApplicationDetails.ActivePage.GotoAsync(goToUrl);
+            logger.Information("Browser was navigted to {0}", goToUrl);
+        }     
     }
 
     /// <summary>
