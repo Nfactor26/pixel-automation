@@ -124,7 +124,7 @@ public class WebApplicationEntity : ApplicationEntity
             var browserContextOptions = await GetBrowserNewContextOptions();
             webApplicationDetails.ActiveContext = await webApplicationDetails.Browser.NewContextAsync(browserContextOptions);
             webApplicationDetails.ActivePage = await webApplicationDetails.ActiveContext.NewPageAsync();
-            logger.Information("{browserToLaunch} has been launched.", preferredBrowser);\
+            logger.Information("{browserToLaunch} has been launched.", preferredBrowser);
 
             string goToUrl = webApplicationDetails.TargetUri.ToString();
             if (this.TargetUriOverride.IsConfigured())
