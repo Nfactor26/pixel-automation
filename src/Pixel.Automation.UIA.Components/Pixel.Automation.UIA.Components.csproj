@@ -6,8 +6,7 @@
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>		
 		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>		
 	</PropertyGroup>
 

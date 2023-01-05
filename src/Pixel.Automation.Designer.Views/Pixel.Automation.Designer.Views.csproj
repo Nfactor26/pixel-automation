@@ -4,10 +4,7 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<PreserveCompilationContext>true</PreserveCompilationContext>		
-		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
-		<!--<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>-->
-		<!--<RuntimeIdentifier>win10-x64</RuntimeIdentifier>-->
+		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
 	</PropertyGroup>
 

@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">	
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
-		<EnableDynamicLoading>true</EnableDynamicLoading>
-		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>		
+		<EnableDynamicLoading>true</EnableDynamicLoading>		
 		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 
