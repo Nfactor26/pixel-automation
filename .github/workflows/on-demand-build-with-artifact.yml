@@ -13,11 +13,11 @@ jobs:
 
   build-for-windows:
     needs: setup-for-build
-    uses: ./.github/workflows/build-for-windows.yaml
+    uses: ./.github/workflows/build-on-windows.yaml
 
   build-for-linux:
     needs: setup-for-build
-    uses: ./.github/workflows/build-for-linux.yaml
+    uses: ./.github/workflows/build-on-linux.yaml
   
 
  
