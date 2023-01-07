@@ -27,7 +27,7 @@ jobs:
           push: false
           tags: pixel-persistence:${{ github.ref_name }}
           labels: ${{ steps.meta.outputs.labels }}
-          load: true"  
+          load: true  
     - name: Login to docker hub      
       uses: docker/login-action@v1
       with:
