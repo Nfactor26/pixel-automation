@@ -15,7 +15,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: mongopass     
 
-  pixel-persistence-service:
+  pixel-persistence:
     container_name: pixel_persistence_service
     env_file:
       - ./.config/persistence.env
