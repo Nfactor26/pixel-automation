@@ -64,5 +64,5 @@ jobs:
     - name: Upload pixel-persistence artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: pixel-persistence-${{ matrix.os }}
+        name: pixel-persistence-${{ inputs.target-os }}
         path: .builds/release/service 

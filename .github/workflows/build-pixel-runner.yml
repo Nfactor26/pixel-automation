@@ -65,7 +65,7 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore src/Pixel.Automation.Test.Runner/Pixel.Automation.Test.Runner.csproj
+      run: dotnet restore Pixel.Automation.sln
 
     - name: Build pixel-runner
       run: dotnet build src/Pixel.Automation.Test.Runner/Pixel.Automation.Test.Runner.csproj -c release --no-restore --runtime ${{ inputs.target-runtime }} --self-contained ${{ inputs.self-contained }} -p:TargetFramework=${{ inputs.target-framework }}

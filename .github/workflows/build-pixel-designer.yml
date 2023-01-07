@@ -65,7 +65,7 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore src/Pixel.Automation.Designer.Views/Pixel.Automation.Designer.Views.csproj
+      run: dotnet restore Pixel.Automation.sln
 
     - name: Build pixel-designer for runtime win10-64 and targetframework net6.0-windows
       run: dotnet build src/Pixel.Automation.Designer.Views/Pixel.Automation.Designer.Views.csproj -c release --no-restore --runtime ${{ inputs.target-runtime }} --self-contained ${{ inputs.self-contained }} -p:TargetFramework=${{ inputs.target-framework }}
