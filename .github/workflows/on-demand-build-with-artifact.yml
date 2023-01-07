@@ -8,16 +8,101 @@ on:
 
 jobs:
 
-  setup-for-build:
-    uses: ./.github/workflows/setup-for-build.yaml
+  build:
 
-  build-for-windows:
-    needs: setup-for-build
-    uses: ./.github/workflows/build-on-windows.yaml
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        dotnet-version: [ '6.0.x' ]
 
-  build-for-linux:
-    needs: setup-for-build
-    uses: ./.github/workflows/build-on-linux.yaml
-  
-
+    steps:
  
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+    
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Determine Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+
+    - name: Display GitVersion outputs
+      run: |   
+        echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"     
+        echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+        echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+        echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+        echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+        echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"     
+        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+        echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
+        echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
+        echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+       dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name : Cache nuget packages
+      uses: actions/cache@v2
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore Pixel.Automation.sln
+
+    - name: Build pixel-designer for runtime win10-64 and targetframework net6.0-windows
+      run: dotnet build src/Pixel.Automation.Designer.Views/Pixel.Automation.Designer.Views.csproj -c release --no-restore --runtime win10-x64 --self-contained false -p:TargetFramework=net6.0-windows
+
+    - name: Build pixel-runner for runtime win10-64 and targetframework net6.0-windows
+      run: dotnet build src/Pixel.Automation.Test.Runner/Pixel.Automation.Test.Runner.csproj -c release --no-restore --runtime win10-x64 --self-contained false -p:TargetFramework=net6.0-windows
+
+    - name: Build pixel-runner for runtime linux-64 and targetframework net6.0
+      run: dotnet build src/Pixel.Automation.Test.Runner/Pixel.Automation.Test.Runner.csproj -c release --no-restore --runtime linux-x64 --self-contained false -p:TargetFramework=net6.0
+
+    - name: Publish pixel-persistence for runtime win10-x64
+      run: dotnet publish src/Pixel.Persistence.Services.Api/Pixel.Persistence.Services.Api.csproj -c Release --no-restore --runtime win10-x64 --self-contained false -o .builds/Release/Service
+
+    - name: Publish pixel-persistence for runtime linux-x64
+      run: dotnet publish src/Pixel.Persistence.Services.Api/Pixel.Persistence.Services.Api.csproj -c Release --no-restore --runtime linux-x64 --self-contained false -o .builds/Release/Service
+
+    - name: Upload pixel-designer win10-x64 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-designer-${{ matrix.os }}
+        path: .builds/Release/Designer/win10-x64
+    
+    - name: Upload pixel-runner win10-x64 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-runner-${{ matrix.os }}
+        path: .builds/Release/Runner/win10-x64
+
+    - name: Upload pixel-runner linux-64 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-runner-${{ matrix.os }}
+        path: .builds/Release/Runner/linux-x64    
+    
+    - name: Upload pixel-persistence win10-x64 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-persistence-${{ matrix.os }}
+        path: .builds/Release/Service/win10-x64
+
+    - name: Upload pixel-persistence linux-x64 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-persistence-${{ matrix.os }}
+        path: .builds/Release/Service/linux-x64      

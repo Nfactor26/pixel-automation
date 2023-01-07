@@ -2,10 +2,10 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>net6.0-windows;net6.0</TargetFrameworks>	
 		<AssemblyName>pixel-run</AssemblyName>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
 		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>	
 		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
 	</PropertyGroup>
