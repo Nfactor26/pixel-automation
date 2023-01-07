@@ -73,5 +73,5 @@ jobs:
     - name: Upload pixel-designer artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: pixel-designer-${{ matrix.os }}
+        name: pixel-designer-${{ inputs.target-os }}
         path: .builds/release/designer/${{ inputs.target-framework }}/${{ inputs.target-runtime }}

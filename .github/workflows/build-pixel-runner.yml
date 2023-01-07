@@ -73,5 +73,5 @@ jobs:
     - name: Upload pixel-runner artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: pixel-runner-${{ matrix.os }}
+        name: pixel-runner-${{ inputs.target-os }}
         path: .builds/release/runner/${{ inputs.target-framework }}/${{ inputs.target-runtime }}
