@@ -1,5 +1,6 @@
 name: build pixel persistence
 
+on:
   workflow_call:
     inputs:
       target-os:
