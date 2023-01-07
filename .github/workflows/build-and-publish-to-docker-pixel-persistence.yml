@@ -1,6 +1,7 @@
 name: Publish pixel-persistence service to docker hub on tag push to main
 
 on:
+  workflow_dispatch:
   push:    
     tags:        
       - v*
