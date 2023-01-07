@@ -8,83 +8,40 @@ on:
 
 jobs:
 
-  build:
+  build-pixel-designer-for-win10-x64:
+    uses: ./.github/workflows/build-pixel-designer.yml
+    with:
+      target-os: windows-latest
+      target-runtime: win10-x64
+      target-framework: net6.0-windows
+      self-contained: false
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
-        dotnet-version: [ '6.0.x' ]
+  build-pixel-runner-for-win10-x64:
+    uses: ./.github/workflows/build-pixel-runner.yml
+    with:
+      target-os: windows-latest
+      target-runtime: win10-x64
+      target-framework: net6.0-windows
+      self-contained: false
 
-    steps:
- 
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.7
-      with:
-        versionSpec: '5.x'
-    
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+  build-pixel-runner-for-linux-x64:
+    uses: ./.github/workflows/build-pixel-runner.yml
+    with:
+      target-os: ubuntu-latest
+      target-runtime: linux-x64
+      target-framework: net6.0
+      self-contained: false
 
-    - name: Determine Version
-      id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.7
+  build-pixel-persistence-for-win10-x64:
+    uses: ./.github/workflows/build-pixel-persistence.yml
+    with:
+      target-os: windows-latest
 
-    - name: Display GitVersion outputs
-      run: |   
-        echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"     
-        echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
-        echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
-        echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
-        echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
-        echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"     
-        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
-        echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
-        echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
-        echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+  build-pixel-persistence-for-linux-x64:
+    uses: ./.github/workflows/build-pixel-persistence.yml
+    with:
+      target-os: ubuntu-latest
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-       dotnet-version: ${{ matrix.dotnet-version }}
 
-    - name : Cache nuget packages
-      uses: actions/cache@v2
-      with:
-        path: ${{ github.workspace }}/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
 
-    - name: Restore dependencies
-      run: dotnet restore Pixel.Automation.sln
 
-    - name: Build
-      run: dotnet build Pixel.Automation.sln -c Release --no-restore
-      
-    - name: Test
-      run: dotnet test Pixel.Automation.sln -c Release --no-build --verbosity normal
-
-    - name: Publish Persistence Service
-      run: dotnet publish src/Pixel.Persistence.Services.Api/Pixel.Persistence.Services.Api.csproj -c Release --no-restore -o .builds/Release/Service
-
-    - name: Upload Designer artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: pixel-designer-${{ matrix.os }}
-        path: .builds/Release/Designer
-    
-    - name: Upload Runner artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: pixel-runner-${{ matrix.os }}
-        path: .builds/Release/Runner  
-    
-    - name: Upload Persistence artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: pixel-persistence-${{ matrix.os }}
-        path: .builds/Release/Service   

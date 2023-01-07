@@ -3,8 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0-windows</TargetFramework>		
 		<OutputType>Library</OutputType>
-		<EnableDynamicLoading>true</EnableDynamicLoading>
-		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<EnableDynamicLoading>true</EnableDynamicLoading>		
 		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 

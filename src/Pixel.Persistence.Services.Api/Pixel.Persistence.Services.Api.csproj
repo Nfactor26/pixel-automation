@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>6da300a2-c532-481d-b6a1-431c16742bd5</UserSecretsId>
+	<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>	
   </PropertyGroup>
 
   <PropertyGroup>

@@ -22,7 +22,6 @@
       <ExcludeAssets>All</ExcludeAssets>
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Pixel.Scripting.Reference.Manager\Pixel.Scripting.Reference.Manager.csproj" />
   </ItemGroup>
 
 </Project>

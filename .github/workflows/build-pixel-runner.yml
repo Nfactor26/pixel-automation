@@ -1,0 +1,77 @@
+name: build pixel runner
+
+on:
+  workflow_call:
+    inputs:
+      target-framework:
+        required: true
+        type: string
+      target-os:
+        required: true
+        type: string
+      target-runtime:
+        required: true
+        type: string
+      self-contained:
+        required: true
+        type: string
+
+jobs:
+
+  build-pixel-runner:
+   runs-on: ${{ inputs.target-os }}
+   
+   steps:
+   
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Determine Version
+      id:   gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+
+    - name: Display GitVersion outputs
+      run: |   
+        echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"     
+        echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+        echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+        echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+        echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+        echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"     
+        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+        echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
+        echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
+        echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+       dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name : Cache nuget packages
+      uses: actions/cache@v2
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore Pixel.Automation.sln
+
+    - name: Build pixel-runner
+      run: dotnet build src/Pixel.Automation.Test.Runner/Pixel.Automation.Test.Runner.csproj -c release --no-restore --runtime ${{ inputs.target-runtime }} --self-contained ${{ inputs.self-contained }} -p:TargetFramework=${{ inputs.target-framework }}
+
+    - name: Upload pixel-runner artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pixel-runner-${{ matrix.os }}
+        path: .builds/release/runner/${{ inputs.target-runtime }}

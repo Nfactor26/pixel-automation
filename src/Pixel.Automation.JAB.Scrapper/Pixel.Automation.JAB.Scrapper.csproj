@@ -5,8 +5,7 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<EnableDynamicLoading>true</EnableDynamicLoading>
-		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+		<EnableDynamicLoading>true</EnableDynamicLoading>		
 		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 
