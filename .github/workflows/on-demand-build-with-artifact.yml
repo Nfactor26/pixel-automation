@@ -9,7 +9,7 @@ on:
 jobs:
 
   build-pixel-designer-for-win10-x64:
-    uses: ./.github/workflows/build-pixel-designer.yaml
+    uses: ./.github/workflows/build-pixel-designer.yml
     with:
       target-os: windows-latest
       target-runtime: win10-x64
@@ -17,7 +17,7 @@ jobs:
       self-contained: false
 
   build-pixel-runner-for-win10-x64:
-    uses: ./.github/workflows/build-pixel-runner.yaml
+    uses: ./.github/workflows/build-pixel-runner.yml
     with:
       target-os: windows-latest
       target-runtime: win10-x64
@@ -25,7 +25,7 @@ jobs:
       self-contained: false
 
   build-pixel-runner-for-linux-x64:
-    uses: ./.github/workflows/build-pixel-runner.yaml
+    uses: ./.github/workflows/build-pixel-runner.yml
     with:
       target-os: ubuntu-latest
       target-runtime: linux-x64
@@ -33,12 +33,12 @@ jobs:
       self-contained: false
 
   build-pixel-persistence-for-win10-x64:
-    uses: ./.github/workflows/build-pixel-persistence.yaml
+    uses: ./.github/workflows/build-pixel-persistence.yml
     with:
       target-os: windows-latest
 
   build-pixel-persistence-for-linux-x64:
-    uses: ./.github/workflows/build-pixel-persistence.yaml
+    uses: ./.github/workflows/build-pixel-persistence.yml
     with:
       target-os: ubuntu-latest
 
