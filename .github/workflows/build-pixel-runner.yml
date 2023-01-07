@@ -74,4 +74,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: pixel-runner-${{ matrix.os }}
-        path: .builds/release/runner/${{ inputs.target-runtime }}
+        path: .builds/release/runner/${{ inputs.target-framework }}/${{ inputs.target-runtime }}

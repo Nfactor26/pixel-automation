@@ -27,7 +27,7 @@ jobs:
   build-pixel-runner-for-linux-x64:
     uses: ./.github/workflows/build-pixel-runner.yml
     with:
-      target-os: ubuntu-latest
+      target-os: windows-latest
       target-runtime: linux-x64
       target-framework: net6.0
       self-contained: false
