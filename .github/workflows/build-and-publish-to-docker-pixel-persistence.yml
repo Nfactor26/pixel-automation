@@ -21,6 +21,9 @@ jobs:
       uses: docker/metadata-action@v4
       with:
         images: ${{ secrets.DOCKERHUB_USERNAME }}/pixel-persistence
+        labels: |
+            org.opencontainers.image.title=pixel-persistence
+            org.opencontainers.image.description=web service for pixel-automation
 
     - name: Login to docker hub      
       uses: docker/login-action@v2
