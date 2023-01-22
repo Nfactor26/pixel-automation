@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Interfaces;
 
 namespace Pixel.Automation.Web.Selenium.Components;
 

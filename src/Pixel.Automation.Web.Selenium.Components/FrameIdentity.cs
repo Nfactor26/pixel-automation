@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Controls;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;

@@ -1,6 +1,7 @@
 ﻿using Pixel.Automation.Editor.Controls.Arguments;
 using Pixel.Automation.Editor.Controls.Browsers;
 using Pixel.Automation.Editor.Controls.HotKeys;
+using Pixel.Automation.Editor.Controls.Mobile;
 using System;
 using System.Diagnostics;
 using Xceed.Wpf.Toolkit.PropertyGrid;
@@ -47,6 +48,23 @@ namespace Pixel.Automation.AppExplorer.Views.ControlEditor
             try
             {             
                 PropertyItem targetPropertyItem = e.Item as PropertyItem;
+
+                if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
+                {
+                    targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
+                    return;
+                }
+                if (targetPropertyItem.DisplayName.Equals("Find By"))
+                {
+                    targetPropertyItem.Editor = (new WebFindBy()).ResolveEditor(targetPropertyItem);
+                    return;
+                }
+                if (targetPropertyItem.DisplayName.Equals("(Android) Find By"))
+                {
+                    targetPropertyItem.Editor = (new AndroidFindBy()).ResolveEditor(targetPropertyItem);
+                    return;
+                }
+
                 if (targetPropertyItem.Value == null)
                 {
                     return;
@@ -65,17 +83,7 @@ namespace Pixel.Automation.AppExplorer.Views.ControlEditor
                 {
                     targetPropertyItem.Editor = (new InArgumentEditor()).ResolveEditor(targetPropertyItem);
                     return;
-                }
-                if (targetPropertyItem.DisplayName.Equals("Hot Key") || targetPropertyItem.DisplayName.Equals("Keys"))
-                {
-                    targetPropertyItem.Editor = (new KeyEditor()).ResolveEditor(targetPropertyItem);
-                    return;
-                }
-                if (targetPropertyItem.DisplayName.Equals("Find By"))
-                {
-                    targetPropertyItem.Editor = (new WebFindBy()).ResolveEditor(targetPropertyItem);
-                    return;
-                }
+                }               
             }
             catch (Exception ex)
             {

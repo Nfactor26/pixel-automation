@@ -74,6 +74,12 @@
 		<StyleKey>ContainerStyle</StyleKey>
 	</ComponentTemplate>
 	<ComponentTemplate>
+		<Name>AppiumApplicationEntity</Name>
+		<DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
+		<StyleKey>ContainerStyle</StyleKey>
+	</ComponentTemplate>
+	
+	<ComponentTemplate>
 		<Name>PrefabEntity</Name>
 		<DataTemplateKey>PrefabTemplate</DataTemplateKey>
 		<StyleKey>SlimStyle</StyleKey>
@@ -100,6 +106,11 @@
 	</ComponentTemplate>
 	<ComponentTemplate>
 		<Name>ImageControlEntity</Name>
+		<DataTemplateKey>ControlTemplate</DataTemplateKey>
+		<StyleKey>ControlComponentStyle</StyleKey>
+	</ComponentTemplate>
+	<ComponentTemplate>
+		<Name>AppiumControlEntity</Name>
 		<DataTemplateKey>ControlTemplate</DataTemplateKey>
 		<StyleKey>ControlComponentStyle</StyleKey>
 	</ComponentTemplate>

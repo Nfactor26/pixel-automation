@@ -119,16 +119,19 @@ namespace Pixel.Automation.Core.Components
             if (!this.Components.Any(a => a is IControlLocator))
             {
                 LoadApplicationDetails();
-                var controlLocatorAttribute = this.applicationDetails.GetType().GetCustomAttributes(typeof(ControlLocatorAttribute), false).OfType<ControlLocatorAttribute>().FirstOrDefault();
-                if (controlLocatorAttribute != null)
+                var controlLocatorAttributes = this.applicationDetails.GetType().GetCustomAttributes(typeof(ControlLocatorAttribute), false).OfType<ControlLocatorAttribute>();
+                if (controlLocatorAttributes?.Any() ?? false)
                 {
-                    Component controlLocator = Activator.CreateInstance(controlLocatorAttribute.LocatorType) as Component;
-                    if (controlLocator != null)
+                    foreach(var controlLocatorAttribute in controlLocatorAttributes)
                     {
-                        base.AddComponent(controlLocator);
-                        logger.Information("Added control locator of type : {0} to Applicaton Entity " +
-                            "with Id : {1}", controlLocatorAttribute.LocatorType, this.Id);
-                    }
+                        Component controlLocator = Activator.CreateInstance(controlLocatorAttribute.LocatorType) as Component;
+                        if (controlLocator != null)
+                        {
+                            base.AddComponent(controlLocator);
+                            logger.Information("Added control locator of type : {0} to Applicaton Entity " +
+                                "with Id : {1}", controlLocatorAttribute.LocatorType, this.Id);
+                        }
+                    }                  
                 }
             }
         }

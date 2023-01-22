@@ -99,7 +99,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.ControlEditor
 
         protected override (double width, double height) GetImageDimension()
         {
-            return (ImageSource.Width, ImageSource.Height);
+            return (ImageSource?.Width ?? 0, ImageSource?.Height ?? 0);
         }
 
         protected override System.Drawing.Point GetOffSet()

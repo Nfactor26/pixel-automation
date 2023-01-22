@@ -68,6 +68,14 @@
     ]
   },
   {
+    "Name": "Pixel.Automation.Appium.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
     "Name": "Pixel.Automation.Window.Management.Components",
     "Type": 1,
     "SupportedPlatforms": [
@@ -98,6 +106,13 @@
   },
   {
     "Name": "Pixel.Automation.Web.Scrapper",
+    "Type": 2,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Appium.Scrapper",
     "Type": 2,
     "SupportedPlatforms": [
       "WINDOWS"

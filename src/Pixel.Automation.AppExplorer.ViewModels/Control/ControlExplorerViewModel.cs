@@ -426,7 +426,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
                 var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
                 controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
-                await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                if(!string.IsNullOrEmpty(controlDescriptionViewModel.ControlImage))
+                {
+                    await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                }
                 await SaveControlDetails(controlDescriptionViewModel, true);
                 this.Controls.Add(controlDescriptionViewModel);
                 logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
@@ -597,10 +600,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         };
                         ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
                         controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                        controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+                        if(scrapedControl.ControlImage != null)
+                        {
+                            controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+                            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                        }
 
-                        //save the captured control details                        
-                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                        //save the captured control details                            
                         await SaveControlDetails(controlDescriptionViewModel, false);
                         this.Controls.Add(controlDescriptionViewModel);
 

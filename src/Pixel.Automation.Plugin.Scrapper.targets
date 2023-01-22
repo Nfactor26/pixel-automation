@@ -27,6 +27,9 @@
 			<PluginArtifacts Include="..\Pixel.Automation.JAB.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.JAB.Scrapper</Name>
 			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.Appium.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Appium.Scrapper</Name>
+			</PluginArtifacts>
 		</ItemGroup>
 		<Message Text="Copying %(PluginArtifacts.FullPath) to $(TargetDir)Plugin\%(PluginArtifacts.Name)" Importance="high"/>
 		<Copy SourceFiles="%(PluginArtifacts.FullPath)" DestinationFolder="$(TargetDir)Plugins\%(PluginArtifacts.Name)\%(RecursiveDir)"/>
