@@ -76,6 +76,16 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="AndroidApplication">
+            <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
+                <iconPacks:PackIconModern Kind="OsAndroid" Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}"
+                                        IsHitTestVisible="False"
+                                        Margin="2"
+                                        Padding="4"    />
+            </Border>
+        </DataTemplate>
+
         <Style x:Key="AddApplicationButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
             <Setter Property="BorderThickness" Value="0" />

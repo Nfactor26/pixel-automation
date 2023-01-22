@@ -9,17 +9,21 @@ namespace Pixel.Automation.Designer.Views.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var source = new BitmapImage();
-            source.BeginInit();
-            source.CacheOption = BitmapCacheOption.OnLoad;
-            source.UriSource = new Uri(value.ToString(), UriKind.Relative);
-            source.EndInit();
-            return source;
+            if(!string.IsNullOrEmpty(value?.ToString()))
+            {
+                var source = new BitmapImage();
+                source.BeginInit();
+                source.CacheOption = BitmapCacheOption.OnLoad;
+                source.UriSource = new Uri(value.ToString(), UriKind.Relative);
+                source.EndInit();
+                return source;
+            }     
+            return Binding.DoNothing;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return Binding.DoNothing;
         }
     }
 }

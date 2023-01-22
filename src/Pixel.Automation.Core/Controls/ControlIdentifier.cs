@@ -1,6 +1,7 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Common;
+namespace Pixel.Automation.Core.Controls;
 
 [DataContract]
 [Serializable]

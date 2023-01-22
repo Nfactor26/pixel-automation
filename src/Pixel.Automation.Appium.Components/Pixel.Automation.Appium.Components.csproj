@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Appium.WebDriver" Version="5.0.0-beta03" />		
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
+			<Private>false</Private>
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
+
+</Project>
