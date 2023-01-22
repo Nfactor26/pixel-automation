@@ -37,8 +37,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
 
 
         [TestCase(typeof(BuilderAttribute))]
-        [TestCase(typeof(ContainerEntityAttribute))]
-        [TestCase(typeof(ControlLocatorAttribute))]
+        [TestCase(typeof(ContainerEntityAttribute))]    
         [TestCase(typeof(FileDescriptionAttribute))]
         [TestCase(typeof(InjectedAttribute))]
         [TestCase(typeof(ParameterUsageAttribute))]      
@@ -54,6 +53,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
         }
 
         [TestCase(typeof(InitializerAttribute))]
+        [TestCase(typeof(ControlLocatorAttribute))]
         public void ValidateThatAttributeHasAllowMultiplTrue(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
