@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Appium.Components.Controls;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
