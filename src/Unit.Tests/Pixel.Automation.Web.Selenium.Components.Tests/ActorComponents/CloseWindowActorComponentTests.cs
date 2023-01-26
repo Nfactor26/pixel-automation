@@ -3,7 +3,6 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Web.Selenium.Components.ActorComponents;
 using System;
 using System.Threading.Tasks;
 

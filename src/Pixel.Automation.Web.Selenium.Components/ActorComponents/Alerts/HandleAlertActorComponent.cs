@@ -5,7 +5,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Selenium.Components.Alerts;
+namespace Pixel.Automation.Web.Selenium.Components;
 
 /// <summary>
 /// Use <see cref="HandleAlertActorComponent"/> to interact with a browser alert.
