@@ -3,7 +3,7 @@ using Pixel.Automation.Core.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Playwright.Components.ActorComponents;
+namespace Pixel.Automation.Web.Playwright.Components;
 
 /// <summary>
 /// Use <see cref="SetActivePageActorComponent"/> to mark a page as an active page. All operations are performed on active page.

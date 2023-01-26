@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Playwright.Components;
