@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Selenium.Components.Alerts;
+namespace Pixel.Automation.Web.Selenium.Components;
 
 /// <summary>
 /// Use <see cref="HandlePromptActorComponent"/> to interact with a browser prompt window

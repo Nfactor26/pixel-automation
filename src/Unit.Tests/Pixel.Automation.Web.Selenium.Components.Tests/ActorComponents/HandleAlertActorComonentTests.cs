@@ -3,7 +3,6 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Web.Selenium.Components.Alerts;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents

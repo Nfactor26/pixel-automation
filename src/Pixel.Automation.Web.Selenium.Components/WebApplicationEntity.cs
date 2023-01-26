@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Remote;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
@@ -52,12 +53,32 @@ public class WebApplicationEntity : ApplicationEntity
     public Argument DriverOptionsOverride { get; set; } = new InArgument<DriverOptions>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
     /// <summary>
+    /// Webdriver command timeout
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Command Timeout", GroupName = "Overrides", Order = 60, Description = "[Optional] Webdriver command timeout")]
+    public Argument CommandTimout { get; set; } = new InArgument<TimeSpan>() { CanChangeType = false, DefaultValue = TimeSpan.FromSeconds(60) };
+
+    /// <summary>
     /// Optional argument which can be used to override the target url configured on application.
     /// </summary>
     [DataMember]
-    [Display(Name = "Target Url", GroupName = "Overrides", Order = 60, Description = "[Optional] Override the Target Url option set on Application")]
+    [Display(Name = "Target Url", GroupName = "Overrides", Order = 70, Description = "[Optional] Override the Target Url option set on Application")]
     public Argument TargetUriOverride { get; set; } = new InArgument<Uri>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
+    /// <summary>
+    /// Optional argument which indicates whether to use selenium grid
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Use Grid", GroupName = "Grid", Order = 80, Description = "Indicates whether to use selenium grid")]
+    public Argument UseGridOverride { get; set; } = new InArgument<bool>() { CanChangeType = false, AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
+
+    /// <summary>
+    /// Optional argument for selenium grid server url
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Grid Url", GroupName = "Grid", Order = 90, Description = "Url of the selenium grid server")]
+    public Argument GridUrlOverride { get; set; } = new InArgument<Uri>() { CanChangeType = false, AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Get the TargetApplicationDetails and apply any over-rides to it
@@ -94,28 +115,42 @@ public class WebApplicationEntity : ApplicationEntity
             preferredBrowser = await this.ArgumentProcessor.GetValueAsync<Browsers>(this.BrowserOverride);
             logger.Information($"Preferred browser was over-ridden to {preferredBrowser} for application : {webApplicationDetails.ApplicationName}");
         }
-        switch (preferredBrowser)
+        var commandTimeout = await this.ArgumentProcessor.GetValueAsync<TimeSpan>(this.CommandTimout);
+        bool useSelniumGrid = this.UseGridOverride.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<bool>(this.UseGridOverride) : webApplicationDetails.UseGrid;
+        if(useSelniumGrid)
         {
-            case Browsers.FireFox:
-                var fireFoxDriverService = await GetDriverService<FirefoxDriverService>(preferredBrowser);
-                var fireFoxDriverOptions = await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier);
-                webApplicationDetails.WebDriver = new FirefoxDriver(fireFoxDriverService, fireFoxDriverOptions);
-                break;
-            case Browsers.Chrome:
-                var chromeDriverService = await GetDriverService<ChromeDriverService>(preferredBrowser);
-                var chromeDriverOptions = await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier);
-                webApplicationDetails.WebDriver = new ChromeDriver(chromeDriverService, chromeDriverOptions);
-                break;
-            case Browsers.Edge:    
-                var edgeDriverService = await GetDriverService<EdgeDriverService>(preferredBrowser);
-                var edgeDriverOptions = await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier);
-                webApplicationDetails.WebDriver = new EdgeDriver(edgeDriverService, edgeDriverOptions);
-                break;
-            default:
-                throw new ArgumentException($"Browser : '{preferredBrowser}' is not supported");
+            var remoteDriverUri = this.GridUrlOverride.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<Uri>(this.GridUrlOverride) : webApplicationDetails.GridUrl;
+            if(string.IsNullOrEmpty(remoteDriverUri.AbsoluteUri))
+            {
+                throw new ArgumentNullException("Selenium grid url is not configured");
+            }
+            var driverOptions = await GetDriverOptions<DriverOptions>(preferredBrowser, processIdentifier);
+            webApplicationDetails.WebDriver = new RemoteWebDriver(remoteDriverUri, driverOptions.ToCapabilities(), commandTimeout);
         }
-
-        logger.Information("{browserToLaunch} has been launched.", preferredBrowser);
+        else
+        {
+            switch (preferredBrowser)
+            {
+                case Browsers.FireFox:
+                    var fireFoxDriverService = await GetDriverService<FirefoxDriverService>(preferredBrowser);
+                    var fireFoxDriverOptions = await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier);
+                    webApplicationDetails.WebDriver = new FirefoxDriver(fireFoxDriverService, fireFoxDriverOptions, commandTimeout);
+                    break;
+                case Browsers.Chrome:
+                    var chromeDriverService = await GetDriverService<ChromeDriverService>(preferredBrowser);
+                    var chromeDriverOptions = await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier);
+                    webApplicationDetails.WebDriver = new ChromeDriver(chromeDriverService, chromeDriverOptions, commandTimeout);
+                    break;
+                case Browsers.Edge:
+                    var edgeDriverService = await GetDriverService<EdgeDriverService>(preferredBrowser);
+                    var edgeDriverOptions = await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier);
+                    webApplicationDetails.WebDriver = new EdgeDriver(edgeDriverService, edgeDriverOptions, commandTimeout);
+                    break;
+                default:
+                    throw new ArgumentException($"Browser : '{preferredBrowser}' is not supported");
+            }
+            logger.Information("{browserToLaunch} has been launched.", preferredBrowser);
+        }
 
         if (webApplicationDetails.MaximizeOnLaunch)
         {

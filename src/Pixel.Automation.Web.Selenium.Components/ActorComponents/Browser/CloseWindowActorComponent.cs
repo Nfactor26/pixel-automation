@@ -5,7 +5,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Web.Selenium.Components.ActorComponents;
+namespace Pixel.Automation.Web.Selenium.Components;
 
 /// <summary>
 /// Use <see cref="CloseWindowActorComponent"/> to close browser window or tab.
