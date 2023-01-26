@@ -21,23 +21,37 @@ public class WebApplication : Application
     /// Browser preference while launching the application
     /// </summary>
     [DataMember(IsRequired = true)]
-    [Display(Name = "Preferred Browser", Order = 30, Description = "Browser to use")]
+    [Display(Name = "Preferred Browser", GroupName = "Browser", Order = 30, Description = "Browser to use")]
     public Browsers PreferredBrowser { get; set; }
- 
+    
     /// <summary>
     /// Web application url
     /// </summary>
     [DataMember(IsRequired = true)]    
-    [Display(Name = "Target Url", Order = 40, Description = "Web application url")]
+    [Display(Name = "Target Url", GroupName = "Browser", Order = 40, Description = "Web application url")]
     public Uri TargetUri { get; set; } = new Uri("https://www.bing.com");
 
     /// <summary>
     /// Indicates whether the browser should be maximized on launch. Default value is true.
     /// </summary>
     [DataMember]
-    [Display(Name = "Maximize browser",  Order = 50, Description = "Specify whether browser window should be maximized after launch")]    
+    [Display(Name = "Maximize browser", GroupName = "Browser",  Order = 50, Description = "Specify whether browser window should be maximized after launch")]    
     public bool MaximizeOnLaunch { get; set; } = true;
-    
+
+    /// <summary>
+    /// Set to true if connecting to Selenium Grid
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Use Grid", GroupName = "Grid", Order = 10, Description = "Set to true if connecting to selenium grid")]
+    public bool UseGrid { get; set; } = false;
+
+    /// <summary>
+    /// Url of the selenium grid server
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Grid Url", GroupName = "Grid", Order = 20, Description = "Url of the selenium grid server")]
+    public Uri GridUrl { get; set; } = new Uri("https://localhost:4444");
+
     /// <summary>
     /// <see cref="IWebDriver"/> used to interact with the browser
     /// </summary>
