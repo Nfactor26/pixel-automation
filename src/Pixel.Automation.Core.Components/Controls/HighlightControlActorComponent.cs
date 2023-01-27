@@ -20,12 +20,12 @@ namespace Pixel.Automation.Core.Components.Controls
     [ToolBoxItem("Highlight Control", "Control Lookup", iconSource: null, description: "Highlight the target control", tags: new string[] { "Highlight", "Utility" })]
     public class HighlightControlActorComponent : ActorComponent
     {
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Target Control", Order = 10, GroupName = "Input")]
         [Description("Specify a control to be highlighted")]       
         public Argument TargetControl { get; set; } = new InArgument<UIControl>() { CanChangeType = false, Mode= ArgumentMode.DataBound };
-      
-        [DataMember]
+
+        [DataMember(Order = 210)]
         [Display(Name = "Highlight Duration", Order = 20, GroupName = "Input")]      
         [Description("Highlight duration in seconds e.g. 0.5, 1, 10, etc.")]
         public Argument HighlightDuration { get; set; } = new InArgument<double>() { DefaultValue = 1 };

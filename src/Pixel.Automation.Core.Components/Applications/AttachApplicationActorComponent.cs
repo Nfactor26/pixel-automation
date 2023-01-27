@@ -41,7 +41,7 @@ namespace Pixel.Automation.UIA.Components
         /// <summary>
         /// Indicates how the target process to be attached to is identifed.
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Attach Mode", GroupName = "Configuration", Order = 10, Description = "Indicates how the application to be attached to is identified.")]
         [RefreshProperties(RefreshProperties.All)]
         public AttachMode AttachMode
@@ -76,7 +76,7 @@ namespace Pixel.Automation.UIA.Components
         /// For e.g. if AttachMode is AttachToExecutable, you need to specify the name of the executable. However, if AttachMode is AttachToWindow, 
         /// you need to lookup ApplicationWindow first and setup this as an argument.
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Attach To", GroupName = "Configuration", Order = 20, Description = "Details of the target application to be attached to")]
         public Argument AttachTarget
         {

@@ -22,14 +22,14 @@ namespace Pixel.Automation.Core.Components.Helpers
         /// <summary>
         /// Name of an environment variable
         /// </summary>
-        [DataMember]     
+        [DataMember(Order = 200)]
         [Display(Name = "Env Variable", GroupName = "Input", Order = 10, Description = "Name of the environment variable")]
         public Argument Variable { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, CanChangeType = false };
 
         /// <summary>
         /// Value to assign to environment variable
         /// </summary>
-        [DataMember]      
+        [DataMember(Order = 210)]
         [Display(Name = "Value", GroupName = "Input", Order = 20, Description = "Value to set for the environment variable")]
         public Argument Value { get; set; } = new InArgument<string?>() { Mode = ArgumentMode.Default, CanChangeType = false };
 

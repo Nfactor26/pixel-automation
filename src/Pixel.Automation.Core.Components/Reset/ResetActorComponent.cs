@@ -13,7 +13,7 @@ namespace Pixel.Automation.Core.Components
     [ToolBoxItem("Reset Component", "Core Components", iconSource: null, description: "Reset a component and all its children", tags: new string[] { "Wait", "Core" })]
     public class ResetActorComponent : ActorComponent
     {
-        [DataMember]
+        [DataMember(Order = 200)]
         [System.ComponentModel.Description("Id of the component that needs to be reset")]
         [Display(Name = "Component Id", Order = 10, GroupName = "Input")]
         public string ComponentId { get; set; }

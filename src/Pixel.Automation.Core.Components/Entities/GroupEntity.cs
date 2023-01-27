@@ -17,7 +17,7 @@ namespace Pixel.Automation.Core.Components
         /// Actor Component which acts on a set of Entities added to PlaceHolder
         /// </summary>
         [Browsable(false)]
-        [DataMember]
+        [DataMember(Order = 200)]
         public ActorComponent GroupActor
         {
             get

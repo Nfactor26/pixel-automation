@@ -8,7 +8,7 @@ namespace Pixel.Automation.Core.Components
     [Serializable]   
     public class PlaceHolderEntity : Entity 
     {
-        [DataMember]
+        [DataMember(Order = 200)]
         [System.ComponentModel.Browsable(false)]
         public int? MaxComponentsCount { get; set; } = 50;
 
@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.Components
         /// Store an interface name to AllowedComponentsType property.
         /// Only components that implement this interface are allowed to be added to this PlaceHolderEntity
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 210)]
         [System.ComponentModel.Browsable(false)]
         public string AllowedComponentsType { get; set; } = typeof(IComponent).Name;
 

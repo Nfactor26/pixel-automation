@@ -21,17 +21,17 @@ namespace Pixel.Automation.Core.Components.Sequences
     {
         private readonly ILogger logger = Log.ForContext<RetrySequence>();
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Count", GroupName = "Retry Configuration", Order = 10)]
         [Description("Number of retry attempts")]
         public Argument RetryCount { get; set; } = new InArgument<int>() { CanChangeType = false, DefaultValue = 5 };
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Interval (seconds)", GroupName = "Retry Configuration", Order = 20)]
         [Description("Interval between subsequent retries")]
         public Argument RetryInterval { get; set; } = new InArgument<double>() { CanChangeType = false, DefaultValue = 1 };
 
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Exception", GroupName = "Retry Configuration", Order = 30)]
         [Description("[Optional] Last exception encountered during processing of execute block. This can be used inside retry block.")]
         public Argument Exception { get; set; }  = new OutArgument<Exception>() { CanChangeType = false }; 

@@ -24,23 +24,22 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         private readonly ILogger logger = Log.ForContext<FindFirstControlActorComponent>();
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Found Control", Order = 10, GroupName = "Output")]
         [Description("Argument will hold first control that was located")]
         public Argument FoundControl { get; set; } = new OutArgument<UIControl>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Found", Order = 20, GroupName = "Output")]
         [Description("[Optional] Argument will hold a boolean value indicating whether any of the control was located")]
         public Argument Exists { get; set; } = new OutArgument<bool>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
-
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Retry Attempts", Order = 30, GroupName = "Search Strategy")]
         [Description("Number of times to retry lookup for each control until one is located. Controls are looked up in round robin fashion.")]
         public Argument RetryAttempts { get; set; } = new InArgument<int>() { CanChangeType = false, Mode = ArgumentMode.Default, DefaultValue = 5 };
 
-        [DataMember]
+        [DataMember(Order = 230)]
         [Display(Name="Throw If Not Found", Order = 40, GroupName = "Error Handling")]
         [Description("Indicates whether an exception will be thrown if none of the controls are found")]
         public bool ThrowIfNotFound { get; set; }

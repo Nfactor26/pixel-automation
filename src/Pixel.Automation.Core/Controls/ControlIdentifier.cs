@@ -10,13 +10,13 @@ public class ControlIdentifier
     /// <summary>
     /// Name of the attribute
     /// </summary>
-    [DataMember]       
+    [DataMember(Order = 10)]
     public string AttributeName { get; set; }
 
     /// <summary>
     /// Value of the attribute
     /// </summary>
-    [DataMember]
+    [DataMember(Order = 20)]
     public string AttributeValue { get; set; }
 
     /// <summary>

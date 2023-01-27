@@ -37,7 +37,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         private Argument targetCollection = new InArgument<IEnumerable<object>>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted , Mode = ArgumentMode.DataBound, CanChangeType = true };
-        [DataMember]       
+        [DataMember(Order = 200)]
         [Description("Target collection which needs to be looped over all its items")]
         [Display(Name = "Collection", GroupName = "Input", Order = 20)]
         public Argument TargetCollection
@@ -51,7 +51,7 @@ namespace Pixel.Automation.Core.Components.Loops
         }
 
         private Argument current = new OutArgument<object>() { Mode = ArgumentMode.DataBound, CanChangeType = true };
-        [DataMember]            
+        [DataMember(Order = 210)]
         [Description("Current object being iterated")]
         [Display(Name = "Item", GroupName = "Input", Order = 10)]
         public Argument Current

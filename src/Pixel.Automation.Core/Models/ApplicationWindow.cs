@@ -14,7 +14,6 @@ namespace Pixel.Automation.Core.Models
       
         [Display(Name = "Window Handle", Order = 30)]
         public IntPtr HWnd { get; set; }
-
      
         [Display(Name = "Window Bounds", Order = 40)]
         public BoundingBox WindowBounds { get; set; }     

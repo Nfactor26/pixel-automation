@@ -18,12 +18,12 @@ namespace Pixel.Automation.Core.Components.Controls
     [ToolBoxItem("Find All Controls", "Control Lookup", iconSource: null, description: "Find all controls matching configured control criteria", tags: new string[] { })]
     public class FindAllControlsActorComponent : ActorComponent
     {
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Found Controls", Order = 10, GroupName = "Output")]
         [Description("Argument will hold all the found controls")]
         public Argument FoundControls { get; set; } = new OutArgument<IEnumerable<UIControl>>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Count", Order = 20, GroupName = "Output")]
         [Description("[Optional] Argument will hold the count of found controls")]
         public Argument Count { get; set; } = new OutArgument<int>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
