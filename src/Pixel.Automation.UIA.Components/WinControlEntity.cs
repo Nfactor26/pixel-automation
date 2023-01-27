@@ -20,7 +20,7 @@ namespace Pixel.Automation.UIA.Components
         /// </summary>
         public override async Task OnCompletionAsync()
         {
-            if (CacheControl)
+            if (!CacheControl)
             {
                 control = null;
                 logger.Debug($"Cleared cached AutomationElement for {this.Name}");
@@ -47,7 +47,7 @@ namespace Pixel.Automation.UIA.Components
                 searchRoot = await controlEntity.GetControl();
             }
 
-            UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;
+            var uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
@@ -85,7 +85,7 @@ namespace Pixel.Automation.UIA.Components
                 searchRoot = await controlEntity.GetControl();
             }
 
-            UIAControlLocatorComponent uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as UIAControlLocatorComponent;
+            var uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             var foundControls = await uiaControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);            
             return foundControls;
         }     

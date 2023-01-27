@@ -19,7 +19,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// </summary>
         public override async Task OnCompletionAsync()
         {
-            if (CacheControl)
+            if (!CacheControl)
             {
                 control = null;
                 logger.Debug($"Cleared cached AccessibleContextNode for {this.Name}");
@@ -46,7 +46,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 searchRoot = await controlEntity.GetControl();
             }
 
-            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
+            var controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             switch (LookupMode)
             {
                 case LookupMode.FindSingle:
@@ -82,7 +82,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             {
                 searchRoot = await controlEntity.GetControl();
             }
-            JavaControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as JavaControlLocatorComponent;
+            var controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
             return foundControls;
         }
