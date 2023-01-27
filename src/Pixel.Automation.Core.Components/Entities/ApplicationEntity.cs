@@ -19,11 +19,11 @@ namespace Pixel.Automation.Core.Components
     {
         protected readonly ILogger logger;
 
-        [DataMember]
+        [DataMember(Order = 500)]
         [Display(Name = "Application Id", Order = 10, GroupName = "Application Details")]
         public string ApplicationId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Browsable(false)]
         public string ApplicationFile { get; set; }
 

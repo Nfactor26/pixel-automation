@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
-namespace Pixel.Automation.UIA.Components.ActorComponents
+namespace Pixel.Automation.UIA.Components
 {
     /// <summary>
     /// Use <see cref="ScrollToActorComponent"/> to scroll to a target control

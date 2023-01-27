@@ -16,13 +16,13 @@ namespace Pixel.Automation.Core.Components.Controls
     [ToolBoxItem("Find Control", "Control Lookup", iconSource: null, description: "Find the control matching configured control criteria", tags: new string[] { })]
     public class FindControlActorComponent : ActorComponent
     {
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Found Control", Order = 10, GroupName = "Output")]
         [Description("Argument will hold the found control")]
         public Argument FoundControl { get; set; } = new OutArgument<UIControl>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Found", Order = 20, GroupName = "Output")]
         [Description("Argument will hold a boolean value indicating whether the control was located")]
         public Argument Exists { get; set; } = new OutArgument<bool>() { CanChangeType = false, Mode = ArgumentMode.DataBound };

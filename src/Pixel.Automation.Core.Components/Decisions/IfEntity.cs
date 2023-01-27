@@ -18,7 +18,7 @@ namespace Pixel.Automation.Core.Components.Decisions
     public class IfEntity : Entity
     {
         protected string scriptFile;
-        [DataMember]
+        [DataMember(Order = 200)]
         [Browsable(false)]
         public string ScriptFile
         {

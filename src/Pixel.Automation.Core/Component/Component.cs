@@ -18,7 +18,7 @@ namespace Pixel.Automation.Core
     {    
 
         string id;
-        [DataMember(Name = "Id",Order =10)]  
+        [DataMember(Order =10)]  
         [ReadOnly(true)] 
         [Display(Name="Id",Order = 10, GroupName = "Component", AutoGenerateField = false)]
         /// <inheritdoc/>
@@ -33,7 +33,7 @@ namespace Pixel.Automation.Core
         }
 
         string name;
-        [DataMember(Name = "Name", Order = 20)]   
+        [DataMember(Order = 20)]   
         [Display(Name = "Name", Order = 20, GroupName = "Component")]
         /// <inheritdoc/>
         public virtual string Name
@@ -47,7 +47,7 @@ namespace Pixel.Automation.Core
         }
 
         protected string tag;
-        [DataMember(Name = "Tag", Order = 30 , IsRequired =false)]
+        [DataMember(Order = 30 , IsRequired =false)]
         [ReadOnly(true)]     
         [Display(Name = "Tag", Order = 30, GroupName = "Component")]
         /// <inheritdoc/>
@@ -62,7 +62,7 @@ namespace Pixel.Automation.Core
         }
 
         bool isEnabled;
-        [DataMember(Name = "Enabled", Order = 40, IsRequired = false)]       
+        [DataMember(Order = 40, IsRequired = false)]       
         [Display(Name = "Enabled", Order = 50, GroupName = "Component", Description = "Indicated whether the component will be processed")]
         /// <inheritdoc/>
         public bool IsEnabled
@@ -76,7 +76,7 @@ namespace Pixel.Automation.Core
         }
 
         int processOrder = 1;
-        [DataMember(Name= "ProcessOrder", Order =50,IsRequired =true)] 
+        [DataMember(Order =50, IsRequired =true)] 
         [Display(Name = "Order", Order = 40, GroupName = "Component", Description ="Process order of the component")]
         [ReadOnly(true)]
         /// <inheritdoc/>
@@ -230,7 +230,7 @@ namespace Pixel.Automation.Core
         /// <summary>
         /// Indicates whether the processor should continue with the next child if this actor was not processed successfully
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 100)]
         [Display(Name = "Continue on Error", Order = 40, GroupName = "Error Handling", Description = "Indicates whether the processor should ignore any error in this component and " +
             "continue processing next component")]
         public bool ContinueOnError { get; set; } = false;

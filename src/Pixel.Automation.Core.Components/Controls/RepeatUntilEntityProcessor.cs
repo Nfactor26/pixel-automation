@@ -20,15 +20,15 @@ namespace Pixel.Automation.Core.Components.Controls
     {
         private readonly ILogger logger = Log.ForContext<RepeatUntilEntityProcessor>();
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Index", Order = 10, GroupName = "Input", Description = "Index for the current iteration")]
         public Argument Index { get; set; } = new InArgument<int>() { CanChangeType = false, AllowedModes = ArgumentMode.DataBound, Mode = ArgumentMode.DataBound };
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Repeat Until", Order = 20, GroupName = "Input", Description = "Repeat until specified condition is satisfied for control")]
         public UntilControl RepeatUntil { get; set; } = UntilControl.Exists;
 
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Found Control", Order = 10, GroupName = "Output", Description = "[Optional] Argument will store the the found control")]
         public Argument FoundControl { get; set; } = new OutArgument<UIControl>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
      

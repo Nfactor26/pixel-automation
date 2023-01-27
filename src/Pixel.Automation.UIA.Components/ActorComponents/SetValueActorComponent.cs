@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using uiaComWrapper::System.Windows.Automation;
 
-namespace Pixel.Automation.UIA.Components.ActorComponents
+namespace Pixel.Automation.UIA.Components
 {
     /// <summary>
     /// Use <see cref="SetValueActorComponent"/> to set the value of a control.

@@ -20,7 +20,7 @@ namespace Pixel.Automation.Core.Components.Loops
     public class WhileLoopEntity : Entity, ILoop
     {
         protected string scriptFile;
-        [DataMember]
+        [DataMember(Order = 200)]
         [Browsable(false)]
         public string ScriptFile
         {

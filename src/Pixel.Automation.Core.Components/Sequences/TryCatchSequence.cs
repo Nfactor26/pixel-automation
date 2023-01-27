@@ -20,7 +20,7 @@ namespace Pixel.Automation.Core.Components.Sequences
     {
         private readonly ILogger logger = Log.ForContext<TryCatchSequence>();
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Exception", GroupName = "Exception  Handling", Order = 10)]
         [Description("[Optional] Exception encountered during processing of try block")]
         public Argument Exception { get; set; } = new OutArgument<Exception>() { CanChangeType = false, Mode = ArgumentMode.DataBound};

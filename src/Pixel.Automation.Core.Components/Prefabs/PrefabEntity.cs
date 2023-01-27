@@ -19,16 +19,16 @@ namespace Pixel.Automation.Core.Components.Prefabs
     public class PrefabEntity : Entity
     {
         private readonly ILogger logger = Log.ForContext<PrefabEntity>();
-        [DataMember]
+        [DataMember(Order = 500)]
         [Browsable(false)]
         public string ApplicationId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 510)]
         [Browsable(false)]    
         public string PrefabId { get; set; }
 
         private string inputMappingScriptFile;
-        [DataMember]
+        [DataMember(Order = 200)]
         [DisplayName("Input Mapping Script")]
         public string InputMappingScriptFile
         {
@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Components.Prefabs
         }
 
         private string outputMappingScriptFile;
-        [DataMember]
+        [DataMember(Order = 200)]
         [DisplayName("Output Mapping Script")]
         public string OutputMappingScriptFile
         {

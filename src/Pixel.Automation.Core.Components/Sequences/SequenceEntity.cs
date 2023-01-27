@@ -18,7 +18,7 @@ namespace Pixel.Automation.Core.Components.Sequences
         private readonly ILogger logger = Log.ForContext<SequenceEntity>();
 
         string targetAppId = string.Empty;
-        [DataMember]
+        [DataMember(Order = 500)]
         [ReadOnly(true)]
         [Display(Name = "Application Id", Order = 10, GroupName = "Application Details")]
         public string TargetAppId
@@ -34,14 +34,14 @@ namespace Pixel.Automation.Core.Components.Sequences
             }
         }
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Display(Name = "Requires Focus", Order = 20, GroupName = "Application Details")]
         [Description("If set to true, target application window will be brought in to focus before processing child components")]
         public bool RequiresFocus { get; set; } = false;
 
 
         double acquireFocusTimeout = 3;
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Timeout", Order = 30, GroupName = "Application Details")]
         [Description("Timeout(seconds) for acquiring lock on mutex in order to set window as foregroud window")]
         /// <summary>

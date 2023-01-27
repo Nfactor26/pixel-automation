@@ -20,7 +20,7 @@ namespace Pixel.Automation.Core
         /// <summary>
         /// List of all components added to Entity
         /// </summary>
-        [DataMember(Name="Components")]
+        [DataMember(Order = 100)]
         [Browsable(false)]
         public virtual List<IComponent> Components
         {

@@ -21,20 +21,20 @@ namespace Pixel.Automation.Core.Components.Controls
     public class WaitUntilActorComponent : ActorComponent
     {
         private readonly ILogger logger = Log.ForContext<ActorComponent>();
-
-        [DataMember]
+     
+        [DataMember(Order = 200)]
         [Display(Name = "Retry Attempts", Order = 10, GroupName = "Input", Description = "Number of retry attempts")]
         public Argument RetryAttempts { get; set; } = new InArgument<int>() { CanChangeType = false, DefaultValue = 5 };
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [Display(Name = "Retry Interval", Order = 20, GroupName = "Input", Description = "Delay between retry attempts in seconds")]
         public Argument RetryInterval { get; set; } = new InArgument<int>() { CanChangeType = false, DefaultValue = 1 };
 
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Wait Until", Order = 30, GroupName = "Input", Description = "Wait until specified condition is satisfied for control")]
         public UntilControl WaitUntil { get; set; } = UntilControl.Exists;
 
-        [DataMember]
+        [DataMember(Order = 230)]
         [Display(Name = "Found Control", Order = 10, GroupName = "Output", Description = "[Optional] Argument will store the the found control")]
         public Argument FoundControl { get; set; } = new OutArgument<UIControl>() { CanChangeType = false, Mode = ArgumentMode.DataBound };
 

@@ -17,7 +17,7 @@ namespace Pixel.Automation.Core.Components.Waits
     {
         private readonly ILogger logger = Log.ForContext<DelayActorComponent>();
 
-        [DataMember]
+        [DataMember(Order = 200)]
         [Description("Amount of time in seconds to wait e.g. 0.5 , 1 ,10 ,etc.")]
         [Display(Name = "Delay Amount (seconds)", Order = 10, GroupName = "Input")]
         public Argument WaitAmount { get; set; } = new InArgument<double>() { DefaultValue = 5, CanChangeType = false};

@@ -17,15 +17,15 @@ namespace Pixel.Automation.Core.Components
     [Serializable]
     public abstract class ControlEntity : Entity, IControlEntity
     {
-        [DataMember]
+        [DataMember(Order = 500)]
         [Browsable(false)]
         public string ApplicationId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 510)]
         [Browsable(false)]
         public string ControlId { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 210)]
         [DisplayName("Search Root")]
         [Category("Control Details")]
         [Browsable(true)]
@@ -37,7 +37,7 @@ namespace Pixel.Automation.Core.Components
         };
 
         private LookupMode lookupMode = LookupMode.FindSingle;
-        [DataMember]
+        [DataMember(Order = 220)]
         [Display(Name = "Look Up Mode", GroupName = "Search Strategy", Order = 20)]
         [Description("Find single control or Find All control and apply index based or custom filter")]
         [RefreshProperties(RefreshProperties.Repaint)]
@@ -67,7 +67,7 @@ namespace Pixel.Automation.Core.Components
         }
 
         private FilterMode filterMode = FilterMode.Index;
-        [DataMember]
+        [DataMember(Order = 230)]
         [Display(Name = "Filter By", GroupName = "Search Strategy", Order = 30, AutoGenerateField = false)]
         [RefreshProperties(RefreshProperties.Repaint)]
         public FilterMode FilterMode
@@ -95,13 +95,13 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-        [DataMember]
+        [DataMember(Order = 240)]
         [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
         [Description("Bind to current Iteration when used inside loop")]
         public Argument Index { get; set; } = new InArgument<int>() { DefaultValue = 0, CanChangeType = false, Mode = ArgumentMode.Default };
 
         private Argument filter;
-        [DataMember]
+        [DataMember(Order = 250)]
         [Browsable(false)]
         [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
         [Description("When using FindAll LookupMode, provide a script to Filter the result")]
@@ -115,7 +115,7 @@ namespace Pixel.Automation.Core.Components
             }
         }
 
-        [DataMember]
+        [DataMember(Order = 260)]
         [Display(Name = "Enable Caching", GroupName = "Caching", Order = 50,
             Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
         public bool CacheControl { get; set; } = false;
