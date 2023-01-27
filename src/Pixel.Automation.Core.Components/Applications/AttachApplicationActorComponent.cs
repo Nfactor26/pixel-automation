@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.UIA.Components.ActorComponents
+namespace Pixel.Automation.UIA.Components
 {
     /// <summary>
     /// Use <see cref="AttachApplicationActorComponent"/> to attach to an existing application process which needs to be automated.

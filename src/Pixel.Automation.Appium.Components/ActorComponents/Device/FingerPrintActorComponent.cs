@@ -4,7 +4,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Pixel.Automation.Appium.Components.ActorComponents;
+namespace Pixel.Automation.Appium.Components;
 
 /// <summary>
 /// Authenticate users by using their finger print scans on supported emulators

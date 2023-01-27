@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
-namespace Pixel.Automation.Java.Access.Bridge.Components.ActorComponents
+namespace Pixel.Automation.Java.Access.Bridge.Components
 {
     /// <summary>
     /// Use <see cref="ToggleStateActorComponent"/> to toggle the state of the control e.g. a select a node in tree control or unselect it by toggling it's existing state.

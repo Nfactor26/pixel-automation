@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.UIA.Components.ActorComponents
+namespace Pixel.Automation.UIA.Components
 {
     /// <summary>
     /// Use <see cref="LaunchApplicationActorComponent"/> to launch an application.
