@@ -21,7 +21,7 @@ public class WebControlEntity : ControlEntity
     /// </summary>
     public override async Task OnCompletionAsync()
     {
-        if (CacheControl)
+        if (!CacheControl)
         {
             control = null;              
             logger.Debug($"Cleared cached WebElement for {this.Name}");
@@ -52,7 +52,7 @@ public class WebControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
-        WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
+        var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         switch (LookupMode)
         {
             case LookupMode.FindSingle:
@@ -91,7 +91,7 @@ public class WebControlEntity : ControlEntity
         {
             searchRoot = await controlEntity.GetControl();
         }
-        WebControlLocatorComponent webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as WebControlLocatorComponent;
+        var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);           
         return foundControls;
     }

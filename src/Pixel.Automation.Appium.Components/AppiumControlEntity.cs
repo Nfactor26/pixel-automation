@@ -20,7 +20,7 @@ public class AppiumControlEntity : ControlEntity
     /// </summary>
     public override async Task OnCompletionAsync()
     {
-        if (CacheControl)
+        if (!CacheControl)
         {
             control = null;
             logger.Debug($"Cleared cached AndroidElement for {this.Name}");
