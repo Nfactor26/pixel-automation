@@ -2,23 +2,43 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0-windows</TargetFramework>
-		<UseWPF>true</UseWPF>		
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
 		<OutputType>Library</OutputType>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
 		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
+		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Pixel.Automation.Appium.Components\Pixel.Automation.Appium.Components.csproj">
-			<Private>False</Private>
-			<PrivateAssets>All</PrivateAssets>
-		</ProjectReference>
+		<PackageReference Include="MouseKeyHook" Version="5.6.0" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Caliburn.Micro" Version="4.0.212">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MahApps.Metro" Version="2.4.9">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Notifications.Wpf.Core" Version="1.4.1">
+			<IncludeAssets>compile</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
-			<Private>false</Private>
+			<Private>false</Private>			
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.Appium.Components\Pixel.Automation.Appium.Components.csproj">
+			<Private>false</Private>			
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj">
-			<Private>false</Private>
-		</ProjectReference>	
+			<Private>false</Private>		
+		</ProjectReference>
 	</ItemGroup>
-	
+
 </Project>

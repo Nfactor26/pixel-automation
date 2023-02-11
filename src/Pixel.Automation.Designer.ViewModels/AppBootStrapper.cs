@@ -104,6 +104,15 @@ namespace Pixel.Automation.Designer.ViewModels
                 viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
                 logger.Information($"Added {item} to view assemblies.");
             }
+            //Scrapper plugins can have some views used by them
+            foreach (var item in Directory.GetFiles(".\\Plugins", "Pixel.Automation.*.dll", SearchOption.AllDirectories))
+            {
+                if(item.Contains("Scrapper"))
+                {
+                    viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
+                    logger.Information($"Added {item} to view assemblies.");
+                }               
+            }
             return viewAssemblies;
         }
 

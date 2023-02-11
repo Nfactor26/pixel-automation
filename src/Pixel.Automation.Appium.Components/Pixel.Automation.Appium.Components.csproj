@@ -16,8 +16,7 @@
 			<Private>false</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
-			<Private>false</Private>
-			<PrivateAssets>All</PrivateAssets>
+			<Private>false</Private>		
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj">
 			<Private>false</Private>
