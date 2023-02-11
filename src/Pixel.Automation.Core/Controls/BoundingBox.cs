@@ -56,6 +56,17 @@ namespace Pixel.Automation.Core.Controls
         }
 
         /// <summary>
+        /// Check if specified coordinate is contained within the bounding box
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool Contains(double x, double y)
+        {           
+            return x > this.X && x < this.X + this.Width && y > this.Y && y < this.Y + this.Height;
+        }
+
+        /// <summary>
         /// Two bounding box are equal if they represent the same rectangula area on screen
         /// </summary>
         /// <param name="obj"></param>
