@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AvalonEdit" Version="6.1.3.50" />
+		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />			
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+		   <Private>false</Private>
+	  </ProjectReference>
+	  <ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj">
+		   <Private>false</Private>
+	  </ProjectReference>
+	  <ProjectReference Include="..\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="HttpRequestConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="RequestBody\BinaryDataBodyConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="RequestBody\FormDataBodyConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="RequestBody\FormUrlEncodedBodyConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="RequestBody\RawDataBodyConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Request\HeadersConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Request\PathSegmentsConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Request\QueryStringsConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Request\RequestBodyConfigurationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Request\ResponseHandlingView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Response\HttpResponseBodyView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Response\HttpResponseHeadersView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	</ItemGroup>
+	
+</Project>

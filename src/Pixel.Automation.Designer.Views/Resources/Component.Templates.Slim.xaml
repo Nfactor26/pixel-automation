@@ -6,7 +6,7 @@
                     xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                     xmlns:cal="http://www.caliburnproject.org"                   
                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-                    xmlns:prefabs="clr-namespace:Pixel.Automation.Editor.Controls.Buttons;assembly=Pixel.Automation.Editor.Controls">
+                    xmlns:editorControls="clr-namespace:Pixel.Automation.Editor.Controls.Buttons;assembly=Pixel.Automation.Editor.Controls">
     
     <!--<iconPacks:PackIconMaterial x:Key="WindowsIcon" Kind="Windows" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
                                            Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
@@ -240,7 +240,7 @@
                 <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
                             HorizontalAlignment="Right" Orientation="Horizontal">
-                    <prefabs:ConfigurePrefabMenuButton InputMappingScriptFile="{Binding Model.InputMappingScriptFile, Mode=OneWay}"
+                    <editorControls:ConfigurePrefabMenuButton InputMappingScriptFile="{Binding Model.InputMappingScriptFile, Mode=OneWay}"
                                                 OutputMappingScriptFile="{Binding Model.OutputMappingScriptFile, Mode=OneWay}"                                            
                                                 OwnerComponent="{Binding Model}"/>
 
@@ -254,9 +254,48 @@
         <DataTemplate.Triggers>
             <Trigger Property="IsMouseOver"  Value="true">
                 <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
-            </Trigger>
+            </Trigger>           
+            <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Model.IsEnabled}" Value="false">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="Gray"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource
+                                Mode=FindAncestor,
+                                AncestorType={x:Type TreeViewItem}},
+                                Path=IsSelected}" Value="True">
+                <Setter TargetName="brdContainer" Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.AccentBase}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate x:Key="HttpRequest">
+        <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
+                Background="{DynamicResource MahApps.Brushes.Control.Background}">
+            <DockPanel LastChildFill="True" Margin="4" Width="Auto" HorizontalAlignment="Stretch"
+                       Background="White" IsHitTestVisible="True">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"
+                                            ToolTip="Control">
+                    <iconPacks:PackIconMaterial Kind="Web" Foreground="{DynamicResource MahApps.Brushes.Accent}" Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+                </StackPanel>
+                <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed"
+                            HorizontalAlignment="Right" Orientation="Horizontal">
+                    <editorControls:ConfigureHttpRequestButton OwnerComponent="{Binding Model}"
+                                                HttpRequest="{Binding Model.HttpRequest, Mode=OneWay}"                                            
+                                                ResponseContentHandling="{Binding Model.ResponseContentSettings, Mode=OneWay}"/>
+                    <Button x:Name="btnDeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"  Margin="0,0,0,0"
+                      cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                      Style="{DynamicResource EditControlButtonStyle}" ToolTip="Delete"
+                            Content="{iconPacks:Material CloseCircleOutline}"/>
+                </StackPanel>
+            </DockPanel>            
+        </Border>
+        <DataTemplate.Triggers>
             <Trigger Property="IsMouseOver"  Value="true">
-                <Setter TargetName="btnDeleteComponent"  Property="Visibility" Value="Visible"/>
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
             </Trigger>
             <DataTrigger Binding="{Binding Model.IsValid}" Value="false">
                 <Setter TargetName="brdContainer" Property="BorderBrush" Value="Red"></Setter>

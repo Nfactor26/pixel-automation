@@ -16,7 +16,7 @@
     </local:ArgumentUserControl.Resources>
     <Grid>
 
-        <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True">
+        <DockPanel x:Name="ArgumentEditorPanel" LastChildFill="True" HorizontalAlignment="Stretch">
 
             <Button x:Name="ChangeArgumentTypeButton" Visibility="{Binding Argument.CanChangeType,ElementName=OutArgumentControl,Converter={StaticResource BoolToVis}}"
                     Click="ChangeArgumentType"  Style="{DynamicResource ChangeArgumentTypeButtonStyle}"
@@ -31,7 +31,7 @@
             <Grid  MinWidth="100" HorizontalAlignment="Stretch" DockPanel.Dock="Right">
 
                 <ComboBox x:Name="ArgumentsComboBox" ItemsSource="{Binding AvailableProperties,ElementName=OutArgumentControl}" 
-                          IsEditable="True" Width="158" MaxWidth="158"
+                          IsEditable="True" MinWidth="158" HorizontalAlignment="Stretch"
                           PreviewMouseDown="RefreshAvailableProperties"
                           Metro:TextBoxHelper.UseFloatingWatermark="True"
                           Metro:TextBoxHelper.Watermark="{Binding Argument.ArgumentType,ElementName=OutArgumentControl}"
@@ -41,12 +41,12 @@
                           Converter={StaticResource ArgsModeToVisConverter},ConverterParameter=VisibleOnDataBound}" />
 
                 <DockPanel Visibility="{Binding Argument.Mode,ElementName=OutArgumentControl,Converter={StaticResource ArgsModeToVisConverter}, 
-                    ConverterParameter=VisibleOnScripted}" LastChildFill="True" Width="158" MaxWidth="158">
+                    ConverterParameter=VisibleOnScripted}" LastChildFill="True" MinWidth="158" HorizontalAlignment="Stretch">
                     <Button x:Name="ScriptEditorButton" Click="ShowScriptEditor" 
                         Style="{StaticResource SquaredButtonStyle}" Content="{iconPacks:FontAwesome Kind=EditRegular}"
                         ToolTip="Open Script editor" BorderThickness="0,1,1,1" DockPanel.Dock="Right"></Button>
                     <TextBox x:Name="ScriptPath" Text="{Binding Argument.ScriptFile, ElementName=OutArgumentControl}" VerticalContentAlignment="Center"
-                             BorderBrush="#FFCCCCCC" DockPanel.Dock="Left"/>
+                             BorderBrush="#FFCCCCCC" DockPanel.Dock="Left" HorizontalAlignment="Stretch"/>
                 </DockPanel>
 
             </Grid>

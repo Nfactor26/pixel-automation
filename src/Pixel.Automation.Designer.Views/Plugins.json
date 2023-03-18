@@ -76,6 +76,14 @@
     ]
   },
   {
+    "Name": "Pixel.Automation.RestApi.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS",
+      "LINUX"
+    ]
+  },
+  {
     "Name": "Pixel.Automation.Window.Management.Components",
     "Type": 1,
     "SupportedPlatforms": [

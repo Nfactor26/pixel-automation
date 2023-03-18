@@ -78,6 +78,11 @@
 		<DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
 		<StyleKey>ContainerStyle</StyleKey>
 	</ComponentTemplate>
+	<ComponentTemplate>
+		<Name>RestApiApplicationEntity</Name>
+		<DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
+		<StyleKey>ContainerStyle</StyleKey>
+	</ComponentTemplate>
 	
 	<ComponentTemplate>
 		<Name>PrefabEntity</Name>
@@ -186,5 +191,11 @@
 		<Name>RepeatUntilEntityProcessor</Name>
 		<DataTemplateKey>RepeatUntilProcessorTemplate</DataTemplateKey>
 		<StyleKey>ContainerStyle</StyleKey>
+	</ComponentTemplate>
+	<!--Http Components-->
+	<ComponentTemplate>
+		<Name>HttpRequestActorComponent</Name>
+		<DataTemplateKey>HttpRequest</DataTemplateKey>
+		<StyleKey>SlimStyle</StyleKey>
 	</ComponentTemplate>
 </ArrayOfComponentTemplate>

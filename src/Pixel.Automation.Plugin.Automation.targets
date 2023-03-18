@@ -10,6 +10,7 @@
 			<PluginProject Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Appium.Components\Pixel.Automation.Appium.Components.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.RestApi.Components\Pixel.Automation.RestApi.Components.csproj"/>
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
 			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>
@@ -48,6 +49,9 @@
 			</PluginArtifacts>
 			<PluginArtifacts Include="..\Pixel.Automation.Appium.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Appium.Components</Name>
+			</PluginArtifacts>
+		   <PluginArtifacts Include="..\Pixel.Automation.RestApi.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.RestApi.Components</Name>
 			</PluginArtifacts>
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'" >

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
+	  <EnableDynamicLoading>true</EnableDynamicLoading>
+	  <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+	  <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="109.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+	  <ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+		  <Private>false</Private>
+	  </ProjectReference>
+	  <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
+		  <Private>false</Private>
+	  </ProjectReference>
+	  <ProjectReference Include="..\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj" >
+		  <Private>false</Private>
+	  </ProjectReference>
+  </ItemGroup>
+
+</Project>

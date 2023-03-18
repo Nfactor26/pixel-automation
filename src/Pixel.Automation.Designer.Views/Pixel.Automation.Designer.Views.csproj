@@ -37,6 +37,7 @@
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.HttpRequest.Editor\Pixel.Automation.HttpRequest.Editor.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
