@@ -10,6 +10,7 @@ using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Designer.ViewModels.Factory;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.HttpRequest.Editor;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 
 namespace Pixel.Automation.Designer.ViewModels.Modules
@@ -40,6 +41,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IDropTarget>().To<ComponentDropHandler>().InTransientScope();
 
             Kernel.Bind<IVersionManagerFactory>().To<VersionManagerFactory>();
+
+            Kernel.Bind<IHttpRequestEditor>().To<HttpRequestConfigurationViewModel>();
         }
     }
 }

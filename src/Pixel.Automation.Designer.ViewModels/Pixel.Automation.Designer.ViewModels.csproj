@@ -29,6 +29,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Editor.Notifications\Pixel.Automation.Editor.Notifications.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.HttpRequest.Editor\Pixel.Automation.HttpRequest.Editor.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Reference.Manager\Pixel.Automation.Reference.Manager.csproj" />
 		<ProjectReference Include="..\Pixel.OpenId.Authenticator\Pixel.OpenId.Authenticator.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">

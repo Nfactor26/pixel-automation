@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Pixel.Automation.HttpRequest.Editor.HttpResponseBodyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pixel.Automation.HttpRequest.Editor"
+             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" DockPanel.Dock="Top" Margin="0,0,0,10">      
+        <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}">
+            <avalonEdit:TextEditor  Name="ResponseDataViewer" FontFamily="Consolas" Height="480" Padding="10"
+                                        WordWrap="false" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto"
+                                        SyntaxHighlighting="{Binding ResponseType}" FontSize="10pt" Document="{Binding Document}" />
+        </Border>
+    </StackPanel>
+</UserControl>
