@@ -141,7 +141,7 @@ namespace Pixel.Automation.Core.Components
         {
             if (this.Filter == null)
             {
-                this.Filter = new PredicateArgument<UIControl>() { CanChangeType = false };
+                this.Filter = new FuncArgument<Func<IComponent, UIControl, Task<bool>>>() { CanChangeType = false };
             }
         }
 
@@ -185,7 +185,7 @@ namespace Pixel.Automation.Core.Components
             throw new IndexOutOfRangeException($"Found {foundControls.Count()} controls.Desired index : {index} is greater than number of found controls");
         }
 
-        protected T GetElementMatchingCriteria<T>(IEnumerable<T> foundControls)
+        protected T GetElementMatchingCriteria<T>(IEnumerable<T> foundControls) where T : UIControl
         {
             foreach (var foundControl in foundControls)
             {
@@ -200,10 +200,10 @@ namespace Pixel.Automation.Core.Components
             throw new Exception($"Found {foundControls.Count()} controls. All controls failed filter criteria");
         }
 
-        protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement)
+        protected async Task<bool> ApplyPredicate<T>(string predicateScriptFile, T targetElement) where T : UIControl
         {
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, T, Task<bool>>>(predicateScriptFile);
+            var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, UIControl, Task<bool>>>(predicateScriptFile);
             bool isMatch = await fn(this, targetElement);
             return isMatch;
         }

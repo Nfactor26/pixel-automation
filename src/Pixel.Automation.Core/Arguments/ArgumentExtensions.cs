@@ -15,9 +15,7 @@ namespace Pixel.Automation.Core
         private static readonly string setValueAction = "return ((Action<{0}>)SetValue);";
         private static readonly string getValueTemplate = "{0} GetValue(){1}{{{1}    return default;{1}}}";
         private static readonly string getValueDelegate = "return ((Func<{0}>)GetValue);";
-        private static readonly string predicateScriptTemplate = "Task<bool> IsMatch(IComponent current, {0} argument){1}{{{1}    return Task.FromResult(false);{1}}}";
-        private static readonly string predicateDelegate = "return ((Func<IComponent, {0}, Task<bool>>)IsMatch);";
-
+        
         /// <summary>
         /// Get the value of the argument
         /// </summary>
@@ -61,11 +59,10 @@ namespace Pixel.Automation.Core
             {
                 result.Append(GenerateSetValueScript(argument));
                 return result.ToString();
-            }
-            else if(argument.GetType().Name.Equals(typeof(PredicateArgument<>).Name))
+            }            
+            else if (argument.GetType().Name.Equals(typeof(FuncArgument<>).Name))
             {
-                result.Append($"using {typeof(IComponent).Namespace};{Environment.NewLine}");
-                result.Append(GeneratePredicateScript(argument));
+                result.Append(GenerateFuncScript(argument));
                 return result.ToString();
             }
             throw new ArgumentException($"parameter : {nameof(argument)} is neither InArgument nor OutArgument");
@@ -85,11 +82,47 @@ namespace Pixel.Automation.Core
             string getValueParsedDelegate = string.Format(getValueDelegate, argument.ArgumentType);
             return $"{getValueParsedScript}{Environment.NewLine}{getValueParsedDelegate}";
         }
-        private static string GeneratePredicateScript(Argument argument)
+    
+        private static string GenerateFuncScript(Argument argument)
         {
-            string predicateParsedScript = string.Format(predicateScriptTemplate, argument.ArgumentType, Environment.NewLine);
-            string predicateParsedDelegate = string.Format(predicateDelegate, argument.ArgumentType);
-            return $"{predicateParsedScript}{Environment.NewLine}{predicateParsedDelegate}";
+            var argumentType = argument.GetArgumentType();
+            var argumentParameterTypes = argumentType.GetGenericArguments();
+            //if the return type is Task, Task<> , ValueTask , ValueTask<> make it async 
+            bool makeAsync = argumentParameterTypes.Last().Name.Contains("Task");
+            StringBuilder scriptBuilder = new StringBuilder();
+            if(makeAsync)
+            {
+                scriptBuilder.Append("async ");
+            }
+            scriptBuilder.Append(argumentParameterTypes.Last().GetDisplayName());
+            scriptBuilder.Append(" ");
+            scriptBuilder.Append(makeAsync ? "DoActionAsync" : "DoAction");
+            scriptBuilder.Append("(");
+            int i = 97;
+            int j;
+            for (j=0; j < argumentParameterTypes.Count() - 2; j++)
+            {
+                scriptBuilder.Append(argumentParameterTypes[j].GetDisplayName());
+                scriptBuilder.Append(" ");
+                scriptBuilder.Append((char)i);
+                i++;
+                scriptBuilder.Append(", ");
+            }
+            scriptBuilder.Append(argumentParameterTypes[j].GetDisplayName());
+            scriptBuilder.Append(" ");
+            scriptBuilder.Append((char)i);
+            scriptBuilder.Append(")");
+            scriptBuilder.AppendLine();
+            scriptBuilder.AppendLine("{");
+            scriptBuilder.AppendLine();
+            scriptBuilder.AppendLine("}");
+            scriptBuilder.AppendLine();
+            scriptBuilder.Append("return ((");
+            scriptBuilder.Append(argumentType.GetDisplayName());
+            scriptBuilder.Append(")");
+            scriptBuilder.Append(makeAsync ? "DoActionAsync" : "DoAction");
+            scriptBuilder.Append(");");
+            return scriptBuilder.ToString();
         }
     }
 }

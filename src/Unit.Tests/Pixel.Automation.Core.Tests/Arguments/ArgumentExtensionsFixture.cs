@@ -2,6 +2,8 @@
 using NUnit.Framework;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Argument = Pixel.Automation.Core.Arguments.Argument;
 
@@ -53,15 +55,39 @@ namespace Pixel.Automation.Core.Tests.Arguments
             Assert.AreEqual(expected, result);            
         }
 
-
-        [Test]
-        public void ValidateThatInitialScriptCanBeGeneratedForPredicateArgument()
+        public record FuncArgumentTestDataRecord(Argument argument, string expectedGeneratedScript);
+        static IEnumerable<FuncArgumentTestDataRecord> GetFuncArgumentTypes()
         {
-            var argument = new PredicateArgument<int>();
-            var expected = "using System;\r\nusing Pixel.Automation.Core.Interfaces;\r\nTask<bool> IsMatch(IComponent current, Int32 argument)\r\n{\r\n    return Task.FromResult(false);\r\n}\r\nreturn ((Func<IComponent, Int32, Task<bool>>)IsMatch);";
-            var result = argument.GenerateInitialScript();
+            yield return new FuncArgumentTestDataRecord(new FuncArgument<Func<IComponent, bool>>(),
+                "#r \"Pixel.Automation.Core.dll\"" +
+                "\r\nusing System;" +
+                "\r\nusing Pixel.Automation.Core.Interfaces;" +
+                "\r\nBoolean DoAction(IComponent a)" +
+                "\r\n{" +
+                "\r\n" +
+                "\r\n}" +
+                "\r\n" +
+                "\r\nreturn ((Func<IComponent, Boolean>)DoAction);");
+            yield return new FuncArgumentTestDataRecord(new FuncArgument<Func<IComponent, List<string>, ValueTask>>(),
+                $"#r \"Pixel.Automation.Core.dll\"" +
+                "\r\nusing System;" +              
+                "\r\nusing Pixel.Automation.Core.Interfaces;" +
+                "\r\nusing System.Collections.Generic;" +
+                "\r\nusing System.Threading.Tasks;" +
+                "\r\nasync ValueTask DoActionAsync(IComponent a, List<String> b)" +
+                "\r\n{" +
+                "\r\n" +
+                "\r\n}" +
+                "\r\n" +
+                "\r\nreturn ((Func<IComponent, List<String>, ValueTask>)DoActionAsync);");
+            yield break;
+        }
 
-            Assert.AreEqual(expected, result);
+        [TestCaseSource(nameof(GetFuncArgumentTypes))]
+        public void ValidateThatInitialScriptCanBeGeneratedForFuncArguments(FuncArgumentTestDataRecord testDataRecord)
+        {
+            var result = testDataRecord.argument.GenerateInitialScript();
+            Assert.AreEqual(testDataRecord.expectedGeneratedScript, result);
         }
     }
 }
