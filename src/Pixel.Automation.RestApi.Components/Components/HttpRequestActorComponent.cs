@@ -1,9 +1,11 @@
 ﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.RestApi.Shared;
 using RestSharp;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -43,6 +45,20 @@ namespace Pixel.Automation.RestApi.Components
         }
 
         /// <summary>
+        /// When supplied, the function will be called before making a request
+        /// </summary>
+        [DataMember(Order = 1020)]
+        [Display(Name = "Before Request", GroupName = "Extension", Order = 40, Description = "[Optional]  When supplied, the function will be called before making a request")]
+        public Argument BeforeRequest { get; set; } = new FuncArgument<Func<HttpRequestMessage, ValueTask>>();
+
+        /// <summary>
+        /// When supplied, the function will be called after making a request
+        /// </summary>
+        [DataMember(Order = 1030)]
+        [Display(Name = "after Request", GroupName = "Extension", Order = 40, Description = "[Optional]  When supplied, the function will be called after making a request")]
+        public Argument AfterRequest { get; set; } = new FuncArgument<Func<HttpResponseMessage, ValueTask>>();
+
+        /// <summary>
         /// constructor
         /// </summary>
         public HttpRequestActorComponent() : base("Http Request", "HttpRequest")
@@ -71,7 +87,24 @@ namespace Pixel.Automation.RestApi.Components
                 var restClient = this.EntityManager.GetOwnerApplication<RestApiApplication>(this).RestClient;
                 string configuredUri = await this.ArgumentProcessor.GetValueAsync<string>(httpRequest.TargetUrl);
                 RestRequest restRequest = new RestRequest(configuredUri, (Method)((int)httpRequest.RequestType));
-               
+                var scriptEngine = this.EntityManager.GetScriptEngine();
+
+                if (restApiApplicationEntity.ConfigureRequest.IsConfigured())
+                {
+                    var fn = await scriptEngine.CreateDelegateAsync<Func<RestRequest, ValueTask>>(restApiApplicationEntity.ConfigureRequest.ScriptFile);
+                    await fn(restRequest);
+                }
+
+                if(this.BeforeRequest.IsConfigured())
+                {
+                   restRequest.OnBeforeRequest = await scriptEngine.CreateDelegateAsync<Func<HttpRequestMessage, ValueTask>>(this.BeforeRequest.ScriptFile);
+                }
+
+                if (this.AfterRequest.IsConfigured())
+                {
+                    restRequest.OnAfterRequest = await scriptEngine.CreateDelegateAsync<Func<HttpResponseMessage, ValueTask>>(this.AfterRequest.ScriptFile);
+                }
+
                 await ConfigurePathSegmentsAsync(httpRequest, restRequest);
 
                 await ConfigureQueryStringsAsync(httpRequest, restRequest);
