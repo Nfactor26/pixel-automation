@@ -41,7 +41,7 @@ namespace Pixel.Automation.Designer.Views
                     targetPropertyItem.Editor = new OutArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;
                 }
-                else if (targetPropertyItem.Value.GetType().Name.StartsWith("PredicateArgument"))
+                else if (targetPropertyItem.Value.GetType().Name.StartsWith("FuncArgument"))
                 {
                     targetPropertyItem.Editor = new InArgumentEditor().ResolveEditor(targetPropertyItem);
                     return;

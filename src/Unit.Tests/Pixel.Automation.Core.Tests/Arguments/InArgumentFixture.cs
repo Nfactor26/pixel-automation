@@ -30,8 +30,8 @@ namespace Pixel.Automation.Core.Tests.Arguments
 
             Assert.AreEqual(ArgumentMode.Scripted, inArgument.Mode);
             Assert.AreEqual("Script.csx", inArgument.ScriptFile);
-            Assert.AreEqual(string.Empty, inArgument.DefaultValue);
-            Assert.AreEqual(string.Empty, inArgument.GetDefaultValue());
+            Assert.AreEqual(null, inArgument.DefaultValue);
+            Assert.AreEqual(null, inArgument.GetDefaultValue());
             Assert.IsTrue(inArgument.IsConfigured());             
             Assert.AreEqual(typeof(string), inArgument.GetArgumentType());
             Assert.AreEqual("String", inArgument.ArgumentType);        
@@ -44,8 +44,8 @@ namespace Pixel.Automation.Core.Tests.Arguments
 
             Assert.AreEqual(ArgumentMode.DataBound, inArgument.Mode);
             Assert.AreEqual("Age", inArgument.PropertyPath);
-            Assert.IsNotNull(inArgument.DefaultValue);
-            Assert.IsNotNull(inArgument.GetDefaultValue());
+            Assert.IsNull(inArgument.DefaultValue);
+            Assert.IsNull(inArgument.GetDefaultValue());
             Assert.IsTrue(inArgument.IsConfigured());
             Assert.AreEqual(typeof(Person), inArgument.GetArgumentType());            
             Assert.IsTrue(string.IsNullOrEmpty(inArgument.ScriptFile));           

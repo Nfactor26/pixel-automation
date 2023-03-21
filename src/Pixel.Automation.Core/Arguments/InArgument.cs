@@ -28,7 +28,7 @@ namespace Pixel.Automation.Core.Arguments
             get
             {
                 //If the type is changed, make sure defaultValue is not null . This can work only if type has default constructor
-                if (this.defaultValue == null)
+                if (this.Mode == ArgumentMode.Default && this.defaultValue == null)
                 {
                     Type type = typeof(T);
 
@@ -42,7 +42,7 @@ namespace Pixel.Automation.Core.Arguments
                         this.defaultValue = (T)Activator.CreateInstance(type);                       
                     }
                 }
-                return this.defaultValue;
+                return (this.Mode == ArgumentMode.Default) ? this.defaultValue : default;
             }
             set
             {

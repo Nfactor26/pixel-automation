@@ -73,7 +73,7 @@ namespace Pixel.Automation.Window.Management.Components
                         this.SetDispalyAttribute(nameof(Index), true);
                         break;
                     case FilterMode.Custom:
-                        this.Filter = new PredicateArgument<ApplicationWindow>() { CanChangeType = false };
+                        this.Filter = new FuncArgument<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>() { CanChangeType = false };
                         this.SetDispalyAttribute(nameof(Filter), true);
                         this.SetDispalyAttribute(nameof(Index), false);
                         break;

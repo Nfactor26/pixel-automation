@@ -4,22 +4,21 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Core.Arguments
 {
     /// <summary>
-    /// Predicate argument is a script based argument that evaluates to a boolean value.
-    /// This is used for decision making by some components.
+    /// Func argument is a script based argument that provides script based extension points
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [DataContract]
     [Serializable]
-    public class PredicateArgument<T> : Argument
+    public class FuncArgument<T> : Argument
     {
         /// <summary>
         /// Default constructor
         /// </summary>
-        public PredicateArgument()
+        public FuncArgument()
         {
             this.AllowedModes = ArgumentMode.Scripted;
-            this.Mode = ArgumentMode.Scripted;         
-            this.CanChangeType = false;            
+            this.Mode = ArgumentMode.Scripted;
+            this.CanChangeType = false;
         }
 
         /// <inheritdoc/>
@@ -31,9 +30,9 @@ namespace Pixel.Automation.Core.Arguments
         /// <inheritdoc/>
         public override object Clone()
         {
-            PredicateArgument<T> clone = new PredicateArgument<T>()
+            FuncArgument<T> clone = new FuncArgument<T>()
             {
-                Mode = this.Mode,            
+                Mode = this.Mode,
                 AllowedModes = this.AllowedModes,
                 CanChangeType = this.CanChangeType,
                 ScriptFile = this.ScriptFile
