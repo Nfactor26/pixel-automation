@@ -107,9 +107,15 @@ public class FormField : NotifyPropertyChanged
     public string ContentType { get; set; }
 
     /// <summary>
-    /// Description of the FormField
+    /// Indicates if the form parameter should be encoded
     /// </summary>
     [DataMember(Order = 60)]
+    public bool Encode { get; set; } = true;
+
+    /// <summary>
+    /// Description of the FormField
+    /// </summary>
+    [DataMember(Order = 70)]
     public string Description { get; set; }
     
     /// <summary>

@@ -70,6 +70,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Encode}" Header="Encode"/>
                 <DataGridTemplateColumn Header="Description">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

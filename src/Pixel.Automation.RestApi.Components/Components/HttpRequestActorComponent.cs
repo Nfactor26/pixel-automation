@@ -235,7 +235,7 @@ namespace Pixel.Automation.RestApi.Components
                         switch (formField.DataType)
                         {
                             case FormDataType.Text:
-                                restRequest.AddParameter(formField.DataKey, formFieldValue, ParameterType.RequestBody);
+                                restRequest.AddParameter(formField.DataKey, formFieldValue, ParameterType.RequestBody, formField.Encode);
                                 break;
                             case FormDataType.File:
                                 if (!File.Exists(formFieldValue))
