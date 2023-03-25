@@ -1,5 +1,4 @@
-﻿extern alias uiaComWrapper;
-using uiaComWrapper::System.Windows.Automation;
+﻿using Pixel.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {

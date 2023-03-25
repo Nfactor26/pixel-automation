@@ -20,15 +20,10 @@
 			<Private>false</Private>
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.UIAComWrapper\Pixel.Automation.UIAComWrapper.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="UIAComWrapper">
-			<HintPath>..\Libs\UIAComWrapper.dll</HintPath>
-			<Aliases>uiaComWrapper</Aliases>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-			<Private>false</Private>
-		</Reference>
 		<Reference Include="WindowsAccessBridgeInterop">
 			<HintPath>..\Libs\WindowsAccessBridgeInterop.dll</HintPath>
 			<EmbedInteropTypes>false</EmbedInteropTypes>

@@ -26,22 +26,10 @@
 		<ProjectReference Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj">
 			<Private>False</Private>
 			<PrivateAssets>All</PrivateAssets>			
+		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.UIAComWrapper\Pixel.Automation.UIAComWrapper.csproj">
+		  <Aliases></Aliases>
 		</ProjectReference>	
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="Interop.UIAutomationClient">
-			<HintPath>..\Libs\Interop.UIAutomationClient.dll</HintPath>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-			<Aliases>uiaAutomationClient</Aliases>
-			<Private>False</Private>			
-		</Reference>
-		<Reference Include="UIAComWrapper">
-			<HintPath>..\Libs\UIAComWrapper.dll</HintPath>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-			<Aliases>uiaComWrapper</Aliases>
-			<Private>False</Private>
-		</Reference>
 	</ItemGroup>
 
 </Project>

@@ -1,5 +1,4 @@
-﻿extern alias uiaComWrapper;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.UIA.Components.Enums;
@@ -9,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -67,10 +66,10 @@ namespace Pixel.Automation.UIA.Components
             {
                 control.Expand();
             }
-            var searchCondition = ConditionFactory.FromControlType(uiaComWrapper.System.Windows.Automation.ControlType.ListItem)
-                .OrControlType(uiaComWrapper.System.Windows.Automation.ControlType.TreeItem)
-                .OrControlType(uiaComWrapper.System.Windows.Automation.ControlType.DataItem)
-                .OrControlType(uiaComWrapper.System.Windows.Automation.ControlType.MenuItem);
+            var searchCondition = ConditionFactory.FromControlType(ControlType.ListItem)
+                .OrControlType(ControlType.TreeItem)
+                .OrControlType(ControlType.DataItem)
+                .OrControlType(ControlType.MenuItem);
             var childControls = control.FindAll(TreeScope.Descendants, searchCondition);
         
             logger.Information($"Located {childControls.ToList().Count}  options in control.");

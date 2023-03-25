@@ -1,5 +1,4 @@
-﻿extern alias uiaComWrapper;
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
@@ -17,7 +16,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Windows.Automation;
 
 
 namespace Pixel.Automation.UIA.Components
