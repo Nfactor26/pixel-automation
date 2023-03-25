@@ -1,8 +1,7 @@
-﻿extern alias uiaComWrapper;
+﻿using Pixel.Windows.Automation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using uiaComWrapper::System.Windows.Automation;
 using WindowsAccessBridgeInterop;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components

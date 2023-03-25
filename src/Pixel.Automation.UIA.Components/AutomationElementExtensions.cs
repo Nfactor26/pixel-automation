@@ -1,11 +1,9 @@
-﻿extern alias uiaComWrapper;
-
-using Dawn;
+﻿using Dawn;
 using Pixel.Automation.Core.Devices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {

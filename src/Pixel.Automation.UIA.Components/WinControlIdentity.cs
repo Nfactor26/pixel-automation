@@ -1,5 +1,4 @@
-﻿extern alias uiaComWrapper;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.UIA.Components.Enums;
 using System;

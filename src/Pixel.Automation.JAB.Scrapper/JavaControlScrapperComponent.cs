@@ -1,5 +1,4 @@
-﻿extern alias uiaComWrapper;
-using Caliburn.Micro;
+﻿using Caliburn.Micro;
 using Gma.System.MouseKeyHook;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
@@ -14,7 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Windows.Automation;
 using WindowsAccessBridgeInterop;
 
 

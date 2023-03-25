@@ -171,7 +171,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RestApi.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.HttpRequest.Editor", "src\Pixel.Automation.HttpRequest.Editor\Pixel.Automation.HttpRequest.Editor.csproj", "{89BF3C5C-F152-442A-A216-26257B17FC5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.RestApi.Shared", "src\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj", "{D3A29251-B07A-4C0C-8323-48F742345C50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.RestApi.Shared", "src\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj", "{D3A29251-B07A-4C0C-8323-48F742345C50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.UIAComWrapper", "src\Pixel.Automation.UIAComWrapper\Pixel.Automation.UIAComWrapper.csproj", "{89A122E5-5662-4400-BCC7-42C75A8BC4B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.UIAComWrapper.Tests", "src\Unit.Tests\Pixel.Automation.UIAComWrapper.Tests\Pixel.Automation.UIAComWrapper.Tests.csproj", "{59970211-C97D-4B93-8D13-ED34FD40C780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -443,6 +447,14 @@ Global
 		{D3A29251-B07A-4C0C-8323-48F742345C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3A29251-B07A-4C0C-8323-48F742345C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3A29251-B07A-4C0C-8323-48F742345C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89A122E5-5662-4400-BCC7-42C75A8BC4B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89A122E5-5662-4400-BCC7-42C75A8BC4B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89A122E5-5662-4400-BCC7-42C75A8BC4B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89A122E5-5662-4400-BCC7-42C75A8BC4B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59970211-C97D-4B93-8D13-ED34FD40C780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59970211-C97D-4B93-8D13-ED34FD40C780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59970211-C97D-4B93-8D13-ED34FD40C780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59970211-C97D-4B93-8D13-ED34FD40C780}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -519,6 +531,8 @@ Global
 		{799440F0-1F84-4843-A4AB-FF0511DA3153} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{89BF3C5C-F152-442A-A216-26257B17FC5F} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{D3A29251-B07A-4C0C-8323-48F742345C50} = {7E4532E6-7928-4E6F-8874-15482508447F}
+		{89A122E5-5662-4400-BCC7-42C75A8BC4B6} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
+		{59970211-C97D-4B93-8D13-ED34FD40C780} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

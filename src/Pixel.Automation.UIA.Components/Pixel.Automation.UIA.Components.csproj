@@ -25,27 +25,15 @@
 			<Private>false</Private>
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
+		<ProjectReference Include="..\Pixel.Automation.UIAComWrapper\Pixel.Automation.UIAComWrapper.csproj">
+		  <Aliases></Aliases>
+		</ProjectReference>
 	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
 		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="Interop.UIAutomationClient">
-			<HintPath>..\Libs\Interop.UIAutomationClient.dll</HintPath>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-			<Aliases>uiaAutomationClient</Aliases>
-			<Private>true</Private>
-		</Reference>
-		<Reference Include="UIAComWrapper">
-			<HintPath>..\Libs\UIAComWrapper.dll</HintPath>
-			<EmbedInteropTypes>false</EmbedInteropTypes>
-			<Aliases>uiaComWrapper</Aliases>
-			<Private>true</Private>
-		</Reference>
 	</ItemGroup>
 
 </Project>

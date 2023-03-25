@@ -1,7 +1,6 @@
-﻿extern alias uiaComWrapper;
-using Pixel.Automation.UIA.Components.Enums;
+﻿using Pixel.Automation.UIA.Components.Enums;
 using System;
-using uiaComWrapper::System.Windows.Automation;
+using Pixel.Windows.Automation;
 
 namespace Pixel.Automation.UIA.Components
 {
