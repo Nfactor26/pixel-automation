@@ -52,47 +52,53 @@ namespace Pixel.Automation.Core.TestData
         public bool IsMuted { get; set; }
 
         /// <summary>
-        /// Controls the delay for pre and post run of actors.
+        /// Amount of delay in ms after each actor is executed
         /// </summary>
         [DataMember(IsRequired = true, Order = 70)]
-        public int DelayFactor { get; set; } = 3;
+        public int PostDelay { get; set; } = 100;
 
+        /// <summary>
+        /// Scaling factor for post delay amount.       
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 80)]
+        public int DelayFactor { get; set; } = 3;            
+     
         /// <summary>
         /// Priority for the test case. This can be used for filtering test cases during execution.
         /// </summary>
-        [DataMember(IsRequired = true, Order = 80)]
+        [DataMember(IsRequired = true, Order = 90)]
         public Priority Priority { get; set; }
 
         /// <summary>
         /// Script file for the test case. This script file can be used for any temporary variables required 
         /// during test execution.
         /// </summary>
-        [DataMember(IsRequired = true, Order = 90)]
+        [DataMember(IsRequired = true, Order = 100)]
         public string ScriptFile { get; set; }     
 
         /// <summary>
         /// Description for the test case
         /// </summary>
-        [DataMember(IsRequired = false, Order = 100)]
+        [DataMember(IsRequired = false, Order = 110)]
         public string Description { get; set; }
 
         /// <summary>
         /// User defined key value pair that can be associated with test case.
         /// This can be used for filtering test cases during execution..
         /// </summary>
-        [DataMember(IsRequired = true, Order = 110)]
+        [DataMember(IsRequired = true, Order = 120)]
         public TagCollection Tags { get; private set; } = new TagCollection();
 
         /// <summary>
         /// Collection of Identifiers of controls used by the test case
         /// </summary>
-        [DataMember(IsRequired = true, Order = 120)]
+        [DataMember(IsRequired = true, Order = 130)]
         public List<ControlUsage> ControlsUsed { get; private set; } = new();
 
         /// <summary>
         /// Collection of Identifiers of Prefabs used by the test case
         /// </summary>
-        [DataMember(IsRequired = true, Order = 130)]
+        [DataMember(IsRequired = true, Order = 140)]
         public List<PrefabUsage> PrefabsUsed { get; private set; } = new();
 
         /// <summary>

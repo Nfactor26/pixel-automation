@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
 
@@ -15,8 +14,7 @@ namespace Pixel.Automation.Core.Components.Processors
     public abstract class EntityProcessor : Entity, IEntityProcessor
     {
         private readonly ILogger logger = Log.ForContext<EntityProcessor>();
-
-        protected int preDelayAmount = 0;
+               
         protected int postDelayAmount = 0;
 
         public EntityProcessor(string name="",string tag=""):base(name,tag)
@@ -29,24 +27,22 @@ namespace Pixel.Automation.Core.Components.Processors
         
         public abstract Task BeginProcessAsync();
         
-        public virtual void ConfigureDelay(int preDelayAmount, int postDelayAmount)
-        {
-            this.preDelayAmount = preDelayAmount;
+        public virtual void ConfigureDelay(int postDelayAmount)
+        {          
             this.postDelayAmount = postDelayAmount;
         }
 
         public virtual void ResetDelay()
-        {
-            this.preDelayAmount = 0;
+        {           
             this.postDelayAmount = 0;
         }
 
-        protected virtual void AddDelay(int delayAmount)
+        protected virtual async Task AddDelay(int delayAmount)
         {
             if (delayAmount > 0)
             {
                 logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
-                Thread.Sleep(delayAmount);
+                await Task.Delay(delayAmount);
             }
         }
 
@@ -87,11 +83,10 @@ namespace Pixel.Automation.Core.Components.Processors
                             case ActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;
-                                    AddDelay(this.preDelayAmount);
+                                    actorBeingProcessed = actor;                                   
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
-                                    AddDelay(this.postDelayAmount);
+                                    await AddDelay(this.postDelayAmount);
                                 }
                                 catch (Exception ex)
                                 {
@@ -109,7 +104,7 @@ namespace Pixel.Automation.Core.Components.Processors
                                 break;
 
                             case IEntityProcessor processor:
-                                processor.ConfigureDelay(this.preDelayAmount, this.postDelayAmount); 
+                                processor.ConfigureDelay(this.postDelayAmount); 
                                 await processor.BeginProcessAsync();
                                 processor.ResetDelay();
                                 break;

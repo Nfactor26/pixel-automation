@@ -52,13 +52,15 @@
                 <CheckBox x:Name="IsMuted" IsChecked="{Binding IsMuted}" ToolTip="Tests belonging to a muted fixture are not executed"/>
                 <Label Content="Order" Margin="5,0,0,0" ></Label>
                 <controls:NumericUpDown Minimum="0" Value="{Binding Order}" ToolTip="Order of execution of fixture"/>
+                <Label Content="Post Delay" Margin="4,0,0,0" ></Label>
+                <controls:NumericUpDown Minimum="0" Maximum="1000" Interval="100" Value="{Binding PostDelay}" ToolTip="Amount of delay in ms after execution of each actor. This is scaled based on execution speed."/>
             </StackPanel>
             
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Execution Speed"/>
                 <Slider x:Name="DelayFactor" Value="{Binding DelayFactor}" SmallChange="1" TickPlacement="None" LargeChange="10"
                         Margin="5,5,5,0" AutoToolTipPlacement="TopLeft"
-                        Minimum="0"  Maximum="100" ToolTip="Controls the pre-delay and post-delay for actors"/>
+                        Minimum="0"  Maximum="100" ToolTip="Scaling factor for Post Delay amount"/>
             </StackPanel>
                         
             <StackPanel x:Name="TagPanel" Orientation="Vertical" Margin="{StaticResource ControlMargin}" Style="{StaticResource StackPanelWithoutErrorTemplateStyle}"

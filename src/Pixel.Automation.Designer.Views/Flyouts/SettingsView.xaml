@@ -38,22 +38,12 @@
             </Controls:MetroTabItem>
             
             <Controls:MetroTabItem Controls:HeaderedControlHelper.HeaderFontSize="18" Header="Fixture" ToolTip="Application settings for Test Fixture">
-                <StackPanel Margin="10,5,5,5">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Delay Before" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
-                            <Button x:Name="InfoPreDelay" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
-                                    ToolTip="Amount of delay in ms before executing an actor inside a test case."/>
-                        </StackPanel>
-                        <TextBox x:Name="PreDelay" Controls:TextBoxHelper.Watermark="Delay Before" 
-                                 Text="{Binding ApplicationSettings.PreDelay}" Width="250" HorizontalAlignment="Left"
-                                 Controls:TextBoxHelper.ClearTextButton="True"></TextBox>
-                    </StackPanel>
+                <StackPanel Margin="10,5,5,5">                   
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="{StaticResource MarginTop}">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Delay After" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
                             <Button x:Name="InfoPostDelay" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"                                   
-                                    ToolTip="Amount of delay in ms after executing an actor inside a test case."/>
+                                    ToolTip="Default PostDelay amount of delay in ms after executing an actor inside a test case."/>
                         </StackPanel>
                         <TextBox x:Name="PostDelay" Controls:TextBoxHelper.Watermark="Delay After" 
                                  Text="{Binding ApplicationSettings.PostDelay}" Width="250" HorizontalAlignment="Left"
@@ -63,7 +53,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Delay Factor" Padding="0,0,0,5" VerticalContentAlignment="Center"></Label>
                             <Button x:Name="InfoDelayFactor" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,5"
-                                    ToolTip="Default scaling factor for pre and post delay that can be used to control the actual applied delay"/>
+                                    ToolTip="Default scaling factor for post delay that can be used to control the actual applied delay"/>
                         </StackPanel>
                         <TextBox x:Name="DelayFactor" Controls:TextBoxHelper.Watermark="Delay Factor" 
                                  Text="{Binding ApplicationSettings.DelayFactor}" Width="250" HorizontalAlignment="Left"

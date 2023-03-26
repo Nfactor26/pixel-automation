@@ -247,6 +247,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 };
                 TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(newTestFixture)
                 {
+                    PostDelay = applicationSettings.PostDelay,
                     DelayFactor = applicationSettings.DelayFactor
                 };
                 var testFixtureEditor = new EditTestFixtureViewModel(newTestFixture, this.TestFixtures.Select(s => s.DisplayName));
@@ -590,7 +591,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase)
                     {
-                        DelayFactor = fixtureVM.DelayFactor
+                        PostDelay = applicationSettings.PostDelay,
+                        DelayFactor = applicationSettings.DelayFactor
                     };
 
                     await this.testCaseManager.AddTestCaseAsync(testCase);

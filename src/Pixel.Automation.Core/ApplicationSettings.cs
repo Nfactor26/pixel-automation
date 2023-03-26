@@ -51,13 +51,7 @@ namespace Pixel.Automation.Core
                 OnPropertyChanged();
             }
         }      
-                
-        /// <summary>
-        /// Default amound of delay in ms before actor is executed
-        /// </summary>
-        [DataMember]
-        public int PreDelay { get; set; }
-
+                       
         /// <summary>
         /// Default amount of delay in ms after actor is executed
         /// </summary>

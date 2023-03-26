@@ -15,14 +15,15 @@ namespace Pixel.Automation.Core.Components.Processors
     public class SequentialEntityProcessor : EntityProcessor
     {
         [DataMember]
-        [Display(Name = "Pre Processing Delay", GroupName = "Delay", Order = 10)]
-        [Description("Delay before execution of an actor")]
-        public Argument PreDelay { get; set; } = new InArgument<int>() { DefaultValue = 300, CanChangeType = false };
+        [Display(Name = "Post Processing Delay", GroupName = "Delay", Order = 10)]
+        [Description("Delay after execution of an actor")]
+        public Argument PostDelay { get; set; } = new InArgument<int>() { DefaultValue = 100, CanChangeType = false };
 
         [DataMember]
-        [Display(Name = "Post Processing Delay", GroupName = "Delay", Order = 20)]
-        [Description("Delay after execution of an actor")]
-        public Argument PostDelay { get; set; } = new InArgument<int>() { DefaultValue = 300, CanChangeType = false };
+        [Display(Name = "Delay Factor", GroupName = "Delay", Order = 20)]
+        [Description("Scaling factor for Post delay")]
+        public Argument DelayFactor { get; set; } = new InArgument<int>() { DefaultValue = 3, CanChangeType = false };
+
 
         /// <summary>
         /// constructor
@@ -43,14 +44,16 @@ namespace Pixel.Automation.Core.Components.Processors
         private async Task ConfigureDelay()
         {
             var argumentProcessor = this.ArgumentProcessor;
-            if(this.PreDelay.IsConfigured())
+            int delayFactor = 1;
+            if (this.DelayFactor.IsConfigured())
             {
-                this.preDelayAmount = await argumentProcessor.GetValueAsync<int>(this.PreDelay);
+                delayFactor = await argumentProcessor.GetValueAsync<int>(this.DelayFactor);
             }
             if (this.PostDelay.IsConfigured())
             {
-                this.postDelayAmount = await argumentProcessor.GetValueAsync<int>(this.PostDelay);
+                this.postDelayAmount = delayFactor * await argumentProcessor.GetValueAsync<int>(this.PostDelay);
             }           
+           
         }
     }
 }
