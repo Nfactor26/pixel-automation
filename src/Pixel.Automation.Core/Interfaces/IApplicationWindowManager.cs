@@ -29,6 +29,13 @@ namespace Pixel.Automation.Core.Interfaces
         IEnumerable<ApplicationWindow> FindAllChildWindows(ApplicationWindow parentWindow, string titleToMatch, MatchType matchType, bool visibleOnly);
 
         /// <summary>
+        /// Check if application window is foreground window
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <returns></returns>
+        bool IsForeGroundWindow(ApplicationWindow window);
+
+        /// <summary>
         /// Get the foreground window
         /// </summary>
         /// <returns></returns>

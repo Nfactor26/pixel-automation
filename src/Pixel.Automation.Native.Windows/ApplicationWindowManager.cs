@@ -151,6 +151,12 @@ namespace Pixel.Automation.Native.Windows
             return matchingWindows;
         }
 
+        public bool IsForeGroundWindow(ApplicationWindow window)
+        {
+            HWND hWnd = User32.GetForegroundWindow();
+            return !hWnd.IsNull && hWnd.Equals(window.HWnd);
+        }
+
         public ApplicationWindow GetForeGroundWindow()
         {
             HWND hWnd = User32.GetForegroundWindow();

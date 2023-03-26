@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Tests
@@ -17,8 +16,7 @@ namespace Pixel.Automation.Core.Components.Tests
         [Test]
         public void ValidateThatSequenceEntityCanBeInitializer()
         {
-            var sequenceEntity = new SequenceEntity();
-            Assert.AreEqual(3, sequenceEntity.AcquireFocusTimeout);
+            var sequenceEntity = new SequenceEntity();           
             Assert.AreEqual(false, sequenceEntity.RequiresFocus);
             Assert.AreEqual(string.Empty, sequenceEntity.TargetAppId);
         }
@@ -43,14 +41,11 @@ namespace Pixel.Automation.Core.Components.Tests
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(applicationWindowManager);
         
             var sequenceEntity = new SequenceEntity() { EntityManager = entityManager, TargetAppId = "MockId", RequiresFocus = true };
-            
+
             //Act
-            using(sequenceEntity)
-            {
-                await sequenceEntity.BeforeProcessAsync();
-                await sequenceEntity.OnCompletionAsync();
-            }
-        
+            await sequenceEntity.BeforeProcessAsync();
+            await sequenceEntity.OnCompletionAsync();
+
             //Assert
             applicationWindowManager.Received(1).SetForeGroundWindow(Arg.Any<ApplicationWindow>());
         }
@@ -64,9 +59,7 @@ namespace Pixel.Automation.Core.Components.Tests
         [Test]
         public async Task GivenSequenceEntityIsConfiguredToRequreFocusValidateThatExceptionIsThrownIfOWnerApplicationWindowHandleIsZero()
         {
-
             var entityManager = Substitute.For<IEntityManager>();
-
             var applicationDetails = Substitute.For<IApplication, IComponent>();
             applicationDetails.Hwnd.Returns(new IntPtr(0));
             entityManager.GetOwnerApplication(Arg.Any<IComponent>()).Returns(applicationDetails);   
@@ -74,41 +67,9 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var sequenceEntity = new SequenceEntity() { EntityManager = entityManager,  TargetAppId = "MockId", RequiresFocus = true };
 
-            //Act
-            using (sequenceEntity)
-            { 
-                Assert.ThrowsAsync<InvalidOperationException>(async () => { await sequenceEntity.BeforeProcessAsync(); });
-                await sequenceEntity.OnFaultAsync(sequenceEntity);
-            }         
+            Assert.ThrowsAsync<InvalidOperationException>(async () => { await sequenceEntity.BeforeProcessAsync(); });
+            await sequenceEntity.OnFaultAsync(sequenceEntity);
         }
-
-
-        /// <summary>
-        /// Validate that exception is thrown if there is a timeout while waiting to acquire lock on mutex
-        /// </summary>
-        /// <returns></returns>
-        [Test]
-        public void ValidateThatExceptionIsThrownIfMutexLockCanNotBeAcquiredWithinConfiguredTimeout()
-        {
-            var sequenceEntity = new SequenceEntity() { RequiresFocus = true, TargetAppId = "MockId", AcquireFocusTimeout = 1 };
-            using(var mutex = new Mutex(false, "Local\\Pixel.AppFocus"))
-            {
-                mutex.WaitOne(TimeSpan.FromSeconds(2));
-                //Start on a new task since Mutex can be acquired multiple time by same thread 
-                var task = new Task(() =>
-                {
-                    Assert.ThrowsAsync<TimeoutException>(async () =>
-                    {
-                        await sequenceEntity.BeforeProcessAsync();
-                    });
-                });
-                task.Start();
-                task.Wait();             
-                sequenceEntity.Dispose();
-                mutex.ReleaseMutex();
-            }
-        }
-
 
         /// <summary>
         /// Given a standard test process setup and a sequence entity is not configured to acquire focus , validate that
@@ -124,13 +85,10 @@ namespace Pixel.Automation.Core.Components.Tests
             applicationWindowManager.When(x => x.SetForeGroundWindow(Arg.Any<ApplicationWindow>())).Do(x => { });
             entityManager.GetServiceOfType<IApplicationWindowManager>().Returns(applicationWindowManager);
       
-            var sequenceEntity = new SequenceEntity() { RequiresFocus = false };         
-            using (sequenceEntity)
-            {
-                await sequenceEntity.BeforeProcessAsync();
-                await sequenceEntity.OnCompletionAsync();
-            }
-        
+            var sequenceEntity = new SequenceEntity() { RequiresFocus = false };
+            await sequenceEntity.BeforeProcessAsync();
+            await sequenceEntity.OnCompletionAsync();
+
             applicationWindowManager.Received(0).SetForeGroundWindow(Arg.Any<ApplicationWindow>());
         }
     }
