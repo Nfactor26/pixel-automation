@@ -9,15 +9,14 @@ namespace Pixel.Automation.Core.Interfaces
     public interface IEntityProcessor : IComponent
     {
         /// <summary>
-        /// Configure the pre and post delay amount that should be introduced 
-        /// before and after executiong of each actor respectively.
-        /// </summary>
-        /// <param name="preDelayAmount"></param>
+        /// Configure post delay amount that should be introduced 
+        /// after executiong of each actor.
+        /// </summary>       
         /// <param name="postDelayAmount"></param>
-        void ConfigureDelay(int preDelayAmount, int postDelayAmount);
+        void ConfigureDelay(int postDelayAmount);
 
         /// <summary>
-        /// Reset pre and post delay values to 0
+        /// Reset post delay values to 0
         /// </summary>
         void ResetDelay();
 

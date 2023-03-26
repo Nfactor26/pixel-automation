@@ -61,6 +61,16 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => CopyOfTestCase.IsMuted = value;
         }
 
+
+        /// <summary>
+        /// Amount of delay in ms after each actor is executed.      
+        /// </summary>
+        public int PostDelay
+        {
+            get => CopyOfTestCase.PostDelay;
+            set => CopyOfTestCase.PostDelay = value;
+        }
+
         /// <summary>
         /// Controls the execution speed of the TestCase
         /// </summary>

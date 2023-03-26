@@ -77,6 +77,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
+        /// Amount of delay in ms after each actor is executed.      
+        /// </summary>
+        public int PostDelay
+        {
+            get => CopyOfTestFixture.PostDelay;
+            set => CopyOfTestFixture.PostDelay = value;
+        }
+
+        /// <summary>
         /// Controls the execution speed of the TestCases belonging to a TestFixture
         /// </summary>
         public int DelayFactor

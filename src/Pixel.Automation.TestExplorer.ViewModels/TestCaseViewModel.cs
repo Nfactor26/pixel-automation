@@ -102,7 +102,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
-        /// Controls the execution speed of the TestCase
+        /// Amount of delay in ms after each actor is executed.      
+        /// </summary>
+        public int PostDelay
+        {
+            get => TestCase.PostDelay;
+            set => TestCase.PostDelay = value;
+        }
+
+        /// <summary>
+        /// Scaling factor for post delay amount.
+        /// This will eventually control the delay introduced between execution of each actor.
         /// </summary>
         public int DelayFactor
         {

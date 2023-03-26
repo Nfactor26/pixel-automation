@@ -22,7 +22,7 @@ namespace Pixel.Automation.Test.Helpers
             return Task.CompletedTask;
         }
 
-        public void ConfigureDelay(int preDelayAmount, int postDelayAmount)
+        public void ConfigureDelay(int preDelayAmount)
         {
             
         }

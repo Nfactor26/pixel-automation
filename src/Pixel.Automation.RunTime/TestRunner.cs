@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.RunTime
@@ -20,16 +19,13 @@ namespace Pixel.Automation.RunTime
         protected readonly ILogger logger = Log.ForContext<TestRunner>();
         protected readonly IEntityManager entityManager;
         protected readonly IDataSourceReader testDataLoader;
-        protected readonly ApplicationSettings applicationSettings;
-
-        protected int preDelayAmount = 0;
+       
         protected int postDelayAmount = 0;
         
-        public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader, ApplicationSettings applicationSettings)
+        public TestRunner(IEntityManager entityManager, IDataSourceReader testDataLoader)
         {           
             this.entityManager = Guard.Argument(entityManager).NotNull().Value; 
-            this.testDataLoader = Guard.Argument(testDataLoader).NotNull().Value;
-            this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
+            this.testDataLoader = Guard.Argument(testDataLoader).NotNull().Value;           
         }   
 
         #region ITestRunner
@@ -430,23 +426,21 @@ namespace Pixel.Automation.RunTime
         #endregion ITestRunner
 
         protected void ConfigureDelays(TestCase testCase)
-        {
-            this.preDelayAmount = testCase.DelayFactor * this.applicationSettings.PreDelay;
-            this.postDelayAmount = testCase.DelayFactor * this.applicationSettings.PostDelay;
+        {           
+            this.postDelayAmount = testCase.DelayFactor * testCase.PostDelay;
         }
 
         protected void ResetDelays()
         {
-            this.preDelayAmount = 0;
             this.postDelayAmount = 0;
         }
 
-        protected void AddDelay(int delayAmount)
+        protected async Task AddDelay(int delayAmount)
         {
             if (delayAmount > 0)
             {
                 logger.Debug($"Wait for {delayAmount / 1000.0} seconds");
-                Thread.Sleep(delayAmount);
+                await Task.Delay(delayAmount);
             }
         }
 
@@ -468,11 +462,10 @@ namespace Pixel.Automation.RunTime
                             case ActorComponent actor:
                                 try
                                 {
-                                    actorBeingProcessed = actor;
-                                    AddDelay(this.preDelayAmount);
+                                    actorBeingProcessed = actor;                                   
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
-                                    AddDelay(this.postDelayAmount);
+                                    await AddDelay(this.postDelayAmount);
                                 }
                                 catch (Exception ex)
                                 {
@@ -491,7 +484,7 @@ namespace Pixel.Automation.RunTime
                                 break;
 
                             case IEntityProcessor processor:
-                                processor.ConfigureDelay(this.preDelayAmount, this.postDelayAmount);
+                                processor.ConfigureDelay(this.postDelayAmount);
                                 await processor.BeginProcessAsync();
                                 processor.ResetDelay();
                                 break;

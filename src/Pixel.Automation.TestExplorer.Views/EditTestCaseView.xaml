@@ -50,6 +50,8 @@
                 <Label Content="Priority" DockPanel.Dock="Left" Margin="4,0,0,0"></Label>
                 <ComboBox ItemsSource="{Binding Source={editorCore:EnumBindingSource {x:Type models:Priority}}}" DockPanel.Dock="Right"
                         SelectedItem="{Binding Path=Priority}" ToolTip="Priority" MinWidth="80"/>
+                <Label Content="Post Delay" Margin="4,0,0,0" ></Label>
+                <controls:NumericUpDown Minimum="0" Maximum="1000" Interval="100" Value="{Binding PostDelay}" ToolTip="Amount of delay in ms after execution of each actor. This is scaled based on execution speed."/>
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">

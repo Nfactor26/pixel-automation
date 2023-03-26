@@ -55,10 +55,16 @@ namespace Pixel.Automation.Core.TestData
         public string Category { get; set; } = "Default";
 
         /// <summary>
-        /// Controls the delay for pre and post run of actors.
+        /// Amount of delay in ms after each actor is executed.      
         /// </summary>
         [DataMember(IsRequired = true, Order = 80)]
-        public int DelayFactor { get; set; } = 3;
+        public int PostDelay { get; set; } = 100;
+
+        /// <summary>
+        /// Scaling factor for post delay amount.       
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 90)]
+        public int DelayFactor { get; set; } = 3;            
 
         /// <summary>
         /// User defined key value pair that can be associated with test fixture.
