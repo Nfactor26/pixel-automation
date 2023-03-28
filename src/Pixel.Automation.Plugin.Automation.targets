@@ -16,6 +16,8 @@
 			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj"/>			
+		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+			<PluginProject Include="..\Pixel.Automation.Native.Linux\Pixel.Automation.Native.Linux.csproj"/>
 		</ItemGroup>
 		<Message Text="Build Plugins -- TargetFramework : $(TargetFramework), RunTimeIdentifier : $(RuntimeIdentifier)" Importance="high"/>
 		<MSBuild Projects="@(PluginProject)" Targets="Build" Properties="Configuration=$(Configuration);
@@ -63,6 +65,9 @@
 			</PluginArtifacts>
 			<PluginArtifacts Include="..\Pixel.Automation.UIA.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.UIA.Components</Name>
+		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'" >
+			<PluginArtifacts Include="..\Pixel.Automation.Native.Linux\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Native.Linux</Name>
 			</PluginArtifacts>			
 		</ItemGroup>
 		<Message Text="Copying Plugins -- %(PluginArtifacts.FullPath) to $(TargetDir)Plugin\%(PluginArtifacts.Name)" Importance="high"/>

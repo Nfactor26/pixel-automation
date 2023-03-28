@@ -38,6 +38,13 @@
     ]
   },
   {
+    "Name": "Pixel.Automation.Native.Linux",
+    "Type": 0,
+    "SupportedPlatforms": [
+      "LINUX"
+    ]
+  },
+  {
     "Name": "Pixel.Automation.Scripting.Components",
     "Type": 1,
     "SupportedPlatforms": [
