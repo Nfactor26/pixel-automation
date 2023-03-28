@@ -5,7 +5,8 @@
 			<PluginProject Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj"/>	
 			<PluginProject Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj"/>	
-			<PluginProject Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj"/>	
+			<PluginProject Include="..\Pixel.Automation.Web.Scrapper\Pixel.Automation.Web.Scrapper.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.Appium.Scrapper\Pixel.Automation.Appium.Scrapper.csproj"/>
 		</ItemGroup>
 		<Message Text="TargetFramework is $(TargetFramework)" Importance="high"/>	
 		<MSBuild Projects="@(PluginProject)" Targets="Build" Properties="Configuration=$(Configuration);
