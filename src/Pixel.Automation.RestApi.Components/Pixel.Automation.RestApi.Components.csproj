@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RestSharp" Version="109.0.1" />
+    <PackageReference Include="RestSharp" Version="110.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +19,7 @@
 	  <ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 		  <Private>false</Private>
 	  </ProjectReference>
-	  <ProjectReference Include="..\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj" >
+	  <ProjectReference Include="..\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj">
 		  <Private>false</Private>
 	  </ProjectReference>
   </ItemGroup>

@@ -23,7 +23,7 @@
 		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="System.Management" Version="6.0.0" />
+		<PackageReference Include="System.Management" Version="7.0.0" />
 		<PackageReference Include="Vanara.Core" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>

@@ -8,10 +8,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.2" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.0" />
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />
 		<PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
-		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -21,7 +21,7 @@
 		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.Reference.Manager\Pixel.Automation.Reference.Manager.csproj" >
+		<ProjectReference Include="..\Pixel.Automation.Reference.Manager\Pixel.Automation.Reference.Manager.csproj">
 			<Private>false</Private>		
 		</ProjectReference>
 	</ItemGroup>

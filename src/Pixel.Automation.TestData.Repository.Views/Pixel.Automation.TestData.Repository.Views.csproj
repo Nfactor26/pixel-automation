@@ -8,7 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-		<PackageReference Include="gong-wpf-dragdrop" Version="3.2.0" />
+		<PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>
