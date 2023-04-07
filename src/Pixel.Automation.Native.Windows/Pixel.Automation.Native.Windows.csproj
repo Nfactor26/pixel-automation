@@ -23,20 +23,20 @@
 		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="System.Management" Version="6.0.0" />
-		<PackageReference Include="Vanara.Core" Version="3.4.10">
+		<PackageReference Include="System.Management" Version="7.0.0" />
+		<PackageReference Include="Vanara.Core" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="3.4.10">
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.4.10">
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Shared" Version="3.4.10">
+		<PackageReference Include="Vanara.PInvoke.Shared" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.User32" Version="3.4.10">
+		<PackageReference Include="Vanara.PInvoke.User32" Version="3.4.13">
 			<Private>false</Private>
 		</PackageReference>
 	</ItemGroup>

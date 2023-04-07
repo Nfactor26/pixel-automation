@@ -1,5 +1,13 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+	<Target Name="DeleteUnwanted" AfterTargets="Build">
+		<!--Delete Microsoft.Bcl.AsyncInterfaces.dll from root as Playwright plugin requires a higher version and fails to load if this file is already present in app root-->
+		<Delete Files="$(TargetDir)\Microsoft.Bcl.AsyncInterfaces.dll" >
+			<Output TaskParameter="DeletedFiles" ItemName="DeletedList"/>
+		</Delete>
+		<Message Text="Deleted files: '@(DeletedList)'"/>
+	</Target>
+	
 	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net6.0-windows'">
 		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net6.0-windows'">
 			<PluginProject Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj"/>	
@@ -25,7 +33,6 @@
 				 RuntimeIdentifier=$(RuntimeIdentifier);"/>
 		<Message Text="Build Plugins -- completed" Importance="high"/>
 	</Target>
-
 
 	<Target Name="CopyPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net6.0-windows'">
 		<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net6.0-windows'">

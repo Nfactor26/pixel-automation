@@ -10,7 +10,7 @@
 	<ItemGroup>
 		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
 		<PackageReference Include="Dawn.Guard" Version="1.12.0" />
-		<PackageReference Include="gong-wpf-dragdrop" Version="3.2.0" />
+		<PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
 		<PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
 		<PackageReference Include="Serilog" Version="2.12.0" />
 	</ItemGroup>
