@@ -198,7 +198,7 @@ public class ProjectDataManager : IProjectDataManager
     {
         foreach (var item in Directory.EnumerateDirectories(this.applicationSettings.AutomationDirectory))
         {
-            string automationProjectFile = $"{item}\\{Path.GetFileName(item)}.atm";
+            string automationProjectFile = Path.Combine(item, $"{Path.GetFileName(item)}.atm");
             if (File.Exists(automationProjectFile))
             {
                 var automationProject = serializer.Deserialize<AutomationProject>(automationProjectFile, null);
