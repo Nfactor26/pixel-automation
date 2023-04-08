@@ -105,6 +105,7 @@ public class TestFixtureRepository : ITestFixtureRepository
           .Set(t => t.Order, fixture.Order)
           .Set(t => t.IsMuted, fixture.IsMuted)
           .Set(t => t.Description, fixture.Description)
+          .Set(t => t.PostDelay, fixture.PostDelay)
           .Set(t => t.DelayFactor, fixture.DelayFactor)
           .Set(t => t.Tags, fixture.Tags)
           .Set(t => t.ControlsUsed, fixture.ControlsUsed)
