@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  pixel-run:
+    container_name: pixel_test_runner
+    networks:
+      - pixel-network
+
+networks:
+  pixel-network:
+    external: true
