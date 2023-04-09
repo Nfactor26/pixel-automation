@@ -166,7 +166,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.fileSystem = Guard.Argument(fileSystem, nameof(fileSystem)).NotNull().Value;
        
             this.TestDataSource = new TestDataSource() { DataSourceId = Guid.NewGuid().ToString() };
-            this.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.DataSourceId}.csx"));
+            this.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.TestDataRepository, $"{this.TestDataSource.DataSourceId}.csx")).Replace("\\", "/");
             this.DataSource = dataSource;
             this.existingDataSources = existingDataSources;
         }

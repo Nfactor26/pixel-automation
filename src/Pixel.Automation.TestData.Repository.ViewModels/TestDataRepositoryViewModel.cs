@@ -196,7 +196,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             {
                 DataSourceId = testDataId,
                 Name = "EmptyDataSource",
-                ScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, $"{this.projectFileSystem.TestDataRepository}\\{testDataId}.csx"),
+                ScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.csx")).Replace("\\", "/"),
                 DataSource = DataSource.Code,
                 MetaData = new DataSourceConfiguration()
                 {

@@ -102,6 +102,7 @@ public class TestCaseRepository : ITestCaseRepository
           .Set(t => t.Order, testCase.Order)
           .Set(t => t.IsMuted, testCase.IsMuted)
           .Set(t => t.TestDataId, testCase.TestDataId)
+          .Set(t => t.PostDelay, testCase.PostDelay)
           .Set(t => t.DelayFactor, testCase.DelayFactor)
           .Set(t => t.Priority, testCase.Priority)
           .Set(t => t.Description, testCase.Description)

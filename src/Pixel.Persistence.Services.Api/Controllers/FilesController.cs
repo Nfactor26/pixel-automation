@@ -165,13 +165,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
                     file.CopyTo(ms);
                     fileBytes = ms.ToArray();                             
                 }
+                string filePath = addFileRequest.FilePath.Replace("\\", "/");
                 await this.filesRepository.AddOrUpdateFileAsync(addFileRequest.ProjectId, addFileRequest.ProjectVersion, new ProjectDataFile()
                 {
                     ProjectId = addFileRequest.ProjectId,
                     ProjectVersion = addFileRequest.ProjectVersion,
                     Tag = addFileRequest.Tag,
                     FileName = addFileRequest.FileName,
-                    FilePath = addFileRequest.FilePath,
+                    FilePath = filePath,
                     Bytes = fileBytes
                 });
                 return Ok();

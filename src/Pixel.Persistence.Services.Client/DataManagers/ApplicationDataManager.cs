@@ -256,7 +256,7 @@ namespace Pixel.Persistence.Services.Client
             {
                 await controlRepositoryClient.AddOrUpdateControlImage(controlDescription, saveLocation);
             }
-            return saveLocation;
+            return saveLocation.Replace("\\", "/");
         }
 
         /// <inheritdoc/>      

@@ -49,28 +49,34 @@ public class TestFixture : Document
     public string Category { get; set; } = "Default";
 
     /// <summary>
-    /// Controls the delay for pre and post run of actors.
+    /// Amount of delay in ms after each actor is executed.      
     /// </summary>
     [DataMember(IsRequired = true, Order = 100)]
+    public int PostDelay { get; set; } = 100;
+
+    /// <summary>
+    /// Controls the delay for pre and post run of actors.
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 110)]
     public int DelayFactor { get; set; } = 3;
 
     /// <summary>
     /// User defined key value pair that can be associated with test fixture.
     /// This can be used for filtering test fixture during execution.
     /// </summary>
-    [DataMember(IsRequired = true, Order = 110)]
+    [DataMember(IsRequired = true, Order = 120)]
     public TagCollection Tags { get; set; } = new TagCollection();
 
     /// <summary>
     /// Collection of Identifiers of controls used by the test case
     /// </summary>
-    [DataMember(IsRequired = true, Order = 120)]
+    [DataMember(IsRequired = true, Order = 130)]
     public List<ControlUsage> ControlsUsed { get; set; } = new();
 
     /// <summary>
     /// Collection of Identifiers of Prefabs used by the test case
     /// </summary>
-    [DataMember(IsRequired = true, Order = 130)]
+    [DataMember(IsRequired = true, Order = 140)]
     public List<PrefabUsage> PrefabsUsed { get; set; } = new();
 
     /// <summary>

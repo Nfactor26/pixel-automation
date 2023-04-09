@@ -2,7 +2,7 @@
   "profiles": {
     "Pixel.Automation.Test.Runner": {
       "commandName": "Project",
-      "workingDirectory": "E:\\Git\\Pixel.Automation\\.builds\\Debug\\Runner"
+      "workingDirectory": "E:\\Git\\Pixel.Automation\\.builds\\Debug\\Runner\\net6.0-windows"
     }
   }
 }

@@ -11,16 +11,14 @@
     "Name": "Pixel.Automation.Image.Matching.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS",
-      "LINUX"
+      "WINDOWS"
     ]
   },
   {
     "Name": "Pixel.Automation.Input.Devices.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS",
-      "LINUX"
+      "WINDOWS"
     ]
   },
   {
@@ -38,10 +36,18 @@
     ]
   },
   {
+    "Name": "Pixel.Automation.Native.Linux",
+    "Type": 0,
+    "SupportedPlatforms": [
+      "LINUX"
+    ]
+  },
+  {
     "Name": "Pixel.Automation.Scripting.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS"
+      "WINDOWS",
+      "LINUX"
     ]
   },
   {
@@ -68,7 +74,7 @@
     ]
   },
   {
-    "Name": "Pixel.Automation.Window.Management.Components",
+    "Name": "Pixel.Automation.Appium.Components",
     "Type": 1,
     "SupportedPlatforms": [
       "WINDOWS",
@@ -76,29 +82,16 @@
     ]
   },
   {
-    "Name": "Pixel.Automation.Image.Scrapper",
-    "Type": 2,
+    "Name": "Pixel.Automation.RestApi.Components",
+    "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS"
+      "WINDOWS",
+      "LINUX"
     ]
   },
   {
-    "Name": "Pixel.Automation.JAB.Scrapper",
-    "Type": 2,
-    "SupportedPlatforms": [
-      "WINDOWS"
-    ]
-  },
-  {
-    "Name": "Pixel.Automation.UIA.Scrapper",
-    "Type": 2,
-    "SupportedPlatforms": [
-      "WINDOWS"
-    ]
-  },
-  {
-    "Name": "Pixel.Automation.Web.Scrapper",
-    "Type": 2,
+    "Name": "Pixel.Automation.Window.Management.Components",
+    "Type": 1,
     "SupportedPlatforms": [
       "WINDOWS"
     ]
