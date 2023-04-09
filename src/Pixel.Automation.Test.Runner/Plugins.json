@@ -11,16 +11,14 @@
     "Name": "Pixel.Automation.Image.Matching.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS",
-      "LINUX"
+      "WINDOWS"
     ]
   },
   {
     "Name": "Pixel.Automation.Input.Devices.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS",
-      "LINUX"
+      "WINDOWS"
     ]
   },
   {
@@ -41,14 +39,15 @@
     "Name": "Pixel.Automation.Native.Linux",
     "Type": 0,
     "SupportedPlatforms": [
-      "WINDOWS"
+      "LINUX"
     ]
   },
   {
     "Name": "Pixel.Automation.Scripting.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS"
+      "WINDOWS",
+      "LINUX"
     ]
   },
   {
@@ -94,8 +93,7 @@
     "Name": "Pixel.Automation.Window.Management.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS",
-      "LINUX"
+      "WINDOWS"
     ]
   }
 ]

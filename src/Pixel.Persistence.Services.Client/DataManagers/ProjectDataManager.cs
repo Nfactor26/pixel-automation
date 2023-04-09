@@ -458,7 +458,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
         if (string.IsNullOrEmpty(testFixture.ScriptFile))
         {
-            testFixture.ScriptFile = this.projectFileSystem.GetRelativePath(fixtureFiles.ScriptFile);
+            testFixture.ScriptFile = this.projectFileSystem.GetRelativePath(fixtureFiles.ScriptFile).Replace("\\", "/");
             this.projectFileSystem.CreateOrReplaceFile(fixtureFiles.FixtureDirectory, Path.GetFileName(testFixture.ScriptFile), string.Empty);
         }
         this.projectFileSystem.SaveToFile<TestFixture>(testFixture, fixtureFiles.FixtureDirectory, Path.GetFileName(fixtureFiles.FixtureFile));
@@ -565,7 +565,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);
         if (string.IsNullOrEmpty(testCase.ScriptFile))
         {
-            testCase.ScriptFile = this.projectFileSystem.GetRelativePath(testCaseFiles.ScriptFile);
+            testCase.ScriptFile = this.projectFileSystem.GetRelativePath(testCaseFiles.ScriptFile).Replace("\\", "/");
             this.projectFileSystem.CreateOrReplaceFile(testCaseFiles.TestDirectory, Path.GetFileName(testCase.ScriptFile), string.Empty);
         }
         this.projectFileSystem.SaveToFile<TestCase>(testCase, testCaseFiles.TestDirectory);

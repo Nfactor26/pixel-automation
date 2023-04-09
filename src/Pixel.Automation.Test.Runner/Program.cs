@@ -31,6 +31,7 @@ namespace Pixel.Automation.Test.Runner
 
             try
             {
+                logger.Information("Started with args : {0}", args);
                 var pluginManager = new PluginManager(new JsonSerializer());
                 var platformFeatureAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.PlatformFeature);
                 var pluginAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Component);

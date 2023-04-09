@@ -96,6 +96,7 @@ namespace Pixel.Automation.Test.Runner
 
             this.projectFileSystem.Initialize(this.automationProject, this.targetVersion);
             this.projectAssetsDataManager.Initialize(this.automationProject, this.targetVersion);
+            logger.Information("Working directory is {0}", this.projectFileSystem.WorkingDirectory);
 
             await this.projectDataManager.DownloadProjectDataFilesAsync(this.automationProject, (this.targetVersion as Core.Models.ProjectVersion));
             await this.projectAssetsDataManager.DownloadAllFixturesAsync();
@@ -111,20 +112,27 @@ namespace Pixel.Automation.Test.Runner
             }
          
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);           
-
+            this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);
+         
+            initializationScript = string.IsNullOrEmpty(initializationScript) ? Constants.InitializeEnvironmentScript : initializationScript;
             if (!string.IsNullOrEmpty(initializationScript) && !File.Exists(Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)))
             {
-                throw new FileNotFoundException($"Script file {initializationScript} doesn't exist.");
+                throw new FileNotFoundException($"Script file {Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)} doesn't exist.");
             }
-
+            
             object dataModel;
             //Load the setup data model for the project.
             if(this.targetVersion.IsPublished)
-            {
-                Assembly dataModelAssembly = Assembly.LoadFrom(Path.Combine(projectFileSystem.ReferencesDirectory, targetVersion.DataModelAssembly));
+            {                
+                string dataModelAssemblyFile = Path.Combine(projectFileSystem.ReferencesDirectory, targetVersion.DataModelAssembly);
+                if(!File.Exists(dataModelAssemblyFile))
+                {
+                    throw new FileNotFoundException($"Data model assembly file {dataModelAssemblyFile} doesn't exist.");
+                }
+                Assembly dataModelAssembly = Assembly.LoadFrom(dataModelAssemblyFile);
                 Type setupDataModel = dataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName)) ?? throw new Exception($"Data model assembly {dataModelAssembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
                 dataModel = Activator.CreateInstance(setupDataModel);
+                logger.Information("Data model assembly loaded from {0}", dataModelAssemblyFile);
             }
             else
             {
@@ -138,7 +146,6 @@ namespace Pixel.Automation.Test.Runner
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
             this.entityManager.Arguments = dataModel;
           
-            initializationScript = string.IsNullOrEmpty(initializationScript) ? Constants.InitializeEnvironmentScript : initializationScript;
             await ExecuteInitializationScript(initializationScript);
 
             logger.Information($"Project {0} with version {1}  was loaded.", this.automationProject.Name, this.targetVersion.Version);
