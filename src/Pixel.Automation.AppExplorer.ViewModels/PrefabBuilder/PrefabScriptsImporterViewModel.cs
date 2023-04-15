@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -91,7 +92,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 string fileContent = File.ReadAllText(filePath);
                 string projectNamespace = this.rootEntity.EntityManager.Arguments.GetType().Namespace;
                 fileContent = fileContent.Replace($"using {projectNamespace};", $"using {prefabProject.Namespace};");
-                File.WriteAllText(Path.Combine(prefabFileSystem.WorkingDirectory, $"Scripts\\{Path.GetFileName(scriptFile.ScriptName)}"), fileContent);
+                File.WriteAllText(Path.Combine(prefabFileSystem.WorkingDirectory, "Scripts", Path.GetFileName(scriptFile.ScriptName)), fileContent);
                 logger.Information($"Copied script file : {scriptFile} from {filePath}");
             }
         }
@@ -105,7 +106,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 {
                     //Make all path relative to Scripts. Assumption here is that even if any shared script file was used in actual process, it would have been referred from 
                     //Scripts folder
-                    argument.ScriptFile = $"Scripts\\{Path.GetFileName(argument.ScriptFile)}";                    
+                    argument.ScriptFile = Path.Combine("Scripts", Path.GetFileName(argument.ScriptFile)).Replace("\\", "/");                    
                 }
             }
 
@@ -119,7 +120,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                     string scriptFile = property.GetValue(scriptedActor)?.ToString();
                     if (!string.IsNullOrEmpty(scriptFile))
                     {
-                        property.SetValue(scriptedActor, $"Scripts\\{Path.GetFileName(scriptFile)}");
+                        property.SetValue(scriptedActor, Path.Combine("Scripts", Path.GetFileName(scriptFile)).Replace("\\", "/"));
                     }
                 }
             }
