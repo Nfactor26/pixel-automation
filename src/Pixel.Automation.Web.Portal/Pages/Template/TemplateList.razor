@@ -1,0 +1,50 @@
+﻿@page "/templates/list"
+
+<MudTable UserAttributes="@(new (){{"id","tblTemplates"}})" ServerData="@(new Func<TableState, Task<TableData<SessionTemplate>>>(GetTemplatesAsync))"
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="templatesTable">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Templates</MudText>
+        <MudIconButton UserAttributes="@(new (){{"id","btnNew"}})" Icon="@Icons.Material.Outlined.AddCircleOutline" Size="Size.Medium"
+                       @onclick="AddNewTemplate" Color="Color.Primary"></MudIconButton>
+        <MudSpacer></MudSpacer>
+        <MudTextField UserAttributes="@(new (){{"id","txtSearchBox"}})" T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search by template name or project name" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Template Name</MudTh>
+        <MudTh>Project Name</MudTh>
+        <MudTh>Project Version</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Template Name">
+            @context.Name
+        </MudTd>
+        <MudTd DataLabel="Project Name">
+            @context.ProjectName
+        </MudTd>
+        <MudTd DataLabel="Project Version">
+            @context.TargetVersion
+        </MudTd>
+        <MudTd DataLabel="">
+            <MudIconButton UserAttributes="@(new (){{"id","btnEdit"}})" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                           @onclick="()=> EditTemplate(context)" Size="Size.Medium"></MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="">
+            <MudIconButton UserAttributes="@(new (){{"id","btnDelete"}})" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                           @onclick="()=> DeleteTemplatesAsync(context)" Size="Size.Medium"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Results Per Page" />
+    </PagerContent>
+    <ColGroup>
+        <col />
+        <col />
+        <col />
+        <col style="width:20px;" />
+        <col style="width:20px;" />
+    </ColGroup>
+</MudTable>
+

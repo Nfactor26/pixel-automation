@@ -57,8 +57,12 @@ namespace Pixel.Persistence.Services.Api
             services.AddControllers();
             services.AddRazorPages();
 
-            services.AddSwaggerGen();
-            services.AddHostedService<StatisticsProcessorService>();           
+            services.AddSwaggerGen(c =>
+            {
+                c.UseOneOfForPolymorphism();
+            });
+ 
+             services.AddHostedService<StatisticsProcessorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,0 +1,45 @@
+﻿@page "/templates/new"
+
+@if (sessionTemplate != null)
+{
+    <MudGrid Spacing="2" Justify="Justify.FlexStart" Class="p-2">
+         <MudItem xs="8">
+               <MudText Typo="Typo.h4">Create New</MudText>
+         </MudItem/>       
+    </MudGrid>  
+
+    <br />
+    <MudPaper Elevation="4">
+        <EditForm Model="@sessionTemplate" OnValidSubmit="AddTemplateAsync">
+            <FluentValidationValidator />           
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField UserAttributes="@(new (){{"id","txtTemplateName"}})" Label="Template Name" Class="mt-3"
+                            @bind-Value="sessionTemplate.Name" For="@(() => sessionTemplate.Name)" />
+                     <MudAutocomplete T="AutomationProject" Label="Project Name" @bind-Value="selectedProject"
+                         SearchFunc="@SearchProjects" Class="mt-3"
+                         ResetValueOnEmptyText="true" ToStringFunc="@(e => e?.Name)"
+                         CoerceText="false" CoerceValue="false"
+                         AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />         
+                         <MudSelect T="ProjectVersion" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
+                            AnchorOrigin="Origin.BottomCenter" ToStringFunc="@(e => e?.Version.ToString())">
+                               @foreach (var version in selectedProject?.AvailableVersions ?? Enumerable.Empty<ProjectVersion>())
+                                {
+                                    <MudSelectItem T="ProjectVersion" Value="@version">@version</MudSelectItem>
+                                }
+                        </MudSelect>
+                        <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text" 
+                            Class="mt-3"  @bind-Value="sessionTemplate.Selector" Lines="2" For="@(() => sessionTemplate.Selector)" />
+                        <MudTextField UserAttributes="@(new (){{"id","txtInitializeScript"}})" Label="Initialization Script" Class="mt-3"
+                            @bind-Value="sessionTemplate.InitializeScript" For="@(() => sessionTemplate.InitializeScript)" />                      
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                           Color="Color.Primary" Class="ml-auto">Create</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    </MudPaper>
+    <br/>
+    <br/>
+}

@@ -19,6 +19,9 @@ namespace Pixel.Automation.Web.Portal
             builder.Services.AddHttpClient("Pixel.Automation.Web.Portal", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));          
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Pixel.Automation.Web.Portal"));
 
+            builder.Services.AddHttpClient<IProjectService, ProjectService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<ITemplateService, TemplateService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+            builder.Services.AddHttpClient<ITriggerService, TriggerService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<ITestResultService, TestResultService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<ITestSessionService, TestSessionService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             builder.Services.AddHttpClient<ITestStatisticsService, TestStatisticsService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));

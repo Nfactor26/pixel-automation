@@ -1,6 +1,9 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
+using Pixel.Automation.Web.Portal.Helpers;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
+using Pixel.Persistence.Core.Response;
 using Pixel.Persistence.Respository;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +43,13 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return result;
             }
             return NotFound($"No template exists with name : {name}");
+        }
+
+        [HttpGet("paged")]
+        public async Task<PagedList<SessionTemplate>> Get([FromQuery] GetTemplatesRequest queryParameter)
+        {
+            var sessions = await templateRepository.GetTemplatesAsync(queryParameter);      
+            return new PagedList<SessionTemplate>(sessions, sessions.Count(), queryParameter.CurrentPage, queryParameter.PageSize);
         }
 
         [HttpGet]
@@ -92,6 +102,60 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return Ok();
            }
            return BadRequest($"Template with Id : {Id} doesn't exist");
+        }
+
+
+        [HttpPost("triggers/add")]
+        public async Task<IActionResult> AddTriggerToTemplate([FromBody] AddTriggerRequest addTriggerRequest)
+        {           
+            Guard.Argument(addTriggerRequest, nameof(addTriggerRequest)).NotNull();
+            var template = await templateRepository.GetByIdAsync(addTriggerRequest.TemplateId);
+            if(template != null)
+            {
+                if (template.Triggers.Any(a => a.Equals(addTriggerRequest.Trigger)))
+                {
+                    return BadRequest(new BadRequestResponse(new[] { "Trigger with same details already exists for template" }));
+                }
+                await templateRepository.AddTriggerAsync(template, addTriggerRequest.Trigger);
+                return Ok();
+            }
+            return NotFound(new NotFoundResponse($"Template with Id: {addTriggerRequest.TemplateId} not found."));
+
+        }
+
+        [HttpPut("triggers/update")]
+        public async Task<IActionResult> UpdateTriggerForTemplate([FromBody] UpdateTriggerRequest updateTriggerRequest)
+        {        
+            Guard.Argument(updateTriggerRequest, nameof(updateTriggerRequest)).NotNull();           
+            var template = await templateRepository.GetByIdAsync(updateTriggerRequest.TemplateId);
+            if (template != null)
+            {
+                if (template.Triggers.Any(a => a.Equals(updateTriggerRequest.Original)))
+                {
+                    await templateRepository.DeleteTriggerAsync(template, updateTriggerRequest.Original);
+                    await templateRepository.AddTriggerAsync(template, updateTriggerRequest.Updated);
+                    return Ok();
+                }
+                return NotFound(new NotFoundResponse($"No matching trigger was found to  update"));
+            }
+            return NotFound(new NotFoundResponse($"Template with Id: {updateTriggerRequest.TemplateId} not found."));
+        }
+
+        [HttpDelete("triggers/delete")]
+        public async Task<IActionResult> DeleteTriggerFromTemplate( [FromBody] DeleteTriggerRequest deleteTriggerRequest)
+        {          
+            Guard.Argument(deleteTriggerRequest, nameof(deleteTriggerRequest)).NotNull();
+            var template = await templateRepository.GetByIdAsync(deleteTriggerRequest.TemplateId);
+            if (template != null)
+            {
+                if (template.Triggers.Any(a => a.Equals(deleteTriggerRequest.Trigger)))
+                {
+                    await templateRepository.DeleteTriggerAsync(template, deleteTriggerRequest.Trigger);
+                    return Ok();
+                }
+                return NotFound(new NotFoundResponse($"No matching trigger was found to  delete"));
+            }
+            return NotFound(new NotFoundResponse($"Template with Id: {deleteTriggerRequest.TemplateId} not found."));
         }
     }
 }
