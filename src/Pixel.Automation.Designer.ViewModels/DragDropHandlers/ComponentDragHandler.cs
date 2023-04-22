@@ -376,7 +376,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 applicationEntity.Name = $"Details : {applicationDescription.ApplicationName}";
                 applicationEntity.ApplicationId = applicationDescription.ApplicationId;
                 applicationEntity.EntityManager = parentEntity.Model.EntityManager;
-                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, $"{applicationDescription.ApplicationId}.app");
+                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, $"{applicationDescription.ApplicationId}.app").Replace("\\", "/");
 
                 //Add the ApplicationEntity to ApplicationPool and load ApplicationDetails
                 parentEntity.AddComponent(applicationEntity);

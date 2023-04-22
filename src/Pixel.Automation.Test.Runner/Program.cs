@@ -23,8 +23,8 @@ namespace Pixel.Automation.Test.Runner
         {           
             Log.Logger = new LoggerConfiguration()
                .Enrich.WithThreadId()
-               //.WriteTo.SpectreConsole("{Timestamp:HH:mm:ss} [{Level:u4}] {Message:lj}{NewLine}{Exception}", minLevel: LogEventLevel.Information)
-               .WriteTo.File("logs\\Pixel-Automation-.txt", restrictedToMinimumLevel: LogEventLevel.Verbose,
+               .WriteTo.SpectreConsole("{Timestamp:HH:mm:ss} [{Level:u4}] {Message:lj}{NewLine}{Exception}", minLevel: LogEventLevel.Information)
+               .WriteTo.File("logs/Pixel-Automation-.txt", restrictedToMinimumLevel: LogEventLevel.Verbose,
                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
                .CreateLogger();
             var logger = Log.ForContext<Program>();
