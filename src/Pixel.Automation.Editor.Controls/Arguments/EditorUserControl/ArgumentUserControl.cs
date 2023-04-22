@@ -91,7 +91,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             if (string.IsNullOrEmpty(Argument.ScriptFile))
             {
                 var fileSystem = entityManager.GetCurrentFileSystem();
-                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));
+                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");
             }
         }
 

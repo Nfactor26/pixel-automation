@@ -90,7 +90,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
             if (string.IsNullOrEmpty(Argument.ScriptFile))
             {
                 var fileSystem = entityManager.GetCurrentFileSystem();
-                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx"));
+                Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(fileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");
             }
         }
 
@@ -149,7 +149,7 @@ namespace Pixel.Automation.Editor.Controls.Arguments
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, openFileDialog.FileName);
+                    Argument.ScriptFile = Path.GetRelativePath(fileSystem.WorkingDirectory, openFileDialog.FileName).Replace("\\", "/");
                     logger.Information("ScriptFile for argument belonging to {Component} was updated to {ScriptFile} ", OwnerComponent, Argument.ScriptFile);
                     return;
                 }

@@ -176,7 +176,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 applicationEntity.Name = $"Details : {targetApplication.ApplicationName}";
                 applicationEntity.ApplicationId = targetApplication.ApplicationId;
                 applicationEntity.EntityManager = this.entityManager;
-                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, targetApplication.ApplicationId, $"{targetApplication.ApplicationId}.app");
+                applicationEntity.ApplicationFile = Path.Combine(applicationSettings.ApplicationDirectory, targetApplication.ApplicationId, $"{targetApplication.ApplicationId}.app").Replace("\\", "/");
             
                 applicationEntity.GetTargetApplicationDetails();
                 return applicationEntity;
