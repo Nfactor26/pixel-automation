@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Respository.Interfaces;
+using Pixel.Persistence.Services.Api.Jobs;
 using Pixel.Persistence.Services.Api.Services;
 using Quartz;
 using Serilog;
@@ -36,7 +37,9 @@ namespace Pixel.Persistence.Services.Api
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
             services.Configure<RetentionPolicy>(Configuration.GetSection(nameof(RetentionPolicy)));
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
-            services.AddSingleton<RetentionPolicy>(sp => sp.GetRequiredService<IOptions<RetentionPolicy>>().Value);  
+            services.AddSingleton<RetentionPolicy>(sp => sp.GetRequiredService<IOptions<RetentionPolicy>>().Value);
+            services.AddSingleton<IJobManager, JobManager>();
+            services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
             services.AddTransient<ITestResultsRepository, TestResultsRepository>();
             services.AddTransient<ITestStatisticsRepository, TestStatisticsRepository>();
@@ -52,7 +55,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<ITestDataRepository, TestDataRepository>();           
             services.AddTransient<IPrefabsRepository, PrefabsRepository>();
             services.AddTransient<ITemplateRepository, TemplateRepository>();                      
-          
+           
             services.AddControllers();
             services.AddRazorPages();
 

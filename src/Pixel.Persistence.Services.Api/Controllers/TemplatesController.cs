@@ -1,12 +1,17 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Pixel.Automation.Web.Portal.Helpers;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
 using Pixel.Persistence.Respository;
+using Pixel.Persistence.Services.Api.Jobs;
+using Quartz;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
@@ -15,11 +20,16 @@ namespace Pixel.Persistence.Services.Api.Controllers
     [ApiController]
     public class TemplatesController : ControllerBase
     {
-        private readonly ITemplateRepository templateRepository;
+        private readonly ILogger logger;
+        private readonly ITemplateRepository templateRepository;       
+        private readonly IJobManager jobManager;
 
-        public TemplatesController(ITemplateRepository templateRepository)
+        public TemplatesController(ILogger<TemplatesController> logger, ITemplateRepository templateRepository, 
+           IJobManager jobManager)
         {
-            this.templateRepository = templateRepository;
+            this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
+            this.templateRepository = Guard.Argument(templateRepository, nameof(templateRepository)).NotNull().Value;     
+            this.jobManager =  Guard.Argument(jobManager, nameof(jobManager)).NotNull().Value;
         }
 
         // GET: api/TestSession/5
@@ -117,6 +127,19 @@ namespace Pixel.Persistence.Services.Api.Controllers
                     return BadRequest(new BadRequestResponse(new[] { "Trigger with same details already exists for template" }));
                 }
                 await templateRepository.AddTriggerAsync(template, addTriggerRequest.Trigger);
+                logger.LogInformation("A new trigger @{0} was added to template {1}", addTriggerRequest.Trigger, template.Name);
+                if(addTriggerRequest.Trigger is CronSessionTrigger cronSessionTrigger && cronSessionTrigger.IsEnabled)
+                {
+                    try
+                    {
+                       await jobManager.AddCronJobAsync(template, cronSessionTrigger);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "An error occured while trying to schedule a new job for trigger : {0} beloning to template {1}", cronSessionTrigger.Name, template.Name);
+                        return Problem($"An error occured while trying to schedule job for trigger. {ex.Message}");
+                    }
+                }               
                 return Ok();
             }
             return NotFound(new NotFoundResponse($"Template with Id: {addTriggerRequest.TemplateId} not found."));
@@ -133,7 +156,12 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 if (template.Triggers.Any(a => a.Equals(updateTriggerRequest.Original)))
                 {
                     await templateRepository.DeleteTriggerAsync(template, updateTriggerRequest.Original);
+                    await jobManager.DeleteTriggerAsync(template, updateTriggerRequest.Original);
                     await templateRepository.AddTriggerAsync(template, updateTriggerRequest.Updated);
+                    if(updateTriggerRequest.Updated is CronSessionTrigger cronSessionTrigger)
+                    {
+                        await jobManager.AddCronJobAsync(template, cronSessionTrigger);
+                    }
                     return Ok();
                 }
                 return NotFound(new NotFoundResponse($"No matching trigger was found to  update"));
@@ -141,21 +169,29 @@ namespace Pixel.Persistence.Services.Api.Controllers
             return NotFound(new NotFoundResponse($"Template with Id: {updateTriggerRequest.TemplateId} not found."));
         }
 
-        [HttpDelete("triggers/delete")]
-        public async Task<IActionResult> DeleteTriggerFromTemplate( [FromBody] DeleteTriggerRequest deleteTriggerRequest)
+        [HttpDelete("triggers/delete/{templateId}/{triggerName}")]
+        public async Task<IActionResult> DeleteTriggerFromTemplate(string templateId, string triggerName)
         {          
-            Guard.Argument(deleteTriggerRequest, nameof(deleteTriggerRequest)).NotNull();
-            var template = await templateRepository.GetByIdAsync(deleteTriggerRequest.TemplateId);
+            Guard.Argument(templateId, nameof(templateId)).NotNull().NotEmpty();
+            Guard.Argument(triggerName, nameof(triggerName)).NotNull().NotEmpty();
+            var template = await templateRepository.GetByIdAsync(templateId);
             if (template != null)
             {
-                if (template.Triggers.Any(a => a.Equals(deleteTriggerRequest.Trigger)))
+                if (template.Triggers.Any(a => a.Name.Equals(triggerName)))
                 {
-                    await templateRepository.DeleteTriggerAsync(template, deleteTriggerRequest.Trigger);
+                    var triggerToDelete = template.Triggers.First(t => t.Name.Equals(triggerName));
+                    await templateRepository.DeleteTriggerAsync(template, triggerToDelete);
+                    logger.LogInformation("Deleted trigger {0} from template {1}", triggerToDelete.Name, template.Name);
+                    bool wasJobDeleted = await jobManager.DeleteTriggerAsync(template, triggerToDelete);
+                    if(!wasJobDeleted)
+                    {                     
+                        return NotFound(new NotFoundResponse($"Trigger was deleted. However, job associated with trigger could not be deleted."));
+                    }                                          
                     return Ok();
                 }
                 return NotFound(new NotFoundResponse($"No matching trigger was found to  delete"));
             }
-            return NotFound(new NotFoundResponse($"Template with Id: {deleteTriggerRequest.TemplateId} not found."));
+            return NotFound(new NotFoundResponse($"Template with Id: {templateId} not found."));
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Pixel.Automation.Web.Portal.Services
         /// <inheritdoc/>
         public async Task<OperationResult> DeleteTriggerAsync(string templateId, SessionTrigger trigger)
         {
-            var result = await httpClient.PostAsJsonAsync<DeleteTriggerRequest>($"api/templates/triggers/delete", new DeleteTriggerRequest(templateId, trigger));
+            var result = await httpClient.DeleteAsync($"api/templates/triggers/delete/{templateId}/{trigger.Name}");
             return await OperationResult.FromResponseAsync(result);
         }
 
