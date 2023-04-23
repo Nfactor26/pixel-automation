@@ -4,7 +4,7 @@ services:
 
   mongo:
      image: mongo:latest
-     container_name: pixel_mongo
+     container_name: pixel-mongo
      command: --auth
      restart: always
      volumes:
@@ -15,16 +15,26 @@ services:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: mongopass     
 
+  redis-pub-sub:
+     image: redis:latest
+     container_name: pixel-redis-pub-sub
+     networks:
+       - pixel-network
+     ports:
+       - 6379:6379
+
   pixel-persistence:
-    container_name: pixel_persistence_service
+    container_name: pixel-persistence-service
     env_file:
       - ./.config/persistence.env
     ports:
+      - 5000:80 
       - 5001:443    
     environment:     
-      - ASPNETCORE_URLS=https://+;
+      - ASPNETCORE_URLS=http://+;https://+;
       - Kestrel:Certificates:Default:Path=/etc/certs/localhost-cert.pem
       - Kestrel:Certificates:Default:KeyPath=/etc/certs/localhost-key.pem 
+      - RedisConnectionString=pixel-redis-pub-sub:6379
     volumes:
       # volume mount for providing required certificates for Kestrel (when using https)
       - ./.certificates:/etc/certs:ro

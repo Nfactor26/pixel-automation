@@ -1,0 +1,182 @@
+﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using Pixel.Automation.Web.Portal.Components.Triggers;
+using Pixel.Automation.Web.Portal.Services;
+using Pixel.Persistence.Core.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Pixel.Automation.Web.Portal.Pages.Template
+{
+    public partial class EditTemplate : ComponentBase
+    {
+        [Parameter]
+        public string TemplateId { get; set; }
+
+        [Inject]
+        public ITemplateService TemplateService { get; set; }
+
+        [Inject]
+        public ITriggerService TriggerService { get; set; }
+
+        [Inject]
+        public IProjectService ProjectService { get; set; }
+
+        [Inject]
+        public IDialogService DialogService { get; set; }
+
+        [Inject]
+        public ISnackbar SnackBar { get; set; }
+
+        [Inject]
+        public NavigationManager Navigator { get; set; }
+
+        SessionTemplate sessionTemplate;
+        AutomationProject selectedProject;
+        ProjectVersion selectedVersion;
+        bool hasErrors = false;
+
+        /// <summary>
+        /// Fetch template details when id is set
+        /// </summary>
+        /// <returns></returns>
+        protected override async Task OnParametersSetAsync()
+        {
+            this.sessionTemplate = await GetTemplateAsync(this.TemplateId);
+            this.selectedProject = await GetProjectAsync(this.sessionTemplate.ProjectId);
+            this.selectedVersion = this.selectedProject.AvailableVersions.FirstOrDefault(a => a.ToString().Equals(this.sessionTemplate.TargetVersion));
+            if(this.selectedVersion == null)
+            {
+                SnackBar.Add($"Version {this.sessionTemplate.TargetVersion} configured on template doesn't exist on project.", Severity.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Update template
+        /// </summary>
+        /// <returns></returns>
+        async Task UpdateTemplatesAsync()
+        {
+            var result = await TemplateService.UpdateTemplateAsync(sessionTemplate);
+            if (result.IsSuccess)
+            {
+                SnackBar.Add("Updated successfully.", Severity.Success);
+                this.sessionTemplate = await GetTemplateAsync(this.TemplateId);
+                return;
+            }
+            SnackBar.Add(result.ToString(), Severity.Error);
+        }
+
+        /// <summary>
+        /// Retrieve template details given it's id
+        /// </summary>
+        /// <param name="templateId"></param>
+        /// <returns></returns>
+        private async Task<SessionTemplate> GetTemplateAsync(string templateId)
+        {
+            if (!string.IsNullOrEmpty(templateId))
+            {
+                try
+                {
+                    return await TemplateService.GetTemplateByIdAsync(templateId);
+                }
+                catch (Exception ex)
+                {
+                    hasErrors = true;
+                    SnackBar.Add($"Failed to retrieve template data. {ex.Message}", Severity.Error);
+                }
+            }
+            else
+            {
+                hasErrors = true;
+                SnackBar.Add("No templateId specified.", Severity.Error);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Retrieve project details given it's id
+        /// </summary>
+        /// <param name="templateId"></param>
+        /// <returns></returns>
+        private async Task<AutomationProject> GetProjectAsync(string projectId)
+        {
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                try
+                {
+                    return await ProjectService.GetProjectByIdAsync(projectId);
+                }
+                catch (Exception ex)
+                {
+                    hasErrors = true;
+                    SnackBar.Add($"Failed to retrieve automation project details. {ex.Message}", Severity.Error);
+                }
+            }
+            else
+            {
+                hasErrors = true;
+                SnackBar.Add("No projectId specified.", Severity.Error);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Show a dialog to create and add a new trigger to the template
+        /// </summary>
+        /// <returns></returns>
+        async  Task AddTriggerAsync()
+        {
+            var parameters = new DialogParameters();
+            parameters.Add("TemplateId", sessionTemplate.Id);
+            parameters.Add("ExistingTriggers", sessionTemplate.Triggers);
+            parameters.Add("Service", TriggerService);
+            var dialog = DialogService.Show<CronTrigger>("Add Claim", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
+            var result = await dialog.Result;
+            if (!result.Canceled && result.Data is SessionTrigger trigger)
+            {
+                sessionTemplate.Triggers.Add(trigger);
+                SnackBar.Add($"Trigger was added.", Severity.Success);
+            }
+        }
+
+        /// <summary>
+        /// Delete an existing trigger from the template
+        /// </summary>
+        /// <param name="claim"></param>
+        /// <returns></returns>
+        async Task RemoveTriggerAsync(SessionTrigger trigger)
+        {
+            if (sessionTemplate.Triggers.Contains(trigger))
+            {
+                var result = await TriggerService.DeleteTriggerAsync(sessionTemplate.Id, trigger);
+                if (result.IsSuccess)
+                {
+                    sessionTemplate.Triggers.Remove(trigger);
+                    SnackBar.Add($"Trigger was removed.", Severity.Success);
+                    return;
+                }
+                SnackBar.Add(result.ToString(), Severity.Error);
+            }
+        }
+
+        /// <summary>
+        /// Update details of existing trigger
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="modified"></param>
+        /// <returns></returns>
+        async Task<bool> UpdateTriggerAsync(SessionTrigger original, SessionTrigger modified)
+        {
+            var result = await TriggerService.UpdateTriggerAsync(sessionTemplate.Id, original, modified);
+            if (result.IsSuccess)
+            {
+                SnackBar.Add($"Trigger was updated.", Severity.Success);
+                return true;
+            }
+            SnackBar.Add(result.ToString(), Severity.Error);
+            return false;
+        }
+    }
+}

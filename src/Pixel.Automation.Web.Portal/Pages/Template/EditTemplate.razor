@@ -1,0 +1,43 @@
+﻿@page "/templates/edit/{templateId}"
+<MudText Typo="Typo.h4">Edit Template</MudText>
+<br />
+
+@if (hasErrors)
+{
+    <MudAlert Severity="Severity.Error">Template details could not be retrieved for template with ID : @(TemplateId ?? string.Empty).</MudAlert>
+}
+
+@if (sessionTemplate != null)
+{
+    <MudPaper Elevation="4">
+        <EditForm Model="@sessionTemplate" OnValidSubmit="UpdateTemplatesAsync">
+            <FluentValidationValidator />           
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField UserAttributes="@(new (){{"id","txtTemplateName"}})" Label="Template Name" Class="mt-3"
+                              @bind-Value="sessionTemplate.Name" For="@(() => sessionTemplate.Name)" />
+                    <MudTextField UserAttributes="@(new (){{"id","txtProjectName"}})" Label="Template Name" Class="mt-3"
+                              @bind-Value="sessionTemplate.ProjectName" For="@(() => sessionTemplate.ProjectName)" ReadOnly="true" />
+                    <MudSelect T="ProjectVersion" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
+                           AnchorOrigin="Origin.BottomCenter" ToStringFunc="@(e => e?.Version.ToString())">
+                        @foreach (var version in selectedProject?.AvailableVersions ?? Enumerable.Empty<ProjectVersion>())
+                        {
+                            <MudSelectItem T="ProjectVersion" Value="@version">@version</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text"
+                              Class="mt-3" @bind-Value="sessionTemplate.Selector" Lines="2" For="@(() => sessionTemplate.Selector)" />
+                    <MudTextField UserAttributes="@(new (){{"id","txtInitializeScript"}})" Label="Initialization Script" Class="mt-3"
+                              @bind-Value="sessionTemplate.InitializeScript" For="@(() => sessionTemplate.InitializeScript)" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Update</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    </MudPaper>
+    <br />
+    <Pixel.Automation.Web.Portal.Components.Triggers.TriggerManager Triggers="sessionTemplate.Triggers" OnAddItem="AddTriggerAsync"
+               OnUpdateItem="UpdateTriggerAsync" OnDeleteItem="RemoveTriggerAsync" />
+}
+
