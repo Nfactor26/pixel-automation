@@ -61,6 +61,7 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
         {
             if(element is CronSessionTrigger sessionTrigger && elementBeforeEdit is CronSessionTrigger ebe)
             {
+                sessionTrigger.Name = ebe.Name;
                 sessionTrigger.Handler = ebe.Handler;
                 sessionTrigger.IsEnabled = ebe.IsEnabled;
                 sessionTrigger.CronExpression = ebe.CronExpression;
@@ -70,7 +71,9 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
         private bool FilterFunc(SessionTrigger element)
         {
             if (string.IsNullOrWhiteSpace(searchString))
-                return true;            
+                return true;    
+            if(element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
             if (element.Handler.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;

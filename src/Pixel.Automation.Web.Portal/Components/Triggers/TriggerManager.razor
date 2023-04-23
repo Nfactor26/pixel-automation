@@ -12,25 +12,28 @@
         <MudTextField UserAttributes="@(new (){{"id","txtSearchBox"}})" @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <ColGroup>
-        <col style="width:16%;" />
-        <col style="width:32%;" />     
-        <col style="width:32%;" />
-        <col style="width:10%;" />
-        <col style="width:10%;" />
+        <col style="width:12%;" />
+        <col style="width:24%;" />
+        <col style="width:24%;" />     
+        <col style="width:24%;" />
+        <col style="width:8%;" />
+        <col style="width:8%;" />
     </ColGroup>
     <HeaderContent>
-        <MudTh>Is Enabled</MudTh>      
+        <MudTh>Is Enabled</MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Handler)">Handler</MudTableSortLabel></MudTh>
         <MudTh>Cron Expression</MudTh>  
         <MudTh></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd UserAttributes="@(new (){{"id","tdEnabled"}})" DataLabel="">@context.IsEnabled</MudTd>       
-        <MudTd UserAttributes="@(new (){{"id","tdHandler"}})" DataLabel="Include in access token">@context.Handler</MudTd>
+        <MudTd UserAttributes="@(new (){{"id","tdEnabled"}})" DataLabel="">@context.IsEnabled</MudTd>
+        <MudTd UserAttributes="@(new (){{"id","tdName"}})" DataLabel="Name">@context.Name</MudTd>
+        <MudTd UserAttributes="@(new (){{"id","tdHandler"}})" DataLabel="Handler">@context.Handler</MudTd>
         @if(context is CronSessionTrigger cronSessionTrigger)
         {
-            <MudTd UserAttributes="@(new (){{"id","tdCronExpression"}})" DataLabel="Include in identity token">@cronSessionTrigger.CronExpression</MudTd>
+            <MudTd UserAttributes="@(new (){{"id","tdCronExpression"}})" DataLabel="Cron Expression">@cronSessionTrigger.CronExpression</MudTd>
         }
         <MudTd DataLabel="">
             <MudIconButton UserAttributes="@(new (){{"id","btnEdit"}})" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
@@ -44,7 +47,10 @@
     <RowEditingTemplate>
          <MudTd DataLabel="IsEnabled">
            <MudSwitch UserAttributes="@(new (){{"id","cbIsEnabled"}})" @bind-Checked="@context.IsEnabled" Color="Color.Primary" />
-        </MudTd>       
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField UserAttributes="@(new (){{"id","txtName"}})" @bind-Value="@context.Name" Required />
+        </MudTd>
         <MudTd DataLabel="Handler">
             <MudTextField UserAttributes="@(new (){{"id","txtHandler"}})" @bind-Value="@context.Handler" Required />
         </MudTd>

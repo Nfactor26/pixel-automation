@@ -4,7 +4,9 @@
             Add Cron Trigger
         </MudText>
     </TitleContent>
-    <DialogContent>        
+    <DialogContent>  
+        <MudTextField id="txtName" @bind-Value="@model.Name" Label="Name" @onfocus="(() => error = string.Empty)"
+                      Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
         <MudTextField id="txtHandler" @bind-Value="@model.Handler" Label="Handler" @onfocus="(() => error = string.Empty)"
                       Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
         <MudTextField id="txtCronExpression" @bind-Value="@model.CronExpression" Label="Cron Expression" @onfocus="(() => error = string.Empty)"
@@ -17,7 +19,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton id="btnAddNewClaim" OnClick="AddNewTriggerAsync"
-                   Disabled="string.IsNullOrEmpty(model.Handler) || string.IsNullOrEmpty(model.CronExpression)"
+                   Disabled="string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Handler) || string.IsNullOrEmpty(model.CronExpression)"
                    Color="Color.Primary" Variant="Variant.Filled">
             Add
         </MudButton>

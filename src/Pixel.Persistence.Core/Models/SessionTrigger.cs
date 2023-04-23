@@ -13,7 +13,14 @@ namespace Pixel.Persistence.Core.Models
     [JsonDerivedType(typeof(CronSessionTrigger), typeDiscriminator: nameof(CronSessionTrigger))]
     [BsonKnownTypes(typeof(CronSessionTrigger))]
     public abstract class SessionTrigger : ICloneable, IEquatable<SessionTrigger>
-    {      
+    {
+        /// <summary>
+        /// Display name for the trigger
+        /// </summary>
+        [Required]
+        [DataMember]
+        public string Name { get; set; }
+
         /// <summary>
         /// Identifies the handler that will be used to execute the template when trigger occurs
         /// </summary>
@@ -51,6 +58,7 @@ namespace Pixel.Persistence.Core.Models
         {
             return new CronSessionTrigger()
             {
+                Name = this.Name,
                 Handler = this.Handler,
                 IsEnabled = this.IsEnabled,
                 CronExpression = this.CronExpression
@@ -59,7 +67,8 @@ namespace Pixel.Persistence.Core.Models
 
         public override bool Equals(SessionTrigger other)
         {
-            return other is CronSessionTrigger cst && cst.Handler.Equals(this.Handler) && cst.CronExpression.Equals(this.CronExpression);
+            return other is CronSessionTrigger cst && cst.Name.Equals(this.Name) &&
+                cst.Handler.Equals(this.Handler) && cst.CronExpression.Equals(this.CronExpression);
         }
 
         public bool Equals(CronSessionTrigger other)
