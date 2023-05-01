@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Respository.Interfaces;
+using Pixel.Persistence.Services.Api.Hubs;
 using Pixel.Persistence.Services.Api.Jobs;
 using Pixel.Persistence.Services.Api.Services;
 using Quartz;
@@ -39,7 +40,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             services.AddSingleton<RetentionPolicy>(sp => sp.GetRequiredService<IOptions<RetentionPolicy>>().Value);
             services.AddSingleton<IJobManager, JobManager>();
-            services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+            services.AddSingleton<IAgentManager, AgentManager>();            
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
             services.AddTransient<ITestResultsRepository, TestResultsRepository>();
             services.AddTransient<ITestStatisticsRepository, TestStatisticsRepository>();
@@ -58,6 +59,7 @@ namespace Pixel.Persistence.Services.Api
            
             services.AddControllers();
             services.AddRazorPages();
+            services.AddSignalR();
 
             services.AddSwaggerGen(c =>
             {
@@ -107,6 +109,7 @@ namespace Pixel.Persistence.Services.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHub<AgentsHub>("agents");
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
             });

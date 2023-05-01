@@ -39,7 +39,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
             var job = await scheduler.GetJobDetail(jobKey);
             if (job == null)
             {
-                job = JobBuilder.Create<SendTriggerNotificationJob>()
+                job = JobBuilder.Create<ProcessTriggerJob>()
                    .WithIdentity(jobKey).StoreDurably(true)
                    .UsingJobData("template-name", template.Name)
                    .Build();
