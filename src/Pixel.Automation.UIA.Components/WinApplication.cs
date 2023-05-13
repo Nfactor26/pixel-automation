@@ -14,6 +14,7 @@ namespace Pixel.Automation.UIA.Components
     [Description("WPF or Win32 based applications using UIA")]
     [ControlLocator(typeof(UIAControlLocatorComponent))]
     [ApplicationEntity(typeof(WinApplicationEntity))]
+    [SupportedPlatforms("WINDOWS")]
     public class WinApplication : Application
     {      
         string executablePath;

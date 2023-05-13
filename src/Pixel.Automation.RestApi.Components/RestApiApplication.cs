@@ -12,6 +12,7 @@ namespace Pixel.Automation.RestApi.Components;
 [DisplayName("Rest Api")]
 [Description("Rest Api")]
 [ApplicationEntity(typeof(RestApiApplicationEntity))]
+[SupportedPlatforms("WINDOWS", "LINUX", "OSX")]
 public class RestApiApplication : Application
 {
     /// <summary>

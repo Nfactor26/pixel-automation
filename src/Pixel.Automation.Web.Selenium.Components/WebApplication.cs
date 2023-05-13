@@ -15,6 +15,7 @@ namespace Pixel.Automation.Web.Selenium.Components;
 [ControlLocator(typeof(WebControlLocatorComponent))]
 [ApplicationEntity(typeof(WebApplicationEntity))]
 [Builder(typeof(WebControlIdentityBuilder))]
+[SupportedPlatforms("WINDOWS", "LINUX", "OSX")]
 public class WebApplication : Application
 {      
     /// <summary>

@@ -2,6 +2,7 @@
 using Dawn;
 using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -9,6 +10,7 @@ using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -196,7 +198,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
                 IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
 
-                ApplicationDescription newApplication = new ApplicationDescription(application);
+                ApplicationDescription newApplication = new ApplicationDescription(application)
+                {
+                    SupportedPlatforms = knownApplication.SupportedPlatforms.ToArray()
+                };
                 var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
                 applicationDescriptionViewModel.AddScreen("Home");
                 applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
@@ -333,7 +338,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             {
                 string displayName = TypeDescriptor.GetAttributes(knownApp).OfType<DisplayNameAttribute>()?.FirstOrDefault()?.DisplayName ?? knownApp.Name;
                 string description = TypeDescriptor.GetAttributes(knownApp).OfType<DescriptionAttribute>()?.FirstOrDefault()?.Description ?? knownApp.Name;
-                KnownApplication knownApplication = new KnownApplication() { DisplayName = displayName, Description = description, UnderlyingApplicationType = knownApp };
+                List<string> supportedPlatforms = TypeDescriptor.GetAttributes(knownApp).OfType<SupportedPlatformsAttribute>()?.FirstOrDefault()?.Platforms ??
+                    new List<string> { OSPlatform.Windows.ToString(), OSPlatform.Linux.ToString(), OSPlatform.OSX.ToString() };
+                KnownApplication knownApplication = new KnownApplication() { DisplayName = displayName, Description = description, UnderlyingApplicationType = knownApp, SupportedPlatforms = supportedPlatforms };
                 this.KnownApplications.Add(knownApplication);
             }
         }

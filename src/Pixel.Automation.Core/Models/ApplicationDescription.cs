@@ -35,29 +35,33 @@ namespace Pixel.Automation.Core.Models
         [DataMember(Order = 10)]
         public string ApplicationType { get; set; }
 
+
+        [DataMember(Order = 20)]
+        public string[] SupportedPlatforms { get; set; }
+
         /// <summary>
         /// Details of the application. This will be based on the type e.g. web application will have preferred browser and url
         /// while a windows application will have a executable and working directory etc.
         /// </summary>
-        [DataMember(Order = 20)]
+        [DataMember(Order = 30)]
         public IApplication ApplicationDetails { get; set; }
 
         /// <summary>
         /// Screens for the application. Screens are used to group control and prefabs.
         /// </summary>
-        [DataMember(Order = 30)]
+        [DataMember(Order = 40)]
         public List<string> Screens { get; private set; } = new();
 
         /// <summary>
         /// Control identifier collection for a given application screen
         /// </summary>
-        [DataMember(Order = 40)]
+        [DataMember(Order = 50)]
         public Dictionary<string, List<string>> AvailableControls { get; private set; } = new();
 
         /// <summary>
         /// Identifier of the prefabs belonging to this application
         /// </summary>
-        [DataMember(Order = 50)]
+        [DataMember(Order = 60)]
         public Dictionary<string, List<string>> AvailablePrefabs { get; private set; } = new();
 
         /// <summary>

@@ -14,6 +14,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
     [Description("Java based application that support automation using java access bridge")]
     [ControlLocator(typeof(JavaControlLocatorComponent))]
     [ApplicationEntity(typeof(JavaApplicationEntity))]
+    [SupportedPlatforms("WINDOWS")]
     public class JavaApplication : Application
     {             
         /// <summary>
