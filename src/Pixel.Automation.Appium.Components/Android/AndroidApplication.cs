@@ -15,6 +15,7 @@ namespace Pixel.Automation.Appium.Components.Android;
 [ControlLocator(typeof(AppiumWebControlLocatorComponent))]
 [ApplicationEntity(typeof(AppiumApplicationEntity))]
 [Builder(typeof(AppiumControlIdentityBuilder))]
+[SupportedPlatforms("WINDOWS", "LINUX", "OSX")]
 public class AndroidApplication : AppiumApplication
 {
     /// <summary>

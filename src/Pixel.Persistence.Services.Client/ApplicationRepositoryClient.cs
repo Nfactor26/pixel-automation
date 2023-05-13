@@ -7,6 +7,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,7 +54,8 @@ namespace Pixel.Persistence.Services.Client
         public async Task<IEnumerable<ApplicationDescription>> GetApplications(DateTime laterThan)
         {
             RestRequest restRequest = new RestRequest("application");
-            restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));
+            restRequest.AddHeader("platform", GetCurrentOperatingSystem());
+            restRequest.AddHeader("laterThan", laterThan.ToString("O"));
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteGetAsync(restRequest);
             result.EnsureSuccess();
@@ -63,6 +65,18 @@ namespace Pixel.Persistence.Services.Client
                 {
                     return serializer.DeserializeContent<List<ApplicationDescription>>(reader.ReadToEnd());
                 }
+            }
+
+            string GetCurrentOperatingSystem()
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return OSPlatform.Windows.ToString();
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    return OSPlatform.Linux.ToString();
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    return OSPlatform.OSX.ToString();
+                else
+                    throw new NotSupportedException("OS Platform is not supported");
             }
         }
 

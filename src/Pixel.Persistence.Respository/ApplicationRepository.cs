@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Respository
@@ -44,13 +45,18 @@ namespace Pixel.Persistence.Respository
         }
 
         ///<inheritdoc/>
-        public async Task<IEnumerable<object>> GetAllApplications(DateTime laterThan)
+        public async Task<IEnumerable<object>> GetAllApplications(string platform, DateTime laterThan)
         {
             var filter = Builders<BsonDocument>.Filter.Gt(x => x["LastUpdated"], laterThan);
             var results = await applicationsCollection.FindAsync<BsonDocument>(filter);
             List<object> applications = new List<object>();
             foreach(var application in (await results.ToListAsync()))
             {
+                var supportedPlatforms = application["SupportedPlatforms"].AsBsonArray.Select(x => x.AsString);
+                if(!supportedPlatforms.Contains(platform))
+                {
+                    continue;
+                }
                 applications.Add(BsonTypeMapper.MapToDotNetValue(application));
             }
             return applications;

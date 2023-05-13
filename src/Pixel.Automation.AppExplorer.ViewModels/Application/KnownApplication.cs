@@ -15,6 +15,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public string Description { get; set; }
 
         /// <summary>
+        /// Supported platforms by the application
+        /// </summary>
+        public List<string> SupportedPlatforms { get; set; }
+
+        /// <summary>
         /// Actual IApplication type that this application represents. Type information will be used to create
         /// instance of IApplication when application is being added.
         /// </summary>
@@ -28,11 +33,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         }
 
-        public KnownApplication(string displayName, string description, Type underlyingApplicationType)
+        public KnownApplication(string displayName, string description, Type underlyingApplicationType, List<string> supportedPlatforms)
         {
             this.DisplayName = displayName;
             this.Description = description;
             this.UnderlyingApplicationType = underlyingApplicationType;
+            this.SupportedPlatforms = supportedPlatforms;
         }
     }
 }

@@ -17,11 +17,11 @@ public interface IApplicationRepository
     Task<object> FindByIdAsync(string applicationId);
 
     /// <summary>
-    /// Get all applications that were modified since specified 
+    /// Get all applications for a given platform that were modified since specified time
     /// </summary>
     /// <param name="laterThan"></param>
     /// <returns></returns>
-    Task<IEnumerable<object>> GetAllApplications(DateTime laterThan);
+    Task<IEnumerable<object>> GetAllApplications(string platform, DateTime laterThan);
    
     /// <summary>
     /// Add or update the ApplicationDescription data 
