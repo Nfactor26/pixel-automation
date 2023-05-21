@@ -53,11 +53,11 @@ public class WebApplicationEntity : ApplicationEntity
     public Argument AutoInstallBrowser { get; set; } = new InArgument<bool> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = true };
 
     /// <summary>
-    /// Remote debugging port to use to connect over CDP. Use this for automation of a WebView2 application
+    /// Remote debugging url to use to connect over CDP. Use this for automation of a WebView2 application
     /// </summary>
     [DataMember]
-    [Display(Name = "Remote Debugging Port", GroupName = "WebView2", Order = 20, Description = "Remote debugging port to use")]
-    public Argument RemoteDebuggingPort { get; set; } = new InArgument<string>() { CanChangeType = false };
+    [Display(Name = "Remote Debugging Url", GroupName = "WebView2", Order = 20, Description = "Remote debugging url to use e.g. http://localhost:port")]
+    public Argument RemoteDebuggingUrl { get; set; } = new InArgument<string>() { Mode = ArgumentMode.DataBound, CanChangeType = false };
 
     /// <summary>
     /// Get the TargetApplicationDetails and apply any over-rides to it
@@ -86,11 +86,12 @@ public class WebApplicationEntity : ApplicationEntity
         }
 
         //For WebView2 process           
-        if(this.RemoteDebuggingPort.IsConfigured())
-        {
-            var remoteDebuggingPort = await this.ArgumentProcessor.GetValueAsync<string>(this.RemoteDebuggingPort);          
+        if(this.RemoteDebuggingUrl.IsConfigured())
+        {       
+            var remoteDebuggingUrl = await this.ArgumentProcessor.GetValueAsync<string>(this.RemoteDebuggingUrl);          
+            logger.Information("Connecting over cdp to remote debugging url : {0}", remoteDebuggingUrl);
             webApplicationDetails.Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-            webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.ConnectOverCDPAsync($"http://localhost:{remoteDebuggingPort}");
+            webApplicationDetails.Browser = await webApplicationDetails.Playwright.Chromium.ConnectOverCDPAsync(remoteDebuggingUrl);
             webApplicationDetails.ActiveContext = webApplicationDetails.Browser.Contexts[0];
             webApplicationDetails.ActivePage = webApplicationDetails.ActiveContext.Pages[0];
         }
@@ -98,6 +99,8 @@ public class WebApplicationEntity : ApplicationEntity
         {
             Browsers preferredBrowser = await GetPreferredBrowser(webApplicationDetails);
             var browserLaunchOptions = await GetBrowserLaunchOptions(preferredBrowser);
+
+            logger.Information("Browser : {0} will be launched", preferredBrowser.ToString());
 
             await InstallBrowser(preferredBrowser, browserLaunchOptions);
 
