@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository.Extensions;
 using Pixel.Persistence.Respository.Interfaces;
@@ -161,7 +162,7 @@ namespace Pixel.Persistence.Respository
                 {
                     projectVersion.PublishedOn = DateTime.UtcNow;
                 }
-                var update = Builders<AutomationProject>.Update.Set(x => x.AvailableVersions[-1], projectVersion);
+                var update = Builders<AutomationProject>.Update.Set(x => x.AvailableVersions.FirstMatchingElement(), projectVersion);
                 await this.projectsCollection.UpdateOneAsync(filter, update);
                 logger.LogInformation("Project version {0} was updated for project : {1}", projectVersion, projectId);
                 return;

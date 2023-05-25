@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository.Extensions;
 using Pixel.Persistence.Respository.Interfaces;
@@ -85,7 +86,7 @@ public class ReferencesRepository : IReferencesRepository
     {
         var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
                       & Builders<ProjectReferences>.Filter.ElemMatch(x => x.ControlReferences, Builders<ControlReference>.Filter.Eq(x => x.ControlId, controlReference.ControlId));
-        var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences[-1].Version, controlReference.Version);
+        var update = Builders<ProjectReferences>.Update.Set(x => x.ControlReferences.FirstMatchingElement().Version, controlReference.Version);
         await this.referencesCollection.UpdateOneAsync(filter, update);
         logger.LogInformation("Control reference {@0} was updated for version : '{1}' of  project : {2}", controlReference, projectVersion, projectId);
 
@@ -126,7 +127,7 @@ public class ReferencesRepository : IReferencesRepository
     {
         var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
                        & Builders<ProjectReferences>.Filter.ElemMatch(x => x.PrefabReferences, Builders<PrefabReference>.Filter.Eq(x => x.PrefabId, prefabReference.PrefabId));
-        var update = Builders<ProjectReferences>.Update.Set(x => x.PrefabReferences[-1].Version, prefabReference.Version);
+        var update = Builders<ProjectReferences>.Update.Set(x => x.PrefabReferences.FirstMatchingElement().Version, prefabReference.Version);
         await this.referencesCollection.UpdateOneAsync(filter, update);
         logger.LogInformation("Prefab reference {@0} was updated for version : '{1}' of  project : {2}", prefabReference, projectVersion, projectId);
     }
