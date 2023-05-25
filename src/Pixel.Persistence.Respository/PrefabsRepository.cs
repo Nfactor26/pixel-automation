@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository.Extensions;
 using Pixel.Persistence.Respository.Interfaces;
@@ -127,7 +128,7 @@ namespace Pixel.Persistence.Respository
                 {
                     prefabVersion.PublishedOn = DateTime.UtcNow;
                 }
-                var update = Builders<PrefabProject>.Update.Set(x => x.AvailableVersions[-1], prefabVersion)
+                var update = Builders<PrefabProject>.Update.Set(x => x.AvailableVersions.FirstMatchingElement(), prefabVersion)
                      .Set(t => t.LastUpdated, DateTime.UtcNow)
                      .Inc(t => t.Revision, 1); ;
                 await this.prefabsCollection.UpdateOneAsync(filter, update);
