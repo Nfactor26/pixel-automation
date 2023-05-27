@@ -174,7 +174,8 @@ namespace Pixel.Persistence.Respository
             }
             var updateDefinition = Builders<BsonDocument>.Update.Set("IsDeleted", true)
                 .Set("LastUpdated", DateTime.UtcNow);
-            await controlsCollection.FindOneAndUpdateAsync<BsonDocument>(CreateControlFilter(applicationId, controlId), updateDefinition);          
+            var result = await controlsCollection.UpdateManyAsync(CreateControlFilter(applicationId, controlId), updateDefinition);
+            logger.LogInformation("Control was marked deleted : {result}", result);
         }
 
         ///<inheritdoc/>
