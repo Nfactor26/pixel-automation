@@ -48,6 +48,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
             }
             var trigger = TriggerBuilder.Create().WithIdentity(cronSessionTrigger.Name, template.Name)
                 .UsingJobData("handler-key", cronSessionTrigger.Handler)
+                .UsingJobData("agent-group", cronSessionTrigger.Group)
                 .ForJob(job).WithCronSchedule(cronSessionTrigger.CronExpression).StartNow().Build();
             logger.LogInformation("Created a new trigger job for job : {0}, trigger : {1}", template.Name, cronSessionTrigger.Name);
             return await scheduler.ScheduleJob(trigger, CancellationToken.None);

@@ -12,17 +12,19 @@
         <MudTextField UserAttributes="@(new (){{"id","txtSearchBox"}})" @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <ColGroup>
-        <col style="width:12%;" />
-        <col style="width:24%;" />
-        <col style="width:24%;" />     
-        <col style="width:24%;" />
         <col style="width:8%;" />
-        <col style="width:8%;" />
+        <col style="width:20%;" />
+        <col style="width:20%;" />     
+        <col style="width:20%;" />
+        <col style="width:20%;" />
+        <col style="width:6%;" />
+        <col style="width:6%;" />
     </ColGroup>
     <HeaderContent>
         <MudTh>Is Enabled</MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Handler)">Handler</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Group)">Group</MudTableSortLabel></MudTh>
         <MudTh>Cron Expression</MudTh>  
         <MudTh></MudTh>
         <MudTh></MudTh>
@@ -31,6 +33,7 @@
         <MudTd UserAttributes="@(new (){{"id","tdEnabled"}})" DataLabel="">@context.IsEnabled</MudTd>
         <MudTd UserAttributes="@(new (){{"id","tdName"}})" DataLabel="Name">@context.Name</MudTd>
         <MudTd UserAttributes="@(new (){{"id","tdHandler"}})" DataLabel="Handler">@context.Handler</MudTd>
+        <MudTd UserAttributes="@(new (){{"id","tdGroup"}})" DataLabel="Group">@context.Group</MudTd>
         @if(context is CronSessionTrigger cronSessionTrigger)
         {
             <MudTd UserAttributes="@(new (){{"id","tdCronExpression"}})" DataLabel="Cron Expression">@cronSessionTrigger.CronExpression</MudTd>
@@ -53,6 +56,9 @@
         </MudTd>
         <MudTd DataLabel="Handler">
             <MudTextField UserAttributes="@(new (){{"id","txtHandler"}})" @bind-Value="@context.Handler" Required />
+        </MudTd>
+        <MudTd DataLabel="Handler">
+            <MudTextField UserAttributes="@(new (){{"id","txtGroup"}})" @bind-Value="@context.Group" Required />
         </MudTd>
         @if (context is CronSessionTrigger cronSessionTrigger)
         {

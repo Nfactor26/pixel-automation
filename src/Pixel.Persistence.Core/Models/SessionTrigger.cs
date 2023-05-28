@@ -29,6 +29,13 @@ namespace Pixel.Persistence.Core.Models
         public string Handler { get; set; }
 
         /// <summary>
+        /// Group from which an agent must be selected to process the request
+        /// </summary>
+        [Required]
+        [DataMember]
+        public string Group { get; set; }
+
+        /// <summary>
         /// Indicates if trigger is enabled
         /// </summary>
         [Required]
@@ -60,6 +67,7 @@ namespace Pixel.Persistence.Core.Models
             {
                 Name = this.Name,
                 Handler = this.Handler,
+                Group = this.Group,
                 IsEnabled = this.IsEnabled,
                 CronExpression = this.CronExpression
             };

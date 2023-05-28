@@ -63,6 +63,7 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
             {
                 sessionTrigger.Name = ebe.Name;
                 sessionTrigger.Handler = ebe.Handler;
+                sessionTrigger.Group = ebe.Group;
                 sessionTrigger.IsEnabled = ebe.IsEnabled;
                 sessionTrigger.CronExpression = ebe.CronExpression;
             }           
