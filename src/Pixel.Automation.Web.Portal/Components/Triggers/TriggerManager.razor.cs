@@ -34,6 +34,9 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
         public EventCallback OnResumeAll { get; set; }
 
         [Parameter]
+        public EventCallback<SessionTrigger> OnTriggerNow { get; set; }
+
+        [Parameter]
         public Func<SessionTrigger, SessionTrigger, Task<bool>> OnUpdateItem { get; set; }
 
         private MudTable<SessionTrigger> table;

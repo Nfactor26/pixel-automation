@@ -73,6 +73,14 @@ namespace Pixel.Automation.Web.Portal.Services
         /// <returns></returns>
         Task<OperationResult> ResumeTriggerAsync(string templateName, string triggerName);
 
+        /// <summary>
+        /// Schedule the trigger to execute now
+        /// </summary>
+        /// <param name="templateId"></param>
+        /// <param name="trigger"></param>
+        /// <returns></returns>
+        Task<OperationResult> ScheduleTriggerNowAsync(string templateId, SessionTrigger trigger);
+
     }
 
     public class TriggerService : ITriggerService
@@ -142,6 +150,13 @@ namespace Pixel.Automation.Web.Portal.Services
         {
             var result = await httpClient.GetAsync($"api/triggers/resume/{templateName}/{triggerName}");
             return await OperationResult.FromResponseAsync(result);
-        }     
+        }
+
+        /// <inheritdoc/>
+        public async Task<OperationResult> ScheduleTriggerNowAsync(string templateId, SessionTrigger trigger)
+        {
+            var result = await httpClient.PostAsJsonAsync($"api/triggers/run", new RunTriggerRequest(templateId, trigger));
+            return await OperationResult.FromResponseAsync(result);
+        }
     }
 }

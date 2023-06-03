@@ -38,6 +38,14 @@ namespace Pixel.Persistence.Services.Api.Jobs
         Task UpdateCronJobAsync(SessionTemplate template, CronSessionTrigger cronSessionTrigger);
 
         /// <summary>
+        /// Create a new one time trigger and fire it
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="cronSessionTrigger"></param>
+        /// <returns></returns>
+        Task RunTriggerAsync(SessionTemplate template, SessionTrigger cronSessionTrigger);
+
+        /// <summary>
         /// Get next fimre time in Utc for a given trigger belonging to a given job
         /// </summary>
         /// <param name="jobName">Name of the job to which trigger belongs</param>
@@ -140,6 +148,21 @@ namespace Pixel.Persistence.Services.Api.Jobs
                 logger.LogWarning("Trigger {0} could not be deleted from job {1}", sessionTrigger.Name, template.Name);
             }
             return wasRemoved;
+        }
+
+        /// <inheritdoc/>
+        public async Task RunTriggerAsync(SessionTemplate template, SessionTrigger sessionTrigger)
+        {
+            var scheduler = await this.schedulerFactory.GetScheduler();
+            JobKey jobKey = new JobKey(template.Name, template.Name);
+            var job = await scheduler.GetJobDetail(jobKey);                  
+            var trigger = TriggerBuilder.Create().WithIdentity($"{sessionTrigger.Name}-{DateTime.Now.ToString("hh-mm-ss")}", template.Name)
+              .UsingJobData("trigger-name", sessionTrigger.Name)
+              .UsingJobData("handler-key", sessionTrigger.Handler)
+              .UsingJobData("agent-group", sessionTrigger.Group)
+              .ForJob(job).StartNow().Build(); 
+            await scheduler.ScheduleJob(trigger, CancellationToken.None);
+            logger.LogInformation("Adhoc one-time trigger with identity : {0} was created and scheduled", trigger.Key);
         }
 
         /// <inheritdoc/>

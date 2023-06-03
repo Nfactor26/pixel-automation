@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Pixel.Automation.Web.Portal.Helpers;
 using Pixel.Persistence.Core.Models;
@@ -128,6 +129,28 @@ namespace Pixel.Persistence.Services.Api.Controllers
                 return NotFound(new NotFoundResponse($"No matching trigger was found to  delete"));
             }
             return NotFound(new NotFoundResponse($"Template with Id: {templateId} not found."));
+        }
+
+        /// <summary>
+        /// Run trigger on demand
+        /// </summary>
+        /// <param name="addTriggerRequest"></param>
+        /// <returns></returns>
+        [HttpPost("run")]
+        public async Task<IActionResult> RunTriggerAsync([FromBody] RunTriggerRequest request)
+        {
+            try
+            {
+                Guard.Argument(request, nameof(request)).NotNull();
+                var template = await templateRepository.GetTemplateByIdAsync(request.TemplateId);
+                await jobManager.RunTriggerAsync(template, request.Trigger);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "There was an error while trying to run on-demand trigger");
+                return Problem("Failed to run on-demand trigger");
+            }
         }
 
         /// <summary>
