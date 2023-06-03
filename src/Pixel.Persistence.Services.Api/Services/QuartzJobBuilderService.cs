@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Jobs;
-using Quartz;
 using System;
 using System.Linq;
 using System.Threading;
@@ -28,7 +27,7 @@ namespace Pixel.Persistence.Services.Api.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var templates = await this.templateRepository.GetAllAsync();
+            var templates = await this.templateRepository.GetAllTemplatesAsync();
             foreach (var template in templates)
             {
                 foreach (var sessionTriger in template.Triggers.OfType<CronSessionTrigger>())
