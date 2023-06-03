@@ -124,7 +124,12 @@ namespace Pixel.Persistence.Services.Api.Jobs
                 .UsingJobData("agent-group", cronSessionTrigger.Group)
                 .ForJob(job).WithCronSchedule(cronSessionTrigger.CronExpression).StartNow().Build();
             logger.LogInformation("Created a new trigger job for job : {0}, trigger : {1}", template.Name, cronSessionTrigger.Name);
-            return await scheduler.ScheduleJob(trigger, CancellationToken.None);
+            var scheduledTime = await scheduler.ScheduleJob(trigger, CancellationToken.None);
+            if(!cronSessionTrigger.IsEnabled)
+            {
+                await scheduler.PauseTrigger(trigger.Key);
+            }
+            return cronSessionTrigger.IsEnabled ? scheduledTime : DateTimeOffset.MaxValue;
         }
 
         /// <inheritdoc/>
@@ -169,7 +174,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
         public async Task<DateTimeOffset?> GetNextFireTimeUtcAsync(string jobName, string triggerName)
         {
             var scheduler = await this.schedulerFactory.GetScheduler();
-            var trigger =  await scheduler.GetTrigger(new TriggerKey(jobName, triggerName));
+            var trigger =  await scheduler.GetTrigger(new TriggerKey(triggerName, jobName));           
             return trigger.GetNextFireTimeUtc();
         }
 
@@ -177,7 +182,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
         public async Task PauseTriggerAsync(string jobName, string triggerName)
         {
             var scheduler = await this.schedulerFactory.GetScheduler();                     
-            await scheduler.PauseTrigger(new TriggerKey(jobName, triggerName));
+            await scheduler.PauseTrigger(new TriggerKey(triggerName, jobName));
             logger.LogInformation("Trigger {0} was paused for job {1}", jobName, triggerName);
         }
 
@@ -185,7 +190,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
         public async Task ResumeTriggerAsync(string jobName, string triggerName)
         {
             var scheduler = await this.schedulerFactory.GetScheduler();         
-            await scheduler.ResumeTrigger(new TriggerKey(jobName, triggerName));
+            await scheduler.ResumeTrigger(new TriggerKey(triggerName, jobName));
             logger.LogInformation("Trigger {0} was resumed for job {1}", jobName, triggerName);
         }
 
