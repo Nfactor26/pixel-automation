@@ -12,15 +12,17 @@
         <MudTextField UserAttributes="@(new (){{"id","txtSearchBox"}})" @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <ColGroup>
+        <col style="width:5%;" />
         <col style="width:20%;" />
         <col style="width:20%;" />
         <col style="width:20%;" />     
         <col style="width:20%;" />
-        <col style="width:8%;" />
-        <col style="width:6%;" />
-        <col style="width:6%;" />
+        <col style="width:5%;" />
+        <col style="width:5%;" />
+        <col style="width:5%;" />
     </ColGroup>
-    <HeaderContent>       
+    <HeaderContent>
+        <MudTh></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Handler)">Handler</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<SessionTrigger, object>(x=>x.Group)">Group</MudTableSortLabel></MudTh>
@@ -43,7 +45,11 @@
         <MudTh></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
-    <RowTemplate>       
+    <RowTemplate>
+        <MudTd UserAttributes="@(new (){{"id","tdRunNow"}})" DataLabel="">
+            <MudIconButton UserAttributes="@(new (){{"id","btnResumeTrigger"}})" Icon="@Icons.Material.Filled.RunCircle" Color="Color.Primary"
+                           @onclick="() => OnTriggerNow.InvokeAsync(context)" Size="Size.Medium"></MudIconButton>
+        </MudTd>
         <MudTd UserAttributes="@(new (){{"id","tdName"}})" DataLabel="Name">@context.Name</MudTd>
         <MudTd UserAttributes="@(new (){{"id","tdHandler"}})" DataLabel="Handler">@context.Handler</MudTd>
         <MudTd UserAttributes="@(new (){{"id","tdGroup"}})" DataLabel="Group">@context.Group</MudTd>
@@ -59,7 +65,7 @@
             }
             else
             {
-                <MudIconButton UserAttributes="@(new (){{"id","btnResumeTrigger"}})" Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary"
+                <MudIconButton UserAttributes="@(new (){{"id","btnResumeTrigger"}})" Icon="@Icons.Material.Outlined.PlayCircle" Color="Color.Primary"
                            @onclick="() => OnResumeItem.InvokeAsync(context)" Size="Size.Medium"></MudIconButton>
             }
         </MudTd>
@@ -97,5 +103,5 @@
     </RowEditingTemplate>
     <PagerContent>
         <MudTablePager />
-    </PagerContent>
+    </PagerContent>   
 </MudTable>

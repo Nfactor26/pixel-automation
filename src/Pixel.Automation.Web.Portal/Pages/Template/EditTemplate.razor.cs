@@ -250,5 +250,19 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
                 SnackBar.Add(result.ToString(), Severity.Error);
             }
         }
+
+        async Task ScheduleTriggerNowAsync(SessionTrigger trigger)
+        {
+            if (sessionTemplate.Triggers.Contains(trigger))
+            {
+                var result = await TriggerService.ScheduleTriggerNowAsync(sessionTemplate.Id, trigger);
+                if (result.IsSuccess)
+                {                   
+                    SnackBar.Add($"Trigger : {trigger.Name} was scheduled to execute now.", Severity.Success);
+                    return;
+                }
+                SnackBar.Add(result.ToString(), Severity.Error);
+            }
+        }
     }
 }
