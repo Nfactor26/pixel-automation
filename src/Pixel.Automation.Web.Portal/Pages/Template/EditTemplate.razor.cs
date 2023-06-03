@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Pixel.Automation.Web.Portal.Pages.Template
 {
     public partial class EditTemplate : ComponentBase
-    {
+    {       
         [Parameter]
         public string TemplateId { get; set; }
 
@@ -19,7 +19,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
 
         [Inject]
         public ITriggerService TriggerService { get; set; }
-
+     
         [Inject]
         public IProjectService ProjectService { get; set; }
 
@@ -177,6 +177,78 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
             }
             SnackBar.Add(result.ToString(), Severity.Error);
             return false;
+        }
+
+        /// <summary>
+        /// Pause all the triggers for the template
+        /// </summary>
+        /// <returns></returns>
+        async Task PauseAllAsync()
+        {
+            var result = await TriggerService.PauseTemplateAsync(sessionTemplate.Name);
+            if(result.IsSuccess)
+            {
+                SnackBar.Add($"All triggers were paused.", Severity.Success);
+                this.sessionTemplate = await GetTemplateAsync(this.TemplateId);
+                return;
+            }
+            SnackBar.Add(result.ToString(), Severity.Error);
+        }
+
+        /// <summary>
+        /// Resume all the triggers for the template
+        /// </summary>
+        /// <returns></returns>
+        async Task ResumeAllAsync()
+        {
+            var result = await TriggerService.ResumeTemplateAsync(sessionTemplate.Name);
+            if (result.IsSuccess)
+            {
+                SnackBar.Add($"All triggers were resumed.", Severity.Success);
+                this.sessionTemplate = await GetTemplateAsync(this.TemplateId);
+                return;
+            }
+            SnackBar.Add(result.ToString(), Severity.Error);
+        }
+
+        /// <summary>
+        /// Pause a specified trigger
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <returns></returns>
+        async Task PauseTriggerAsync(SessionTrigger trigger)
+        {
+            if (sessionTemplate.Triggers.Contains(trigger) && trigger.IsEnabled)
+            {
+                var result = await TriggerService.PauseTriggerAsync(sessionTemplate.Name, trigger.Name);
+                if (result.IsSuccess)
+                {
+                    trigger.IsEnabled = false;
+                    SnackBar.Add($"Trigger : {trigger.Name} was paused.", Severity.Success);
+                    return;
+                }
+                SnackBar.Add(result.ToString(), Severity.Error);
+            }
+        }
+
+        /// <summary>
+        /// Resume a specified trigger
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <returns></returns>
+        async Task ResumeTriggerAsync(SessionTrigger trigger)
+        {
+            if (sessionTemplate.Triggers.Contains(trigger) && !trigger.IsEnabled)
+            {
+                var result = await TriggerService.ResumeTriggerAsync(sessionTemplate.Name, trigger.Name);
+                if (result.IsSuccess)
+                {
+                    trigger.IsEnabled = true;
+                    SnackBar.Add($"Trigger : {trigger.Name} was resumed.", Severity.Success);
+                    return;
+                }
+                SnackBar.Add(result.ToString(), Severity.Error);
+            }
         }
     }
 }
