@@ -13,6 +13,7 @@ using Pixel.Persistence.Services.Api.Jobs;
 using Pixel.Persistence.Services.Api.Services;
 using Quartz;
 using Serilog;
+using System;
 
 namespace Pixel.Persistence.Services.Api
 {
@@ -76,6 +77,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddQuartzHostedService(q =>
             {
                 q.WaitForJobsToComplete = true;
+                q.StartDelay = TimeSpan.FromMinutes(1);
             });
        
             services.AddHostedService<StatisticsProcessorService>();

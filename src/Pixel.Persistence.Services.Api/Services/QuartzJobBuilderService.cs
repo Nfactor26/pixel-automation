@@ -34,7 +34,7 @@ namespace Pixel.Persistence.Services.Api.Services
                 {
                     try
                     {
-                        await jobManager.AddCronJobAsync(template, sessionTriger);                       
+                        await jobManager.AddCronJobAsync(template, sessionTriger);
                     }
                     catch (Exception ex)
                     {
