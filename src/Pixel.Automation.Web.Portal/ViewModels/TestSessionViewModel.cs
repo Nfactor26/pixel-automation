@@ -10,7 +10,7 @@ namespace Pixel.Automation.Web.Portal.ViewModels
     {
         private TestSession testSession;
 
-        public string SessionId => testSession.SessionId;
+        public string SessionId => testSession.Id;
 
         public string ProjectId => testSession.ProjectId;
 

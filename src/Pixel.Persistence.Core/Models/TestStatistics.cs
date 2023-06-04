@@ -8,12 +8,8 @@ namespace Pixel.Persistence.Core.Models
 {
     [DataContract]
     [Serializable]
-    public class TestStatistics
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
+    public class TestStatistics : Document
+    {     
         [DataMember]
         public string ProjectId { get; set; }
 

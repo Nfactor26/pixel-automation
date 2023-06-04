@@ -1,17 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 using Pixel.Persistence.Core.Enums;
 using System;
 
 namespace Pixel.Persistence.Core.Models
 {
     [BsonIgnoreExtraElements]
-    public class TestResult
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
+    public class TestResult : Document
+    {        
         public string SessionId { get; set; }
        
         public string ProjectId { get; set; }

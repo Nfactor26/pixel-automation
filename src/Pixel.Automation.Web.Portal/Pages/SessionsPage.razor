@@ -20,7 +20,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Details">
-            <MudButton Link="@($"./session-details/{context.SessionId}")"
+            <MudButton Href="@($"./session-details/{context.Id}")"
                        Variant="Variant.Filled"
                        Color="@((context.SessionResult == TestStatus.Success) ? Color.Success : Color.Error)"
                        Disabled=@(context.SessionStatus == SessionStatus.InProgress)>

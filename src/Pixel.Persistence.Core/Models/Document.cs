@@ -6,12 +6,12 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models;
 
-public abstract class Document : IDocument<ObjectId>
+public abstract class Document : IDocument<string>
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     [DataMember(IsRequired = true, Order = 1000)]
-    public ObjectId Id { get; set; }
+    public string Id { get; set; }
 
     [DataMember(IsRequired = true, Order = 1010)]
     public int Revision { get; set; } = 1;

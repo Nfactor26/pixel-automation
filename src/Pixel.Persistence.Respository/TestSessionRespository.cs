@@ -24,7 +24,7 @@ namespace Pixel.Persistence.Respository
         public async Task<TestSession> GetTestSessionAsync(string sessionId)
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
-            var result = await sessionsCollection.FindAsync<TestSession>(s => s.SessionId.Equals(sessionId));
+            var result = await sessionsCollection.FindAsync<TestSession>(s => s.Id.Equals(sessionId));
             return result.FirstOrDefault();
         }
 
@@ -83,14 +83,14 @@ namespace Pixel.Persistence.Respository
         {
             var filterBuilder = Builders<TestSession>.Filter;
             var condition = filterBuilder.And(filterBuilder.Ne<SessionStatus>(s => s.SessionStatus , Core.Enums.SessionStatus.InProgress), filterBuilder.Eq(s => s.IsProcessed , false) );
-            var fields = Builders<TestSession>.Projection.Include(p => p.SessionId);
+            var fields = Builders<TestSession>.Projection.Include(p => p.Id);
             var all = await sessionsCollection.Find(condition).Project<TestSession>(fields).ToListAsync();        
-            return all.Select(s => s.SessionId);
+            return all.Select(s => s.Id);
         }
 
         public async Task MarkSessionProcessedAsync(string sessionId)
         {
-            var filter = Builders<TestSession>.Filter.Eq(s => s.SessionId, sessionId);
+            var filter = Builders<TestSession>.Filter.Eq(s => s.Id, sessionId);
             var updateBuilder = Builders<TestSession>.Update;
             var update = updateBuilder.Set(t => t.IsProcessed, true);
             await sessionsCollection.FindOneAndUpdateAsync(filter, update);
@@ -106,14 +106,14 @@ namespace Pixel.Persistence.Respository
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
             Guard.Argument(testSession).NotNull();
-            var filter = Builders<TestSession>.Filter.Eq(t => t.SessionId, sessionId);
+            var filter = Builders<TestSession>.Filter.Eq(t => t.Id, sessionId);
             await sessionsCollection.ReplaceOneAsync(filter, testSession);
         }
 
         public async Task<bool> TryDeleteTestSessionAsync(string sessionId)
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
-            var result = await sessionsCollection.DeleteOneAsync(s => s.SessionId.Equals(sessionId));
+            var result = await sessionsCollection.DeleteOneAsync(s => s.Id.Equals(sessionId));
             return result.DeletedCount == 1;
         }
 

@@ -136,6 +136,6 @@ public class ReferencesRepository : IReferencesRepository
     public async Task SetEditorReferences(string projectId, string projectVersion, EditorReferences editorReferences)
     {
         var projectReferences = await this.GetProjectReferences(projectId, projectVersion);
-        await this.referencesCollection.UpdateField<ProjectReferences, ObjectId, EditorReferences>(projectReferences, x => x.EditorReferences, editorReferences);
+        await this.referencesCollection.UpdateField<ProjectReferences, string, EditorReferences>(projectReferences, x => x.EditorReferences, editorReferences);
     }   
 }

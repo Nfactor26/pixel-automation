@@ -31,7 +31,7 @@ namespace Pixel.Persistence.Services.Client
             restRequest.AddJsonBody(testSession);
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.PostAsync<TestSession>(restRequest);
-            return result.SessionId;
+            return result.Id;
         }
 
         ///<inheritdoc/>

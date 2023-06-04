@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 using Pixel.Persistence.Core.Enums;
 using System;
 using System.Collections.Generic;
@@ -9,15 +8,8 @@ using System.Runtime.InteropServices;
 namespace Pixel.Persistence.Core.Models
 {
     [BsonIgnoreExtraElements]
-    public class TestSession
-    {
-        /// <summary>
-        /// Session Identifier
-        /// </summary>
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string SessionId { get; set; }
-
+    public class TestSession : Document
+    {       
         /// <summary>
         /// Id of the Session Template that was used to start this session
         /// </summary>

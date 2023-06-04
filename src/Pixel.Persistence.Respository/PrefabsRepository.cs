@@ -91,7 +91,7 @@ namespace Pixel.Persistence.Respository
             }
 
             var prefabReferences = await this.referencesRepository.GetProjectReferences(prefabId, cloneFrom.Version.ToString());
-            prefabReferences.Id = ObjectId.Empty;
+            prefabReferences.Id = string.Empty;
             await this.referencesRepository.AddProjectReferences(prefabId, newVersion.ToString(), prefabReferences);
 
             

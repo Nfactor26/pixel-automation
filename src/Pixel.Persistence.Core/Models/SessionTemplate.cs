@@ -1,18 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
 {
     [DataContract]
-    public class SessionTemplate
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
+    public class SessionTemplate : Document
+    {       
         /// <summary>
         /// Name of the template
         /// </summary>
