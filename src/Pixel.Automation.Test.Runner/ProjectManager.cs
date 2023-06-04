@@ -282,7 +282,7 @@ namespace Pixel.Automation.Test.Runner
         {
             TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
             List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
-            testSession.SessionId = await sessionClient.AddSessionAsync(testSession);
+            testSession.Id = await sessionClient.AddSessionAsync(testSession);
 
             try
             {
@@ -315,7 +315,7 @@ namespace Pixel.Automation.Test.Runner
                        
                         await foreach(var testResult in  this.RunTestCaseAsync(testFixture, testCase))
                         {
-                            testResult.SessionId = testSession.SessionId;                          
+                            testResult.SessionId = testSession.Id;                          
                             testResult.ExecutionOrder = ++counter;
                             await sessionClient.AddResultAsync(testResult);
                             testResults.Add(testResult);
@@ -344,7 +344,7 @@ namespace Pixel.Automation.Test.Runner
             try
             {
                 testSession.OnFinished(testResults);
-                await sessionClient.UpdateSessionAsync(testSession.SessionId, testSession);
+                await sessionClient.UpdateSessionAsync(testSession.Id, testSession);
             }
             catch (Exception ex)
             {

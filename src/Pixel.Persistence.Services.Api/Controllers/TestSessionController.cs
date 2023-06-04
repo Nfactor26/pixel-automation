@@ -45,7 +45,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<IActionResult> Post([FromBody] TestSession testSession)
         {
             await testSessionRepository.AddTestSessionAsync(testSession);
-            return CreatedAtAction(nameof(Get), new { sessionId = testSession.SessionId }, testSession);
+            return CreatedAtAction(nameof(Get), new { sessionId = testSession.Id }, testSession);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
         public async Task<IActionResult> Post([FromRoute] string sessionId, [FromBody] TestSession testSession)
         {
             await testSessionRepository.UpdateTestSessionAsync(sessionId, testSession);
-            return CreatedAtAction(nameof(Get), new { sessionId = testSession.SessionId }, testSession);
+            return CreatedAtAction(nameof(Get), new { sessionId = testSession.Id }, testSession);
         }
 
         // DELETE: api/TestSession/sessionId

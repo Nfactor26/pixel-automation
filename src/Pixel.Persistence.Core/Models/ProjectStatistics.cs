@@ -1,17 +1,11 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
 {
     [DataContract]
-    public class ProjectStatistics
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
+    public class ProjectStatistics : Document
+    {  
         [DataMember]
         public string ProjectId { get; set; }
 
