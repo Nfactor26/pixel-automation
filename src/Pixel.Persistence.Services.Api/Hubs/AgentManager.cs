@@ -1,13 +1,14 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Linq;
+using Pipelines.Sockets.Unofficial.Threading;
 using Pixel.Persistence.Core.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Hubs;
@@ -61,11 +62,11 @@ public interface IAgentManager
 /// </summary>
 public class AgentManager : IAgentManager
 {
-    private readonly List<AgentConnection> agents = new();   
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<AgentConnection>> agents = new();   
     private readonly ILogger logger;
     private readonly IHubContext<AgentsHub, IAgentClient> agentsHub;
-    private readonly object locker = new();
-
+    private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
+ 
     /// <summary>
     /// constructor
     /// </summary>
@@ -77,27 +78,45 @@ public class AgentManager : IAgentManager
         this.agentsHub = Guard.Argument(agentsHub, nameof(agentsHub)).NotNull().Value;
     }
 
+
+    public bool TryRemoveAgent(AgentDetails agentToRemove)
+    {
+        if (!agents.ContainsKey(agentToRemove.Group))
+        {
+            return false;
+        }
+        var agentsInGroup = agents[agentToRemove.Group];
+        if (!agentsInGroup.Any(a => a.Agent.Equals(agentToRemove)))
+        {
+            return agents.TryUpdate(agentToRemove.Group,
+                new ConcurrentQueue<AgentConnection>(agentsInGroup.Except(agentsInGroup.Where(a => a.Agent.Equals(agentToRemove)))),
+                agentsInGroup);
+        }
+        return false;
+    }
+
     /// </inheritdoc>  
     public void RegisterAgent(string connectionId, AgentDetails agent)
     {
         Guard.Argument(connectionId, nameof(connectionId)).NotNull();
         Guard.Argument(agent, nameof(agent)).NotNull();
-
-        lock(locker)
+        if (!agents.ContainsKey(agent.Group))
         {
-            if (!this.agents.Any(a => a.Agent.Equals(agent)))
+            agents.TryAdd(agent.Group, new ConcurrentQueue<AgentConnection>());
+        }
+        var agentsInGroup = agents[agent.Group];
+        if (!agentsInGroup.Any(a => a.Agent.Equals(agent)))
+        {
+            var connectedAgent = new AgentConnection()
             {
-                var connectedAgent = new AgentConnection()
-                {
-                    ConnectionId = connectionId,
-                    Agent = agent
-                };
-                this.agents.Add(connectedAgent);
-                logger.LogInformation("Agent {0} in group {1} was added", agent.Name, agent.Group);
-                return;
-            }
-            logger.LogWarning("Agent {0} in group {1} already exists", agent.Name, agent.Group);
+                ConnectionId = connectionId,
+                Agent = agent
+            };
+            agentsInGroup.Enqueue(connectedAgent);
+            logger.LogInformation("Agent {0} in group {1} was added", agent.Name, agent.Group);
+            return;
         }       
+        logger.LogWarning("Agent {0} in group {1} already exists", agent.Name, agent.Group);
     }
 
     /// </inheritdoc>  
@@ -105,18 +124,19 @@ public class AgentManager : IAgentManager
     {
         Guard.Argument(connectionId, nameof(connectionId)).NotNull();
         Guard.Argument(agent, nameof(agent)).NotNull();
-       
-        lock(locker)
+        if (agents.ContainsKey(agent.Group))
         {
-            var agentToRemove = this.agents.FirstOrDefault(a =>  a.Agent.Equals(agent));
-            if (agentToRemove != null)
+            var agentsInGroup = agents[agent.Group];
+            if (agentsInGroup.Any(a => a.Agent.Equals(agent)))
             {
-                this.agents.Remove(agentToRemove);
-                logger.LogInformation("Agent {0} was removed from group {1}", agentToRemove.Agent.Name, agentToRemove.Agent.Group);
+                agents.TryUpdate(agent.Group,
+                    new ConcurrentQueue<AgentConnection>(agentsInGroup.Except(agentsInGroup.Where(a => a.Agent.Equals(agent)))),
+                    agentsInGroup);
+                logger.LogInformation("Agent {0} was removed from group {1}", agent.Name, agent.Group);
                 return;
             }
-            logger.LogWarning("Agent with name : {0} was not found.", agent.Name);
-        }       
+        }
+        logger.LogWarning("Agent with name : {0} was not found.", agent.Name);
     }
 
     /// </inheritdoc>  
@@ -124,64 +144,82 @@ public class AgentManager : IAgentManager
     {
         Guard.Argument(connectionId, nameof(connectionId)).NotNull();
         Guard.Argument(agent, nameof(agent)).NotNull();
-        lock(locker)
+        if (!agents.ContainsKey(agent.Group))
         {
-            var agentToUpdate = this.agents.FirstOrDefault(a => a.Agent.Equals(agent));
-            if(agentToUpdate == null) //can happen if the server goes down and comes back up before agent connection retry timeout
-            {
-                RegisterAgent(connectionId, agent);
-                logger.LogInformation("Agent {0} was not found and hence registered.", agent.Name);
-            }
-            else
-            {
-                agentToUpdate.ConnectionId = connectionId;
-                logger.LogInformation("Agent {0} is associated with new connection ID : {1} now.", agentToUpdate.Agent.Name);
-                return;
-            }           
-        }       
+            agents.TryAdd(agent.Group, new ConcurrentQueue<AgentConnection>());
+        }
+        var agentsInGroup = agents[agent.Group];
+        var agentToUpdate = agentsInGroup.FirstOrDefault(a => a.Agent.Equals(agent));
+        if (agentToUpdate == null) //can happen if the server goes down and comes back up before agent connection retry timeout
+        {
+            RegisterAgent(connectionId, agent);
+            logger.LogInformation("Agent {0} was not found and hence registered.", agent.Name);
+        }
+        else
+        {
+            agentToUpdate.ConnectionId = connectionId;
+            logger.LogInformation("Agent {0} is associated with new connection ID : {1} now.", agentToUpdate.Agent.Name);
+            return;
+        }
     }
 
     /// </inheritdoc>  
     public void MarkAgentInactive(string connectionId)
     {
-        Guard.Argument(connectionId, nameof(connectionId)).NotNull();     
-        lock(locker)
+        Guard.Argument(connectionId, nameof(connectionId)).NotNull();
+        foreach(var key in agents.Keys)
         {
-            var agentToUpdate = this.agents.FirstOrDefault(a => a.ConnectionId.Equals(connectionId));           
-            if (agentToUpdate != null)
+            foreach(var agent in agents[key])
             {
-                agentToUpdate.ConnectionId = string.Empty;
-                logger.LogInformation("Agent {0} is marked inactive now due to connection loss.", agentToUpdate.Agent.Name);
-                return;
+                if(agent.ConnectionId.Equals(connectionId))
+                {
+                    agent.ConnectionId = string.Empty;
+                    logger.LogInformation("Agent {0} is marked inactive now due to connection loss.", agent.Agent.Name);
+                    return;
+                }
             }
-            logger.LogWarning("No connection with ID :{0} was found.", connectionId);
-        }     
+        }
+        logger.LogWarning("No connection with ID :{0} was found.", connectionId);
     }
 
     /// <inheritdoc>   
     public async Task ExecuteTemplateAsync(string template, string handler, string group = "default")
     {
-        var agentsInGroup = this.agents.Where(a => a.Agent.Group.Equals(group));
-        if (!agentsInGroup.Any())
+        try
         {
-            throw new ArgumentException($"There are no agents in group : {group}");
-        }
-        var usableAgents = agentsInGroup.Where(a => a.IsActive && a.Agent.RegisteredHadlers.Contains(handler));
-        if (!usableAgents.Any())
-        {
-            throw new Exception($"There are no available agents to process request in group : {group}");
-        }
+            await semaphore.WaitAsync();
+            if (this.agents.ContainsKey(group))
+            {
+                var agentsInGroup = this.agents[group];
+                if (!agentsInGroup.Any(a => a.IsActive && a.Agent.RegisteredHadlers.Contains(handler)))
+                {                   
+                    logger.LogWarning("No agents in group : {0} having {1} agents are available to proces request for template : {2} with handler : {3}", group, agentsInGroup.Count(), template, handler);                   
+                }
 
-        foreach (var agent in usableAgents)
-        {
-            bool canAgentExecuteRequest = await this.agentsHub.Clients.Client(agent.ConnectionId).CanExecuteNew();
-            if (canAgentExecuteRequest)
-            {                
-                logger.LogInformation("Agent {0} was picked to execute template {1}", agent.Agent.Name, template);
-                await agentsHub.Clients.Client(agent.ConnectionId).ExecuteTemplate(template, handler);
-                logger.LogInformation("Agent {0} started execution of template {1}", agent.Agent.Name, template);
-                break;
+                Stack<AgentConnection> availableAgents = new();
+                while (agentsInGroup.TryDequeue(out AgentConnection agent))
+                {
+                    availableAgents.Push(agent);
+                    bool canAgentExecuteRequest = await this.agentsHub.Clients.Client(agent.ConnectionId).CanExecuteNew();
+                    if (canAgentExecuteRequest)
+                    {
+                        logger.LogInformation("Agent {0} was picked to execute template {1}", agent.Agent.Name, template);
+                        await agentsHub.Clients.Client(agent.ConnectionId).ExecuteTemplate(template, handler);
+                        logger.LogInformation("Agent {0} started execution of template {1}", agent.Agent.Name, template);
+                        break;
+                    }
+                }
+                while (availableAgents.TryPop(out AgentConnection agent))
+                {
+                    agentsInGroup.Enqueue(agent);
+                }
+                return;
             }
+            logger.LogWarning("No agents are available in group : {0} to proces request for template : {1} with handler : {2}", group, template, handler);
+        }
+        finally
+        {
+            semaphore.Release();
         }
     }   
 }
