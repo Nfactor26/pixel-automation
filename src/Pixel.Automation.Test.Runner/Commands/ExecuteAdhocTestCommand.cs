@@ -30,9 +30,9 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
         [CommandArgument(2, "<Selector>")]
         public string Selector { get; init; }
 
-        [Description("Name of the initialization script file")]
-        [CommandArgument(3, "<InitScriptFile>")]
-        public string InitializationScript { get; init; }
+        [Description("Name of the initializer function in initialize environment script file")]
+        [CommandArgument(3, "<InitFunction>")]
+        public string InitFunction { get; init; }
 
         [Description("Only list the test cases without executing them")]
         [CommandOption("-l|--list")]
@@ -63,7 +63,7 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
             Name = Guid.NewGuid().ToString(),
             ProjectName = settings.Project,            
             Selector = settings.Selector,
-            InitializeScript =  settings.InitializationScript
+            InitFunction =  settings.InitFunction
         };
 
         var projects = this.projectDataManager.GetAllProjects();

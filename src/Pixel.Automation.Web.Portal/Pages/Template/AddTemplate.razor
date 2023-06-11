@@ -30,8 +30,8 @@
                         </MudSelect>
                         <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text" 
                             Class="mt-3"  @bind-Value="sessionTemplate.Selector" Lines="2" For="@(() => sessionTemplate.Selector)" />
-                        <MudTextField UserAttributes="@(new (){{"id","txtInitializeScript"}})" Label="Initialization Script" Class="mt-3"
-                            @bind-Value="sessionTemplate.InitializeScript" For="@(() => sessionTemplate.InitializeScript)" />                      
+                        <MudTextField UserAttributes="@(new (){{"id","txtInitFunction"}})" Label="Initializer Function" Class="mt-3"
+                            @bind-Value="sessionTemplate.InitFunction" For="@(() => sessionTemplate.InitFunction)" />                      
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
