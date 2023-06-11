@@ -30,11 +30,11 @@ namespace Pixel.Automation.Test.Runner
             var table = new Table();
             table.AddColumn(new TableColumn("[blue]Template Name[/]"));
             table.AddColumn(new TableColumn("[blue]Project Name[/]"));
-            table.AddColumn(new TableColumn("[blue]Initialization Script[/]"));
+            table.AddColumn(new TableColumn("[blue]Initialize Function[/]"));
             table.AddColumn(new TableColumn("[blue]Test Selector[/]"));
             foreach (var template in templates)
             {
-                table.AddRow(template.Name, template.ProjectName, template.InitializeScript, template.Selector);               
+                table.AddRow(template.Name, template.ProjectName, template.InitFunction, template.Selector);               
             }
             ansiConsole.Write(table);
         }
@@ -81,13 +81,13 @@ namespace Pixel.Automation.Test.Runner
                     }
                     return ValidationResult.Success();
                 }));           
-            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialization Script[/] :").AllowEmpty());
+            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialize Function[/] :").AllowEmpty());
             SessionTemplate template = new SessionTemplate()
             {
                 Name = name,
                 ProjectName = projectName,                
                 Selector = selector,
-                InitializeScript = initializeScript
+                InitFunction = initializeScript
             };
             var availableProjects = this.projectDataManager.GetAllProjects();
             var targetProject = availableProjects.FirstOrDefault(a => a.Name.Equals(projectName)) ?? throw new ArgumentException($"Project with name :" +
@@ -110,8 +110,8 @@ namespace Pixel.Automation.Test.Runner
             table.AddColumn(new TableColumn("Template Name"));           
             table.AddColumn(new TableColumn("Project Name"));
             table.AddColumn(new TableColumn("Test Selector"));
-            table.AddColumn(new TableColumn("Initialization Script"));
-            table.AddRow(template.Name, template.ProjectName, template.Selector, template.InitializeScript);
+            table.AddColumn(new TableColumn("Initialize Function"));
+            table.AddRow(template.Name, template.ProjectName, template.Selector, template.InitFunction);
            
             ansiConsole.WriteLine("[blue]Enter below details to update template :[/]");
 
@@ -125,10 +125,10 @@ namespace Pixel.Automation.Test.Runner
             {
                 template.Selector = selector;
             }
-            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialization Script[/]").AllowEmpty());
+            string initializeScript = ansiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]][/] [green]Initialize Function[/]").AllowEmpty());
             if (!string.IsNullOrEmpty(initializeScript) || !string.IsNullOrWhiteSpace(initializeScript))
             {
-                template.InitializeScript = initializeScript;
+                template.InitFunction = initializeScript;
             }
             
             if (ansiConsole.Confirm($"Do you want to proceed and update  template : {template.Name} ?"))

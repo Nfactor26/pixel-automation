@@ -69,11 +69,11 @@ namespace Pixel.Automation.Test.Runner
         {
             Guard.Argument(template).NotNull();
             this.sessionTemplate = template;
-            await LoadProjectAsync(template.ProjectId, projectVersion, template.InitializeScript);
+            await LoadProjectAsync(template.ProjectId, projectVersion, template.InitFunction ?? Constants.DefaultInitFunction);
             return this.automationProject.ProjectId;
         }
 
-        public async Task LoadProjectAsync(string projectId, string projectVersion, string initializationScript)
+        public async Task LoadProjectAsync(string projectId, string projectVersion, string initializerFunction)
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
            
@@ -113,13 +113,7 @@ namespace Pixel.Automation.Test.Runner
          
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);
-         
-            initializationScript = string.IsNullOrEmpty(initializationScript) ? Constants.InitializeEnvironmentScript : initializationScript;
-            if (!string.IsNullOrEmpty(initializationScript) && !File.Exists(Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)))
-            {
-                throw new FileNotFoundException($"Script file {Path.Combine(projectFileSystem.ScriptsDirectory, initializationScript)} doesn't exist.");
-            }
-            
+                    
             object dataModel;
             //Load the setup data model for the project.
             if(this.targetVersion.IsPublished)
@@ -146,7 +140,7 @@ namespace Pixel.Automation.Test.Runner
             this.entityManager.RestoreParentChildRelation(this.entityManager.RootEntity);
             this.entityManager.Arguments = dataModel;
           
-            await ExecuteInitializationScript(initializationScript);
+            await ExecuteInitializationScript(Constants.InitializeEnvironmentScript, string.IsNullOrEmpty(initializerFunction) ? Constants.DefaultInitFunction : initializerFunction);
 
             logger.Information($"Project {0} with version {1}  was loaded.", this.automationProject.Name, this.targetVersion.Version);
         }
@@ -209,7 +203,7 @@ namespace Pixel.Automation.Test.Runner
         /// Execute the Initialization script for Automation process.
         /// Empty Initialization script is created if script file doesn't exist already.
         /// </summary>
-        private async Task ExecuteInitializationScript(string fileName)
+        private async Task ExecuteInitializationScript(string fileName, string initializerFunction)
         {
             try
             {               
@@ -220,7 +214,9 @@ namespace Pixel.Automation.Test.Runner
                 }
                 var scriptEngine = this.entityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(scriptFile);
-                logger.Information("Executed initialization script : {scriptFile}", scriptFile);
+                logger.Information("Executed initialize environemnt script : {scriptFile}", scriptFile);
+                await scriptEngine.ExecuteScriptAsync(initializerFunction);
+                logger.Information("Executed initializer function : {initializerFunction}", initializerFunction);
             }
             catch (Exception ex)
             {

@@ -117,16 +117,23 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 if (!File.Exists(scriptFile))
                 {
                     using (var sw = File.CreateText(scriptFile))
-                    {
-                        sw.WriteLine("//Default Initialization script for automation process");
+                    {                       
+                        sw.WriteLine("string dataSourceSuffix = string.Empty;");
                         sw.WriteLine();
-                        sw.Write("string dataSourceSuffix = string.Empty;");
+                        sw.WriteLine("//Default Initialization function");                     
+                        sw.Write("void ");
+                        sw.Write(Constants.DefaultInitFunction);
+                        sw.WriteLine("{");
+                        sw.WriteLine();
+                        sw.WriteLine("}");
                     };
                     logger.Information("Created initialization script file : {scriptFile}", scriptFile);
                 }
                 var scriptEngine = this.entityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(scriptFile);
-                logger.Information("Executed initialization script : {scriptFile}", scriptFile);
+                logger.Information("Executed initialize environment script : {scriptFile}", scriptFile);
+                await scriptEngine.ExecuteScriptAsync(Constants.DefaultInitFunction);
+                logger.Information("Executed default initializer function : {DefaultInitFunction}", Constants.DefaultInitFunction);
             }
             catch (Exception ex)
             {
@@ -170,7 +177,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Reload()
         {
-
             logger.Information($"{this.GetProjectName()} will be re-loaded");
             var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
             this.referenceManager.SetProjectReferences(reference);

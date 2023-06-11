@@ -87,7 +87,7 @@ namespace Pixel.Persistence.Respository
             .Set(t => t.Name, template.Name)
             .Set(t => t.Selector, template.Selector)
             .Set(t => t.TargetVersion, template.TargetVersion)
-            .Set(t => t.InitializeScript, template.InitializeScript);            
+            .Set(t => t.InitFunction, template.InitFunction);            
 
             await templates.FindOneAndUpdateAsync<SessionTemplate>(filter, updateDefinition);
         }

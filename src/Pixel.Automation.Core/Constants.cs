@@ -89,10 +89,14 @@
         public static readonly string ReferencesFileName = "References.ref";       
 
         /// <summary>
-        /// Default name for the Initialization script for configuring ProcessDaaModel used at design time.
-        /// A custom initialization script can be provided as a command line argument to test runner process.
+        /// Initialization script for configuring ProcessDatModel and other variables used at design time.       
         /// </summary>
         public static readonly string InitializeEnvironmentScript = "InitializeEnvironment.csx";
+
+        /// <summary>
+        /// Default function that will be executed in the Initialize Environment script to initialize data
+        /// </summary>
+        public static readonly string DefaultInitFunction = "InitializeDefault()";
 
         /// <summary>
         /// Meta data file name for applications

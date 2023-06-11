@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualBasic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
@@ -41,13 +42,13 @@ namespace Pixel.Persistence.Core.Models
         [Required]
         [DataMember]
         public string Selector { get; set; }
-      
+
         /// <summary>
-        /// Script file (*.csx) override that can be used to initialize the process data model e.g. 
-        /// By default InitializeEnvironment.csx generated at design time is used
+        /// InitializeEnvironment.csx can have multiple initializer functions. By default InitializeDefault() will be executed.
+        /// However, templates can provide a custom function name instead.
         /// </summary>
         [DataMember(IsRequired = false)]
-        public string InitializeScript { get; set; }
+        public string InitFunction { get; set; } = "InitializeDefault()";
 
         /// <summary>
         /// Trigger associated with the template 

@@ -16,7 +16,7 @@
                 <MudCardContent>
                     <MudTextField UserAttributes="@(new (){{"id","txtTemplateName"}})" Label="Template Name" Class="mt-3"
                               @bind-Value="sessionTemplate.Name" For="@(() => sessionTemplate.Name)" />
-                    <MudTextField UserAttributes="@(new (){{"id","txtProjectName"}})" Label="Template Name" Class="mt-3"
+                    <MudTextField UserAttributes="@(new (){{"id","txtProjectName"}})" Label="Project Name" Class="mt-3"
                               @bind-Value="sessionTemplate.ProjectName" For="@(() => sessionTemplate.ProjectName)" ReadOnly="true" />
                     <MudSelect T="ProjectVersion" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
                            AnchorOrigin="Origin.BottomCenter" ToStringFunc="@(e => e?.Version.ToString())">
@@ -27,8 +27,8 @@
                     </MudSelect>
                     <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text"
                               Class="mt-3" @bind-Value="sessionTemplate.Selector" Lines="2" For="@(() => sessionTemplate.Selector)" />
-                    <MudTextField UserAttributes="@(new (){{"id","txtInitializeScript"}})" Label="Initialization Script" Class="mt-3"
-                              @bind-Value="sessionTemplate.InitializeScript" For="@(() => sessionTemplate.InitializeScript)" />
+                    <MudTextField UserAttributes="@(new (){{"id","txtInitFunction"}})" Label="Initializer Function" Class="mt-3"
+                              @bind-Value="sessionTemplate.InitFunction" For="@(() => sessionTemplate.InitFunction)" />
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Update</MudButton>
