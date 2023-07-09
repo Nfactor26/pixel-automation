@@ -13,6 +13,8 @@
                       Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
         <MudTextField id="txtCronExpression" @bind-Value="@model.CronExpression" Label="Cron Expression" @onfocus="(() => error = string.Empty)"
                       Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
+        <MudTextField id="txtArguments" @bind-Value="@model.Arguments" Label="Arguments" @onfocus="(() => error = string.Empty)"
+                      Variant="Variant.Text" Immediate="true" Style="width:360px" HelperText="comma seperated key=value pair"></MudTextField>
         <br />     
         @if (!string.IsNullOrEmpty(error))
         {

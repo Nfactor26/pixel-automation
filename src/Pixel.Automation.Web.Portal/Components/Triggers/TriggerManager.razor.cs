@@ -93,6 +93,7 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
                 sessionTrigger.Handler = ebe.Handler;
                 sessionTrigger.Group = ebe.Group;                
                 sessionTrigger.CronExpression = ebe.CronExpression;
+                sessionTrigger.Arguments = ebe.Arguments;
             }           
         }
 

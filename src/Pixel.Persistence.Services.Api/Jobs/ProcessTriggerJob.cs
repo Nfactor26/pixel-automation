@@ -37,9 +37,10 @@ namespace Pixel.Persistence.Services.Api.Jobs
                 string template = dataMap.Get("template-name").ToString();
                 string trigger = dataMap.Get("trigger-name").ToString();
                 string handler = dataMap.Get("handler-key").ToString();
+                string arguments = dataMap.Get("handler-arguments").ToString();
                 string agentGroup = dataMap.Get("agent-group").ToString();
                 logger.LogInformation("Trigger : {0} activated for template : {1}, handler : {2}", trigger, template, handler);
-                await agentManager.ExecuteTemplateAsync(template, handler, agentGroup);
+                await agentManager.ExecuteTemplateAsync(template, handler, agentGroup, arguments);
             }
             catch (Exception ex)
             {
