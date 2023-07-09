@@ -18,29 +18,36 @@ namespace Pixel.Persistence.Core.Models
         /// Display name for the trigger
         /// </summary>
         [Required]
-        [DataMember]
+        [DataMember(Order = 10)]
         public string Name { get; set; }
 
         /// <summary>
         /// Identifies the handler that will be used to execute the template when trigger occurs
         /// </summary>
         [Required]
-        [DataMember]
+        [DataMember(Order = 20)]
         public string Handler { get; set; }
 
         /// <summary>
         /// Group from which an agent must be selected to process the request
         /// </summary>
         [Required]
-        [DataMember]
-        public string Group { get; set; }
-
+        [DataMember(Order = 30)]
+        public string Group { get; set; }               
+    
         /// <summary>
         /// Indicates if trigger is enabled
         /// </summary>
         [Required]
-        [DataMember]
+        [DataMember(Order = 40)]
         public bool IsEnabled { get; set; } = true;
+
+        /// <summary>
+        /// | seperated key=value pair arguments
+        /// </summary>  
+        [DataMember(Order = 50, IsRequired = false)]
+        public string Arguments { get; set; }
+
 
         public abstract object Clone();
 

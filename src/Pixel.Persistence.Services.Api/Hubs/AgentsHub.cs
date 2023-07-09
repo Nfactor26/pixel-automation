@@ -18,7 +18,7 @@ namespace Pixel.Persistence.Services.Api.Hubs
         /// <param name="templateName"></param>
         /// <param name="handler"></param>
         /// <returns></returns>
-        Task ExecuteTemplate(string templateName, string handler);
+        Task ExecuteTemplate(string templateName, string handler, string arguments);
 
         /// <summary>
         /// Check if agent can execute a new request

@@ -54,7 +54,7 @@ public interface IAgentManager
     /// <param name="handler"></param>
     /// <param name="group"></param>
     /// <returns></returns>
-    Task ExecuteTemplateAsync(string template, string handler, string group);
+    Task ExecuteTemplateAsync(string template, string handler, string group, string arguments);
 }
 
 /// <summary>
@@ -183,7 +183,7 @@ public class AgentManager : IAgentManager
     }
 
     /// <inheritdoc>   
-    public async Task ExecuteTemplateAsync(string template, string handler, string group = "default")
+    public async Task ExecuteTemplateAsync(string template, string handler, string group = "default", string arguments = "")
     {
         try
         {
@@ -204,7 +204,7 @@ public class AgentManager : IAgentManager
                     if (canAgentExecuteRequest)
                     {
                         logger.LogInformation("Agent {0} was picked to execute template {1}", agent.Agent.Name, template);
-                        await agentsHub.Clients.Client(agent.ConnectionId).ExecuteTemplate(template, handler);
+                        await agentsHub.Clients.Client(agent.ConnectionId).ExecuteTemplate(template, handler, arguments);
                         logger.LogInformation("Agent {0} started execution of template {1}", agent.Agent.Name, template);
                         break;
                     }
