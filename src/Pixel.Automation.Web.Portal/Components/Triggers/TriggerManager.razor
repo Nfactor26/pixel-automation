@@ -88,7 +88,7 @@
             <MudTextField UserAttributes="@(new (){{"id","txtName"}})" @bind-Value="@context.Name" Required />
         </MudTd>
         <MudTd DataLabel="Handler">
-            <MudTextField UserAttributes="@(new (){{"id","txtHandler"}})" @bind-Value="@context.Handler" Required />
+            <MudTextField UserAttributes="@(new (){{"id","txtHandler"}})" @bind-Value="@context.Handler" ReadOnly Disabled Required />
         </MudTd>
         <MudTd DataLabel="Group">
             <MudTextField UserAttributes="@(new (){{"id","txtGroup"}})" @bind-Value="@context.Group" Required />

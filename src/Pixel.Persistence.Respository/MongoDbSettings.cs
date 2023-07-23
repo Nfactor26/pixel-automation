@@ -32,6 +32,8 @@
 
         string TemplatesCollectionName { get; set; }
 
+        string TemplateHandlersName { get; set; }
+
         string SessionsCollectionName { get; set; }
 
         string TestResultsCollectionName { get; set; }
@@ -39,6 +41,8 @@
         string TestStatisticsCollectionName { get; set; }
 
         string ProjectStatisticsCollectionName { get; set; }
+
+        string ComposeFilesBucketName { get; set; }
 
     }
 
@@ -76,11 +80,15 @@
 
         public string TemplatesCollectionName { get; set; }
 
+        public string TemplateHandlersName { get; set; }
+
         public string SessionsCollectionName { get; set; }
 
         public string TestResultsCollectionName { get; set; }
 
         public string TestStatisticsCollectionName { get; set; }
+
+        public string ComposeFilesBucketName { get; set; }
 
     }
 

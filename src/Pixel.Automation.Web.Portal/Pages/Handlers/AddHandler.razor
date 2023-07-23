@@ -1,0 +1,83 @@
+﻿@page "/handlers/new"
+
+
+<MudGrid Spacing="2" Justify="Justify.FlexStart" Class="p-2">
+    <MudItem xs="8">
+        <MudText Typo="Typo.h4">Add New Template Handler</MudText>
+    </MudItem>
+</MudGrid>
+
+<br />
+<MudPaper Elevation="4">
+
+    <MudSelect @bind-Value="Environment" Label="Execution Environment" AdornmentColor="Color.Secondary" Class="ma-3">
+        @foreach (string environment in environments)
+        {
+            <MudSelectItem Value="@environment">@environment</MudSelectItem>
+        }
+    </MudSelect>
+
+    @if (templateHandler != null)
+    {
+        <EditForm Model="@templateHandler" OnValidSubmit="AddHandlerAsync">
+            <FluentValidationValidator />
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField UserAttributes="@(new (){{"id", "txtHandlerName"}})" Label="Handler Name" Class="mt-3"
+                              @bind-Value="templateHandler.Name" For="@(() => templateHandler.Name)" />
+                    <MudTextField UserAttributes="@(new (){{"id", "txtParameters"}})" Label="Parameters" Class="mt-3"
+                              @bind-Value="parameters" For="@(() => parameters)" />
+                    <MudTextField UserAttributes="@(new (){{"id", "txtDescription"}})" Label="Description" Class="mt-3"
+                              @bind-Value="templateHandler.Description" For="@(() => templateHandler.Description)" />
+                    @if (templateHandler is DockerTemplateHandler dockerTemplateHandler)
+                    {
+                        <MudSelect @bind-Value="dockerTemplateHandler.DockerComposeFileName" Label="Docker Compose File" AdornmentColor="Color.Secondary" Class="mt-3">
+                            @foreach (string dockerFile in dockerComposeFiles)
+                            {
+                                <MudSelectItem Value="@dockerFile">@dockerFile</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                           Color="Color.Primary" Class="ml-auto">Create</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+
+    }
+
+</MudPaper>
+<br />
+<br />
+
+@if (templateHandler is DockerTemplateHandler dockerTemplateHandler)
+{
+    <MudGrid Spacing="2" Justify="Justify.FlexStart" Class="p-2">
+        <MudItem xs="8">
+            <MudText Typo="Typo.h4">Add Docker Compose Files</MudText>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Elevation="4">
+        <MudStack Class="ma-3">
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" AppendMultipleFiles Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                       @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+                <ButtonTemplate>
+                    <MudPaper Height="100px" Outlined="true" Class="@DragClass">
+                        <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+                        @foreach (var file in filesToUpload.Select(f => f.Name))
+                        {
+                            <MudChip Color="Color.Dark" Text="@file" />
+                        }
+                    </MudPaper>
+                </ButtonTemplate>
+            </MudFileUpload>
+            <MudToolBar DisableGutters="true" Class="gap-4">
+                <MudButton OnClick="Upload" Disabled="@(!filesToUpload.Any())" Color="Color.Primary" Variant="Variant.Filled">Upload</MudButton>
+                <MudButton OnClick="Clear" Disabled="@(!filesToUpload.Any())" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+            </MudToolBar>
+        </MudStack>
+    </MudPaper>
+}

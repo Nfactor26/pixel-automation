@@ -56,8 +56,10 @@ namespace Pixel.Persistence.Services.Api
             services.AddTransient<ITestCaseRepository, TestCaseRepository>();
             services.AddTransient<ITestDataRepository, TestDataRepository>();           
             services.AddTransient<IPrefabsRepository, PrefabsRepository>();
-            services.AddTransient<ITemplateRepository, TemplateRepository>();                      
-           
+            services.AddTransient<ITemplateRepository, TemplateRepository>();
+            services.AddTransient<ITemplateHandlerRepository, TemplateHandlerRepository>();
+            services.AddTransient<IComposeFilesRepository, ComposeFilesRepository>();
+
             services.AddControllers();
             services.AddRazorPages();
             services.AddSignalR();

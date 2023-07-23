@@ -1,0 +1,47 @@
+﻿@page "/handlers/edit/{handlerId}"
+
+
+<MudGrid Spacing="2" Justify="Justify.FlexStart" Class="p-2">
+    <MudItem xs="8">
+        <MudText Typo="Typo.h4">Edit Template Handler</MudText>
+    </MudItem>
+</MudGrid>
+
+<br />
+<MudPaper Elevation="4">
+      
+
+    @if (templateHandler != null)
+    {
+        <EditForm Model="@templateHandler" OnValidSubmit="UpdateHandlerAsync">
+            <FluentValidationValidator />
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField UserAttributes="@(new (){{"id", "txtHandlerName"}})" Label="Handler Name" Class="mt-3"
+                              @bind-Value="templateHandler.Name" For="@(() => templateHandler.Name)" ReadOnly Disabled />
+                    <MudTextField UserAttributes="@(new (){{"id", "txtParameters"}})" Label="Parameters" Class="mt-3"
+                              @bind-Value="parameters" For="@(() => parameters)" HelperText=", seperated key=value pairs"/>
+                    <MudTextField UserAttributes="@(new (){{"id", "txtDescription"}})" Label="Description" Class="mt-3"
+                              @bind-Value="templateHandler.Description" For="@(() => templateHandler.Description)" />
+                    @if (templateHandler is DockerTemplateHandler dockerTemplateHandler)
+                    {
+                        <MudSelect @bind-Value="dockerTemplateHandler.DockerComposeFileName" Label="Docker Compose File" AdornmentColor="Color.Secondary" Class="mt-3">
+                            @foreach (string dockerFile in dockerComposeFiles)
+                            {
+                                <MudSelectItem Value="@dockerFile">@dockerFile</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                           Color="Color.Primary" Class="ml-auto">Update</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+
+    }
+
+</MudPaper>
+<br />
+<br />

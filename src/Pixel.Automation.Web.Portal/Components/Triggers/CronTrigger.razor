@@ -7,8 +7,14 @@
     <DialogContent>  
         <MudTextField id="txtName" @bind-Value="@model.Name" Label="Name" @onfocus="(() => error = string.Empty)"
                       Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
-        <MudTextField id="txtHandler" @bind-Value="@model.Handler" Label="Handler" @onfocus="(() => error = string.Empty)"
-                      Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
+        <MudSelect @bind-Value="@model.Handler" Label="Handler" AdornmentColor="Color.Secondary" Class="mt-3">
+            @foreach (string handler in templateHandlers.Select(s => s.Name))
+            {
+                <MudSelectItem Value="@handler">@handler</MudSelectItem>
+            }
+        </MudSelect>
+    @*    <MudTextField id="txtHandler" @bind-Value="@model.Handler" Label="Handler" @onfocus="(() => error = string.Empty)"
+                      Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>*@
         <MudTextField id="txtGroup" @bind-Value="@model.Group" Label="Group" @onfocus="(() => error = string.Empty)"
                       Variant="Variant.Text" Immediate="true" Style="width:360px"></MudTextField>
         <MudTextField id="txtCronExpression" @bind-Value="@model.CronExpression" Label="Cron Expression" @onfocus="(() => error = string.Empty)"
