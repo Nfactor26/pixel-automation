@@ -16,6 +16,9 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
         [CascadingParameter]
         MudDialogInstance MudDialog { get; set; }
 
+        [Inject]
+        public IHandlerService HandlersService { get; set; }
+
         [Parameter]
         public ITriggerService Service { get; set; }
 
@@ -24,6 +27,18 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
 
         [Parameter]
         public IEnumerable<SessionTrigger> ExistingTriggers { get; set; }
+
+
+        List<TemplateHandler> templateHandlers = new();
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            templateHandlers.Clear();
+            var availableHandlers = await HandlersService.GetAllAsync();
+            templateHandlers.AddRange(availableHandlers);
+            await base.OnInitializedAsync();
+        }
 
         /// <summary>
         /// Add new trigger and close the dialog

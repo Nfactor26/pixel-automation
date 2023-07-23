@@ -52,7 +52,7 @@ namespace Pixel.Automation.Web.Portal.Helpers
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.InternalServerError)
             {
                 var problemResponse = await result?.Content.ReadFromJsonAsync<ProblemResponse>();
-                return Failed(result.StatusCode, problemResponse.Title);
+                return Failed(result.StatusCode, problemResponse.Detail);
             }           
         }
 

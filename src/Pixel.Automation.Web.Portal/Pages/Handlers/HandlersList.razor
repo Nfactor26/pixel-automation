@@ -1,0 +1,52 @@
+﻿@page "/handlers/list"
+
+<MudTable UserAttributes="@(new (){{"id","tblHandlers"}})" ServerData="@(new Func<TableState, Task<TableData<TemplateHandler>>>(GetHandlersAsync))"
+          Dense="false" Hover="true" ReadOnly="true" SortLabel="Sort By" Elevation="4" @ref="handlersTable">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Templates</MudText>
+        <MudIconButton UserAttributes="@(new (){{"id","btnNew"}})" Icon="@Icons.Material.Outlined.AddCircleOutline" Size="Size.Medium"
+                       @onclick="AddNewHandler" Color="Color.Primary"></MudIconButton>
+        <MudSpacer></MudSpacer>
+        <MudTextField UserAttributes="@(new (){{"id","txtSearchBox"}})" T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search by handler name" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Environment</MudTh>
+        <MudTh>Name</MudTh>      
+        <MudTh>Arguments</MudTh>      
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Environment">
+           @context.GetType().Name.Replace("TemplateHandler", "")
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTooltip Text="@context.Description">
+                @context.Name
+            </MudTooltip>
+        </MudTd>       
+        <MudTd DataLabel="Parameters">  
+            @GetParameterString(context)           
+        </MudTd>       
+        <MudTd DataLabel="">
+            <MudIconButton UserAttributes="@(new (){{"id","btnEdit"}})" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                           @onclick="()=> EditHandler(context)" Size="Size.Medium"></MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="">
+            <MudIconButton UserAttributes="@(new (){{"id","btnDelete"}})" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                           @onclick="()=> DeleteHandlerAsync(context)" Size="Size.Medium"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="pageSizeOptions" RowsPerPageString="Results Per Page" />
+    </PagerContent>
+    <ColGroup>
+        <col style="width:120px;" />
+        <col style="width:360px;" />
+        <col />
+        <col style="width:20px;" />
+        <col style="width:20px;" />
+    </ColGroup>
+</MudTable>
+
