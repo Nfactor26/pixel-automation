@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+
+  pixel-test-runner:
+    image: {0}
+    stdin_open: true
+    tty: true
+    shm_size: 2gb  
+    environment:
+     - browser=Chrome
+    networks:
+     - pixel-network
+    entrypoint: bash
+
+networks:
+  pixel-network:
+    external: true

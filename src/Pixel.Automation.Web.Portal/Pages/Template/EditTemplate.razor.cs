@@ -132,7 +132,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
             parameters.Add("TemplateId", sessionTemplate.Id);
             parameters.Add("ExistingTriggers", sessionTemplate.Triggers);
             parameters.Add("Service", TriggerService);
-            var dialog = DialogService.Show<CronTrigger>("Add Claim", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
+            var dialog = DialogService.Show<AddCronTrigger>("Add Trigger", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
             var result = await dialog.Result;
             if (!result.Canceled && result.Data is SessionTrigger trigger)
             {
@@ -140,6 +140,30 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
                 SnackBar.Add($"Trigger was added.", Severity.Success);
             }
         }
+
+        /// <summary>
+        /// Update details of existing trigger
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="modified"></param>
+        /// <returns></returns>
+        async Task EditTriggerAsync(SessionTrigger trigger)
+        {
+            var parameters = new DialogParameters();
+            parameters.Add("TemplateId", sessionTemplate.Id);
+            parameters.Add("ExistingTriggers", sessionTemplate.Triggers);
+            parameters.Add("Original", trigger);
+            parameters.Add("Modified", trigger.Clone() as CronSessionTrigger);
+            var dialog = DialogService.Show<EditCronTrigger>("Edit Trigger", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
+            var result = await dialog.Result;
+            if (!result.Canceled && result.Data is SessionTrigger modified)
+            {
+                sessionTemplate.Triggers.Remove(trigger);
+                sessionTemplate.Triggers.Add(modified);
+                SnackBar.Add($"Trigger was updated.", Severity.Success);
+            }
+        }
+
 
         /// <summary>
         /// Delete an existing trigger from the template
@@ -160,25 +184,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
                 SnackBar.Add(result.ToString(), Severity.Error);
             }
         }
-
-        /// <summary>
-        /// Update details of existing trigger
-        /// </summary>
-        /// <param name="original"></param>
-        /// <param name="modified"></param>
-        /// <returns></returns>
-        async Task<bool> UpdateTriggerAsync(SessionTrigger original, SessionTrigger modified)
-        {
-            var result = await TriggerService.UpdateTriggerAsync(sessionTemplate.Id, original, modified);
-            if (result.IsSuccess)
-            {
-                SnackBar.Add($"Trigger was updated.", Severity.Success);
-                return true;
-            }
-            SnackBar.Add(result.ToString(), Severity.Error);
-            return false;
-        }
-
+      
         /// <summary>
         /// Pause all the triggers for the template
         /// </summary>

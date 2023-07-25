@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+
+  chrome-standalone:
+    image: {0}
+    shm_size: 2gb  
+    healthcheck:
+      test: ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - {2}
+
+  pixel-test-runner:
+    image: {1}
+    environment:
+     - browser=Chrome
+     - grid_address={3}
+    networks:
+     - pixel-network
+     - {2}
+    depends_on:
+      chrome-standalone:
+        condition: service_healthy
+    entrypoint: ["dotnet", "pixel-run.dll", "run", "template", {4}]
+
+networks:
+  {2}:
+    external: true
+  pixel-network:
+    external: true

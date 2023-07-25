@@ -1,17 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Pixel.Automation.Core;
 using Pixel.Automation.Web.Portal.Services;
 using Pixel.Persistence.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.Components.Triggers
 {
-    public partial class CronTrigger : ComponentBase
+    public partial class AddCronTrigger : ComponentBase
     {
         string error = null;
         CronSessionTrigger model = new();
+        string parameters = string.Empty;
 
         [CascadingParameter]
         MudDialogInstance MudDialog { get; set; }
@@ -47,19 +50,30 @@ namespace Pixel.Automation.Web.Portal.Components.Triggers
         {
             if (!ExistingTriggers.Any(t => t.Equals(model)))
             {
-                //Don't try to add claim to role if role is not yet created.
-                if (!string.IsNullOrEmpty(TemplateId))
+                try
                 {
-                    var result = await Service.AddTriggerAsync(TemplateId, model);
-                    if (result.IsSuccess)
+                    model.Parameters.Clear();
+                    foreach (var kv in parameters?.ToDictionary())
                     {
-                        MudDialog.Close(DialogResult.Ok<SessionTrigger>(model));
+                        this.model.Parameters.Add(kv.Key, kv.Value);
+                    }                  
+                    if (!string.IsNullOrEmpty(TemplateId))
+                    {
+                        var result = await Service.AddTriggerAsync(TemplateId, model);
+                        if (result.IsSuccess)
+                        {
+                            MudDialog.Close(DialogResult.Ok<SessionTrigger>(model));
+                            return;
+                        }
+                        error = result.ToString();
                         return;
                     }
-                    error = result.ToString();
-                    return;
                 }
-
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                    return;
+                }   
             }
             error = $"Trigger with same details already exists for Template.";
         }

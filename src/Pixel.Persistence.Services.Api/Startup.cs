@@ -84,6 +84,7 @@ namespace Pixel.Persistence.Services.Api
        
             services.AddHostedService<StatisticsProcessorService>();
             services.AddHostedService<QuartzJobBuilderService>();
+            services.AddHostedService<AddHandlersService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

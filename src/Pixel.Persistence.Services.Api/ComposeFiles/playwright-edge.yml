@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+
+  pixel-test-runner:
+    image: {0}
+    shm_size: 2gb  
+    stdin_open: true
+    tty: true
+    environment:
+     - browser=Edge
+    networks:
+     - pixel-network
+    entrypoint: bash
+
+networks:
+  pixel-network:
+    external: true

@@ -44,5 +44,29 @@
     <ProjectReference Include="..\Pixel.Persistence.Respository\Pixel.Persistence.Respository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ComposeFiles\docker-pixel-run.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\playwright-chrome.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\playwright-edge.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\playwright-firefox.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\webdriver-chrome-standalone.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\webdriver-edge-standalone.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ComposeFiles\webdriver-firefox-standalone.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

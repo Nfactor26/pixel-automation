@@ -1,8 +1,10 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
+using Pixel.Automation.Core;
 using Pixel.Persistence.Core.Models;
 using Quartz;
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -121,7 +123,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
             var trigger = TriggerBuilder.Create().WithIdentity(cronSessionTrigger.Name, template.Name)
                 .UsingJobData("trigger-name", cronSessionTrigger.Name)
                 .UsingJobData("handler-key", cronSessionTrigger.Handler)
-                .UsingJobData("handler-arguments", cronSessionTrigger.Arguments)
+                .UsingJobData("handler-arguments", cronSessionTrigger.Parameters.ToCommaSeperateString())
                 .UsingJobData("agent-group", cronSessionTrigger.Group)
                 .ForJob(job).WithCronSchedule(cronSessionTrigger.CronExpression).StartNow().Build();
             logger.LogInformation("Created a new trigger job for job : {0}, trigger : {1}", template.Name, cronSessionTrigger.Name);
@@ -165,7 +167,7 @@ namespace Pixel.Persistence.Services.Api.Jobs
             var trigger = TriggerBuilder.Create().WithIdentity($"{sessionTrigger.Name}-{DateTime.Now.ToString("hh-mm-ss")}", template.Name)
               .UsingJobData("trigger-name", sessionTrigger.Name)
               .UsingJobData("handler-key", sessionTrigger.Handler)
-              .UsingJobData("handler-arguments", sessionTrigger.Arguments)
+              .UsingJobData("handler-arguments", sessionTrigger.Parameters.ToCommaSeperateString())
               .UsingJobData("agent-group", sessionTrigger.Group)
               .ForJob(job).StartNow().Build(); 
             await scheduler.ScheduleJob(trigger, CancellationToken.None);
