@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
@@ -43,10 +44,11 @@ namespace Pixel.Persistence.Core.Models
         public bool IsEnabled { get; set; } = true;
 
         /// <summary>
-        /// | seperated key=value pair arguments
+        /// Parameters for the trigger.
+        /// These parameterrs will override any parameter defined on template handler
         /// </summary>  
         [DataMember(Order = 50, IsRequired = false)]
-        public string Arguments { get; set; }
+        public Dictionary<string, string> Parameters { get; set; } = new();
 
 
         public abstract object Clone();
@@ -59,6 +61,7 @@ namespace Pixel.Persistence.Core.Models
     /// Trigger based on a cron expression to execute template on a scheduled basis
     /// </summary>
     [DataContract]
+    [JsonDerivedType(typeof(CronSessionTrigger), typeDiscriminator: nameof(CronSessionTrigger))]
     public class CronSessionTrigger : SessionTrigger, IEquatable<CronSessionTrigger>
     {  
         /// <summary>
@@ -76,6 +79,7 @@ namespace Pixel.Persistence.Core.Models
                 Handler = this.Handler,
                 Group = this.Group,
                 IsEnabled = this.IsEnabled,
+                Parameters = new Dictionary<string, string>(this.Parameters),
                 CronExpression = this.CronExpression
             };
         }
