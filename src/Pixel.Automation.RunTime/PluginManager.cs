@@ -42,48 +42,46 @@ public class PluginManager
         List<Assembly> pluginAssemblies = new List<Assembly>();
 
         var pluginsDir = Path.Combine(AppContext.BaseDirectory, pluginDirectory);
-        foreach (var pluginDir in Directory.GetDirectories(pluginsDir))
+        foreach (var pluginDescription in this.pluginDescriptions)
         {
-            var pluginDirectoryInfo = new DirectoryInfo(pluginDir);
-            var pluginDescription = this.pluginDescriptions.FirstOrDefault(a => a.Name.Equals((pluginDirectoryInfo.Name)));
-            if(pluginDescription != null)
+            if (!pluginDescription.Type.Equals(pluginType))
+            {              
+                continue;
+            }
+
+            var pluginDir = Path.Combine(pluginsDir, pluginDescription.Name);
+            if(!Directory.Exists(pluginDir))
             {
-                if (!pluginDescription.Type.Equals(pluginType))
+                logger.Warning("Plugin {0} doesn't exist at path {1}", pluginDescription.Name, pluginDir);
+                continue;
+            }
+            foreach (var supportedPlatform in pluginDescription.SupportedPlatforms)
+            {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Create(supportedPlatform)))
                 {
                     continue;
                 }
-                foreach (var supportedPlatform in pluginDescription.SupportedPlatforms)
-                {
-                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Create(supportedPlatform)))
-                    {
-                        continue;
-                    }
-                    var pluginDll = Path.Combine(pluginDir, pluginDescription.Name + ".dll");
-                    pluginAssemblies.Add(Assembly.LoadFrom(pluginDll));
+                var pluginDll = Path.Combine(pluginDir, pluginDescription.Name + ".dll");
+                pluginAssemblies.Add(Assembly.LoadFrom(pluginDll));
 
-                    //using (var loader = PluginLoader.CreateFromAssemblyFile(pluginDll, p =>
-                    //{
-                    //    p.PreferSharedTypes = true;
-                    //}))
-                    //{
-                    //    pluginAssemblies.Add(loader.LoadDefaultAssembly());
-                    //    //if (!string.IsNullOrEmpty(pluginDescription.Scrapper))
-                    //    //{
-                    //    //    var scrapperPluginDir = Path.Combine(pluginsDir, pluginDescription.Scrapper);
-                    //    //    foreach (var assemblyFile in Directory.GetFiles(scrapperPluginDir, "*.dll"))
-                    //    //    {
-                    //    //        pluginAssemblies.Add(loader.LoadAssemblyFromPath(assemblyFile));
-                    //    //    }
-                    //    //}
-                    //}
-                    logger.Information("Loaded Plugin {@pluginDescription}", pluginDescription);
-                    break;
-                }
-            }  
-            else
-            {
-                logger.Warning("Plugin {0} isn't configured in Plguins.json file. Skipped loading Plugin.", pluginDirectoryInfo.Name);
-            }
+                //using (var loader = PluginLoader.CreateFromAssemblyFile(pluginDll, p =>
+                //{
+                //    p.PreferSharedTypes = true;
+                //}))
+                //{
+                //    pluginAssemblies.Add(loader.LoadDefaultAssembly());
+                //    //if (!string.IsNullOrEmpty(pluginDescription.Scrapper))
+                //    //{
+                //    //    var scrapperPluginDir = Path.Combine(pluginsDir, pluginDescription.Scrapper);
+                //    //    foreach (var assemblyFile in Directory.GetFiles(scrapperPluginDir, "*.dll"))
+                //    //    {
+                //    //        pluginAssemblies.Add(loader.LoadAssemblyFromPath(assemblyFile));
+                //    //    }
+                //    //}
+                //}
+                logger.Information("Loaded Plugin {@pluginDescription}", pluginDescription);
+                break;
+            }           
         }           
         return pluginAssemblies;
     }    
