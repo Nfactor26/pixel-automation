@@ -19,18 +19,19 @@ public class WebApplicationEntity : ApplicationEntity
     public string Platform { get; set; } = "FireFox";
 
     /// <summary>
-    /// Directory which contains the web driver binaries. Default value is ".//WebDrivers/" folder relative to application
-    /// </summary>
-    [DataMember]
-    [Display(Name = "Driver Location", GroupName = "WebDriver", Order = 10, Description = "Directory where WebDriver binary is located")]
-    public Argument WebDriverLocation { get; set; } = new InArgument<string> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = ".//WebDrivers//" };
-
-    /// <summary>
     /// Indicates if a compatible version of webdriver should be automatically downloaded
     /// </summary>
     [DataMember]
-    [Display(Name = "Auto Download", GroupName = "WebDriver", Order = 20, Description = "Indicate if a compatible driver version should be automatically downloaded")]
+    [Display(Name = "Auto Download", GroupName = "WebDriver", Order = 10, Description = "Indicate if a compatible driver version should be automatically downloaded using selenium-manager")]
     public Argument AutoDownloadDriver { get; set; } = new InArgument<bool> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = true };
+
+    /// <summary>
+    /// Directory location for web driver binaries when auto download is false. Default value is ".//WebDrivers/" folder relative to application.
+    /// Users must provide the web driver binaries at this location.
+    /// </summary>
+    [DataMember]
+    [Display(Name = "Driver Location", GroupName = "WebDriver", Order = 20, Description = "Directory location for webdriver when auto download is false")]
+    public Argument WebDriverLocation { get; set; } = new InArgument<string> { Mode = ArgumentMode.Default, CanChangeType = false, DefaultValue = ".//WebDrivers//" };   
     
     /// <summary>
     /// Optional argument which can be used to override the preferred browser configured on application.
@@ -128,22 +129,22 @@ public class WebApplicationEntity : ApplicationEntity
             webApplicationDetails.WebDriver = new RemoteWebDriver(remoteDriverUri, driverOptions.ToCapabilities(), commandTimeout);
         }
         else
-        {
+        {           
             switch (preferredBrowser)
             {
                 case Browsers.FireFox:
-                    var fireFoxDriverService = await GetDriverService<FirefoxDriverService>(preferredBrowser);
                     var fireFoxDriverOptions = await GetDriverOptions<FirefoxOptions>(preferredBrowser, processIdentifier);
+                    var fireFoxDriverService = await GetDriverService<FirefoxDriverService>(preferredBrowser, fireFoxDriverOptions);
                     webApplicationDetails.WebDriver = new FirefoxDriver(fireFoxDriverService, fireFoxDriverOptions, commandTimeout);
                     break;
                 case Browsers.Chrome:
-                    var chromeDriverService = await GetDriverService<ChromeDriverService>(preferredBrowser);
                     var chromeDriverOptions = await GetDriverOptions<ChromeOptions>(preferredBrowser, processIdentifier);
+                    var chromeDriverService = await GetDriverService<ChromeDriverService>(preferredBrowser, chromeDriverOptions);
                     webApplicationDetails.WebDriver = new ChromeDriver(chromeDriverService, chromeDriverOptions, commandTimeout);
                     break;
                 case Browsers.Edge:
-                    var edgeDriverService = await GetDriverService<EdgeDriverService>(preferredBrowser);
                     var edgeDriverOptions = await GetDriverOptions<EdgeOptions>(preferredBrowser, processIdentifier);
+                    var edgeDriverService = await GetDriverService<EdgeDriverService>(preferredBrowser, edgeDriverOptions);
                     webApplicationDetails.WebDriver = new EdgeDriver(edgeDriverService, edgeDriverOptions, commandTimeout);
                     break;
                 default:
@@ -237,7 +238,7 @@ public class WebApplicationEntity : ApplicationEntity
         }
     }
 
-    async Task<T> GetDriverService<T>(Browsers browser) where T : DriverService
+    async Task<T> GetDriverService<T>(Browsers browser , DriverOptions driverOptions) where T : DriverService
     {
         DriverService driverService;
         if (this.DriverServiceOverride.IsConfigured())
@@ -252,36 +253,27 @@ public class WebApplicationEntity : ApplicationEntity
         }
 
         //download the webdriver in to target folder 
-        var webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
+        string webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
         var shouldDownloadDriver = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
-        if(shouldDownloadDriver)
+        if(!shouldDownloadDriver)
         {
-            if(!Directory.Exists(webDriverFolder))
+            logger.Information("Auto download web driver is not enabled");
+            if (!Directory.Exists(webDriverFolder))
             {
-                Directory.CreateDirectory(webDriverFolder);
-            }
-            var webDriverDownloader = new WebDriverDownloader(webDriverFolder, browser);
-            switch(browser)
-            {
-                case Browsers.FireFox:
-                //For firefox, driver versions are usually compatible with 2-3 previous versions
-                //Also, there is no directy mapping between installed firefox version vs driver version
-                //Hence, we need to download latest
-                    webDriverFolder = webDriverDownloader.DownloadLatestVersion();                  
-                    break;
-                case Browsers.Chrome:
-                case Browsers.Edge:
-                    webDriverFolder = webDriverDownloader.DownloadMatchingVersion();                  
-                    break;
-                default:
-                    throw new ArgumentException($"{browser} is not supported");
-            }
+                throw new DirectoryNotFoundException($"WebDriver directory {webDriverFolder} doesn't exist.");
+            }  
         }
+        else
+        {
+            logger.Information("Auto download web driver is enabled");
+            webDriverFolder = SeleniumManager.DriverPath(driverOptions);
+        }
+        logger.Information("Use webdriver from path : {0}", webDriverFolder);
         //Create a default driver service based on browser type
         switch (browser)
         {
             case Browsers.FireFox:
-                driverService =  FirefoxDriverService.CreateDefaultService(webDriverFolder);
+                driverService = FirefoxDriverService.CreateDefaultService(webDriverFolder);
                 break;
             case Browsers.Chrome:
                 driverService = ChromeDriverService.CreateDefaultService(webDriverFolder);

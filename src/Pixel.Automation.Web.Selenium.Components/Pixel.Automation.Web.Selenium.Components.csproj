@@ -33,9 +33,8 @@
 		<PackageReference Include="System.Dynamic.Runtime" Version="4.3.0">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Selenium.Support" Version="4.10.0" />
-		<PackageReference Include="Selenium.WebDriver" Version="4.10.0" />
-		<PackageReference Include="WebDriverManager" Version="2.16.2" />
+		<PackageReference Include="Selenium.Support" Version="4.11.0" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.11.0" />
 	</ItemGroup>
 
 	<ItemGroup>
