@@ -1,6 +1,34 @@
-version: '3.4'
+version: '3.7'
 
 services:
+
+  #see seq license before using seq in production
+  #Used here for demonstration only in single user dev environment
+  seq:
+    image: datalust/seq:latest
+    container_name: seq  
+    ports:
+      #- "5341:5341" # seq ingestion on http 5341
+      - "5002:80" # seq ui on http 4342
+      - "5003:443"
+    volumes:
+      - seq-logs:/data
+    networks:
+      - pixel-network
+    environment:
+      - ACCEPT_EULA=Y
+
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit  
+    ports:
+      - "4318:4318"
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    networks:
+      - pixel-network
+    depends_on:
+      - seq
 
   mongo:
      image: mongo:latest
@@ -14,6 +42,21 @@ services:
      environment:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: mongopass     
+
+  #mongo-express:
+  #  image: mongo-express:latest
+  #  container_name: pixel_mongo_dashboard
+  #  restart: always
+  #  environment:
+  #    ME_CONFIG_MONGODB_ADMINUSERNAME: mongoadmin
+  #    ME_CONFIG_MONGODB_ADMINPASSWORD: mongopass
+  #    ME_CONFIG_MONGODB_URL: mongodb://mongoadmin:mongopass@mongo:27017/
+  #  depends_on:
+  #    - mongo
+  #  ports:
+  #    - 5008:8081
+  #  networks:
+  #    - pixel-network
 
   pixel-persistence:
     container_name: pixel-persistence-service
@@ -35,9 +78,13 @@ services:
       - "traefik.http.routers.pixel-persistence-service.tls=true"    
     networks:
       - pixel-network
+    depends_on:
+      - mongo
+      - fluent-bit
   
 volumes:
   mongo-pixel-store:
+  seq-logs:
 
 networks:
   pixel-network:

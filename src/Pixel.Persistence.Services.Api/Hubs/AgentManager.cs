@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Linq;
-using Pipelines.Sockets.Unofficial.Threading;
 using Pixel.Persistence.Core.Models;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
