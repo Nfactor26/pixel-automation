@@ -32,12 +32,16 @@ namespace Pixel.Automation.Designer.ViewModels
             ConsoleManager.Show();
             #endif
 
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             Log.Logger = new LoggerConfiguration()
-              .Enrich.WithThreadId()
-              .WriteTo.Console(Serilog.Events.LogEventLevel.Information, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}")
-              .WriteTo.File("logs\\Pixel-Automation-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
-              .CreateLogger();
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+
             logger = Log.ForContext<AppBootstrapper>();
             Initialize();
         }
