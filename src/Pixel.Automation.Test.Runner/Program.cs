@@ -1,4 +1,5 @@
-﻿using Ninject;
+﻿using Microsoft.Extensions.Configuration;
+using Ninject;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -8,25 +9,26 @@ using Pixel.Automation.RunTime.Serialization;
 using Pixel.Automation.Test.Runner.Commands;
 using Pixel.Automation.Test.Runner.Modules;
 using Pixel.Persistence.Services.Client;
-using Serilog;
-using Serilog.Events;
-using Spectre.Console.Cli;
-using System.Threading.Tasks;
-using Serilog.Sinks.SpectreConsole;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Serilog;
+using Spectre.Console.Cli;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
 {
     class Program
     {
         static async Task<int> Main(string[] args)
-        {           
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             Log.Logger = new LoggerConfiguration()
-               .Enrich.WithThreadId()
-               .WriteTo.SpectreConsole("{Timestamp:HH:mm:ss} [{Level:u4}] {Message:lj}{NewLine}{Exception}", minLevel: LogEventLevel.Information)
-               .WriteTo.File("logs/Pixel-Automation-.txt", restrictedToMinimumLevel: LogEventLevel.Verbose,
-                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [Thread:{ThreadId}] [{SourceContext:l}] {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day)
-               .CreateLogger();
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
             var logger = Log.ForContext<Program>();
 
             try

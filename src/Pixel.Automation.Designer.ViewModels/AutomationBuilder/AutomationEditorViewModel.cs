@@ -148,7 +148,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             { 
-                logger.Information(ex, "There was an error while trying to edit data model for project : '{0}'", this.CurrentProject.Name);
+                logger.Error(ex, "There was an error while trying to edit data model for project : '{0}'", this.CurrentProject.Name);
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }
