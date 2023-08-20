@@ -8,6 +8,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Data;
 
@@ -100,29 +101,33 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task CreateNewProject()
         {
-            try
+            using(var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
             {
-                INewProject newProjectVM = IoC.Get<INewProject>();
-                AutomationProject newProject = newProjectVM.NewProject;
-                var result = await windowManager.ShowDialogAsync(newProjectVM);
-                if (result.HasValue && result.Value)
+                try
                 {
-                    var newProjectViewModel = new AutomationProjectViewModel(newProject);
-                    this.Projects.Insert(0, newProjectViewModel);
-                    await OpenProject(newProjectViewModel);
-                    var projectsDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(newProject, newProject.LatestActiveVersion);
-                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion, 
-                        Path.Combine(projectsDirectory, Constants.AutomationProcessFileName), newProject.ProjectId);                 
-                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
-                      Path.Combine(projectsDirectory, Constants.DataModelDirectory, $"{Constants.AutomationProcessDataModelName}.cs"), newProject.ProjectId);
-                    await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
-                     Path.Combine(projectsDirectory, Constants.ScriptsDirectory, Constants.InitializeEnvironmentScript), newProject.ProjectId);
+                    INewProject newProjectVM = IoC.Get<INewProject>();
+                    AutomationProject newProject = newProjectVM.NewProject;
+                    var result = await windowManager.ShowDialogAsync(newProjectVM);
+                    if (result.HasValue && result.Value)
+                    {
+                        var newProjectViewModel = new AutomationProjectViewModel(newProject);
+                        this.Projects.Insert(0, newProjectViewModel);
+                        await OpenProject(newProjectViewModel);
+                        var projectsDirectory = this.applicationFileSystem.GetAutomationProjectWorkingDirectory(newProject, newProject.LatestActiveVersion);
+                        await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
+                            Path.Combine(projectsDirectory, Constants.AutomationProcessFileName), newProject.ProjectId);
+                        await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
+                          Path.Combine(projectsDirectory, Constants.DataModelDirectory, $"{Constants.AutomationProcessDataModelName}.cs"), newProject.ProjectId);
+                        await this.projectDataManager.AddOrUpdateDataFileAsync(newProject, newProject.LatestActiveVersion,
+                         Path.Combine(projectsDirectory, Constants.ScriptsDirectory, Constants.InitializeEnvironmentScript), newProject.ProjectId);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error trying to create project.");               
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error trying to create project.");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                }
+            }           
         }
 
         private readonly object locker = new();
@@ -133,39 +138,43 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task OpenProject(AutomationProjectViewModel automationProjectViewModel)
         {
-            try
+            using(var activity = Telemetry.DefaultSource.StartActivity(nameof(OpenProject), ActivityKind.Internal))
             {
-                Guard.Argument(automationProjectViewModel, nameof(automationProjectViewModel)).NotNull();
-                AutomationProject automationProject = automationProjectViewModel.Project;
-                lock (locker)
+                try
                 {
-                    if (automationProjectViewModel.IsOpenInEditor)
+                    Guard.Argument(automationProjectViewModel, nameof(automationProjectViewModel)).NotNull();
+                    AutomationProject automationProject = automationProjectViewModel.Project;
+                    lock (locker)
                     {
-                        logger.Information($"Project {automationProject.Name} is already open.");
+                        if (automationProjectViewModel.IsOpenInEditor)
+                        {
+                            logger.Information($"Project {automationProject.Name} is already open.");
+                            return;
+                        }
+                        automationProjectViewModel.IsOpenInEditor = true;
+                    }
+
+                    logger.Information($"Trying to open project : {automationProject.Name}");
+
+                    var editorFactory = IoC.Get<IEditorFactory>();
+                    var automationEditor = editorFactory.CreateAutomationEditor();
+                    await automationEditor.DoLoad(automationProject, automationProjectViewModel.SelectedVersion);
+                    if (this.Parent is IConductor conductor)
+                    {
+                        await conductor.ActivateItemAsync(automationEditor as Caliburn.Micro.Screen);
+                        automationProjectViewModel.IsOpenInEditor = true;
+                        logger.Information($"Project : {automationProject.Name} is open now.");
                         return;
                     }
-                    automationProjectViewModel.IsOpenInEditor = true;
-                }      
-               
-                logger.Information($"Trying to open project : {automationProject.Name}");
 
-                var editorFactory = IoC.Get<IEditorFactory>();
-                var automationEditor = editorFactory.CreateAutomationEditor();
-                await automationEditor.DoLoad(automationProject, automationProjectViewModel.SelectedVersion);
-                if (this.Parent is IConductor conductor)
+                }
+                catch (Exception ex)
                 {
-                    await conductor.ActivateItemAsync(automationEditor as Caliburn.Micro.Screen);
-                    automationProjectViewModel.IsOpenInEditor = true;
-                    logger.Information($"Project : {automationProject.Name} is open now.");
-                    return;
-                }                   
-
-            }
-            catch (Exception ex)
-            {         
-                automationProjectViewModel.IsOpenInEditor = false;
-                logger.Error(ex, "There was an error trying to open project.");
-            }
+                    automationProjectViewModel.IsOpenInEditor = false;
+                    logger.Error(ex, "There was an error trying to open project.");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                }
+            }            
         }
 
         /// <summary>
@@ -175,19 +184,23 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task ManageProjectVersionAsync(AutomationProjectViewModel automationProjectViewModel)
         {
-            try
-            {                
-                var versionManager = this.versionManagerFactory.CreateProjectVersionManager(automationProjectViewModel.Project);
-                var result = await this.windowManager.ShowDialogAsync(versionManager);
-                if(result.HasValue && result.Value)
-                {
-                    automationProjectViewModel.RefreshVersions();
-                }                
-            }
-            catch (Exception ex)
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ManageProjectVersionAsync), ActivityKind.Internal))
             {
-                logger.Error(ex, ex.Message);
-            }
+                try
+                {
+                    var versionManager = this.versionManagerFactory.CreateProjectVersionManager(automationProjectViewModel.Project);
+                    var result = await this.windowManager.ShowDialogAsync(versionManager);
+                    if (result.HasValue && result.Value)
+                    {
+                        automationProjectViewModel.RefreshVersions();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, ex.Message);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                }
+            }           
         }
 
 

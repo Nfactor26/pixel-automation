@@ -12,6 +12,7 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System.Diagnostics;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -61,30 +62,33 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
-            Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
-            Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Load), ActivityKind.Internal))
+            {
+                Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+                Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
+              
+                this.prefabProject = prefabProject;
+                this.loadedVersion = versionToLoad as PrefabVersion;
+                this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
 
-            this.prefabProject = prefabProject;
-            this.loadedVersion = versionToLoad as PrefabVersion;
-            this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
+                await this.prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.loadedVersion);
 
-            await this.prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.loadedVersion);
+                this.entityManager.SetCurrentFileSystem(this.fileSystem);
+                this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
+                this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.PrefabId, versionToLoad.ToString(), this.prefabFileSystem);
+                this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
-            this.entityManager.SetCurrentFileSystem(this.fileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-            this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.PrefabId, versionToLoad.ToString(), this.prefabFileSystem);
-            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);         
+                ConfigureCodeEditor(this.referenceManager);
 
-            ConfigureCodeEditor(this.referenceManager);
+                var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
+                ConfigureScriptEngine(this.referenceManager, dataModel);
+                ConfigureScriptEditor(this.referenceManager, dataModel);
+                this.entityManager.Arguments = dataModel;
+                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+                Initialize();
 
-            var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
-            ConfigureScriptEngine(this.referenceManager, dataModel);
-            ConfigureScriptEditor(this.referenceManager, dataModel);          
-            this.entityManager.Arguments = dataModel;
-            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            Initialize();          
-            
-            return this.RootEntity;
+                return this.RootEntity;
+            }           
         }
     
 
@@ -196,15 +200,18 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Reload()
         {
-            await this.Save();
-            this.Initialize();                      
-            var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
-            this.referenceManager.SetProjectReferences(reference);
-            var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
-            ConfigureScriptEngine(this.referenceManager, dataModel);
-            ConfigureScriptEditor(this.referenceManager, dataModel);           
-            this.entityManager.Arguments = dataModel;           
-            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);          
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
+            {
+                await this.Save();
+                this.Initialize();
+                var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
+                this.referenceManager.SetProjectReferences(reference);
+                var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
+                ConfigureScriptEngine(this.referenceManager, dataModel);
+                ConfigureScriptEditor(this.referenceManager, dataModel);
+                this.entityManager.Arguments = dataModel;
+                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+            }                  
         }
 
 

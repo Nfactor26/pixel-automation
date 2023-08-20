@@ -24,7 +24,7 @@ namespace Pixel.Persistence.Services.Client
         /// Download most recent version of application and controls
         /// </summary>
         /// <returns></returns>
-        Task UpdateApplicationRepository();
+        Task DownloadApplicationsWithControlsAsync();
 
 
         /// <summary>

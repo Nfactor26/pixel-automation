@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Ninject;
+using OpenTelemetry.Exporter;
+using OpenTelemetry;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -13,7 +15,12 @@ using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using Spectre.Console.Cli;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using System;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using System.Diagnostics;
 
 namespace Pixel.Automation.Test.Runner
 {
@@ -31,6 +38,29 @@ namespace Pixel.Automation.Test.Runner
                 .CreateLogger();
             var logger = Log.ForContext<Program>();
 
+            Telemetry.InitializeDefault("pixel-run", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            string[] enablesSources = configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
+
+            var traceProviderBuilder = Sdk.CreateTracerProviderBuilder()
+            .SetSampler(new TraceIdRatioBasedSampler(0.1))
+            .AddSource(enablesSources).ConfigureResource(resource => resource.AddService("pixel-run")).AddHttpClientInstrumentation();
+            string otlpTraceEndPoint = configuration["OpenTelemetry:Trace:EndPoint"];
+            if (!string.IsNullOrEmpty(otlpTraceEndPoint))
+            {
+                Enum.TryParse<OtlpExportProtocol>(configuration["OpenTelemetry:TraceExporter:OtlpExportProtocol"] ?? "HttpProtobuf", out OtlpExportProtocol exportProtocol);
+                Enum.TryParse<ExportProcessorType>(configuration["OpenTelemetry:TraceExporter:ExportProcessorType"] ?? "Batch", out ExportProcessorType processorType);
+                traceProviderBuilder.AddOtlpExporter(e =>
+                {
+                    e.Endpoint = new Uri(otlpTraceEndPoint);
+                    e.Protocol = exportProtocol;
+                    e.ExportProcessorType = processorType;
+                });
+            }
+            #if DEBUG
+            traceProviderBuilder.AddConsoleExporter();
+            #endif
+            var traceProvider = traceProviderBuilder.Build();
+
             try
             {
                 logger.Information("Started with args : {0}", args);
@@ -41,7 +71,8 @@ namespace Pixel.Automation.Test.Runner
                 var kernel = new StandardKernel(new CommonModule(), new ScopedModules(), new ScriptingModule(),
                     new NativeModule(platformFeatureAssemblies), new SettingsModule(), new PersistenceModules());
                 kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
-
+                kernel.Bind<TracerProvider>().ToConstant(traceProvider);
+             
                 var knownTypeProvider = kernel.Get<ITypeProvider>();
                 knownTypeProvider.LoadTypesFromAssembly(typeof(Entity).Assembly);
                 knownTypeProvider.LoadTypesFromAssembly(typeof(ControlEntity).Assembly);
@@ -54,13 +85,22 @@ namespace Pixel.Automation.Test.Runner
                 pluginManager.ListLoadedAssemblies();
                 #endif
 
-                var applicationDataManager = kernel.Get<IApplicationDataManager>();
-                await applicationDataManager.UpdateApplicationRepository();
-                var projectDataManger = kernel.Get<IProjectDataManager>();
-                await projectDataManger.DownloadProjectsAsync();
-                var prefabDataManager = kernel.Get<IPrefabDataManager>();
-                await prefabDataManager.DownloadPrefabsAsync();
-
+                using (Telemetry.DefaultSource.StartActivity("download-applications-and-controls", ActivityKind.Internal))
+                {
+                    var applicationDataManager = kernel.Get<IApplicationDataManager>();
+                    await applicationDataManager.DownloadApplicationsWithControlsAsync();
+                }
+                using (Telemetry.DefaultSource.StartActivity("download-projects", ActivityKind.Internal))
+                {
+                    var projectDataManger = kernel.Get<IProjectDataManager>();
+                    await projectDataManger.DownloadProjectsAsync();
+                }
+                using (Telemetry.DefaultSource.StartActivity("download-prefabs", ActivityKind.Internal))
+                {
+                    var prefabDataManager = kernel.Get<IPrefabDataManager>();
+                    await prefabDataManager.DownloadPrefabsAsync();
+                }            
+          
                 //System.Diagnostics.Debugger.Launch();
                 var registrar = new TypeRegistrar(kernel);
                 var app = new CommandApp(registrar);

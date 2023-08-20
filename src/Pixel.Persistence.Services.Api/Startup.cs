@@ -5,6 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Respository.Interfaces;
@@ -29,6 +33,38 @@ namespace Pixel.Persistence.Services.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOpenTelemetry()
+                .ConfigureResource(resource =>
+                {
+                    resource.AddService("pixel-persistence");
+                })
+                .WithTracing(builder =>
+                {
+                    string[] enabledSources = Configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
+                    builder.AddSource(enabledSources);
+                    builder.AddAspNetCoreInstrumentation();                 
+                    builder.AddHttpClientInstrumentation();
+                    //builder.SetSampler(new TraceIdRatioBasedSampler(0.1));
+                    string otlpTraceEndPoint = Configuration["OpenTelemetry:Trace:EndPoint"];
+                    if (!string.IsNullOrEmpty(otlpTraceEndPoint))
+                    {
+                        Enum.TryParse<OtlpExportProtocol>(Configuration["OpenTelemetry:TraceExporter:OtlpExportProtocol"] ?? "HttpProtobuf", out OtlpExportProtocol exportProtocol);
+                        Enum.TryParse<ExportProcessorType>(Configuration["OpenTelemetry:TraceExporter:ExportProcessorType"] ?? "Batch", out ExportProcessorType processorType);
+                        builder.AddOtlpExporter(e =>
+                        {
+                            e.Endpoint = new Uri(otlpTraceEndPoint);
+                            e.Protocol = exportProtocol;
+                            e.ExportProcessorType = processorType;
+                        });
+                    }
+                    string exporterConsole = Configuration["OpenTelemetry:TraceExporter:Console"];
+                    if (!string.IsNullOrEmpty(exporterConsole) && bool.Parse(exporterConsole))
+                    {
+                        builder.AddConsoleExporter();
+                    }
+                });
+                
+
             //To forward the scheme from the proxy in non - IIS scenarios
             services.Configure<ForwardedHeadersOptions>(options =>
             {

@@ -3,9 +3,9 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
-using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
+using System.Diagnostics;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -52,35 +52,42 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public  async Task CreateNewProject()
         {
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
             {
-                this.NewProject.Name = this.NewProject.Name.Trim();
-                this.NewProject.Namespace = $"{Constants.NamespacePrefix}.{this.NewProject.Name.Replace(' ', '.')}";              
-
-                //create a directory inside projects directory with name equal to newProject identifier
-                string projectFolder = this.applicationFileSystem.GetAutomationProjectDirectory(this.NewProject);
-                if (Directory.Exists(projectFolder))
+                try
                 {
-                    throw new InvalidOperationException($"Project with name : {NewProject.Name} already exists");
+                    this.NewProject.Name = this.NewProject.Name.Trim();
+                    this.NewProject.Namespace = $"{Constants.NamespacePrefix}.{this.NewProject.Name.Replace(' ', '.')}";
+
+                    activity?.SetTag("ProjectName", this.NewProject.Name);
+                    activity?.SetTag("Namespace", this.NewProject.Namespace);
+
+                    //create a directory inside projects directory with name equal to newProject identifier
+                    string projectFolder = this.applicationFileSystem.GetAutomationProjectDirectory(this.NewProject);
+                    if (Directory.Exists(projectFolder))
+                    {
+                        throw new InvalidOperationException($"Project with name : {NewProject.Name} already exists");
+                    }
+                    Directory.CreateDirectory(projectFolder);
+
+                    await this.projectDataManager.AddProjectAsync(this.NewProject);
+
+                    //create and save the project file
+                    string projectFile = this.applicationFileSystem.GetAutomationProjectFile(this.NewProject);
+                    serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
+
+                    logger.Information("Created new project : {0}", this.Name);
+
+                    await this.TryCloseAsync(true);
                 }
-                Directory.CreateDirectory(projectFolder);
-
-                await this.projectDataManager.AddProjectAsync(this.NewProject);
-
-                //create and save the project file
-                string projectFile = this.applicationFileSystem.GetAutomationProjectFile(this.NewProject);
-                serializer.Serialize<AutomationProject>(projectFile, this.NewProject, null);
-             
-                logger.Information($"Created new project : {this.Name}");
-
-                await this.TryCloseAsync(true);
-            }
-            catch (Exception ex)
-            {
-                logger.Warning($"There was an error while trying to create new project : {this.NewProject.Name}");
-                logger.Error(ex.Message, ex);
-                await this.TryCloseAsync(false);
-            }
+                catch (Exception ex)
+                {
+                    logger.Warning("There was an error while trying to create new project : {0}", this.NewProject.Name);
+                    logger.Error(ex.Message, ex);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await this.TryCloseAsync(false);
+                }
+            }           
         }
 
         public bool CanCreateNewProject

@@ -11,6 +11,7 @@ using Serilog;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -67,13 +68,16 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task<string> LoadProjectAsync(SessionTemplate template, string projectVersion)
         {
-            Guard.Argument(template).NotNull();
-            this.sessionTemplate = template;
-            await LoadProjectAsync(template.ProjectId, projectVersion, template.InitFunction ?? Constants.DefaultInitFunction);
-            return this.automationProject.ProjectId;
+            Guard.Argument(template, nameof(template)).NotNull();
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadProjectAsync), ActivityKind.Internal))
+            {
+                this.sessionTemplate = template;
+                await LoadProjectAsync(template.ProjectId, projectVersion, template.InitFunction ?? Constants.DefaultInitFunction);
+                return this.automationProject.ProjectId;
+            }          
         }
 
-        public async Task LoadProjectAsync(string projectId, string projectVersion, string initializerFunction)
+        async Task LoadProjectAsync(string projectId, string projectVersion, string initializerFunction)
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
            
@@ -153,36 +157,39 @@ namespace Pixel.Automation.Test.Runner
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel()
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(this.projectFileSystem.ReferencesDirectory);
-            foreach (FileInfo file in directoryInfo.GetFiles())
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
             {
-                file.Delete();
-            }
-            string dataModelAssembly = Path.Combine(this.projectFileSystem.ReferencesDirectory, $"{this.automationProject.Namespace}.dll");
-            if(!File.Exists(dataModelAssembly))
-            {              
-                var workspace = new CodeWorkspaceManager(this.projectFileSystem.DataModelDirectory);
-                workspace.WithAssemblyReferences(referenceManager.GetCodeEditorReferences() ?? Array.Empty<string>());
-                workspace.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
-
-                string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
-                foreach (var dataModelFile in dataModelFiles)
+                DirectoryInfo directoryInfo = new DirectoryInfo(this.projectFileSystem.ReferencesDirectory);
+                foreach (FileInfo file in directoryInfo.GetFiles())
                 {
-                    string documentName = Path.GetFileName(dataModelFile);
-                    workspace.AddDocument(documentName, this.automationProject.Name, File.ReadAllText(dataModelFile));
+                    file.Delete();
                 }
-                using (var compilationResult = workspace.CompileProject(this.automationProject.Name, this.automationProject.Namespace))
+                string dataModelAssembly = Path.Combine(this.projectFileSystem.ReferencesDirectory, $"{this.automationProject.Namespace}.dll");
+                if (!File.Exists(dataModelAssembly))
                 {
-                    compilationResult.SaveAssemblyToDisk(this.projectFileSystem.ReferencesDirectory);
-                }
-            }
+                    var workspace = new CodeWorkspaceManager(this.projectFileSystem.DataModelDirectory);
+                    workspace.WithAssemblyReferences(referenceManager.GetCodeEditorReferences() ?? Array.Empty<string>());
+                    workspace.AddProject(this.automationProject.Name, this.automationProject.Namespace, Array.Empty<string>());
 
-            Assembly assembly = Assembly.LoadFrom(dataModelAssembly);
-            logger.Information($"Data model assembly compiled and assembly loaded from {dataModelAssembly}");
-            Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName))
-                ?? throw new Exception($"Data model assembly {assembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
-            return Activator.CreateInstance(typeofDataModel);
-            throw new Exception($"Failed to compile data model project");
+                    string[] dataModelFiles = Directory.GetFiles(this.projectFileSystem.DataModelDirectory, "*.cs");
+                    foreach (var dataModelFile in dataModelFiles)
+                    {
+                        string documentName = Path.GetFileName(dataModelFile);
+                        workspace.AddDocument(documentName, this.automationProject.Name, File.ReadAllText(dataModelFile));
+                    }
+                    using (var compilationResult = workspace.CompileProject(this.automationProject.Name, this.automationProject.Namespace))
+                    {
+                        compilationResult.SaveAssemblyToDisk(this.projectFileSystem.ReferencesDirectory);
+                    }
+                }
+
+                Assembly assembly = Assembly.LoadFrom(dataModelAssembly);
+                logger.Information($"Data model assembly compiled and assembly loaded from {dataModelAssembly}");
+                Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.AutomationProcessDataModelName))
+                    ?? throw new Exception($"Data model assembly {assembly.GetName().Name} doesn't contain  type : {Constants.AutomationProcessDataModelName}");
+                return Activator.CreateInstance(typeofDataModel);
+                throw new Exception($"Failed to compile data model project");
+            }             
         }
 
         /// <summary>
@@ -242,110 +249,135 @@ namespace Pixel.Automation.Test.Runner
         }
 
         public async Task ListAllAsync(string selector, IAnsiConsole console)
-        {          
-            await this.testSelector.Initialize(selector);
-            logger.Information($"Listing tests that matches selection condition now.");
-            try
+        {
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ListAllAsync), ActivityKind.Internal))
             {
-                var tree = new Tree($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
-                foreach (var testFixture in this.availableFixtures)
-                {                   
-                    if (testFixture.IsMuted)
+                await this.testSelector.Initialize(selector);
+                logger.Information($"Listing tests that matches selection condition now.");
+                try
+                {
+                    var tree = new Tree($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
+                    foreach (var testFixture in this.availableFixtures)
                     {
-                        tree.AddNode($"[red]{testFixture.DisplayName}[/]");
-                        continue;
-                    }
-                    var fixtureNode = tree.AddNode($"[green]{testFixture.DisplayName}[/]");
-                    foreach (var testCase in testFixture.Tests)
-                    {
-                        if (!testSelector.CanRunTest(testFixture, testCase))
+                        if (testFixture.IsMuted)
                         {
-                            fixtureNode.AddNode($"[red]{testCase.DisplayName}[/]");
+                            tree.AddNode($"[red]{testFixture.DisplayName}[/]");
                             continue;
                         }
-                        fixtureNode.AddNode($"[green]{testCase.DisplayName}[/]");
+                        var fixtureNode = tree.AddNode($"[green]{testFixture.DisplayName}[/]");
+                        foreach (var testCase in testFixture.Tests)
+                        {
+                            if (!testSelector.CanRunTest(testFixture, testCase))
+                            {
+                                fixtureNode.AddNode($"[red]{testCase.DisplayName}[/]");
+                                continue;
+                            }
+                            fixtureNode.AddNode($"[green]{testCase.DisplayName}[/]");
+                        }
                     }
+                    console.Write(tree);
                 }
-                console.Write(tree);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.Message, ex);
-            }           
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message, ex);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                }
+            }                
         }
 
         public async Task RunAllAsync(string selector, IAnsiConsole console)
         {
-            TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
-            List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
-            testSession.Id = await sessionClient.AddSessionAsync(testSession);
-
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RunAllAsync), ActivityKind.Internal))
             {
-                int counter = 0;
-                await this.testSelector.Initialize(selector);
-                await this.testRunner.SetUpEnvironment();
+                activity?.SetTag("Selector", selector);
+                logger.Information("Selector is {0}", selector);
+              
+                TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
+                List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
+                testSession.Id = await sessionClient.AddSessionAsync(testSession);
 
-                console.MarkupLine($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
-                foreach (var testFixture in this.availableFixtures)
+                try
                 {
-                    console.MarkupLine($" - [cyan3]{testFixture.DisplayName}[/]");
-                   
-                    if (testFixture.IsMuted)
+                    int counter = 0;
+                  
+                    using (Telemetry.DefaultSource.StartActivity("SetUpEnvironment", ActivityKind.Internal))
                     {                        
-                        continue;
+                        await this.testSelector.Initialize(selector);
+                        await this.testRunner.SetUpEnvironment();
                     }
-                    
-                    var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
-                    testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
-                    testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
-                    testFixture.TestFixtureEntity.Tag = testFixture.FixtureId;
-                    await this.testRunner.TryOpenTestFixture(testFixture);
-                    foreach (var testCase in testFixture.Tests)
-                    {                      
-                        if (!testSelector.CanRunTest(testFixture, testCase))
+
+                    using (Telemetry.DefaultSource.StartActivity("RunTestCases", ActivityKind.Internal))
+                    {
+                        console.MarkupLine($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
+                        foreach (var testFixture in this.availableFixtures)
                         {
-                            console.MarkupLine($"  - [yellow]{testCase.DisplayName}[/]");
-                            continue;
-                        }
-                       
-                        await foreach(var testResult in  this.RunTestCaseAsync(testFixture, testCase))
-                        {
-                            testResult.SessionId = testSession.Id;                          
-                            testResult.ExecutionOrder = ++counter;
-                            await sessionClient.AddResultAsync(testResult);
-                            testResults.Add(testResult);
-                            if(testResult.Result == Persistence.Core.Enums.TestStatus.Success)
+                            console.MarkupLine($" - [cyan3]{testFixture.DisplayName}[/]");
+
+                            if (testFixture.IsMuted)
                             {
-                                console.MarkupLine($"  - [green]{testCase.DisplayName}[/]");
+                                continue;
                             }
-                            else
+
+                            var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
+                            testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
+                            testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
+                            testFixture.TestFixtureEntity.Tag = testFixture.FixtureId;
+                            await this.testRunner.TryOpenTestFixture(testFixture);
+                            foreach (var testCase in testFixture.Tests)
                             {
-                                console.MarkupLine($"  - [red]{testCase.DisplayName}[/]");
-                                console.MarkupLine($"    [red]{testResult.FailureDetails.Exception} - {testResult.FailureDetails.Message}[/]");
+                                if (!testSelector.CanRunTest(testFixture, testCase))
+                                {
+                                    console.MarkupLine($"  - [yellow]{testCase.DisplayName}[/]");
+                                    continue;
+                                }
+
+                                await foreach (var testResult in this.RunTestCaseAsync(testFixture, testCase))
+                                {
+                                    testResult.SessionId = testSession.Id;
+                                    testResult.ExecutionOrder = ++counter;
+                                    await sessionClient.AddResultAsync(testResult);
+                                    testResults.Add(testResult);
+                                    if (testResult.Result == Persistence.Core.Enums.TestStatus.Success)
+                                    {
+                                        console.MarkupLine($"  - [green]{testCase.DisplayName}[/]");
+                                    }
+                                    else
+                                    {
+                                        console.MarkupLine($"  - [red]{testCase.DisplayName}[/]");
+                                        console.MarkupLine($"    [red]{testResult.FailureDetails.Exception} - {testResult.FailureDetails.Message}[/]");
+                                    }
+                                }
+
                             }
+                            await this.testRunner.TryCloseTestFixture(testFixture);
                         }
-                                
+                    }                    
+
+                    using (Telemetry.DefaultSource.StartActivity("TearDownEnvironment", ActivityKind.Internal))
+                    {
+                        await this.testRunner.TearDownEnvironment();
                     }
-                    await this.testRunner.TryCloseTestFixture(testFixture);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message, ex);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 }
 
-                await this.testRunner.TearDownEnvironment();
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.Message, ex);
-            }
-           
-            try
-            {
-                testSession.OnFinished(testResults);
-                await sessionClient.UpdateSessionAsync(testSession.Id, testSession);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.Message, ex);
-            }
+                using (Telemetry.DefaultSource.StartActivity("UpdateSession", ActivityKind.Internal))
+                {
+                    try
+                    {
+                        testSession.OnFinished(testResults);
+                        await sessionClient.UpdateSessionAsync(testSession.Id, testSession);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.Message, ex);
+                        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    }
+                }                
+            }            
         }
        
         async IAsyncEnumerable<Pixel.Persistence.Core.Models.TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
@@ -387,7 +419,7 @@ namespace Pixel.Automation.Test.Runner
             throw new Exception($"Failed to open test case : {testCase}");
         }
 
-        public T Load<T>(string fileName) where T : new()
+        T Load<T>(string fileName) where T : new()
         {            
             string fileContents = File.ReadAllText(fileName);
 

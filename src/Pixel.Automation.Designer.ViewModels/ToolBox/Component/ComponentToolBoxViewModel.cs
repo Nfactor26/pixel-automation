@@ -1,10 +1,11 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
-using System;
-using System.Collections.Generic;
+using Serilog;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Data;
 using ToolBoxItem = Pixel.Automation.Core.Attributes.ToolBoxItemAttribute;
@@ -13,9 +14,11 @@ namespace Pixel.Automation.Designer.ViewModels
 {
     public class ComponentToolBoxViewModel : Anchorable, IComponentBox
     {
+        private readonly ILogger logger = Log.ForContext<ComponentToolBoxViewModel>();
+
         ITypeProvider knownTypesProvider;
 
-        string filterText=string.Empty;
+        string filterText = string.Empty;
         public string FilterText
         {
             get
@@ -27,9 +30,9 @@ namespace Pixel.Automation.Designer.ViewModels
                 filterText = value;
 
                 var view = CollectionViewSource.GetDefaultView(Components);
-                view.Refresh();              
+                view.Refresh();
                 NotifyOfPropertyChange(() => FilterText);
-               
+
             }
         }
 
@@ -40,7 +43,7 @@ namespace Pixel.Automation.Designer.ViewModels
         public override PaneLocation PreferredLocation => PaneLocation.Left;
 
         public ComponentToolBoxViewModel(ITypeProvider knownTypesProvider)
-        {         
+        {
 
             this.knownTypesProvider = Guard.Argument(knownTypesProvider, nameof(knownTypesProvider)).NotNull().Value;
 
@@ -51,10 +54,10 @@ namespace Pixel.Automation.Designer.ViewModels
             groupedItems.SortDescriptions.Add(new SortDescription("Category", ListSortDirection.Ascending));
             groupedItems.SortDescriptions.Add(new SortDescription("SubCategory", ListSortDirection.Ascending));
             groupedItems.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-           
+
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                if(!string.IsNullOrEmpty(filterText))
+                if (!string.IsNullOrEmpty(filterText))
                 {
                     return (a as ComponentToolBoxItem).Name.ToLower().Contains(filterText.ToLower());
                 }
@@ -66,18 +69,29 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private void LoadToolBoxItems()
         {
-            this.Components.Clear();
-
-            foreach (var item in knownTypesProvider.GetKnownTypes())
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadToolBoxItems), ActivityKind.Internal))
             {
-                if(TryCreateToolBoxItem(item,out ComponentToolBoxItem toolBoxItem))
+                try
                 {
-                    this.Components.Add(toolBoxItem);
+                    this.Components.Clear();
+
+                    foreach (var item in knownTypesProvider.GetKnownTypes())
+                    {
+                        if (TryCreateToolBoxItem(item, out ComponentToolBoxItem toolBoxItem))
+                        {
+                            this.Components.Add(toolBoxItem);                            
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    logger.Error(ex, "There was an error trying to load components.");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 }
             }
         }
 
-        private bool TryCreateToolBoxItem(Type typeOfComponent,out ComponentToolBoxItem toolBoxItem)
+        private bool TryCreateToolBoxItem(Type typeOfComponent, out ComponentToolBoxItem toolBoxItem)
         {
             if (typeOfComponent.IsPublic && !typeOfComponent.IsAbstract)
             {
@@ -87,21 +101,21 @@ namespace Pixel.Automation.Designer.ViewModels
                     ComponentToolBoxItem component = new ComponentToolBoxItem();
                     component.Name = toolBoxItemAttribute.Name;
                     component.IconSource = toolBoxItemAttribute.IconSource;
-                    component.Description = toolBoxItemAttribute.Description;                   
+                    component.Description = toolBoxItemAttribute.Description;
                     component.Category = toolBoxItemAttribute.Category;
-                    component.SubCategory = toolBoxItemAttribute.SubCategory;                  
+                    component.SubCategory = toolBoxItemAttribute.SubCategory;
                     component.Tags = toolBoxItemAttribute.Tags == null ? new List<string>() : toolBoxItemAttribute.Tags;
-                    component.TypeOfComponent = typeOfComponent;                   
+                    component.TypeOfComponent = typeOfComponent;
                     toolBoxItem = component;
-                    return true;                    
-                }              
+                    return true;
+                }
             }
 
             toolBoxItem = null;
             return false;
         }
 
-     
+
         public void AddCustomComponents(string owner, List<Type> components)
         {
             List<ComponentToolBoxItem> customToolBoxItems = new List<ComponentToolBoxItem>();
@@ -112,19 +126,19 @@ namespace Pixel.Automation.Designer.ViewModels
                     customToolBoxItems.Add(toolBoxItem);
                 }
             });
-            this.customComponents.Add(owner, customToolBoxItems);                         
+            this.customComponents.Add(owner, customToolBoxItems);
         }
 
         public void RemoveCustomComponents(string owner)
         {
-            if(this.customComponents.ContainsKey(owner))
+            if (this.customComponents.ContainsKey(owner))
             {
-                foreach(var toolBoxItem in this.customComponents[owner])
+                foreach (var toolBoxItem in this.customComponents[owner])
                 {
                     this.Components.Remove(toolBoxItem);
-                }              
+                }
                 this.customComponents.Remove(owner);
-            }           
+            }
 
         }
 
@@ -137,7 +151,7 @@ namespace Pixel.Automation.Designer.ViewModels
                     this.Components.Remove(toolBoxItem);
                 }
             }
-         
+
         }
 
         public void ShowCustomComponents(string owner)
@@ -147,8 +161,8 @@ namespace Pixel.Automation.Designer.ViewModels
                 foreach (var toolBoxItem in this.customComponents[owner])
                 {
                     this.Components.Add(toolBoxItem);
-                }               
-            }          
+                }
+            }
         }
 
     }

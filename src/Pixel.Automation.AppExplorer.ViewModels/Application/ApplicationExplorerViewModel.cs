@@ -2,6 +2,7 @@
 using Dawn;
 using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
@@ -10,6 +11,7 @@ using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Data;
@@ -192,53 +194,64 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task AddApplication(KnownApplication knownApplication)
         {
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(AddApplication), ActivityKind.Internal))
             {
-                Guard.Argument(knownApplication).NotNull();
-
-                IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
-
-                ApplicationDescription newApplication = new ApplicationDescription(application)
+                try
                 {
-                    SupportedPlatforms = knownApplication.SupportedPlatforms.ToArray()
-                };
-                var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
-                applicationDescriptionViewModel.AddScreen("Home");
-                applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
-                if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
-                {
-                    applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
-                    applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
+                    Guard.Argument(knownApplication).NotNull();
+
+                    IApplication application = (IApplication)Activator.CreateInstance(knownApplication.UnderlyingApplicationType);
+
+                    ApplicationDescription newApplication = new ApplicationDescription(application)
+                    {
+                        SupportedPlatforms = knownApplication.SupportedPlatforms.ToArray()
+                    };
+                    var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
+                    applicationDescriptionViewModel.AddScreen("Home");
+                    applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
+                    if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
+                    {
+                        applicationDescriptionViewModel.ApplicationName = $"{this.Applications.Count() + 1}";
+                        applicationDescriptionViewModel.ApplicationType = knownApplication.UnderlyingApplicationType.Name;
+                    }
+                    activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
+                    activity?.SetTag("ApplicationType", applicationDescriptionViewModel.ApplicationType);
+
+                    this.Applications.Add(applicationDescriptionViewModel);
+                    this.SelectedApplication = applicationDescriptionViewModel;
+                    await SaveApplicationAsync(applicationDescriptionViewModel);
+                    await EditApplicationAsync(applicationDescriptionViewModel);
+                    NotifyOfPropertyChange(() => Applications);
+                    logger.Information("New application of type {0} has been added to the application repository", application.ToString());
                 }
-
-                this.Applications.Add(applicationDescriptionViewModel);
-                this.SelectedApplication = applicationDescriptionViewModel;
-                await SaveApplicationAsync(applicationDescriptionViewModel);
-                await EditApplicationAsync(applicationDescriptionViewModel);
-                NotifyOfPropertyChange(() => Applications);
-                logger.Information("New application of type {0} has been added to the application repository", application.ToString());
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to add a '{0}' application", knownApplication.ToString());
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to add a '{0}' application", knownApplication.ToString());
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         public async Task EditApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, 
                 async () => {
-                    try
+                    using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditApplicationAsync), ActivityKind.Internal))
                     {
-                        await SaveApplicationAsync(applicationDescriptionViewModel);
-                        await notificationManager.ShowSuccessNotificationAsync("Application was saved");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, "There was an error while trying to save application : '{0}' after edit", applicationDescriptionViewModel?.ApplicationName);
-                        await notificationManager.ShowErrorNotificationAsync(ex);
-                    }
+                        try
+                        {
+                            activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
+                            await SaveApplicationAsync(applicationDescriptionViewModel);
+                            await notificationManager.ShowSuccessNotificationAsync("Application was saved");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "There was an error while trying to save application : '{0}' after edit", applicationDescriptionViewModel?.ApplicationName);
+                            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                            await notificationManager.ShowErrorNotificationAsync(ex);
+                        }
+                    }                    
                 }, 
                 () => { 
                     return true; 
@@ -262,20 +275,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task DeleteApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            try
+            Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this application?", "Confirm Delete", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
             {
-                Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
-                MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this application?", "Confirm Delete", MessageBoxButton.OKCancel);
-                if (result == MessageBoxResult.OK)
+                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteApplicationAsync), ActivityKind.Internal))
                 {
-                    await this.applicationDataManager.DeleteApplicationAsync(applicationDescriptionViewModel.Model);
-                    this.Applications.Remove(applicationDescriptionViewModel);                   
+                    try
+                    {
+                        activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
+                        await this.applicationDataManager.DeleteApplicationAsync(applicationDescriptionViewModel.Model);
+                        this.Applications.Remove(applicationDescriptionViewModel);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to delete application : '{0}'", applicationDescriptionViewModel?.ApplicationName);
+                        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                        await notificationManager.ShowErrorNotificationAsync(ex);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to delete application : '{0}'", applicationDescriptionViewModel?.ApplicationName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
+
             }
         }
 
@@ -285,22 +304,28 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task CreateScreen(ApplicationDescriptionViewModel applicationDescription)
         {
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateScreen), ActivityKind.Internal))
             {
-                var applicationScreenViewModel = new ApplicationScreenViewModel(applicationDescription);
-                var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
-                if (result.GetValueOrDefault())
+                try
                 {
-                    applicationDescription.ScreenCollection.RefreshScreens();
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
-                    logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);
+                    var applicationScreenViewModel = new ApplicationScreenViewModel(applicationDescription);
+                    var result = await windowManager.ShowDialogAsync(applicationScreenViewModel);
+                    if (result.GetValueOrDefault())
+                    {
+                        activity?.SetTag("ApplicationName", applicationDescription.ApplicationName);
+                        activity?.SetTag("ScreenName", applicationScreenViewModel.ScreenName);
+                        applicationDescription.ScreenCollection.RefreshScreens();
+                        await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
+                        logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while creating new screen");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while creating new screen");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }                
         }
 
         /// <summary> 
@@ -310,23 +335,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task RenameScreen(ApplicationDescriptionViewModel applicationDescription, string screenName)
         {
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RenameScreen), ActivityKind.Internal))
             {
-                var renameScreenViewModel = new RenameScreenViewModel(applicationDescription, screenName);
-                var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
-                if (result.GetValueOrDefault())
+                try
                 {
-                    applicationDescription.ScreenCollection.RefreshScreens();
-                    applicationDescription.ScreenCollection.SetActiveScreen(renameScreenViewModel.NewScreenName);
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);                  
-                    logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, applicationDescription.ApplicationName);
+                    var renameScreenViewModel = new RenameScreenViewModel(applicationDescription, screenName);
+                    var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
+                    if (result.GetValueOrDefault())
+                    {
+                        activity?.SetTag("ApplicationName", applicationDescription.ApplicationName);
+                        activity?.SetTag("CurrentScreenName", renameScreenViewModel.ScreenName);
+                        activity?.SetTag("NewScreenName", renameScreenViewModel.NewScreenName);
+                        applicationDescription.ScreenCollection.RefreshScreens();
+                        applicationDescription.ScreenCollection.SetActiveScreen(renameScreenViewModel.NewScreenName);
+                        await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
+                        logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, applicationDescription.ApplicationName);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while renaming the screen");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while renaming the screen");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         /// <summary>
@@ -373,35 +405,41 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task RenameApplication(ActionExecutionContext context, ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            try
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RenameApplication), ActivityKind.Internal))
             {
-                KeyEventArgs keyArgs = context.EventArgs as KeyEventArgs;
-                if (keyArgs != null && keyArgs.Key == Key.Enter)
+                try
                 {
-                    string newName = (context.Source as System.Windows.Controls.TextBox).Text;
-                    if (this.Applications.Any(a => a.ApplicationName.Equals(newName)))
+                    KeyEventArgs keyArgs = context.EventArgs as KeyEventArgs;
+                    if (keyArgs != null && keyArgs.Key == Key.Enter)
                     {
-                        logger.Warning($"An application already exists with name {newName}.");
-                        await notificationManager.ShowErrorNotificationAsync($"An application already exists with name {newName}");
-                        return;
-                    }
-                    if (newName != applicationDescriptionViewModel.ApplicationName)
-                    {
-                        var previousName = applicationDescriptionViewModel.ApplicationName;
-                        applicationDescriptionViewModel.ApplicationName = newName;
-                        applicationDescriptionViewModel.ApplicationDetails.ApplicationName = newName;
-                        await SaveApplicationAsync(applicationDescriptionViewModel);
-                        CanEdit = false;
-                        logger.Information($"Application : {previousName} renamed to : {applicationDescriptionViewModel.ApplicationName}");
+                        string newName = (context.Source as System.Windows.Controls.TextBox).Text;
+                        if (this.Applications.Any(a => a.ApplicationName.Equals(newName)))
+                        {
+                            logger.Warning($"An application already exists with name {newName}.");
+                            await notificationManager.ShowErrorNotificationAsync($"An application already exists with name {newName}");
+                            return;
+                        }
+                        if (newName != applicationDescriptionViewModel.ApplicationName)
+                        {
+                            activity?.SetTag("CurrentApplicationName", applicationDescriptionViewModel.ApplicationName);
+                            activity?.SetTag("NewApplicationName", newName);
+                            var previousName = applicationDescriptionViewModel.ApplicationName;
+                            applicationDescriptionViewModel.ApplicationName = newName;
+                            applicationDescriptionViewModel.ApplicationDetails.ApplicationName = newName;
+                            await SaveApplicationAsync(applicationDescriptionViewModel);
+                            CanEdit = false;
+                            logger.Information($"Application : {previousName} renamed to : {applicationDescriptionViewModel.ApplicationName}");
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to rename application : '{0}'", applicationDescriptionViewModel.ApplicationName);                 
-                CanEdit = false;
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to rename application : '{0}'", applicationDescriptionViewModel.ApplicationName);
+                    CanEdit = false;
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }             
         }
 
         #endregion Edit Application

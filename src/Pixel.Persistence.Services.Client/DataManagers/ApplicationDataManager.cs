@@ -135,7 +135,7 @@ namespace Pixel.Persistence.Services.Client
             logger.Information("Application : '{0}; was deleted", applicationDescription.ApplicationName);
         }
 
-        public async Task UpdateApplicationRepository()
+        public async Task DownloadApplicationsWithControlsAsync()
         {
             await DownloadApplicationsAsync();
             var applications = GetAllApplications();
@@ -153,7 +153,7 @@ namespace Pixel.Persistence.Services.Client
                 foreach (var application in applications)
                 {
                     SaveApplicationToDisk(application);
-                    logger.Information("Updated local copy of Application : {applicationName}", application.ApplicationName);
+                    logger.Information("Downloaded Application : {applicationName}", application.ApplicationName);
                 }
             }            
         }
@@ -166,7 +166,7 @@ namespace Pixel.Persistence.Services.Client
                 foreach (var control in controls)
                 {
                     SaveControlToDisk(control);
-                    logger.Information("Updated local copy of control : {0} for application : {1}", control.ControlName, control.ApplicationId);
+                    logger.Information("Downloaded control : {0} for application : {1}", control.ControlName, control.ApplicationId);
                 }
 
                 var controlImages = await this.controlRepositoryClient.GetControlImages(applicationId, this.lastUpdated);
@@ -186,6 +186,7 @@ namespace Pixel.Persistence.Services.Client
                             ms.CopyTo(fs);
                         }
                     }
+                    logger.Information("Downloaded control image : {0} for application : {1}", image.FileName, applicationId);
                 }
             }            
         }

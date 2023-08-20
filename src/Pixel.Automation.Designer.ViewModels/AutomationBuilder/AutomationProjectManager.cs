@@ -11,6 +11,7 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
+using System.Diagnostics;
 using System.IO;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
@@ -58,37 +59,43 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async  Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad)
         {
-            this.activeProject = activeProject;
-            this.loadedVersion = versionToLoad;
-            this.projectFileSystem.Initialize(activeProject, versionToLoad);
-            this.projectAssetDataManager.Initialize(activeProject, versionToLoad);
-          
-            await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad as ProjectVersion);          
-        
-            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
-            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
-
-            foreach(var prefabReference in this.referenceManager.GetPrefabReferences().References)
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Load), ActivityKind.Internal))
             {
-                await this.prefabDataManager.DownloadPrefabDataAsync(prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
-            }
+                Guard.Argument(activeProject, nameof(activeProject)).NotNull();
+                Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
+              
+                this.activeProject = activeProject;
+                this.loadedVersion = versionToLoad;
+                this.projectFileSystem.Initialize(activeProject, versionToLoad);
+                this.projectAssetDataManager.Initialize(activeProject, versionToLoad);
 
-            this.entityManager.SetCurrentFileSystem(this.fileSystem);
-            this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);         
-            
-            await CreateDataModelFile();
-            ConfigureCodeEditor(this.referenceManager);
+                await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad as ProjectVersion);
 
-            var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
-            ConfigureScriptEngine(this.referenceManager, dataModel);
-            ConfigureScriptEditor(this.referenceManager, dataModel);         
-            this.entityManager.Arguments = dataModel;
+                this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
+                this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
-            await ExecuteInitializationScript();
-            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            Initialize();
-            SetupInitializationScriptProject(dataModel);
-            return this.RootEntity;
+                foreach (var prefabReference in this.referenceManager.GetPrefabReferences().References)
+                {
+                    await this.prefabDataManager.DownloadPrefabDataAsync(prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
+                }
+
+                this.entityManager.SetCurrentFileSystem(this.fileSystem);
+                this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
+
+                await CreateDataModelFile();
+                ConfigureCodeEditor(this.referenceManager);
+
+                var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
+                ConfigureScriptEngine(this.referenceManager, dataModel);
+                ConfigureScriptEditor(this.referenceManager, dataModel);
+                this.entityManager.Arguments = dataModel;
+
+                await ExecuteInitializationScript();
+                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+                Initialize();
+                SetupInitializationScriptProject(dataModel);
+                return this.RootEntity;
+            }           
         }   
 
         private async Task CreateDataModelFile()
@@ -177,31 +184,34 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Reload()
         {
-            logger.Information($"{this.GetProjectName()} will be re-loaded");
-            var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
-            this.referenceManager.SetProjectReferences(reference);
-            var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
-            ConfigureScriptEngine(this.referenceManager, dataModel);
-            ConfigureScriptEditor(this.referenceManager, dataModel);
-            this.entityManager.Arguments = dataModel;
-            SetupInitializationScriptProject(dataModel);
-            await ExecuteInitializationScript();
-            ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-            this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
-
-            var rootEntity = DeserializeProject();
-            //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
-            foreach (var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
-                var newApplicationEntity = rootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
-                newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
-            }
-            this.RootEntity = rootEntity;
-            RestoreParentChildRelation(this.RootEntity);
-            await Task.CompletedTask;
-            logger.Information($"Reload completed for project {this.GetProjectName()}");
+                logger.Information($"{this.GetProjectName()} will be re-loaded");
+                var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
+                this.referenceManager.SetProjectReferences(reference);
+                var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
+                ConfigureScriptEngine(this.referenceManager, dataModel);
+                ConfigureScriptEditor(this.referenceManager, dataModel);
+                this.entityManager.Arguments = dataModel;
+                SetupInitializationScriptProject(dataModel);
+                await ExecuteInitializationScript();
+                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+                this.RootEntity.ResetHierarchy();
+                serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
 
+                var rootEntity = DeserializeProject();
+                //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
+                foreach (var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
+                {
+                    var newApplicationEntity = rootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
+                    newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
+                }
+                this.RootEntity = rootEntity;
+                RestoreParentChildRelation(this.RootEntity);
+                await Task.CompletedTask;
+                logger.Information($"Reload completed for project {this.GetProjectName()}");
+
+            }
         }
 
         ///<inheritdoc/>
@@ -250,25 +260,28 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Save()
         {
-            //Remove all the test fixtures as we don't want them to save as a part of  automamtion process file
-            var testFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(SearchScope.Descendants);
-            Entity parentEntity = testFixtureEntities.FirstOrDefault()?.Parent;
-            foreach (var testEntity in testFixtureEntities)
+            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Save), ActivityKind.Internal))
             {
-                testEntity.Parent.RemoveComponent(testEntity);
-            }
+                //Remove all the test fixtures as we don't want them to save as a part of  automamtion process file
+                var testFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(SearchScope.Descendants);
+                Entity parentEntity = testFixtureEntities.FirstOrDefault()?.Parent;
+                foreach (var testEntity in testFixtureEntities)
+                {
+                    testEntity.Parent.RemoveComponent(testEntity);
+                }
 
-            serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
-            this.RootEntity.ResetHierarchy();
-            serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
-            
-            //Add back the test cases that were already open
-            foreach (var testFixtureEntity in testFixtureEntities)
-            {
-                parentEntity.AddComponent(testFixtureEntity);
-            }
+                serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);
+                this.RootEntity.ResetHierarchy();
+                serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
 
-            await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
+                //Add back the test cases that were already open
+                foreach (var testFixtureEntity in testFixtureEntities)
+                {
+                    parentEntity.AddComponent(testFixtureEntity);
+                }
+
+                await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
+            }            
         }
 
         #endregion overridden methods
