@@ -40,7 +40,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DoLoad), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoLoad), ActivityKind.Internal))
             {
                 Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
 
@@ -70,7 +70,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -129,7 +129,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async Task Reload()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {              
                 await this.projectManager.Reload();
                 this.UpdateWorkFlowRoot();
@@ -142,7 +142,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DoSave), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoSave), ActivityKind.Internal))
             {
                 try
                 {

@@ -101,7 +101,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task CreateNewProject()
         {
-            using(var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
+            using(var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
             {
                 try
                 {
@@ -138,7 +138,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task OpenProject(AutomationProjectViewModel automationProjectViewModel)
         {
-            using(var activity = Telemetry.DefaultSource.StartActivity(nameof(OpenProject), ActivityKind.Internal))
+            using(var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenProject), ActivityKind.Internal))
             {
                 try
                 {
@@ -184,7 +184,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task ManageProjectVersionAsync(AutomationProjectViewModel automationProjectViewModel)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ManageProjectVersionAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManageProjectVersionAsync), ActivityKind.Internal))
             {
                 try
                 {

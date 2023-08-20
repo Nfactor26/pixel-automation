@@ -40,7 +40,7 @@ namespace Pixel.Automation.TestExplorer.Views
 
         public void Drop(IDropInfo dropInfo)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Drop), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Drop), ActivityKind.Internal))
             {
                 try
                 {

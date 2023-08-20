@@ -69,7 +69,7 @@ namespace Pixel.Automation.Test.Runner
         public async Task<string> LoadProjectAsync(SessionTemplate template, string projectVersion)
         {
             Guard.Argument(template, nameof(template)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadProjectAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadProjectAsync), ActivityKind.Internal))
             {
                 this.sessionTemplate = template;
                 await LoadProjectAsync(template.ProjectId, projectVersion, template.InitFunction ?? Constants.DefaultInitFunction);
@@ -157,7 +157,7 @@ namespace Pixel.Automation.Test.Runner
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(this.projectFileSystem.ReferencesDirectory);
                 foreach (FileInfo file in directoryInfo.GetFiles())
@@ -250,7 +250,7 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task ListAllAsync(string selector, IAnsiConsole console)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ListAllAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ListAllAsync), ActivityKind.Internal))
             {
                 await this.testSelector.Initialize(selector);
                 logger.Information($"Listing tests that matches selection condition now.");
@@ -287,7 +287,7 @@ namespace Pixel.Automation.Test.Runner
 
         public async Task RunAllAsync(string selector, IAnsiConsole console)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RunAllAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RunAllAsync), ActivityKind.Internal))
             {
                 activity?.SetTag("Selector", selector);
                 logger.Information("Selector is {0}", selector);
@@ -300,13 +300,13 @@ namespace Pixel.Automation.Test.Runner
                 {
                     int counter = 0;
                   
-                    using (Telemetry.DefaultSource.StartActivity("SetUpEnvironment", ActivityKind.Internal))
+                    using (Telemetry.DefaultSource?.StartActivity("SetUpEnvironment", ActivityKind.Internal))
                     {                        
                         await this.testSelector.Initialize(selector);
                         await this.testRunner.SetUpEnvironment();
                     }
 
-                    using (Telemetry.DefaultSource.StartActivity("RunTestCases", ActivityKind.Internal))
+                    using (Telemetry.DefaultSource?.StartActivity("RunTestCases", ActivityKind.Internal))
                     {
                         console.MarkupLine($"[blue]{this.automationProject.Name} - {this.targetVersion}[/]");
                         foreach (var testFixture in this.availableFixtures)
@@ -353,7 +353,7 @@ namespace Pixel.Automation.Test.Runner
                         }
                     }                    
 
-                    using (Telemetry.DefaultSource.StartActivity("TearDownEnvironment", ActivityKind.Internal))
+                    using (Telemetry.DefaultSource?.StartActivity("TearDownEnvironment", ActivityKind.Internal))
                     {
                         await this.testRunner.TearDownEnvironment();
                     }
@@ -364,7 +364,7 @@ namespace Pixel.Automation.Test.Runner
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 }
 
-                using (Telemetry.DefaultSource.StartActivity("UpdateSession", ActivityKind.Internal))
+                using (Telemetry.DefaultSource?.StartActivity("UpdateSession", ActivityKind.Internal))
                 {
                     try
                     {

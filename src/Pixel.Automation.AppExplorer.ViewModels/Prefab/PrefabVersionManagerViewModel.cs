@@ -66,7 +66,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task PublishAsync(PrefabVersionViewModel prefabVersionViewModel)
         {
             Guard.Argument(prefabVersionViewModel, nameof(prefabVersionViewModel)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(PublishAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(PublishAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -97,7 +97,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task CloneAsync(PrefabVersionViewModel prefabVersionViewModel)
         {
             Guard.Argument(prefabVersionViewModel, nameof(prefabVersionViewModel)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CloneAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloneAsync), ActivityKind.Internal))
             {
                 try
                 {

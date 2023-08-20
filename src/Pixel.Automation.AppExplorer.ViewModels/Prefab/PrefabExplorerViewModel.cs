@@ -149,7 +149,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
 
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
             {
                 try
                 {
@@ -182,7 +182,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task CreatePrefab(Entity entity)
         {
             Guard.Argument(entity, nameof(entity)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreatePrefab), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreatePrefab), ActivityKind.Internal))
             {
                 try
                 {
@@ -215,7 +215,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="prefabToEdit"></param>
         public async Task EditPrefab(PrefabProjectViewModel prefabToEdit)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditPrefab), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditPrefab), ActivityKind.Internal))
             {
                 try
                 {
@@ -264,7 +264,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task ManagePrefab(PrefabProjectViewModel targetPrefab)
         {
             Guard.Argument(targetPrefab, nameof(targetPrefab)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ManagePrefab), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefab), ActivityKind.Internal))
             {
                 try
                 {
@@ -288,7 +288,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public async Task DeletePrefabAsync(PrefabProjectViewModel prefabToDelete)
         {
             Guard.Argument(prefabToDelete, nameof(prefabToDelete)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeletePrefabAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeletePrefabAsync), ActivityKind.Internal))
             {
                 try
                 {

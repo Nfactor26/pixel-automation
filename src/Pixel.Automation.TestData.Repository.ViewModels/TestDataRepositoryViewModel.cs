@@ -91,7 +91,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// </summary>
         private async Task LoadDataSourcesAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadDataSourcesAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadDataSourcesAsync), ActivityKind.Internal))
             {
                 await this.testDataManager.DownloadAllTestDataSourcesAsync();
                 foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
@@ -152,7 +152,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public async Task CreateCodedTestDataSource()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateCodedTestDataSource), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateCodedTestDataSource), ActivityKind.Internal))
             {
                 await CreateDataSource(DataSource.Code);
             }
@@ -161,7 +161,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public async Task CreateCsvTestDataSource()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateCsvTestDataSource), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateCsvTestDataSource), ActivityKind.Internal))
             {
                 await CreateDataSource(DataSource.CsvFile);
             }
@@ -244,7 +244,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public async Task EditDataSource(TestDataSource testDataSource)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditDataSource), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataSource), ActivityKind.Internal))
             {
                 try
                 {
@@ -309,7 +309,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="testDataSource"></param>
         public async Task DeleteDataSource(TestDataSource testDataSource)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteDataSource), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteDataSource), ActivityKind.Internal))
             {
                 Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
                 MessageBoxResult result = MessageBox.Show("Are you sure you want to delete data source", "Confirm Delete", MessageBoxButton.OKCancel);

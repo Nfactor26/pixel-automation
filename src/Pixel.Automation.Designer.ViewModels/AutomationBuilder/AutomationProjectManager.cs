@@ -59,7 +59,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async  Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Load), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Load), ActivityKind.Internal))
             {
                 Guard.Argument(activeProject, nameof(activeProject)).NotNull();
                 Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
@@ -184,7 +184,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Reload()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
                 logger.Information($"{this.GetProjectName()} will be re-loaded");
                 var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
@@ -260,7 +260,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Save()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Save), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Save), ActivityKind.Internal))
             {
                 //Remove all the test fixtures as we don't want them to save as a part of  automamtion process file
                 var testFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(SearchScope.Descendants);

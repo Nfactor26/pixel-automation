@@ -85,17 +85,17 @@ namespace Pixel.Automation.Test.Runner
                 pluginManager.ListLoadedAssemblies();
                 #endif
 
-                using (Telemetry.DefaultSource.StartActivity("download-applications-and-controls", ActivityKind.Internal))
+                using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
                 {
                     var applicationDataManager = kernel.Get<IApplicationDataManager>();
                     await applicationDataManager.DownloadApplicationsWithControlsAsync();
                 }
-                using (Telemetry.DefaultSource.StartActivity("download-projects", ActivityKind.Internal))
+                using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
                 {
                     var projectDataManger = kernel.Get<IProjectDataManager>();
                     await projectDataManger.DownloadProjectsAsync();
                 }
-                using (Telemetry.DefaultSource.StartActivity("download-prefabs", ActivityKind.Internal))
+                using (Telemetry.DefaultSource?.StartActivity("download-prefabs", ActivityKind.Internal))
                 {
                     var prefabDataManager = kernel.Get<IPrefabDataManager>();
                     await prefabDataManager.DownloadPrefabsAsync();

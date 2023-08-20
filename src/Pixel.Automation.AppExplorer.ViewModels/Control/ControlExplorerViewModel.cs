@@ -168,7 +168,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RenameControl), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameControl), ActivityKind.Internal))
             {
                 string currentName = controlToRename.ControlName;
                 try
@@ -286,7 +286,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
         {
             Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
             {
                 try
                 {
@@ -318,7 +318,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
             Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ConfigureControlAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureControlAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -357,7 +357,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, 
                 async () => {
-                    using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditControlAsync), ActivityKind.Internal))
+                    using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditControlAsync), ActivityKind.Internal))
                     {
                         try
                         {
@@ -385,7 +385,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task DeleteControlAsync(ControlDescriptionViewModel controlToDelete)
         {
             Guard.Argument(controlToDelete, nameof(controlToDelete)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteControlAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteControlAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -412,7 +412,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task ChangeImageFromExistingAsync(ControlDescriptionViewModel selectedControl)
         {
             Guard.Argument(selectedControl, nameof(selectedControl)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ChangeImageFromExistingAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ChangeImageFromExistingAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -453,7 +453,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task CloneControl(ControlDescriptionViewModel controlToClone)
         {
             Guard.Argument(controlToClone, nameof(controlToClone)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CloneControl), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloneControl), ActivityKind.Internal))
             {
                 try
                 {
@@ -485,7 +485,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         public async Task CreateRevision(ControlDescriptionViewModel control)
         {
             Guard.Argument(control, nameof(control)).NotNull();
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateRevision), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateRevision), ActivityKind.Internal))
             {
                 try
                 {                   
@@ -602,7 +602,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                 throw new InvalidOperationException("There is no active application in Application explorer");
             }
 
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(HandleAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(HandleAsync), ActivityKind.Internal))
             {
                 try
                 {

@@ -62,7 +62,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public async Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionToLoad)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Load), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Load), ActivityKind.Internal))
             {
                 Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
                 Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
@@ -200,7 +200,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         public override async Task Reload()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
                 await this.Save();
                 this.Initialize();

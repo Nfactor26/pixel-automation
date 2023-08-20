@@ -74,7 +74,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DoLoad), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoLoad), ActivityKind.Internal))
             {
                 Guard.Argument(project, nameof(project)).NotNull();
 
@@ -104,7 +104,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -172,7 +172,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task EditScriptAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditScriptAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditScriptAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -218,7 +218,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async Task Reload()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Reload), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
                 logger.Information("Closing all open TestCases for project: {0}", this.CurrentProject.Name);
 
@@ -273,7 +273,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DoSave), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoSave), ActivityKind.Internal))
             {
                 try
                 {
@@ -293,7 +293,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <inheritdoc/>  
         public async Task ManagePrefabReferencesAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ManagePrefabReferencesAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefabReferencesAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -318,7 +318,7 @@ namespace Pixel.Automation.Designer.ViewModels
             MessageBoxResult result = MessageBox.Show("Are you sure you want to close? Any unsaved changes will be lost.", "Confirm Close", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CloseScreen), ActivityKind.Internal))
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloseScreen), ActivityKind.Internal))
                 {
                     try
                     {

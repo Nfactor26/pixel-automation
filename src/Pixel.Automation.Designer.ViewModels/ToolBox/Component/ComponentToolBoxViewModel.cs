@@ -69,7 +69,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private void LoadToolBoxItems()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadToolBoxItems), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadToolBoxItems), ActivityKind.Internal))
             {
                 try
                 {

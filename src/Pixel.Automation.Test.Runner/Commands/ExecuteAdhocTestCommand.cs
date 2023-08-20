@@ -60,7 +60,7 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
     /// <inheritdoc/>    
     public override async Task<int> ExecuteAsync(CommandContext context, AdhocTestSettings settings)
     {
-        using (Telemetry.DefaultSource.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
+        using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
             var sessionTemplate = new SessionTemplate()
             {

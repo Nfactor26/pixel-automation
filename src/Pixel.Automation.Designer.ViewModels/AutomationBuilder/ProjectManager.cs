@@ -100,7 +100,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         ///<inheritdoc/>
         public T Load<T>(string fileName) where T : new()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(Load), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Load), ActivityKind.Internal))
             {
                 string fileContents = File.ReadAllText(fileName);
 
@@ -123,7 +123,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         protected virtual void ConfigureCodeEditor(IReferenceManager referenceManager)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ConfigureCodeEditor), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureCodeEditor), ActivityKind.Internal))
             {
                 logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
                 this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());
@@ -141,7 +141,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="globalsType"></param>
         protected virtual void ConfigureScriptEditor(IReferenceManager referenceManager, object dataModel)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ConfigureScriptEditor), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureScriptEditor), ActivityKind.Internal))
             {
                 logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
                 var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences());
@@ -157,7 +157,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         protected virtual void SetupInitializationScriptProject(object dataModel)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(SetupInitializationScriptProject), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SetupInitializationScriptProject), ActivityKind.Internal))
             {
                 this.scriptEditorFactory.AddProject(RootEntity.Id, Array.Empty<string>(), dataModel.GetType());
                 var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
@@ -171,7 +171,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="referenceManager"></param>
         protected virtual void ConfigureScriptEngine(IReferenceManager referenceManager, object dataModel)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(ConfigureScriptEngine), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureScriptEngine), ActivityKind.Internal))
             {
                 this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory)
                  .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
@@ -199,7 +199,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel(string dataModelName)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
             {
                 logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
                 this.codeEditorFactory.AddProject(this.GetProjectName(), this.GetProjectNamespace(), Array.Empty<string>());

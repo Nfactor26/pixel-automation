@@ -52,7 +52,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public  async Task CreateNewProject()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateNewProject), ActivityKind.Internal))
             {
                 try
                 {

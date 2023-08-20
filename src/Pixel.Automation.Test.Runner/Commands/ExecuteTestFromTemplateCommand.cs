@@ -45,7 +45,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
 
     public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings)
     {
-        using (Telemetry.DefaultSource.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
+        using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
             var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
                 throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);

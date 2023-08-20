@@ -194,7 +194,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task AddApplication(KnownApplication knownApplication)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(AddApplication), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(AddApplication), ActivityKind.Internal))
             {
                 try
                 {
@@ -237,7 +237,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(applicationDescriptionViewModel.ApplicationDetails, 
                 async () => {
-                    using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditApplicationAsync), ActivityKind.Internal))
+                    using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditApplicationAsync), ActivityKind.Internal))
                     {
                         try
                         {
@@ -279,7 +279,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
             MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this application?", "Confirm Delete", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteApplicationAsync), ActivityKind.Internal))
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteApplicationAsync), ActivityKind.Internal))
                 {
                     try
                     {
@@ -304,7 +304,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task CreateScreen(ApplicationDescriptionViewModel applicationDescription)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CreateScreen), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateScreen), ActivityKind.Internal))
             {
                 try
                 {
@@ -335,7 +335,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <returns></returns>
         public async Task RenameScreen(ApplicationDescriptionViewModel applicationDescription, string screenName)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RenameScreen), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameScreen), ActivityKind.Internal))
             {
                 try
                 {
@@ -405,7 +405,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
 
         public async Task RenameApplication(ActionExecutionContext context, ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RenameApplication), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameApplication), ActivityKind.Internal))
             {
                 try
                 {

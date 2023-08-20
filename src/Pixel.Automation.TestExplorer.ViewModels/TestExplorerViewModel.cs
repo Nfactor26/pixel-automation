@@ -151,7 +151,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         async Task LoadFixturesAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(LoadFixturesAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadFixturesAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -242,7 +242,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task AddTestFixtureAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(AddTestFixtureAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(AddTestFixtureAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -283,7 +283,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task EditTestFixtureAsync(TestFixtureViewModel fixtureVM)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditTestFixtureAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditTestFixtureAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -318,7 +318,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test fixture along with all tests?", "Confirm Delete", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
-                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteTestFixtureAsync), ActivityKind.Internal))
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteTestFixtureAsync), ActivityKind.Internal))
                 {
                     try
                     {
@@ -345,7 +345,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task OpenTestFixtureAsync(TestFixtureViewModel fixtureVM)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(OpenTestFixtureAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenTestFixtureAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -437,7 +437,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task CloseTestFixtureAsync(TestFixtureViewModel fixtureVM, bool autoSave)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CloseTestFixtureAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloseTestFixtureAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -604,7 +604,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task AddTestCaseAsync(TestFixtureViewModel fixtureVM)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(AddTestCaseAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(AddTestCaseAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -650,7 +650,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task EditTestCaseAsync(TestCaseViewModel testCaseVM)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(EditTestCaseAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditTestCaseAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -694,7 +694,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 return;
             }
 
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(DeleteTestCase), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteTestCase), ActivityKind.Internal))
             {
                 try
                 {          
@@ -734,7 +734,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 return;
             }
 
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(OpenTestCaseAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenTestCaseAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -834,7 +834,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task CloseTestCaseAsync(TestCaseViewModel testCaseVM, bool autoSave)
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(CloseTestCaseAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloseTestCaseAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -1000,7 +1000,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         public async Task SaveAll()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(SaveAll), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SaveAll), ActivityKind.Internal))
             {
                 foreach (var fixture in this.TestFixtures)
                 {
@@ -1083,7 +1083,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task SetUpEnvironmentAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(SetUpEnvironmentAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SetUpEnvironmentAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -1116,7 +1116,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task TearDownEnvironmentAsync()
         {
-            using (var activity = Telemetry.DefaultSource.StartActivity(nameof(TearDownEnvironmentAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(TearDownEnvironmentAsync), ActivityKind.Internal))
             {
                 try
                 {
@@ -1155,7 +1155,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         {           
             Task runTestCasesTask = new Task(async () =>
             {
-                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RunSelected), ActivityKind.Internal))
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RunSelected), ActivityKind.Internal))
                 {
                     try
                     {
@@ -1223,7 +1223,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             CanAbort = true;
             Task runTestCasesTask = new Task(async () =>
             {
-                using (var activity = Telemetry.DefaultSource.StartActivity(nameof(RunAll), ActivityKind.Internal))
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RunAll), ActivityKind.Internal))
                 {
                     try
                     {

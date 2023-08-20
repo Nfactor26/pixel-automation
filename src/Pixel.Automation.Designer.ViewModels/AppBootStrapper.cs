@@ -63,7 +63,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     var downloadApplicationDataTask = new Task(async () =>
                     {
-                        using(var downloadDataActivity = Telemetry.DefaultSource.StartActivity(nameof(OnStartup), ActivityKind.Internal))
+                        using(var downloadDataActivity = Telemetry.DefaultSource?.StartActivity(nameof(OnStartup), ActivityKind.Internal))
                         {
                             try
                             {
@@ -71,15 +71,15 @@ namespace Pixel.Automation.Designer.ViewModels
                                 var applicationDataManger = IoC.Get<IApplicationDataManager>();
                                 var projectDataManager = IoC.Get<IProjectDataManager>();
                                 var prefabDataManager = IoC.Get<IPrefabDataManager>();
-                                using (Telemetry.DefaultSource.StartActivity("download-applications-and-controls", ActivityKind.Internal))
+                                using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
                                 {
                                     await applicationDataManger.DownloadApplicationsWithControlsAsync();
                                 }
-                                using (Telemetry.DefaultSource.StartActivity("download-projects", ActivityKind.Internal))
+                                using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
                                 {
                                     await projectDataManager.DownloadProjectsAsync();
                                 }
-                                using (Telemetry.DefaultSource.StartActivity("download-prefabs", ActivityKind.Internal))
+                                using (Telemetry.DefaultSource?.StartActivity("download-prefabs", ActivityKind.Internal))
                                 {
                                     await prefabDataManager.DownloadPrefabsAsync();
                                 }
