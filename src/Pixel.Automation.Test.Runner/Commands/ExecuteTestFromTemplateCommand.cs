@@ -1,8 +1,10 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteTestFromTemplateCommand;
 
@@ -42,19 +44,22 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings)
-    {       
-        var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
-            throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
-        await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
-        await projectManager.LoadTestCasesAsync();
-        if(settings.List.GetValueOrDefault())
+    {
+        using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
-            await projectManager.ListAllAsync(sessionTemplate.Selector, console);
-        }
-        else
-        {
-            await projectManager.RunAllAsync(sessionTemplate.Selector, console);
-        }
-        return 0;
+            var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
+                throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
+            await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
+            await projectManager.LoadTestCasesAsync();
+            if (settings.List.GetValueOrDefault())
+            {
+                await projectManager.ListAllAsync(sessionTemplate.Selector, console);
+            }
+            else
+            {
+                await projectManager.RunAllAsync(sessionTemplate.Selector, console);
+            }
+            return 0;
+        }        
     }
 }

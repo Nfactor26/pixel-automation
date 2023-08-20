@@ -1,10 +1,12 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteAdhocTestCommand;
@@ -57,30 +59,33 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
 
     /// <inheritdoc/>    
     public override async Task<int> ExecuteAsync(CommandContext context, AdhocTestSettings settings)
-    {       
-        var sessionTemplate = new SessionTemplate()
+    {
+        using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
-            Name = Guid.NewGuid().ToString(),
-            ProjectName = settings.Project,            
-            Selector = settings.Selector,
-            InitFunction =  settings.InitFunction
-        };
+            var sessionTemplate = new SessionTemplate()
+            {
+                Name = Guid.NewGuid().ToString(),
+                ProjectName = settings.Project,
+                Selector = settings.Selector,
+                InitFunction = settings.InitFunction
+            };
 
-        var projects = this.projectDataManager.GetAllProjects();
-        var targetProject = projects.FirstOrDefault(p => p.Name.Equals(settings.Project))
-            ?? throw new ArgumentException($"Project with name {settings.Project} doesn't exist.");
-        sessionTemplate.ProjectId = targetProject.ProjectId;
-        
-        await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
-        await projectManager.LoadTestCasesAsync();
-        if (settings.List.GetValueOrDefault())
-        {
-            await projectManager.ListAllAsync(sessionTemplate.Selector, console);
-        }
-        else
-        {
-            await projectManager.RunAllAsync(sessionTemplate.Selector, console);
-        }
-        return 0;
+            var projects = this.projectDataManager.GetAllProjects();
+            var targetProject = projects.FirstOrDefault(p => p.Name.Equals(settings.Project))
+                ?? throw new ArgumentException($"Project with name {settings.Project} doesn't exist.");
+            sessionTemplate.ProjectId = targetProject.ProjectId;
+
+            await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
+            await projectManager.LoadTestCasesAsync();
+            if (settings.List.GetValueOrDefault())
+            {
+                await projectManager.ListAllAsync(sessionTemplate.Selector, console);
+            }
+            else
+            {
+                await projectManager.RunAllAsync(sessionTemplate.Selector, console);
+            }
+            return 0;
+        }       
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
@@ -12,6 +13,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Persistence.Services.Client;
 using Serilog;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
@@ -166,29 +168,35 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task RenameControl(ActionExecutionContext context, ControlDescriptionViewModel controlToRename)
         {
-            string currentName = controlToRename.ControlName;
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameControl), ActivityKind.Internal))
             {
-                var keyArgs = context.EventArgs as KeyEventArgs;
-                if (keyArgs != null && keyArgs.Key == Key.Enter)
+                string currentName = controlToRename.ControlName;
+                try
                 {
-                    string newName = (context.Source as System.Windows.Controls.TextBox).Text;
-                    if (this.Controls.Except(new[] { controlToRename }).Any(a => a.ControlName.Equals(newName)))
+                    var keyArgs = context.EventArgs as KeyEventArgs;
+                    if (keyArgs != null && keyArgs.Key == Key.Enter)
                     {
-                        return;
+                        string newName = (context.Source as System.Windows.Controls.TextBox).Text;
+                        if (this.Controls.Except(new[] { controlToRename }).Any(a => a.ControlName.Equals(newName)))
+                        {
+                            return;
+                        }
+                        activity?.SetTag("CurrentControlName", controlToRename.ControlName);
+                        activity?.SetTag("NewControlName", newName);
+                        controlToRename.ControlName = newName;
+                        CanEdit = false;
+                        await SaveControlDetails(controlToRename, false);
                     }
-                    controlToRename.ControlName = newName;
-                    CanEdit = false;
-                    await SaveControlDetails(controlToRename, false);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, ex.Message);
-                controlToRename.ControlName = currentName;
-                CanEdit = false;
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while renaming control : {0}.", controlToRename.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    controlToRename.ControlName = currentName;
+                    CanEdit = false;
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
 
@@ -277,24 +285,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task MoveToScreen(ControlDescriptionViewModel controlDescription)
         {
-            try
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
             {
-                Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
-                var moveToScreenViewModel = new MoveToScreenViewModel(controlDescription.ControlName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
-                var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
-                if (result.GetValueOrDefault())
+                try
                 {
-                    this.ActiveApplication.MoveControlToScreen(controlDescription, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
-                    this.Controls.Remove(controlDescription);
-                    logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                    activity?.SetTag("ControlName", controlDescription.ControlName);
+                    var moveToScreenViewModel = new MoveToScreenViewModel(controlDescription.ControlName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
+                    var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+                    if (result.GetValueOrDefault())
+                    {
+                        this.ActiveApplication.MoveControlToScreen(controlDescription, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
+                        await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                        this.Controls.Remove(controlDescription);
+                        logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while moving control : '{0}' to another screen", controlDescription?.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while moving control : '{0}' to another screen", controlDescription?.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }          
         }
 
         /// <summary>
@@ -304,30 +317,34 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task ConfigureControlAsync(ControlDescriptionViewModel controlToEdit)
         {
-            try
+            Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureControlAsync), ActivityKind.Internal))
             {
-                Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
-
-                //Make a copy of ControlDescription that is opened for edit
-                var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
-                copyOfControlToEdit.ControlId = controlToEdit.ControlId;
-                var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
-                controlEditor.Initialize(copyOfControlToEdit);
-                var result = await windowManager.ShowDialogAsync(controlEditor);
-                //if save was clicked, assign back changes in ControlDetails to controlToEdit.
-                //Editor only allows editing ControlDetails. Description won't be modified.
-                if (result.HasValue && result.Value)
+                try
                 {
-                    controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
-                    await SaveControlDetails(controlToEdit, false);
-                    await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
+                    activity?.SetTag("ControlName", controlToEdit.ControlName);
+                    //Make a copy of ControlDescription that is opened for edit
+                    var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
+                    copyOfControlToEdit.ControlId = controlToEdit.ControlId;
+                    var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
+                    controlEditor.Initialize(copyOfControlToEdit);
+                    var result = await windowManager.ShowDialogAsync(controlEditor);
+                    //if save was clicked, assign back changes in ControlDetails to controlToEdit.
+                    //Editor only allows editing ControlDetails. Description won't be modified.
+                    if (result.HasValue && result.Value)
+                    {
+                        controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
+                        await SaveControlDetails(controlToEdit, false);
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to modify configuration of control : '{0}'", controlToEdit?.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to modify configuration of control : '{0}'", controlToEdit.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }             
         }
 
         /// <summary>
@@ -340,16 +357,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             Guard.Argument(controlToEdit, nameof(controlToEdit)).NotNull();
             await this.eventAggregator.PublishOnUIThreadAsync(new PropertyGridObjectEventArgs(controlToEdit, 
                 async () => {
-                    try
+                    using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditControlAsync), ActivityKind.Internal))
                     {
-                        await SaveControlDetails(controlToEdit, false);
-                        await notificationManager.ShowSuccessNotificationAsync("Control was saved");
-                    }
-                    catch(Exception ex)
-                    {
-                        logger.Error(ex, "There was an error while trying to save control : {0}", controlToEdit.ControlName);
-                        await notificationManager.ShowErrorNotificationAsync(ex);
-                    }
+                        try
+                        {
+                            activity?.SetTag("ControlName", controlToEdit.ControlName);
+                            await SaveControlDetails(controlToEdit, false);
+                            await notificationManager.ShowSuccessNotificationAsync("Control was saved");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "There was an error while trying to save control : {0}", controlToEdit.ControlName);
+                            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                            await notificationManager.ShowErrorNotificationAsync(ex);
+                        }
+                    }                     
                 }, 
                 () => { 
                     return true; 
@@ -362,17 +384,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToDelete"></param>
         public async Task DeleteControlAsync(ControlDescriptionViewModel controlToDelete)
         {
-            try
+            Guard.Argument(controlToDelete, nameof(controlToDelete)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteControlAsync), ActivityKind.Internal))
             {
-                Guard.Argument(controlToDelete, nameof(controlToDelete)).NotNull();
-                await this.applicationDataManager.DeleteControlAsync(controlToDelete.ControlDescription);
-                this.Controls.Remove(controlToDelete);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to delete control : {0}", controlToDelete.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    activity?.SetTag("ControlName", controlToDelete.ControlName);
+                    await this.applicationDataManager.DeleteControlAsync(controlToDelete.ControlDescription);
+                    this.Controls.Remove(controlToDelete);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to delete control : {0}", controlToDelete.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
 
@@ -384,34 +411,39 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task ChangeImageFromExistingAsync(ControlDescriptionViewModel selectedControl)
         {
-            try
+            Guard.Argument(selectedControl, nameof(selectedControl)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ChangeImageFromExistingAsync), ActivityKind.Internal))
             {
-                Guard.Argument(selectedControl, nameof(selectedControl)).NotNull();
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "PNG File (*.Png)|*.Png";
-                openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-                if (openFileDialog.ShowDialog() == true)
+                try
                 {
-                    string fileName = openFileDialog.FileName;                  
-                    using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    activity?.SetTag("ControlName", selectedControl.ControlName);
+                    OpenFileDialog openFileDialog = new OpenFileDialog();
+                    openFileDialog.Filter = "PNG File (*.Png)|*.Png";
+                    openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+                    if (openFileDialog.ShowDialog() == true)
                     {
-                        //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
-                        //unless file name changes
-                        selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
-                        await SaveControlDetails(selectedControl, false);
-                        // This will force reload image on control explorer
-                        selectedControl.ImageSource = null;
-                        // This will force reload image on process designer
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
+                        string fileName = openFileDialog.FileName;
+                        using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                        {
+                            //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
+                            //unless file name changes
+                            selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
+                            await SaveControlDetails(selectedControl, false);
+                            // This will force reload image on control explorer
+                            selectedControl.ImageSource = null;
+                            // This will force reload image on process designer
+                            await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
+                        }
+                        File.Delete(selectedControl.ControlImage);
                     }
-                    File.Delete(selectedControl.ControlImage);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         /// <summary>
@@ -420,25 +452,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task CloneControl(ControlDescriptionViewModel controlToClone)
         {
-            try
+            Guard.Argument(controlToClone, nameof(controlToClone)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloneControl), ActivityKind.Internal))
             {
-                Guard.Argument(controlToClone, nameof(controlToClone)).NotNull();
-                var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
-                var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
-                controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
-                if(!string.IsNullOrEmpty(controlDescriptionViewModel.ControlImage))
+                try
                 {
-                    await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                    activity?.SetTag("ControlName", controlToClone.ControlName);
+                    var clonedControl = controlToClone.ControlDescription.Clone() as ControlDescription;
+                    var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+                    controlDescriptionViewModel.ControlName = Path.GetRandomFileName();
+                    if (!string.IsNullOrEmpty(controlDescriptionViewModel.ControlImage))
+                    {
+                        await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                    }
+                    await SaveControlDetails(controlDescriptionViewModel, true);
+                    this.Controls.Add(controlDescriptionViewModel);
+                    logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
                 }
-                await SaveControlDetails(controlDescriptionViewModel, true);
-                this.Controls.Add(controlDescriptionViewModel);
-                logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to clone control : {0}", selectedControl.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to clone control : {0}", selectedControl.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         /// <summary>
@@ -447,25 +484,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <param name="controlToRename"></param>
         public async Task CreateRevision(ControlDescriptionViewModel control)
         {
-            try
+            Guard.Argument(control, nameof(control)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateRevision), ActivityKind.Internal))
             {
-                Guard.Argument(control, nameof(control)).NotNull();
-                var clonedControl = control.ControlDescription.Clone() as ControlDescription;
-                clonedControl.ControlId = control.ControlId;
-                clonedControl.Version = new Version(control.Version.Major + 1, 0);
-                var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
-                await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-                await SaveControlDetails(controlDescriptionViewModel, true);
-                //we remove the visible version and add the new revised version in explorer.
-                this.Controls.Remove(control);
-                this.Controls.Add(controlDescriptionViewModel);
-                logger.Information("Created a new revision for control : {0}", control.ControlDescription);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while creating revision of control : {0}", selectedControl.ControlName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {                   
+                    activity?.SetTag("ControlName", control.ControlName);
+                    var clonedControl = control.ControlDescription.Clone() as ControlDescription;
+                    clonedControl.ControlId = control.ControlId;
+                    clonedControl.Version = new Version(control.Version.Major + 1, 0);
+                    var controlDescriptionViewModel = new ControlDescriptionViewModel(clonedControl);
+                    await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                    await SaveControlDetails(controlDescriptionViewModel, true);
+                    //we remove the visible version and add the new revised version in explorer.
+                    this.Controls.Remove(control);
+                    this.Controls.Add(controlDescriptionViewModel);
+                    logger.Information("Created a new revision for control : {0}", control.ControlDescription);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while creating revision of control : {0}", selectedControl.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         private readonly object locker = new object();
@@ -554,78 +596,85 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <returns></returns>
         public async Task HandleAsync(IEnumerable<ScrapedControl> captureControls, CancellationToken cancellationToken)
         {
-            try
+            Guard.Argument(captureControls, nameof(captureControls)).NotNull();
+            if (this.ActiveApplication == null)
             {
-                Guard.Argument(captureControls, nameof(captureControls)).NotNull();
-                logger.Information("Received {count} scraped controls to process", captureControls.Count());               
-                if (this.ActiveApplication == null)
-                {
-                    throw new InvalidOperationException("There is no active application in Application explorer");
-                }
-                foreach (ScrapedControl scrapedControl in captureControls)
-                {
-                    try
-                    {
-
-                        IControlIdentity control;
-
-                        //The plugin can already provide the scraped data as IControlIdentity
-                        if (scrapedControl.ControlData is IControlIdentity controlIdentity)
-                        {
-                            control = controlIdentity;
-                        }
-                        //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
-                        else
-                        {
-                            var ownerApplication = this.ActiveApplication.ApplicationDetails;
-                            var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
-                                ?? throw new Exception("No control builder available to process scraped control");
-                            var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
-                            control = controlBuilder.CreateFromData(scrapedControl.ControlData);
-                        }
-
-                        //update the application id for each control identity in hierarchy
-                        control.ApplicationId = this.ActiveApplication.ApplicationId;
-                        IControlIdentity current = control;
-                        while (current.Next != null)
-                        {
-                            current = current.Next;
-                            current.ApplicationId = this.ActiveApplication.ApplicationId;
-                        }
-
-                        //create an instance of ControlToolBoxItem to display in the toolbox
-                        var controlDescription = new ControlDescription(control)
-                        {
-                            Version = new Version(1, 0)
-                        };
-                        ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
-                        controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
-                        if(scrapedControl.ControlImage != null)
-                        {
-                            controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
-                            await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
-                        }
-
-                        //save the captured control details                            
-                        await SaveControlDetails(controlDescriptionViewModel, false);
-                        this.Controls.Add(controlDescriptionViewModel);
-
-                        logger.Information("Capture control details for control : '{0}'", controlDescription.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, "There was an error while trying to capture control details");
-                        await notificationManager.ShowErrorNotificationAsync(ex);
-                    }
-
-                }
-                await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                throw new InvalidOperationException("There is no active application in Application explorer");
             }
-            catch (Exception ex)
+
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(HandleAsync), ActivityKind.Internal))
             {
-                logger.Error(ex, "There was an error while trying to capture control details");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    logger.Information("Received {count} scraped controls to process", captureControls.Count());
+                    activity?.SetTag("ApplicationName", this.activeApplication.ApplicationName);
+                    activity?.SetTag("ControlCount", captureControls.Count());               
+                    foreach (ScrapedControl scrapedControl in captureControls)
+                    {
+                        try
+                        {
+
+                            IControlIdentity control;
+
+                            //The plugin can already provide the scraped data as IControlIdentity
+                            if (scrapedControl.ControlData is IControlIdentity controlIdentity)
+                            {
+                                control = controlIdentity;
+                            }
+                            //the scraped control data needs to be processed by a IControlIdentityBuilder of active application to IControlIdentity
+                            else
+                            {
+                                var ownerApplication = this.ActiveApplication.ApplicationDetails;
+                                var controlBuilderType = TypeDescriptor.GetAttributes(ownerApplication.GetType()).OfType<BuilderAttribute>()?.FirstOrDefault()?.Builder
+                                    ?? throw new Exception("No control builder available to process scraped control");
+                                var controlBuilder = Activator.CreateInstance(controlBuilderType) as IControlIdentityBuilder;
+                                control = controlBuilder.CreateFromData(scrapedControl.ControlData);
+                            }
+
+                            //update the application id for each control identity in hierarchy
+                            control.ApplicationId = this.ActiveApplication.ApplicationId;
+                            IControlIdentity current = control;
+                            while (current.Next != null)
+                            {
+                                current = current.Next;
+                                current.ApplicationId = this.ActiveApplication.ApplicationId;
+                            }
+
+                            //create an instance of ControlToolBoxItem to display in the toolbox
+                            var controlDescription = new ControlDescription(control)
+                            {
+                                Version = new Version(1, 0)
+                            };
+                            ControlDescriptionViewModel controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
+                            controlDescriptionViewModel.ControlName = (this.Controls.Count() + 1).ToString();
+                            if (scrapedControl.ControlImage != null)
+                            {
+                                controlDescriptionViewModel.ImageSource = ConvertToImageSource(scrapedControl.ControlImage);
+                                await SaveBitMapSource(controlDescriptionViewModel.ControlDescription, controlDescriptionViewModel.ImageSource);
+                            }
+
+                            //save the captured control details                            
+                            await SaveControlDetails(controlDescriptionViewModel, false);
+                            this.Controls.Add(controlDescriptionViewModel);
+
+                            logger.Information("Capture control details for control : '{0}'", controlDescription.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "There was an error while trying to capture control details");
+                            await notificationManager.ShowErrorNotificationAsync(ex);
+                        }
+
+                    }
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to capture control details");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }                
         }
     }
 }

@@ -13,6 +13,7 @@ using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Data;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
@@ -146,24 +147,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <returns></returns>
         public async Task MoveToScreen(PrefabProjectViewModel prefabProject)
         {
-            try
+            Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(MoveToScreen), ActivityKind.Internal))
             {
-                Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
-                var moveToScreenViewModel = new MoveToScreenViewModel(prefabProject.PrefabName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
-                var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
-                if (result.GetValueOrDefault())
+                try
                 {
-                    this.ActiveApplication.MovePrefabToScreen(prefabProject, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
-                    this.Prefabs.Remove(prefabProject);
-                    logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                    activity?.SetTag("PrefabName", prefabProject.PrefabName);
+                    var moveToScreenViewModel = new MoveToScreenViewModel(prefabProject.PrefabName, this.ScreenCollection.Screens, this.ScreenCollection.SelectedScreen);
+                    var result = await windowManager.ShowDialogAsync(moveToScreenViewModel);
+                    if (result.GetValueOrDefault())
+                    {
+                        this.ActiveApplication.MovePrefabToScreen(prefabProject, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen);
+                        await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                        this.Prefabs.Remove(prefabProject);
+                        logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while moving prefab : '{0}' to another screen", prefabProject?.PrefabName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while moving prefab : '{0}' to another screen", prefabProject?.PrefabName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         /// <summary>
@@ -174,27 +181,31 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <returns></returns>
         public async Task CreatePrefab(Entity entity)
         {
-            try
+            Guard.Argument(entity, nameof(entity)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreatePrefab), ActivityKind.Internal))
             {
-                Guard.Argument(entity).NotNull();
-
-                var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
-                prefabBuilder.Initialize(this.ActiveApplication, entity);
-                var result = await windowManager.ShowDialogAsync(prefabBuilder);
-                if (result.HasValue && result.Value)
+                try
                 {
-                    var createdPrefab = await prefabBuilder.SavePrefabAsync();
-                    var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
-                    this.Prefabs.Add(prefabViewModel);
-                    this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen);
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                    activity?.SetTag("FromEntity", entity.Id);
+                    var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
+                    prefabBuilder.Initialize(this.ActiveApplication, entity);
+                    var result = await windowManager.ShowDialogAsync(prefabBuilder);
+                    if (result.HasValue && result.Value)
+                    {
+                        var createdPrefab = await prefabBuilder.SavePrefabAsync();
+                        var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
+                        this.Prefabs.Add(prefabViewModel);
+                        this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen);
+                        await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to create a new prefab");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to create a new prefab");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }          
         }
 
         private readonly object locker = new();
@@ -204,39 +215,44 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="prefabToEdit"></param>
         public async Task EditPrefab(PrefabProjectViewModel prefabToEdit)
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditPrefab), ActivityKind.Internal))
             {
-                lock (locker)
+                try
                 {
-                    if (prefabToEdit.IsOpenInEditor)
+                    lock (locker)
                     {
-                        logger.Information($"Project {prefabToEdit.PrefabName} is already open.");
-                        return;
-                    }                   
-                    prefabToEdit.IsOpenInEditor = true;
-                }
+                        if (prefabToEdit.IsOpenInEditor)
+                        {
+                            logger.Information($"Project {prefabToEdit.PrefabName} is already open.");
+                            return;
+                        }
+                        prefabToEdit.IsOpenInEditor = true;
+                    }
+                    activity?.SetTag("PrefabName", prefabToEdit.PrefabName);
 
-                var versionPicker = new PrefabVersionPickerViewModel(prefabToEdit.PrefabProject);
-                var result = await windowManager.ShowDialogAsync(versionPicker);
-                if (result.HasValue && result.Value)
-                {
-                    var versionToEdit = versionPicker.SelectedVersion;
-                    var editorFactory = IoC.Get<IEditorFactory>();
-                    var prefabEditor = editorFactory.CreatePrefabEditor();
-                    await prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
-                    await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
+                    var versionPicker = new PrefabVersionPickerViewModel(prefabToEdit.PrefabProject);
+                    var result = await windowManager.ShowDialogAsync(versionPicker);
+                    if (result.HasValue && result.Value)
+                    {
+                        var versionToEdit = versionPicker.SelectedVersion;
+                        var editorFactory = IoC.Get<IEditorFactory>();
+                        var prefabEditor = editorFactory.CreatePrefabEditor();
+                        await prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
+                        await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
+                    }
+                    else
+                    {
+                        prefabToEdit.IsOpenInEditor = false;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
                     prefabToEdit.IsOpenInEditor = false;
+                    logger.Error(ex, "There was an error while trying to open prefab for edit");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                prefabToEdit.IsOpenInEditor = false;
-                logger.Error(ex, "There was an error while trying to open prefab for edit");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+            }          
         }
 
         /// <summary>
@@ -247,16 +263,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <returns></returns>
         public async Task ManagePrefab(PrefabProjectViewModel targetPrefab)
         {
-            try
+            Guard.Argument(targetPrefab, nameof(targetPrefab)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefab), ActivityKind.Internal))
             {
-                var deployPrefabViewModel = versionManagerFactory.CreatePrefabVersionManager(targetPrefab.PrefabProject);                  
-                await windowManager.ShowDialogAsync(deployPrefabViewModel);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to manage prefab");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    activity?.SetTag("PrefabName", targetPrefab.PrefabName);
+                    var deployPrefabViewModel = versionManagerFactory.CreatePrefabVersionManager(targetPrefab.PrefabProject);
+                    await windowManager.ShowDialogAsync(deployPrefabViewModel);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to manage prefab");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }           
         }
 
         /// <summary>
@@ -265,17 +287,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="prefabToDelete"></param>
         public async Task DeletePrefabAsync(PrefabProjectViewModel prefabToDelete)
         {
-            try
+            Guard.Argument(prefabToDelete, nameof(prefabToDelete)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeletePrefabAsync), ActivityKind.Internal))
             {
-                Guard.Argument(prefabToDelete, nameof(prefabToDelete)).NotNull();
-                await this.prefabDataManager.DeletePrefbAsync(prefabToDelete.PrefabProject);
-                this.Prefabs.Remove(prefabToDelete);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to delete prefab : {0}", prefabToDelete.PrefabName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    activity?.SetTag("PrefabName", prefabToDelete.PrefabName);
+                    await this.prefabDataManager.DeletePrefbAsync(prefabToDelete.PrefabProject);
+                    this.Prefabs.Remove(prefabToDelete);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to delete prefab : {0}", prefabToDelete.PrefabName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }           
         }
 
 

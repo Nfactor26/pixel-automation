@@ -77,7 +77,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    logger.Error($"There was an error while trying to delete file : {script.Item}", ex);
+                    logger.Error("There was an error while trying to delete file : {0}", script.Item, ex);
                 }
             }
 

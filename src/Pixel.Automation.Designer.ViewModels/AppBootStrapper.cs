@@ -1,6 +1,10 @@
 ﻿using Caliburn.Micro;
 using Microsoft.Extensions.Configuration;
 using Ninject;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -26,14 +30,15 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private IKernel kernel;
 
+        private IConfiguration configuration;
+           
         public AppBootstrapper()
         {
             #if DEBUG
             ConsoleManager.Show();
             #endif
-
-
-            var configuration = new ConfigurationBuilder()
+           
+            configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
@@ -42,6 +47,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
+          
             logger = Log.ForContext<AppBootstrapper>();
             Initialize();
         }
@@ -49,6 +55,7 @@ namespace Pixel.Automation.Designer.ViewModels
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             base.OnStartup(sender, e);
+          
             var applicationSettings = IoC.Get<ApplicationSettings>();
             if (!applicationSettings.IsOfflineMode)
             {
@@ -56,29 +63,40 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     var downloadApplicationDataTask = new Task(async () =>
                     {
-                        try
+                        using(var downloadDataActivity = Telemetry.DefaultSource?.StartActivity(nameof(OnStartup), ActivityKind.Internal))
                         {
-                            var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                            var projectDataManager = IoC.Get<IProjectDataManager>();
-                            var prefabDataManager = IoC.Get<IPrefabDataManager>();
-                            logger.Information("Downloading application data now");
-                            await applicationDataManger.UpdateApplicationRepository();
-                            logger.Information("Download of application data completed");
-                            logger.Information("Downloading project information now");
-                            await projectDataManager.DownloadProjectsAsync();
-                            logger.Information("Download of project information completed");
-                            await prefabDataManager.DownloadPrefabsAsync();                           
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.Error(ex.Message, ex);
-                        }
-                        finally
-                        {
-                            resetEvent.Set();
-                        }
+                            try
+                            {
+
+                                var applicationDataManger = IoC.Get<IApplicationDataManager>();
+                                var projectDataManager = IoC.Get<IProjectDataManager>();
+                                var prefabDataManager = IoC.Get<IPrefabDataManager>();
+                                using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
+                                {
+                                    await applicationDataManger.DownloadApplicationsWithControlsAsync();
+                                }
+                                using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
+                                {
+                                    await projectDataManager.DownloadProjectsAsync();
+                                }
+                                using (Telemetry.DefaultSource?.StartActivity("download-prefabs", ActivityKind.Internal))
+                                {
+                                    await prefabDataManager.DownloadPrefabsAsync();
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Error(ex.Message, ex);                                
+                                downloadDataActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                            }
+                            finally
+                            {
+                                resetEvent.Set();
+                            }
+                        }                        
                     });
-                    downloadApplicationDataTask.Start();                 
+                    downloadApplicationDataTask.Start();
                     resetEvent.WaitOne();
                 }
             }
@@ -86,7 +104,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 logger.Information("Application is configured to run in offline mode.");
             }
-            DisplayRootViewForAsync<MainWindowViewModel>();         
+            DisplayRootViewForAsync<MainWindowViewModel>();
         }
 
         /// <summary>
@@ -97,8 +115,8 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             List<Assembly> viewAssemblies = new List<Assembly>();
             viewAssemblies.Add(Assembly.GetEntryAssembly());
-                      
-            foreach(var item in Directory.GetFiles(".", "*.Views*.dll", SearchOption.TopDirectoryOnly))
+
+            foreach (var item in Directory.GetFiles(".", "*.Views*.dll", SearchOption.TopDirectoryOnly))
             {
                 viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
                 logger.Information($"Added {item} to view assemblies.");
@@ -111,11 +129,11 @@ namespace Pixel.Automation.Designer.ViewModels
             //Scrapper plugins can have some views used by them
             foreach (var item in Directory.GetFiles(".\\Plugins", "Pixel.Automation.*.dll", SearchOption.AllDirectories))
             {
-                if(item.Contains("Scrapper"))
+                if (item.Contains("Scrapper"))
                 {
                     viewAssemblies.Add(Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, item)));
                     logger.Information($"Added {item} to view assemblies.");
-                }               
+                } 
             }
             return viewAssemblies;
         }
@@ -128,17 +146,41 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     return;
                 }
-                
+
                 LogManager.GetLog = type => new DebugLog(type);
+
+                Telemetry.InitializeDefault("pixel-design", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                string[] enablesSources = configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
+
+                var traceProviderBuilder = Sdk.CreateTracerProviderBuilder()
+                .SetSampler(new TraceIdRatioBasedSampler(0.1))
+                .AddSource(enablesSources).ConfigureResource(resource => resource.AddService("pixel-design")).AddHttpClientInstrumentation();
+                string otlpTraceEndPoint = configuration["OpenTelemetry:Trace:EndPoint"];             
+                if (!string.IsNullOrEmpty(otlpTraceEndPoint))
+                {
+                    Enum.TryParse<OtlpExportProtocol>(configuration["OpenTelemetry:TraceExporter:OtlpExportProtocol"] ?? "HttpProtobuf", out OtlpExportProtocol exportProtocol);
+                    Enum.TryParse<ExportProcessorType>(configuration["OpenTelemetry:TraceExporter:ExportProcessorType"] ?? "Batch", out ExportProcessorType processorType);
+                    traceProviderBuilder.AddOtlpExporter(e =>
+                    {
+                        e.Endpoint = new Uri(otlpTraceEndPoint);
+                        e.Protocol = exportProtocol;
+                        e.ExportProcessorType = processorType;
+                    });
+                    logger.Information("Otlp Exporter was enabled. Endpoint is {0}", otlpTraceEndPoint);
+                }             
+                #if DEBUG
+                traceProviderBuilder.AddConsoleExporter();
+                #endif
+                var traceProvider = traceProviderBuilder.Build();
 
                 var pluginManager = new PluginManager(new JsonSerializer());
                 var platformFeatureAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.PlatformFeature);
                 var pluginAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Component);
-                var scrapperAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Scrapper);               
+                var scrapperAssemblies = pluginManager.LoadPluginsFromDirectory("Plugins", PluginType.Scrapper);
                 kernel = new StandardKernel(new ViewModules(), new AnchorableModules(), new ScrappersModules(scrapperAssemblies), new GlobalScriptingModules(),
-                    new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(),  new NativeModules(platformFeatureAssemblies), new SettingsModules());
+                    new CodeGeneratorModules(), new PersistenceModules(), new UtilityModules(), new NativeModules(platformFeatureAssemblies), new SettingsModules());
                 kernel.Settings.Set("InjectAttribute", typeof(InjectedAttribute));
-                               
+                kernel.Bind<TracerProvider>().ToConstant(traceProvider);
                 var knownTypeProvider = kernel.Get<ITypeProvider>();
                 knownTypeProvider.LoadTypesFromAssembly(typeof(Entity).Assembly);
                 knownTypeProvider.LoadTypesFromAssembly(typeof(ControlEntity).Assembly);
@@ -153,8 +195,8 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                logger.Error(ex,ex.Message);
-                Debug.Assert(false,ex.Message);
+                logger.Error(ex, ex.Message);
+                Debug.Assert(false, ex.Message);
             }
         }
 
@@ -177,7 +219,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 throw new Exception(string.Format("Could not locate any instances of contract {0}.", serviceType.ToString()));
             }
-            catch(TypeLoadException ex)
+            catch (TypeLoadException ex)
             {
                 logger.Error(ex, ex.Message);
                 throw;
@@ -186,26 +228,26 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 logger.Error(ex, ex.Message);
                 throw;
-            }        
+            }
 
         }
 
         protected override IEnumerable<object> GetAllInstances(Type serviceType)
         {
             var instances = kernel.GetAll(serviceType);
-            if(instances!=null)
+            if (instances != null)
             {
                 return instances;
             }
             throw new Exception(string.Format("Could not locate any instances of contract {0}.", serviceType.ToString()));
 
-        }       
+        }
 
         protected override void BuildUp(object instance)
         {
             base.BuildUp(instance);
         }
-           
+
 
         protected override void OnExit(object sender, EventArgs e)
         {

@@ -6,6 +6,7 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -98,30 +99,36 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         ///<inheritdoc/>
         public T Load<T>(string fileName) where T : new()
-        {         
-            string fileContents = File.ReadAllText(fileName);
-
-            string dataModelAssemblyName = this.entityManager.Arguments.GetType().Assembly.GetName().Name;
-            string assemblyNameWithoutIteration = dataModelAssemblyName.Substring(0, dataModelAssemblyName.LastIndexOf('_'));
-          
-            Regex regex = new Regex($"({assemblyNameWithoutIteration})(_\\d+)");
-            fileContents = regex.Replace(fileContents, (m) =>
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Load), ActivityKind.Internal))
             {
-                return m.Value.Replace($"{m.Groups[0].Value}", $"{dataModelAssemblyName}");
-            });         
+                string fileContents = File.ReadAllText(fileName);
 
-            File.WriteAllText(fileName, fileContents);        
-            T entity = serializer.Deserialize<T>(fileName, typeProvider.GetKnownTypes());
-            return entity;
+                string dataModelAssemblyName = this.entityManager.Arguments.GetType().Assembly.GetName().Name;
+                string assemblyNameWithoutIteration = dataModelAssemblyName.Substring(0, dataModelAssemblyName.LastIndexOf('_'));
+
+                Regex regex = new Regex($"({assemblyNameWithoutIteration})(_\\d+)");
+                fileContents = regex.Replace(fileContents, (m) =>
+                {
+                    return m.Value.Replace($"{m.Groups[0].Value}", $"{dataModelAssemblyName}");
+                });
+
+                File.WriteAllText(fileName, fileContents);
+                T entity = serializer.Deserialize<T>(fileName, typeProvider.GetKnownTypes());
+                return entity;
+            }            
         }
 
         #region helper methods
 
         protected virtual void ConfigureCodeEditor(IReferenceManager referenceManager)
         {
-            logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
-            this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());       
-            logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureCodeEditor), ActivityKind.Internal))
+            {
+                logger.Information($"Trying to configure code editor for project  : {this.GetProjectName()}.");
+                this.codeEditorFactory.Initialize(this.fileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());
+                logger.Information($"Configure code editor for project  : {this.GetProjectName()} completed.");
+            }           
         }
 
         /// <summary>
@@ -133,13 +140,16 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="fileSystem"></param>
         /// <param name="globalsType"></param>
         protected virtual void ConfigureScriptEditor(IReferenceManager referenceManager, object dataModel)
-        {      
-            logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
-            var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences());
-            assemblyReferences.Add(dataModel.GetType().Assembly.Location);
-            this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences, referenceManager.GetImportsForScripts());
-            this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")));           
-            logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureScriptEditor), ActivityKind.Internal))
+            {
+                logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
+                var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences());
+                assemblyReferences.Add(dataModel.GetType().Assembly.Location);
+                this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences, referenceManager.GetImportsForScripts());
+                this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")));
+                logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
+            }            
         }
 
         /// <summary>
@@ -147,9 +157,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         protected virtual void SetupInitializationScriptProject(object dataModel)
         {
-            this.scriptEditorFactory.AddProject(RootEntity.Id, Array.Empty<string>(), dataModel.GetType());
-            var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
-            this.scriptEditorFactory.AddDocument(scriptFile, RootEntity.Id, this.fileSystem.ReadAllText(scriptFile));
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SetupInitializationScriptProject), ActivityKind.Internal))
+            {
+                this.scriptEditorFactory.AddProject(RootEntity.Id, Array.Empty<string>(), dataModel.GetType());
+                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+                this.scriptEditorFactory.AddDocument(scriptFile, RootEntity.Id, this.fileSystem.ReadAllText(scriptFile));
+            }          
         }
 
         /// <summary>
@@ -158,12 +171,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="referenceManager"></param>
         protected virtual void ConfigureScriptEngine(IReferenceManager referenceManager, object dataModel)
         {
-            this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory)
-                .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
-                .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
-                .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
-                .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
-                .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureScriptEngine), ActivityKind.Internal))
+            {
+                this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory)
+                 .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
+                 .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
+                 .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
+                 .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
+                 .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
+            }             
         }
 
         /// <summary>
@@ -183,52 +199,54 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns>Instance of dataModel</returns>
         protected object CompileAndCreateDataModel(string dataModelName)
         {
-            logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
-            this.codeEditorFactory.AddProject(this.GetProjectName(), this.GetProjectNamespace(), Array.Empty<string>());
-
-            string dataModelDirectory = this.fileSystem.DataModelDirectory;
-            string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");
-            if (existingDataModelFiles.Any())
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CompileAndCreateDataModel), ActivityKind.Internal))
             {
-                //This will add all the documents to workspace so that they are available during compilation
-                foreach (var dataModelFile in existingDataModelFiles)
-                {
-                    string documentName = Path.GetFileName(dataModelFile);
-                    this.codeEditorFactory.AddDocument(documentName, this.GetProjectName(), File.ReadAllText(dataModelFile));
-                }
-                try
-                {
-                    //Delete assemblies accumulated from old sessions
-                    //This can throw exception if any assembly is already loaded.
-                    Directory.Delete(fileSystem.TempDirectory, true);
-                }
-                catch
-                {
+                logger.Information($"Trying to compile data model assembly for project : {this.GetProjectName()}");
+                this.codeEditorFactory.AddProject(this.GetProjectName(), this.GetProjectNamespace(), Array.Empty<string>());
 
-                }
-                finally
+                string dataModelDirectory = this.fileSystem.DataModelDirectory;
+                string[] existingDataModelFiles = Directory.GetFiles(dataModelDirectory, "*.cs");
+                if (existingDataModelFiles.Any())
                 {
-                    Directory.CreateDirectory(fileSystem.TempDirectory);
-                }
-
-                using (var compilationResult = this.codeEditorFactory.CompileProject(this.GetProjectName(), GetNewDataModelAssemblyName()))
-                {
-                    compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
-                    string assemblyLocation = Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName);
-                    Assembly assembly = Assembly.LoadFrom(assemblyLocation);
-                    logger.Information($"Data model assembly compiled and assembly loaded from {assemblyLocation}");
-                    Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(dataModelName));
-                    if (typeofDataModel != null)
+                    //This will add all the documents to workspace so that they are available during compilation
+                    foreach (var dataModelFile in existingDataModelFiles)
                     {
-                        return Activator.CreateInstance(typeofDataModel);
+                        string documentName = Path.GetFileName(dataModelFile);
+                        this.codeEditorFactory.AddDocument(documentName, this.GetProjectName(), File.ReadAllText(dataModelFile));
                     }
+                    try
+                    {
+                        //Delete assemblies accumulated from old sessions
+                        //This can throw exception if any assembly is already loaded.
+                        Directory.Delete(fileSystem.TempDirectory, true);
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        Directory.CreateDirectory(fileSystem.TempDirectory);
+                    }
+
+                    using (var compilationResult = this.codeEditorFactory.CompileProject(this.GetProjectName(), GetNewDataModelAssemblyName()))
+                    {
+                        compilationResult.SaveAssemblyToDisk(fileSystem.TempDirectory);
+                        string assemblyLocation = Path.Combine(fileSystem.TempDirectory, compilationResult.OutputAssemblyName);
+                        Assembly assembly = Assembly.LoadFrom(assemblyLocation);
+                        logger.Information($"Data model assembly compiled and assembly loaded from {assemblyLocation}");
+                        Type typeofDataModel = assembly.GetTypes().FirstOrDefault(t => t.Name.Equals(dataModelName));
+                        if (typeofDataModel != null)
+                        {
+                            return Activator.CreateInstance(typeofDataModel);
+                        }
+                    }
+
+                    throw new Exception($"Failed to create data model");
                 }
 
-                throw new Exception($"Failed to create data model");
+                throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
             }
-
-            throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
-
         }        
        
         /// <summary>

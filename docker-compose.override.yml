@@ -2,15 +2,14 @@ version: '3.7'
 
 services:
 
-  #see seq license before using seq in production
-  #Used here for demonstration only in single user dev environment
+  #check license before use
   seq:
     image: datalust/seq:latest
     container_name: seq  
     ports:
-      #- "5341:5341" # seq ingestion on http 5341
-      - "5002:80" # seq ui on http 4342
-      - "5003:443"
+      - "5341:5341" # seq ingestion
+      - "5002:80" # seq ui
+     #- "5003:443" # seq ui
     volumes:
       - seq-logs:/data
     networks:
@@ -18,17 +17,15 @@ services:
     environment:
       - ACCEPT_EULA=Y
 
-  fluent-bit:
-    image: fluent/fluent-bit:latest
-    container_name: fluent-bit  
+  #check license before use
+  jaeger:
+    container_name:  jaeger
+    image: jaegertracing/all-in-one:latest
     ports:
-      - "4318:4318"
-    volumes:
-      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    networks:
-      - pixel-network
-    depends_on:
-      - seq
+      - "16686:16686" #jaeger ui
+      - "4318:4318" #jaeger ingestion
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
 
   mongo:
      image: mongo:latest

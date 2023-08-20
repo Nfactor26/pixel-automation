@@ -12,6 +12,10 @@
 		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
 		<PackageReference Include="Dawn.Guard" Version="1.12.0" />
 		<PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.6.0-alpha.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.6.0-alpha.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.6.0-alpha.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.1-beta.1" />
 		<PackageReference Include="Polly" Version="7.2.3" />
 		<PackageReference Include="MahApps.Metro" Version="2.4.9" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
@@ -22,6 +26,7 @@
 		<PackageReference Include="Ninject.Extensions.Factory" Version="3.3.3" />
 		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
 		<PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+		<PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
@@ -29,6 +34,7 @@
 		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
 		<PackageReference Include="Serilog.Sinks.Http" Version="8.0.0" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="1.0.2" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>

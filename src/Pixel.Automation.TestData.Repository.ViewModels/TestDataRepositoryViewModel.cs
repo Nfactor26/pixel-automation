@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Notifications.Wpf.Core;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
@@ -12,6 +13,7 @@ using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,9 +31,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<TestDataRepositoryViewModel>();
 
-        private readonly IProjectFileSystem projectFileSystem;     
+        private readonly IProjectFileSystem projectFileSystem;
         private readonly IScriptEditorFactory scriptEditorFactory;
-        private readonly ISerializer serializer;      
+        private readonly ISerializer serializer;
         private readonly IArgumentTypeBrowserFactory typeBrowserFactory;
         private readonly IWindowManager windowManager;
         private readonly INotificationManager notificationManager;
@@ -81,22 +83,25 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             this.testDataManager = Guard.Argument(projectAssetsDataManager, nameof(projectAssetsDataManager)).NotNull().Value;
 
             this.eventAggregator.SubscribeOnPublishedThread(this);
-            CreateCollectionView();          
+            CreateCollectionView();
         }
 
         /// <summary>
-        /// Load the available TestDataSources from local storage
+        /// Download and load the available TestDataSources
         /// </summary>
-        private async Task  LoadDataSourcesAsync()
+        private async Task LoadDataSourcesAsync()
         {
-            await this.testDataManager.DownloadAllTestDataSourcesAsync();
-            foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
-            {               
-                if(!testDataSource.IsDeleted)
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadDataSourcesAsync), ActivityKind.Internal))
+            {
+                await this.testDataManager.DownloadAllTestDataSourcesAsync();
+                foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
                 {
-                    this.TestDataSourceCollection.Add(testDataSource);
+                    if (!testDataSource.IsDeleted)
+                    {
+                        this.TestDataSourceCollection.Add(testDataSource);
+                    }
                 }
-            }            
+            }
         }
 
         #endregion Constructor
@@ -141,21 +146,27 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         }
 
         #endregion Filter         
-     
+
         #region Create Test Data Source
 
         ///<inheritdoc/>
         public async Task CreateCodedTestDataSource()
         {
-            await CreateDataSource(DataSource.Code);            
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateCodedTestDataSource), ActivityKind.Internal))
+            {
+                await CreateDataSource(DataSource.Code);
+            }
         }
 
         ///<inheritdoc/>
         public async Task CreateCsvTestDataSource()
         {
-            await CreateDataSource(DataSource.CsvFile);
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateCsvTestDataSource), ActivityKind.Internal))
+            {
+                await CreateDataSource(DataSource.CsvFile);
+            }
         }
-     
+
         private async Task CreateDataSource(DataSource dataSourceType)
         {
             try
@@ -163,7 +174,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 //value types like int, bool , etc. as well as string doesn't make sense for a data source given they can't be accessed.
                 //Valid data sources are custom classes defined by the automation project which expose properties that are visible to scripting engine.
                 //Hence, we create the type browser with showOnlyCustomTypes = true
-                var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser(showOnlyCustomTypes : true);
+                var argumentTypeBrowser = typeBrowserFactory.CreateArgumentTypeBrowser(showOnlyCustomTypes: true);
                 TestDataSourceViewModel newTestDataSource = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, dataSourceType, this.TestDataSourceCollection.Select(t => t.Name) ?? Array.Empty<string>(), argumentTypeBrowser);
 
                 TestDataModelEditorViewModel testDataModelEditor = new TestDataModelEditorViewModel(this.scriptEditorFactory);
@@ -175,9 +186,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
                 var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
                 if (result.HasValue && result.Value)
-                {                                   
+                {
                     await this.testDataManager.AddTestDataSourceAsync(newTestDataSource.TestDataSource);
-                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);                   
+                    this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
                 }
                 logger.Information("Data source of type {0} was created", dataSourceType.ToString());
 
@@ -233,26 +244,29 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         ///<inheritdoc/>
         public async Task EditDataSource(TestDataSource testDataSource)
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataSource), ActivityKind.Internal))
             {
-                Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
-                switch (testDataSource.DataSource)
+                try
                 {
-                    case DataSource.Code:
-                        await EditCodedDataSource(testDataSource);
-                        break;
-                    case DataSource.CsvFile:
-                        await EditCsvDataSource(testDataSource);
-                        break;
+                    Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
+                    switch (testDataSource.DataSource)
+                    {
+                        case DataSource.Code:
+                            await EditCodedDataSource(testDataSource);
+                            break;
+                        case DataSource.CsvFile:
+                            await EditCsvDataSource(testDataSource);
+                            break;
+                    }
+                    logger.Information("Data source : '{0}' was edited", testDataSource.Name);
                 }
-                logger.Information("Data source : '{0}' was edited", testDataSource.Name);
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to edit data source :'{0}'", testDataSource?.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
             }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to edit data source :'{0}'", testDataSource?.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }      
-         
         }
 
         /// <summary>
@@ -261,7 +275,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="testDataSource"></param>
         private async Task EditCodedDataSource(TestDataSource testDataSource)
         {
-            string projectName = testDataSource.DataSourceId;          
+            string projectName = testDataSource.DataSourceId;
             this.scriptEditorFactory.AddProject(projectName, Array.Empty<string>(), typeof(EmptyModel));
             using (var scriptEditor = this.scriptEditorFactory.CreateScriptEditorScreen())
             {
@@ -270,7 +284,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 this.scriptEditorFactory.RemoveProject(projectName);
                 await this.testDataManager.SaveTestDataSourceDataAsync(testDataSource);
             }
-    
+
         }
 
         /// <summary>
@@ -278,7 +292,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// </summary>
         /// <param name="testDataSource"></param>
         private async Task EditCsvDataSource(TestDataSource testDataSource)
-        {            
+        {
             TestDataSourceViewModel dataSourceViewModel = new TestDataSourceViewModel(this.windowManager, this.projectFileSystem, testDataSource);
             TestDataSourceBuilderViewModel testDataSourceBuilder = new TestDataSourceBuilderViewModel(new IStagedScreen[] { dataSourceViewModel });
             var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
@@ -295,22 +309,27 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="testDataSource"></param>
         public async Task DeleteDataSource(TestDataSource testDataSource)
         {
-            Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DeleteDataSource), ActivityKind.Internal))
             {
+                Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
                 MessageBoxResult result = MessageBox.Show("Are you sure you want to delete data source", "Confirm Delete", MessageBoxButton.OKCancel);
                 if (result == MessageBoxResult.OK)
                 {
-                    await this.testDataManager.DeleteTestDataSourceAsync(testDataSource);
-                    this.TestDataSourceCollection.Remove(testDataSource);
-                    logger.Information("Data source : '{0}' was deleted ", testDataSource.Name);
+                    try
+                    {
+                        await this.testDataManager.DeleteTestDataSourceAsync(testDataSource);
+                        this.TestDataSourceCollection.Remove(testDataSource);
+                        logger.Information("Data source : '{0}' was deleted ", testDataSource.Name);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to delete data source : '{0}'", testDataSource?.Name);
+                        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                        await notificationManager.ShowErrorNotificationAsync(ex);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to delete data source : '{0}'", testDataSource?.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+            }         
         }
 
         #endregion Edit Data Source
@@ -324,7 +343,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
-        {            
+        {
             await LoadDataSourcesAsync();
             if (this.TestDataSourceCollection.Count == 0)
             {
@@ -345,7 +364,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <returns></returns>
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
-            if(close)
+            if (close)
             {
                 SelectedTestDataSource = null;
                 TestDataSourceCollection.Clear();
@@ -366,8 +385,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public async Task HandleAsync(ShowTestDataSourceNotification message, CancellationToken cancellationToken)
         {
             if (message != null)
-            {                
-                this.FilterText = message.TestDataId ?? string.Empty; 
+            {
+                this.FilterText = message.TestDataId ?? string.Empty;
             }
             await Task.CompletedTask;
         }

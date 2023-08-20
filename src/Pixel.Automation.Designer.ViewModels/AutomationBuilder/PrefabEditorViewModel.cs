@@ -40,20 +40,27 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
         {
-            Debug.Assert(prefabProject != null);
-   
-            this.PrefabProject = prefabProject;
-            this.DisplayName = prefabProject.PrefabName;
-
-            var targetVersion = versionToLoad ?? PrefabProject.LatestActiveVersion;
-            if (targetVersion != null)
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoLoad), ActivityKind.Internal))
             {
-                await this.projectManager.Load(prefabProject, targetVersion);
-                UpdateWorkFlowRoot();
-                return;
-            }
+                Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
 
-            throw new InvalidDataException($"No active version could be located for project : {this.PrefabProject.PrefabName}");
+                this.PrefabProject = prefabProject;
+                this.DisplayName = prefabProject.PrefabName;
+
+                var targetVersion = versionToLoad ?? PrefabProject.LatestActiveVersion;
+                if (targetVersion != null)
+                {
+                    activity?.SetTag("PrefabProject", prefabProject.PrefabName);
+                    activity?.SetTag("ProjectVersion", versionToLoad.ToString());
+                    logger.Information("Version : '{0}' of prefab project : '{1}' will be loaded.", targetVersion, prefabProject.PrefabName);
+
+                    await this.projectManager.Load(prefabProject, targetVersion);
+                    UpdateWorkFlowRoot();
+                    return;
+                }
+                activity?.SetStatus(ActivityStatusCode.Error, "No active version could be located");
+                throw new InvalidDataException($"No active version could be located for prefab project : {this.PrefabProject.PrefabName}");
+            }             
          
         }
 
@@ -63,63 +70,70 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
             {
-                await this.projectManager.DownloadDataModelFilesAsync();
-                var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-                var prefabFileSystem = this.projectManager.GetProjectFileSystem();
-                using (var editor = editorFactory.CreateMultiCodeEditorScreen())
+                try
                 {
-                    foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                    await this.projectManager.DownloadDataModelFilesAsync();
+                    var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                    var prefabFileSystem = this.projectManager.GetProjectFileSystem();
+                    using (var editor = editorFactory.CreateMultiCodeEditorScreen())
                     {
-                        await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
-                    }
-                    await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
-                    await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
+                        foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
+                        {
+                            await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
+                        }
+                        await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
+                        await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
 
-                    bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
-                    var editorDocumentStates = editor.GetCurrentEditorState();
+                        bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
+                        var editorDocumentStates = editor.GetCurrentEditorState();
 
-                    if (hasChanges.HasValue && !hasChanges.Value)
-                    {
-                        logger.Information("Discarding changes for data model files");
+                        if (hasChanges.HasValue && !hasChanges.Value)
+                        {
+                            logger.Information("Discarding changes for data model files");
+                            foreach (var document in editorDocumentStates)
+                            {
+                                if (document.IsNewDocument)
+                                {
+                                    File.Delete(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                                    logger.Information("Delete file {@0} from data model files", document);
+                                }
+                            }
+                            return;
+                        }
+
                         foreach (var document in editorDocumentStates)
                         {
-                            if (document.IsNewDocument)
+                            if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
                             {
-                                File.Delete(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                                logger.Information("Delete file {@0} from data model files", document);
+                                await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
                             }
+                            if (document.IsDeleted && !document.IsNewDocument)
+                            {
+                                await this.projectManager.DeleteDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
+                            }
+                            logger.Information("Updated state of data model file {@0}", document);
                         }
-                        return;
                     }
-
-                    foreach (var document in editorDocumentStates)
-                    {
-                        if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
-                        {
-                            await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                        }
-                        if (document.IsDeleted && !document.IsNewDocument)
-                        {
-                            await this.projectManager.DeleteDataFileAsync(Path.Combine(prefabFileSystem.DataModelDirectory, document.TargetDocument));
-                        }
-                        logger.Information("Updated state of data model file {@0}", document);
-                    }
+                    await this.Reload();
                 }
-                await this.Reload();
-            }
-            catch (Exception ex)
-            {
-                logger.Information(ex, "There was an error while trying to edit data model for prefab : '{0}'", this.PrefabProject.PrefabName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Information(ex, "There was an error while trying to edit data model for prefab : '{0}'", this.PrefabProject.PrefabName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         protected override async Task Reload()
         {
-            await this.projectManager.Reload();
-            this.UpdateWorkFlowRoot();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
+            {              
+                await this.projectManager.Reload();
+                this.UpdateWorkFlowRoot();
+            }           
         }
 
         #endregion Automation Project     
@@ -128,16 +142,20 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoSave), ActivityKind.Internal))
             {
-                await projectManager.Save();
-                await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to save project : '{0}'", this.PrefabProject.PrefabName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }    
+                try
+                {
+                    await projectManager.Save();
+                    await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to save project : '{0}'", this.PrefabProject.PrefabName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }           
         }      
 
         #endregion Save project

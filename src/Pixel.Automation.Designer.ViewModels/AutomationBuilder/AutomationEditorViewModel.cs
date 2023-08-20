@@ -13,6 +13,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
@@ -73,23 +74,28 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public async Task DoLoad(AutomationProject project, VersionInfo versionToLoad = null)
         {
-            Guard.Argument(project, nameof(project)).NotNull();    
-      
-            this.CurrentProject = project;
-            this.DisplayName = project.Name;
-
-            //Always open the most recent non-deployed version if no version is specified
-            var targetVersion = versionToLoad ?? project.LatestActiveVersion;
-            logger.Information("Version : '{0}' of project : '{1}' will be loaded.", targetVersion, project.Name);
-            if(targetVersion != null)
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoLoad), ActivityKind.Internal))
             {
-                await this.projectManager.Load(project, targetVersion);            
-                UpdateWorkFlowRoot();             
-                return;
-            }
+                Guard.Argument(project, nameof(project)).NotNull();
 
-            throw new InvalidDataException($"No active version could be located for project : {project.Name}");
-          
+                this.CurrentProject = project;
+                this.DisplayName = project.Name;
+
+                //Always open the most recent non-deployed version if no version is specified
+                var targetVersion = versionToLoad ?? project.LatestActiveVersion;
+                if (targetVersion != null)
+                {
+                    activity?.SetTag("AutomationProject", project.Name);
+                    activity?.SetTag("ProjectVersion", versionToLoad.ToString());
+                    logger.Information("Version : '{0}' of project : '{1}' will be loaded.", targetVersion, project.Name);
+
+                    await this.projectManager.Load(project, targetVersion);
+                    UpdateWorkFlowRoot();
+                    return;
+                }
+                activity?.SetStatus(ActivityStatusCode.Error, "No active version could be located");
+                throw new InvalidDataException($"No active version could be located for project : {project.Name}");
+            }
         } 
 
         /// <summary>
@@ -98,59 +104,63 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public override async Task EditDataModelAsync()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditDataModelAsync), ActivityKind.Internal))
             {
-                logger.Information($"Opening code editor for editing data model for project : {this.CurrentProject.Name}");
-                await this.projectManager.DownloadDataModelFilesAsync();
-                var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
-                var projectFileSystem = this.projectManager.GetProjectFileSystem();
-                using (var editor = editorFactory.CreateMultiCodeEditorScreen())
+                try
                 {
-                    foreach (var file in Directory.GetFiles(projectFileSystem.DataModelDirectory, "*.cs"))
+                    logger.Information($"Opening code editor for editing data model for project : {this.CurrentProject.Name}");
+                    await this.projectManager.DownloadDataModelFilesAsync();
+                    var editorFactory = this.EntityManager.GetServiceOfType<ICodeEditorFactory>();
+                    var projectFileSystem = this.projectManager.GetProjectFileSystem();
+                    using (var editor = editorFactory.CreateMultiCodeEditorScreen())
                     {
-                        await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
-                    }
+                        foreach (var file in Directory.GetFiles(projectFileSystem.DataModelDirectory, "*.cs"))
+                        {
+                            await editor.AddDocumentAsync(Path.GetFileName(file), this.CurrentProject.Name, File.ReadAllText(file), false);
+                        }
 
-                    await editor.AddDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
-                    await editor.OpenDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name);
-                                      
-                    bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
-                    var editorDocumentStates = editor.GetCurrentEditorState();
+                        await editor.AddDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name, string.Empty, false);
+                        await editor.OpenDocumentAsync($"{Constants.AutomationProcessDataModelName}.cs", this.CurrentProject.Name);
 
-                    if (hasChanges.HasValue && !hasChanges.Value)
-                    {
-                        logger.Information("Discarding changes for data model files");
+                        bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
+                        var editorDocumentStates = editor.GetCurrentEditorState();
+
+                        if (hasChanges.HasValue && !hasChanges.Value)
+                        {
+                            logger.Information("Discarding changes for data model files");
+                            foreach (var document in editorDocumentStates)
+                            {
+                                if (document.IsNewDocument)
+                                {
+                                    File.Delete(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
+                                    logger.Information("Delete file {@0} from data model files", document);
+                                }
+                            }
+                            return;
+                        }
+
                         foreach (var document in editorDocumentStates)
                         {
-                            if(document.IsNewDocument)
+                            if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
                             {
-                                File.Delete(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
-                                logger.Information("Delete file {@0} from data model files", document);
+                                await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
                             }
+                            if (document.IsDeleted && !document.IsNewDocument)
+                            {
+                                await this.projectManager.DeleteDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
+                            }
+                            logger.Information("Updated state of data model file {@0}", document);
                         }
-                        return;
                     }
-                                                      
-                    foreach (var document in editorDocumentStates)
-                    {
-                        if ((document.IsNewDocument || document.IsModified) && !document.IsDeleted)
-                        {
-                            await this.projectManager.AddOrUpdateDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));                            
-                        }
-                        if(document.IsDeleted && !document.IsNewDocument)
-                        {
-                            await this.projectManager.DeleteDataFileAsync(Path.Combine(projectFileSystem.DataModelDirectory, document.TargetDocument));
-                        }
-                        logger.Information("Updated state of data model file {@0}", document);
-                    }
-                }               
-                await this.Reload();
-            }
-            catch (Exception ex)
-            { 
-                logger.Error(ex, "There was an error while trying to edit data model for project : '{0}'", this.CurrentProject.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                    await this.Reload();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to edit data model for project : '{0}'", this.CurrentProject.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }           
         }
 
         /// <summary>
@@ -162,38 +172,42 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task EditScriptAsync()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditScriptAsync), ActivityKind.Internal))
             {
-                await this.projectManager.DownloadFileByNameAsync(Constants.InitializeEnvironmentScript);
-                var entityManager = this.EntityManager;
-                var fileSystem = entityManager.GetCurrentFileSystem();
-                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);             
-              
-                //Add the project to workspace
-                var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.AddProject(this.CurrentProject.Name, new string[] {}, this.EntityManager.Arguments.GetType());
-                scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, File.ReadAllText(scriptFile));
-                //Create script editor and open the document to edit
-                using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
+                try
                 {
-                    scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, string.Empty);
-                    var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
-                    if (result.HasValue && result.Value)
+                    await this.projectManager.DownloadFileByNameAsync(Constants.InitializeEnvironmentScript);
+                    var entityManager = this.EntityManager;
+                    var fileSystem = entityManager.GetCurrentFileSystem();
+                    var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+
+                    //Add the project to workspace
+                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                    scriptEditorFactory.AddProject(this.CurrentProject.Name, new string[] { }, this.EntityManager.Arguments.GetType());
+                    scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, File.ReadAllText(scriptFile));
+                    //Create script editor and open the document to edit
+                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
-                        var scriptEngine = entityManager.GetScriptEngine();
-                        scriptEngine.ClearState();
-                        await scriptEngine.ExecuteFileAsync(scriptFile);
-                        await this.projectManager.AddOrUpdateDataFileAsync(scriptFile);
-                        logger.Information("Updated script file : {0}", scriptFile);
+                        scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.CurrentProject.Name, string.Empty);
+                        var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                        if (result.HasValue && result.Value)
+                        {
+                            var scriptEngine = entityManager.GetScriptEngine();
+                            scriptEngine.ClearState();
+                            await scriptEngine.ExecuteFileAsync(scriptFile);
+                            await this.projectManager.AddOrUpdateDataFileAsync(scriptFile);
+                            logger.Information("Updated script file : {0}", scriptFile);
+                        }
+                        scriptEditorFactory.RemoveProject(this.CurrentProject.Name);
                     }
-                    scriptEditorFactory.RemoveProject(this.CurrentProject.Name);
-                }             
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.CurrentProject.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.CurrentProject.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }            
         }
 
         protected override void BuildWorkFlow(EntityComponentViewModel root)
@@ -204,26 +218,29 @@ namespace Pixel.Automation.Designer.ViewModels
 
         protected override async Task Reload()
         {
-            logger.Information($"Closing all open TestCases for project: {this.CurrentProject.Name}");
-
-            //closing fixture will also close test cases
-            var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-            var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
-            foreach (var fixture in testFixtures)
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
-                await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
-            }
+                logger.Information("Closing all open TestCases for project: {0}", this.CurrentProject.Name);
 
-            await this.projectManager.Reload();
+                //closing fixture will also close test cases
+                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
+                var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
+                foreach (var fixture in testFixtures)
+                {
+                    await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
+                }
 
-            UpdateWorkFlowRoot();
+                await this.projectManager.Reload();
 
-            //Opening test case will also open parent TestFixture if not already open.
-            logger.Information($"Opening all test cases back for projoect : {this.CurrentProject.Name}");
-            foreach (var testEntity in testCaseEntities)
-            {
-                await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
-            }
+                UpdateWorkFlowRoot();
+
+                //Opening test case will also open parent TestFixture if not already open.
+                logger.Information("Opening all test cases back for projoect : {0}", this.CurrentProject.Name);
+                foreach (var testEntity in testCaseEntities)
+                {
+                    await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
+                }
+            }            
         }
 
 
@@ -256,33 +273,40 @@ namespace Pixel.Automation.Designer.ViewModels
 
         public override async Task DoSave()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoSave), ActivityKind.Internal))
             {
-                await this.testExplorer.SaveAll();
-                await projectManager.Save();
-                await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to save project : '{0}'", this.CurrentProject.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    await this.testExplorer.SaveAll();
+                    await projectManager.Save();
+                    await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to save project : '{0}'", this.CurrentProject.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }               
         }
       
         /// <inheritdoc/>  
         public async Task ManagePrefabReferencesAsync()
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefabReferencesAsync), ActivityKind.Internal))
             {
-                var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
-                var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.projectManager.GetReferenceManager());
-                await this.windowManager.ShowDialogAsync(versionManager);              
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error on manage prefab reference screen");
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                try
+                {
+                    var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
+                    var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.projectManager.GetReferenceManager());
+                    await this.windowManager.ShowDialogAsync(versionManager);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error on manage prefab reference screen");
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }          
         }      
 
         #endregion Save project
@@ -292,22 +316,26 @@ namespace Pixel.Automation.Designer.ViewModels
         public override async void CloseScreen()
         {
             MessageBoxResult result = MessageBox.Show("Are you sure you want to close? Any unsaved changes will be lost.", "Confirm Close", MessageBoxButton.OKCancel);
-            try
+            if (result == MessageBoxResult.OK)
             {
-                if (result == MessageBoxResult.OK)
+                using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CloseScreen), ActivityKind.Internal))
                 {
-                    await CloseAsync();
-                    logger.Debug("Automation Project screen - {0} was closed", this.CurrentProject.Name);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to close project : '{0}'", this.CurrentProject.Name);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                    try
+                    {
+                        await CloseAsync();
+                        logger.Debug("Automation Project screen - {0} was closed", this.CurrentProject.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "There was an error while trying to close project : '{0}'", this.CurrentProject.Name);
+                        activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                        await notificationManager.ShowErrorNotificationAsync(ex);
+                    }
+                }               
+            }        
         }
 
-        protected override async  Task CloseAsync()
+        protected override async Task CloseAsync()
         {
             await SetSelectedItem(null);
             this.globalEventAggregator.Unsubscribe(this);
