@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
+using MudBlazor.Extensions;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
@@ -71,7 +72,7 @@ namespace Pixel.Automation.Web.Portal.Services
                 {
                     ["currentPage"] = request.CurrentPage.ToString(),
                     ["pageSize"] = request.PageSize.ToString(),
-                    ["executedAfter"] = request.ExecutedAfter.ToUniversalTime().ToString(),
+                    ["executedAfter"] = request.ExecutedAfter.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
                     //["executionTimeGte"] = request.ExecutionTimeGte.ToString(),
                     //["executionTimeLte"] = request.ExecutionTimeLte.ToString(),
                     ["result"] = request.Result.ToString(),
