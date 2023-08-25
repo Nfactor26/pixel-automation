@@ -4,5 +4,5 @@ services:
   pixel-run:
     image: ${DOCKER_REGISTRY-}pixel-test-runner
     build:
-      context: .
-      dockerfile: src/Pixel.Automation.Test.Runner/Dockerfile
+      context: ./../../
+      dockerfile: ./src/Pixel.Automation.Test.Runner/Dockerfile
