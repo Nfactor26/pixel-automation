@@ -19,11 +19,13 @@ services:
 
   #check license before use
   jaeger:
-    container_name:  jaeger
     image: jaegertracing/all-in-one:latest
+    container_name:  jaeger    
     ports:
       - "16686:16686" #jaeger ui
       - "4318:4318" #jaeger ingestion
+    networks:
+      - pixel-network
     environment:
       - COLLECTOR_OTLP_ENABLED=true
 
@@ -58,7 +60,7 @@ services:
   pixel-persistence:
     container_name: pixel-persistence-service
     env_file:
-      - ./.config/persistence.env
+      - ./../.config/pixel-persistence.env
     ports:
       - 5000:80 
       - 5001:443    
@@ -68,7 +70,7 @@ services:
       - Kestrel:Certificates:Default:KeyPath=/etc/certs/localhost-key.pem 
     volumes:
       # volume mount for providing required certificates for Kestrel (when using https)
-      - ./.certificates:/etc/certs:ro
+      - ./../.certificates:/etc/certs:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pixel-persistence-service.rule=Host(`pixel.docker.localhost`) && PathPrefix(`/persistence`)"
@@ -77,7 +79,8 @@ services:
       - pixel-network
     depends_on:
       - mongo
-      - fluent-bit
+      - seq
+      - jaeger
   
 volumes:
   mongo-pixel-store:
