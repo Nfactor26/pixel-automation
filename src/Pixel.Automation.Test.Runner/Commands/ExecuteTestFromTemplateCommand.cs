@@ -21,11 +21,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
         [Description("Name of the template to use")]
         [CommandArgument(0, "<Name>")]
         public string TemplateName { get; init; }
-
-        [Description("Version of the project to use e.g. 1.0.0.0")]
-        [CommandArgument(1, "[Version]")]
-        public string Version { get; init; }
-
+       
         [Description("Only list the test cases without executing them")]
         [CommandOption("-l|--list")]
         public bool? List { get; set; }
@@ -49,7 +45,7 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
         {
             var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
                 throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
-            await projectManager.LoadProjectAsync(sessionTemplate, settings.Version);
+            await projectManager.LoadProjectAsync(sessionTemplate, sessionTemplate.TargetVersion);
             await projectManager.LoadTestCasesAsync();
             if (settings.List.GetValueOrDefault())
             {
