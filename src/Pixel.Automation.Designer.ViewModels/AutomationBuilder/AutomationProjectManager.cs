@@ -265,9 +265,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 //Remove all the test fixtures as we don't want them to save as a part of  automamtion process file
                 var testFixtureEntities = this.entityManager.RootEntity.GetComponentsOfType<TestFixtureEntity>(SearchScope.Descendants);
                 Entity parentEntity = testFixtureEntities.FirstOrDefault()?.Parent;
-                foreach (var testEntity in testFixtureEntities)
+                foreach (var testFixtureEntity in testFixtureEntities)
                 {
-                    testEntity.Parent.RemoveComponent(testEntity);
+                    //we don't want to dispose test fixture entity and/or clear out it's entity manager as we need to restore it back soon.
+                    testFixtureEntity.Parent.RemoveComponent(testFixtureEntity, false);
                 }
 
                 serializer.Serialize(this.projectFileSystem.ProjectFile, this.activeProject);

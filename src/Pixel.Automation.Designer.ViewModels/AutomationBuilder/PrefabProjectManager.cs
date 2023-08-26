@@ -258,7 +258,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabEntity, typeProvider.GetKnownTypes());
 
                 var prefabParent = this.prefabEntity.Parent;
-                prefabParent.RemoveComponent(this.prefabEntity);
+                prefabParent.RemoveComponent(this.prefabEntity, false);
                 this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
                 prefabParent.AddComponent(this.prefabEntity);
                                        
