@@ -112,7 +112,7 @@ namespace Pixel.Automation.Core
                     }
                     else
                     {
-                        //When adding TestCaseEntity, EntityManager is already set.
+                        //TestCase and TestFixture Entity have their own non-primary EntityManager
                         if (component is Entity entity)
                         {
                             this.EntityManager.RestoreParentChildRelation(entity);
@@ -150,8 +150,7 @@ namespace Pixel.Automation.Core
             if (component != null && this.components.Contains(component))
             {                
                 this.components.Remove(component);               
-                component.Parent = null;
-                component.EntityManager = null;
+                component.Parent = null;               
                
                 int i = 1;
                 foreach(var c in this.components)
@@ -161,6 +160,7 @@ namespace Pixel.Automation.Core
 
                 if (dispose && component is IDisposable disposable)
                 {
+                    component.EntityManager = null;
                     disposable.Dispose();
                 }               
             }

@@ -576,7 +576,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             var testCaseEntities = fixtureVM.TestFixtureEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
             foreach (var testEntity in testCaseEntities)
             {
-                testEntity.Parent.RemoveComponent(testEntity);
+                //we don't want to dispose test fixture entity and/or clear out it's entity manager as we need to restore it back soon.
+                testEntity.Parent.RemoveComponent(testEntity, false);
             }
 
             if(fixtureVM.IsDirty)

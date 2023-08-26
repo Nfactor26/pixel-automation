@@ -406,11 +406,8 @@ namespace Pixel.Automation.RunTime
                     return $"{nameof(TestCaseEntity)} is not set for test case : {testCase}";
                 });
 
-                fixture.TestFixtureEntity.RemoveComponent(testCase.TestCaseEntity);
-
-                var entityManager = testCase.TestCaseEntity.EntityManager;
-                entityManager?.Dispose();
-                testCase.TestCaseEntity.EntityManager = null;
+                testCase.TestCaseEntity.EntityManager.Dispose();               
+                fixture.TestFixtureEntity.RemoveComponent(testCase.TestCaseEntity);              
 
                 logger.Information("Removed test case : {0} from Fixture.", testCase);
                 
