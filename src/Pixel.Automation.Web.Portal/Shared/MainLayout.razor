@@ -6,7 +6,7 @@
 
 <MudLayout>
     
-    <MudAppBar Elevation="4" Dense="false" Fixed="false">
+    <MudAppBar Elevation="4" Dense="false" Fixed="true">
         <MudToolBar DisableGutters="true">
             <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" />
         </MudToolBar>
@@ -32,7 +32,7 @@
     </MudDrawer>
     <br/>
     <MudMainContent Class="mudContent">
-        <MudContainer MaxWidth="MaxWidth.False">
+        <MudContainer MaxWidth="MaxWidth.False" class="mt-8">
             @Body
         </MudContainer>
     </MudMainContent>
