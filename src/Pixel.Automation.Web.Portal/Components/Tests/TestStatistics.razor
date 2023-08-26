@@ -1,29 +1,18 @@
-﻿@page "/project-statistics/{projectId?}"
-
-<MudGrid Elevation="4" Justify="Justify.Center">
-    <MudItem xs="12">
-        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
-            <MudText Typo="Typo.h5" Color="Color.Primary">Project Statistcs</MudText>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
-<br />
-
+﻿
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
-
     <MudItem xs="4">
         <MudGrid Spacing="4">
             <MudItem xs="12">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Workspaces" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@statisticsViewModel?.ProjectName</MudText>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@statisticsViewModel?.TestName</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    @if (statisticsViewModel?.SuccessRate > 80)
+                    @if (statisticsViewModel.SuccessRate > 80)
                     {
                         <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     }
@@ -33,27 +22,26 @@
                     }
                     <div>
                         <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sucess Rate</MudText>
-                        <MudText Typo="Typo.subtitle2">@statisticsViewModel?.SuccessRate.ToString("0.##0") %</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.SuccessRate.ToString("0.##0") %</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12">
                 <MudPaper Elevation="4" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
                         <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Avg Execution Time</MudText>
-                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-n1">@statisticsViewModel?.AvgExecutionTime.ToString("0.##0") s</MudText>
+                        <MudText Typo="Typo.subtitle2">@statisticsViewModel.AvgExecutionTime.ToString("0.##0") s</MudText>
                     </div>
                 </MudPaper>
             </MudItem>
         </MudGrid>
     </MudItem>
-
     <MudItem xs="4">
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Overall Execution Stats</MudAlert>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Overall Execution Stats</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -61,7 +49,6 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-
     <MudItem xs="4">
         <MudCard Elevation="4">
             <MudCardHeader>
@@ -74,12 +61,11 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-
     <MudItem xs="12">
         <MudCard Elevation="4">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudAlert Severity="Severity.Normal" Dense="true" NoIcon="true">Executions History (Last 6 months)</MudAlert>
+                    <MudAlert Severity="Severity.Normal" NoIcon="true">Executions History (Last 6 months)</MudAlert>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -87,11 +73,13 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-    
-    @if (!string.IsNullOrEmpty(ProjectId))
+
+    @if (!string.IsNullOrEmpty(TestId))
     {
         <MudItem xs="12">
-            <TestResultsTable TableHeader="Recent Failures" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"></TestResultsTable>
+            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync"
+                              ShowStatisticsButton="false" ShowExecutionDate="true"></TestResultsTable>
         </MudItem>
     }
+
 </MudGrid>

@@ -1,0 +1,30 @@
+﻿@page "/project-statistics/{projectId?}"
+
+<MudGrid Elevation="4" Justify="Justify.Center">
+    <MudItem xs="12">
+        <MudToolBar Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
+          
+            @if(this.AvailableProjects?.Any() ?? false)
+            {
+                <MudText Typo="Typo.h5" Color="Color.Primary">Project Statistcs</MudText>
+                <MudSpacer />
+                <MudSelect T="AutomationProject" Label="Project" Variant="Variant.Text" Margin="Margin.Dense" @bind-Value="@SelectedProject">
+                    @foreach (var project in AvailableProjects ?? Enumerable.Empty<AutomationProject>())
+                    {
+                        <MudSelectItem T="AutomationProject" Value="@project">@project.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudText Typo="Typo.h5" Color="Color.Primary">There are no available projects</MudText>
+            }
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+<br />
+
+@if(SelectedProject != null)
+{
+    <Pixel.Automation.Web.Portal.Components.Projects.ProjectStatistics Project="@SelectedProject" />
+}
