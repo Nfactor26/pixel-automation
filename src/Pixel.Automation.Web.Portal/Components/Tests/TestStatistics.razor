@@ -1,14 +1,4 @@
-﻿@page "/test-statistics/{TestId?}"
-
-<MudGrid Elevation="4" Justify="Justify.Center">
-    <MudItem xs="12">
-        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
-            <MudText Typo="Typo.h5" Color="Color.Primary">Test Statistics</MudText>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
-<br />
-
+﻿
 <MudGrid Spacing="4" Justify="Justify.FlexStart">
     <MudItem xs="4">
         <MudGrid Spacing="4">
@@ -87,8 +77,8 @@
     @if (!string.IsNullOrEmpty(TestId))
     {
         <MudItem xs="12">
-            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync" 
-                           ShowStatisticsButton="false"   ShowExecutionDate="true"></TestResultsTable>
+            <TestResultsTable TableHeader="Recent Executions" TableStateChanged="GetTestResultsAsync"
+                              ShowStatisticsButton="false" ShowExecutionDate="true"></TestResultsTable>
         </MudItem>
     }
 
