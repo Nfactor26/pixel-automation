@@ -1,15 +1,4 @@
-﻿@page "/project-statistics/{projectId?}"
-
-<MudGrid Elevation="4" Justify="Justify.Center">
-    <MudItem xs="12">
-        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
-            <MudText Typo="Typo.h5" Color="Color.Primary">Project Statistcs</MudText>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
-<br />
-
-<MudGrid Spacing="4" Justify="Justify.FlexStart">
+﻿<MudGrid Spacing="4" Justify="Justify.FlexStart">
 
     <MudItem xs="4">
         <MudGrid Spacing="4">
@@ -87,8 +76,8 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
-    
-    @if (!string.IsNullOrEmpty(ProjectId))
+
+    @if (Project != null)
     {
         <MudItem xs="12">
             <TestResultsTable TableHeader="Recent Failures" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"></TestResultsTable>
