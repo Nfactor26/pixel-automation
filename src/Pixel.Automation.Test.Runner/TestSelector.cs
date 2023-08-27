@@ -48,9 +48,7 @@ namespace Pixel.Automation.Test.Runner
 
         public bool CanRunTest(TestFixture fixture, TestCase testCase)
         {
-            bool canRun = !testCase.IsMuted;
-            canRun = this.testSelector.Invoke(fixture, testCase);
-            return canRun;
+            return !fixture.IsMuted && !testCase.IsMuted && this.testSelector.Invoke(fixture, testCase);
         }
     }
 }
