@@ -38,6 +38,8 @@
 
         string TestResultsCollectionName { get; set; }
 
+        string TraceImagesBucketName { get; set; }
+
         string TestStatisticsCollectionName { get; set; }
 
         string ProjectStatisticsCollectionName { get; set; }
@@ -85,6 +87,8 @@
         public string SessionsCollectionName { get; set; }
 
         public string TestResultsCollectionName { get; set; }
+
+        public string TraceImagesBucketName { get; set; }
 
         public string TestStatisticsCollectionName { get; set; }
 

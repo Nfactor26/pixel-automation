@@ -30,7 +30,7 @@ namespace Pixel.Persistence.Respository
         {
             Guard.Argument(sessionId).NotNull().NotEmpty();
             var session = await testSessionRepository.GetTestSessionAsync(sessionId);
-            var testsInSession = await testResultsRepository.GetTestResultsAsync(sessionId);
+            var testsInSession = await testResultsRepository.GetTestResultsForSessionAsync(sessionId);
             var groupedTests = testsInSession.GroupBy(t => t.TestId);
             int month = session.SessionStartTime.Month;
             int year = session.SessionStartTime.Year;
