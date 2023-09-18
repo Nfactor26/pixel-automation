@@ -70,6 +70,14 @@ namespace Pixel.Persistence.Respository
         Task AddTraceImage(TraceImageMetaData traceImageMetaData, string fileName, byte[] imageBytes);
 
         /// <summary>
+        /// Get trace image for a given test result and file name
+        /// </summary>
+        /// <param name="testResultId"></param>
+        /// <param name="imageFile"></param>
+        /// <returns></returns>
+        Task<DataFile> GetTraceImage(string testResultId, string imageFile);
+
+        /// <summary>
         /// Get all the trace image files for a given test result
         /// </summary>
         /// <param name="testResultId"></param>

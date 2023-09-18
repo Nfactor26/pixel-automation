@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
-using MudBlazor.Extensions;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Core.Response;
@@ -12,9 +11,32 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Portal.Services
-{    
+{
     public interface ITestResultService
     {
+        /// <summary>
+        /// Get the test result with a given identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<TestResult> GetResultById(string id);
+
+
+        /// <summary>
+        /// Get trace image file with specified name for a given test result
+        /// </summary>
+        /// <param name="id">Identifier of the TestResult</param>
+        /// <param name="imageFile">Name of the image file</param>
+        /// <returns></returns>
+        Task<DataFile> GetTraceImage(string id, string imageFile);
+
+        /// <summary>
+        /// Get trace image files for a given test result
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<IEnumerable<DataFile>> GetTraceImages(string id);
+
         /// <summary>
         /// Get all the test results for a TestSession given it's sessionId
         /// </summary>
@@ -43,17 +65,41 @@ namespace Pixel.Automation.Web.Portal.Services
         private readonly HttpClient http;
         private readonly ISnackbar snackBar;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="http"></param>
+        /// <param name="snackBar"></param>
         public TestResultService(HttpClient http, ISnackbar snackBar)
         {
             this.http = http;
             this.snackBar = snackBar;
         }
 
+        ///<inheritdoc/>
+        public async Task<TestResult> GetResultById(string id)
+        {
+            return await this.http.GetFromJsonAsync<TestResult>($"api/TestResult/{id}");
+        }
+
+        ///<inheritdoc/>
+        public async Task<DataFile> GetTraceImage(string id, string imageFile)
+        {
+            return await this.http.GetFromJsonAsync<DataFile>($"api/TestResult/trace/{id}/image/{imageFile}");
+        }
+
+        ///<inheritdoc/>
+        public async Task<IEnumerable<DataFile>> GetTraceImages(string id)
+        {
+            return await this.http.GetFromJsonAsync<IEnumerable<DataFile>>($"api/TestResult/trace/images/{id}");
+        }
+
+        ///<inheritdoc/>
         public async Task<IEnumerable<TestResult>> GetResultsInSessionAsync(string sessionId)
         {
             try
             {
-                var testsInSession = await this.http.GetFromJsonAsync<IEnumerable<TestResult>>($"api/TestResult/{sessionId}");
+                var testsInSession = await this.http.GetFromJsonAsync<IEnumerable<TestResult>>($"api/TestResult/session/{sessionId}");
                 return testsInSession;
             }
             catch (Exception ex)
@@ -64,6 +110,7 @@ namespace Pixel.Automation.Web.Portal.Services
             }
         }
 
+        ///<inheritdoc/>
         public async Task<PagedList<TestResult>> GetTestResultsAsync(TestResultRequest request)
         {
             try
@@ -109,6 +156,7 @@ namespace Pixel.Automation.Web.Portal.Services
             }
         }
 
+        ///<inheritdoc/>
         public async Task UpdateFailureReasonAsync(string sessionId, string testId, string failureReason)
         {
             try

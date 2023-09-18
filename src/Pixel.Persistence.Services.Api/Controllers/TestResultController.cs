@@ -116,6 +116,27 @@ namespace Pixel.Persistence.Services.Api.Controllers
         }
 
         /// <summary>
+        /// Get the trace image file with specified name belonging to a given test result
+        /// </summary>
+        /// <param name="testResultId">Identifier of the test result</param>
+        /// <param name="imageFile">Name of the image file</param>
+        /// <returns></returns>
+        [HttpGet("trace/{testResultId}/image/{imageFile}")]
+        public async Task<IActionResult> GetTraceImageFile(string testResultId, string imageFile)
+        {
+            try
+            {
+                var result = await this.testResultsRepository.GetTraceImage(testResultId, imageFile);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "There was an error while retrieving trace image file : '{0}' for test result : '{1}'", imageFile, testResultId);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
         /// Add a image trace file for a TestResult
         /// </summary>
         /// <param name="traceImage"></param>

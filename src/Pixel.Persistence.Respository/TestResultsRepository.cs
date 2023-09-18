@@ -168,6 +168,32 @@ namespace Pixel.Persistence.Respository
         }
 
         ///<inheritdoc/>
+        public async Task<DataFile> GetTraceImage(string testResultId, string imageFile)
+        {
+            Guard.Argument(testResultId, nameof(testResultId)).NotNull().NotEmpty();
+            Guard.Argument(imageFile, nameof(imageFile)).NotNull().NotEmpty();
+
+            var filterBuilder = Builders<GridFSFileInfo>.Filter;
+            var filter = filterBuilder.And(filterBuilder.Eq(x => x.Metadata["testResultId"], testResultId),
+                filterBuilder.Eq(x => x.Filename, imageFile));         
+           
+            using (var cursor = await traceImagesBucket.FindAsync(filter, new GridFSFindOptions() { Limit = 1 }))
+            {
+                var imageData = (await cursor.ToListAsync()).FirstOrDefault();
+                if(imageData != null)
+                {
+                    var imageBytes = await traceImagesBucket.DownloadAsBytesAsync(imageData.Id);
+                    return new ControlImageDataFile()
+                    {
+                        FileName = imageData.Filename,
+                        Bytes = imageBytes
+                    };
+                }
+            }
+            throw new GridFSFileNotFoundException(imageFile, 1);
+        }
+
+        ///<inheritdoc/>
         public async Task<IEnumerable<DataFile>> GetTraceImages(string testResultId)
         {
             Guard.Argument(testResultId, nameof(testResultId)).NotNull().NotEmpty();
