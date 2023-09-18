@@ -1,0 +1,13 @@
+﻿@inject ISnackbar Snackbar
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        @if(imageBytes != null)
+        {
+           <div class="d-flex justify-center">
+                <MudImage Src="@string.Format("data:image/png;base64,{0}", Convert.ToBase64String(imageBytes))"
+                          Fluid="true" Class="rounded-lg ma-4" Height="800" Width="600" />
+            </div>             
+        }     
+    </DialogContent>   
+</MudDialog>

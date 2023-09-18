@@ -179,6 +179,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIAComWrap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Linux", "src\Pixel.Automation.Native.Linux\Pixel.Automation.Native.Linux.csproj", "{1436F4EE-4E05-4188-9A3A-42CC8807BB71}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Pixel.Trace", "src\Serilog.Sinks.Pixel.Trace\Serilog.Sinks.Pixel.Trace.csproj", "{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -461,6 +463,10 @@ Global
 		{1436F4EE-4E05-4188-9A3A-42CC8807BB71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1436F4EE-4E05-4188-9A3A-42CC8807BB71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1436F4EE-4E05-4188-9A3A-42CC8807BB71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -540,6 +546,7 @@ Global
 		{89A122E5-5662-4400-BCC7-42C75A8BC4B6} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{59970211-C97D-4B93-8D13-ED34FD40C780} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{1436F4EE-4E05-4188-9A3A-42CC8807BB71} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
+		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255} = {7E4532E6-7928-4E6F-8874-15482508447F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

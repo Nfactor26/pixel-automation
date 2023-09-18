@@ -1,4 +1,5 @@
 ﻿using Pixel.Persistence.Core.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -21,10 +22,19 @@ namespace Pixel.Persistence.Services.Client
         Task UpdateSessionAsync(string sessionId, TestSession testSession);
 
         /// <summary>
-        /// Add a new test result executed in a given session
+        /// Add a new test result executed in a given session.
+        /// Identifier of the test result is returned.
         /// </summary>
         /// <param name="testResult"></param>
         /// <returns></returns>
-        Task AddResultAsync(TestResult testResult);
+        Task<TestResult> AddResultAsync(TestResult testResult);
+
+        /// <summary>
+        /// Add a trace image file for a test result
+        /// </summary>
+        /// <param name="testResult"></param>
+        /// <param name="imageFiles"></param>
+        /// <returns></returns>
+        Task AddTraceImagesAsync(TestResult testResult, IEnumerable<string> imageFiles);
     }
 }

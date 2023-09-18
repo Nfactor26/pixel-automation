@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Serilog;
+using Serilog.Context;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -180,7 +181,7 @@ namespace Pixel.Automation.RunTime
 
                     stopWatch.Reset();
                     stopWatch.Start();
-                    TestResult result = default;
+                    TestResult result = new TestResult() { TestData = item.ToString() };
                     try
                     {
 
@@ -252,12 +253,13 @@ namespace Pixel.Automation.RunTime
 
                         logger.Information("Finished execution of test case  : {testCase}.", testCase);
 
-                        result = new TestResult() { Result = TestStatus.Success, TestData = item.ToString() };
+                        result.Result = TestStatus.Success;
 
                     }
                     catch (Exception ex)
                     {
-                        result = new TestResult() { Result = TestStatus.Failed, Error = ex, TestData = item.ToString() };
+                        result.Result = TestStatus.Failed;
+                        result.Error = ex;
                     }
                     finally
                     {
@@ -457,29 +459,31 @@ namespace Pixel.Automation.RunTime
                         switch (component)
                         {                          
                             case ActorComponent actor:
-                                try
+                                using (LogContext.PushProperty(TraceManager.CaptureTrace, true))
                                 {
-                                    actorBeingProcessed = actor;                                   
-                                    actor.IsExecuting = true;
-                                    await actor.ActAsync();
-                                    await AddDelay(this.postDelayAmount);
-                                }
-                                catch (Exception ex)
-                                {
-                                    if (!actor.ContinueOnError)
+                                    try
                                     {
-                                        throw;
+                                        actorBeingProcessed = actor;
+                                        actor.IsExecuting = true;
+                                        await actor.ActAsync();
+                                        await AddDelay(this.postDelayAmount);
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        actor.IsFaulted = true;
-                                        logger.Warning(ex, ex.Message);
+                                        if (!actor.ContinueOnError)
+                                        {
+                                            throw;
+                                        }
+                                        else
+                                        {
+                                            actor.IsFaulted = true;
+                                            logger.Warning(ex, ex.Message);
+                                        }
                                     }
-                                }
 
-                                actor.IsExecuting = false;
+                                    actor.IsExecuting = false;                                   
+                                }
                                 break;
-
                             case IEntityProcessor processor:
                                 processor.ConfigureDelay(this.postDelayAmount);
                                 await processor.BeginProcessAsync();

@@ -1,0 +1,39 @@
+﻿ <MudStack>
+    @foreach (var trace in this.TestResult?.Traces ?? Enumerable.Empty<TraceData>())
+    {
+        if (trace is MessageTraceData messageTrace)
+        {         
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudIcon Color="GetColor(trace)" Icon="@Icons.Material.Outlined.Info" Size="Size.Large" />
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.body1">@messageTrace.Messsage</MudText>
+                    </CardHeaderContent>                   
+                </MudCardHeader>             
+            </MudCard>
+        }
+        else if (trace is ImageTraceData imageTrace)
+        {
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudIcon Color="Color.Info" Icon="@Icons.Material.Outlined.Info" Size="Size.Large" />
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.body1">Screenshot was captured</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" @onclick="()=> ShowImageAsync(imageTrace)" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+            </MudCard>
+        }
+    }
+    @if (this.TestResult?.FailureDetails != null)
+    {
+        <ErrorDetails FailureDetails="new FailureDetailsViewModel(this.TestResult.SessionId, this.TestResult.TestId, this.TestResult.FailureDetails)" IsFailureReasonEditable="true" />
+    }
+
+ </MudStack>
