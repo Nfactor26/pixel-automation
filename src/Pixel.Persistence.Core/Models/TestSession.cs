@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Pixel.Persistence.Core.Enums;
 using System;
 using System.Collections.Generic;
@@ -7,12 +8,17 @@ using System.Runtime.InteropServices;
 
 namespace Pixel.Persistence.Core.Models
 {
+    /// <summary>
+    /// TestSession represents an execution of a group of test cases executed in an adhoc manner or using 
+    /// a predefined test template.
+    /// </summary>
     [BsonIgnoreExtraElements]
     public class TestSession : Document
-    {       
+    {
         /// <summary>
         /// Id of the Session Template that was used to start this session
         /// </summary>
+        [BsonRepresentation(BsonType.ObjectId)]
         public string TemplateId { get; set; }
 
         /// <summary>

@@ -1,0 +1,17 @@
+﻿@page "/test-traces/{TestResultId?}"
+
+<MudGrid Elevation="4" Justify="Justify.Center">
+    <MudItem xs="12">
+        <MudPaper Elevation="3" Class="d-flex flex-row pt-4 pl-3" Style="height:60px;">
+            <MudText Typo="Typo.h5" Color="Color.Primary">Viewing traces for test case : @testResult?.TestName</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+<br />
+<MudPaper Elevation="3" Class="pa-4">
+    @if (testResult != null)
+    {
+        <Pixel.Automation.Web.Portal.Components.Tests.TestTraces TestResult="@testResult" />
+    }
+</MudPaper>
+

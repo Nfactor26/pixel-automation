@@ -31,6 +31,11 @@ namespace Pixel.Automation.Core.TestData
                 OnPropertyChanged();
             }
         }
+       
+        /// <summary>
+        /// DateTime when the test case execution started
+        /// </summary>
+        public DateTime StartTime { get; private set; } = DateTime.Now;
 
         TimeSpan executionTime = TimeSpan.Zero;
         /// <summary>

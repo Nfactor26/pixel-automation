@@ -61,6 +61,8 @@ namespace Pixel.Automation.Test.Runner
             #endif
             var traceProvider = traceProviderBuilder.Build();
 
+            TraceManager.IsEnabled = true;
+
             try
             {
                 logger.Information("Started with args : {0}", args);

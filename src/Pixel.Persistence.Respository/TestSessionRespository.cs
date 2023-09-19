@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Core.Request;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

@@ -335,7 +335,9 @@ namespace Pixel.Automation.Test.Runner
                                 {
                                     testResult.SessionId = testSession.Id;
                                     testResult.ExecutionOrder = ++counter;
-                                    await sessionClient.AddResultAsync(testResult);
+                                    var result = await sessionClient.AddResultAsync(testResult);
+                                    testResult.Id = result.Id;
+                                    await UploadTraceImageFiles(result);
                                     testResults.Add(testResult);
                                     if (testResult.Result == Persistence.Core.Enums.TestStatus.Success)
                                     {
@@ -380,43 +382,108 @@ namespace Pixel.Automation.Test.Runner
             }            
         }
        
-        async IAsyncEnumerable<Pixel.Persistence.Core.Models.TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
-        {           
-            logger.Information($"Start execution of test case : {testCase.DisplayName}");
-
-            var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);          
-            testCase.TestCaseEntity = this.Load<Entity>(testCaseFiles.ProcessFile);
-            testCase.TestCaseEntity.Name = testCase.DisplayName;
-            testCase.TestCaseEntity.Tag = testCase.TestCaseId;
-
-            if (await this.testRunner.TryOpenTestCase(fixture, testCase))
+        async IAsyncEnumerable<Persistence.Core.Models.TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity($"Run Test Case - {testCase.DisplayName}", ActivityKind.Internal))
             {
-                await foreach (var result in this.testRunner.RunTestAsync(fixture, testCase))
+                TraceManager.StartCapture();
+                logger.Information($"Start execution of test case : {testCase.DisplayName}");
+
+                var testCaseFiles = this.projectFileSystem.GetTestCaseFiles(testCase);
+                testCase.TestCaseEntity = this.Load<Entity>(testCaseFiles.ProcessFile);
+                testCase.TestCaseEntity.Name = testCase.DisplayName;
+                testCase.TestCaseEntity.Tag = testCase.TestCaseId;
+
+                if (await this.testRunner.TryOpenTestCase(fixture, testCase))
                 {
-                    var testResult = new Persistence.Core.Models.TestResult()
+                    await foreach (var result in this.testRunner.RunTestAsync(fixture, testCase))
                     {
-                        ProjectId = automationProject.ProjectId,
-                        ProjectName = automationProject.Name,
-                        TestId = testCase.TestCaseId,
-                        TestName = testCase.DisplayName,
-                        FixtureId = fixture.FixtureId,
-                        FixtureName = fixture.DisplayName,
-                        Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
-                        ExecutedOn = DateTime.Today.ToUniversalTime(),
-                        ExecutionTime = result.ExecutionTime.TotalSeconds                        
-                    };
-                    if(result.Result == TestStatus.Failed)
-                    {
-                        testResult.FailureDetails = new FailureDetails(result.Error);
-                        logger.Warning($"Test case failed with error : {testResult.FailureDetails.Message}");
+                        var testResult = new Persistence.Core.Models.TestResult()
+                        {
+                            ProjectId = automationProject.ProjectId,
+                            ProjectName = automationProject.Name,
+                            ProjectVersion = targetVersion.ToString(),
+                            TestId = testCase.TestCaseId,
+                            TestName = testCase.DisplayName,
+                            FixtureId = fixture.FixtureId,
+                            FixtureName = fixture.DisplayName,
+                            TestData = result.TestData,
+                            Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
+                            ExecutedOn = result.StartTime,
+                            ExecutionTime = result.ExecutionTime.TotalSeconds
+                        };
+                        if (result.Result == TestStatus.Failed)
+                        {
+                            testResult.FailureDetails = new FailureDetails(result.Error);
+                            logger.Warning($"Test case failed with error : {testResult.FailureDetails.Message}");
+                            activity?.SetStatus(ActivityStatusCode.Error, result.Error.Message);
+                        }
+                        else
+                        {
+                            logger.Information($"Test case : {testCase.DisplayName} completed with result {testResult.Result} in time {testResult.ExecutionTime}");
+                        }
+                        foreach (var traceData in TraceManager.EndCapture())
+                        {
+                            switch(traceData.TraceType)
+                            {
+                                case Core.Enums.TraceType.Message:
+                                    testResult.Traces.Add(new MessageTraceData(traceData.RecordedAt, (Persistence.Core.Enums.TraceLevel)(int)traceData.TraceLevel, traceData.Content));
+                                    break;
+                                case Core.Enums.TraceType.Image:
+                                    testResult.Traces.Add(new ImageTraceData(traceData.RecordedAt, Persistence.Core.Enums.TraceLevel.Information, traceData.Content));
+                                    break;
+                            }                           
+                        }
+                     
+                        yield return testResult;
                     }
-                    logger.Information($"Test case : {testCase.DisplayName} completed with result {testResult.Result} in time {testResult.ExecutionTime}");                 
-                    yield return testResult;
+                    await this.testRunner.TryCloseTestCase(fixture, testCase);
+                    yield break;
                 }
-                await this.testRunner.TryCloseTestCase(fixture, testCase);
-                yield break;
+                throw new Exception($"Failed to open test case : {testCase}");
+            }             
+        }
+
+        async Task UploadTraceImageFiles(Persistence.Core.Models.TestResult testResult)
+        {
+            try
+            {          
+                List<string> filesToAdd = new();
+                foreach (var trace in testResult.Traces)
+                {
+                    if (trace is ImageTraceData stepTraceImage)
+                    {
+                        string imageFile = Path.Combine(this.entityManager.GetCurrentFileSystem().TempDirectory, stepTraceImage.ImageFile);
+                        if (File.Exists(imageFile))
+                        {
+                            filesToAdd.Add(imageFile);
+                        }                                     
+                    }
+                }
+                try
+                {
+                    await sessionClient.AddTraceImagesAsync(testResult, filesToAdd);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to uploade trace image files");
+                }
+                foreach(var file in filesToAdd)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "Failed to delete trace image file : '{0}'", file);
+                    }
+                }                
             }
-            throw new Exception($"Failed to open test case : {testCase}");
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while trying to uploade trace image files");
+            }
         }
 
         T Load<T>(string fileName) where T : new()

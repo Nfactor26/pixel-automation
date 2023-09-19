@@ -8,7 +8,7 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudItem xs="1" Class="ml-4">
             <MudSelect Label="Last N Months" T="int" Value="lastNMonths" ValueChanged="OnMonthsChanged"
-                       OffsetY="true">
+                       AnchorOrigin="Origin.BottomRight">
                 @foreach (int item in Enumerable.Range(1, 6))
                 {
                     <MudSelectItem Value="@item">@item</MudSelectItem>
@@ -34,7 +34,7 @@
         {
             <MudTh>Statistics</MudTh>
         }
-
+        <MudTh>Traces</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>
@@ -68,11 +68,16 @@
         @if (ShowStatisticsButton)
         {
             <MudTd DataLabel="Statistics">
-                <MudButton Link="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
+                <MudButton Href="@($"test-statistics/{context.TestId}")" Variant="Variant.Filled">
                     View Stats
                 </MudButton>
             </MudTd>
-        }
+        } 
+        <MudTd DataLabel="Trace">
+            <MudButton Href="@($"test-traces/{context.Id}")" Variant="Variant.Filled">
+                View Trace
+            </MudButton>
+        </MudTd>
     </RowTemplate>
     <ChildRowContent>
         @if (context.IsErrorDetailsVisible)
@@ -100,5 +105,6 @@
         {
             <col />
         }
+        <col />
     </ColGroup>
 </MudTable>
