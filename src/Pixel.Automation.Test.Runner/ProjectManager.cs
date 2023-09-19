@@ -318,11 +318,17 @@ namespace Pixel.Automation.Test.Runner
                                 continue;
                             }
 
-                            var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
-                            testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
-                            testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
-                            testFixture.TestFixtureEntity.Tag = testFixture.FixtureId;
-                            await this.testRunner.TryOpenTestFixture(testFixture);
+                            using (var setupFixtureActivity = Telemetry.DefaultSource?.StartActivity("OpenAndSetupFixture", ActivityKind.Internal))
+                            {
+                                setupFixtureActivity?.AddTag("FixtureName", testFixture.DisplayName);
+                                var fixtureFiles = this.projectFileSystem.GetTestFixtureFiles(testFixture);
+                                testFixture.TestFixtureEntity = this.Load<Entity>(fixtureFiles.ProcessFile);
+                                testFixture.TestFixtureEntity.Name = testFixture.DisplayName;
+                                testFixture.TestFixtureEntity.Tag = testFixture.FixtureId;
+                                await this.testRunner.TryOpenTestFixture(testFixture);
+                                await this.testRunner.OneTimeSetUp(testFixture);
+                            }                            
+                        
                             foreach (var testCase in testFixture.Tests)
                             {
                                 if (!testSelector.CanRunTest(testFixture, testCase))
@@ -351,7 +357,13 @@ namespace Pixel.Automation.Test.Runner
                                 }
 
                             }
-                            await this.testRunner.TryCloseTestFixture(testFixture);
+
+                            using (var tearDownFixtureActivity = Telemetry.DefaultSource?.StartActivity("TearDownAndCloseFixture", ActivityKind.Internal))
+                            {
+                                tearDownFixtureActivity?.AddTag("FixtureName", testFixture.DisplayName);
+                                await this.testRunner.OneTimeTearDown(testFixture);
+                                await this.testRunner.TryCloseTestFixture(testFixture);
+                            }                           
                         }
                     }                    
 
@@ -386,6 +398,7 @@ namespace Pixel.Automation.Test.Runner
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity($"Run Test Case - {testCase.DisplayName}", ActivityKind.Internal))
             {
+                activity?.AddTag("TestName", testCase.DisplayName);
                 TraceManager.StartCapture();
                 logger.Information($"Start execution of test case : {testCase.DisplayName}");
 
