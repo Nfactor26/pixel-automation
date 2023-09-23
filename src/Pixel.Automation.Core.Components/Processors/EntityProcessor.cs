@@ -87,6 +87,7 @@ namespace Pixel.Automation.Core.Components.Processors
                                     actor.IsExecuting = true;
                                     await actor.ActAsync();
                                     await AddDelay(this.postDelayAmount);
+                                    await actor.OnCompletionAsync();
                                 }
                                 catch (Exception ex)
                                 {

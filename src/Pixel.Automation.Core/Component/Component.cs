@@ -288,6 +288,15 @@ namespace Pixel.Automation.Core
         /// </summary>
         public abstract Task ActAsync();
 
+        /// <summary>
+        /// OnExecutedAsync will be executed after ActAsync is completed
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task OnCompletionAsync()
+        {
+            await Task.CompletedTask;
+        }
+
         /// <inheritdoc/>
         public override void ResetComponent()
         {
