@@ -94,10 +94,13 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             int[] failedSeries = new int[6];
             currentMonthOfYear = DateTime.Now.Month;
             for (int i = 6; i >=1; i--)
-            {
-                var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
-                passedSeries[i - 1] = executionStats?.NumberOfTimesPassed ?? 0;
-                failedSeries[i - 1] = executionStats?.NumberOfTimesFailed ?? 0;
+            {              
+                var executionStats = this.testStatistics?.MonthlyStatistics?.Where(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
+                foreach (var executionStat in executionStats ?? Enumerable.Empty<TestExecutionStatistics>())
+                {
+                    passedSeries[i - 1] += executionStat.NumberOfTimesPassed;
+                    failedSeries[i - 1] += executionStat.NumberOfTimesFailed;
+                }
                 currentMonthOfYear--;
                 if (currentMonthOfYear == 0)
                 {
@@ -126,8 +129,12 @@ namespace Pixel.Automation.Web.Portal.ViewModels
             double[] avgExecutionTimeSeries = new double[6];
             for (int i = 6; i >= 1; i--)
             {
-                var executionStats = this.testStatistics?.MonthlyStatistics?.FirstOrDefault(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear));
-                avgExecutionTimeSeries[i - 1] = executionStats?.AvgExecutionTime ?? 0;
+                var executionStats = this.testStatistics?.MonthlyStatistics?.Where(s => s.FromTime.ToLocalTime().Year.Equals(currentYear) && s.FromTime.ToLocalTime().Month.Equals(currentMonthOfYear))
+                    ?? Enumerable.Empty<TestExecutionStatistics>();
+                if (executionStats.Sum(e => e.NumberOfTimesPassed) > 0)
+                {
+                    avgExecutionTimeSeries[i - 1] = executionStats.Sum(e => e.TotalExecutionTime) / executionStats.Sum(e => e.NumberOfTimesPassed);
+                }               
                 currentMonthOfYear--;
                 if (currentMonthOfYear == 0)
                 {

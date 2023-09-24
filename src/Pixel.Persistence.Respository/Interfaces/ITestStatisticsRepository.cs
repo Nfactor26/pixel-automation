@@ -24,7 +24,7 @@ namespace Pixel.Persistence.Respository
         /// <param name="fromTime"></param>
         /// <param name="toTime"></param>
         /// <returns></returns>
-        Task AddOrUpdateStatisticsAsync(IEnumerable<TestResult> testResult, DateTime fromTime, DateTime toTime);
+        Task AddOrUpdateStatisticsAsync(IEnumerable<TestResult> testResult, string projectVersion, DateTime fromTime, DateTime toTime);
 
         /// <summary>
         /// Get the TestStatistics for a test case whose Id is provided

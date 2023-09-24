@@ -7,6 +7,9 @@ namespace Pixel.Persistence.Core.Models
     public class ProjectExecutionStatistics
     {
         [DataMember]
+        public string ProjectVersion { get; set; }
+
+        [DataMember]
         public DateTime FromTime { get; private set; }
 
         [DataMember]
@@ -27,6 +30,9 @@ namespace Pixel.Persistence.Core.Models
         [DataMember]
         public double TotalExecutionTime { get; set; }
 
+        /// <summary>
+        /// Average execution time for successful tests in seconds
+        /// </summary>
         [IgnoreDataMember]
         public double AvgExecutionTime
         {
@@ -40,6 +46,9 @@ namespace Pixel.Persistence.Core.Models
             }
         }
 
+        /// <summary>
+        /// Success rate of execution of tests
+        /// </summary>
         [IgnoreDataMember]
         public double SuccessRate
         {
@@ -53,8 +62,9 @@ namespace Pixel.Persistence.Core.Models
             }
         }
 
-        public ProjectExecutionStatistics(DateTime fromTime, DateTime toTime)
+        public ProjectExecutionStatistics(string projectVersion, DateTime fromTime, DateTime toTime)
         {
+            this.ProjectVersion = projectVersion;
             this.FromTime = fromTime;
             this.ToTime = toTime;
         }

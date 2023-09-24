@@ -12,20 +12,15 @@ namespace Pixel.Persistence.Respository
     public class ProjectStatisticsRepository : IProjectStatisticsRepository
     {
         private readonly ITestResultsRepository testResultsRepository;
-        private readonly ITestSessionRepository testSessionRepository;
-        private readonly IMongoCollection<TestStatistics> testStatisticsCollection;
-        private readonly IMongoCollection<ProjectStatistics> projectStatisticsCollection;
-        private readonly IMongoCollection<TestResult> testResultsCollection;
+        private readonly ITestSessionRepository testSessionRepository;      
+        private readonly IMongoCollection<ProjectStatistics> projectStatisticsCollection;     
 
         public ProjectStatisticsRepository(IMongoDbSettings dbSettings, ITestSessionRepository testSessionRepository, ITestResultsRepository testResultsRepository)
         {
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
           
-            this.projectStatisticsCollection = database.GetCollection<ProjectStatistics>(dbSettings.ProjectStatisticsCollectionName);
-            this.testStatisticsCollection = database.GetCollection<TestStatistics>(dbSettings.TestStatisticsCollectionName);
-            this.testResultsCollection = database.GetCollection<TestResult>(dbSettings.TestResultsCollectionName);
-          
+            this.projectStatisticsCollection = database.GetCollection<ProjectStatistics>(dbSettings.ProjectStatisticsCollectionName);          
             this.testSessionRepository = Guard.Argument(testSessionRepository).NotNull().Value;
             this.testResultsRepository = Guard.Argument(testResultsRepository).NotNull().Value;
         }
@@ -67,20 +62,21 @@ namespace Pixel.Persistence.Respository
                     ProjectName = session.ProjectName,
                     MonthlyStatistics = new List<ProjectExecutionStatistics>()
                     {
-                        new ProjectExecutionStatistics(fromTime, toTime)
+                        new ProjectExecutionStatistics(session.ProjectVersion, fromTime, toTime)
                     }
                 };
                 await CreateAsync(projectStatistics);
             }
 
             if (!projectStatistics.MonthlyStatistics.Any(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && 
-                        s.ToTime.Equals(toTime.ToUniversalTime())))
+                        s.ToTime.Equals(toTime.ToUniversalTime()) && s.ProjectVersion.Equals(session.ProjectVersion)))
             {
-                projectStatistics.MonthlyStatistics.Add(new ProjectExecutionStatistics(fromTime, toTime));
+                projectStatistics.MonthlyStatistics.Add(new ProjectExecutionStatistics(session.ProjectVersion, fromTime, toTime));
             }
 
             //we need to update the execution statistics for the session (month, year)
-            var executionStatistics = projectStatistics.MonthlyStatistics.FirstOrDefault(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime()));
+            var executionStatistics = projectStatistics.MonthlyStatistics.FirstOrDefault(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime())
+                && s.ProjectVersion.Equals(session.ProjectVersion));
          
             var passed = testsInSession.Where(t => t.Result.Equals(TestStatus.Success)) ?? Enumerable.Empty<TestResult>();
             var failed = testsInSession.Where(t => t.Result.Equals(TestStatus.Failed)) ?? Enumerable.Empty<TestResult>();
@@ -95,11 +91,11 @@ namespace Pixel.Persistence.Respository
 
         public async Task CreateAsync(ProjectStatistics statistics)
         {
-            Guard.Argument(projectStatisticsCollection).NotNull();
+            Guard.Argument(statistics, nameof(statistics)).NotNull();
             var exists = await projectStatisticsCollection.CountDocumentsAsync<ProjectStatistics>(s => s.ProjectId.Equals(statistics.ProjectId)) == 1;          
             if(exists)
             {
-                throw new ArgumentException("ProjectStatistics with projectId : {statistics.ProjectId} already exists");
+                throw new ArgumentException($"ProjectStatistics with projectId : {statistics.ProjectId} already exists");
             }
             await projectStatisticsCollection.InsertOneAsync(statistics);
         }
