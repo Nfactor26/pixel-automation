@@ -1,6 +1,4 @@
-﻿using Microsoft.Playwright;
-using Pixel.Automation.Core.Arguments;
-using Pixel.Automation.Core.Components;
+﻿using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
 using Serilog;

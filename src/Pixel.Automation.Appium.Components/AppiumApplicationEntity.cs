@@ -1,5 +1,7 @@
-﻿using OpenQA.Selenium.Appium;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Service;
+using OpenQA.Selenium.Support.Extensions;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
@@ -79,6 +81,14 @@ public class AppiumApplicationEntity : ApplicationEntity
             webApplicationDetails.Driver = null;
             await Task.CompletedTask;
         }
+    }
+
+    /// </inheritdoc>
+    public override async Task CaptureScreenShotAsync(string filePath)
+    {
+        var webDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
+        webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Jpeg);
+        await Task.CompletedTask;
     }
 
     async Task<AppiumServiceBuilder> GetServiceBuilder()

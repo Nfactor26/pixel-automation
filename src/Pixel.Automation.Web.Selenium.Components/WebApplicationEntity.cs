@@ -3,6 +3,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.Extensions;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
@@ -194,6 +195,12 @@ public class WebApplicationEntity : ApplicationEntity
         }
     }
 
+    public override async Task CaptureScreenShotAsync(string filePath)
+    {
+        var webDriver = this.GetTargetApplicationDetails<WebApplication>().WebDriver;
+        webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Jpeg);
+        await Task.CompletedTask;
+    }
 
     /// <summary>
     /// Get DriverOptions for WebDriver based on PreferredBrowser

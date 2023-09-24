@@ -102,14 +102,16 @@ namespace Pixel.Automation.Core.Components
         public abstract Task LaunchAsync();
 
         ///<inheritdoc/>
-        public abstract Task CloseAsync();      
-
+        public abstract Task CloseAsync();
+        
         ///<inheritdoc/>
         public virtual void UseExisting(ApplicationProcess application)
         {
             throw new NotSupportedException($"{this.GetType().Name} doesn't support attaching to an already running process.");
         }
 
+        ///<inheritdoc/>
+        public abstract Task CaptureScreenShotAsync(string filePath);
 
         /// <summary>
         /// Add the default control locator for this Application type as a child component whenever ApplicationEntity is added to the AutomationProcess

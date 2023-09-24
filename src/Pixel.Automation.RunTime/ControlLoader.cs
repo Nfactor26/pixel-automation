@@ -49,7 +49,7 @@ namespace Pixel.Automation.RunTime
             if(this.Controls.ContainsKey(controlId))
             {
                 this.Controls.Remove(controlId);
-                logger.Information("Control with Id : {0} removed from cache", controlId);
+                logger.Debug("Control with Id : {0} removed from cache", controlId);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Pixel.Automation.RunTime
             var controlReferences = this.GetControlReferences();
             var controlVersionInUse = controlReferences.GetControlVersionInUse(applicationId, controlId);
             var controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, controlId, controlVersionInUse.ToString(),  $"{controlId}.dat");
-            logger.Information("Control with applicationId {0} && controlId : {1} and version : {2} has been loaded.", applicationId, controlId, controlVersionInUse);
+            logger.Debug("Control with applicationId {0} && controlId : {1} and version : {2} has been loaded.", applicationId, controlId, controlVersionInUse);
             return this.fileSystem.LoadFile<ControlDescription>(controlFile);
         }
 

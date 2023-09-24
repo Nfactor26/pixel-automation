@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Exceptions;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
@@ -71,6 +72,29 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             return control;
         }
 
+        /// <summary>
+        /// Take a screen shot if capturing screenshot is enabled after Act method finishes
+        /// </summary>
+        /// <returns></returns>
+        public override async Task OnCompletionAsync()
+        {
+            if (TraceManager.IsEnabled)
+            {
+                await CaptureScreenShotAsync();
+            }
+        }
+
+        /// <summary>
+        /// Capture screenshot of the active page
+        /// </summary>
+        /// <returns></returns>
+        public async Task CaptureScreenShotAsync()
+        {            
+            string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
+            var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+            await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
+            TraceManager.AddImage(Path.GetFileName(imageFile));
+        }
 
         protected void ThrowIfMissingControlEntity()
         {

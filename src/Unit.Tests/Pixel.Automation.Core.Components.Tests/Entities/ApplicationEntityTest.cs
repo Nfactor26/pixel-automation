@@ -18,6 +18,11 @@ namespace Pixel.Automation.Core.Components.Tests
             public override async Task CloseAsync()
             {
                 throw new System.NotImplementedException();
+            }          
+
+            public override async Task CaptureScreenShotAsync(string filePath)
+            {
+                throw new System.NotImplementedException();
             }
         }
 

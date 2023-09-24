@@ -2,9 +2,13 @@
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Exceptions;
+using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -84,6 +88,26 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 logger.Information($"Application : {javaApplicationDetails.ApplicationName} was closed");
                 await Task.CompletedTask;
             }
+        }
+
+        ///<inheritdoc/>
+        public override async Task CaptureScreenShotAsync(string filePath)
+        {
+            var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
+            var windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
+            var appRectangle = windowManager.GetWindowSize(this.applicationDetails.Hwnd);
+            var screenShotBytes = screenCapture.CaptureArea(appRectangle);
+            using (var memoryStream = new MemoryStream(screenShotBytes))
+            {
+                using (var bitmap = new Bitmap(memoryStream))
+                {
+                    using (FileStream fs = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write))
+                    {
+                        bitmap.Save(fs, ImageFormat.Png);
+                    }
+                }
+            }
+            await Task.CompletedTask;
         }
 
     }

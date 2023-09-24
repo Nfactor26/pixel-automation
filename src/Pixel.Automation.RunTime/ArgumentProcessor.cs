@@ -73,7 +73,7 @@ namespace Pixel.Automation.RunTime
                                                       
                     if (typeof(T).IsAssignableFrom(result?.GetType()))
                     {
-                        logger.Information("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
+                        logger.Debug("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
                         return (T)result;                       
                     }
                    
@@ -82,7 +82,7 @@ namespace Pixel.Automation.RunTime
                 
                 case ArgumentMode.Scripted:
                     var fn = await scriptEngine.CreateDelegateAsync<Func<T>>(argument.ScriptFile);
-                    logger.Information("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
+                    logger.Debug("{0} operation completed on {argument}", nameof(GetValueAsync), argument);
                     return fn();                        
                
                 default:
@@ -144,7 +144,7 @@ namespace Pixel.Automation.RunTime
                 default:
                     throw new InvalidOperationException($"Argument mode : {argument.Mode} is not supported");
             }
-            logger.Information("{0} operation completed on {argument}", nameof(SetValueAsync), argument);
+            logger.Debug("{0} operation completed on {argument}", nameof(SetValueAsync), argument);
         }
 
         private object GetNestedPropertyValue(object root, IEnumerable<string> nestedProperties)
