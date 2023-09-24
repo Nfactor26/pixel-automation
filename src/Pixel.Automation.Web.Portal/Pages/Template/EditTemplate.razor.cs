@@ -33,8 +33,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         public NavigationManager Navigator { get; set; }
 
         SessionTemplate sessionTemplate;
-        AutomationProject selectedProject;
-        ProjectVersion selectedVersion;
+        AutomationProject selectedProject;   
         bool hasErrors = false;
 
         /// <summary>
@@ -44,12 +43,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         protected override async Task OnParametersSetAsync()
         {
             this.sessionTemplate = await GetTemplateAsync(this.TemplateId);
-            this.selectedProject = await GetProjectAsync(this.sessionTemplate.ProjectId);
-            this.selectedVersion = this.selectedProject.AvailableVersions.FirstOrDefault(a => a.ToString().Equals(this.sessionTemplate.TargetVersion));
-            if(this.selectedVersion == null)
-            {
-                SnackBar.Add($"Version {this.sessionTemplate.TargetVersion} configured on template doesn't exist on project.", Severity.Warning);
-            }
+            this.selectedProject = await GetProjectAsync(this.sessionTemplate.ProjectId);       
         }
 
         /// <summary>
@@ -57,7 +51,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         /// </summary>
         /// <returns></returns>
         async Task UpdateTemplatesAsync()
-        {
+        {           
             var result = await TemplateService.UpdateTemplateAsync(sessionTemplate);
             if (result.IsSuccess)
             {
@@ -128,10 +122,12 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         /// <returns></returns>
         async  Task AddTriggerAsync()
         {
-            var parameters = new DialogParameters();
-            parameters.Add("TemplateId", sessionTemplate.Id);
-            parameters.Add("ExistingTriggers", sessionTemplate.Triggers);
-            parameters.Add("Service", TriggerService);
+            var parameters = new DialogParameters
+            {
+                { "TemplateId", sessionTemplate.Id },
+                { "ExistingTriggers", sessionTemplate.Triggers },
+                { "Service", TriggerService }
+            };
             var dialog = DialogService.Show<AddCronTrigger>("Add Trigger", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
             var result = await dialog.Result;
             if (!result.Canceled && result.Data is SessionTrigger trigger)
@@ -149,11 +145,13 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         /// <returns></returns>
         async Task EditTriggerAsync(SessionTrigger trigger)
         {
-            var parameters = new DialogParameters();
-            parameters.Add("TemplateId", sessionTemplate.Id);
-            parameters.Add("ExistingTriggers", sessionTemplate.Triggers);
-            parameters.Add("Original", trigger);
-            parameters.Add("Modified", trigger.Clone() as CronSessionTrigger);
+            var parameters = new DialogParameters
+            {
+                { "TemplateId", sessionTemplate.Id },
+                { "ExistingTriggers", sessionTemplate.Triggers },
+                { "Original", trigger },
+                { "Modified", trigger.Clone() as CronSessionTrigger }
+            };
             var dialog = DialogService.Show<EditCronTrigger>("Edit Trigger", parameters, new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true });
             var result = await dialog.Result;
             if (!result.Canceled && result.Data is SessionTrigger modified)
