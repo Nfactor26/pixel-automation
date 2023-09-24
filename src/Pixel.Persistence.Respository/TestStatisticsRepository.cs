@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Pixel.Persistence.Core.Enums;
 using Pixel.Persistence.Core.Models;
@@ -38,12 +37,12 @@ namespace Pixel.Persistence.Respository
             int firstDayOfMonth = 1;
             foreach (var group in groupedTests)
             {
-                await this.AddOrUpdateStatisticsAsync(group.ToList(), new DateTime(year, month, firstDayOfMonth, 0, 0, 0, DateTimeKind.Utc),
+                await this.AddOrUpdateStatisticsAsync(group.ToList(), session.ProjectVersion, new DateTime(year, month, firstDayOfMonth, 0, 0, 0, DateTimeKind.Utc),
                     new DateTime(year, month, lastDayOfMonth, 23, 59, 59, DateTimeKind.Utc));
             }           
         }
 
-        public async Task AddOrUpdateStatisticsAsync(IEnumerable<TestResult> testResults, DateTime fromTime, DateTime toTime)
+        public async Task AddOrUpdateStatisticsAsync(IEnumerable<TestResult> testResults, string projectVersion, DateTime fromTime, DateTime toTime)
         {
             Guard.Argument(testResults).NotNull().NotEmpty();
             var first = testResults.First();
@@ -75,15 +74,17 @@ namespace Pixel.Persistence.Respository
             }
 
          
-            if(!statistics.MonthlyStatistics.Any(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime())))
+            if(!statistics.MonthlyStatistics.Any(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime())
+                && s.ProjectVersion.Equals(projectVersion)))
             {
-                statistics.MonthlyStatistics.Add(new TestExecutionStatistics(fromTime, toTime) { MinExecutionTime = 1000 });
+                statistics.MonthlyStatistics.Add(new TestExecutionStatistics(projectVersion, fromTime, toTime) { MinExecutionTime = 1000 });
             }
 
             var passed = testResults.Where(t => t.Result.Equals(TestStatus.Success)) ?? Enumerable.Empty<TestResult>();
             var failed = testResults.Where(t => t.Result.Equals(TestStatus.Failed)) ?? Enumerable.Empty<TestResult>();
            
-            var executionStatistics = statistics.MonthlyStatistics.First(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime()));
+            var executionStatistics = statistics.MonthlyStatistics.First(s => s.FromTime.Equals(fromTime.ToUniversalTime()) && s.ToTime.Equals(toTime.ToUniversalTime())
+                && s.ProjectVersion.Equals(projectVersion));
             executionStatistics.NumberOfTimesExecuted += testResults.Count();
             executionStatistics.NumberOfTimesPassed += passed.Count();
             executionStatistics.NumberOfTimesFailed += failed.Count();

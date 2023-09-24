@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Pixel.Persistence.Core.Models
@@ -7,6 +6,9 @@ namespace Pixel.Persistence.Core.Models
     [DataContract]
     public class TestExecutionStatistics
     {
+        [DataMember]
+        public string ProjectVersion { get; set; }
+
         [DataMember]
         public DateTime FromTime { get; private set; }
 
@@ -60,8 +62,9 @@ namespace Pixel.Persistence.Core.Models
             }
         }
 
-        public TestExecutionStatistics(DateTime fromTime, DateTime toTime)
+        public TestExecutionStatistics(string projectVersion, DateTime fromTime, DateTime toTime)
         {
+            this.ProjectVersion = projectVersion;
             this.FromTime = fromTime;
             this.ToTime = toTime;
         }
