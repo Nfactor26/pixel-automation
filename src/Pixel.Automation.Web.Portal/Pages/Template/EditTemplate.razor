@@ -18,11 +18,10 @@
                               @bind-Value="sessionTemplate.Name" For="@(() => sessionTemplate.Name)" />
                     <MudTextField UserAttributes="@(new (){{"id","txtProjectName"}})" Label="Project Name" Class="mt-3"
                               @bind-Value="sessionTemplate.ProjectName" For="@(() => sessionTemplate.ProjectName)" ReadOnly="true" />
-                    <MudSelect T="ProjectVersion" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
-                           AnchorOrigin="Origin.BottomCenter" ToStringFunc="@(e => e?.Version.ToString())">
-                        @foreach (var version in selectedProject?.AvailableVersions ?? Enumerable.Empty<ProjectVersion>())
+                    <MudSelect T="string" Label="Version" Variant="Variant.Text" @bind-Value="sessionTemplate.TargetVersion" AnchorOrigin="Origin.BottomCenter">
+                        @foreach (var version in selectedProject?.AvailableVersions.Select(s => s.ToString()) ?? Enumerable.Empty<string>())
                         {
-                            <MudSelectItem T="ProjectVersion" Value="@version">@version</MudSelectItem>
+                            <MudSelectItem T="string" Value="@version">@version</MudSelectItem>
                         }
                     </MudSelect>
                     <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text"
