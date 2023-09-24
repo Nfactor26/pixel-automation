@@ -39,6 +39,29 @@ public abstract class SeleniumActorComponent : ActorComponent
 
     }
 
+    /// <summary>
+    /// Take a screen shot if capturing screenshot is enabled after Act method finishes
+    /// </summary>
+    /// <returns></returns>
+    public override async Task OnCompletionAsync()
+    {
+        if (TraceManager.IsEnabled)
+        {
+            await CaptureScreenShotAsync();
+        }
+    }
+
+    /// <summary>
+    /// Capture screenshot of the active page
+    /// </summary>
+    /// <returns></returns>
+    public async Task CaptureScreenShotAsync()
+    {
+        string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
+        var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+        await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
+        TraceManager.AddImage(Path.GetFileName(imageFile));
+    }
 }
 
 /// <summary>

@@ -153,6 +153,17 @@ public class WebApplicationEntity : ApplicationEntity
         webApplicationDetails.Playwright = null;
     }
 
+    public override async Task CaptureScreenShotAsync(string filePath)
+    {
+        var activePage = this.GetTargetApplicationDetails<WebApplication>().ActivePage;
+        await activePage.ScreenshotAsync(new PageScreenshotOptions
+        {
+            Path = filePath,
+            Type = ScreenshotType.Jpeg,
+            Quality = 50
+        });
+    }
+
     /// <summary>
     /// Get BrowserTypeLaunchOptions for browser
     /// </summary>        

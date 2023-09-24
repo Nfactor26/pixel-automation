@@ -52,12 +52,19 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Close the Application
         /// </summary>
-        Task CloseAsync();
+        Task CloseAsync();        
 
         /// <summary>
         /// Use an existing application which might already be launched.
         /// </summary>
         /// <param name="targetApplication">Identified application instance</param>
         void UseExisting(ApplicationProcess targetApplication);
+
+        /// <summary>
+        /// Capture screen shot of the application window
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        Task CaptureScreenShotAsync(string filePath);
     }
 }

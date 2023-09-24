@@ -98,4 +98,9 @@ public class RestApiApplicationEntity : ApplicationEntity
         await Task.CompletedTask;
     }
 
+    /// </inheritdoc>
+    public override async Task CaptureScreenShotAsync(string filePath)
+    {
+        await Task.CompletedTask;
+    }
 }

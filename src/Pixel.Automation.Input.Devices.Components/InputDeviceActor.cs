@@ -7,6 +7,7 @@ using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -85,6 +86,16 @@ namespace Pixel.Automation.Input.Devices.Components
             throw new ElementNotFoundException("Control could not be located");
         }
 
+        public override async Task OnCompletionAsync()
+        {
+            if (TraceManager.IsEnabled)
+            {
+                string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
+                var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+                await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
+                TraceManager.AddImage(Path.GetFileName(imageFile));
+            }
+        }
 
         protected void ThrowIfMissingControlEntity()
         {

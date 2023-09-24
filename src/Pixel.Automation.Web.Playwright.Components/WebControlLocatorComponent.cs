@@ -179,7 +179,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 foundControl = ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier);
             }
         }
-        logger.Information($"{webControlIdentity} has been located");
+        logger.Information("Control : '{0}' was located" , webControlIdentity);
         return foundControl;
     }
 

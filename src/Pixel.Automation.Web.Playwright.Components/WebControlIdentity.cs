@@ -85,7 +85,7 @@ namespace Pixel.Automation.Web.Playwright.Components
 
         public override string ToString()
         {
-            return $"{this.Name} -> Identifier:{this.Identifier}|SearchScope:{this.SearchScope}";
+            return $"{this.Name} -> Identifier:{this.Identifier} | SearchScope:{this.SearchScope}";
         }
     }
 }
