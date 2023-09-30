@@ -198,7 +198,7 @@ public class WebApplicationEntity : ApplicationEntity
     public override async Task CaptureScreenShotAsync(string filePath)
     {
         var webDriver = this.GetTargetApplicationDetails<WebApplication>().WebDriver;
-        webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Jpeg);
+        webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Png);
         await Task.CompletedTask;
     }
 
