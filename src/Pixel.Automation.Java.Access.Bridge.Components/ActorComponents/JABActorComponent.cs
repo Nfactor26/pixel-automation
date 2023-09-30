@@ -89,11 +89,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// </summary>
         /// <returns></returns>
         public async Task CaptureScreenShotAsync()
-        {            
-            string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
+        {
             var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
-            await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
-            TraceManager.AddImage(Path.GetFileName(imageFile));
+            if (TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
+            {
+                string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");
+                await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
+                TraceManager.AddImage(Path.GetFileName(imageFile));
+            }
         }
 
         protected void ThrowIfMissingControlEntity()

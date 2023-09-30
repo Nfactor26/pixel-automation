@@ -85,9 +85,12 @@ public class AppiumApplicationEntity : ApplicationEntity
 
     /// </inheritdoc>
     public override async Task CaptureScreenShotAsync(string filePath)
-    {
-        var webDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
-        webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Jpeg);
+    {       
+        if (this.AllowCaptureScreenshot)
+        {
+            var webDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
+            webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Png);
+        }
         await Task.CompletedTask;
     }
 

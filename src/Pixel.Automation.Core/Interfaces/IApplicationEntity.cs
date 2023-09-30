@@ -20,6 +20,11 @@ namespace Pixel.Automation.Core.Interfaces
         bool CanUseExisting { get; }
 
         /// <summary>
+        /// Indicates if capturing screenshot is allowed for the application
+        /// </summary>
+        bool AllowCaptureScreenshot { get; }
+
+        /// <summary>
         /// Get the details of target application
         /// </summary>
         /// <returns><see cref="IApplication"/></returns>
