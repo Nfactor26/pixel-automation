@@ -41,10 +41,12 @@ namespace Pixel.Automation.Test.Runner
             Telemetry.InitializeDefault("pixel-run", Assembly.GetExecutingAssembly().GetName().Version.ToString());
             string[] enablesSources = configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
 
+            double.TryParse(configuration["OpenTelemetry:Sampling:Ratio"], out double samplingProbablity);
             var traceProviderBuilder = Sdk.CreateTracerProviderBuilder()
-            .SetSampler(new TraceIdRatioBasedSampler(0.1))
+            .SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingProbablity)))
             .AddSource(enablesSources).ConfigureResource(resource => resource.AddService("pixel-run")).AddHttpClientInstrumentation();
             string otlpTraceEndPoint = configuration["OpenTelemetry:Trace:EndPoint"];
+          
             if (!string.IsNullOrEmpty(otlpTraceEndPoint))
             {
                 Enum.TryParse<OtlpExportProtocol>(configuration["OpenTelemetry:TraceExporter:OtlpExportProtocol"] ?? "HttpProtobuf", out OtlpExportProtocol exportProtocol);
