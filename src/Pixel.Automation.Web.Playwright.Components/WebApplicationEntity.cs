@@ -155,13 +155,16 @@ public class WebApplicationEntity : ApplicationEntity
 
     public override async Task CaptureScreenShotAsync(string filePath)
     {
-        var activePage = this.GetTargetApplicationDetails<WebApplication>().ActivePage;
-        await activePage.ScreenshotAsync(new PageScreenshotOptions
+        if(this.AllowCaptureScreenshot)
         {
-            Path = filePath,
-            Type = ScreenshotType.Jpeg,
-            Quality = 50
-        });
+            var activePage = this.GetTargetApplicationDetails<WebApplication>().ActivePage;
+            await activePage.ScreenshotAsync(new PageScreenshotOptions
+            {
+                Path = filePath,
+                Type = ScreenshotType.Jpeg,
+                Quality = 80
+            });
+        }        
     }
 
     /// <summary>

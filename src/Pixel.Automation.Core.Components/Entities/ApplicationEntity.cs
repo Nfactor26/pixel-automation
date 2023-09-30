@@ -18,19 +18,20 @@ namespace Pixel.Automation.Core.Components
     public abstract class ApplicationEntity : Entity, IApplicationEntity
     {
         protected readonly ILogger logger;
+        protected IApplication applicationDetails;
 
         [DataMember(Order = 500)]
         [Display(Name = "Application Id", Order = 10, GroupName = "Application Details")]
         public string ApplicationId { get; set; }
 
-        [DataMember(Order = 210)]
+        [DataMember(Order = 220)]
         [Browsable(false)]
         public string ApplicationFile { get; set; }
 
-       
-        protected IApplication applicationDetails;
-
-
+        [DataMember(Order = 210)]
+        [Display(Name = "Can Capture ScreenShot", Order = 10, GroupName = "Tracing")]
+        public bool AllowCaptureScreenshot { get; set; } = true;
+        
         internal ApplicationEntity()
         {
             this.logger = Log.ForContext(this.GetType());

@@ -88,10 +88,10 @@ namespace Pixel.Automation.Input.Devices.Components
 
         public override async Task OnCompletionAsync()
         {
-            if (TraceManager.IsEnabled)
+            var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+            if (TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
             {
-                string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
-                var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+                string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");                
                 await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
                 TraceManager.AddImage(Path.GetFileName(imageFile));
             }

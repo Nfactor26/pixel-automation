@@ -93,21 +93,24 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         ///<inheritdoc/>
         public override async Task CaptureScreenShotAsync(string filePath)
         {
-            var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
-            var windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
-            var appRectangle = windowManager.GetWindowSize(this.applicationDetails.Hwnd);
-            var screenShotBytes = screenCapture.CaptureArea(appRectangle);
-            using (var memoryStream = new MemoryStream(screenShotBytes))
+            if (this.AllowCaptureScreenshot)
             {
-                using (var bitmap = new Bitmap(memoryStream))
+                var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
+                var windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
+                var appRectangle = windowManager.GetWindowSize(this.applicationDetails.Hwnd);
+                var screenShotBytes = screenCapture.CaptureArea(appRectangle);
+                using (var memoryStream = new MemoryStream(screenShotBytes))
                 {
-                    using (FileStream fs = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write))
+                    using (var bitmap = new Bitmap(memoryStream))
                     {
-                        bitmap.Save(fs, ImageFormat.Png);
+                        using (FileStream fs = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write))
+                        {
+                            bitmap.Save(fs, ImageFormat.Jpeg);
+                        }
                     }
                 }
-            }
-            await Task.CompletedTask;
+                await Task.CompletedTask;
+            }           
         }
 
     }
