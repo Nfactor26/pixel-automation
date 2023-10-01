@@ -41,10 +41,12 @@ namespace Pixel.Persistence.Services.Api
                 .WithTracing(builder =>
                 {
                     string[] enabledSources = Configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
+                    double.TryParse(Configuration["OpenTelemetry:Sampling:Ratio"], out double samplingProbablity);
+
                     builder.AddSource(enabledSources);
                     builder.AddAspNetCoreInstrumentation();                 
                     builder.AddHttpClientInstrumentation();
-                    //builder.SetSampler(new TraceIdRatioBasedSampler(0.1));
+                    builder.SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingProbablity)));
                     string otlpTraceEndPoint = Configuration["OpenTelemetry:Trace:EndPoint"];
                     if (!string.IsNullOrEmpty(otlpTraceEndPoint))
                     {
