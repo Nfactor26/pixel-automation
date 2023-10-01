@@ -74,8 +74,7 @@ namespace Pixel.Persistence.Services.Api
             });           
             services.Configure<MongoDbSettings>(Configuration.GetSection(nameof(MongoDbSettings)));
             services.Configure<RetentionPolicy>(Configuration.GetSection(nameof(RetentionPolicy)));
-            services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
-            services.AddSingleton<RetentionPolicy>(sp => sp.GetRequiredService<IOptions<RetentionPolicy>>().Value);
+            services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);         
             services.AddSingleton<IJobManager, JobManager>();
             services.AddSingleton<IAgentManager, AgentManager>();            
             services.AddTransient<ITestSessionRepository, TestSessionRespository>();
@@ -121,6 +120,7 @@ namespace Pixel.Persistence.Services.Api
             services.AddHostedService<StatisticsProcessorService>();
             services.AddHostedService<QuartzJobBuilderService>();
             services.AddHostedService<AddHandlersService>();
+            services.AddHostedService<PurgeDataService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
