@@ -1,4 +1,6 @@
 ﻿using Pixel.Automation.Core.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.Native.Linux;
 

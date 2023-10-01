@@ -11,7 +11,8 @@
     "Name": "Pixel.Automation.Image.Matching.Components",
     "Type": 1,
     "SupportedPlatforms": [
-      "WINDOWS"
+      "WINDOWS",
+      "LINUX"
     ]
   },
   {
