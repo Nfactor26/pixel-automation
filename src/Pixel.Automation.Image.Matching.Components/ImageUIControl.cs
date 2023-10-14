@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Image.Matching.Components;
@@ -12,17 +13,22 @@ namespace Pixel.Automation.Image.Matching.Components;
 /// </summary>
 public class ImageUIControl : UIControl
 {
-    private readonly IControlIdentity controlIdentity;      
+    private readonly IControlIdentity controlIdentity;
 
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="controlIdentity">Details of the image control</param>
     /// <param name="imageControl">Bounding box of the image control</param>
+    [SetsRequiredMembers]
     public ImageUIControl(IControlIdentity controlIdentity, BoundingBox imageControl)
     {
+        Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
+        Guard.Argument(imageControl, nameof(imageControl)).NotNull();
+
         this.controlIdentity = Guard.Argument(controlIdentity).NotNull().Value;          
         this.TargetControl = Guard.Argument(imageControl).NotNull().Value;
+        this.ControlName = controlIdentity.Name;
     }
 
     ///<inheritdoc/>

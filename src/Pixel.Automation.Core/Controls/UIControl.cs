@@ -12,7 +12,9 @@ namespace Pixel.Automation.Core.Controls
     [Serializable]
     public abstract class UIControl
     {
-        protected object TargetControl { get; set; }
+        public required string ControlName { get; init ; }
+
+        protected object TargetControl { get; init; }
 
         /// <summary>
         /// Get the underlying control represented by the automation framework in use e.g. IWebElement for Webdriver, Automation element for UIA , etc.

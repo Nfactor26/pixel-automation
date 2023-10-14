@@ -3,7 +3,7 @@ using Microsoft.Playwright;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
-using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pixel.Automation.Web.Playwright.Components
 {
@@ -19,16 +19,18 @@ namespace Pixel.Automation.Web.Playwright.Components
         /// <param name="controlIdentity">Control details</param>
         /// <param name="locator">IWebElement</param>
         /// <param name="coordinateProvider">Coordinate provider</param>
+        [SetsRequiredMembers]
         public WebUIControl(IControlIdentity controlIdentity, ILocator locator, ICoordinateProvider coordinateProvider)
         {
-            Guard.Argument(controlIdentity).NotNull();
-            Guard.Argument(locator).NotNull();
-            Guard.Argument(coordinateProvider).NotNull();
+            Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
+            Guard.Argument(locator, nameof(locator)).NotNull();
+            Guard.Argument(coordinateProvider, nameof(coordinateProvider)).NotNull();
 
             this.controlIdentity = controlIdentity;
             this.coordinateProvider = coordinateProvider;
             this.locator = locator;
             this.TargetControl = locator;
+            this.ControlName = controlIdentity.Name;
         }
 
         ///<inheritdoc/>

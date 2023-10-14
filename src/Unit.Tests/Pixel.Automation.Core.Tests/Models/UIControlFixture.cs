@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Tests.Models
@@ -15,9 +16,11 @@ namespace Pixel.Automation.Core.Tests.Models
 
     public class DummyUIControl : UIControl
     {
+        [SetsRequiredMembers]
         public DummyUIControl(IDummyControl underlyingControl)
         {
             this.TargetControl = underlyingControl;
+            this.ControlName = "DummyControl";
         }
 
         public override async Task<BoundingBox> GetBoundingBoxAsync()

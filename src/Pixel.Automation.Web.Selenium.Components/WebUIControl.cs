@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pixel.Automation.Web.Selenium.Components;
 
@@ -21,16 +22,18 @@ public class WebUIControl : UIControl
     /// <param name="controlIdentity">Control details</param>
     /// <param name="webElement">IWebElement</param>
     /// <param name="coordinateProvider">Coordinate provider</param>
+    [SetsRequiredMembers]
     public WebUIControl(IControlIdentity controlIdentity, IWebElement webElement, ICoordinateProvider coordinateProvider)
     {
-        Guard.Argument(controlIdentity).NotNull();
-        Guard.Argument(webElement).NotNull();
-        Guard.Argument(coordinateProvider).NotNull();
+        Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
+        Guard.Argument(webElement, nameof(webElement)).NotNull();
+        Guard.Argument(coordinateProvider, nameof(coordinateProvider)).NotNull();
 
         this.controlIdentity = controlIdentity;
         this.coordinateProvider = coordinateProvider;
         this.webElement = webElement;
         this.TargetControl = webElement;
+        this.ControlName = controlIdentity.Name;
     }
 
     ///<inheritdoc/>

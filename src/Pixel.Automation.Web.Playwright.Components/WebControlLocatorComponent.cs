@@ -139,7 +139,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                                 await HighlightElement(element);
                             }
                         }
-                        return await Task.FromResult(descendantControls.Select(f => new WebUIControl(webControlIdentity, f, this)));
+                        return await Task.FromResult(descendantControls.Select(f => new WebUIControl(controlIdentity, f, this)));
                     case SearchScope.Sibling:
                     case SearchScope.Children:
                     case SearchScope.Ancestor:
