@@ -3,6 +3,8 @@ using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using System.Threading.Tasks;
 using Pixel.Windows.Automation;
+using System.Diagnostics.CodeAnalysis;
+using Dawn;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -10,18 +12,26 @@ namespace Pixel.Automation.UIA.Components
     {            
         private readonly IControlIdentity controlIdentity;
         private readonly AutomationElement automationElement;
-        public static UIControl RootControl { get; private set; } = new WinUIControl(null, AutomationElement.RootElement);
+        public static UIControl RootControl { get; private set; } = new WinUIControl(new WinControlIdentity()
+        {
+           Name = "Desktop",
+        }, AutomationElement.RootElement);
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="controlIdentity"></param>
         /// <param name="automationElement"></param>
+        [SetsRequiredMembers]
         public WinUIControl(IControlIdentity controlIdentity, AutomationElement automationElement)
-        {          
+        {
+            Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
+            Guard.Argument(automationElement, nameof(automationElement)).NotNull();
+
             this.controlIdentity = controlIdentity;
             this.automationElement = automationElement;
             this.TargetControl = automationElement;
+            this.ControlName = controlIdentity.Name;
         }
 
         ///<inheritdoc/>

@@ -99,7 +99,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     continue;
                 }
                 logger.Information("Control lookup completed.");
-                return await Task.FromResult(new JavaUIControl(controlIdentity, foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria")));
+                return await Task.FromResult(new JavaUIControl(controlIdentity, foundElement ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located")));
             }
         }
 
@@ -170,7 +170,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     break;
             }
 
-            return foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria");
+            return foundElement ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
         }
 
         #endregion IControlLocator
@@ -192,14 +192,14 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                     var foundControls = searchRoot.FindAll(TreeScope.Children, javaControlIdentity);
                     if (foundControls.Count() == 0)
                     {
-                        throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                        throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     }
                     return GetElementAtConfiguredIndex(foundControls, javaControlIdentity);
                 }
                 else
                 {
                     var matchingChild = currentSearchRoot.FindFirst(TreeScope.Children, javaControlIdentity)
-                         ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                         ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     return matchingChild;
                 }
             });
@@ -221,7 +221,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 var matchingChildren = currentSearchRoot.FindAll(TreeScope.Children, javaControlIdentity).ToList();
                 if (matchingChildren.Count() == 0)
                 {
-                    throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                    throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 }
                 return matchingChildren.ToList();
             });
@@ -242,7 +242,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
 
             var foundControl = policy.Execute(() =>
             {
-                return currentSearchRoot.FindNthDescendantControl(javaControlIdentity, javaControlIdentity.Index) ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                return currentSearchRoot.FindNthDescendantControl(javaControlIdentity, javaControlIdentity.Index) ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
             });
 
             HighlightElement(foundControl);
@@ -262,7 +262,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                 var matchingDescendants = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, javaControlIdentity).ToList();
                 if (matchingDescendants.Count() == 0)
                 {
-                    throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                    throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 }
                 return matchingDescendants;
             });
@@ -284,7 +284,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             AccessibleContextNode foundControl = policy.Execute(() =>
             {
                 var matchingAncestor = currentSearchRoot.FindFirst(TreeScope.Ancestors, javaControlIdentity)
-                 ?? throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                 ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 return matchingAncestor;
             });
 
@@ -342,7 +342,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
                         return window;
                     }
                 }
-                throw new ElementNotFoundException($"{javaControlIdentity} couldn't be located");
+                throw new ElementNotFoundException($"Control : '{javaControlIdentity}' could not be located");
             });
 
             controlIdentity = controlIdentity.Next;
@@ -450,7 +450,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             if (isDisposing)
             {
                 this.accessBridge?.Dispose();
-                logger.Information("Access bridge is disposed now.");
+                logger.Debug("Access bridge is disposed now.");
             }
         }
 

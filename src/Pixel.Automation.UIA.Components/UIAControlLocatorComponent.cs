@@ -105,7 +105,7 @@ namespace Pixel.Automation.UIA.Components
                     continue;
                 }
                 logger.Debug("Control lookup completed.");
-                var foundControl = new WinUIControl(controlIdentity, foundElement ??  throw new ElementNotFoundException("No control could be located using specified search criteria"));
+                var foundControl = new WinUIControl(controlIdentity, foundElement ??  throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located"));
                 return await Task.FromResult(foundControl);
             }
         }
@@ -176,7 +176,7 @@ namespace Pixel.Automation.UIA.Components
                     break;
             }
 
-            return foundElement ?? throw new ElementNotFoundException("No control could be located using specified search criteria");
+            return foundElement ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
         }
 
         #endregion IControlLocator
@@ -200,14 +200,14 @@ namespace Pixel.Automation.UIA.Components
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
-                        throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                        throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
                 {
                     var matchingChildren = currentSearchRoot.FindFirst(TreeScope.Children, lookupCondition)
-                         ?? throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                         ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     return matchingChildren;
                 }  
               
@@ -232,7 +232,7 @@ namespace Pixel.Automation.UIA.Components
                 var matchingChildren = currentSearchRoot.FindAll(TreeScope.Children, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
                 {
-                    throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 }
                 return matchingChildren.ToList();
             });
@@ -260,14 +260,14 @@ namespace Pixel.Automation.UIA.Components
                     var foundControls = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
-                        throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                        throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
                 {
                     var matchingChildren = currentSearchRoot.FindFirst(TreeScope.Children | TreeScope.Descendants, lookupCondition)
-                      ?? throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                      ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     return matchingChildren;
                 }                  
             });
@@ -291,7 +291,7 @@ namespace Pixel.Automation.UIA.Components
                 var matchingChildren = currentSearchRoot.FindAll(TreeScope.Children | TreeScope.Descendants, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
                 {
-                    throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 }
                 return matchingChildren.ToList();
             });
@@ -325,7 +325,7 @@ namespace Pixel.Automation.UIA.Components
                         current = TreeWalker.RawViewWalker.GetParent(current);
                     }
                 }
-                throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
             });
 
             HighlightElement(foundControl);
@@ -355,14 +355,14 @@ namespace Pixel.Automation.UIA.Components
                     var foundControls = parentElement.FindAll(TreeScope.Children, lookupCondition).ToList();
                     if (foundControls.Count() == 0)
                     {
-                        throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                        throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     }
                     return GetElementAtConfiguredIndex(foundControls, winControlIdentity);
                 }
                 else
                 {
                     var matchingChildren = parentElement.FindFirst(TreeScope.Children, lookupCondition)
-                                        ?? throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                                        ?? throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                     return matchingChildren;
                 }                             
             });
@@ -386,7 +386,7 @@ namespace Pixel.Automation.UIA.Components
                 var matchingChildren = parentElement.FindAll(TreeScope.Children, lookupCondition).ToList();
                 if (matchingChildren.Count() == 0)
                 {
-                    throw new ElementNotFoundException($"{winControlIdentity} couldn't be located");
+                    throw new ElementNotFoundException($"Control : '{controlIdentity}' could not be located");
                 }
                 return matchingChildren.ToList();
             });

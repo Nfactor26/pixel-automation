@@ -65,7 +65,14 @@ namespace Pixel.Automation.RunTime
             var controlVersionInUse = controlReferences.GetControlVersionInUse(applicationId, controlId);
             var controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, controlId, controlVersionInUse.ToString(),  $"{controlId}.dat");
             logger.Debug("Control with applicationId {0} && controlId : {1} and version : {2} has been loaded.", applicationId, controlId, controlVersionInUse);
-            return this.fileSystem.LoadFile<ControlDescription>(controlFile);
+            var controlDescription = this.fileSystem.LoadFile<ControlDescription>(controlFile);
+            var rootIdentity = controlDescription.ControlDetails;
+            while (rootIdentity != null)
+            {
+                rootIdentity.Name = controlDescription.ControlName + ":" + rootIdentity.Name;
+                rootIdentity = rootIdentity.Next;
+            }
+            return controlDescription;
         }
 
         /// <summary>

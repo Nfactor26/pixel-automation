@@ -1,6 +1,8 @@
-﻿using Pixel.Automation.Core.Controls;
+﻿using Dawn;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using WindowsAccessBridgeInterop;
 
@@ -16,11 +18,16 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// </summary>
         /// <param name="controlIdentity"></param>
         /// <param name="controlNode"></param>
+        [SetsRequiredMembers]
         public JavaUIControl(IControlIdentity controlIdentity, AccessibleContextNode controlNode)
         {
+            Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
+            Guard.Argument(controlNode, nameof(controlNode)).NotNull();
+
             this.controlIdentity = controlIdentity;
             this.controlNode = controlNode;
             this.TargetControl = controlNode;
+            this.ControlName = controlIdentity.Name;
         }
 
         ///<inheritdoc/>

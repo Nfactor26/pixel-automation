@@ -3,6 +3,7 @@ using OpenQA.Selenium.Appium;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pixel.Automation.Appium.Components;
 
@@ -21,6 +22,7 @@ public class AppiumUIControl : UIControl
     /// <param name="controlIdentity">Control details</param>
     /// <param name="appiumElement">AppiumElement</param>
     /// <param name="coordinateProvider">Coordinate provider</param>
+    [SetsRequiredMembers]
     public AppiumUIControl(IControlIdentity controlIdentity, AppiumElement appiumElement, ICoordinateProvider coordinateProvider)
     {
         Guard.Argument(controlIdentity, nameof(controlIdentity)).NotNull();
@@ -31,6 +33,7 @@ public class AppiumUIControl : UIControl
         this.coordinateProvider = coordinateProvider;
         this.appiumElement = appiumElement;
         this.TargetControl = appiumElement;
+        this.ControlName = controlIdentity.Name;
     }
 
     ///<inheritdoc/>

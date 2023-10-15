@@ -57,7 +57,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             logger.Error(exception, "Failed to locate image control."); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Information($"Control lookup  will be attempated again upto {retrySequence.Count - retryCount} times.");
+                logger.Debug($"Control lookup  will be attempated again upto {retrySequence.Count - retryCount} times.");
             }
         });
 
@@ -90,7 +90,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             return boundingBox;
         });
         HighlightElement(foundControl);
-        return await Task.FromResult(new ImageUIControl(controlIdentity, foundControl ?? throw new ElementNotFoundException($"Failed to find any control matching image  {controlDetails}")));
+        return await Task.FromResult(new ImageUIControl(controlIdentity, foundControl ?? throw new ElementNotFoundException($"Image Control : '{controlIdentity}' could not be located")));
     }
 
 
