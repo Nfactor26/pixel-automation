@@ -3,6 +3,8 @@ using Pixel.Automation.Core.Devices;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.Native.Linux;
 

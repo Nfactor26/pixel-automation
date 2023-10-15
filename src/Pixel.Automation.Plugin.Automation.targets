@@ -78,15 +78,17 @@
 		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'" >
 			<PluginArtifacts Include="..\Pixel.Automation.Native.Linux\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Native.Linux</Name>
-			</PluginArtifacts>			
+			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.Image.Matching.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Image.Matching.Components</Name>
+			</PluginArtifacts>
 		</ItemGroup>
 		<Message Text="Copying Plugins -- %(PluginArtifacts.FullPath) to $(TargetDir)Plugin\%(PluginArtifacts.Name)" Importance="high"/>
 		<Copy SourceFiles="%(PluginArtifacts.FullPath)" DestinationFolder="$(TargetDir)Plugins\%(PluginArtifacts.Name)\%(RecursiveDir)"/>
 		<Message Text="Copying Plugins -- completed" Importance="high"/>
 	</Target>
 
-	<!--<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">-->
-	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0-windows'">
+	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
 		<ItemGroup>
 			<PluginRuntimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\runtimes\**\*.*"/>
 		</ItemGroup>
