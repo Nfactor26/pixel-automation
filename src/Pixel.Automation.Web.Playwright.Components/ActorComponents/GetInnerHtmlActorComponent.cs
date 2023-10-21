@@ -46,9 +46,9 @@ public class GetInnerHtmlActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
         var options = this.GetInnerHtmlOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorInnerHTMLOptions>(this.GetInnerHtmlOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.InnerHTMLAsync(options);
         await this.ArgumentProcessor.SetValueAsync<string>(this.Result, result);
-        logger.Information($"Retrieved innerHtml of element.");
+        logger.Information("Retrieved innerHtml of control : '{0}'", name);
     }
 }

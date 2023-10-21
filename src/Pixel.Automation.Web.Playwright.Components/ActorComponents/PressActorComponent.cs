@@ -46,9 +46,9 @@ public class PressActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
         var input = await this.ArgumentProcessor.GetValueAsync<string>(this.Keys);
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.PressAsync(input, this.PressOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorPressOptions>(this.PressOptions) : null);
-        logger.Information("Key press performed on element.");
+        logger.Information("Key press : '{0}' performed on control : '{1}'", input, name);
     }
 
 }

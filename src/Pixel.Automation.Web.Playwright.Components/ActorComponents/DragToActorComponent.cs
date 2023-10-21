@@ -18,11 +18,11 @@ public class DragToActorComponent : PlaywrightActorComponent
     private readonly ILogger logger = Log.ForContext<DragToActorComponent>();
 
     /// <summary>
-    /// Target <see cref="ILocator"/> which is the drop target
+    /// Target <see cref="WebUIControl"/> which is the drop target
     /// </summary>
     [DataMember]
     [Display(Name = "Target", GroupName = "Configuration", Order = 10, Description = "Input argument for drop target locator")]
-    public Argument Target { get; set; } = new InArgument<ILocator>() {  Mode = ArgumentMode.DataBound };
+    public Argument Target { get; set; } = new InArgument<WebUIControl>() {  Mode = ArgumentMode.DataBound };
 
     /// <summary>
     /// Optional input argument for <see cref="LocatorDragToOptions"/> that can be used to customize the drag operation
@@ -44,10 +44,10 @@ public class DragToActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var targetLocator = await this.ArgumentProcessor.GetValueAsync<ILocator>(this.Target);
+        var targetControl = await this.ArgumentProcessor.GetValueAsync<WebUIControl>(this.Target);
         var dragToOptions = this.DragToOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorDragToOptions>(this.DragToOptions) : null;
-        var control = await GetTargetControl();
-        await control.DragToAsync(targetLocator, dragToOptions);
-        logger.Information("control was dragged to target.");
+        var (name, control) = await GetTargetControl();
+        await control.DragToAsync(targetControl.GetApiControl<ILocator>(), dragToOptions);
+        logger.Information("Control : '{0}' was dragged to target control : '{1}'", name, targetControl.ControlName);
     }
 }

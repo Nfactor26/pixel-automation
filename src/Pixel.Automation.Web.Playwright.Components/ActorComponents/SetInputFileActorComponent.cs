@@ -49,11 +49,11 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
         var setInputFilesOptions = this.SetInputFilesOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorSetInputFilesOptions>(this.SetInputFilesOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         switch (this.InputFiles)
         {
             case InArgument<string>:
-                await control.SetInputFilesAsync(await this.ArgumentProcessor.GetValueAsync<IEnumerable<string>>(this.InputFiles) , setInputFilesOptions);
+                await control.SetInputFilesAsync(await this.ArgumentProcessor.GetValueAsync<string>(this.InputFiles) , setInputFilesOptions);
                 break;
             case InArgument<IEnumerable<string>>:
                 await control.SetInputFilesAsync(await this.ArgumentProcessor.GetValueAsync<IEnumerable<string>>(this.InputFiles), setInputFilesOptions);
@@ -69,7 +69,7 @@ public class SetInputFileActorComponent : PlaywrightActorComponent
 
         }       
        
-        logger.Information("Input files were set.");
+        logger.Information("Input files were added to control : '{0}'", name);
     }
     
 }

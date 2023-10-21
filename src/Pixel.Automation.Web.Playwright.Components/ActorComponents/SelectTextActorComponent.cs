@@ -39,10 +39,10 @@ public class SelectTextActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {            
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var options = this.SelectTextOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorSelectTextOptions>(this.SelectTextOptions) : null;
         await control.SelectTextAsync(options);
-        logger.Information("Select text operation performed on element.");        
+        logger.Information("Select text operation performed on control  : '{0}'", name);        
     }
 
 }

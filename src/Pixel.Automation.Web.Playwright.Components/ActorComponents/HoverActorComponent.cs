@@ -38,9 +38,9 @@ public class HoverActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {       
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.HoverAsync(this.HoverOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorHoverOptions>(this.HoverOptions) : null);
-        logger.Information("Hover over element done.");
+        logger.Information("Hover over control : '{0}'", name);
     }
 
 }

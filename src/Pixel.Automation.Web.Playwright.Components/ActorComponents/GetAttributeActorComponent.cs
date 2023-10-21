@@ -51,10 +51,10 @@ public class GetAttributeActorComponent : PlaywrightActorComponent
     {
         var attributeToGet = await this.ArgumentProcessor.GetValueAsync<string>(this.AttributeToGet);
         var getAttributeOptions = this.GetAttributeOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorGetAttributeOptions>(this.GetAttributeOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.GetAttributeAsync(attributeToGet, getAttributeOptions);
         await this.ArgumentProcessor.SetValueAsync<string>(this.Result, result);
-        logger.Information($"Retrieved attribute {this.AttributeToGet} of element.");
+        logger.Information("Attribute : '{0}' having value : '{1}' was retrieved from control : '{2}'", this.AttributeToGet, result, name);
     }
 
 }

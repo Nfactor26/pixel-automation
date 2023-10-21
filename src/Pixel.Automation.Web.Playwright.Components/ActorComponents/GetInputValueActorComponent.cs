@@ -46,10 +46,10 @@ public class GetInputValueActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {     
         var options = this.GetInputvalueOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorInputValueOptions>(this.GetInputvalueOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.InputValueAsync(options);
         await this.ArgumentProcessor.SetValueAsync<string>(this.Result, result);
-        logger.Information($"Retrieved input value of element.");
+        logger.Information("Retrieved input value : '{0}' of control : '{1}'", result, name);
     }
 
 }

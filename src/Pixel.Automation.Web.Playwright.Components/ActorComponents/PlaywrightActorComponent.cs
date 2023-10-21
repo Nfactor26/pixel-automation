@@ -59,7 +59,7 @@ public abstract class PlaywrightActorComponent : ActorComponent
     /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="WebControlEntity"/>
     /// </summary>
     /// <returns></returns>
-    protected virtual async Task<ILocator> GetTargetControl()
+    protected virtual async Task<(string, ILocator)> GetTargetControl()
     {
         UIControl targetControl;
         if (this.TargetControl.IsConfigured())
@@ -72,7 +72,7 @@ public abstract class PlaywrightActorComponent : ActorComponent
             targetControl = await this.ControlEntity.GetControl();
         }
 
-        return targetControl.GetApiControl<ILocator>();
+        return (targetControl.ControlName, targetControl.GetApiControl<ILocator>());
     }
 
     /// <summary>

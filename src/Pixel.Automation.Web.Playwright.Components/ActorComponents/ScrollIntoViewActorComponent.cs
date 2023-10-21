@@ -37,10 +37,10 @@ public class ScrollIntoViewActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var options = this.ScrollIntoViewOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorScrollIntoViewIfNeededOptions>(this.ScrollIntoViewOptions) : null;
         await control.ScrollIntoViewIfNeededAsync(options);
-        logger.Information("Control was scrolled into view.");
+        logger.Information("Control : '{0}' was scrolled into view", name);
     }
 
 }

@@ -46,9 +46,9 @@ public class GetInnerTextActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
         var options = this.GetInnerTextOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorInnerTextOptions>(this.GetInnerTextOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.InnerTextAsync(options);
         await this.ArgumentProcessor.SetValueAsync<string>(this.Result, result);
-        logger.Information($"Retrieved innerText of element.");
+        logger.Information("Retrieved innerText of control : '{0}'", name);
     }
 }

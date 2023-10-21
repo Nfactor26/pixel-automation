@@ -84,6 +84,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 continue;
             }
             await HighlightElement(currentRoot);
+            logger.Debug("{0} has been located", controlIdentity);
             return new WebUIControl(controlIdentity, currentRoot, this);
         }
     }
@@ -126,30 +127,24 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 continue;
             }
 
-            try
+            switch (webControlIdentity.SearchScope)
             {
-                switch (webControlIdentity.SearchScope)
-                {
-                    case SearchScope.Descendants:
-                        var descendantControls = await FindAllDescendantControls(webControlIdentity, currentRoot);
-                        if (ShowBoundingBox)
+                case SearchScope.Descendants:
+                    var descendantControls = await FindAllDescendantControls(webControlIdentity, currentRoot);
+                    if (ShowBoundingBox)
+                    {
+                        foreach (var element in descendantControls)
                         {
-                            foreach (var element in descendantControls)
-                            {
-                                await HighlightElement(element);
-                            }
+                            await HighlightElement(element);
                         }
-                        return await Task.FromResult(descendantControls.Select(f => new WebUIControl(controlIdentity, f, this)));
-                    case SearchScope.Sibling:
-                    case SearchScope.Children:
-                    case SearchScope.Ancestor:
-                    default:
-                        throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
-                }
-            }
-            finally
-            {
-                logger.Debug("Control lookup completed.");
+                    }
+                    logger.Debug("{0} controls matching {0} has been located", descendantControls.Count, controlIdentity);
+                    return await Task.FromResult(descendantControls.Select(f => new WebUIControl(controlIdentity, f, this)));
+                case SearchScope.Sibling:
+                case SearchScope.Children:
+                case SearchScope.Ancestor:
+                default:
+                    throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
             }
         }        
     }
@@ -178,8 +173,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             {
                 foundControl = ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier);
             }
-        }
-        logger.Information("Control : '{0}' was located" , webControlIdentity);
+        }      
         return foundControl;
     }
 
@@ -268,7 +262,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             {
                 return new BoundingBox(Convert.ToInt32(boundingBox.X), Convert.ToInt32(boundingBox.Y), Convert.ToInt32(boundingBox.Width), Convert.ToInt32(boundingBox.Height));
             }
-            logger.Warning("Bounding box could not be retrieved. Return empty bounding box.");
+            logger.Warning("Bounding box could not be retrieved. Empty bounding box will be used");
             return BoundingBox.Empty;
         }
         throw new ArgumentException("control must be of type ILocator");
