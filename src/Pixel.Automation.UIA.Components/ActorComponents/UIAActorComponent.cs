@@ -57,7 +57,7 @@ namespace Pixel.Automation.UIA.Components
         /// Get the AutomationElement identified using the control details
         /// </summary>
         /// <returns></returns>
-        protected async Task<AutomationElement> GetTargetControl()
+        protected async Task<(string, AutomationElement)> GetTargetControl()
         {
             UIControl targetControl;
             if (this.TargetControl.IsConfigured())
@@ -71,7 +71,7 @@ namespace Pixel.Automation.UIA.Components
             }
 
             AutomationElement control = targetControl.GetApiControl<AutomationElement>();
-            return control;
+            return (targetControl.ControlName, control);
         }
 
         /// <summary>
