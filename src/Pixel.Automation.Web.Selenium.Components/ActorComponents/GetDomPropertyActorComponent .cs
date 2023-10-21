@@ -44,11 +44,11 @@ public class GetDomPropertyActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var propertyName = await this.ArgumentProcessor.GetValueAsync<string>(this.PropertyName);
         string extractedValue = control.GetDomProperty(propertyName);
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  attribue : {0} from control.", propertyName);
+        logger.Information("Retrived Dom property : '{0}' from control '{1}'", propertyName, name);
     }
 
 }

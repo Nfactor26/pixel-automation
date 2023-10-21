@@ -26,8 +26,8 @@ public class ClearActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         control.Clear();
-        logger.Information("value of control was cleared.");
+        logger.Information("Value of control : '{0}' was cleared", name);
     }
 }

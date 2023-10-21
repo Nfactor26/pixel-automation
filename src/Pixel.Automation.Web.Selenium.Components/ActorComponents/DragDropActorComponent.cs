@@ -59,6 +59,6 @@ public class DragDropActorComponent : SeleniumActorComponent
        
         await Task.CompletedTask;
 
-        logger.Information("Source control was drag-dropped to target control.");
+        logger.Information("Source control : '{0}' was drag-dropped to target control : '{1}'", sourceControl.ControlName, targetControl.ControlName);
     }
 }

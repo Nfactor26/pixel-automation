@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Web.Selenium.Components;
+using Serilog;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Playwright.Components;
@@ -11,7 +12,9 @@ namespace Pixel.Automation.Web.Playwright.Components;
 [Serializable]
 [ToolBoxItem("Go Forward", "Selenium", "Browser", iconSource: null, description: "Navigate to the next page in history", tags: new string[] { "GoForward", "Forward", "Navigate", "Browser", "Web" })]
 public class GoForwardActorComponent : WebElementActorComponent
-{        
+{
+    private readonly ILogger logger = Log.ForContext<GoForwardActorComponent>();
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -26,6 +29,7 @@ public class GoForwardActorComponent : WebElementActorComponent
     public override async Task ActAsync()
     {
         this.ApplicationDetails.WebDriver.Navigate().Forward();
+        logger.Information("Browser was navigated to the next page : '{0}' in history", this.ApplicationDetails.WebDriver.Url);
         await Task.CompletedTask;
     }
 }

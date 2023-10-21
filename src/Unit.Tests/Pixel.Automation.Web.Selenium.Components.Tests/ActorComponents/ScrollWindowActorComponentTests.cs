@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
 {
-    class ScrollPageActorComponentTests
+    class ScrollWindowActorComponentTests
     {
         /// <summary>
         /// Validate that scroll page actor component can scroll window by configured horizontal and vertical scroll amount
@@ -28,7 +28,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             entityManager.GetOwnerApplication<WebApplication>(Arg.Any<IComponent>()).Returns(webAppliction);
 
-            var scrollPageActorComponent = new ScrollPageActorComponent()
+            var scrollPageActorComponent = new ScrollWindowActorComponent()
             {
                 EntityManager = entityManager                
             };

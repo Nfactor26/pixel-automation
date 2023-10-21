@@ -42,11 +42,11 @@ public class HandleAlertActorComponent : SeleniumActorComponent
         {
             case HandleAlertBehavior.Accept:
                 alert.Accept();
-                logger.Information($"Alert was accepted");
+                logger.Information("Alert was accepted");
                 break;
             case HandleAlertBehavior.Dismiss:
                 alert.Dismiss();
-                logger.Information($"Alert was dismissed");
+                logger.Information("Alert was dismissed");
                 break;
         }
         await Task.CompletedTask;

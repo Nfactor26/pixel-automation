@@ -107,7 +107,7 @@ public abstract class WebElementActorComponent : SeleniumActorComponent
     /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="WebControlEntity"/>
     /// </summary>
     /// <returns></returns>
-    protected virtual async Task<IWebElement> GetTargetControl()
+    protected virtual async Task<(string, IWebElement)> GetTargetControl()
     {
         UIControl targetControl;
         if (this.TargetControl.IsConfigured())
@@ -120,7 +120,7 @@ public abstract class WebElementActorComponent : SeleniumActorComponent
             targetControl = await this.ControlEntity.GetControl();
         }
 
-        return targetControl.GetApiControl<IWebElement>();
+        return (targetControl.ControlName, targetControl.GetApiControl<IWebElement>());
     }
 
 

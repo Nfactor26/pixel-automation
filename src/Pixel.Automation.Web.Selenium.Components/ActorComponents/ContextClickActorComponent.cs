@@ -29,10 +29,10 @@ public class ContextClickActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         Actions action = new Actions(ApplicationDetails.WebDriver);
         action.ContextClick(control).Build().Perform();
-        logger.Information("Context click performed on control");
+        logger.Information("Context click was performed on control : '{0}'", name);
     }
 
 }

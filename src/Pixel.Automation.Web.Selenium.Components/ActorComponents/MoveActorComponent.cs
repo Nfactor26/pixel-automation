@@ -41,11 +41,11 @@ public class MoveActorComponent : WebElementActorComponent
     {           
         var positionOffSet = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.OffSet);
 
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         Actions action = new Actions(ApplicationDetails.WebDriver);
         action.DragAndDropToOffset(control, positionOffSet.XCoordinate, positionOffSet.YCoordinate).Perform();
 
-        logger.Information($"control was moved by offset ({positionOffSet.XCoordinate}, {positionOffSet.YCoordinate})");
+        logger.Information("cControl : '{0}' was moved by offset ({1}, {2})", name, positionOffSet.XCoordinate, positionOffSet.YCoordinate);
     }
 
 }

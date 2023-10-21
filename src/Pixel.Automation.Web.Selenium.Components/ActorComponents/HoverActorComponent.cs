@@ -41,7 +41,7 @@ public class HoverActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         Actions action = new Actions(ApplicationDetails.WebDriver);
         if(this.Offset.IsConfigured())
         {
@@ -52,7 +52,7 @@ public class HoverActorComponent : WebElementActorComponent
         {
             action.MoveToElement(control).Perform();
         }
-        logger.Information($"Hover on control");
+        logger.Information($"Hover was performed on control : '{0}'", name);
     }
 
 }

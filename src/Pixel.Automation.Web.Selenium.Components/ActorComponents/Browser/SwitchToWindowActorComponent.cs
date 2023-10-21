@@ -44,7 +44,7 @@ public class SwitchToWindowActorComponent : SeleniumActorComponent
         {
             webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
             webDriver.SwitchTo().DefaultContent();
-            logger.Information($"WebDriver switched to window/tab number : {windowNumber}");
+            logger.Information("WebDriver was switched to window/tab number : {0}", windowNumber);
             await Task.CompletedTask;
             return;
         }
