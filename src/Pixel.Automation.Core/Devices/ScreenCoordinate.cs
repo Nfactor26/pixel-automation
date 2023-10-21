@@ -55,7 +55,7 @@ namespace Pixel.Automation.Core.Devices
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{this.XCoordinate},{this.YCoordinate}";
+            return $"({this.XCoordinate}, {this.YCoordinate})";
         }
     }
 }
