@@ -32,7 +32,7 @@ public class ExpectToBeVisibleActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeVisibleOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeVisibleOptions>(this.ToBeVisibleOptions) : null;
         await Assertions.Expect(control).ToBeVisibleAsync(options);
     }

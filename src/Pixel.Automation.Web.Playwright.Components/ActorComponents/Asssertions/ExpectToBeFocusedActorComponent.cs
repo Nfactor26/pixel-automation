@@ -32,7 +32,7 @@ public class ExpectToBeFocusedActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeFocusedOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeFocusedOptions>(this.ToBeFocusedOptions) : null;
         await Assertions.Expect(control).ToBeFocusedAsync(options);
     }

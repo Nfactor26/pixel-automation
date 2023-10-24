@@ -38,7 +38,7 @@ public class ExpectToHaveClassActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();       
+        var (name, control) = await this.GetTargetControl();       
         var options = this.ToHaveClassOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveClassOptions>(this.ToHaveClassOptions) : null;      
         switch (this.Class)
         {

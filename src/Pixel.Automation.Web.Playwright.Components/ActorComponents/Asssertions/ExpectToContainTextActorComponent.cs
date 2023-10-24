@@ -38,7 +38,7 @@ public class ExpectToContainTextActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();
+        var (name, control) = await this.GetTargetControl();
         var options = this.ToContainTextOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToContainTextOptions>(this.ToContainTextOptions) : null;
         switch (this.Text)
         {

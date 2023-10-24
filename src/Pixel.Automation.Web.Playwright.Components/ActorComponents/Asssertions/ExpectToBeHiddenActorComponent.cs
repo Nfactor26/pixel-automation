@@ -32,7 +32,7 @@ public class ExpectToBeHiddenActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeHiddenOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeHiddenOptions>(this.ToBeHiddenOptions) : null;
         await Assertions.Expect(control).ToBeHiddenAsync(options);
     }

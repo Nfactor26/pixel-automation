@@ -42,7 +42,7 @@ public class ExpectToHaveCSSPropertyActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (controlName, control) = await GetTargetControl();
         var name = await this.ArgumentProcessor.GetValueAsync<string>(this.PropertyName);    
         var toHaveCSSPropertyOptions = this.ToHaveCSSPropertyOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveCSSOptions>(this.ToHaveCSSPropertyOptions) : null;
         

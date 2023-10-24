@@ -36,7 +36,7 @@ public class ExpectToHaveCountActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();
+        var (name, control) = await this.GetTargetControl();
         var count = await this.ArgumentProcessor.GetValueAsync<int>(this.Count);
         var options = this.ToHaveCountOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveCountOptions>(this.ToHaveCountOptions) : null;
         await Assertions.Expect(control).ToHaveCountAsync(count, options);

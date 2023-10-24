@@ -39,7 +39,7 @@ public class ExpectToHaveValuesActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();       
+        var (name, control) = await this.GetTargetControl();       
         var options = this.ToHaveValuesOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveValuesOptions>(this.ToHaveValuesOptions) : null;      
         switch (this.Values)
         {

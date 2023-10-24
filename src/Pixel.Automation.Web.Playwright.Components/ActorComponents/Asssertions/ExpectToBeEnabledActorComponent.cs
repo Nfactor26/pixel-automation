@@ -32,7 +32,7 @@ public class ExpectToBeEnabledActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeEnabledOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeEnabledOptions>(this.ToBeEnabledOptions) : null;
         await Assertions.Expect(control).ToBeEnabledAsync(options);
     }
