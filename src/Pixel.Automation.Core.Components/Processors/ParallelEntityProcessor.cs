@@ -7,65 +7,64 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Core.Components.Processors
+namespace Pixel.Automation.Core.Components.Processors;
+
+[DataContract]
+[Serializable]
+[ToolBoxItem("Parallel Processor", "Entity Processor", iconSource: null, description: "Process it's child entities parallely", tags: new string[] { "Parallel Processor" })]
+[NoDropTarget]
+public class ParallelEntityProcessor : EntityProcessor
 {
-    [DataContract]
-    [Serializable]
-    [ToolBoxItem("Parallel Processor", "Entity Processor", iconSource: null, description: "Process it's child entities parallely", tags: new string[] { "Parallel Processor" })]
-    [NoDropTarget]
-    public class ParallelEntityProcessor : EntityProcessor
+    private readonly ILogger logger = Log.ForContext<ParallelEntityProcessor>();
+
+    public ParallelEntityProcessor() : base("Parallel Processor", "Processor")
     {
-        private readonly ILogger logger = Log.ForContext<ParallelEntityProcessor>();
-
-        public ParallelEntityProcessor() : base("Parallel Processor", "Processor")
-        {
-
-        }
-
-        public override async Task BeginProcessAsync()
-        {
-            var exceptions = new ConcurrentQueue<Exception>();
-
-            var result = Parallel.ForEach(this.Entities, async entity =>
-            {
-                try
-                {
-                    await ProcessEntity(entity);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, ex.Message);
-                    exceptions.Enqueue(ex);
-                }
-            });
-
-            if (exceptions.Count > 0)
-            {
-                throw new AggregateException(exceptions);
-            }
-
-            await Task.CompletedTask;
-        }
-      
-        public override void ResolveDependencies()
-        {
-            if (this.Components.Count() > 0)
-            {
-                return;
-            }
-
-            base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
-            base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
-        }
-
-        public override Entity AddComponent(IComponent component)
-        {
-            if(component is PlaceHolderEntity sequenceEntity)
-            {
-                base.AddComponent(sequenceEntity);
-            }
-            return this;
-        }
 
     }
+
+    public override async Task BeginProcessAsync()
+    {
+        var exceptions = new ConcurrentQueue<Exception>();
+
+        var result = Parallel.ForEach(this.Entities, async entity =>
+        {
+            try
+            {
+                await ProcessEntity(entity);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+                exceptions.Enqueue(ex);
+            }
+        });
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(exceptions);
+        }
+
+        await Task.CompletedTask;
+    }
+  
+    public override void ResolveDependencies()
+    {
+        if (this.Components.Count() > 0)
+        {
+            return;
+        }
+
+        base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+        base.AddComponent(new PlaceHolderEntity() { Name = $"Parallel Block #{this.Entities.Count() + 1}" });
+    }
+
+    public override Entity AddComponent(IComponent component)
+    {
+        if(component is PlaceHolderEntity sequenceEntity)
+        {
+            base.AddComponent(sequenceEntity);
+        }
+        return this;
+    }
+
 }

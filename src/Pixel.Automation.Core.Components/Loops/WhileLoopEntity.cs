@@ -9,110 +9,111 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Core.Components.Loops
+namespace Pixel.Automation.Core.Components.Loops;
+
+[DataContract]
+[Serializable]
+[ToolBoxItem("While Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a while loop", tags: new string[] { "while loop" })]
+[Scriptable("ScriptFile")]
+[Initializer(typeof(ScriptFileInitializer))]
+[NoDropTarget]
+public class WhileLoopEntity : Entity, ILoop
 {
-    [DataContract]
-    [Serializable]
-    [ToolBoxItem("While Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a while loop", tags: new string[] { "while loop" })]
-    [Scriptable("ScriptFile")]
-    [Initializer(typeof(ScriptFileInitializer))]
-    [NoDropTarget]
-    public class WhileLoopEntity : Entity, ILoop
+    private readonly ILogger logger = Log.ForContext<WhileLoopEntity>();
+
+    protected string scriptFile;
+    [DataMember(Order = 200)]
+    [Browsable(false)]
+    public string ScriptFile
     {
-        protected string scriptFile;
-        [DataMember(Order = 200)]
-        [Browsable(false)]
-        public string ScriptFile
-        {
-            get => scriptFile;
-            set => scriptFile = value;
-        }    
+        get => scriptFile;
+        set => scriptFile = value;
+    }    
 
-        [NonSerialized]
-        bool exitCriteriaSatisfied;
-        [Browsable(false)]        
-        public bool ExitCriteriaSatisfied
+    [NonSerialized]
+    bool exitCriteriaSatisfied;
+    [Browsable(false)]        
+    public bool ExitCriteriaSatisfied
+    {
+        get
         {
-            get
-            {
-                return exitCriteriaSatisfied;
-            }
-
-            set
-            {
-                this.exitCriteriaSatisfied = value;
-            }
+            return exitCriteriaSatisfied;
         }
 
-      
-        public WhileLoopEntity() : base("While Loop", "WhileLoopEntity")
+        set
         {
-
+            this.exitCriteriaSatisfied = value;
         }
+    }
 
-        public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-        {                
-            int iteration = 0;
-            while (true)
-            {               
-                ScriptResult scriptResult = ExecuteScript().Result;
-                this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
-                if(this.exitCriteriaSatisfied)
-                {
-                    Log.Information($"while condition evaluated to false for while loop component with Id : {Id} " +
-                        $"after {iteration} iterations",iteration, this.Id);
-                    break;
-                }
-                                
-                Log.Information("Running iteration : {Iteration} of While Loop component with Id : {Id}", iteration, this.Id);
+  
+    public WhileLoopEntity() : base("While Loop", "WhileLoopEntity")
+    {
 
-                var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
-                var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
-                while (iterator.MoveNext())
-                {
-                    yield return iterator.Current;                   
-                }
-                
-                //Reset any inner loop before running next iteration
-                foreach (var loop in this.GetInnerLoops())
-                {                   
-                    (loop as Entity).ResetHierarchy();
-                }
+    }
 
-                iteration++;
+    public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
+    {                
+        int iteration = 0;
+        logger.Information(": Begin while loop");
+        while (true)
+        {               
+            ScriptResult scriptResult = ExecuteScript().Result;
+            this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
+            if(this.exitCriteriaSatisfied)
+            {
+                logger.Information($"While condition evaluated to false after {0} iterations",iteration);
+                break;
+            }
+                            
+            logger.Information("Running iteration : {0}", iteration);
+
+            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+            var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
+            while (iterator.MoveNext())
+            {
+                yield return iterator.Current;                   
             }
             
-        }
-
-        private async Task<ScriptResult> ExecuteScript()
-        {
-
-            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
-            ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
-            return result;
-
-        }
-
-        public override void ResetComponent()
-        {
-            base.ResetComponent();          
-            this.ExitCriteriaSatisfied = false;          
-        }
-
-        public override void ResolveDependencies()
-        {
-            if (this.Components.Count() > 0)
-            {
-                return;
+            //Reset any inner loop before running next iteration
+            foreach (var loop in this.GetInnerLoops())
+            {                   
+                (loop as Entity).ResetHierarchy();
             }
 
-            PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
-            base.AddComponent(statementsPlaceHolder);
-            
+            iteration++;
         }
-        public override Entity AddComponent(Interfaces.IComponent component)
-        {          
-            return this;
+        logger.Information(": End while loop");
+    }
+
+    private async Task<ScriptResult> ExecuteScript()
+    {
+
+        IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
+        ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
+        return result;
+
+    }
+
+    public override void ResetComponent()
+    {
+        base.ResetComponent();          
+        this.ExitCriteriaSatisfied = false;          
+    }
+
+    public override void ResolveDependencies()
+    {
+        if (this.Components.Count() > 0)
+        {
+            return;
         }
+
+        PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
+        base.AddComponent(statementsPlaceHolder);
+        
+    }
+    public override Entity AddComponent(Interfaces.IComponent component)
+    {          
+        return this;
     }
 }

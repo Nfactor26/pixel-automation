@@ -32,6 +32,7 @@ namespace Pixel.Automation.Core.Components.Sequences
 
         public override async Task BeginProcessAsync()
         {
+            logger.Information(": Begin try catch block");
             try
             {
                 var tryBlock = this.GetComponentsByName("Try", Enums.SearchScope.Children).FirstOrDefault() as Entity;
@@ -53,6 +54,7 @@ namespace Pixel.Automation.Core.Components.Sequences
                 var finallyBlock = this.GetComponentsByName("Finally", Enums.SearchScope.Children).FirstOrDefault() as Entity;
                 await this.ProcessEntity(finallyBlock);
             }
+            logger.Information(": End try catch block");
         }
 
         public override IEnumerable<IComponent> GetNextComponentToProcess()
