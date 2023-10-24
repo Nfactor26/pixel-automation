@@ -75,7 +75,7 @@ public class ScriptExecutorActorComponent : WebElementActorComponent
         {
             await ArgumentProcessor.SetValueAsync<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
         }
-        logger.Information("Javascript was executed successfully.");
+        logger.Information("Javascript was executed successfully");
     }  
 
 }

@@ -38,7 +38,7 @@ public class ScrollWindowActorComponent : SeleniumActorComponent
     /// <summary>
     /// Default constructor
     /// </summary>
-    public ScrollWindowActorComponent() : base("Scroll By Amount", "ScrollByAmount")
+    public ScrollWindowActorComponent() : base("Scroll Window", "ScrollWindow")
     {
 
     }

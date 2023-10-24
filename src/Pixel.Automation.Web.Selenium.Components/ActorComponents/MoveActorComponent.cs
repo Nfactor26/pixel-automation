@@ -45,7 +45,7 @@ public class MoveActorComponent : WebElementActorComponent
         Actions action = new Actions(ApplicationDetails.WebDriver);
         action.DragAndDropToOffset(control, positionOffSet.XCoordinate, positionOffSet.YCoordinate).Perform();
 
-        logger.Information("cControl : '{0}' was moved by offset ({1}, {2})", name, positionOffSet.XCoordinate, positionOffSet.YCoordinate);
+        logger.Information("Control : '{0}' was moved by offset ({1}, {2})", name, positionOffSet.XCoordinate, positionOffSet.YCoordinate);
     }
 
 }
