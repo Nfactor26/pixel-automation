@@ -46,8 +46,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests.ActorComponents
             };
             await scrollToActor.ActAsync();
 
-            await argumentProcessor.Received(1).GetValueAsync<int>(Arg.Any<Argument>());
-            (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Is<string>("window.scroll(0, 810);"));
+            await argumentProcessor.Received(2).GetValueAsync<int>(Arg.Any<Argument>());
+            (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Is<string>("window.scroll(110, 810);"));
         }
     }
 }
