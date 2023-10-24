@@ -44,11 +44,11 @@ public class GetAttributeActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var attributeName = await this.ArgumentProcessor.GetValueAsync<string>(this.AttributeName);
         string extractedValue = control.GetAttribute(attributeName);
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  attribue : {0} from control.", attributeName);
+        logger.Information("Retrived  attribue : {0} from control : '{1}'", attributeName, name);
     }
 
 }

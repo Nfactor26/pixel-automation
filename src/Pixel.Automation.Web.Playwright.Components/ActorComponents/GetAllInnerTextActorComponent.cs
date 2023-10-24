@@ -37,9 +37,9 @@ public class GetAllInnerTextActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {       
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.AllInnerTextsAsync();
         await this.ArgumentProcessor.SetValueAsync<IReadOnlyList<string>>(this.Result, result);
-        logger.Information($"Retrieved innerText values for all matching nodes.");
+        logger.Information("Retrieved innerText values for all matching nodes for control : '{1}'", name);
     }
 }

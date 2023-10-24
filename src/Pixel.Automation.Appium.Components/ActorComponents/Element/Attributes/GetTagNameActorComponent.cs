@@ -37,10 +37,10 @@ public class GetTagNameActorComponent : AppiumElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         string extractedValue = control.TagName;
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  tag name from control.");
+        logger.Information("Retrived  tag name with value : '{0}' from control : '{1}'", extractedValue, name);
     }
 
 }

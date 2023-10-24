@@ -37,9 +37,9 @@ public class ClickActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.ClickAsync(this.ClickOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorClickOptions>(this.ClickOptions) : null);
-        logger.Information("control was clicked.");
+        logger.Information("Control : '{0}' was clicked", name);
     }
 
 }

@@ -56,7 +56,7 @@ public class EvaluateScriptActorComponent : PlaywrightActorComponent
         {
             await ArgumentProcessor.SetValueAsync<string>(this.Result, result);
         }
-        logger.Information("javascript executed successfully.");
+        logger.Information("Javascript was executed successfully.");
     }
     
 }

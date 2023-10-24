@@ -46,9 +46,9 @@ public class FillActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
         var input = await this.ArgumentProcessor.GetValueAsync<string>(this.Input);
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.FillAsync(input, this.FillOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorFillOptions>(this.FillOptions) : null);
-        logger.Information("Fill performed on element.");
+        logger.Information("Value : '{0}' was filled on control : '{1}' ", input, name);
     }
        
 }

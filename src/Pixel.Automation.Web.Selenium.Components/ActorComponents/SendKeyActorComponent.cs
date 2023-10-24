@@ -45,15 +45,15 @@ public class SendKeyActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         string inputForControl = await ArgumentProcessor.GetValueAsync<string>(this.Input);
         if (this.ClearBeforeSendKeys)
         {
-            logger.Information("Value of control was cleared ");
+            logger.Information("Value of control : '{0}' was cleared", name);
             control.Clear();
         }
         control.SendKeys(inputForControl);
-        logger.Information("Send key operation completed on control");
+        logger.Information("Send key : '{0}' completed on control : '{1}'", inputForControl, name);
 
     }
 }

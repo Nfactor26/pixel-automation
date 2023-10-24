@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -11,152 +12,160 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Window.Management.Components
+namespace Pixel.Automation.Window.Management.Components;
+
+[DataContract]
+[Serializable]
+[ToolBoxItem("Find Desktop Window", "Window Managment", iconSource: null, description: "Find desktop window", tags: new string[] { "Find desktop window" })]
+public class FindDesktopWindowsActorComponent : ActorComponent
 {
-    [DataContract]
-    [Serializable]
-    [ToolBoxItem("Find Desktop Window", "Window Managment", iconSource: null, description: "Find desktop window", tags: new string[] { "Find desktop window" })]
-    public class FindDesktopWindowsActorComponent : ActorComponent
+    private readonly ILogger logger = Log.ForContext<FindDesktopWindowsActorComponent>();
+
+    [DataMember]
+    [DisplayName("Window Title")]
+    [Category("Input")]
+    public Argument Title { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = String.Empty };
+
+    [DataMember]
+    [DisplayName("Match Criteria")]
+    [Category("Input")]
+    public MatchType MatchType { get; set; } = MatchType.Equals;
+
+    private LookupMode lookupMode = LookupMode.FindSingle;
+    [DataMember]
+    [Display(Name = "Look Up Mode", GroupName = "Search Strategy", Order = 20)]
+    [Description("Find single control or Find All control and apply index based or custom filter")]
+    [RefreshProperties(RefreshProperties.Repaint)]
+    public LookupMode LookupMode
     {
-        [DataMember]
-        [DisplayName("Window Title")]
-        [Category("Input")]
-        public Argument Title { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = String.Empty };
-
-        [DataMember]
-        [DisplayName("Match Criteria")]
-        [Category("Input")]
-        public MatchType MatchType { get; set; } = MatchType.Equals;
-
-        private LookupMode lookupMode = LookupMode.FindSingle;
-        [DataMember]
-        [Display(Name = "Look Up Mode", GroupName = "Search Strategy", Order = 20)]
-        [Description("Find single control or Find All control and apply index based or custom filter")]
-        [RefreshProperties(RefreshProperties.Repaint)]
-        public LookupMode LookupMode
+        get
         {
-            get
+            switch (lookupMode)
             {
-                switch (lookupMode)
-                {
-                    case LookupMode.FindSingle:
-                        this.SetDispalyAttribute(nameof(FilterMode), false);
-                        this.SetDispalyAttribute(nameof(Index), false);
-                        this.SetDispalyAttribute(nameof(Filter), false);
-                        break;
-                    case LookupMode.FindAll:
-                        this.SetDispalyAttribute(nameof(FilterMode), true);
-                        break;
-                }
-                return lookupMode;
+                case LookupMode.FindSingle:
+                    this.SetDispalyAttribute(nameof(FilterMode), false);
+                    this.SetDispalyAttribute(nameof(Index), false);
+                    this.SetDispalyAttribute(nameof(Filter), false);
+                    break;
+                case LookupMode.FindAll:
+                    this.SetDispalyAttribute(nameof(FilterMode), true);
+                    break;
             }
-            set
-            {
-                lookupMode = value;
-                OnPropertyChanged(nameof(LookupMode));
-                OnPropertyChanged(nameof(FilterMode));
-            }
+            return lookupMode;
         }
-
-        private FilterMode filterMode = FilterMode.Index;
-        [DataMember]
-        [Display(Name = "Filter By", GroupName = "Search Strategy", Order = 30, AutoGenerateField = false)]
-        [RefreshProperties(RefreshProperties.Repaint)]
-        public FilterMode FilterMode
+        set
         {
-            get
-            {
-                switch (filterMode)
-                {
-                    case FilterMode.Index:
-                        this.SetDispalyAttribute(nameof(Filter), false);
-                        this.SetDispalyAttribute(nameof(Index), true);
-                        break;
-                    case FilterMode.Custom:
-                        this.Filter = new FuncArgument<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>() { CanChangeType = false };
-                        this.SetDispalyAttribute(nameof(Filter), true);
-                        this.SetDispalyAttribute(nameof(Index), false);
-                        break;
-                }
-                return filterMode;
-            }
-            set
-            {
-                filterMode = value;
-                OnPropertyChanged(nameof(FilterMode));
-            }
+            lookupMode = value;
+            OnPropertyChanged(nameof(LookupMode));
+            OnPropertyChanged(nameof(FilterMode));
         }
+    }
 
-        [DataMember]
-        [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
-        [Description("Bind to current Iteration when used inside loop")]
-        public Argument Index { get; set; } = new InArgument<int>() {  Mode = ArgumentMode.Default, DefaultValue = 0 };
-
-        [DataMember]
-        [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
-        [Description("When using FindAll LookupMode, provide a script to Filter the result")]
-        public virtual Argument Filter { get; set; }
-
-
-        [DataMember]
-        [DisplayName("Target Window")]
-        [Description("Window matching the configured search critieria")]
-        [Category("Output")]
-        public Argument TargetWindow { get; set; } = new OutArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
-
-        public FindDesktopWindowsActorComponent() : base("Find Desktop Windows", " FindDesktopWindows")
+    private FilterMode filterMode = FilterMode.Index;
+    [DataMember]
+    [Display(Name = "Filter By", GroupName = "Search Strategy", Order = 30, AutoGenerateField = false)]
+    [RefreshProperties(RefreshProperties.Repaint)]
+    public FilterMode FilterMode
+    {
+        get
         {
-
-        }
-
-        public override async Task ActAsync()
-        {
-            IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
-            IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
-
-            string titleToMatch = await argumentProcessor.GetValueAsync<string>(this.Title) ?? string.Empty;
-            var foundWindows = windowManager.FindAllDesktopWindows(titleToMatch, this.MatchType, true);
-
-            if (this.lookupMode == LookupMode.FindSingle)
+            switch (filterMode)
             {
-                await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindows.Single());
+                case FilterMode.Index:
+                    this.SetDispalyAttribute(nameof(Filter), false);
+                    this.SetDispalyAttribute(nameof(Index), true);
+                    break;
+                case FilterMode.Custom:
+                    this.Filter = new FuncArgument<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>() { CanChangeType = false };
+                    this.SetDispalyAttribute(nameof(Filter), true);
+                    this.SetDispalyAttribute(nameof(Index), false);
+                    break;
             }
-            else
+            return filterMode;
+        }
+        set
+        {
+            filterMode = value;
+            OnPropertyChanged(nameof(FilterMode));
+        }
+    }
+
+    [DataMember]
+    [Display(Name = "Index", GroupName = "Search Strategy", Order = 40)]
+    [Description("Bind to current Iteration when used inside loop")]
+    public Argument Index { get; set; } = new InArgument<int>() {  Mode = ArgumentMode.Default, DefaultValue = 0 };
+
+    [DataMember]
+    [Display(Name = "Filter Script", GroupName = "Search Strategy", Order = 40)]
+    [Description("When using FindAll LookupMode, provide a script to Filter the result")]
+    public virtual Argument Filter { get; set; }
+
+
+    [DataMember]
+    [DisplayName("Target Window")]
+    [Description("Window matching the configured search critieria")]
+    [Category("Output")]
+    public Argument TargetWindow { get; set; } = new OutArgument<ApplicationWindow>() { Mode = ArgumentMode.DataBound };
+
+    public FindDesktopWindowsActorComponent() : base("Find Desktop Windows", " FindDesktopWindows")
+    {
+
+    }
+
+    public override async Task ActAsync()
+    {
+        IArgumentProcessor argumentProcessor = this.ArgumentProcessor;
+        IApplicationWindowManager windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
+
+        string titleToMatch = await argumentProcessor.GetValueAsync<string>(this.Title) ?? string.Empty;
+        var foundWindows = windowManager.FindAllDesktopWindows(titleToMatch, this.MatchType, true);
+        logger.Debug("{0} windows were located matching title : '{1}' and match type : '{2}'", foundWindows.Count(), titleToMatch, this.MatchType);
+
+        if (this.lookupMode == LookupMode.FindSingle)
+        {
+            var foundWindow = foundWindows.FirstOrDefault();
+            logger.Information("Window with hWnd : '{0}' was located for title : '{1}' and match type : '{2}'", foundWindow.HWnd, titleToMatch, this.MatchType);
+            await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindow);
+        }
+        else
+        {
+            switch (this.filterMode)
             {
-                switch (this.filterMode)
-                {
-                    case FilterMode.Index:
-                        int index = await argumentProcessor.GetValueAsync<int>(this.Index);
-                        if (foundWindows.Count() > index)
+                case FilterMode.Index:
+                    int index = await argumentProcessor.GetValueAsync<int>(this.Index);
+                    if (foundWindows.Count() > index)
+                    {
+                        var foundWindow = foundWindows.ElementAt(index);
+                        logger.Information("Window at index : '{0}' with hWnd : '{1}' was located for title : '{2}' and match type : '{3}'", index,
+                          foundWindow.HWnd, titleToMatch, this.MatchType);
+                        await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindow);
+                    }
+                    break;
+                case FilterMode.Custom:
+                    foreach (var window in foundWindows)
+                    {
+                        var found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
+                        if (found)
                         {
-                            var foundWindow = foundWindows.ElementAt(index);
-                            await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, foundWindow);
+                            logger.Information("Window with hWnd : '{0}' was located for title : '{1}' and match type : '{2}' filtered by the script file : '{3}'",
+                                window.HWnd, titleToMatch, this.MatchType, this.Filter.ScriptFile);
+                            await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, window);
+                            break;
                         }
-                        break;
-                    case FilterMode.Custom:
-                        foreach (var window in foundWindows)
-                        {
-                            var found = ApplyPredicate(this.Filter.ScriptFile, window).Result;
-                            if (found)
-                            {
-                                await argumentProcessor.SetValueAsync<ApplicationWindow>(this.TargetWindow, window);
-                                break;
-                            }
 
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
-            await Task.CompletedTask;
         }
+        await Task.CompletedTask;
+    }
 
 
-        protected async Task<bool> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
-        {
-            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>(predicateScriptFile);
-            bool isMatch = await fn(this, applicationWindow);
-            return isMatch;
-        }
+    protected async Task<bool> ApplyPredicate(string predicateScriptFile, ApplicationWindow applicationWindow)
+    {
+        IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+        var fn = await scriptEngine.CreateDelegateAsync<Func<Core.Interfaces.IComponent, ApplicationWindow, Task<bool>>>(predicateScriptFile);
+        bool isMatch = await fn(this, applicationWindow);
+        return isMatch;
     }
 }

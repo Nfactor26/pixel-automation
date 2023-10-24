@@ -32,7 +32,7 @@ public class ExpectToBeCheckedActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeCheckedOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeCheckedOptions>(this.ToBeCheckedOptions) : null;
         await Assertions.Expect(control).ToBeCheckedAsync(options);
     }

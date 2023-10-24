@@ -38,9 +38,9 @@ public class DoubleClickActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.DblClickAsync(this.DblClickOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorDblClickOptions>(this.DblClickOptions) : null);
-        logger.Information("control was double clicked.");
+        logger.Information("Control : '{0}' was double clicked.");
     }
   
 }

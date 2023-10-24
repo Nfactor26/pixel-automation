@@ -37,10 +37,10 @@ public class WaitForActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var options = this.WaitForOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorWaitForOptions>(this.WaitForOptions) : null;
         await control.WaitForAsync(options);
-        logger.Information("Wait for control completed.");
+        logger.Information("Wait for control : '{0}' completed", name);
     }
 
 }

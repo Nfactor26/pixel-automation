@@ -37,10 +37,10 @@ public class GetTextActorComponent : AppiumElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();       
+        var (name, control) = await GetTargetControl();       
         string extractedValue = control.Text;
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  visible text from control.");
+        logger.Information("Retrived visible text : '{0}' from control '{1}'", extractedValue, name);
     }
 
 }

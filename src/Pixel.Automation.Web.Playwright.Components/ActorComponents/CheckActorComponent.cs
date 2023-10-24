@@ -40,12 +40,12 @@ public class CheckActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name,control) = await GetTargetControl();
         if(!await control.IsCheckedAsync())
         {
             await control.CheckAsync(this.CheckOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorCheckOptions>(this.CheckOptions) : null);
-            logger.Information("element was checked.");
+            logger.Information("Control : '{0}' was checked", name);
         }
-        logger.Warning("element is already checked.");
+        logger.Warning("Control : '{0}' is already checked", name);
     }
 }

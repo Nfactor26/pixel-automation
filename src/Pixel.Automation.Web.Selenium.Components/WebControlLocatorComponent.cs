@@ -72,7 +72,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             logger.Error(exception, exception.Message); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Information("Control lookup  will be attempated again.");
+                logger.Debug("Control lookup  will be attempated again.");
             }
         });
     }
@@ -100,7 +100,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 webControlIdentity = webControlIdentity.Next as WebControlIdentity;
                 continue;
             }
-
+            logger.Debug("{0} has been located", controlIdentity);
             return await Task.FromResult(new WebUIControl(controlIdentity, currentRoot as IWebElement, this));
         }
 
@@ -162,43 +162,38 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 continue;
             }
 
-            try
+            IReadOnlyCollection<IWebElement> foundElements;
+            switch (webControlIdentity.SearchScope)
             {
-                IReadOnlyCollection<IWebElement> foundElements;
-                switch (webControlIdentity.SearchScope)
-                {
-                    case SearchScope.Descendants:
-                        foundElements = FindAllElement(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                        break;
-                    case SearchScope.Sibling:
-                        foundElements = FindAllSiblingControls(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
-                        break;
-                    case SearchScope.Children:
-                    case SearchScope.Ancestor:
-                    default:
-                        throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
-                }
-                if (ShowBoundingBox)
-                {
-                    foreach (var element in foundElements)
-                    {
-                        HighlightElement(element);
-                    }
-                }
-                return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
+                case SearchScope.Descendants:
+                    foundElements = FindAllElement(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                    break;
+                case SearchScope.Sibling:
+                    foundElements = FindAllSiblingControls(webControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? WebDriver);
+                    break;
+                case SearchScope.Children:
+                case SearchScope.Ancestor:
+                default:
+                    throw new NotSupportedException($"Search scope : {webControlIdentity.SearchScope} is not supported for FindAllControls");
             }
-            finally
+            if (ShowBoundingBox)
             {
-                logger.Debug("Control lookup completed.");
+                foreach (var element in foundElements)
+                {
+                    HighlightElement(element);
+                }
             }
-
+            logger.Debug("{0} controls matching {1} has been located", foundElements.Count, controlIdentity);
+            return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
         }
     }
 
     internal bool HasShadowRoot(ISearchContext searchContext)
     {
-        var arguments = new List<object>();
-        arguments.Add(searchContext);       
+        var arguments = new List<object>
+        {
+            searchContext
+        };
         var result = (this.WebDriver as IJavaScriptExecutor).ExecuteScript("return (arguments[0].shadowRoot != null)", arguments.ToArray());
         return (bool)result;
     }
@@ -215,8 +210,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         {
             try
             {              
-                foundControl = FindElement(controlIdentity, searchRoot);
-                logger.Information($"{controlIdentity} has been located");
+                foundControl = FindElement(controlIdentity, searchRoot);             
                 return foundControl;
             }
             finally
@@ -279,8 +273,6 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 default:
                     throw new InvalidOperationException($"SearchScope : Ancestor is not supported for FindBy modes [LinkText,PartialLinkText]");
             }
-
-            logger.Information($"{webControlIdentity} has been located");
         }
         finally
         {
@@ -512,6 +504,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     {
         IWebDriver webDriver = WebDriver;
         webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
+        logger.Information("Web driver has been switched to window : {0}", windowNumber);
     }
 
     public void SwitchToFrame(FrameIdentity frame, WebControlIdentity webControlIdentity)
@@ -543,7 +536,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
             default:
                 throw new ArgumentException($"Find by strategy {findBy} is not supported for frames");
         }
-        logger.Information($"Web driver has been switched to frame : {frame}");
+        logger.Information("Web driver has been switched to frame : {0}", frame);
     }
 
     #endregion Swith To
@@ -634,7 +627,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         {
             WebDriver.SwitchTo().DefaultContent();
 
-            logger.Information($"Web driver switched to default content.");
+            logger.Debug($"Web driver switched to default content.");
 
             foreach (var frame in webControlIdentity.FrameHierarchy)
             {

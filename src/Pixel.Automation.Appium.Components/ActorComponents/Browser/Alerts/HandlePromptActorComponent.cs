@@ -58,7 +58,7 @@ public class HandlePromptActorComponent : AppiumElementActorComponent
                 if(this.Message.IsConfigured())
                 {
                     alert.SendKeys(input);
-                    logger.Information("Prompot value was set.");
+                    logger.Information("Prompt value : '{0}' was set.", input);
                 }                
                 Thread.Sleep(500);
                 alert.Accept();

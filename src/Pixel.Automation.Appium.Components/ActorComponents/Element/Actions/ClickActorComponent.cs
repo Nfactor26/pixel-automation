@@ -1,5 +1,4 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Appium;
+﻿using OpenQA.Selenium.Appium;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System.Runtime.Serialization;
@@ -26,8 +25,8 @@ public class ClickActorComponent : AppiumElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         control.Click();
-        logger.Information("control was clicked.");
+        logger.Information("Control : '{0}' was clicked", name);
     }
 }

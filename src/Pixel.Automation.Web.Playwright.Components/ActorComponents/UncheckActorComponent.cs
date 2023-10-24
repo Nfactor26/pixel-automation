@@ -40,13 +40,13 @@ public class UncheckActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         if (await control.IsCheckedAsync())
         {
             await control.UncheckAsync(this.UnCheckOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorUncheckOptions>(this.UnCheckOptions) : null);
-            logger.Information("element was unchecked.");
+            logger.Information("Control : '{0}' was unchecked", name);
         }
-        logger.Warning("element is already unchecked.");
+        logger.Information("Control : '{0}' is already unchecked", name);
     }
 
 }

@@ -30,10 +30,10 @@ public class DoubleClickActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         Actions action = new Actions(ApplicationDetails.WebDriver);
         action.DoubleClick(control).Perform();
-        logger.Information("control was double clicked.");
+        logger.Information("Double clicked was performed on control : '{0}'", name);
     }
 
 }

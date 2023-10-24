@@ -26,8 +26,8 @@ public class SubmitActorComponent : AppiumElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         control.Submit();
-        logger.Information("Submit executed on control");
+        logger.Information("Submit executed on control : '{0}' ", name);
     }
 }

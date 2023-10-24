@@ -38,7 +38,7 @@ public class ExpectToHaveTextActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();       
+        var (name, control) = await this.GetTargetControl();       
         var options = this.ToHaveTextOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveTextOptions>(this.ToHaveTextOptions) : null;      
         switch (this.Text)
         {

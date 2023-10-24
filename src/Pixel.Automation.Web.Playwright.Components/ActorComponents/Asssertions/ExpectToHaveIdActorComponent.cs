@@ -38,7 +38,7 @@ public class ExpectToHaveIdActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();       
+        var (name, control) = await this.GetTargetControl();       
         var toHaveIdOptions = this.ToHaveIdOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveIdOptions>(this.ToHaveIdOptions) : null;
         switch (this.Identifier)
         {

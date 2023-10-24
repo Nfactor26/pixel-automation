@@ -32,7 +32,7 @@ public class ExpectToBeEmptyActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeEmptyOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeEmptyOptions>(this.ToBeEmptyOptions) : null;
         await Assertions.Expect(control).ToBeEmptyAsync(options);
     }

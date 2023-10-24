@@ -37,9 +37,9 @@ public class TapActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.TapAsync(this.TapOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorTapOptions>(this.TapOptions) : null);
-        logger.Information("control was tapped.");
+        logger.Information("Control : '{0}' was tapped.", name);
     }
    
 }

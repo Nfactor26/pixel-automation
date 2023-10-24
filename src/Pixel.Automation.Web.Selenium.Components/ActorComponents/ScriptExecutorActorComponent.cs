@@ -60,7 +60,7 @@ public class ScriptExecutorActorComponent : WebElementActorComponent
 
         if (this.Parent is IControlEntity)
         {
-            IWebElement control = await GetTargetControl();
+            var (_, control) = await GetTargetControl();
             allArguments.Add(control);
         }
 
@@ -75,7 +75,7 @@ public class ScriptExecutorActorComponent : WebElementActorComponent
         {
             await ArgumentProcessor.SetValueAsync<string>(this.Result, scriptResult == null ? string.Empty : scriptResult);
         }
-        logger.Information("javascript executed successfully.");
+        logger.Information("Javascript was executed successfully");
     }  
 
 }

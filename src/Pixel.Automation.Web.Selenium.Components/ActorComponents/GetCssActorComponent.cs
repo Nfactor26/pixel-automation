@@ -44,11 +44,11 @@ public class GetCssActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var cssPropertyName = await this.ArgumentProcessor.GetValueAsync<string>(this.CssPropertyName);
         string extractedValue = control.GetCssValue(cssPropertyName);
         await ArgumentProcessor.SetValueAsync<string>(Result, extractedValue);
-        logger.Information("Retrived  value of css : {0} from control.", cssPropertyName);
+        logger.Information("Retrived value of css property : '{0}' from control : '{1}'", cssPropertyName, name);
     }
 
 }

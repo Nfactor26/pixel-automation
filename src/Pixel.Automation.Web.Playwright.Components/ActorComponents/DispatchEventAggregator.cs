@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace Pixel.Automation.Web.Playwright.Components;
 
 /// <summary>
-/// Use <see cref="DispatchEventActorComponent"/> to dispatch an event on an element.
+/// Use <see cref="DispatchEventActorComponent"/> to programatically dispatch an event on an element.
 /// </summary>
 [DataContract]
 [Serializable]
@@ -19,10 +19,10 @@ public class DispatchEventActorComponent : PlaywrightActorComponent
     private readonly ILogger logger = Log.ForContext<DispatchEventActorComponent>();
 
     /// <summary>
-    /// Optional LocatorDblClickOptions that can be used to customize double click.
+    /// Event to dispatch e.g. click
     /// </summary>
     [DataMember]
-    [Display(Name = "DispatchEvent", GroupName = "Configuration", Order = 10, Description = "event to dispatch")]
+    [Display(Name = "DispatchEvent", GroupName = "Configuration", Order = 10, Description = "event to dispatch e.g. click")]
     public Argument DispatchEvent { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = String.Empty };
 
 
@@ -48,9 +48,9 @@ public class DispatchEventActorComponent : PlaywrightActorComponent
     {
         string dispatchEvent = await this.ArgumentProcessor.GetValueAsync<string>(this.DispatchEvent);
         var dispatchEventOptions = this.DispatchEventOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorDispatchEventOptions>(this.DispatchEventOptions) : null;
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.DispatchEventAsync(dispatchEvent, dispatchEventOptions);
-        logger.Information("Event dispatched on lement.");
+        logger.Information("Event : '{0}' was dispatched on control : '{1}'", dispatchEvent, name);
     }
 
 }

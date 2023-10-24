@@ -10,134 +10,132 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Core.Components.Loops
+namespace Pixel.Automation.Core.Components.Loops;
+
+[DataContract]
+[Serializable]
+[ToolBoxItem("For Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for loop", tags: new string[] { "for loop" })]
+[Scriptable("ScriptFile")]
+[Initializer(typeof(ScriptFileInitializer))]
+[NoDropTarget]
+public class ForLoopEntity : Entity, ILoop
 {
-    [DataContract]
-    [Serializable]
-    [ToolBoxItem("For Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for loop", tags: new string[] { "for loop" })]
-    [Scriptable("ScriptFile")]
-    [Initializer(typeof(ScriptFileInitializer))]
-    [NoDropTarget]
-    public class ForLoopEntity : Entity, ILoop
+    private readonly ILogger logger = Log.ForContext<ForLoopEntity>();
+
+    protected string scriptFile;
+    /// <summary>
+    /// Script file holds the exit criteria script
+    /// </summary>
+    [DataMember]
+    [Browsable(false)]
+    public string ScriptFile
+    {
+        get => scriptFile;
+        set => scriptFile = value;
+    }
+
+
+    [NonSerialized]
+    bool exitCriteriaSatisfied;
+    [Browsable(false)]     
+    public bool ExitCriteriaSatisfied
+    {
+        get
+        {
+            return exitCriteriaSatisfied;
+        }
+
+        set
+        {
+            this.exitCriteriaSatisfied = value;
+        }
+    }        
+
+    public ForLoopEntity() : base("For Loop", "ForLoopEntity")
     {
 
-        private readonly ILogger logger = Log.ForContext<ForLoopEntity>();
+    }
 
-        protected string scriptFile;
-        /// <summary>
-        /// Script file holds the exit criteria script
-        /// </summary>
-        [DataMember]
-        [Browsable(false)]
-        public string ScriptFile
+    public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
+    {           
+        IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
+        string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.WorkingDirectory, this.scriptFile))?.Trim()
+            .Split(new char[] {';'});
+
+        //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
+        if (statements.Length < 3 || statements.Length > 4)
         {
-            get => scriptFile;
-            set => scriptFile = value;
+            throw new FormatException($"For loop statement for componet with Id : {Id} is incorrectly formed." +
+              $"statement must have exactly three parts structured in the form initialization;condition;increment");
+        }              
+        if(statements.Length == 4 && !string.IsNullOrEmpty(statements[3]))
+        {
+            throw new FormatException($"For loop statement for componet with Id : {Id} is incorrectly formed." +
+                           $"statement must have exactly three parts structured in the form initialization;condition;increment");
         }
 
+        _ = ExecuteScript(statements[0]).Result; //execute the initialization part
 
-        [NonSerialized]
-        bool exitCriteriaSatisfied;
-        [Browsable(false)]     
-        public bool ExitCriteriaSatisfied
+        logger.Information(": Begin for loop");
+        int iteration = 0;
+        for (int i = 0; ; i++)
         {
-            get
+            ScriptResult scriptResult = ExecuteScript(statements[1]).Result;  //execute the condition part
+            this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
+            if (this.exitCriteriaSatisfied)
             {
-                return exitCriteriaSatisfied;
+                logger.Information($"Loop condition evaluated to false after {0} iterations", iteration);
+                break;
             }
 
-            set
+            logger.Information("Running iteration : {0}", i);
+
+            var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
+            var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
+            while (iterator.MoveNext())
             {
-                this.exitCriteriaSatisfied = value;
-            }
-        }        
-
-        public ForLoopEntity() : base("For Loop", "ForLoopEntity")
-        {
-
-        }
-
-        public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-        {           
-            IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
-            string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.WorkingDirectory, this.scriptFile))?.Trim()
-                .Split(new char[] {';'});
-
-            //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
-            if (statements.Length < 3 || statements.Length > 4)
-            {
-                throw new FormatException($"For loop statement for componet with Id : {Id} is incorrectly formed." +
-                  $"statement must have exactly three parts structured in the form initialization;condition;increment");
-            }              
-            if(statements.Length == 4 && !string.IsNullOrEmpty(statements[3]))
-            {
-                throw new FormatException($"For loop statement for componet with Id : {Id} is incorrectly formed." +
-                               $"statement must have exactly three parts structured in the form initialization;condition;increment");
+                yield return iterator.Current;
             }
 
-            _ = ExecuteScript(statements[0]).Result; //execute the initialization part
-
-            int iteration = 0;
-            for (int i = 0; ; i++)
+            //Reset any inner loop before running next iteration
+            foreach (var loop in this.GetInnerLoops())
             {
-                ScriptResult scriptResult = ExecuteScript(statements[1]).Result;  //execute the condition part
-                this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
-                if (this.exitCriteriaSatisfied)
-                {
-                    logger.Information($"loop condition evaluated to false for For loop component with Id : {Id} " +
-                     $"after {iteration} iterations", iteration, this.Id);
-                    break;
-                }
-
-                logger.Debug("Running iteration : {Iteration} of For Loop component with Id : {Id}", i, this.Id);
-
-                var placeHolderEntity = this.GetFirstComponentOfType<PlaceHolderEntity>();
-                var iterator = placeHolderEntity.GetNextComponentToProcess().GetEnumerator();
-                while (iterator.MoveNext())
-                {
-                    yield return iterator.Current;
-                }
-
-                //Reset any inner loop before running next iteration
-                foreach (var loop in this.GetInnerLoops())
-                {
-                    (loop as Entity).ResetHierarchy();
-                }
-
-                iteration++;
-
-                _ = ExecuteScript(statements[2]).Result;  //Execute the increment statement
+                (loop as Entity).ResetHierarchy();
             }
 
-        }
+            iteration++;
 
-        private async Task<ScriptResult> ExecuteScript(string scriptToExecute)
+            _ = ExecuteScript(statements[2]).Result;  //Execute the increment statement
+        }
+        logger.Information(": End for loop");
+    }
+
+    private async Task<ScriptResult> ExecuteScript(string scriptToExecute)
+    {
+        IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
+        ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute);         
+        return result;
+    }
+
+    public override void ResetComponent()
+    {
+        base.ResetComponent();           
+        this.ExitCriteriaSatisfied = false;
+    }
+
+    public override void ResolveDependencies()
+    {
+        if (this.Components.Count() > 0)
         {
-            IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
-            ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute);         
-            return result;
+            return;
         }
 
-        public override void ResetComponent()
-        {
-            base.ResetComponent();           
-            this.ExitCriteriaSatisfied = false;
-        }
+        PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
+        base.AddComponent(statementsPlaceHolder);            
+    }
 
-        public override void ResolveDependencies()
-        {
-            if (this.Components.Count() > 0)
-            {
-                return;
-            }
-
-            PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
-            base.AddComponent(statementsPlaceHolder);            
-        }
-
-        public override Entity AddComponent(Interfaces.IComponent component)
-        {        
-            return this;
-        }
+    public override Entity AddComponent(Interfaces.IComponent component)
+    {        
+        return this;
     }
 }

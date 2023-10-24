@@ -5,36 +5,35 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Pixel.Windows.Automation;
 
-namespace Pixel.Automation.UIA.Components
+namespace Pixel.Automation.UIA.Components;
+
+/// <summary>
+/// Use <see cref="InvokeActorComponent"/> to perform defult stateless action on a control e.g. click on a button.
+/// Control must supported <see cref="InvokePattern"/>.
+/// </summary>
+[DataContract]
+[Serializable]
+[ToolBoxItem("Invoke", "UIA", iconSource: null, description: "Trigger Invoke pattern on AutomationElement", tags: new string[] { "Invoke","UIA" })]
+public class InvokeActorComponent : UIAActorComponent
 {
+    private readonly ILogger logger = Log.ForContext<InvokeActorComponent>();
+
     /// <summary>
-    /// Use <see cref="InvokeActorComponent"/> to perform defult stateless action on a control e.g. click on a button.
-    /// Control must supported <see cref="InvokePattern"/>.
+    /// Default constructor
     /// </summary>
-    [DataContract]
-    [Serializable]
-    [ToolBoxItem("Invoke", "UIA", iconSource: null, description: "Trigger Invoke pattern on AutomationElement", tags: new string[] { "Invoke","UIA" })]
-    public class InvokeActorComponent : UIAActorComponent
+    public InvokeActorComponent():base("Invoke", "Invoke")
     {
-        private readonly ILogger logger = Log.ForContext<InvokeActorComponent>();
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public InvokeActorComponent():base("Invoke", "Invoke")
-        {
-
-        }
-
-        /// <summary>
-        /// Perform Invoke action on the control.
-        /// </summary>
-        public override async Task ActAsync()
-        {
-            AutomationElement control = await GetTargetControl();
-            control.Invoke();
-            logger.Information("Invoke performed on control.");
-        }
 
     }
+
+    /// <summary>
+    /// Perform Invoke action on the control.
+    /// </summary>
+    public override async Task ActAsync()
+    {
+        var (name, control) = await GetTargetControl();
+        control.Invoke();
+        logger.Information("Invoke performed on control : '{0}'", name);
+    }
+
 }

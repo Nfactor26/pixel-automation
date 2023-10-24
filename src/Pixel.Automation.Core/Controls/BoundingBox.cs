@@ -79,5 +79,10 @@ namespace Pixel.Automation.Core.Controls
             }
             return false;
         }
+
+        public override string ToString()
+        {
+            return $"(L : {this.X}, T : {this.Y}, W :{this.Width}, H:{this.Height})";
+        }
     }
 }

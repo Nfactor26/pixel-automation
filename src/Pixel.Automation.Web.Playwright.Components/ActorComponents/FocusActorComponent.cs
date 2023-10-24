@@ -38,9 +38,9 @@ public class FocusActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {     
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         await control.FocusAsync(this.FocusOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorFocusOptions>(this.FocusOptions) : null);
-        logger.Information("Focus performed on element.");
+        logger.Information("Focus set on control : '{0}'", name);
     }
 
 }

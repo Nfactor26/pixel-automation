@@ -40,7 +40,7 @@ public class ExpectToHaveJSPropertyActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await GetTargetControl();
+        var (controlName, control) = await GetTargetControl();
         var name = await this.ArgumentProcessor.GetValueAsync<string>(this.PropertyName);
         var value = await this.ArgumentProcessor.GetValueAsync<string>(this.PropertyValue);
         var toHaveJsPropertyOptions = this.ToHaveJsPropertyOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToHaveJSPropertyOptions>(this.ToHaveJsPropertyOptions) : null;

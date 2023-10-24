@@ -32,7 +32,7 @@ public class ExpectToBeEditableActorComponent : PlaywrightActorComponent
     /// <returns></returns>
     public override async Task ActAsync()
     {
-        var control = await this.GetTargetControl();  
+        var (name, control) = await this.GetTargetControl();  
         var options = this.ToBeEditableOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorAssertionsToBeEditableOptions>(this.ToBeEditableOptions) : null;
         await Assertions.Expect(control).ToBeEditableAsync(options);
     }

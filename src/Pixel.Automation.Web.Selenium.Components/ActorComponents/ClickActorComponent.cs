@@ -34,18 +34,18 @@ public class ClickActorComponent : WebElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         if (this.ForceClick)
         {
             //doesn't check for preconditions like whether element is clickable,etc
             Actions action = new Actions(ApplicationDetails.WebDriver);
             action.Click(control).Build().Perform();
-            logger.Information("control was force clicked.");
+            logger.Information("control : '{0}' was force clicked", name);
         }
         else
         {
             control.Click();
-            logger.Information("control was clicked.");
+            logger.Information("control : '{0}' was clicked", name);
         }
     }
 }

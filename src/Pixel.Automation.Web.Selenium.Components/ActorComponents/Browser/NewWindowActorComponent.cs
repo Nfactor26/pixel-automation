@@ -49,12 +49,12 @@ public class NewWindowActorComponent : SeleniumActorComponent
                 webDriver.SwitchTo().NewWindow(OpenQA.Selenium.WindowType.Window);
                 break;
         }
-        logger.Information($"A new {this.WindowType} was opened.");
+        logger.Information("New {0} was opened", this.WindowType);
         if(this.TargetUrl.IsConfigured())
         {
             Uri targetUrl = await ArgumentProcessor.GetValueAsync<Uri>(this.TargetUrl);
             webDriver.Navigate().GoToUrl(targetUrl);
-            logger.Information($"Navigated to Uri : {targetUrl}");
+            logger.Information("Browser was navigated to uri : {0}", targetUrl);
         }
         await Task.CompletedTask;
     }

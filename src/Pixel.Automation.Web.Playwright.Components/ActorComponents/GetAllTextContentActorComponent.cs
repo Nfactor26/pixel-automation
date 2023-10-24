@@ -37,9 +37,9 @@ public class GetAllTextContentActorComponent : PlaywrightActorComponent
     /// </summary>
     public override async Task ActAsync()
     {       
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var result = await control.AllTextContentsAsync();
         await this.ArgumentProcessor.SetValueAsync<IReadOnlyList<string>>(this.Result, result);
-        logger.Information($"Retrieved textContent values for all matching nodes.");
+        logger.Information($"Retrieved textContent values for all matching nodes for control : '{0}'", name);
     }
 }

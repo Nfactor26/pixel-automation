@@ -42,12 +42,12 @@ public class GotoActorComponent : SeleniumActorComponent
             case InArgument<string>:
                 var targetUrlString = await ArgumentProcessor.GetValueAsync<string>(this.TargetUrl);
                 this.ApplicationDetails.WebDriver.Navigate().GoToUrl(targetUrlString);
-                logger.Information($"Navigated to Url : {targetUrlString}");
+                logger.Information("Browser was avigated to url : '{0}'", targetUrlString);
                 break;
             case InArgument<Uri>:
                 var targetUrlUri = await ArgumentProcessor.GetValueAsync<Uri>(this.TargetUrl);
                 this.ApplicationDetails.WebDriver.Navigate().GoToUrl(targetUrlUri);
-                logger.Information($"Navigated to Url : {targetUrlUri}");
+                logger.Information("Browser was navigated to url : '{0}'", targetUrlUri);
                 break;
         }          
         await Task.CompletedTask;

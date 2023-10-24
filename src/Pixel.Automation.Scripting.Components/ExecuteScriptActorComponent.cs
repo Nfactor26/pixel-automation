@@ -2,46 +2,49 @@
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
+using Serilog;
 using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.Scripting.Components
+namespace Pixel.Automation.Scripting.Components;
+
+/// <summary>
+/// Use <see cref="ExecuteScriptActorComponent"/> to execute actions using custom script.
+/// </summary>
+[DataContract]
+[Serializable]
+[Scriptable("ScriptFile")]
+[Initializer(typeof(ScriptFileInitializer))]
+[ToolBoxItem("Script File", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
+public class ExecuteScriptActorComponent : ActorComponent
 {
-    /// <summary>
-    /// Use <see cref="ExecuteScriptActorComponent"/> to execute actions using custom script.
-    /// </summary>
-    [DataContract]
-    [Serializable]
-    [Scriptable("ScriptFile")]
-    [Initializer(typeof(ScriptFileInitializer))]
-    [ToolBoxItem("Script File", "Scripting", iconSource: null, description: "Execute any provided script", tags: new string[] { "Scripted Action", "Scripting" })]   
-    public class ExecuteScriptActorComponent : ActorComponent
+    private readonly ILogger logger = Log.ForContext<ExecuteScriptActorComponent>();
+
+    protected string scriptFile;
+    [DataMember]
+    [System.ComponentModel.DisplayName("Script File")]        
+    public string ScriptFile
     {
-        protected string scriptFile;
-        [DataMember]
-        [System.ComponentModel.DisplayName("Script File")]        
-        public string ScriptFile
+        get => scriptFile;
+        set
         {
-            get => scriptFile;
-            set
-            {
-                scriptFile = value;
-                OnPropertyChanged();
-            }
+            scriptFile = value;
+            OnPropertyChanged();
         }
-
-        public ExecuteScriptActorComponent() : base("Execute Script", "ExecuteScript")
-        {
-
-        }
-
-        public override async Task ActAsync()
-        {
-            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
-            var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.scriptFile);
-            action(this.EntityManager.GetOwnerApplication(this), this);
-        }
-     
     }
+
+    public ExecuteScriptActorComponent() : base("Execute Script", "ExecuteScript")
+    {
+
+    }
+
+    public override async Task ActAsync()
+    {
+        IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+        var action = await scriptEngine.CreateDelegateAsync<Action<IApplication, IComponent>>(this.ScriptFile);
+        action(this.EntityManager.GetOwnerApplication(this), this);
+        logger.Information("Script file : '{0}' was executed", this.ScriptFile);
+    }
+
 }

@@ -49,7 +49,7 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
     public override async Task ActAsync()
     {
             
-        var control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         var selectOptions = this.SelectOptions.IsConfigured() ? await this.ArgumentProcessor.GetValueAsync<LocatorSelectOptionOptions>(this.SelectOptions) : null;
         switch(this.Values)
         {
@@ -76,7 +76,7 @@ public class SelectOptionsActorComponent : PlaywrightActorComponent
 
         }
        
-        logger.Information("Select options performed on element.");
+        logger.Information("Select options performed on control : '{0}'", name);
         
     }
 
