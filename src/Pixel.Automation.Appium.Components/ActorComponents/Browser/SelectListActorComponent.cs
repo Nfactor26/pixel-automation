@@ -1,5 +1,4 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
+﻿using OpenQA.Selenium.Support.UI;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
@@ -47,7 +46,7 @@ public class SelectListItemActorComponent : AppiumElementActorComponent
     /// </summary>
     public override async Task ActAsync()
     {
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         string selectText = await ArgumentProcessor.GetValueAsync<string>(this.Option);
 
         SelectElement selectElement = new SelectElement(control);
@@ -55,17 +54,18 @@ public class SelectListItemActorComponent : AppiumElementActorComponent
         {
             case SelectBy.Text:
                 selectElement.SelectByText(selectText);
+                logger.Information("Option (text) : '{0}' was selected on control : '{1}'", selectText, name);
                 break;
             case SelectBy.Value:
                 selectElement.SelectByValue(selectText);
+                logger.Information("Option (value) : '{0}' was selected on control : '{1}'", selectText, name);
                 break;
             case SelectBy.Index:
                 int index = int.Parse(selectText);
                 selectElement.SelectByIndex(index);
+                logger.Information("Option (index) : '{0}' was selected on control : '{1}'", selectText, name);
                 break;
         }
-
-        logger.Information($"Option {selectText} was selected.");
     }
 
 }  

@@ -45,7 +45,7 @@ public class CloseWindowActorComponent : AppiumElementActorComponent
         {               
             webDriver.SwitchTo().Window(webDriver.WindowHandles[windowNumber]);
             webDriver.Close();
-            logger.Information("Window / Tab at index {windowNumber + 1} was closed.");
+            logger.Information("Window / Tab at index {0} was closed", windowNumber + 1);
             await Task.CompletedTask;
             return;
         }

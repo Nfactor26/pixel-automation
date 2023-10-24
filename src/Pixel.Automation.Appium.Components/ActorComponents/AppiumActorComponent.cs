@@ -107,7 +107,7 @@ public abstract class AppiumElementActorComponent : AppiumActorComponent
     /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="WebControlEntity"/>
     /// </summary>
     /// <returns></returns>
-    protected virtual async Task<AppiumElement> GetTargetControl()
+    protected virtual async Task<(string, AppiumElement)> GetTargetControl()
     {
         UIControl targetControl;
         if (this.TargetControl.IsConfigured())
@@ -120,7 +120,7 @@ public abstract class AppiumElementActorComponent : AppiumActorComponent
             targetControl = await this.ControlEntity.GetControl();
         }
 
-        return targetControl.GetApiControl<AppiumElement>();
+        return (targetControl.ControlName, targetControl.GetApiControl<AppiumElement>());
     }
 
 

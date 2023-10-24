@@ -56,9 +56,8 @@ public class DragDropActorComponent : AppiumElementActorComponent
         var sourceWebElement = sourceControl.GetApiControl<IWebElement>();
         var targetWebElement = targetControl.GetApiControl<IWebElement>();
         (new Actions(ApplicationDetails.Driver)).DragAndDrop(sourceWebElement, targetWebElement).Perform();
-       
-        await Task.CompletedTask;
+        logger.Information("Source control : '{0}' was drag-dropped to target control : '{1}'", sourceControl.ControlName, targetControl.ControlName);
 
-        logger.Information("Source control was drag-dropped to target control.");
+        await Task.CompletedTask;
     }
 }

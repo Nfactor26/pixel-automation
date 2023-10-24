@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Appium.Components;
@@ -10,7 +11,9 @@ namespace Pixel.Automation.Appium.Components;
 [Serializable]
 [ToolBoxItem("Refresh", "Appium", "Browser", iconSource: null, description: "Refresh active page", tags: new string[] { "refresh" })]
 public class RefreshActorComponent : AppiumElementActorComponent
-{   
+{
+    private readonly ILogger logger = Log.ForContext<RefreshActorComponent>();
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -25,6 +28,7 @@ public class RefreshActorComponent : AppiumElementActorComponent
     public override async Task ActAsync()
     {
         this.ApplicationDetails.Driver.Navigate().Refresh();
+        logger.Information("Browser window was refreshed");
         await Task.CompletedTask;
     }
 }

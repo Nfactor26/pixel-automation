@@ -46,7 +46,7 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
             logger.Error(exception, exception.Message); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Information("Control lookup  will be attempated again.");
+                logger.Debug("Control lookup  will be attempated again.");
             }
         });
     }
@@ -97,7 +97,7 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
                 appiumControlIdentity = appiumControlIdentity.Next as AppiumNativeControlIdentity;
                 continue;
             }
-
+            logger.Debug("{0} has been located", controlIdentity);
             return await Task.FromResult(CreateUIControl(controlIdentity, currentRoot as AppiumElement, this));
         }
 
@@ -142,26 +142,20 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
                 continue;
             }
 
-            try
+            IReadOnlyCollection<IWebElement> foundElements;
+            switch (appiumControlIdentity.SearchScope)
             {
-                IReadOnlyCollection<IWebElement> foundElements;
-                switch (appiumControlIdentity.SearchScope)
-                {
-                    case SearchScope.Descendants:
-                        foundElements = FindAllElement(appiumControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? GetAppiumDriver());
-                        break;
-                    case SearchScope.Sibling:                        
-                    case SearchScope.Children:
-                    case SearchScope.Ancestor:
-                    default:
-                        throw new NotSupportedException($"Search scope : {appiumControlIdentity.SearchScope} is not supported for FindAllControls");
-                }               
-                return await Task.FromResult(foundElements.Select(f => CreateUIControl(controlIdentity, f as AppiumElement, this)));
+                case SearchScope.Descendants:
+                    foundElements = FindAllElement(appiumControlIdentity, searchRoot?.GetApiControl<ISearchContext>() ?? GetAppiumDriver());
+                    break;
+                case SearchScope.Sibling:
+                case SearchScope.Children:
+                case SearchScope.Ancestor:
+                default:
+                    throw new NotSupportedException($"Search scope : {appiumControlIdentity.SearchScope} is not supported for FindAllControls");
             }
-            finally
-            {
-                logger.Debug("Control lookup completed.");
-            }
+            logger.Debug("{0} controls matching {1} has been located", foundElements.Count, controlIdentity);
+            return await Task.FromResult(foundElements.Select(f => CreateUIControl(controlIdentity, f as AppiumElement, this)));
 
         }
     }
@@ -182,8 +176,7 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
         IWebElement foundControl = default;
         foundControl = policy.Execute(() =>
         {
-            foundControl = FindElement(controlIdentity, searchRoot);
-            logger.Information($"{controlIdentity} has been located");
+            foundControl = FindElement(controlIdentity, searchRoot);          
             return foundControl;
         });
         return foundControl;

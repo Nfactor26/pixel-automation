@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Serilog;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Appium.Components;
@@ -10,7 +11,9 @@ namespace Pixel.Automation.Appium.Components;
 [Serializable]
 [ToolBoxItem("Go Forward", "Appium", "Browser", iconSource: null, description: "Navigate to the next page in history", tags: new string[] { "forward", "go" })]
 public class GoForwardActorComponent : AppiumElementActorComponent
-{        
+{
+    private readonly ILogger logger = Log.ForContext<GoForwardActorComponent>();
+
     /// <summary>
     /// Constructor
     /// </summary>
@@ -25,6 +28,7 @@ public class GoForwardActorComponent : AppiumElementActorComponent
     public override async Task ActAsync()
     {
         this.ApplicationDetails.Driver.Navigate().Forward();
+        logger.Information("Browser was navigated to the next page : '{0}' in history", this.ApplicationDetails.Driver.Url);
         await Task.CompletedTask;
     }
 }

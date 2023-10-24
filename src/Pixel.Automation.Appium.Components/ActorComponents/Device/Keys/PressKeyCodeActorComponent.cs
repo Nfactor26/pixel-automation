@@ -1,5 +1,4 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Appium.Android;
+﻿using OpenQA.Selenium.Appium.Android;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
@@ -49,13 +48,14 @@ public class PressKeyCodeActorComponent : AppiumElementActorComponent
             {
                 if (this.LongPress)
                 {
-                    androidDriver.LongPressKeyCode(key);                   
+                    androidDriver.LongPressKeyCode(key);
+                    logger.Information("Key : '{0}' was long pressed", key);
                 }
                 else
                 {
                     androidDriver.PressKeyCode(key);
-                }
-                logger.Information("Key was pressed");
+                    logger.Information("Key : '{0}' was pressed", key);
+                }              
             }
         }
         throw new NotSupportedException($"{nameof(PressKeyCodeActorComponent)} is only supported on android device");

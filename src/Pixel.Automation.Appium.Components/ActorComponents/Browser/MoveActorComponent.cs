@@ -41,11 +41,11 @@ public class MoveActorComponent : AppiumElementActorComponent
     {           
         var positionOffSet = await this.ArgumentProcessor.GetValueAsync<ScreenCoordinate>(this.OffSet);
 
-        IWebElement control = await GetTargetControl();
+        var (name, control) = await GetTargetControl();
         Actions action = new Actions(ApplicationDetails.Driver);
         action.DragAndDropToOffset(control, positionOffSet.XCoordinate, positionOffSet.YCoordinate).Perform();
 
-        logger.Information($"control was moved by offset ({positionOffSet.XCoordinate}, {positionOffSet.YCoordinate})");
+        logger.Information("Control : '{0}' was moved by offset ({1}, {2})", name, positionOffSet.XCoordinate, positionOffSet.YCoordinate);
     }
 
 }

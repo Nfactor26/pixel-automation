@@ -49,13 +49,18 @@ public class GetClipboardActorComponent : AppiumActorComponent
             switch (this.ContentType)
             {
                 case ClipboardContentType.PlainText:
-                    await this.ArgumentProcessor.SetValueAsync<string>(this.Content, androidDriver.GetClipboardText());
+                    string plainText = androidDriver.GetClipboardText();
+                    await this.ArgumentProcessor.SetValueAsync<string>(this.Content, plainText);
+                    logger.Information("Retrieved text : '{0}' from clipboard", plainText);
                     break;
                 case ClipboardContentType.Url:
-                    await this.ArgumentProcessor.SetValueAsync<string>(this.Content, androidDriver.GetClipboardUrl());
+                    string url = androidDriver.GetClipboardUrl();
+                    await this.ArgumentProcessor.SetValueAsync<string>(this.Content, url);
+                    logger.Information("Retrieved url : '{0}' from clipboard", url);
                     break;
                 case ClipboardContentType.Image:
                     await this.ArgumentProcessor.SetValueAsync<Image>(this.Content, androidDriver.GetClipboardImage());
+                    logger.Information("Image was retrieved from clipboard");
                     break;
             }
 
@@ -65,16 +70,20 @@ public class GetClipboardActorComponent : AppiumActorComponent
             switch (this.ContentType)
             {
                 case ClipboardContentType.PlainText:
+                    string plainText = iOSDriver.GetClipboardText();
                     await this.ArgumentProcessor.SetValueAsync<string>(this.Content, iOSDriver.GetClipboardText());
+                    logger.Information("Retrieved text : '{0}' from clipboard", plainText);
                     break;
                 case ClipboardContentType.Url:
+                    string url = iOSDriver.GetClipboardUrl();
                     await this.ArgumentProcessor.SetValueAsync<string>(this.Content, iOSDriver.GetClipboardUrl());
+                    logger.Information("Retrieved url : '{0}' from clipboard", url);
                     break;
                 case ClipboardContentType.Image:
                     await this.ArgumentProcessor.SetValueAsync<Image>(this.Content, iOSDriver.GetClipboardImage());
+                    logger.Information("Image was retrieved from clipboard");
                     break;
             }
-        }
-        logger.Information("Clipboard content of type {0} was retrieved", this.ContentType);
+        }       
     }
 }

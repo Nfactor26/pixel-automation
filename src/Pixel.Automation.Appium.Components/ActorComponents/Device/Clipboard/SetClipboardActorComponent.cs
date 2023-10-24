@@ -54,13 +54,19 @@ public class SetClipboardActorComponent : AppiumActorComponent
             switch (this.ContentType)
             {
                 case ClipboardContentType.PlainText:
-                    androidDriver.SetClipboardText((await this.ArgumentProcessor.GetValueAsync<string>(this.Content)), (await this.ArgumentProcessor.GetValueAsync<string>(this.Label)));
+                    string textContent = await this.ArgumentProcessor.GetValueAsync<string>(this.Content);
+                    string label = await this.ArgumentProcessor.GetValueAsync<string>(this.Label);
+                    androidDriver.SetClipboardText(textContent, label);
+                    logger.Information("Clipboard content set to text : '{0}' with label : '{1}'", textContent, label);
                     break;
                 case ClipboardContentType.Url:
-                    androidDriver.SetClipboardUrl((await this.ArgumentProcessor.GetValueAsync<string>(this.Content)));
+                    string urlContent = await this.ArgumentProcessor.GetValueAsync<string>(this.Content);
+                    androidDriver.SetClipboardUrl(urlContent);
+                    logger.Information("Clipboard content set to url : '{0}'", urlContent);
                     break;
                 case ClipboardContentType.Image:
                     androidDriver.SetClipboardImage((await this.ArgumentProcessor.GetValueAsync<Image>(this.Content)));
+                    logger.Information("Clipboard content set to image");
                     break;
             }
         }
@@ -69,16 +75,21 @@ public class SetClipboardActorComponent : AppiumActorComponent
             switch (this.ContentType)
             {
                 case ClipboardContentType.PlainText:
-                    iOSDriver.SetClipboardText((await this.ArgumentProcessor.GetValueAsync<string>(this.Content)), (await this.ArgumentProcessor.GetValueAsync<string>(this.Label)));
+                    string content = await this.ArgumentProcessor.GetValueAsync<string>(this.Content);
+                    string label = await this.ArgumentProcessor.GetValueAsync<string>(this.Label);
+                    iOSDriver.SetClipboardText(content, label);
+                    logger.Information("Clipboard content set to text : '{0}' with label : '{1}'", content, label);
                     break;
-                case ClipboardContentType.Url:
-                    iOSDriver.SetClipboardUrl((await this.ArgumentProcessor.GetValueAsync<string>(this.Content)));
+                case ClipboardContentType.Url:                   
+                    string urlContent = await this.ArgumentProcessor.GetValueAsync<string>(this.Content);
+                    iOSDriver.SetClipboardUrl(urlContent);
+                    logger.Information("Clipboard content set to url : '{0}'", urlContent);
                     break;
                 case ClipboardContentType.Image:
                     iOSDriver.SetClipboardImage((await this.ArgumentProcessor.GetValueAsync<Image>(this.Content)));
+                    logger.Information("Clipboard content set to image");
                     break;
             }
-        }
-        logger.Information("Clipboard content of type {0} was set", this.ContentType);
+        }      
     }
 }
