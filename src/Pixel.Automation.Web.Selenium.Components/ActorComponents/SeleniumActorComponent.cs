@@ -60,7 +60,7 @@ public abstract class SeleniumActorComponent : ActorComponent
         var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
         if(TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
         {
-            string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
+            string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");
             await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
             TraceManager.AddImage(Path.GetFileName(imageFile));
         }       
