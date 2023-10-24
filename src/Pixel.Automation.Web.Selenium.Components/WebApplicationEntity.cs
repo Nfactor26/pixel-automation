@@ -199,10 +199,11 @@ public class WebApplicationEntity : ApplicationEntity
     {
         if (this.AllowCaptureScreenshot)
         {
+            var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
             var webDriver = this.GetTargetApplicationDetails<WebApplication>().WebDriver;
-            webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Png);
-        }
-        await Task.CompletedTask;
+            var screenShot =  webDriver.TakeScreenshot();
+            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath, Core.Enums.ImageFormat.Jpeg);
+        }        
     }
 
     /// <summary>

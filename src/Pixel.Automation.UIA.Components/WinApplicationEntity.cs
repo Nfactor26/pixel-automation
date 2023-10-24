@@ -6,9 +6,6 @@ using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -107,19 +104,10 @@ public class WinApplicationEntity : ApplicationEntity
         {
             var screenCapture = this.EntityManager.GetServiceOfType<IScreenCapture>();
             var windowManager = this.EntityManager.GetServiceOfType<IApplicationWindowManager>();
+            var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
             var appRectangle = windowManager.GetWindowSize(this.applicationDetails.Hwnd);
             var screenShotBytes = screenCapture.CaptureArea(appRectangle);
-            using (var memoryStream = new MemoryStream(screenShotBytes))
-            {
-                using (var bitmap = new Bitmap(memoryStream))
-                {
-                    using (FileStream fs = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write))
-                    {
-                        bitmap.Save(fs, ImageFormat.Jpeg);
-                    }
-                }
-            }
-            await Task.CompletedTask;
+            await imageManager.SaveAsAsync(screenShotBytes, filePath, Core.Enums.ImageFormat.Jpeg);
         }           
     }
 }

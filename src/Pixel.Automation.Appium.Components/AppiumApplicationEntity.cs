@@ -5,6 +5,7 @@ using OpenQA.Selenium.Support.Extensions;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Components;
+using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
@@ -87,11 +88,12 @@ public class AppiumApplicationEntity : ApplicationEntity
     public override async Task CaptureScreenShotAsync(string filePath)
     {       
         if (this.AllowCaptureScreenshot)
-        {
-            var webDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
-            webDriver.TakeScreenshot().SaveAsFile(filePath, ScreenshotImageFormat.Png);
-        }
-        await Task.CompletedTask;
+        {          
+            var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
+            var appiumDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
+            var screenShot = appiumDriver.TakeScreenshot();
+            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath, Core.Enums.ImageFormat.Jpeg);
+        }    
     }
 
     async Task<AppiumServiceBuilder> GetServiceBuilder()
