@@ -55,7 +55,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
         /// Retrieve the target control specified either as an <see cref="Argument"/> or a parent <see cref="JavaControlEntity"/>
         /// </summary>
         /// <returns>Control as <see cref="AccessibleContextNode"/></returns>
-        protected async Task<AccessibleContextNode> GetTargetControl()
+        protected async Task<(string, AccessibleContextNode)> GetTargetControl()
         {
             UIControl targetControl;
             if (this.TargetControl.IsConfigured())
@@ -69,7 +69,7 @@ namespace Pixel.Automation.Java.Access.Bridge.Components
             }
 
             AccessibleContextNode control = targetControl.GetApiControl<AccessibleContextNode>();
-            return control;
+            return (targetControl.ControlName, control);
         }
 
         /// <summary>
