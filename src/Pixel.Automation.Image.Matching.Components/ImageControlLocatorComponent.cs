@@ -89,8 +89,10 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             }
             return boundingBox;
         });
+        var control = new ImageUIControl(controlIdentity, foundControl ?? throw new ElementNotFoundException($"Image Control : '{controlIdentity}' could not be located"));
+        logger.Information("Image control : '{0}' was located at '{1}'", controlDetails, foundControl);
         HighlightElement(foundControl);
-        return await Task.FromResult(new ImageUIControl(controlIdentity, foundControl ?? throw new ElementNotFoundException($"Image Control : '{controlIdentity}' could not be located")));
+        return await Task.FromResult(control);
     }
 
 
@@ -110,6 +112,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
         {
             throw new ElementNotFoundException($"Failed to find any control matching image  {controlDetails}");
         }
+        logger.Debug("{0} controls matching {1} has been located", foundControls.Count(), controlIdentity);
         return await Task.FromResult(foundControls.Select(s => new ImageUIControl(controlDetails, s)));
     }
 
@@ -192,7 +195,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
         if (this.Theme.IsConfigured())
         {
             string theme = await argumentProcessor.GetValueAsync<string>(this.Theme);
-            logger.Information($"Configured theme is {theme}");
+            logger.Debug($"Configured theme is {theme}");
            
             if (!string.IsNullOrEmpty(theme))
             {
@@ -230,7 +233,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             case TemplateMatchModes.SqDiffNormed:
                 if (minVal > threshHold)
                 {
-                    logger.Information("Image match located {@maxLoc} with {maxVal} %", maxLoc, maxVal * 100);
+                    logger.Debug("Image match located {@maxLoc} with {maxVal} %", maxLoc, maxVal * 100);
                     return new OpenCvSharp.Point(minLoc.X, minLoc.Y);
                 }
                 else
@@ -243,7 +246,7 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
             case TemplateMatchModes.CCorrNormed:
                 if (maxVal > threshHold)
                 {
-                    logger.Information("Image match located {@maxLoc} with {maxVal} %", maxVal, maxLoc);
+                    logger.Debug("Image match located {@maxLoc} with {maxVal} %", maxVal, maxLoc);
                     return new OpenCvSharp.Point(maxLoc.X, maxLoc.Y);
                 }
                 else

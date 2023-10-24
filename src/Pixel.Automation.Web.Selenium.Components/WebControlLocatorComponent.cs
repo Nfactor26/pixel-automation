@@ -183,7 +183,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                     HighlightElement(element);
                 }
             }
-            logger.Debug("{0} controls matching {0} has been located", foundElements.Count, controlIdentity);
+            logger.Debug("{0} controls matching {1} has been located", foundElements.Count, controlIdentity);
             return await Task.FromResult(foundElements.Select(f => new WebUIControl(controlIdentity, f, this)));
         }
     }
