@@ -1,4 +1,4 @@
-﻿function generateDonutChart(containerId, chartData) {
+﻿function generateDonutChart(containerId, chartData) {   
     var options = {
         chart: {
             type: 'donut',
@@ -63,8 +63,9 @@
         },
         colors: ['#82EE5F', '#E91E63']
     }
-
-    var chart = new ApexCharts(document.querySelector(containerId), options);
+    var chartPlaceHolder = document.querySelector(containerId);
+    chartPlaceHolder.innerHTML = '';
+    var chart = new ApexCharts(chartPlaceHolder, options);
 
     chart.render();
 }
@@ -153,8 +154,9 @@ function generateRadarChart(containerId, chartData) {
             }
         },
     };
-
-    var chart = new ApexCharts(document.querySelector(containerId), options);
+    var chartPlaceHolder = document.querySelector(containerId);
+    chartPlaceHolder.innerHTML = '';
+    var chart = new ApexCharts(chartPlaceHolder, options);
     chart.render();
 }
 
@@ -222,6 +224,8 @@ function generateBarChart(containerId, chartData) {
         }
     };
 
-    var chart = new ApexCharts(document.querySelector(containerId), options);
+    var chartPlaceHolder = document.querySelector(containerId);
+    chartPlaceHolder.innerHTML = '';
+    var chart = new ApexCharts(chartPlaceHolder, options);
     chart.render();
 }
