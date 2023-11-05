@@ -11,6 +11,8 @@ namespace Pixel.Automation.Web.Portal.Components.Projects;
 
 public partial class ProjectStatistics : ComponentBase
 {
+    private TestResultsTable resultsTable;
+
     [Inject]
     public IProjectStatisticsService Service { get; set; }
 
@@ -27,6 +29,7 @@ public partial class ProjectStatistics : ComponentBase
         if (Project != null)
         {
             statisticsViewModel = await Service.GetProjectStatisticsByProjectIdAsync(Project.ProjectId);
+            resultsTable?.Reload();
         }
     }
 
