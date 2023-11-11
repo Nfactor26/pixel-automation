@@ -80,7 +80,8 @@
     @if (Project != null)
     {
         <MudItem xs="12">
-            <TestResultsTable TableHeader="Recent Failures" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"></TestResultsTable>
+            <TestResultsTable TableHeader="Recent Failures" TableStateChanged="GetTestResultsAsync" ShowExecutionDate="true"
+                @ref="resultsTable"></TestResultsTable>
         </MudItem>
     }
 </MudGrid>
