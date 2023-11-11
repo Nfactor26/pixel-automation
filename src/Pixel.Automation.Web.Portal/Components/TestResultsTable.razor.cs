@@ -118,5 +118,11 @@ namespace Pixel.Automation.Web.Portal.Components
             }
             await table.ReloadServerData();
         }
+
+        public async Task Reload()
+        {
+            this.lastNMonths = 1;
+            await table.ReloadServerData();
+        }
     }
 }
