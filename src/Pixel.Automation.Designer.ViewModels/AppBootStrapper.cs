@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace Pixel.Automation.Designer.ViewModels
@@ -151,12 +152,34 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 Telemetry.InitializeDefault("pixel-design", Assembly.GetExecutingAssembly().GetName().Version.ToString());
                 string[] enablesSources = configuration.GetSection("OpenTelemetry:Sources").Get<string[]>();
-
+                string[] filterHttpRequests = configuration.GetSection("OpenTelemetry:FilterRequests").Get<string[]>() ?? Array.Empty<string>();
+                Regex[] filterHttpRequestsMatcher = new Regex[filterHttpRequests.Length];
+                for(int i = 0; i< filterHttpRequests.Length; i++)
+                {
+                    filterHttpRequestsMatcher[i] = new Regex(filterHttpRequests[i], RegexOptions.Compiled);
+                }
                 double.TryParse(configuration["OpenTelemetry:Sampling:Ratio"], out double samplingProbablity);
                 var traceProviderBuilder = Sdk.CreateTracerProviderBuilder()
-                .SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingProbablity)))
-                .AddSource(enablesSources).ConfigureResource(resource => resource.AddService("pixel-design")).AddHttpClientInstrumentation();
-               
+                .SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingProbablity)))               
+                .AddSource(enablesSources).ConfigureResource(resource => resource.AddService("pixel-design"))
+                .AddHttpClientInstrumentation(options =>
+                 {
+                     if(filterHttpRequestsMatcher.Any())
+                     {
+                         options.FilterHttpRequestMessage = (message) =>
+                         {
+                             foreach(var pattern in filterHttpRequestsMatcher)
+                             {
+                                 if(pattern.IsMatch(message.RequestUri.OriginalString))
+                                 {
+                                     return false;
+                                 }
+                             }
+                             return true;  
+                         };
+                     }                                      
+                 });
+
                 string otlpTraceEndPoint = configuration["OpenTelemetry:Trace:EndPoint"];             
                 if (!string.IsNullOrEmpty(otlpTraceEndPoint))
                 {
