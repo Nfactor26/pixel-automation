@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Pixel.Automation.TestData.Repository.ViewModels
 {
@@ -206,7 +207,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             var testDataSource = new TestDataSource()
             {
                 DataSourceId = testDataId,
-                Name = "EmptyDataSource",
+                Name = "Empty Data Source",
                 ScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.csx")).Replace("\\", "/"),
                 DataSource = DataSource.Code,
                 MetaData = new DataSourceConfiguration()
@@ -240,6 +241,74 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         #endregion Create Test Data Source       
 
         #region Edit Test Data Source
+
+        bool canEdit;
+        /// <summary>
+        /// Indicates if selected test data source name can be edited
+        /// </summary>
+        public bool CanEdit
+        {
+            get
+            {
+                return canEdit;
+            }
+            set
+            {
+                canEdit = value;
+                NotifyOfPropertyChange(() => CanEdit);
+            }
+        }
+
+        /// <summary>
+        /// Double click on test data source name to toggle visibility of textbox which can be used to edit the name
+        /// </summary>
+        /// <param name="targetControl"></param>
+        public void ToggleRename(TestDataSource testDataSource)
+        {
+            if (SelectedTestDataSource == testDataSource)
+            {
+                CanEdit = !CanEdit;
+            }
+        }
+
+        /// <summary>
+        /// Press enter when in edit mode to apply the changed name of control after control name is edited in text box
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="controlToRename"></param>
+        public async Task RenameDataSource(ActionExecutionContext context, TestDataSource testDataSource)
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(TestDataSource), ActivityKind.Internal))
+            {
+                string currentName = testDataSource.Name;
+                try
+                {
+                    var keyArgs = context.EventArgs as KeyEventArgs;
+                    if (keyArgs != null && keyArgs.Key == Key.Enter)
+                    {
+                        string newName = (context.Source as System.Windows.Controls.TextBox).Text;
+                        if (this.TestDataSourceCollection.Except(new[] { testDataSource }).Any(a => a.Name.Equals(newName)))
+                        {
+                            return;
+                        }
+                        activity?.SetTag("CurrentDataSourceName", currentName);
+                        activity?.SetTag("NewDataSourceName", newName);
+                        testDataSource.Name = newName;
+                        CanEdit = false;
+                        logger.Information("Data source : '{0}' was renamed to {1}", currentName, newName);
+                        await this.testDataManager.UpdateTestDataSourceAsync(testDataSource);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while renaming test data source : {0}.", testDataSource.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    testDataSource.Name = currentName;
+                    CanEdit = false;
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
 
         ///<inheritdoc/>
         public async Task EditDataSource(TestDataSource testDataSource)
