@@ -100,29 +100,37 @@ namespace Pixel.Script.Editor.Services.CSharp
                 var diagnosticsEventObservable = Observable.FromEventPattern<DiagnosticsUpdatedArgs>(diagnosticsService, nameof(diagnosticsService.DiagnosticsUpdated));
                 var diagnosticsMessageObservable = diagnosticsEventObservable.Select(d =>
                 {
-                    var diagnosticEventData = d.EventArgs;
-                    if (diagnosticEventData.Kind != DiagnosticsUpdatedKind.DiagnosticsCreated)
+                    try
                     {
-                        return null;
+                        var diagnosticEventData = d.EventArgs;
+                        if (diagnosticEventData.Kind != DiagnosticsUpdatedKind.DiagnosticsCreated)
+                        {
+                            return null;
+                        }
+
+                        var document = workspaceManager.GetDocumentById(diagnosticEventData.DocumentId);
+                        var project = diagnosticEventData.Solution.GetProject(diagnosticEventData.ProjectId);
+                        DiagnosticResultEx diagnosticResult = new DiagnosticResultEx()
+                        {
+                            Id = diagnosticEventData.Id,
+                            FileName = document.Name,
+                            ProjectName = project.Name
+                        };
+
+                        List<DiagnosticLocation> quickFixes = new List<DiagnosticLocation>();
+                        foreach (var diagnostic in diagnosticEventData.GetAllDiagnosticsRegardlessOfPushPullSetting())
+                        {
+                            var diagnosticLocation = diagnostic.ToDiagnosticLocation();
+                            quickFixes.Add(diagnosticLocation);
+                        }
+                        diagnosticResult.QuickFixes = quickFixes;
+                        return diagnosticResult;
                     }
-                    
-                    var document = workspaceManager.GetDocumentById(diagnosticEventData.DocumentId);
-                    var project = diagnosticEventData.Solution.GetProject(diagnosticEventData.ProjectId);
-                    DiagnosticResultEx diagnosticResult = new DiagnosticResultEx()
+                    catch (Exception ex)
                     {
-                        Id = diagnosticEventData.Id,
-                        FileName = document.Name,
-                        ProjectName = project.Name
-                    };    
-                    
-                    List<DiagnosticLocation> quickFixes = new List<DiagnosticLocation>();
-                    foreach (var diagnostic in diagnosticEventData.GetAllDiagnosticsRegardlessOfPushPullSetting())
-                    {                       
-                        var diagnosticLocation = diagnostic.ToDiagnosticLocation();
-                        quickFixes.Add(diagnosticLocation);
+                        logger.Warning(ex.Message);
                     }
-                    diagnosticResult.QuickFixes = quickFixes;
-                    return diagnosticResult;
+                    return null;
                 });
 
                 DiagnosticsUpdated = diagnosticsMessageObservable.Where(d => d != null);
