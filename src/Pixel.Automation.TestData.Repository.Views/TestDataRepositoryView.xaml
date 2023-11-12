@@ -12,11 +12,42 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-
+        
+        <Style x:Key="ControlLabel" TargetType="{x:Type TextBox}">
+            <Setter Property="IsReadOnly" Value="True"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+            <Setter Property="BorderThickness" Value="0"></Setter>
+            <Setter Property="FontSize" Value="12"></Setter>
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding
+                      RelativeSource={RelativeSource
+                          Mode=FindAncestor,
+                          AncestorType={x:Type ListBoxItem}},
+                          Path=IsSelected}" Value="True"></Condition>
+                        <Condition Binding="{Binding
+                      RelativeSource={RelativeSource
+                          Mode=FindAncestor,
+                          AncestorType={x:Type ListBox}},
+                          Path=DataContext.CanEdit}" Value="True"></Condition>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="IsReadOnly" Value="False"></Setter>
+                        <Setter Property="BorderThickness" Value="2"></Setter>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
+                    <Setter Property="FontSize" Value="14"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
         <Style x:Key="AddButton" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Control.Background}"></Setter>
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Template">
@@ -24,11 +55,10 @@
                     <ControlTemplate>
                         <Border  Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0" IsHitTestVisible="True">
                             <iconPacks:PackIconMaterial x:Name="PlusIcon" Width="{TemplateBinding Width}"
-                                        Height="{TemplateBinding Height}" IsHitTestVisible="False"
-                                        Margin="2"
-                                        Padding="4"
-                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
-                                        Kind="PlusCircleOutline" />
+                              Height="{TemplateBinding Height}" IsHitTestVisible="False"
+                              Margin="2" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Foreground="{DynamicResource MahApps.Brushes.Accent2}"
+                              Kind="PlusCircleOutline" />   
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="False">
@@ -105,6 +135,7 @@
                                         <ControlTemplate>
                                             <StackPanel>
                                                 <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action EditDataSource($dataContext)]"></MenuItem>
+                                                <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="Delete" Header="Delete" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action DeleteDataSource($dataContext)]"></MenuItem>
                                             </StackPanel>
                                         </ControlTemplate>
@@ -113,12 +144,12 @@
                             </StackPanel.ContextMenu>
 
                             <ContentControl x:Name="Icon" Content="{Binding MetaData}" Background="{DynamicResource MahApps.Brushes.Control.Background}"
-                                            Margin="2" Width="40" Height="40" ToolTip="{Binding Name}"></ContentControl>
+                                            Margin="2" Width="40" Height="40" ToolTip="{Binding Name}"/>
+                            <TextBox x:Name="Name" Text="{Binding Name}"   Margin="5"  Style="{StaticResource ControlLabel}" IsHitTestVisible="True" HorizontalAlignment="Stretch"
+                              cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
+                              cal:Message.Attach="[Event KeyDown] = [Action RenameDataSource($executionContext,$dataContext)];[Event MouseDoubleClick] = [Action ToggleRename($dataContext)];"
+                              HorizontalContentAlignment="Center" Height="20" Width="128" Padding="0"/>
 
-                            <TextBlock x:Name="Name" Text="{Binding Name}"   Margin="5"  IsHitTestVisible="True" ToolTip="{Binding Name}"
-                                       Height="Auto" MaxWidth="80" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
-                                         cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
-                            ></TextBlock>
                         </StackPanel>
                     </DataTemplate>
                 </Setter.Value>
@@ -131,25 +162,22 @@
     <Grid Margin="5,5,0,0" Background="{DynamicResource MahApps.Brushes.Control.Background}">
 
         <StackPanel x:Name="TestDataSourceView" HorizontalAlignment="Stretch"  Margin="0,4,0,6"  Orientation="Vertical">
-            <StackPanel>
-
-                <StackPanel Orientation="Horizontal" Grid.Row="0">
-                    <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
-                             controls:TextBoxHelper.UseFloatingWatermark="False" IsEnabled="True"                     
-                             controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
-                                 Width="250"/>
-                    <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-                    <Button x:Name="Add" Click="AddDataSourceClick" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
-                </StackPanel>
-
-                <ListBox  x:Name="TestDataSourceCollection"  ItemsSource="{Binding TestDataSourceCollection}" SelectedItem="{Binding SelectedTestDataSource}"
-                    Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"                
-                    Style="{StaticResource TestDataListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"                 
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                </ListBox>
-
+            <StackPanel Orientation="Horizontal">
+                <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
+                  controls:TextBoxHelper.UseFloatingWatermark="False" IsEnabled="True"                     
+                  controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
+                  Width="250"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="Add" Click="AddDataSourceClick" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
             </StackPanel>
+
+            <ListBox  x:Name="TestDataSourceCollection"  ItemsSource="{Binding TestDataSourceCollection}" SelectedItem="{Binding SelectedTestDataSource}"
+                 Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"                
+                 Style="{StaticResource TestDataListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"                 
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"> 
+            </ListBox>
+            
         </StackPanel>
     </Grid>
 
