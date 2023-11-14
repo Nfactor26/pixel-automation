@@ -111,7 +111,7 @@
 	</ComponentTemplate>
 	<ComponentTemplate>
 		<Name>ImageControlEntity</Name>
-		<DataTemplateKey>ControlTemplate</DataTemplateKey>
+		<DataTemplateKey>ImageControlTemplate</DataTemplateKey>
 		<StyleKey>ControlComponentStyle</StyleKey>
 	</ComponentTemplate>
 	<ComponentTemplate>

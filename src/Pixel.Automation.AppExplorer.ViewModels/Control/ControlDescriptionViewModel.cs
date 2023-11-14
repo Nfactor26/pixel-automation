@@ -1,7 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
@@ -103,6 +102,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             set => this.controlDescription.ControlDetails = value;
         }
 
+        /// <summary>
+        /// Indicates if the control is an image control
+        /// </summary>
+        [Browsable(false)]
+        public bool IsImageControl
+        {
+            get => this.ControlDetails is IImageControlIdentity;
+        }
       
         ImageSource imageSource;
         /// <summary>
