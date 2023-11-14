@@ -223,6 +223,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     await EditApplicationAsync(applicationDescriptionViewModel);
                     NotifyOfPropertyChange(() => Applications);
                     logger.Information("New application of type {0} has been added to the application repository", application.ToString());
+                    await notificationManager.ShowSuccessNotificationAsync($"New application of type : '{application.ToString()}' was added");
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +244,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         {
                             activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
                             await SaveApplicationAsync(applicationDescriptionViewModel);
-                            await notificationManager.ShowSuccessNotificationAsync("Application was saved");
+                            await notificationManager.ShowSuccessNotificationAsync("Application details were saved");
                         }
                         catch (Exception ex)
                         {
@@ -286,6 +287,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
                         await this.applicationDataManager.DeleteApplicationAsync(applicationDescriptionViewModel.Model);
                         this.Applications.Remove(applicationDescriptionViewModel);
+                        await notificationManager.ShowSuccessNotificationAsync($"Application : '{applicationDescriptionViewModel.ApplicationName}' was deleted");
+
                     }
                     catch (Exception ex)
                     {
@@ -316,7 +319,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         activity?.SetTag("ScreenName", applicationScreenViewModel.ScreenName);
                         applicationDescription.ScreenCollection.RefreshScreens();
                         await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
-                        logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);
+                        logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);                     
                     }
                 }
                 catch (Exception ex)
