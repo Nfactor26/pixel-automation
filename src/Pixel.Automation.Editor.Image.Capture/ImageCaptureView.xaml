@@ -84,8 +84,10 @@
                               cal:Message.Attach="ChangePivotPoint('BottomRight')"></MenuItem>
                     </MenuItem>
                     
-                    <MenuItem x:Name="closeView" Header="Exit"
-                              cal:Message.Attach="CloseView()"></MenuItem>
+                    <MenuItem x:Name="Save" Header="Save"
+                              cal:Message.Attach="Save()"></MenuItem>
+                    <MenuItem x:Name="Exit" Header="Exit"
+                              cal:Message.Attach="Exit()"></MenuItem>
                 </ContextMenu>
             </Canvas.ContextMenu>
 

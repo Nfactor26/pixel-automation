@@ -195,12 +195,17 @@ namespace Pixel.Automation.Editor.Image.Capture
             offsetPointer.SetValue(Canvas.TopProperty, (double)this.Offset.Y);
 
         
-        } 
-    
-        public async Task CloseView()
+        }
+
+        public async Task Save()
         {
             this.controlIdentity.BoundingBox = this.TemplateBoundingBox;
             await this.TryCloseAsync(true);
+        }
+
+        public async Task Exit()
+        {           
+            await this.TryCloseAsync(false);
         }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
