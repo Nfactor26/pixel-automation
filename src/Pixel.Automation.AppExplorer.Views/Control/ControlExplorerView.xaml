@@ -11,7 +11,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.Resources>
-        
+        <BooleanToVisibilityConverter x:Key="boolToVisibilityConverter"/>
         <Style x:Key="ControlLabel" TargetType="{x:Type TextBox}">
             <Setter Property="IsReadOnly" Value="True"></Setter>
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
@@ -84,8 +84,13 @@
                     </ContextMenu>
                 </StackPanel.ContextMenu>
                 <Border x:Name="ControlBorder" BorderBrush="{DynamicResource MahApps.Brushes.Accent3}" Background="Transparent" BorderThickness="2" CornerRadius="4">
-                    <Image x:Name="ControlImage" Source="{Binding ImageSource}" Stretch="Uniform" Margin="5" Width="148" Height="80"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="ControlImage" Source="{Binding ImageSource}" Stretch="Uniform" Margin="5" Width="148" Height="80"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <iconPacks:PackIconMaterial Visibility="{Binding IsImageControl, Converter={StaticResource boolToVisibilityConverter}}"
+                          Width="20" Height="20" Margin="-20,-3,0,0" Padding="4"                                  
+                          Kind="CameraOutline" Foreground="{DynamicResource MahApps.Brushes.Accent3}" /> 
+                    </StackPanel>                
                 </Border>
                 <TextBox x:Name="ControlName" Text="{Binding ControlName}"   Margin="5"  Style="{StaticResource ControlLabel}" IsHitTestVisible="True" HorizontalAlignment="Stretch"
                                          cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
