@@ -297,6 +297,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                         CanEdit = false;
                         logger.Information("Data source : '{0}' was renamed to {1}", currentName, newName);
                         await this.testDataManager.UpdateTestDataSourceAsync(testDataSource);
+                        await notificationManager.ShowSuccessNotificationAsync($"Data source : '{currentName}' was renamed to : '{newName}'");
                     }
                 }
                 catch (Exception ex)
@@ -388,7 +389,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                     {
                         await this.testDataManager.DeleteTestDataSourceAsync(testDataSource);
                         this.TestDataSourceCollection.Remove(testDataSource);
-                        logger.Information("Data source : '{0}' was deleted ", testDataSource.Name);
+                        logger.Information("Data source : '{0}' was deleted", testDataSource.Name);
+                        await notificationManager.ShowSuccessNotificationAsync($"Data source : '{testDataSource.Name}' was deleted");
 
                     }
                     catch (Exception ex)
