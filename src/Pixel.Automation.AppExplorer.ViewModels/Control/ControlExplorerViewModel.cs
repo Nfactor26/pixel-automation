@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -186,6 +187,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         controlToRename.ControlName = newName;
                         CanEdit = false;
                         await SaveControlDetails(controlToRename, false);
+                        await notificationManager.ShowSuccessNotificationAsync($"Control : '{currentName}' was renamed to : '{newName}'");
                     }
                 }
                 catch (Exception ex)
@@ -227,20 +229,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         private void OnScreenChanged(object sender, string selectedScreen)
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OnScreenChanged), ActivityKind.Internal))
             {
-                if (!string.IsNullOrEmpty(selectedScreen))
+                try
                 {
-                    var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
-                    this.Controls.Clear();
-                    this.Controls.AddRange(controlsForSelectedScreen);
+                    activity?.SetTag("SelectedScreen", selectedScreen);
+                    if (!string.IsNullOrEmpty(selectedScreen))
+                    {
+                        var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
+                        this.Controls.Clear();
+                        this.Controls.AddRange(controlsForSelectedScreen);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "An error occured while loading controls for screen : '{0}'", selectedScreen);
-                _ = notificationManager.ShowErrorNotificationAsync(ex);
-            }    
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "An error occured while loading controls for screen : '{0}'", selectedScreen);
+                    _ = notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }           
         }
 
         private IEnumerable<ControlDescriptionViewModel> LoadControlDetails(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
@@ -299,6 +305,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                         this.Controls.Remove(controlDescription);
                         logger.Information("Moved control : {0} from screen {1} to {2} for application {3}", controlDescription.ControlName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                        await notificationManager.ShowSuccessNotificationAsync($"Control : '{controlDescription.ControlName}' was moved to screen : '{moveToScreenViewModel.SelectedScreen}'");
                     }
                 }
                 catch (Exception ex)
@@ -363,7 +370,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         {
                             activity?.SetTag("ControlName", controlToEdit.ControlName);
                             await SaveControlDetails(controlToEdit, false);
-                            await notificationManager.ShowSuccessNotificationAsync("Control was saved");
+                            await notificationManager.ShowSuccessNotificationAsync($"Control : '{controlToEdit.ControlName}' was edited");
                         }
                         catch (Exception ex)
                         {
@@ -392,6 +399,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     activity?.SetTag("ControlName", controlToDelete.ControlName);
                     await this.applicationDataManager.DeleteControlAsync(controlToDelete.ControlDescription);
                     this.Controls.Remove(controlToDelete);
+                    await notificationManager.ShowSuccessNotificationAsync($"Control : '{controlToDelete.ControlName}' was deleted");
                 }
                 catch (Exception ex)
                 {
@@ -435,6 +443,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                             await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
                         }
                         File.Delete(selectedControl.ControlImage);
+                        await notificationManager.ShowSuccessNotificationAsync($"Image was updated for control : '{selectedControl.ControlName}'");
                     }
                 }
                 catch (Exception ex)
@@ -468,6 +477,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     await SaveControlDetails(controlDescriptionViewModel, true);
                     this.Controls.Add(controlDescriptionViewModel);
                     logger.Information("Created a clone of control : {0}", controlToClone.ControlDescription);
+                    await notificationManager.ShowSuccessNotificationAsync($"Copy of control : '{controlToClone.ControlName}' was created");
                 }
                 catch (Exception ex)
                 {
@@ -500,6 +510,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     this.Controls.Remove(control);
                     this.Controls.Add(controlDescriptionViewModel);
                     logger.Information("Created a new revision for control : {0}", control.ControlDescription);
+                    await notificationManager.ShowSuccessNotificationAsync($"Version of control : '{control.ControlName}' was incremented to : '{clonedControl.Version}'");
                 }
                 catch (Exception ex)
                 {
@@ -666,7 +677,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         }
 
                     }
-                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
+                    await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);                  
                 }
                 catch (Exception ex)
                 {

@@ -88,20 +88,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         private void OnScreenChanged(object sender, string selectedScreen)
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OnScreenChanged), ActivityKind.Internal))
             {
-                if (!string.IsNullOrEmpty(selectedScreen))
+                try
                 {
-                    var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);
-                    this.Prefabs.Clear();
-                    this.Prefabs.AddRange(prefabsForSelectedScreen);
+                    activity?.SetTag("SelectedScreen", selectedScreen);
+                    if (!string.IsNullOrEmpty(selectedScreen))
+                    {
+                        var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);
+                        this.Prefabs.Clear();
+                        this.Prefabs.AddRange(prefabsForSelectedScreen);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to load prefabs for screen : '{0}'", selectedScreen);
+                    _ = notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to load prefabs for screen : '{0}'", selectedScreen);
-                _ = notificationManager.ShowErrorNotificationAsync(ex);
-            } 
+           
         }      
 
         private List<PrefabProjectViewModel> LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
@@ -162,6 +167,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                         await this.applicationDataManager.AddOrUpdateApplicationAsync(this.ActiveApplication.Model);
                         this.Prefabs.Remove(prefabProject);
                         logger.Information("Moved prefab : {0} from screen {1} to {2} for application {3}", prefabProject.PrefabName, this.ScreenCollection.SelectedScreen, moveToScreenViewModel.SelectedScreen, this.ActiveApplication.ApplicationName);
+                        await notificationManager.ShowSuccessNotificationAsync($"Prefab : '{prefabProject.PrefabName}' was moved to screen : '{moveToScreenViewModel.SelectedScreen}'");
                     }
                 }
                 catch (Exception ex)
@@ -295,6 +301,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     activity?.SetTag("PrefabName", prefabToDelete.PrefabName);
                     await this.prefabDataManager.DeletePrefbAsync(prefabToDelete.PrefabProject);
                     this.Prefabs.Remove(prefabToDelete);
+                    await notificationManager.ShowSuccessNotificationAsync($"Prefab : '{prefabToDelete.PrefabName}' was deleted");
                 }
                 catch (Exception ex)
                 {
