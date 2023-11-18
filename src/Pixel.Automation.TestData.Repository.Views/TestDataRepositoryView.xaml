@@ -127,8 +127,8 @@
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel x:Name="TestDataPlaceHolder" Margin="10" dd:DragDrop.IsDragSource="True"
-                                    Orientation="Vertical" Height="80" Width="Auto" Background="{DynamicResource MahApps.Brushes.Control.Background}">
+                        <StackPanel x:Name="TestDataPlaceHolder" AutomationProperties.AutomationId="{Binding Name}" Margin="10" dd:DragDrop.IsDragSource="True"
+                                    Orientation="Vertical" Height="80" Width="Auto" Background="{DynamicResource MahApps.Brushes.Control.Background}" ToolTip="{Binding Name}">
                             <StackPanel.ContextMenu>
                                 <ContextMenu>
                                     <ContextMenu.Template>
@@ -144,7 +144,7 @@
                             </StackPanel.ContextMenu>
 
                             <ContentControl x:Name="Icon" Content="{Binding MetaData}" Background="{DynamicResource MahApps.Brushes.Control.Background}"
-                                            Margin="2" Width="40" Height="40" ToolTip="{Binding Name}"/>
+                                            Margin="2" Width="40" Height="40" IsHitTestVisible="False"/>
                             <TextBox x:Name="Name" Text="{Binding Name}"   Margin="5"  Style="{StaticResource ControlLabel}" IsHitTestVisible="True" HorizontalAlignment="Stretch"
                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
                               cal:Message.Attach="[Event KeyDown] = [Action RenameDataSource($executionContext,$dataContext)];[Event MouseDoubleClick] = [Action ToggleRename($dataContext)];"
