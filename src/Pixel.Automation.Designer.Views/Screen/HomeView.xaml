@@ -50,7 +50,7 @@
                                     <ComboBox x:Name="EditableVersions" FontSize="12" BorderThickness="0,0,0,0"
                                                   VerticalAlignment="Center" DockPanel.Dock="Left" Margin="12,2,0,0"
                                                   ToolTip="Select version to open"
-                                                  ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion}"/>                                    
+                                                  ItemsSource="{Binding EditableVersions}" SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"/>                                    
                                     <Button x:Name="OpenProject" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,0,0" 
                                                 DockPanel.Dock="Right" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource inverseBooleanConverter}}"
                                                 Height="20" Width="20" ToolTip="Open selected version of project"                                 

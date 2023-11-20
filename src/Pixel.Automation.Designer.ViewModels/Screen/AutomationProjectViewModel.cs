@@ -45,10 +45,19 @@ namespace Pixel.Automation.Designer.ViewModels
         /// </summary>
         public BindableCollection<ProjectVersion> EditableVersions { get; private set; } = new();
 
+        private ProjectVersion selectedVersion;
         /// <summary>
         /// Selected version to open on the UI
         /// </summary>
-        public ProjectVersion SelectedVersion { get; set; }
+        public ProjectVersion SelectedVersion
+        {
+            get => selectedVersion;
+            set
+            {
+                selectedVersion = value;
+                OnPropertyChanged();
+            }
+        }
 
         private bool isOpenInEditor;
         /// <summary>
@@ -78,7 +87,9 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             this.EditableVersions.Clear();
             this.EditableVersions.AddRange(automationProject.ActiveVersions);
+            OnPropertyChanged(nameof(EditableVersions));
             this.SelectedVersion = automationProject.LatestActiveVersion;
+            OnPropertyChanged(nameof(SelectedVersion));
             this.Refresh();
         }
     }
