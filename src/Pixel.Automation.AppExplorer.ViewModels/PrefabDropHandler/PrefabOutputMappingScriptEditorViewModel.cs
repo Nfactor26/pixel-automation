@@ -30,7 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <inheritdoc/>   
         protected override void AddProject(string[] projectReferences)
         {
-            this.scriptEditorFactory.AddProject(GetProjectName(), projectReferences, prefabEntity.GetPrefabDataModelType());
+            this.scriptEditorFactory.AddProject(GetProjectName(), projectReferences, dropTarget.EntityManager.Arguments.GetType());
         }
 
         /// <inheritdoc/>   

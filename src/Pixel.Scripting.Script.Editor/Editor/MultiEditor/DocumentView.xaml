@@ -45,7 +45,7 @@
                                                         HorizontalAlignment="Left" VerticalAlignment="Center" 
                                                         Foreground="{DynamicResource MahApps.Brushes.Accent}" />
                                 <Label Content="{Binding DisplayName}" ToolTip="{Binding DocumentName}"
-                                       DockPanel.Dock="Left" Padding="2"/>
+                                       DockPanel.Dock="Left" Padding="2" cal:Message.Attach="[Event MouseDoubleClick] = [Action OpenDocument($dataContext)]"/>
                                 <iconPacks:PackIconMaterial Kind="Asterisk" Width="8" Height="8"  DockPanel.Dock="Left"
                                        Margin="5,2,2,0" Visibility="{Binding Editor.IsModified, FallbackValue=Collapsed, Converter={StaticResource boolToVisConverter}}"
                                        Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" />

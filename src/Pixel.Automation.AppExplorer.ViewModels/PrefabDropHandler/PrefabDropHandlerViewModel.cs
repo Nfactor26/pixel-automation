@@ -2,7 +2,6 @@
 using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
@@ -53,20 +52,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
                 PrefabId = prefabProjectViewModel.PrefabId,
                 ApplicationId = prefabProjectViewModel.ApplicationId
             };
-
-            //We add and remove prefab entity to drop target so that the ScriptInitializer can correctly generate input and output mapping script location
-            dropTarget.AddComponent(this.prefabEntity);
-            var initializers = prefabEntity.GetType().GetCustomAttributes(typeof(InitializerAttribute), true).OfType<InitializerAttribute>();
-            foreach (var intializer in initializers)
-            {
-                IComponentInitializer componentInitializer = Activator.CreateInstance(intializer.Initializer) as IComponentInitializer;
-                componentInitializer.IntializeComponent(prefabEntity, entityManager);
-            }
-            dropTarget.RemoveComponent(this.prefabEntity);
-
+          
             this.stagedScreens.Clear();
 
-            var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, entityManager.GetServiceOfType<IReferenceManager>(),
+            var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
+            var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, referenceManager,
                 this.prefabEntity, prefabProjectViewModel, dropTarget);
             var prefabInputMappingScript = new PrefabInputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
             var prefabOutputMappingScript = new PrefabOutputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
