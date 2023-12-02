@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core.Components.Prefabs;
-using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -59,8 +58,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             get => prefabEntity.InputMappingScriptFile;
             set 
             {
-                prefabEntity.InputMappingScriptFile = value;            
-                Validate();
+                prefabEntity.InputMappingScriptFile = value;
+                ValidateScriptPath(nameof(this.InputMappingScriptFile), value);
                 NotifyOfPropertyChange();
             }
         }
@@ -73,8 +72,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             get => prefabEntity.OutputMappingScriptFile;
             set
             {
-                prefabEntity.OutputMappingScriptFile = value;              
-                Validate();
+                prefabEntity.OutputMappingScriptFile = value;
+                ValidateScriptPath(nameof(this.OutputMappingScriptFile), value);
                 NotifyOfPropertyChange();
             }
         }
@@ -102,12 +101,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             this.CanChangeVersion = !projectReferenceManager.GetPrefabReferences().HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {
-                var referencedVersion = projectReferenceManager.GetPrefabReferences().GetPrefabVersionInUse(prefabProject);
-                this.SelectedVersion = AvailableVersions.First(a => a.Equals(referencedVersion));
+                var prefabReference = projectReferenceManager.GetPrefabReferences().GetPrefabReference(prefabProject.PrefabId);             
+                this.SelectedVersion = AvailableVersions.First(a => a.Equals(prefabReference.Version));
+                this.InputMappingScriptFile = prefabReference.InputMappingScriptFile;
+                this.OutputMappingScriptFile = prefabReference.OutputMappingScriptFile;
             }
             else
             {
                 this.SelectedVersion = AvailableVersions.Last();
+                this.InputMappingScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");
+                this.OutputMappingScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");              
             }           
         }
 
@@ -122,7 +125,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             if (openFileDialog.ShowDialog() == true)
             {
                 this.InputMappingScriptFile = Path.GetRelativePath(projectFileSystem.WorkingDirectory, openFileDialog.FileName);
-                logger.Information("Input mapping script file changed to {0} for Prefab", this.InputMappingScriptFile);               
+                logger.Information("Input mapping script file changed to {0} for Prefab", this.InputMappingScriptFile);
             }
         }
 
@@ -169,7 +172,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// </summary>
         private async Task UpdatePrefabReferencesAsync()
         {
-            await this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() { ApplicationId = prefabProject.ApplicationId, PrefabId = prefabProject.PrefabId, Version = this.SelectedVersion });
+            await this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() 
+            { 
+                ApplicationId = prefabProject.ApplicationId,
+                PrefabId = prefabProject.PrefabId, 
+                Version = this.SelectedVersion,
+                InputMappingScriptFile = this.InputMappingScriptFile,
+                OutputMappingScriptFile = this.OutputMappingScriptFile
+            });
             logger.Debug($"Updated prefab refrences file.");
         }
 

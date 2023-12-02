@@ -15,7 +15,6 @@ namespace Pixel.Automation.Core.Components.Prefabs;
 [DataContract]
 [Serializable]
 [Scriptable(nameof(InputMappingScriptFile), nameof(OutputMappingScriptFile))]
-[Initializer(typeof(ScriptFileInitializer))]
 public class PrefabEntity : Entity
 {
     private readonly ILogger logger = Log.ForContext<PrefabEntity>();
@@ -81,7 +80,7 @@ public class PrefabEntity : Entity
         {
             Debug.Assert(!this.Components.Any(), "There should be no child componets in a Prefab Entity");
             this.LoadPrefab();
-            this.Components.Add(this.prefabEntity);
+            base.AddComponent(this.prefabEntity);           
             IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
             var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScriptFile);
             inputMappingAction.Invoke(prefabDataModel);
@@ -119,6 +118,13 @@ public class PrefabEntity : Entity
             this.Components.Clear();
             this.prefabDataModel = null;
         }   
+    }
+
+    public override async Task OnFaultAsync(IComponent faultingComponent)
+    {
+        this.Components.Clear();
+        this.prefabDataModel = null;
+        await base.OnFaultAsync(faultingComponent);
     }
 
     #region overridden methods

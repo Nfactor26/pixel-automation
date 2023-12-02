@@ -29,6 +29,16 @@ namespace Pixel.Automation.Core.Models
         public PrefabVersion Version { get; set; }
 
         /// <summary>
+        /// Input mapping script file for the prefab
+        /// </summary>
+        public string InputMappingScriptFile { get; set; }
+       
+        /// <summary>
+        /// Output mapping script file for the prefab
+        /// </summary>
+        public string OutputMappingScriptFile { get; set; }       
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         public PrefabReference()
