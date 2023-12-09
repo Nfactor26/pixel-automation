@@ -127,6 +127,53 @@ namespace Pixel.Automation.Designer.ViewModels
             }            
         }
 
+        /// <summary>
+        /// Edit the Initialization script file for the automation process.
+        /// Initialization script can be over-ridden in test runner to initialize automation process
+        /// environment differently e.g. specify a different browser to be launched then what is 
+        /// configured as the PreferredBrowser on WebApplication.
+        /// </summary>
+        /// <returns></returns>
+        public override async Task EditScriptAsync()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditScriptAsync), ActivityKind.Internal))
+            {
+                try
+                {
+                    await this.projectManager.DownloadFileByNameAsync(Constants.InitializeEnvironmentScript);
+                    var entityManager = this.EntityManager;
+                    var fileSystem = entityManager.GetCurrentFileSystem();
+                    var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+
+                    //Add the project to workspace
+                    var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
+                    scriptEditorFactory.AddProject(this.PrefabProject.PrefabName, new string[] { }, this.EntityManager.Arguments.GetType());
+                    scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.PrefabName, File.ReadAllText(scriptFile));
+                    //Create script editor and open the document to edit
+                    using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
+                    {
+                        scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.PrefabName, string.Empty);
+                        var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
+                        if (result.HasValue && result.Value)
+                        {
+                            var scriptEngine = entityManager.GetScriptEngine();
+                            scriptEngine.ClearState();
+                            await scriptEngine.ExecuteFileAsync(scriptFile);
+                            await this.projectManager.AddOrUpdateDataFileAsync(scriptFile);
+                            logger.Information("Updated script file : {0}", scriptFile);
+                        }
+                        scriptEditorFactory.RemoveProject(this.PrefabProject.PrefabName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.PrefabProject.PrefabName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+
         protected override async Task Reload()
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))

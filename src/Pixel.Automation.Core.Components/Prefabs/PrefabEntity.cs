@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -79,9 +80,9 @@ public class PrefabEntity : Entity
         try
         {
             Debug.Assert(!this.Components.Any(), "There should be no child componets in a Prefab Entity");
-            this.LoadPrefab();
+            await LoadPrefab();
             base.AddComponent(this.prefabEntity);           
-            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+            var scriptEngine = this.EntityManager.GetScriptEngine();
             var inputMappingAction = await scriptEngine.CreateDelegateAsync<Action<object>>(this.InputMappingScriptFile);
             inputMappingAction.Invoke(prefabDataModel);
             logger.Information($"Executed input mapping script : {this.InputMappingScriptFile} for Prefab : {this.PrefabId}");
@@ -93,15 +94,21 @@ public class PrefabEntity : Entity
         }
     }
 
-    public void LoadPrefab()
+    public async Task LoadPrefab()
     {
         if(this.prefabLoader == null)
         {
             this.prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();              
         }           
         this.prefabEntity = prefabLoader.GetPrefabEntity(this.ApplicationId, this.PrefabId, this.EntityManager);
-        this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;                 
+        this.prefabDataModel = this.prefabEntity.EntityManager.Arguments;
         logger.Information($"Loaded Prefab : {this.PrefabId} with data model type : {this.prefabDataModel.GetType()}");
+        var fileSystem = this.prefabEntity.EntityManager.GetCurrentFileSystem();
+        var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+        var scriptEngine = this.prefabEntity.EntityManager.GetScriptEngine();
+        scriptEngine.ClearState();
+        await scriptEngine.ExecuteFileAsync(scriptFile);
+        logger.Information($"Executed initialization script : '{0}' for prefab : '{1}'", scriptFile, this.PrefabId);
     }
 
     public override async Task OnCompletionAsync()

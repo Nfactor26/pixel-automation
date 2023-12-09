@@ -170,7 +170,7 @@ namespace Pixel.Automation.Designer.ViewModels
         /// configured as the PreferredBrowser on WebApplication.
         /// </summary>
         /// <returns></returns>
-        public async Task EditScriptAsync()
+        public override async Task EditScriptAsync()
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditScriptAsync), ActivityKind.Internal))
             {

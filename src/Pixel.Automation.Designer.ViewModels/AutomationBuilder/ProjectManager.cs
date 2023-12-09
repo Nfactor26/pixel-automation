@@ -68,6 +68,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <returns></returns>
         protected abstract string GetProjectNamespace();
 
+        /// <summary>
+        /// Add initialization script file if it doesn't exist
+        /// </summary>
+        protected abstract void CreateInitializationScriptFile(string scriptFile);
+
+        ///<inheritdoc/>
+        public abstract Task DownloadFileByNameAsync(string fileName);
+
         ///<inheritdoc/>
         public abstract Task AddOrUpdateDataFileAsync(string targetFile);
 
@@ -180,6 +188,29 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                  .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
                  .WithAdditionalNamespaces(referenceManager.GetImportsForScripts().ToArray());
             }             
+        }
+
+        /// <summary>
+        /// Execute the Initialization script for Automation process.
+        /// Empty Initialization script is created if script file doesn't exist already.
+        /// </summary>
+        protected async Task ExecuteInitializationScript()
+        {
+            try
+            {
+                var fileSystem = this.entityManager.GetCurrentFileSystem();
+                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+                CreateInitializationScriptFile(scriptFile);
+                var scriptEngine = this.entityManager.GetScriptEngine();
+                await scriptEngine.ExecuteFileAsync(scriptFile);
+                logger.Information("Executed initialize environment script : {scriptFile}", scriptFile);
+                await scriptEngine.ExecuteScriptAsync(Constants.DefaultInitFunction);
+                logger.Information("Executed default initializer function : {DefaultInitFunction}", Constants.DefaultInitFunction);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to execute Initialization script {Constants.InitializeEnvironmentScript}");
+            }
         }
 
         /// <summary>

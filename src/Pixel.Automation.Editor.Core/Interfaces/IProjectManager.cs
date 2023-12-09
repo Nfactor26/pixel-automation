@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
+    /// <summary>
+    /// Contract for managing a project
+    /// </summary>
     public interface IProjectManager
     {      
         /// <summary>
@@ -19,6 +22,13 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// </summary>
         /// <returns></returns>
         IReferenceManager GetReferenceManager();
+
+        /// <summary>
+        /// Download a file associated with project given it's name
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        Task DownloadFileByNameAsync(string fileName);
 
         /// <summary>
         /// Add a new data file or update an existing one for the loades version of project
@@ -62,14 +72,17 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         Task Save();
     }
 
+    /// <summary>
+    /// Contract for managing an automation project
+    /// </summary>
     public interface IAutomationProjectManager: IProjectManager
     {
         Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);
-
-        Task DownloadFileByNameAsync(string fileName);
     }
     
-
+    /// <summary>
+    /// Contract for managing a prefab project
+    /// </summary>
     public interface IPrefabProjectManager : IProjectManager
     {
         Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionInfo);

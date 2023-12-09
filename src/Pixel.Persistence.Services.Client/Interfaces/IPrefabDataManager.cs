@@ -45,6 +45,12 @@ public interface IPrefabDataManager
     Task DownloadPrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
 
     /// <summary>
+    /// Download a file with specified nme for the version of AutomtionProject being managed
+    /// </summary>
+    /// <returns></returns>
+    Task DownloadPrefabDataFileByNameAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string fileName);
+
+    /// <summary>
     /// Download dta model files (*.cs) for a given version of prefab
     /// </summary>
     /// <param name="prefabProject"></param>

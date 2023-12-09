@@ -134,6 +134,29 @@ public class PrefabDataManager : IPrefabDataManager
         }
     }
 
+    /// <inheritdoc/>  
+    public async Task DownloadPrefabDataFileByNameAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string fileName)
+    {
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+        Guard.Argument(fileName, nameof(fileName)).NotNull().NotEmpty();
+
+        if (IsOnlineMode)
+        {
+            var file = await this.filesClient.DownProjectDataFile(prefabProject.PrefabId, prefabVersion.ToString(), fileName);
+            var prefabsDirectory = Path.Combine(this.applicationFileSystem.GetPrefabProjectDirectory(prefabProject), prefabVersion.ToString());
+            using (MemoryStream ms = new MemoryStream(file.Bytes))
+            {
+                using (FileStream fs = new FileStream(Path.Combine(prefabsDirectory, file.FilePath), FileMode.Create))
+                {
+                    ms.Seek(0, SeekOrigin.Begin);
+                    ms.CopyTo(fs);
+                }
+            }
+            logger.Information("File : '{0}' was downloaded for version : '{1}' of prefab project : '{2}'.", file.FilePath, prefabVersion, prefabProject.PrefabName);
+        }
+    }
+
     /// <inheritdoc/> 
     public async Task DownloadDataModelFilesAsync(PrefabProject prefabProject, PrefabVersion prefabVersion)
     {
