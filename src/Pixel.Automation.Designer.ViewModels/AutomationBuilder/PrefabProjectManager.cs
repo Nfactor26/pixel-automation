@@ -84,8 +84,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEngine(this.referenceManager, dataModel);
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
+
+                await ExecuteInitializationScript();
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
+                SetupInitializationScriptProject(dataModel);
 
                 return this.RootEntity;
             }           
@@ -141,7 +144,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 {
                     Name = $"Initialize Data",
                     TargetAppId = applicationEntity.ApplicationId
-                });               
+                });
                 this.prefabFileSystem.CreateOrReplaceTemplate(templateRoot);
             }           
 
@@ -160,7 +163,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 var applicationSequence = new SequenceEntity()
                 {
-                    Name = $"Initialize Data",
+                    Name = $"Sequence : {targetApplication.ApplicationName}",
                     TargetAppId = targetApplication.ApplicationId
                 };
                 runPrefabProcessor.AddComponent(applicationSequence);
@@ -217,6 +220,21 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         #region overridden methods
 
+        protected override void CreateInitializationScriptFile(string scriptFile)
+        {
+            if (!File.Exists(scriptFile))
+            {
+                using var sw = File.CreateText(scriptFile);              
+                logger.Information("Created initialization script file : {scriptFile}", scriptFile);
+            }
+        }
+
+        ///<inheritdoc/>
+        public override async Task DownloadFileByNameAsync(string fileName)
+        {
+            await this.prefabDataManager.DownloadPrefabDataFileByNameAsync(this.prefabProject, this.loadedVersion, fileName);
+        }
+
         ///<inheritdoc/>
         public override async Task AddOrUpdateDataFileAsync(string targetFile)
         {
@@ -234,7 +252,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             await this.prefabDataManager.DownloadDataModelFilesAsync(this.prefabProject, this.loadedVersion);
         }
-
         /// <inheritdoc/>       
         protected override string GetProjectName()
         {
@@ -256,12 +273,21 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 this.RootEntity.ResetHierarchy();
                 serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabEntity, typeProvider.GetKnownTypes());
+                if(this.prefabEntity is SequenceEntity sequenceEntity)
+                {
+                    var prefabProcessor = sequenceEntity.Parent;
+                    prefabProcessor.RemoveComponent(sequenceEntity);
+                    this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
+                    prefabProcessor.AddComponent(this.prefabEntity);
 
-                var prefabParent = this.prefabEntity.Parent;
-                prefabParent.RemoveComponent(this.prefabEntity, false);
-                this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
-                prefabParent.AddComponent(this.prefabEntity);
-                                       
+                }
+                else
+                {
+                    var prefabProcessor = this.prefabEntity.Parent.Parent;
+                    prefabProcessor.RemoveComponent(this.prefabEntity.Parent);
+                    this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
+                    prefabProcessor.AddComponent(this.prefabEntity.Parent);
+                }                                      
                 await this.prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.loadedVersion);
             }
             catch (Exception ex)

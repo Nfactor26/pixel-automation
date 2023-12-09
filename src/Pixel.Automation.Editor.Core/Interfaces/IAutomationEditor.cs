@@ -17,13 +17,6 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <param name="project"></param>
         Task DoLoad(AutomationProject project, VersionInfo versionInfo = null);
 
-
-        /// <summary>
-        /// Open script editor that can be used to modify the initialization script for the automation project.
-        /// </summary>
-        /// <returns></returns>
-        Task EditScriptAsync();
-
         /// <summary>
         /// Manage prefab references for the project.
         /// </summary>

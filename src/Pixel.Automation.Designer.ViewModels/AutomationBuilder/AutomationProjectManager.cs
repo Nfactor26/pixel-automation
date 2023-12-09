@@ -109,45 +109,27 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 await File.WriteAllTextAsync(dataModelFile, dataModelInitialContent);
                 logger.Information($"Created data model file : {dataModelFile}");
             }             
-        }      
-
-        /// <summary>
-        /// Execute the Initialization script for Automation process.
-        /// Empty Initialization script is created if script file doesn't exist already.
-        /// </summary>
-        private async Task ExecuteInitializationScript()
-        {
-            try
-            {
-                var fileSystem = this.entityManager.GetCurrentFileSystem();
-                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
-                if (!File.Exists(scriptFile))
-                {
-                    using (var sw = File.CreateText(scriptFile))
-                    {                       
-                        sw.WriteLine("string dataSourceSuffix = string.Empty;");
-                        sw.WriteLine();
-                        sw.WriteLine("//Default Initialization function");                     
-                        sw.Write("void ");
-                        sw.Write(Constants.DefaultInitFunction);
-                        sw.WriteLine("{");
-                        sw.WriteLine();
-                        sw.WriteLine("}");
-                    };
-                    logger.Information("Created initialization script file : {scriptFile}", scriptFile);
-                }
-                var scriptEngine = this.entityManager.GetScriptEngine();
-                await scriptEngine.ExecuteFileAsync(scriptFile);
-                logger.Information("Executed initialize environment script : {scriptFile}", scriptFile);
-                await scriptEngine.ExecuteScriptAsync(Constants.DefaultInitFunction);
-                logger.Information("Executed default initializer function : {DefaultInitFunction}", Constants.DefaultInitFunction);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"Failed to execute Initialization script {Constants.InitializeEnvironmentScript}");               
-            }
         }
 
+        protected override void CreateInitializationScriptFile(string scriptFile)
+        {
+            if (!File.Exists(scriptFile))
+            {
+                using (var sw = File.CreateText(scriptFile))
+                {
+                    sw.WriteLine("string dataSourceSuffix = string.Empty;");
+                    sw.WriteLine();
+                    sw.WriteLine("//Default Initialization function");
+                    sw.Write("void ");
+                    sw.Write(Constants.DefaultInitFunction);
+                    sw.WriteLine("{");
+                    sw.WriteLine();
+                    sw.WriteLine("}");
+                };
+                logger.Information("Created initialization script file : {scriptFile}", scriptFile);
+            }
+        }
+        
         private void Initialize()
         {
             logger.Information($"Loading project file for {this.GetProjectName()} now");
@@ -214,15 +196,15 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }
 
-        ///<inheritdoc/>
-        public async Task DownloadFileByNameAsync(string fileName)
-        {
-            await this.projectDataManager.DownloadProjectDataFileByNameAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileName);
-        }
-
         #endregion methods
 
         #region overridden methods
+
+        ///<inheritdoc/>
+        public override async Task DownloadFileByNameAsync(string fileName)
+        {
+            await this.projectDataManager.DownloadProjectDataFileByNameAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileName);
+        }
 
         ///<inheritdoc/>
         public override async Task AddOrUpdateDataFileAsync(string targetFile)

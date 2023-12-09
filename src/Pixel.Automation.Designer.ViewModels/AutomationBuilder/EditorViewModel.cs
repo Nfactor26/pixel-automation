@@ -218,6 +218,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         public abstract Task EditDataModelAsync();
 
+        public abstract Task EditScriptAsync();
+
         protected void UpdateWorkFlowRoot()
         {
             this.WorkFlowRoot.Clear();

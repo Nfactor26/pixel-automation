@@ -23,6 +23,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         Task EditDataModelAsync();
 
         /// <summary>
+        /// Open script editor that can be used to modify the initialization script for the automation project.
+        /// </summary>
+        /// <returns></returns>
+        Task EditScriptAsync();
+
+        /// <summary>
         /// Manage control references for the project.
         /// </summary>
         /// <returns></returns>

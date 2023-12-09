@@ -173,13 +173,13 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             get
             {
-                return this.ActiveItem != null && this.ActiveItem is IAutomationEditor;
+                return this.ActiveItem != null && this.ActiveItem is IEditor;
             }
         }
 
         public async Task EditScriptAsync()
         {
-            var activeItem = this.ActiveItem as IAutomationEditor;
+            var activeItem = this.ActiveItem as IEditor;
             if (activeItem == null)
             {
                 return;
