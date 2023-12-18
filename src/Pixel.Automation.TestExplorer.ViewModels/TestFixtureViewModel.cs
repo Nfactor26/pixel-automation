@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.TestData;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Documents;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -209,8 +210,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Associate usage of control to the test fixture by storing the identifier of control
         /// </summary>
         /// <param name="prefabId"></param>
-        public void AddControlUsage(string controlId)
+        public bool AddControlUsage(string controlId)
         {
+            bool wasUsageAdded = false;
             if (this.TestFixture.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
             {
                 var entry = this.TestFixture.ControlsUsed.First(a => a.ControlId.Equals(controlId));
@@ -219,35 +221,43 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             else
             {
                 this.TestFixture.ControlsUsed.Add(new Core.Models.ControlUsage() { ControlId = controlId, Count = 1 });
+                wasUsageAdded = true;
             }
             this.IsDirty = true;
+            return wasUsageAdded;
         }
 
         /// <summary>
         /// Remove usage of control from the test fixture
         /// </summary>
         /// <param name="controlId"></param>
-        public void RemoveControlUsage(string controlId)
+        public bool RemoveControlUsage(string controlId)
         {
+            bool wasUsageRemoved = false;
             if (this.TestFixture.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
             {
                 var entry = this.TestFixture.ControlsUsed.First(a => a.ControlId.Equals(controlId));
                 if (entry.Count > 1)
                 {
-                    entry.Count--;
-                    return;
+                    entry.Count--;                    
                 }
-                this.TestFixture.ControlsUsed.Remove(entry);
-                this.IsDirty = true;
+                else
+                {
+                    this.TestFixture.ControlsUsed.Remove(entry);
+                    wasUsageRemoved = true;
+                }
+                this.IsDirty = true;              
             }
+            return wasUsageRemoved;
         }
 
         /// <summary>
         /// Associate usage of prefab to the test fixture by storing the identifier of prefab
         /// </summary>
         /// <param name="prefabId"></param>
-        public void AddPrefabUsage(string prefabId)
+        public bool AddPrefabUsage(string prefabId)
         {
+            bool wasUsageAdded = false;
             if (this.TestFixture.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
             {
                 var entry = this.TestFixture.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
@@ -256,27 +266,34 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             else
             {
                 this.TestFixture.PrefabsUsed.Add(new Core.Models.PrefabUsage() { PrefabId = prefabId, Count = 1 });
+                wasUsageAdded = true;
             }
             this.IsDirty = true;
+            return wasUsageAdded;
         }
 
         /// <summary>
         /// Remove usage of prefab from the test fixture
         /// </summary>
         /// <param name="prefabId"></param>
-        public void RemovePrefabUsage(string prefabId)
+        public bool RemovePrefabUsage(string prefabId)
         {
+            bool wasUsageRemvoed = false;
             if (this.TestFixture.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
             {
                 var entry = this.TestFixture.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
                 if(entry.Count > 1)
                 {
-                    entry.Count--;
-                    return;
+                    entry.Count--;                   
                 }
-                this.TestFixture.PrefabsUsed.Remove(entry);
+                else
+                {
+                    this.TestFixture.PrefabsUsed.Remove(entry);
+                    wasUsageRemvoed = true;
+                }
                 this.IsDirty = true;
             }
+            return wasUsageRemvoed;
         }
 
         /// <summary>

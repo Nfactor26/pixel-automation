@@ -168,6 +168,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                             }
                             TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
                             this.TestFixtures.Add(testFixtureVM);
+                            activity?.SetTag("Fixture", testFixtureVM.DisplayName);
                         }
                         isInitialized = true;
                         logger.Information("Loaded {0} test fixtures from local storage for test explorer", this.TestFixtures.Count());
@@ -189,26 +190,31 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         async Task LoadTestCasesForFixture(TestFixtureViewModel testFixtureViewModel)
         {
-            try
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadFixturesAsync), ActivityKind.Internal))
             {
-                Guard.Argument(testFixtureViewModel, nameof(testFixtureViewModel)).NotNull();
-                foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureViewModel.FixtureId)))
+                try
                 {
-                    var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
-                    if (testCase.IsDeleted)
+                    Guard.Argument(testFixtureViewModel, nameof(testFixtureViewModel)).NotNull();
+                    foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureViewModel.FixtureId)))
                     {
-                        continue;
+                        var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
+                        if (testCase.IsDeleted)
+                        {
+                            continue;
+                        }
+                        TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
+                        testFixtureViewModel.Tests.Add(testCaseVM);
                     }
-                    TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
-                    testFixtureViewModel.Tests.Add(testCaseVM);
+                    logger.Information("Loaded {0} test cases for fixture : '{1}'", testFixtureViewModel.Tests.Count(), testFixtureViewModel.DisplayName);
+                    activity?.SetTag("Fixture", testFixtureViewModel.DisplayName);
                 }
-                logger.Information("Loaded {0} test cases for fixture : '{1}'", testFixtureViewModel.Tests.Count(), testFixtureViewModel.DisplayName);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "There was an error while trying to load test cases for fixture : {0}", testFixtureViewModel?.DisplayName);
-                await notificationManager.ShowErrorNotificationAsync(ex);
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to load test cases for fixture : {0}", testFixtureViewModel?.DisplayName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }          
         }        
 
         /// <summary>
@@ -1406,22 +1412,38 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <param name="cancellationToken"></param>
         /// <returns></returns>s
         public async Task HandleAsync(PrefabAddedEventArgs message, CancellationToken cancellationToken)
-        {            
-            foreach(var fixture in this.TestFixtures)
+        {
+            if (string.IsNullOrEmpty(message.AddedToFixture))
             {
-                if(fixture.FixtureId.Equals(message.AddedTo))
+                return;
+            }
+
+            foreach (var fixture in this.TestFixtures)
+            {
+                if(!string.IsNullOrEmpty(message.AddedToTestCase))
                 {
-                    fixture.AddPrefabUsage(message.PrefabId);                
-                    return;
-                }
-                foreach(var testCase in fixture.Tests)
-                {
-                    if(testCase.TestCaseId.Equals(message.AddedTo))
+                    foreach (var testCase in fixture.Tests)
                     {
-                        testCase.AddPrefabUsage(message.PrefabId);                       
-                        return;
+                        if (testCase.TestCaseId.Equals(message.AddedToTestCase))
+                        {
+                            if (testCase.AddPrefabUsage(message.PrefabId))
+                            {
+                                logger.Information("Prefab : {0} was added to test case : {1}", message.PrefabId, testCase.DisplayName);
+                            }
+                            break;
+                        }
                     }
                 }
+
+                if(fixture.FixtureId.Equals(message.AddedToFixture))
+                {
+                    if(fixture.AddPrefabUsage(message.PrefabId))
+                    {
+                        logger.Information("Prefab : {0} was added to fixture : {1}", message.PrefabId, fixture.DisplayName);
+                    }
+                    break;
+                }
+               
             }
             await Task.CompletedTask;
         }
@@ -1434,21 +1456,37 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task HandleAsync(PrefabRemovedEventArgs message, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(message.RemovedFromFixture))
+            {
+                return;
+            }
+
             foreach (var fixture in this.TestFixtures)
             {
-                if (fixture.FixtureId.Equals(message.RemovedFrom))
+                if(!string.IsNullOrEmpty(message.RemovedFromTestCase))
                 {
-                    fixture.RemovePrefabUsage(message.PrefabId);                   
-                    return;
-                }
-                foreach (var testCase in fixture.Tests)
-                {
-                    if (testCase.TestCaseId.Equals(message.RemovedFrom))
+                    foreach (var testCase in fixture.Tests)
                     {
-                        testCase.RemovePrefabUsage(message.PrefabId);                        
-                        return;
+                        if (testCase.TestCaseId.Equals(message.RemovedFromTestCase))
+                        {
+                            if (testCase.RemovePrefabUsage(message.PrefabId))
+                            {
+                                logger.Information("Prefab : {0} was removed from test case : {1}", message.PrefabId, testCase.DisplayName);
+                            }
+                            break;
+                        }
                     }
                 }
+
+                if (fixture.FixtureId.Equals(message.RemovedFromFixture))
+                {
+                    if(fixture.RemovePrefabUsage(message.PrefabId))
+                    {
+                        logger.Information("Prefab : {0} was removed from fixture : {1}", message.PrefabId, fixture.DisplayName);
+                    }
+                    break;
+                }
+              
             }
             await Task.CompletedTask;
       
@@ -1462,25 +1500,36 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task HandleAsync(ControlAddedEventArgs message, CancellationToken cancellationToken)
         {
-            if(!string.IsNullOrEmpty(message.AddedTo))
+            if(string.IsNullOrEmpty(message.AddedToFixture))
             {
-                foreach (var fixture in this.TestFixtures)
+                return;
+            }
+
+            foreach (var fixture in this.TestFixtures)
+            {
+                if (fixture.FixtureId.Equals(message.AddedToFixture))
                 {
-                    if (fixture.FixtureId.Equals(message.AddedTo))
+                    if (!string.IsNullOrEmpty(message.AddedToTestCase))
                     {
-                        fixture.AddControlUsage(message.Control.ControlId);                      
-                        return;
-                    }
-                    foreach (var testCase in fixture.Tests)
-                    {
-                        if (testCase.TestCaseId.Equals(message.AddedTo))
+                        foreach (var testCase in fixture.Tests)
                         {
-                            testCase.AddControlUsage(message.Control.ControlId);                          
-                            return;
+                            if (testCase.TestCaseId.Equals(message.AddedToTestCase))
+                            {
+                                if (testCase.AddControlUsage(message.Control.ControlId))
+                                {
+                                    logger.Information("Control : {0} was added to test case : {1}", message.Control.ControlName, testCase.DisplayName);
+                                }
+                                break;
+                            }
                         }
                     }
+                    if (fixture.AddControlUsage(message.Control.ControlId))
+                    {
+                        logger.Information("Control : {0} was added to fixture : {1}", message.Control.ControlName, fixture.DisplayName);
+                    }
+                    break;
                 }
-            }            
+            }
             await Task.CompletedTask;
         }
 
@@ -1493,21 +1542,36 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task HandleAsync(ControlRemovedEventArgs message, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(message.RemovedFromFixture))
+            {
+                return;
+            }
+
             foreach (var fixture in this.TestFixtures)
             {
-                if (fixture.FixtureId.Equals(message.RemovedFrom))
+                if (!string.IsNullOrEmpty(message.RemovedFromTestCase))
                 {
-                    fixture.RemoveControlUsage(message.ControlId);                   
-                    return;
-                }
-                foreach (var testCase in fixture.Tests)
-                {
-                    if (testCase.TestCaseId.Equals(message.RemovedFrom))
+                    foreach (var testCase in fixture.Tests)
                     {
-                        testCase.RemoveControlUsage(message.ControlId);                       
-                        return;
+                        if (testCase.TestCaseId.Equals(message.RemovedFromTestCase))
+                        {
+                            if (testCase.RemoveControlUsage(message.Control.ControlId))
+                            {
+                                logger.Information("Control : {0} was removed from test case : {1}", message.Control.ControlName, testCase.DisplayName);
+                            }
+                            break;
+                        }
                     }
                 }
+                
+                if (fixture.FixtureId.Equals(message.RemovedFromFixture))
+                {
+                    if(fixture.RemoveControlUsage(message.Control.ControlId))
+                    {
+                        logger.Information("Control : {0} was removed from fixture : {1}", message.Control.ControlName, fixture.DisplayName);
+                    }
+                    break;
+                }              
             }
             await Task.CompletedTask;
         }

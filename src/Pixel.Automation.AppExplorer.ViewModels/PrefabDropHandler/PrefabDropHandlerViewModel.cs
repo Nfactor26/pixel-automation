@@ -69,13 +69,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             this.stagedScreens.Add(prefabOutputMappingScript);
         }
 
-
         public override async Task Finish()
         {
             var addToComponent = this.dropTarget.Model;
             if (addToComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
-                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testCaseEntity.Tag));
+                addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
+                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
             }
             else if (addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
             {
