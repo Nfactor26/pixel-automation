@@ -130,23 +130,24 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     controlsToBeRemoved.Add(controlEntity);
                 }
-                else if (entity.HasComponentsOfType<ControlEntity>())
+                if (entity.HasComponentsOfType<ControlEntity>())
                 {
                     controlsToBeRemoved.AddRange(entity.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants));
                 }
 
                 if (componentToDelete.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
                 {
+                    testCaseEntity.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
                     foreach (var control in controlsToBeRemoved)
                     {
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlRemovedEventArgs(control.ControlId, testCaseEntity.Tag));
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlRemovedEventArgs(control.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
                     }
                 }
                 else if (componentToDelete.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
                 {
                     foreach (var control in controlsToBeRemoved)
                     {
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new  ControlRemovedEventArgs(control.ControlId, testFixtureEntity.Tag));
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new  ControlRemovedEventArgs(control.ControlDescription, testFixtureEntity.Tag));
                     }
                 }
             }

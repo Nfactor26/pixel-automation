@@ -307,7 +307,8 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     //Notify on event aggregator so that control references file for the project  can be updated
                     if(targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
                     {
-                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testCaseEntity.Tag));
+                        testCaseEntity.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
                     }
                     else if(targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
                     {

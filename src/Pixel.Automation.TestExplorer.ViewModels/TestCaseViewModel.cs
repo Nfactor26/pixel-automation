@@ -272,8 +272,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Associate usage of control to the test case by storing the identifier of control
         /// </summary>
         /// <param name="prefabId"></param>
-        public void AddControlUsage(string controlId)
+        public bool AddControlUsage(string controlId)
         {
+            bool wasUsagedAddedd = false;
             if (this.TestCase.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
             {
                 var entry = this.TestCase.ControlsUsed.First(a => a.ControlId.Equals(controlId));
@@ -282,35 +283,43 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             else
             {
                 this.TestCase.ControlsUsed.Add(new Core.Models.ControlUsage() { ControlId = controlId, Count = 1 });
+                wasUsagedAddedd = true;
             }
             this.IsDirty = true;
+            return wasUsagedAddedd;
         }
 
         /// <summary>
         /// Remove usage of control from the test case
         /// </summary>
         /// <param name="controlId"></param>
-        public void RemoveControlUsage(string controlId)
+        public bool RemoveControlUsage(string controlId)
         {
+            bool wasUsagedRemoved = false;
             if (this.TestCase.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
             {
                 var entry = this.TestCase.ControlsUsed.First(a => a.ControlId.Equals(controlId));
                 if (entry.Count > 1)
                 {
-                    entry.Count--;
-                    return;
+                    entry.Count--;                   
                 }
-                this.TestCase.ControlsUsed.Remove(entry);
+                else
+                {
+                    this.TestCase.ControlsUsed.Remove(entry);
+                    wasUsagedRemoved = true;
+                }
                 this.IsDirty = true;
-            }           
+            }
+            return wasUsagedRemoved;
         }
 
         /// <summary>
         /// Associate usage of prefab to the test cse by storing the identifier of prefab
         /// </summary>
         /// <param name="prefabId"></param>
-        public void AddPrefabUsage(string prefabId)
+        public bool AddPrefabUsage(string prefabId)
         {
+            bool wasUsagedAddedd = false;
             if (this.TestCase.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
             {
                 var entry = this.TestCase.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
@@ -319,27 +328,34 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             else
             {
                 this.TestCase.PrefabsUsed.Add(new Core.Models.PrefabUsage() { PrefabId = prefabId, Count = 1 });
+                wasUsagedAddedd = true;
             }
             this.IsDirty = true;
+            return wasUsagedAddedd;
         }
 
         /// <summary>
         /// Remove usage of prefab from the test case
         /// </summary>
         /// <param name="prefabId"></param>
-        public void RemovePrefabUsage(string prefabId)
+        public bool RemovePrefabUsage(string prefabId)
         {
+            bool wasUsagedRemoved = false;
             if (this.TestCase.PrefabsUsed.Any(a => a.PrefabId.Equals(prefabId)))
             {
                 var entry = this.TestCase.PrefabsUsed.First(a => a.PrefabId.Equals(prefabId));
                 if (entry.Count > 1)
                 {
-                    entry.Count--;
-                    return;
+                    entry.Count--;                   
                 }
-                this.TestCase.PrefabsUsed.Remove(entry);
+                else
+                {
+                    this.TestCase.PrefabsUsed.Remove(entry);
+                    wasUsagedRemoved = true;
+                }
                 this.IsDirty = true;
             }       
+            return wasUsagedRemoved;
         }
 
         /// <summary>
