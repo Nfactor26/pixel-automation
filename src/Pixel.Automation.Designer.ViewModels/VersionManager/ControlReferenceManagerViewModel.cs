@@ -64,7 +64,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             this.controlReferences = this.referenceManager.GetControlReferences();
             foreach(var reference in this.controlReferences.References)
             {
-                var controls = applicationDataManager.GetControlsById(reference.ApplicationId, reference.ControlId);               
+                var controls = applicationDataManager.GetAllVersionsOfControl(reference.ApplicationId, reference.ControlId);               
                 this.References.Add(new ControlReferenceViewModel( reference, controls));
             }
             CreateDefaultView();
