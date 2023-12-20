@@ -15,10 +15,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
     {
         private readonly ILogger logger = Log.ForContext<PrefabVersionViewModel>();
 
-        private readonly PrefabProject prefabProject;
-        private readonly PrefabVersion prefabVersion;
+        private readonly PrefabProject prefabProject;      
         private readonly IPrefabFileSystem fileSystem;
         private readonly Lazy<IReferenceManager> referenceManager;
+
+        public PrefabVersion PrefabVersion { get; init; }
 
         public string PrefabName
         {
@@ -27,12 +28,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public Version Version
         {
-            get => prefabVersion.Version;
+            get => PrefabVersion.Version;
         }
 
         public bool IsPublished
         {
-            get => prefabVersion.IsPublished;            
+            get => PrefabVersion.IsPublished;            
         }
 
         /// <summary>
@@ -40,13 +41,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>
         public bool IsActive
         {
-            get => prefabVersion.IsActive;
+            get => PrefabVersion.IsActive;
             set
             {
                 //can be only set to false when version is active
-                if (prefabVersion.IsActive && !value)
+                if (PrefabVersion.IsActive && !value)
                 {
-                    prefabVersion.IsActive = value;
+                    PrefabVersion.IsActive = value;
                 }
                 NotifyOfPropertyChange(() => IsActive);
                 NotifyOfPropertyChange(() => IsPublished);
@@ -66,12 +67,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
 
         public string PrefabAssembly
         {
-            get => prefabVersion.DataModelAssembly;
+            get => PrefabVersion.DataModelAssembly;
             private set
             {
-                if (prefabVersion.IsPublished && !string.IsNullOrEmpty(value))
+                if (PrefabVersion.IsPublished && !string.IsNullOrEmpty(value))
                 {
-                    prefabVersion.DataModelAssembly = value;
+                    PrefabVersion.DataModelAssembly = value;
                 }
                 NotifyOfPropertyChange(() => PrefabAssembly);
             }
@@ -81,31 +82,31 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         public PrefabVersionViewModel(PrefabProject prefabProject, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
         {         
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
-            this.prefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
+            this.PrefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.prefabVersion.ToString(), this.fileSystem); });           
+            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.PrefabVersion.ToString(), this.fileSystem); });           
         }
 
         public async  Task<PrefabVersion> CloneAsync(IPrefabDataManager prefabDataManager)
         {
             PrefabVersion newVersion;
-            if (!this.prefabProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.prefabVersion.Version.Major + 1)))
+            if (!this.prefabProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.PrefabVersion.Version.Major + 1)))
             {
-                newVersion = new PrefabVersion(new Version(this.prefabVersion.Version.Major + 1, 0, 0, 0))
+                newVersion = new PrefabVersion(new Version(this.PrefabVersion.Version.Major + 1, 0, 0, 0))
                 {
                     IsActive = true
                 };
             }
             else
             {               
-                var versionsWithSameMajor = this.prefabProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.prefabVersion.Version.Major));
+                var versionsWithSameMajor = this.prefabProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.PrefabVersion.Version.Major));
                 int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
-                newVersion = new PrefabVersion(new Version(this.prefabVersion.Version.Major, nextMinor, 0, 0))
+                newVersion = new PrefabVersion(new Version(this.PrefabVersion.Version.Major, nextMinor, 0, 0))
                 {
                     IsActive = true
                 };
             }                      
-            await prefabDataManager.AddPrefabVersionAsync(this.prefabProject, newVersion, this.prefabVersion);
+            await prefabDataManager.AddPrefabVersionAsync(this.prefabProject, newVersion, this.PrefabVersion);
             return newVersion;
         }
 
@@ -119,9 +120,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             if(!this.IsPublished)
             {
                 //Download the prefab data given it might not be locally available
-                await prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.prefabVersion);
+                await prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.PrefabVersion);
 
-                this.fileSystem.Initialize(this.prefabProject, this.prefabVersion);             
+                this.fileSystem.Initialize(this.prefabProject, this.PrefabVersion);             
                 string prefabProjectName = this.prefabProject.PrefabName;
                 ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
                 workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
@@ -166,8 +167,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 logger.Information($"Assembly references updated in process and template files.");
 
                 //save all the files belonging to Prefab
-                await prefabDataManager.UpdatePrefabVersionAsync(this.prefabProject, this.prefabVersion);
-                await prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.prefabVersion);
+                await prefabDataManager.UpdatePrefabVersionAsync(this.prefabProject, this.PrefabVersion);
+                await prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.PrefabVersion);
 
                 NotifyOfPropertyChange(() => CanPublish);
                 NotifyOfPropertyChange(() => CanClone);

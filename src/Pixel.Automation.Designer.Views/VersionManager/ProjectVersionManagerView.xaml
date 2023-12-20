@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"            
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
              xmlns:cal="http://www.caliburnproject.org" cal:Bind.AtDesignTime="True"          
              mc:Ignorable="d"  ResizeMode="NoResize" SizeToContent="WidthAndHeight"
@@ -32,6 +33,16 @@
                   AutoGenerateColumns="False"                
                   RowHeaderWidth="0" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="Edit" Style="{StaticResource EditControlButtonStyle}"  Content="{iconPacks:FontAwesome Kind=EditRegular}"
+                                         cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                         cal:Message.Attach="[Event Click] = [Action OpenForEditAsync($dataContext)]" Margin="5,2,5,2" 
+                                         HorizontalAlignment="Center" ToolTip="Open for edit" />    
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Version">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

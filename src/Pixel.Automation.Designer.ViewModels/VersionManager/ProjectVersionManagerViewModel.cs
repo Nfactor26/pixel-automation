@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -19,6 +20,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
 
         private readonly IWorkspaceManagerFactory workspaceManagerFactory;
         private readonly IReferenceManagerFactory referenceManagerFactory;
+        private readonly IEventAggregator eventAggregator;
         private readonly INotificationManager notificationManager;
         private readonly ISerializer serializer;
         private readonly IProjectDataManager projectDataManager;
@@ -40,13 +42,14 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// <param name="applicationSettings"></param>
         public ProjectVersionManagerViewModel(AutomationProject automationProject, IWorkspaceManagerFactory workspaceManagerFactory,
             IReferenceManagerFactory referenceManagerFactory, ISerializer serializer, IProjectDataManager projectDataManager,
-            INotificationManager notificationManager, ApplicationSettings applicationSettings)
+            IEventAggregator eventAggregator, INotificationManager notificationManager, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage Project Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
@@ -110,6 +113,18 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 logger.Error(ex, "There was an error while trying to clone version : '{0}'", projectVersionViewModel?.Version);
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }           
+        }
+
+        /// <summary>
+        /// Open selected version of project to edit
+        /// </summary>
+        /// <param name="projectVersionViewModel">Version of the project to edit</param>
+        /// <returns></returns>
+        public async Task OpenForEditAsync(ProjectVersionViewModel projectVersionViewModel)
+        {
+            var openProjectVersionNotification = new OpenProjectVersionForEditNotification(this.automationProject, projectVersionViewModel.ProjectVersion);
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(openProjectVersionNotification);
+            await CloseAsync();
         }
 
         /// <summary>
