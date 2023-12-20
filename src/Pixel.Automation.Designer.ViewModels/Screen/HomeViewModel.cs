@@ -1,23 +1,26 @@
 ﻿using Caliburn.Micro;
 using Dawn;
+using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Data;
+using Pixel.Automation.Editor.Core.Helpers;
 
 namespace Pixel.Automation.Designer.ViewModels
 {
     /// <summary>
     /// Screen for showing available projects and creating new projects when the application is launched
     /// </summary>
-    public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification<AutomationProject>>
+    public class HomeViewModel : ScreenBase, IHome, IHandle<EditorClosedNotification<AutomationProject>>, IHandle<OpenProjectVersionForEditNotification>
     {
         private readonly ILogger logger = Log.ForContext<HomeViewModel>();
 
@@ -27,6 +30,7 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly IProjectDataManager projectDataManager;      
         private readonly IVersionManagerFactory versionManagerFactory;
         private readonly IApplicationFileSystem applicationFileSystem;
+        private readonly INotificationManager notificationManager;
 
         /// <summary>
         /// Collection of availalbe projects
@@ -64,16 +68,18 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <param name="fileSystem"></param>
 
         public HomeViewModel(IEventAggregator eventAggregator, ISerializer serializer, IWindowManager windowManager,
-            IProjectDataManager projectDataManager, IVersionManagerFactory versionManagerFactory, IApplicationFileSystem applicationFileSystem)
+            IProjectDataManager projectDataManager, IVersionManagerFactory versionManagerFactory, 
+            IApplicationFileSystem applicationFileSystem, INotificationManager notificationManager)
         {
             this.DisplayName = "Home";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
-            this.eventAggregator.SubscribeOnBackgroundThread(this);
+            this.eventAggregator.SubscribeOnUIThread(this);
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;           
             this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;           
             this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
             this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
+            this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
 
             LoadProjects();
             CreateCollectionView();
@@ -126,6 +132,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     logger.Error(ex, "There was an error trying to create project.");
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }           
         }
@@ -138,7 +145,13 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <returns></returns>
         public async Task OpenProject(AutomationProjectViewModel automationProjectViewModel)
         {
-            using(var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenProject), ActivityKind.Internal))
+            await OpenProject(automationProjectViewModel, automationProjectViewModel.SelectedVersion);        
+        }
+
+
+        private async Task OpenProject(AutomationProjectViewModel automationProjectViewModel, ProjectVersion projectVersion)
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenProject), ActivityKind.Internal))
             {
                 try
                 {
@@ -154,16 +167,16 @@ namespace Pixel.Automation.Designer.ViewModels
                         automationProjectViewModel.IsOpenInEditor = true;
                     }
 
-                    logger.Information($"Trying to open project : {automationProject.Name}");
+                    logger.Information("Trying to open version : '{0}' of project : '{1}'", projectVersion, automationProject.Name);
 
                     var editorFactory = IoC.Get<IEditorFactory>();
                     var automationEditor = editorFactory.CreateAutomationEditor();
-                    await automationEditor.DoLoad(automationProject, automationProjectViewModel.SelectedVersion);
+                    await automationEditor.DoLoad(automationProject, projectVersion);
                     if (this.Parent is IConductor conductor)
                     {
                         await conductor.ActivateItemAsync(automationEditor as Caliburn.Micro.Screen);
                         automationProjectViewModel.IsOpenInEditor = true;
-                        logger.Information($"Project : {automationProject.Name} is open now.");
+                        logger.Information("Version : '{0}' of Project : '{1}' is open now", projectVersion, automationProject.Name);
                         return;
                     }
 
@@ -171,10 +184,11 @@ namespace Pixel.Automation.Designer.ViewModels
                 catch (Exception ex)
                 {
                     automationProjectViewModel.IsOpenInEditor = false;
-                    logger.Error(ex, "There was an error trying to open project.");
+                    logger.Error(ex, "There was an error trying to open version : '{0}' of  project : '{1}'", projectVersion, automationProjectViewModel.Name);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -199,6 +213,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 {
                     logger.Error(ex, ex.Message);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }           
         }
@@ -241,8 +256,32 @@ namespace Pixel.Automation.Designer.ViewModels
             catch (Exception ex)
             {
                 logger.Error(ex, ex.Message);
+                await notificationManager.ShowErrorNotificationAsync(ex);
             }
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Notification handler for <see cref="OpenProjectVersionForEditNotification"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(OpenProjectVersionForEditNotification message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var project = this.Projects.FirstOrDefault(p => p.ProjectId.Equals(message.AutomationProject.ProjectId));
+                if (project != null)
+                {
+                    await OpenProject(project, message.VersionToOpen);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }       
         }
 
         #endregion Close Screen

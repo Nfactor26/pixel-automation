@@ -9,6 +9,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
@@ -21,7 +22,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
     /// <summary>
     /// PrefabExplorer allows creating prefabs which are reusable components for a given application.
     /// </summary>
-    public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<EditorClosedNotification<PrefabProject>>
+    public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<EditorClosedNotification<PrefabProject>>, IHandle<OpenPrefabVersionForEditNotification>
     {
         private readonly ILogger logger = Log.ForContext<PrefabExplorerViewModel>();
         private readonly IWindowManager windowManager;
@@ -221,6 +222,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="prefabToEdit"></param>
         public async Task EditPrefab(PrefabProjectViewModel prefabToEdit)
         {
+            var versionPicker = new PrefabVersionPickerViewModel(prefabToEdit.PrefabProject);
+            var result = await windowManager.ShowDialogAsync(versionPicker);
+            var versionToEdit = versionPicker.SelectedVersion;
+            if (result.HasValue && result.Value)
+            {
+                await EditPrefab(prefabToEdit, versionToEdit);
+            }
+        }
+
+        private async Task EditPrefab(PrefabProjectViewModel prefabToEdit, PrefabVersion prefabVersion)
+        {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditPrefab), ActivityKind.Internal))
             {
                 try
@@ -235,30 +247,21 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                         prefabToEdit.IsOpenInEditor = true;
                     }
                     activity?.SetTag("PrefabName", prefabToEdit.PrefabName);
+                    activity?.SetTag("PrefabVersion", prefabVersion);
 
-                    var versionPicker = new PrefabVersionPickerViewModel(prefabToEdit.PrefabProject);
-                    var result = await windowManager.ShowDialogAsync(versionPicker);
-                    if (result.HasValue && result.Value)
-                    {
-                        var versionToEdit = versionPicker.SelectedVersion;
-                        var editorFactory = IoC.Get<IEditorFactory>();
-                        var prefabEditor = editorFactory.CreatePrefabEditor();
-                        await prefabEditor.DoLoad(prefabToEdit.PrefabProject, versionToEdit);
-                        await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
-                    }
-                    else
-                    {
-                        prefabToEdit.IsOpenInEditor = false;
-                    }
+                    var editorFactory = IoC.Get<IEditorFactory>();
+                    var prefabEditor = editorFactory.CreatePrefabEditor();
+                    await prefabEditor.DoLoad(prefabToEdit.PrefabProject, prefabVersion);
+                    await this.eventAggregator.PublishOnUIThreadAsync(new ActivateScreenNotification() { ScreenToActivate = prefabEditor as IScreen });
                 }
                 catch (Exception ex)
                 {
                     prefabToEdit.IsOpenInEditor = false;
-                    logger.Error(ex, "There was an error while trying to open prefab for edit");
+                    logger.Error(ex, "There was an error while trying to open version : '{0}' of prefab : '{1}' for edit", prefabVersion, prefabToEdit.PrefabName);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
-            }          
+            }
         }
 
         /// <summary>
@@ -379,6 +382,30 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Notification handler for <see cref="OpenPrefabVersionForEditNotification"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task HandleAsync(OpenPrefabVersionForEditNotification message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var prefabProject = this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabProject.PrefabId));
+                if (prefabProject != null)
+                {
+                    await EditPrefab(prefabProject, message.VersionToOpen);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, ex.Message);
+                await notificationManager.ShowErrorNotificationAsync(ex);
+            }
         }
 
         #endregion Filter      

@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -22,6 +23,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private readonly ISerializer serializer;    
         private readonly IPrefabDataManager prefabDataManager;
+        private readonly IEventAggregator eventAggregator;
         private readonly INotificationManager notificationManager;
         private readonly PrefabProject prefabProject;
         private readonly ApplicationSettings applicationSettings;
@@ -41,14 +43,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <param name="prefabDataManager"></param>
         /// <param name="applicationSettings"></param>
         public PrefabVersionManagerViewModel(PrefabProject prefabProject, IWorkspaceManagerFactory workspaceManagerFactory,
-            IReferenceManagerFactory referenceManagerFactory, ISerializer serializer,
-            IPrefabDataManager prefabDataManager, INotificationManager notificationManager, ApplicationSettings applicationSettings)
+            IReferenceManagerFactory referenceManagerFactory, ISerializer serializer, IPrefabDataManager prefabDataManager,
+            IEventAggregator eventAggregator, INotificationManager notificationManager, ApplicationSettings applicationSettings)
         {
             this.DisplayName = "Manage Prefab Versions";
             this.workspaceManagerFactory = Guard.Argument(workspaceManagerFactory, nameof(workspaceManagerFactory)).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;           
             this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
+            this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
             this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
@@ -118,6 +121,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }            
+        }
+
+        /// <summary>
+        /// Open selected version of prefab to edit
+        /// </summary>
+        /// <param name="prefabVersionViewModel">Version of the prefab to edit</param>
+        /// <returns></returns>
+        public async Task OpenForEditAsync(PrefabVersionViewModel prefabVersionViewModel)
+        {
+            var openPrefabVersionNotification = new OpenPrefabVersionForEditNotification(this.prefabProject, prefabVersionViewModel.PrefabVersion);
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(openPrefabVersionNotification);
+            await CloseAsync();
         }
 
         /// <summary>
