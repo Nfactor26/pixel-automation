@@ -243,11 +243,12 @@ namespace Pixel.Persistence.Services.Client
         /// <inheritdoc/>      
         public async Task<string> AddOrUpdateControlImageAsync(ControlDescription controlDescription, Stream stream)
         {
-            Directory.CreateDirectory(GetControlDirectory(controlDescription));
+            string controlDirectory = GetControlDirectory(controlDescription);
+            Directory.CreateDirectory(controlDirectory);
             //we need a new file name each time we change the image so that application can update image without restart.
             //This is due to caching mechanism of Bitmap which doesn't monitor file content for change but only responds to if file
             //is a different file.
-            string saveLocation = Path.Combine(GetControlDirectory(controlDescription), $"{Path.GetRandomFileName()}.Png");
+            string saveLocation = Path.Combine(controlDirectory, $"{Path.GetRandomFileName()}.Png");
             using (FileStream fs = new FileStream(saveLocation, FileMode.Create))
             {
                 stream.Seek(0, SeekOrigin.Begin);
@@ -317,7 +318,7 @@ namespace Pixel.Persistence.Services.Client
         }
 
        /// <inheritdoc />
-       public IEnumerable<ControlDescription> GetControlsById(string applicationId, string controlId)
+       public IEnumerable<ControlDescription> GetAllVersionsOfControl(string applicationId, string controlId)
         {
             string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, controlId);
             foreach (var revision in Directory.EnumerateDirectories(controlDirectory))

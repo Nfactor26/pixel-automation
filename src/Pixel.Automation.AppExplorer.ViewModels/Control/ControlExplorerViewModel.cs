@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
+using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
@@ -16,7 +17,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -329,11 +329,44 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 try
                 {
+                    var availableVersions = this.applicationDataManager.GetAllVersionsOfControl(controlToEdit.ApplicationId, controlToEdit.ControlId);
+                    if(availableVersions.Count() > 1)
+                    {
+                        var versionPicker = new ControlVersionPickerViewModel(availableVersions);
+                        var versionPickerResult = await windowManager.ShowDialogAsync(versionPicker);
+                        if (versionPickerResult.HasValue && versionPickerResult.Value)
+                        {
+                            var versionToEdit = versionPicker.SelectedVersion;
+                            var targetControl = availableVersions.Single(a => a.Version.Equals(versionToEdit));
+                            await ConfigureControlDescriptionAsync(new ControlDescriptionViewModel(targetControl));
+                        }                        
+                    }   
+                    else
+                    {
+                        await ConfigureControlDescriptionAsync(controlToEdit);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to configure control : '{0}'", controlToEdit.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }             
+        }
+
+        private async Task ConfigureControlDescriptionAsync(ControlDescriptionViewModel controlToEdit)
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureControlDescriptionAsync), ActivityKind.Internal))
+            {
+                try
+                {
                     activity?.SetTag("ControlName", controlToEdit.ControlName);
+                    
                     //Make a copy of ControlDescription that is opened for edit
                     var copyOfControlToEdit = controlToEdit.ControlDescription.Clone() as ControlDescription;
                     copyOfControlToEdit.ControlId = controlToEdit.ControlId;
-                    var controlEditor = controlEditorFactory.CreateControlEditor(controlToEdit.ControlDetails);
+                    var controlEditor = controlEditorFactory.CreateControlEditor(copyOfControlToEdit.ControlDetails);
                     controlEditor.Initialize(copyOfControlToEdit);
                     var result = await windowManager.ShowDialogAsync(controlEditor);
                     //if save was clicked, assign back changes in ControlDetails to controlToEdit.
@@ -343,15 +376,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         controlToEdit.ControlDetails = copyOfControlToEdit.ControlDetails;
                         await SaveControlDetails(controlToEdit, false);
                         await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(controlToEdit.ControlId));
+                        await notificationManager.ShowSuccessNotificationAsync($"Configuration updated for version : '{controlToEdit.Version}' of control : '{controlToEdit.ControlName}'");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "There was an error while trying to modify configuration of control : '{0}'", controlToEdit.ControlName);
+                    logger.Error(ex, "There was an error while trying to configure version : '{0}' of control : '{1}'", controlToEdit.Version, controlToEdit.ControlName);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
-            }             
+            }            
         }
 
         /// <summary>
@@ -386,7 +420,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         }
 
         /// <summary>
-        /// Delete the control
+        /// Mark all the versions of control as deleted.
         /// </summary>
         /// <param name="controlToDelete"></param>
         public async Task DeleteControlAsync(ControlDescriptionViewModel controlToDelete)
@@ -424,6 +458,39 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             {
                 try
                 {
+                    var availableVersions = this.applicationDataManager.GetAllVersionsOfControl(selectedControl.ApplicationId, selectedControl.ControlId);
+                    if (availableVersions.Count() > 1)
+                    {
+                        var versionPicker = new ControlVersionPickerViewModel(availableVersions);
+                        var versionPickerResult = await windowManager.ShowDialogAsync(versionPicker);
+                        if (versionPickerResult.HasValue && versionPickerResult.Value)
+                        {
+                            var versionToEdit = versionPicker.SelectedVersion;
+                            var targetControl = availableVersions.Single(a => a.Version.Equals(versionToEdit));
+                            await ChangeImageForControlAsync(new ControlDescriptionViewModel(targetControl));
+                        }
+                    }
+                    else
+                    {
+                        await ChangeImageForControlAsync(selectedControl);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+
+        private async Task ChangeImageForControlAsync(ControlDescriptionViewModel selectedControl)
+        {
+            Guard.Argument(selectedControl, nameof(selectedControl)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ChangeImageForControlAsync), ActivityKind.Internal))
+            {
+                try
+                {
                     activity?.SetTag("ControlName", selectedControl.ControlName);
                     OpenFileDialog openFileDialog = new OpenFileDialog();
                     openFileDialog.Filter = "PNG File (*.Png)|*.Png";
@@ -433,27 +500,29 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                         string fileName = openFileDialog.FileName;
                         using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                         {
+                            string oldImage = selectedControl.ControlImage;
                             //we can't reuse the same control image name due to caching issues with bitmap which will keep using old file
                             //unless file name changes
                             selectedControl.ControlImage = await this.applicationDataManager.AddOrUpdateControlImageAsync(selectedControl.ControlDescription, fs);
                             await SaveControlDetails(selectedControl, false);
+                            File.Delete(oldImage);
                             // This will force reload image on control explorer
                             selectedControl.ImageSource = null;
                             // This will force reload image on process designer
                             await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlUpdatedEventArgs(selectedControl.ControlId));
-                        }
-                        File.Delete(selectedControl.ControlImage);
-                        await notificationManager.ShowSuccessNotificationAsync($"Image was updated for control : '{selectedControl.ControlName}'");
+                        }                       
+                        await notificationManager.ShowSuccessNotificationAsync($"Image was updated for version : '{selectedControl.Version}' of control : '{selectedControl.ControlName}'");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "There was an error while trying to change image for control : {0}", selectedControl.ControlName);
+                    logger.Error(ex, "There was an error while trying to change image for version : '{0}' of control : '{1}'", selectedControl.Version, selectedControl.ControlName); ;
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
-            }            
+            }
         }
+
 
         /// <summary>
         /// Create a copy of control
@@ -545,7 +614,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             view.Refresh();
             NotifyOfPropertyChange(() => Controls);
 
-            logger.Information($"Control details saved for {controlToSave.ControlName}");
+            logger.Information($"Control details saved for version : '{controlToSave.Version}' of control : '{controlToSave.ControlName}'");
         }
 
         private BitmapImage ConvertToImageSource(byte[] controlImage)

@@ -150,7 +150,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             var referencedControls = prefabRoot.GetComponentsOfType<ControlEntity>(Core.Enums.SearchScope.Descendants);
             foreach(var control in referencedControls)
             {
-                var mostRecentVersionOfControl = this.applicationDataManager.GetControlsById(control.ApplicationId, control.ControlId).OrderBy(a => a.Version).Last();
+                var mostRecentVersionOfControl = this.applicationDataManager.GetAllVersionsOfControl(control.ApplicationId, control.ControlId).OrderBy(a => a.Version).Last();
                 await this.referenceManager.AddControlReferenceAsync(new ControlReference(mostRecentVersionOfControl.ApplicationId, mostRecentVersionOfControl.ControlId, mostRecentVersionOfControl.Version));
             }            
         }
