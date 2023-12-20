@@ -90,7 +90,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
 
-                await ExecuteInitializationScript();
+                await ExecuteInitializationScript(executeDefaultInitFunc : true);
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
                 SetupInitializationScriptProject(dataModel);
@@ -176,7 +176,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
                 SetupInitializationScriptProject(dataModel);
-                await ExecuteInitializationScript();
+                await ExecuteInitializationScript(executeDefaultInitFunc: true);
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 this.RootEntity.ResetHierarchy();
                 serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());

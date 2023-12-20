@@ -85,7 +85,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
 
-                await ExecuteInitializationScript();
+                await ExecuteInitializationScript(executeDefaultInitFunc: false);
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
                 SetupInitializationScriptProject(dataModel);

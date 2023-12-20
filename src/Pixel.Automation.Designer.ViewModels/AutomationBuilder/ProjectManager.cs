@@ -194,7 +194,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// Execute the Initialization script for Automation process.
         /// Empty Initialization script is created if script file doesn't exist already.
         /// </summary>
-        protected async Task ExecuteInitializationScript()
+        /// <param name="executeDefaultInitFunc">Default init function will be executed if true</param>
+        /// <returns></returns>
+        protected async Task ExecuteInitializationScript(bool executeDefaultInitFunc)
         {
             try
             {
@@ -204,8 +206,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 var scriptEngine = this.entityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(scriptFile);
                 logger.Information("Executed initialize environment script : {scriptFile}", scriptFile);
-                await scriptEngine.ExecuteScriptAsync(Constants.DefaultInitFunction);
-                logger.Information("Executed default initializer function : {DefaultInitFunction}", Constants.DefaultInitFunction);
+                if(executeDefaultInitFunc)
+                {
+                    await scriptEngine.ExecuteScriptAsync(Constants.DefaultInitFunction);
+                    logger.Information("Executed default initializer function : {DefaultInitFunction}", Constants.DefaultInitFunction);
+                }            
             }
             catch (Exception ex)
             {
