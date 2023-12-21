@@ -66,7 +66,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// Get the namespace of the project
         /// </summary>
         /// <returns></returns>
-        protected abstract string GetProjectNamespace();
+        protected abstract string GetProjectNamespace();    
 
         /// <summary>
         /// Add initialization script file if it doesn't exist
@@ -284,6 +284,20 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 throw new Exception($"DataModel file : {dataModelName}.cs could not be located in {this.fileSystem.DataModelDirectory}");
             }
         }        
+
+        /// <summary>
+        /// Compile data model assembly for specified version of project. This is required when we have opened a published version to edit.
+        /// When we save the published version, data model assembly in references directory needs to be replaced.
+        /// </summary>
+        protected void CompileDataModelAssemblyForVersion(Version version)
+        {            
+            string assemblyName = $"{GetProjectNamespace()}.v{version.Major}.{version.Minor}";
+            using (var compilationResult = this.codeEditorFactory.CompileProject(GetProjectName(), assemblyName))
+            {
+                compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);
+            }
+            logger.Information("Data model assembly '{0}' was generated", assemblyName);
+        }
        
         /// <summary>
         /// Check project temp folder for any existing assemblies and extract the iteration number that was used for naming that assembly.

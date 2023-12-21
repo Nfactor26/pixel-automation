@@ -263,6 +263,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     parentEntity.AddComponent(testFixtureEntity);
                 }
 
+                //when saving a published version, we need to recompile the data model assembly and save in references directory
+                if(this.loadedVersion.IsPublished)
+                {
+                    CompileDataModelAssemblyForVersion(this.loadedVersion.Version);
+                }
+
                 await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
             }            
         }
