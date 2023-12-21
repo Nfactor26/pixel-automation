@@ -287,7 +287,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     prefabProcessor.RemoveComponent(this.prefabEntity.Parent);
                     this.prefabFileSystem.CreateOrReplaceTemplate(this.RootEntity);
                     prefabProcessor.AddComponent(this.prefabEntity.Parent);
-                }                                      
+                }
+
+                //when saving a published version, we need to recompile the data model assembly and save in references directory
+                if (this.loadedVersion.IsPublished)
+                {
+                    CompileDataModelAssemblyForVersion(this.loadedVersion.Version);
+                }
+
                 await this.prefabDataManager.SavePrefabDataAsync(this.prefabProject, this.loadedVersion);
             }
             catch (Exception ex)
