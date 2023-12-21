@@ -65,6 +65,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             get => this.IsPublished;
         }
 
+        /// <summary>
+        /// Indicates if the prefab can be opened for edit.
+        /// This will be false if the published assembly was previously loaded.
+        /// </summary>
+        public bool CanOpenForEdit { get; private set; }
+       
+
         public string PrefabAssembly
         {
             get => PrefabVersion.DataModelAssembly;
@@ -84,7 +91,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
             this.PrefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.PrefabVersion.ToString(), this.fileSystem); });           
+            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.PrefabVersion.ToString(), this.fileSystem); });
+            this.CanOpenForEdit = !AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName.StartsWith(GetPublishedDataModelAssemblyName()));
+        }
+
+        private string GetPublishedDataModelAssemblyName()
+        {
+            return $"{this.prefabProject.Namespace}.v{Version.Major}.{Version.Minor}";
         }
 
         public async  Task<PrefabVersion> CloneAsync(IPrefabDataManager prefabDataManager)
@@ -144,7 +157,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     }
                 }
 
-                string assemblyName = $"{this.prefabProject.Namespace}.v{Version.Major}.{Version.Minor}";
+                string assemblyName = GetPublishedDataModelAssemblyName();
                 using (var compilationResult = workspaceManager.CompileProject(prefabProjectName, assemblyName))
                 {
                     compilationResult.SaveAssemblyToDisk(this.fileSystem.ReferencesDirectory);

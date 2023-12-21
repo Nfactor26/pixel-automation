@@ -39,7 +39,7 @@
                                 <Button x:Name="Edit" Style="{StaticResource EditControlButtonStyle}"  Content="{iconPacks:FontAwesome Kind=EditRegular}"
                                   cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                   cal:Message.Attach="[Event Click] = [Action OpenForEditAsync($dataContext)]" Margin="5,2,5,2" 
-                                  HorizontalAlignment="Center" ToolTip="Open for edit" />
+                                  HorizontalAlignment="Center" ToolTip="Open for edit" IsEnabled="{Binding CanOpenForEdit}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
