@@ -60,7 +60,12 @@
                                             IsEnabled="false"                      
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight ContentSaveAll}"/>
-                </StackPanel>
+
+                    <Button x:Name="LoadAllTestCases" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                                            Height="20" Width="20" ToolTip="Load all the test cases"    
+                                            IsEnabled="false" Style="{StaticResource EditControlButtonStyle}"
+                                            Content="{iconPacks:Material CircleExpand}"/>
+            </StackPanel>
             </StackPanel>
 
             <TextBox x:Name="Filter" Grid.Row="1" IsEnabled="False"

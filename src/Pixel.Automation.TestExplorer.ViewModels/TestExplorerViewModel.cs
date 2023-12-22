@@ -190,7 +190,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         async Task LoadTestCasesForFixture(TestFixtureViewModel testFixtureViewModel)
         {
-            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadFixturesAsync), ActivityKind.Internal))
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadTestCasesForFixture), ActivityKind.Internal))
             {
                 try
                 {
@@ -215,7 +215,37 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }          
-        }        
+        }
+
+        private bool canLoadAllTestCases = true;
+        public bool CanLoadAllTestCases
+        {
+            get => this.canLoadAllTestCases;
+            set
+            {
+                this.canLoadAllTestCases = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        /// <summary>
+        /// Load test cases for all the fixtures
+        /// </summary>
+        /// <returns></returns>
+        public async Task LoadAllTestCases()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadAllTestCases), ActivityKind.Internal))
+            {
+                foreach (var fixtureViewModel in this.TestFixtures)
+                {
+                    if (!fixtureViewModel.Tests.Any())
+                    {
+                        await LoadTestCasesForFixture(fixtureViewModel);
+                    }
+                }
+                this.CanLoadAllTestCases = false;
+            }           
+        }
 
         /// <summary>
         /// When a fixture is expanded on view, load all the test cases belonging to it
