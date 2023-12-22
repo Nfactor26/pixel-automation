@@ -56,10 +56,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
     /// </summary>
     [TestFixture]
     public class TestExplorerViewModel_TestFixture_Fixture
-    {
-        private readonly string fixtureFile = "FixtureFile.fixture";
-        private readonly string fixtureScriptFile = "FixtureScript.csx";
-        private readonly string fixtureProcessFile = "FixtureProcess.proc";
+    {     
+        private readonly string fixtureScriptFile = "FixtureScript.csx";     
 
         private IEventAggregator eventAggregator;
         private IWindowManager windowManager;
@@ -93,6 +91,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
           
             projectFileSystem.GetRelativePath(Arg.Any<string>()).Returns(Path.Combine("FixureId", fixtureScriptFile));
+            projectFileSystem.GetTestFixtureFiles(Arg.Any<TestFixture>()).Returns(new TestFixtureFiles(new TestFixture(), Environment.CurrentDirectory));
             projectFileSystem.When(x => x.CreateOrReplaceFile(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<TestFixture>(Arg.Any<TestFixture>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<Entity>(Arg.Any<Entity>(), Arg.Any<string>(), Arg.Any<string>())).Do
@@ -270,7 +269,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange
             var fixtureViewModel = CreateTestFixtureViewModel(isOpenForEdit);
             var testFixture = fixtureViewModel.TestFixture;
-            fixtureViewModel.Tests.Add(new TestCaseViewModel(new TestCase()) { IsOpenForEdit = false });
+            fixtureViewModel.AddTestCase(new TestCaseViewModel(new TestCase()) { IsOpenForEdit = false }, this.projectFileSystem);
             testRunner.TryCloseTestFixture(Arg.Is<TestFixture>(testFixture)).Returns(true);
 
             //Pre-Assert 
@@ -340,8 +339,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             var fixtureViewModel = CreateTestFixtureViewModel(isOpenForEdit);
 
-            fixtureViewModel.Tests.Add(new TestCaseViewModel(new TestCase()) { IsOpenForEdit = true, ScriptFile = "TestScript1.csx", TestCaseEntity = new TestCaseEntity() { EntityManager = testEntityManager } });
-            fixtureViewModel.Tests.Add(new TestCaseViewModel(new TestCase()) { IsOpenForEdit = false, ScriptFile = "TestScript2.csx", TestCaseEntity = new TestCaseEntity() { EntityManager = testEntityManager } });
+            fixtureViewModel.AddTestCase(new TestCaseViewModel(new TestCase()) 
+            { 
+                IsOpenForEdit = true, ScriptFile = "TestScript1.csx", TestCaseEntity = new TestCaseEntity() { EntityManager = testEntityManager } 
+            }, this.projectFileSystem);
+            fixtureViewModel.AddTestCase(new TestCaseViewModel(new TestCase()) 
+            { 
+                IsOpenForEdit = false, ScriptFile = "TestScript2.csx", TestCaseEntity = new TestCaseEntity() { EntityManager = testEntityManager }
+            }, this.projectFileSystem);
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager, componentViewBuilder,
@@ -390,7 +395,6 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
     public class TestExplorerViewModel_TestCase_Fixture
     {
         private readonly string fixtureScriptFile = "FixtureScript.csx";
-        private readonly string testProcessFile = "TestProcess.proc";
         private readonly string testScriptFile = "TestScript.csx";
 
         private IEventAggregator eventAggregator;
@@ -424,8 +428,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             applicationSettings = new ApplicationSettings();
            
             projectFileSystem.GetRelativePath(Arg.Any<string>()).Returns(Path.Combine("FixtureId", testScriptFile));
+            projectFileSystem.GetTestFixtureFiles(Arg.Any<TestFixture>()).Returns(new TestFixtureFiles(new TestFixture(), Environment.CurrentDirectory));
             projectFileSystem.When(x => x.CreateOrReplaceFile(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<TestCase>(Arg.Any<TestCase>(), Arg.Any<string>())).Do(DoNothing);
+            projectFileSystem.When(x => x.SaveToFile<TestFixture>(Arg.Any<TestFixture>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<Entity>(Arg.Any<Entity>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.GetTestCaseFiles(Arg.Any<TestCase>()).Returns(x => new TestCaseFiles(x[0] as TestCase, Environment.CurrentDirectory));
 
@@ -543,7 +549,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var fixtureViewModel = CreateTestFixtureViewModel(false);
             testExplorerViewModel.TestFixtures.Add(fixtureViewModel);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, true);
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
 
             //Act
             await testExplorerViewModel.EditTestCaseAsync(testCaseViewModel);
@@ -574,7 +580,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange        
             var fixtureViewModel = CreateTestFixtureViewModel(true);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, isOpenForEdit);
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
                 componentViewBuilder, windowManager, notificationManger, platformProvider, applicationSettings);
@@ -620,7 +626,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Arrange
             var fixtureViewModel = CreateTestFixtureViewModel(true);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, isOpenForEdit);
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
 
             testRunner.TryCloseTestCase(Arg.Is<TestFixture>(fixtureViewModel.TestFixture), Arg.Is<TestCase>(testCaseViewModel.TestCase)).Returns(true);
 
@@ -709,7 +715,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCaseViewModel.ScriptFile = string.Empty;
             var testEntity = testCaseViewModel.TestCaseEntity;
             testEntity.AddComponent(new PrefabEntity());
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
 
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
@@ -728,10 +734,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
     /// </summary>
     //[TestFixture]
     public class TestExplorerViewModel_Execute_Fixture
-    {
-        private readonly string fixtureProcessFile = "FixtureProcess.proc";
-        private readonly string fixtureScriptFile = "FixtureScript.csx";
-        private readonly string testProcessFile = "TestProcess.proc";
+    {      
+        private readonly string fixtureScriptFile = "FixtureScript.csx";      
         private readonly string testScriptFile = "TestScript.csx";
 
         private IEventAggregator eventAggregator;
@@ -778,6 +782,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             projectFileSystem.GetRelativePath(Arg.Any<string>()).Returns(Path.Combine("TestId", testScriptFile));
             projectFileSystem.When(x => x.CreateOrReplaceFile(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<TestCase>(Arg.Any<TestCase>(), Arg.Any<string>())).Do(DoNothing);
+            projectFileSystem.When(x => x.SaveToFile<TestFixture>(Arg.Any<TestFixture>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.When(x => x.SaveToFile<Entity>(Arg.Any<Entity>(), Arg.Any<string>(), Arg.Any<string>())).Do(DoNothing);
             projectFileSystem.GetTestFixtureFiles(Arg.Any<TestFixture>()).Returns(x => new TestFixtureFiles(x[0] as TestFixture, Environment.CurrentDirectory));
             projectFileSystem.GetTestCaseFiles(Arg.Any<TestCase>()).Returns(x => new TestCaseFiles(x[0] as TestCase, Environment.CurrentDirectory));
@@ -886,7 +891,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var fixtureViewModel = CreateTestFixtureViewModel(false);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, false);
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
             testCaseViewModel.IsSelected = true;
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
@@ -909,7 +914,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var fixtureViewModel = CreateTestFixtureViewModel(false);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, false);
-            fixtureViewModel.Tests.Add(testCaseViewModel);
+            fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
             testCaseViewModel.IsSelected = true;
 
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,

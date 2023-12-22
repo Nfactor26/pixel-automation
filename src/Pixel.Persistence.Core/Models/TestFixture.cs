@@ -68,15 +68,21 @@ public class TestFixture : Document
     public TagCollection Tags { get; set; } = new TagCollection();
 
     /// <summary>
-    /// Collection of Identifiers of controls used by the test case
+    /// Collection of identifer of all the test cases that belong to the fixture
     /// </summary>
     [DataMember(IsRequired = true, Order = 130)]
+    public List<string> TestCases { get; set; } = new();
+
+    /// <summary>
+    /// Collection of Identifiers of controls used by the test case
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 140)]
     public List<ControlUsage> ControlsUsed { get; set; } = new();
 
     /// <summary>
     /// Collection of Identifiers of Prefabs used by the test case
     /// </summary>
-    [DataMember(IsRequired = true, Order = 140)]
+    [DataMember(IsRequired = true, Order = 150)]
     public List<PrefabUsage> PrefabsUsed { get; set; } = new();
 
     /// <summary>

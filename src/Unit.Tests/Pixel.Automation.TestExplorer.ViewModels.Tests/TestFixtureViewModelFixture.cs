@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
@@ -121,11 +123,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var testCaseViewModel = new TestCaseViewModel(testCase);
             TestFixture testFixture = new TestFixture()
             {
-                DisplayName = "TestFixture#1"
+                DisplayName = "TestFixture#1"               
             };
+            testFixture.TestCases.Add(testCase.TestCaseId);
             TestFixtureViewModel testfixtureViewModel = new TestFixtureViewModel(testFixture);
             testfixtureViewModel.Tags.Add("module", "test explorer");
-            testfixtureViewModel.Tests.Add(testCaseViewModel);
+            testfixtureViewModel.AddTestCase(testCaseViewModel, Substitute.For<IProjectFileSystem>());
             testfixtureViewModel.UpdateVisibility(filterText);
             testCaseViewModel.UpdateVisibility(filterText);
 

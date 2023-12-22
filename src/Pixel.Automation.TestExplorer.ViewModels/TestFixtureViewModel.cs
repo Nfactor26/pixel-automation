@@ -1,8 +1,9 @@
 ﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace Pixel.Automation.TestExplorer.ViewModels
 {
@@ -16,10 +17,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// </summary>
         public TestFixture TestFixture { get; }
 
+        private readonly ObservableCollection<TestCaseViewModel> tests = new ObservableCollection<TestCaseViewModel>();
         /// <summary>
         /// A colllection of TestCases beloning to this TestFixture
         /// </summary>
-        public ObservableCollection<TestCaseViewModel> Tests { get; } = new ObservableCollection<TestCaseViewModel>();
+        public ReadOnlyObservableCollection<TestCaseViewModel> Tests { get; }
 
         /// <summary>
         /// constructor
@@ -27,7 +29,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <param name="testFixture"></param>
         public TestFixtureViewModel(TestFixture testFixture)
         {
-            this.TestFixture = testFixture;           
+            this.TestFixture = testFixture;
+            this.Tests = new ReadOnlyObservableCollection<TestCaseViewModel>(tests);
         }
 
         /// <summary>
@@ -205,6 +208,49 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Indicates if there is a pending change
         /// </summary>
         public bool IsDirty { get; set; } = false;
+
+        /// <summary>
+        /// Check if given test case identifier belongs to the fixture
+        /// </summary>
+        /// <param name="testCaseId"></param>
+        /// <returns></returns>
+        public bool HasTestCase(string testCaseId)
+        {
+            return this.TestFixture.TestCases.Contains(testCaseId);
+        }
+
+        /// <summary>
+        /// Add a new test case to the fixture
+        /// </summary>
+        /// <param name="testCase"></param>
+        public void AddTestCase(TestCaseViewModel testCase, IProjectFileSystem projectFileSystem)
+        {
+            if(!this.Tests.Contains(testCase))
+            {
+                this.tests.Add(testCase);               
+            }         
+            if(!this.TestFixture.TestCases.Contains(testCase.TestCaseId))
+            {
+                this.TestFixture.TestCases.Add(testCase.TestCaseId);
+                var fixtureFiles = projectFileSystem.GetTestFixtureFiles(this.TestFixture);
+                projectFileSystem.SaveToFile<TestFixture>(this.TestFixture, fixtureFiles.FixtureDirectory, Path.GetFileName(fixtureFiles.FixtureFile));
+            }    
+        }
+
+        /// <summary>
+        /// Delete an existing test case from the fixture
+        /// </summary>
+        /// <param name="testCase"></param>
+        public void DeleteTestCase(TestCaseViewModel testCase, IProjectFileSystem projectFileSystem)
+        {
+            if (this.Tests.Contains(testCase))
+            {
+                this.tests.Remove(testCase);
+                this.TestFixture.TestCases.Remove(testCase.TestCaseId);
+                var fixtureFiles = projectFileSystem.GetTestFixtureFiles(this.TestFixture);
+                projectFileSystem.SaveToFile<TestFixture>(this.TestFixture, fixtureFiles.FixtureDirectory, Path.GetFileName(fixtureFiles.FixtureFile));
+            }
+        }
 
         /// <summary>
         /// Associate usage of control to the test fixture by storing the identifier of control
