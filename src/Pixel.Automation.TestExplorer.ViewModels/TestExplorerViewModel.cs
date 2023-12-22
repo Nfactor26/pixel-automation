@@ -198,12 +198,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureViewModel.FixtureId)))
                     {
                         var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
-                        if (testCase.IsDeleted)
+                        if (testCase.IsDeleted || !testFixtureViewModel.HasTestCase(testCase.TestCaseId))
                         {
                             continue;
                         }
                         TestCaseViewModel testCaseVM = new TestCaseViewModel(testCase);
-                        testFixtureViewModel.Tests.Add(testCaseVM);
+                        testFixtureViewModel.AddTestCase(testCaseVM, this.fileSystem);
                     }
                     logger.Information("Loaded {0} test cases for fixture : '{1}'", testFixtureViewModel.Tests.Count(), testFixtureViewModel.DisplayName);
                     activity?.SetTag("Fixture", testFixtureViewModel.DisplayName);
@@ -663,18 +663,18 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                             PostDelay = applicationSettings.PostDelay,
                             DelayFactor = applicationSettings.DelayFactor
                         };
-
-                        await this.testCaseManager.AddTestCaseAsync(testCase);
-                        fixtureVM.Tests.Add(testCaseVM);
+                                              
+                        await this.testCaseManager.AddTestCaseAsync(testCase);                       
+                        fixtureVM.AddTestCase(testCaseVM, this.fileSystem);                      
                         activity?.SetTag("TestCase", testCase.DisplayName);
                         logger.Information("Added new TestCase {0} to Fixture {1}", testCase.DisplayName, fixtureVM.DisplayName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "Error while trying to add new test cae");
+                    logger.Error(ex, "Error while trying to add new test case");
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                    await notificationManager.ShowErrorNotificationAsync(ex);
+                    await notificationManager.ShowErrorNotificationAsync(ex);                   
                 }
             }
            
@@ -742,9 +742,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this test", "Confirm Delete", MessageBoxButton.OKCancel);
                         if (result == MessageBoxResult.OK)
-                        {
-                            await this.testCaseManager.DeleteTestCaseAsync(testCaseVM.TestCase);
-                            testFixtureVM.Tests.Remove(testCaseVM);
+                        {                            
+                            await this.testCaseManager.DeleteTestCaseAsync(testCaseVM.TestCase);   
+                            testFixtureVM.DeleteTestCase(testCaseVM, this.fileSystem);
                             logger.Information("Deleted Test Case : '{0}' from fixture : '{1}'", testCaseVM.DisplayName, testFixtureVM.DisplayName);
                         }
                     }

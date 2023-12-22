@@ -235,12 +235,20 @@ namespace Pixel.Automation.Test.Runner
         {
             foreach (var testFixtureDirectory in Directory.GetDirectories(this.projectFileSystem.TestCaseRepository))
             {
-                var testFixture = this.projectFileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();            
+                var testFixture = this.projectFileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();   
+                if(testFixture.IsDeleted)
+                {
+                    continue;
+                }
                 this.availableFixtures.Add(testFixture);
                 await this.projectAssetsDataManager.DownloadFixtureDataAsync(testFixture);
                 foreach (var testCaseDirectory in Directory.GetDirectories(testFixtureDirectory))
                 {
                     var testCase = this.projectFileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
+                    if(testCase.IsDeleted || !testFixture.TestCases.Contains(testCase.TestCaseId))
+                    {
+                        continue;
+                    }
                     testFixture.Tests.Add(testCase);
                     await this.projectAssetsDataManager.DownloadTestDataAsync(testCase);
                 }

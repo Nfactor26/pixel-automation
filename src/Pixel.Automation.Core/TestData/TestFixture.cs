@@ -74,6 +74,12 @@ namespace Pixel.Automation.Core.TestData
         public TagCollection Tags { get; private set; } = new TagCollection();
 
         /// <summary>
+        /// Collection of identifer of all the test cases that belong to the fixture
+        /// </summary>
+        [DataMember(IsRequired = true, Order = 100)]
+        public List<string> TestCases { get; private set; } = new();
+
+        /// <summary>
         /// Collection of Identifiers of controls used by the test fixture
         /// </summary>
         [DataMember(IsRequired = true, Order = 120)]
@@ -113,6 +119,7 @@ namespace Pixel.Automation.Core.TestData
                 IsMuted = this.IsMuted,             
                 Description = this.Description,
                 Category = this.Category,
+                PostDelay = this.PostDelay,
                 DelayFactor = this.DelayFactor,
                 Tags = this.Tags               
             };
