@@ -8,6 +8,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
@@ -402,6 +403,19 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 }
             }         
         }
+
+        /// <summary>
+        /// Broadcast a <see cref="TestFilterNotification"/> which is processed by Test data source explorer to filter and show only matching test cases that use
+        /// this data source.
+        /// </summary>
+        /// <param name="testDataSource">TestData source whose usage needs to be shown</param>
+        /// <returns></returns>
+        public async Task ShowUsage(TestDataSource testDataSource)
+        {
+            Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
+            await this.eventAggregator.PublishOnUIThreadAsync(new TestFilterNotification("testDataSource", testDataSource.DataSourceId));
+        }
+
 
         #endregion Edit Data Source
 

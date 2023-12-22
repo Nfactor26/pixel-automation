@@ -287,6 +287,12 @@
                                             cal:Message.Attach="[Event Click] = [Action SaveAllOpenTests()]"                       
                                             Style="{StaticResource EditControlButtonStyle}"
                                             Content="{iconPacks:MaterialLight ContentSaveAll}"/>
+                <Button x:Name="LoadAllTestCases" Margin="0,0,2,0" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                               Height="20" Width="20" ToolTip="Load all the test cases"    
+                               IsEnabled="{Binding CanLoadAllTestCases, FallbackValue=false}"                                          
+                               cal:Message.Attach="[Event Click] = [Action LoadAllTestCases()]"                       
+                               Style="{StaticResource EditControlButtonStyle}"
+                               Content="{iconPacks:Material CircleExpand}"/>
             </StackPanel>
         </StackPanel>
 
