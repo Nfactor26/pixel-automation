@@ -90,6 +90,27 @@ public class TestsRepositoryClient : ITestsRepositoryClient
     }
 
     /// <inheritdoc/>
+    public async  Task<IEnumerable<TestCase>> GetAllForFixtureAsync(string projectId, string projectVersion, string fixtureId, DateTime laterThan)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(fixtureId, nameof(fixtureId)).NotNull().NotEmpty();
+
+        RestRequest restRequest = new RestRequest($"tests/{projectId}/{projectVersion}/{fixtureId}");
+        restRequest.AddHeader(nameof(laterThan), laterThan.ToString("O"));
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteGetAsync(restRequest);
+        result.EnsureSuccess();
+        using (var stream = new MemoryStream(result.RawBytes))
+        {
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                return serializer.DeserializeContent<List<TestCase>>(reader.ReadToEnd());
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<TestCase> AddTestCaseAsync(string projectId, string projectVersion, TestCase testCase)
     {
         Guard.Argument(testCase, nameof(testCase)).NotNull();

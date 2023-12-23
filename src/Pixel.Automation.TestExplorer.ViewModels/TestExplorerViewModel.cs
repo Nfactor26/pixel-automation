@@ -147,7 +147,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
-        /// Download and load the fixtures and test cases
+        /// Download fixtures and test cases and load the fixtures
         /// </summary>
         async Task LoadFixturesAsync()
         {
@@ -194,7 +194,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
-                    Guard.Argument(testFixtureViewModel, nameof(testFixtureViewModel)).NotNull();
+                    Guard.Argument(testFixtureViewModel, nameof(testFixtureViewModel)).NotNull();                   
                     foreach (var testCaseDirectory in Directory.GetDirectories(Path.Combine(this.fileSystem.TestCaseRepository, testFixtureViewModel.FixtureId)))
                     {
                         var testCase = this.fileSystem.LoadFiles<TestCase>(testCaseDirectory).Single();
@@ -254,7 +254,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task OnFixtureExpanded(TestFixtureViewModel testFixtureViewModel)
         {
-            if(!testFixtureViewModel.Tests.Any())
+            if(testFixtureViewModel.NumberOfTestCases > 0 && !testFixtureViewModel.Tests.Any())
             {
                 await LoadTestCasesForFixture(testFixtureViewModel);
             }
@@ -325,6 +325,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     Guard.Argument(fixtureVM, nameof(fixtureVM)).NotNull();
                     activity?.SetTag("Fixture", fixtureVM.DisplayName);
+                    await this.RefreshTestFixtureAsync(fixtureVM);
                     var existingFixtures = this.TestFixtures.Except(new[] { fixtureVM }).Select(f => f.DisplayName);
                     var testFixtureEditor = new EditTestFixtureViewModel(fixtureVM.TestFixture, existingFixtures);
                     bool? result = await this.windowManager.ShowDialogAsync(testFixtureEditor);
@@ -393,7 +394,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         logger.Information("Test fixture : '{0}' is already open for edit.", fixtureVM.DisplayName);
                         return;
                     }
-
+                   
+                    await this.RefreshTestFixtureAsync(fixtureVM);
                     await this.testFixtureManager.DownloadFixtureDataAsync(fixtureVM.TestFixture);
 
                     var fixtureFiles = this.fileSystem.GetTestFixtureFiles(fixtureVM.TestFixture);
@@ -601,6 +603,20 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
+        /// Retrieve the latest version of test case and update the underlying model on view model to use it
+        /// </summary>
+        /// <param name="testCaseVM"></param>
+        /// <returns></returns>
+        async Task RefreshTestFixtureAsync(TestFixtureViewModel testFixtureVM)
+        {          
+            var latestVersion = await this.testFixtureManager.GetTestFixtureAsync(testFixtureVM.FixtureId);
+            if (latestVersion != null)
+            {               
+                testFixtureVM.WithTestFixture(latestVersion);               
+            }
+        }
+
+        /// <summary>
         /// Save data files belonging to the TestFixture
         /// </summary>
         /// <param name="fixtureVM"></param>
@@ -693,6 +709,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     Guard.Argument(testCaseVM, nameof(testCaseVM)).NotNull();
                     activity?.SetTag("TestCase", testCaseVM.DisplayName);
+                    await RefreshTestCaseAsync(testCaseVM);
                     var parentFixture = TestFixtures.First(t => t.FixtureId.Equals(testCaseVM.FixtureId));
                     var existingTestCases = parentFixture.Tests.Except(new[] { testCaseVM }).Select(s => s.DisplayName);
                     var testCaseEditor = new EditTestCaseViewModel(testCaseVM.TestCase, existingTestCases);
@@ -777,7 +794,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 {
                     Guard.Argument(testCaseVM, nameof(testCaseVM)).NotNull();
                     activity?.SetTag("TestCase", testCaseVM.DisplayName);
-                   
+                                      
+                    await this.RefreshTestCaseAsync(testCaseVM);
                     await this.testCaseManager.DownloadTestDataAsync(testCaseVM.TestCase);
 
                     var testFiles = this.fileSystem.GetTestCaseFiles(testCaseVM.TestCase);
@@ -997,6 +1015,20 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }
 
+        }
+
+        /// <summary>
+        /// Retrieve the latest version of test case and update the underlying model on view model to use it
+        /// </summary>
+        /// <param name="testCaseVM"></param>
+        /// <returns></returns>
+        async Task RefreshTestCaseAsync(TestCaseViewModel testCaseVM)
+        {
+            var latestVersion = await this.testCaseManager.GetTestCaseAsync(testCaseVM.TestCaseId);
+            if (latestVersion != null)
+            {
+                testCaseVM.WithTestCase(latestVersion);
+            }
         }
 
         /// <summary>

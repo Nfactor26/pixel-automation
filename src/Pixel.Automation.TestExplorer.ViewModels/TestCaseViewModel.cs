@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.TestData;
 using System;
@@ -15,7 +16,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Underlying Model for the View
         /// </summary>
-        public TestCase TestCase { get; }    
+        public TestCase TestCase { get; private set; }    
 
         /// <summary>
         /// constructor
@@ -266,6 +267,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public void SetTestDataSource(string testDataSourceId)
         {
             this.TestDataId = testDataSourceId;           
+        }
+
+        /// <summary>
+        /// Replace the underlying TestCase model with a new instance.
+        /// This is required when a new copy of TestCase might be available but we want to reuse the view model.
+        /// </summary>
+        /// <param name="testCase"></param>
+        public void WithTestCase(TestCase testCase)
+        {
+            Guard.Argument(testCase, nameof(TestCase)).NotNull();
+            this.TestCase = testCase;
         }
 
         /// <summary>

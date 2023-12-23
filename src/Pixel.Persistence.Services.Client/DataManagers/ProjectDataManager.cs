@@ -452,6 +452,16 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
 
     #region Fixtures 
 
+    /// <inheritdoc/> 
+    public async Task<TestFixture> GetTestFixtureAsync(string fixtureId)
+    {
+        if (IsOnlineMode)
+        {
+            return await this.fixturesClient.GetByIdAsync(automationProject.ProjectId, projectVersion.ToString(), fixtureId);
+        }
+        return null;
+    }
+
     /// <inheritdoc/>  
     public async Task<TestFixture> AddTestFixtureAsync(TestFixture testFixture)
     {
@@ -559,6 +569,16 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
 
     #region Tests
 
+    /// <inheritdoc/> 
+    public async Task<TestCase> GetTestCaseAsync(string testCaseId)
+    {
+        if(IsOnlineMode)
+        {
+            return await this.testsClient.GetByIdAsync(automationProject.ProjectId, projectVersion.ToString(), testCaseId);
+        }
+        return null;
+    }
+
     /// <inheritdoc/>  
     public async Task<TestCase> AddTestCaseAsync(TestCase testCase)
     {
@@ -646,22 +666,36 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
         if (IsOnlineMode)
         {
             var tests = await this.testsClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString(), lastUpdated);
-            var workingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
-            foreach (var test in tests)
-            {
-                var fixtureDirectory = Path.Combine(workingDirectory, Constants.TestCasesDirectory, test.FixtureId);
-                var testDirectory = Path.Combine(fixtureDirectory, test.TestCaseId);
-                var testFile = Path.Combine(testDirectory, $"{test.TestCaseId}.test");
-                if (!Directory.Exists(testDirectory))
-                {
-                    Directory.CreateDirectory(testDirectory);
-                }
-                serializer.Serialize(testFile, test);
-                logger.Information("Updated local copy of Test Case : {0}", test.DisplayName);
-            }
+            SaveTestCasesLocally(tests);
         }
     }
 
+    /// <inheritdoc/>  
+    public async Task DownloadTestCasesForFixtureAsync(string fixtureId)
+    {
+        if (IsOnlineMode)
+        {
+            var tests = await this.testsClient.GetAllForFixtureAsync(automationProject.ProjectId, projectVersion.ToString(), fixtureId, lastUpdated);
+            SaveTestCasesLocally(tests);
+        }
+    }
+
+    private void SaveTestCasesLocally(IEnumerable<TestCase> tests)
+    {
+        var workingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
+        foreach (var test in tests)
+        {
+            var fixtureDirectory = Path.Combine(workingDirectory, Constants.TestCasesDirectory, test.FixtureId);
+            var testDirectory = Path.Combine(fixtureDirectory, test.TestCaseId);
+            var testFile = Path.Combine(testDirectory, $"{test.TestCaseId}.test");
+            if (!Directory.Exists(testDirectory))
+            {
+                Directory.CreateDirectory(testDirectory);
+            }
+            serializer.Serialize(testFile, test);
+            logger.Information("Updated local copy of Test Case : {0}", test.DisplayName);
+        }
+    }    
 
     #endregion Tests
 
