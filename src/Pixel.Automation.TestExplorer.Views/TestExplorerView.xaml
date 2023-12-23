@@ -120,7 +120,7 @@
                                                 cal:Message.Attach="[Event Click] = [Action SaveTestCaseDataAsync($dataContext)]"/>
                                             <MenuItem x:Name="SaveAndClose" Header="Save and Close"  IsEnabled="{Binding IsOpenForEdit}"                                           
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestCaseAsync($dataContext,'true')]"/>
-                                            <MenuItem x:Name="Edit" Header="Edit Details"                                       
+                                            <MenuItem x:Name="Edit" Header="Edit Details"  IsEnabled="{Binding CanOpenForEdit}"                                      
                                                 cal:Message.Attach="[Event Click] = [Action EditTestCaseAsync($dataContext)]"/>
                                             <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                    
                                                 cal:Message.Attach="[Event Click] = [Action EditTestScriptAsync($dataContext)]"/>
@@ -199,7 +199,7 @@
                                                 cal:Message.Attach="[Event Click] = [Action CloseTestFixtureAsync($dataContext,'true')]"/>
                                         <MenuItem x:Name="AddTestCase" Header="Add Test"                                       
                                             cal:Message.Attach="[Event Click] = [Action AddTestCaseAsync($dataContext)]"/>
-                                        <MenuItem x:Name="Edit" Header="Edit Details"                                       
+                                        <MenuItem x:Name="Edit" Header="Edit Details"  IsEnabled="{Binding CanOpenForEdit}"                                     
                                             cal:Message.Attach="[Event Click] = [Action EditTestFixtureAsync($dataContext)]"/>
                                         <MenuItem x:Name="EditScript" Header="Edit Script" IsEnabled="{Binding IsOpenForEdit}"                                        
                                             cal:Message.Attach="[Event Click] = [Action EditTestFixtureScriptAsync($dataContext)]"/>
