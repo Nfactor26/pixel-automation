@@ -35,6 +35,16 @@ public interface ITestsRepositoryClient
     Task<IEnumerable<TestCase>> GetAllForProjectAsync(string projectId, string projectVersion, DateTime laterThan);
 
     /// <summary>
+    /// Get all the TestCase for a fixture belonging to given version of project which were modified since specified time
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="fixtureId"></param>
+    /// <param name="laterThan"></param>
+    /// <returns></returns>
+    Task<IEnumerable<TestCase>> GetAllForFixtureAsync(string projectId, string projectVersion, string fixtureId, DateTime laterThan);
+
+    /// <summary>
     /// Add a new TestCase to a given version of project
     /// </summary>
     /// <param name="projectId"></param>

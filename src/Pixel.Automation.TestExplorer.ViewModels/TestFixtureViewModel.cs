@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core;
+﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using System.Collections.ObjectModel;
@@ -15,7 +16,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <summary>
         /// Underlying Model for the view
         /// </summary>
-        public TestFixture TestFixture { get; }
+        public TestFixture TestFixture { get; private set; }
 
         private readonly ObservableCollection<TestCaseViewModel> tests = new ObservableCollection<TestCaseViewModel>();
         /// <summary>
@@ -145,6 +146,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             set => TestFixture.ScriptFile = value;
         }
 
+        /// <summary>
+        /// Number of test cases that belongs to the fixture
+        /// </summary>
+        public int NumberOfTestCases
+        {
+            get => this.TestFixture.TestCases.Count;
+        }
 
         bool isOpenForEdit;
         /// <summary>
@@ -210,6 +218,17 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public bool IsDirty { get; set; } = false;
 
         /// <summary>
+        /// Replace the underlying TestFixture model with a new instance.
+        /// This is required when a new copy of TestFixture might be available but we want to reuse the view model.
+        /// </summary>
+        /// <param name="testFixture"></param>
+        public void WithTestFixture(TestFixture testFixture)
+        {
+            Guard.Argument(testFixture, nameof(testFixture)).NotNull();
+            this.TestFixture = testFixture;
+        }
+
+        /// <summary>
         /// Check if given test case identifier belongs to the fixture
         /// </summary>
         /// <param name="testCaseId"></param>
@@ -217,6 +236,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         public bool HasTestCase(string testCaseId)
         {
             return this.TestFixture.TestCases.Contains(testCaseId);
+        }
+
+        /// <summary>
+        /// Clear the Test Cases view model collection
+        /// </summary>
+        /// <returns></returns>
+        public void ClearTestCases()
+        {
+            this.tests.Clear();
         }
 
         /// <summary>

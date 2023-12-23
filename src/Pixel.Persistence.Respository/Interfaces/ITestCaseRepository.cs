@@ -18,6 +18,17 @@ public interface ITestCaseRepository
     Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, DateTime laterThan, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Get all the test cases for a given fixture belonging to specified version of project which were modified after specified datetime
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="projectVersion"></param>
+    /// <param name="fixtureId"></param>
+    /// <param name="laterThan"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<TestCase>> GetTestCasesAsync(string projectId, string projectVersion, string fixtureId, DateTime laterThan, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Get test cases by Id for a given version of project
     /// </summary>    
     /// <param name="projectId"></param>

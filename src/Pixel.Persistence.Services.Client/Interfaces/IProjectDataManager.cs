@@ -106,7 +106,13 @@ public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManag
 }
 
 public interface ITestCaseManager
-{    
+{
+    /// <summary>
+    /// Get TestCase matching specified testCaseId
+    /// </summary> 
+    /// <param name="testCaseId">Identifier of test case</param>
+    /// <returns></returns>
+    Task<TestCase> GetTestCaseAsync(string testCaseId);       
 
     /// <summary>
     /// Add a new TestCase
@@ -149,10 +155,23 @@ public interface ITestCaseManager
     /// <returns></returns>
     Task DownloadAllTestsAsync();
 
+    /// <summary>
+    /// Download all the test cases for fixture with specified identifier
+    /// </summary>
+    /// <param name="fixtureId">Identifier of the fixture</param>
+    /// <returns></returns>
+    Task DownloadTestCasesForFixtureAsync(string fixtureId);
+
 }
 
 public interface ITestFixtureManager
-{    
+{
+    /// <summary>
+    /// Get TestFixture matching specified fixture id
+    /// </summary> 
+    /// <param name="fixtureId">Identifier of test fixture</param>
+    /// <returns></returns>
+    Task<TestFixture> GetTestFixtureAsync(string fixtureId);
 
     /// <summary>
     /// Add a new TestFixture

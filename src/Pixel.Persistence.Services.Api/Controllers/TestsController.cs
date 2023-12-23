@@ -85,6 +85,24 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }
         }
 
+        [HttpGet("{projectId}/{projectVersion}/{fixtureId}")]
+        public async Task<ActionResult<List<TestCase>>> GetAllForFixtureAsync(string projectId, string projectVersion, string fixtureId, [FromHeader] DateTime laterThan)
+        {
+            try
+            {
+                Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+                Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+                Guard.Argument(projectVersion, nameof(fixtureId)).NotNull().NotEmpty();
+                var result = await testsRespository.GetTestCasesAsync(projectId, projectVersion, fixtureId, laterThan, CancellationToken.None) ?? Enumerable.Empty<TestCase>();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
         [HttpPost("{projectId}/{projectVersion}")]
         public async Task<ActionResult<TestCase>> AddTestCaseAsync(string projectId, string projectVersion, [FromBody] TestCase testCase)
         {
