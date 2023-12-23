@@ -142,6 +142,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     this.testFixture.IsMuted = CopyOfTestFixture.IsMuted;
                     this.testFixture.Order = CopyOfTestFixture.Order;
                     this.testFixture.DelayFactor = CopyOfTestFixture.DelayFactor;
+                    this.testFixture.PostDelay = CopyOfTestFixture.PostDelay;
                     this.testFixture.Tags.Clear();
                     foreach (var item in this.TagCollection.Tags)
                     {
