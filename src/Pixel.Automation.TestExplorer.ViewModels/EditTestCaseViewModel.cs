@@ -139,6 +139,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     this.testCase.IsMuted = CopyOfTestCase.IsMuted;
                     this.testCase.Order = CopyOfTestCase.Order;
                     this.testCase.DelayFactor = CopyOfTestCase.DelayFactor;
+                    this.testCase.PostDelay = CopyOfTestCase.PostDelay;
                     this.testCase.Priority = CopyOfTestCase.Priority;
                     this.testCase.Tags.Clear();
                     foreach (var item in this.TagCollection.Tags)
