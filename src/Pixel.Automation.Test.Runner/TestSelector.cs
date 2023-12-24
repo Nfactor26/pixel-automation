@@ -46,9 +46,16 @@ namespace Pixel.Automation.Test.Runner
             this.testSelector = await scriptEngine.CreateDelegateAsync<Func<TestFixture, TestCase, bool>>("Selector.csx");
         }
 
+        /// <summary>
+        /// Checks if a test case should be run. If the fixture is muted or test case is muted or test case doesn't have a data source linked to it or
+        /// the test selector script returns false, test case wouldn't be considered eligibile to run.
+        /// </summary>
+        /// <param name="fixture"></param>
+        /// <param name="testCase"></param>
+        /// <returns></returns>
         public bool CanRunTest(TestFixture fixture, TestCase testCase)
         {
-            return !fixture.IsMuted && !testCase.IsMuted && this.testSelector.Invoke(fixture, testCase);
+            return !fixture.IsMuted && !testCase.IsMuted && !string.IsNullOrEmpty(testCase.TestDataId) && this.testSelector.Invoke(fixture, testCase);
         }
     }
 }
