@@ -144,10 +144,10 @@ namespace Pixel.Automation.Test.Runner
                         .WithExample(new[] { "run", "template", "template-name", "--list"  })
                         .WithExample(new[] { "run", "template", "template-name", "1.0.0.0" });
                         run.AddCommand<ExecuteAdhocTestCommand>("adhoc").WithDescription("Execute tests without using a template")
-                        .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializationScript.csx" })
-                         .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializationScript.csx", "--list" })
+                        .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializeDefault()" })
+                         .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializeDefault()", "--list" })
                         .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "\"fixture.Name.Equals(\"fixture-name\") &&" +
-                        " test.Name.Contains(\"test-prefix\")\"", "InitializationScript.csx" });
+                        " test.Name.Contains(\"test-prefix\")\"", "InitializeDefault()" });
                     });
                     config.AddBranch<TemplateSettings>("template", template =>
                     {
