@@ -1,13 +1,5 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="DeleteUnwanted" AfterTargets="Build">
-		<!--Delete Microsoft.Bcl.AsyncInterfaces.dll from root as Playwright plugin requires a higher version and fails to load if this file is already present in app root-->
-		<Delete Files="$(TargetDir)\Microsoft.Bcl.AsyncInterfaces.dll" >
-			<Output TaskParameter="DeletedFiles" ItemName="DeletedList"/>
-		</Delete>
-		<Message Text="Deleted files: '@(DeletedList)'"/>
-	</Target>
-	
 	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
 		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
 			<PluginProject Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj"/>	
@@ -16,12 +8,12 @@
 			<PluginProject Include="..\Pixel.Automation.Web.Selenium.Components\Pixel.Automation.Web.Selenium.Components.csproj"/>			
 			<PluginProject Include="..\Pixel.Automation.Appium.Components\Pixel.Automation.Appium.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.RestApi.Components\Pixel.Automation.RestApi.Components.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj"/>
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">			
 			<PluginProject Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj"/>
-			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>
-			<PluginProject Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>		
 			<PluginProject Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj"/>
 		</ItemGroup>
@@ -90,9 +82,19 @@
 
 	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
 		<ItemGroup>
-			<PluginRuntimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\runtimes\**\*.*"/>
+			<OpenCVRunTimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\runtimes\**\*.*"/>
 		</ItemGroup>
-		<Move  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(TargetDir)\runtimes\%(RecursiveDir)" ContinueOnError="true"/>
+		<ItemGroup  Condition="'$(RunTimeIdentifier)' == 'win10-x64'">
+			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\opencv_videoio_ffmpeg480_64.dll"/>
+			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\OpenCvSharpExtern.dll"/>
+		</ItemGroup>
+		<ItemGroup  Condition="'$(RunTimeIdentifier)' == 'linux-x64'">
+			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\libOpenCvSharpExtern.so"/>			
+		</ItemGroup>
+		<!--For visual studio builds of pixel-designer, move runtime folder from plugins directory to application-root\runtime directory-->
+		<Move  SourceFiles="@(OpenCVRunTimeFiles)"  DestinationFolder="$(TargetDir)\runtimes\%(RecursiveDir)" ContinueOnError="true"/>
+		<!--Copy OpenCvSharpExtern.dll and opencv_videoio_ffmpeg480.dll for windows or libOpenCvSharpExtern.so for linux to application root directory from plugin directory-->
+		<Move  SourceFiles="@(OpenCVRunTimeAssemblies)" Condition="'$(RunTimeIdentifier)' == 'win10-x64'"  DestinationFolder="$(TargetDir)"/>
 	</Target>
 
 	
@@ -107,7 +109,7 @@
 
 	<!--Move .playwright folder and playwright.ps1 file to app directory and delete these from Pixel.Automation.Web.Playwright.Components
 		and Pixel.Automation.Web.Scrapper plugins-->
-	<Target Name="ManagePlaywrightDependencies" AfterTargets="CopyPlugins"  Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">	
+	<Target Name="MovePlaywrightDependencies" AfterTargets="CopyPlugins"  Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">	
 		<ItemGroup>
 			<PlaywrightFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Playwright.Components\.playwright\**\*.*;"/>
 		</ItemGroup>
@@ -117,6 +119,33 @@
 			   DestinationFolder="$(TargetDir)"/>
 		<RemoveDir Directories="$(TargetDir)\Plugins\Pixel.Automation.Web.Playwright.Components\.playwright"/>	
 		<Message Text="Move Playwright Dependencies -- completed" Importance="high"/>
+	</Target>
+
+	<Target Name="RemoveUnwantedDirectories" AfterTargets="CopyPlugins" >
+		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'win10-x64'">
+			<BuildArtifacts Include="$(TargetDir)\selenium-manager\linux"/>
+			<BuildArtifacts Include="$(TargetDir)\selenium-manager\macos"/>			
+			<BuildArtifacts Include="$(TargetDir)\.playwright\node\linux-x64"/>
+			<BuildArtifacts Include="$(TargetDir)\runtimes\win-arm64"/>
+			<BuildArtifacts Include="$(TargetDir)\runtimes\win-x86"/>
+		</ItemGroup>
+		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'linux-x64'">
+			<BuildArtifacts Include="$(TargetDir)\selenium-manager\windows"/>
+			<BuildArtifacts Include="$(TargetDir)\selenium-manager\macos"/>			
+			<BuildArtifacts Include="$(TargetDir)\.playwright\node\win32_x64"/>			
+		</ItemGroup>	
+		<RemoveDir Directories="@(BuildArtifacts)"/>		
+	</Target>
+
+	<Target Name="RemoveUnwantedFiles" AfterTargets="CopyPlugins" >	
+		<ItemGroup>
+			<!--Delete Microsoft.Bcl.AsyncInterfaces.dll from root as Playwright plugin requires a higher version and fails to load if this file is already present in app root-->
+			<BuildArtifacts Include="$(TargetDir)\Microsoft.Bcl.AsyncInterfaces.dll"/>
+		</ItemGroup>	
+		<Delete Files="@(BuildArtifacts)" >
+			<Output TaskParameter="DeletedFiles" ItemName="DeletedList"/>
+		</Delete>
+		<Message Text="Deleted files: '@(DeletedList)'"/>
 	</Target>
 
 </Project>
