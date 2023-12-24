@@ -409,7 +409,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                             IsVisible = this.TestCase.ControlsUsed.Any(p => p.ControlId.Equals(query[1]));
                             break;
                         case "testdatasource":
-                            IsVisible = this.TestDataId.Equals(query[1]);
+                            IsVisible = this.TestDataId?.Equals(query[1]) ?? false;
                             break;
                         default:
                             IsVisible = this.Tags.Contains(query[0]) && this.Tags[query[0]].Equals(query[1]);
