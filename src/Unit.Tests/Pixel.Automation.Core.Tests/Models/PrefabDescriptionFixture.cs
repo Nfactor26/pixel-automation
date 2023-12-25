@@ -30,8 +30,8 @@ namespace Pixel.Automation.Core.Tests.Models
             prefabProject.ProjectId = "PrefabId";
             prefabProject.Name = "PrefabName";
             prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.PrefabName";
-            prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = false, Version = new Version(1, 0) });
-            prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = true, Version = new Version(2, 0) });
+            prefabProject.AvailableVersions.Add(new VersionInfo() { IsActive = false, Version = new Version(1, 0) });
+            prefabProject.AvailableVersions.Add(new VersionInfo() { IsActive = true, Version = new Version(2, 0) });
             prefabProject.Description = "Description";
             prefabProject.GroupName = "GroupName";
 
