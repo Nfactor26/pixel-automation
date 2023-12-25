@@ -104,13 +104,13 @@ namespace Pixel.Persistence.Services.Client
             }
 
             RestRequest restRequest = new RestRequest($"projects/{projectId}/versions");
-            restRequest.AddJsonBody(new AddProjectVersionRequest(new Pixel.Persistence.Core.Models.ProjectVersion()
+            restRequest.AddJsonBody(new AddProjectVersionRequest(new Pixel.Persistence.Core.Models.VersionInfo()
             {
                 Version = newVersion.Version,
                 IsActive = newVersion.IsActive,
                 DataModelAssembly = newVersion.DataModelAssembly
             },
-            new Pixel.Persistence.Core.Models.ProjectVersion()
+            new Pixel.Persistence.Core.Models.VersionInfo()
             {
                 Version = cloneFrom.Version,
                 IsActive = cloneFrom.IsActive,

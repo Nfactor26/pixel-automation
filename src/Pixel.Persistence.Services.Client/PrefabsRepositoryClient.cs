@@ -106,13 +106,13 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
         }
 
         RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/versions");
-        restRequest.AddJsonBody(new Core.Request.AddPrefabVersionRequest(new Core.Models.PrefabVersion()
+        restRequest.AddJsonBody(new Core.Request.AddPrefabVersionRequest(new Core.Models.VersionInfo()
         {
             Version = newVersion.Version,
             IsActive = newVersion.IsActive,
             DataModelAssembly = newVersion.DataModelAssembly
         },
-        new Core.Models.PrefabVersion()
+        new Core.Models.VersionInfo()
         {
             Version = cloneFrom.Version,
             IsActive = cloneFrom.IsActive,

@@ -102,7 +102,7 @@ namespace Pixel.Automation.Test.Runner
             this.projectAssetsDataManager.Initialize(this.automationProject, this.targetVersion);
             logger.Information("Working directory is {0}", this.projectFileSystem.WorkingDirectory);
 
-            await this.projectDataManager.DownloadProjectDataFilesAsync(this.automationProject, (this.targetVersion as Core.Models.ProjectVersion));
+            await this.projectDataManager.DownloadProjectDataFilesAsync(this.automationProject, this.targetVersion);
             await this.projectAssetsDataManager.DownloadAllFixturesAsync();
             await this.projectAssetsDataManager.DownloadAllTestsAsync();
             await this.projectAssetsDataManager.DownloadAllTestDataSourcesAsync();
