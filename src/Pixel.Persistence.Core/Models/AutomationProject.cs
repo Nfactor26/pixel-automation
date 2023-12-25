@@ -26,6 +26,6 @@ namespace Pixel.Persistence.Core.Models
         public string Namespace { get; set; }
 
         [DataMember(IsRequired = true, Order = 50)]
-        public List<ProjectVersion> AvailableVersions { get; set; } = new();       
+        public List<VersionInfo> AvailableVersions { get; set; } = new();       
     }
 }

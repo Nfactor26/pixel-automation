@@ -59,7 +59,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 {
                     if (this.prefabReferences.HasReference(prefab))
                     {
-                        var prefabReference = this.prefabReferences.GetPrefabReference(prefab.PrefabId);
+                        var prefabReference = this.prefabReferences.GetPrefabReference(prefab.ProjectId);
                         this.PrefabReferences.Add(new PrefabReferenceViewModel(prefab, prefabReference));
                     }
                 }

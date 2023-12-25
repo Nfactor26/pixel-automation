@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Pixel.Automation.Core.Models
 {
     [DataContract]
     [Serializable]
-    public class PrefabProject : ICloneable
+    public class PrefabProject : ICloneable, IProject
     {
         [DataMember(IsRequired = true, Order = 10)]
         [Browsable(false)]
@@ -17,13 +18,13 @@ namespace Pixel.Automation.Core.Models
 
         [DataMember(IsRequired = true, Order = 20)]
         [Browsable(false)]
-        public string PrefabId { get; set; }
+        public string ProjectId { get; set; }
 
         /// <summary>
         /// Display name that should be visible in Prefab Repository
         /// </summary>
         [DataMember(IsRequired = true, Order = 30)]
-        public string PrefabName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// NameSpace for generated models. NameSpace must be unique
@@ -35,7 +36,7 @@ namespace Pixel.Automation.Core.Models
         /// Get all the versions created for this Prefab
         /// </summary>
         [DataMember(IsRequired = true, Order = 50)]
-        public List<PrefabVersion> AvailableVersions { get; set; } = new List<PrefabVersion>();     
+        public List<VersionInfo> AvailableVersions { get; set; } = new List<VersionInfo>();     
 
         /// <summary>
         /// Description of the prefab
@@ -55,20 +56,14 @@ namespace Pixel.Automation.Core.Models
         [DataMember(Order = 1000)]
         public bool IsDeleted { get; set; }
 
-        /// <summary>
-        /// Get all the versions that are active.
-        /// </summary>
-        public IEnumerable<PrefabVersion> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }
+        /// <inheritdoc/>  
+        public IEnumerable<VersionInfo> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }
 
-        /// <summary>
-        /// Get all the versions that are published. Published Prefabs can be used in an automation.
-        /// </summary>
-        public IEnumerable<PrefabVersion> PublishedVersions { get => AvailableVersions.Where(a => a.IsPublished).ToList(); }             
-       
-        /// <summary>
-        /// Latest Active version of the project
-        /// </summary>
-        public PrefabVersion LatestActiveVersion
+        /// <inheritdoc/>  
+        public IEnumerable<VersionInfo> PublishedVersions { get => AvailableVersions.Where(a => a.IsPublished).ToList(); }
+
+        /// <inheritdoc/>  
+        public VersionInfo LatestActiveVersion
         {
             get => this.ActiveVersions.OrderBy(a => a.Version).LastOrDefault();
         }
@@ -98,8 +93,8 @@ namespace Pixel.Automation.Core.Models
         {
             return new PrefabProject()
             {
-                PrefabName = this.PrefabName,             
-                PrefabId = Guid.NewGuid().ToString(),             
+                Name = this.Name,             
+                ProjectId = Guid.NewGuid().ToString(),             
                 GroupName = this.GroupName,
                 ApplicationId = this.ApplicationId,
                 Description = this.Description,
@@ -112,9 +107,15 @@ namespace Pixel.Automation.Core.Models
         {
             if(obj is PrefabProject otherPrefab)
             {
-                return this.ApplicationId.Equals(otherPrefab.ApplicationId) && this.PrefabId.Equals(otherPrefab.PrefabId);
+                return this.ApplicationId.Equals(otherPrefab.ApplicationId) && this.ProjectId.Equals(otherPrefab.ProjectId);
             }
             return false;
+        }
+
+        ///</inheritdoc>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.ProjectId, this.ApplicationId);
         }
     }
 }

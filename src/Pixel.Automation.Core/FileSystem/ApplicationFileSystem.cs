@@ -50,25 +50,25 @@ namespace Pixel.Automation.Core
         public string GetPrefabProjectDirectory(PrefabProject prefabProject)
         {
             return Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, prefabProject.ApplicationId,
-                Constants.PrefabsDirectory, prefabProject.PrefabId);
+                Constants.PrefabsDirectory, prefabProject.ProjectId);
         }
 
         public string GetPrefabProjectWorkingDirectory(PrefabProject prefabProject, VersionInfo versionInfo)
         {
             return Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, prefabProject.ApplicationId,
-                Constants.PrefabsDirectory, prefabProject.PrefabId, versionInfo.ToString());
+                Constants.PrefabsDirectory, prefabProject.ProjectId, versionInfo.ToString());
         }
 
         public string GetPrefabProjectWorkingDirectory(PrefabProject prefabProject, string versionInfo)
         {
             return Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, prefabProject.ApplicationId,
-                Constants.PrefabsDirectory, prefabProject.PrefabId, versionInfo);
+                Constants.PrefabsDirectory, prefabProject.ProjectId, versionInfo);
         }
 
         public string GetPrefabProjectFile(PrefabProject prefabProject)
         {
             return Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, prefabProject.ApplicationId,
-                Constants.PrefabsDirectory, prefabProject.PrefabId, $"{prefabProject.PrefabId}.atm");
+                Constants.PrefabsDirectory, prefabProject.ProjectId, $"{prefabProject.ProjectId}.atm");
         }
 
         public string GetApplicationsDirectory()

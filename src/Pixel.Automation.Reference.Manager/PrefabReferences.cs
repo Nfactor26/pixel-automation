@@ -91,14 +91,14 @@ namespace Pixel.Automation.Reference.Manager
         /// </summary>
         /// <param name="prefabProject"></param>
         /// <returns></returns>
-        public PrefabVersion GetPrefabVersionInUse(PrefabProject prefabProject)
+        public VersionInfo GetPrefabVersionInUse(PrefabProject prefabProject)
         {
             var reference = References.FirstOrDefault(a => a.Equals(prefabProject));
             if (reference != null)
             {
                 return reference.Version;
             }
-            throw new InvalidOperationException($"Failed to get version in use. No reference exists for Prefab with Id : {prefabProject.PrefabId}");
+            throw new InvalidOperationException($"Failed to get version in use. No reference exists for Prefab with Id : {prefabProject.ProjectId}");
         }
     }
 

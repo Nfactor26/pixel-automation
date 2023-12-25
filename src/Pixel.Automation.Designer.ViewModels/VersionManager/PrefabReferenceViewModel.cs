@@ -22,11 +22,11 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// </summary>
         public string VersionInUse { get; private set; }
 
-        private PrefabVersion selectedVersion;
+        private VersionInfo selectedVersion;
         /// <summary>
         /// Select version of prefab on view
         /// </summary>
-        public PrefabVersion SelectedVersion
+        public VersionInfo SelectedVersion
         {
             get => this.selectedVersion;
             set
@@ -49,7 +49,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         /// <summary>
         /// Available versions of Prefab
         /// </summary>
-        public ObservableCollection<PrefabVersion> AvailableVersions { get; private set; } = new();
+        public ObservableCollection<VersionInfo> AvailableVersions { get; private set; } = new();
 
         /// <summary>
         /// constructor
@@ -60,7 +60,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         {
             Guard.Argument(prefabProject).NotNull();
             this.prefabReference = Guard.Argument(prefabReference).NotNull();
-            this.PrefabName = prefabProject.PrefabName;
+            this.PrefabName = prefabProject.Name;
             this.VersionInUse = prefabReference.Version.ToString();
             foreach (var version in prefabProject.PublishedVersions)
             {

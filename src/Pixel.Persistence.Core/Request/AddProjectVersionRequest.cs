@@ -7,17 +7,17 @@ namespace Pixel.Persistence.Core.Request;
 public class AddProjectVersionRequest
 {
     [DataMember(Order = 10)]
-    public ProjectVersion NewVersion { get; set; }
+    public VersionInfo NewVersion { get; set; }
 
     [DataMember(Order = 20)]
-    public ProjectVersion CloneFrom { get; set; }
+    public VersionInfo CloneFrom { get; set; }
 
     public AddProjectVersionRequest()
     {
 
     }
 
-    public AddProjectVersionRequest(ProjectVersion newVersion, ProjectVersion cloneFrom)
+    public AddProjectVersionRequest(VersionInfo newVersion, VersionInfo cloneFrom)
     {
         NewVersion = newVersion;
         CloneFrom = cloneFrom;

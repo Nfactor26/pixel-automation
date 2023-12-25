@@ -43,13 +43,13 @@ namespace Pixel.Automation.Designer.ViewModels
         /// <summary>
         /// Editable versions available for the project. Editable versions are those that are not yet deployed.
         /// </summary>
-        public BindableCollection<ProjectVersion> EditableVersions { get; private set; } = new();
+        public BindableCollection<VersionInfo> EditableVersions { get; private set; } = new();
 
-        private ProjectVersion selectedVersion;
+        private VersionInfo selectedVersion;
         /// <summary>
         /// Selected version to open on the UI
         /// </summary>
-        public ProjectVersion SelectedVersion
+        public VersionInfo SelectedVersion
         {
             get => selectedVersion;
             set

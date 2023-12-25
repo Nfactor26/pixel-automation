@@ -44,7 +44,7 @@ namespace Pixel.Automation.Designer.ViewModels
 
             Version defaultVersion = new Version(1, 0, 0, 0);
             this.NewProject = new AutomationProject();
-            this.NewProject.AvailableVersions.Add(new ProjectVersion(defaultVersion) { IsActive = true});
+            this.NewProject.AvailableVersions.Add(new VersionInfo(defaultVersion) { IsActive = true});
 
             this.existingProjects.AddRange(this.projectDataManager.GetAllProjects());
         

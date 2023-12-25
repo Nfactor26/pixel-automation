@@ -149,7 +149,7 @@ namespace Pixel.Automation.Designer.ViewModels
         }
 
 
-        private async Task OpenProject(AutomationProjectViewModel automationProjectViewModel, ProjectVersion projectVersion)
+        private async Task OpenProject(AutomationProjectViewModel automationProjectViewModel, VersionInfo projectVersion)
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenProject), ActivityKind.Internal))
             {

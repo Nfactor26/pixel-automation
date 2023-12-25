@@ -40,7 +40,7 @@ public interface IAutomationsRepositoryClient
     /// <param name="newVersion"></param>
     /// <param name="cloneFrom"></param>
     /// <returns></returns>
-    Task<ProjectVersion> AddProjectVersionAsync(string projectId, ProjectVersion newVersion, ProjectVersion cloneFrom);
+    Task<VersionInfo> AddProjectVersionAsync(string projectId, VersionInfo newVersion, VersionInfo cloneFrom);
 
     /// <summary>
     /// Update version details for an AutomationProject
@@ -48,6 +48,6 @@ public interface IAutomationsRepositoryClient
     /// <param name="projectId"></param>
     /// <param name="projectVersion"></param>
     /// <returns></returns>
-    Task<ProjectVersion> UpdateProjectVersionAsync(string projectId, ProjectVersion projectVersion);  
+    Task<VersionInfo> UpdateProjectVersionAsync(string projectId, VersionInfo projectVersion);  
 
 }

@@ -42,13 +42,13 @@ public interface IPrefabDataManager
     /// <param name="prefabProject"></param>
     /// <param name="prefabVersion"></param>
     /// <returns></returns>
-    Task DownloadPrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
+    Task DownloadPrefabDataAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
     /// <summary>
     /// Download a file with specified nme for the version of AutomtionProject being managed
     /// </summary>
     /// <returns></returns>
-    Task DownloadPrefabDataFileByNameAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string fileName);
+    Task DownloadPrefabDataFileByNameAsync(PrefabProject prefabProject, VersionInfo prefabVersion, string fileName);
 
     /// <summary>
     /// Download dta model files (*.cs) for a given version of prefab
@@ -56,7 +56,7 @@ public interface IPrefabDataManager
     /// <param name="prefabProject"></param>
     /// <param name="prefabVersion"></param>
     /// <returns></returns>
-    Task DownloadDataModelFilesAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
+    Task DownloadDataModelFilesAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
     /// <summary>
     /// Add a new prefab
@@ -72,7 +72,7 @@ public interface IPrefabDataManager
     /// <param name="newVersion"></param>
     /// <param name="cloneFrom"></param>
     /// <returns></returns>
-    Task AddPrefabVersionAsync(PrefabProject prefabProject, PrefabVersion newVersion, PrefabVersion cloneFrom);
+    Task AddPrefabVersionAsync(PrefabProject prefabProject, VersionInfo newVersion, VersionInfo cloneFrom);
 
     /// <summary>
     /// Update details of an existing version of PrefabProject
@@ -80,7 +80,7 @@ public interface IPrefabDataManager
     /// <param name=""></param>
     /// <param name="prefabVersion"></param>
     /// <returns></returns>
-    Task UpdatePrefabVersionAsync(PrefabProject prefabProject, PrefabVersion prefabVersion);
+    Task UpdatePrefabVersionAsync(PrefabProject prefabProject, VersionInfo prefabVersion);
 
     /// <summary>
     /// Check if a Prefb project is marked deleted.
@@ -105,7 +105,7 @@ public interface IPrefabDataManager
     /// <param name="filePath"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    Task AddOrUpdateDataFileAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string filePath, string tag);
+    Task AddOrUpdateDataFileAsync(PrefabProject prefabProject, VersionInfo prefabVersion, string filePath, string tag);
 
     /// <summary>
     /// Delete a data file belonging to given version of prefab project
@@ -114,7 +114,7 @@ public interface IPrefabDataManager
     /// <param name="prefabVersion"></param>
     /// <param name="fileToDelete"></param>
     /// <returns></returns>
-    Task DeleteDataFileAsync(PrefabProject prefabProject, PrefabVersion prefabVersion, string fileToDelete);
+    Task DeleteDataFileAsync(PrefabProject prefabProject, VersionInfo prefabVersion, string fileToDelete);
 
     /// <summary>
     /// Save all the data files belonging to a specific version of Prefab
@@ -122,6 +122,6 @@ public interface IPrefabDataManager
     /// <param name="prefabProject"></param>
     /// <param name="prefabVerssion"></param>
     /// <returns></returns>
-    Task SavePrefabDataAsync(PrefabProject prefabProject, PrefabVersion prefabVerssion);
+    Task SavePrefabDataAsync(PrefabProject prefabProject, VersionInfo prefabVerssion);
 
 }

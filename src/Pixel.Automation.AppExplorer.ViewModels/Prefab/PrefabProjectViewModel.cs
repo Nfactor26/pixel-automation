@@ -23,7 +23,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         [Browsable(false)]
         public string PrefabId
         {
-            get => this.prefabProject.PrefabId;            
+            get => this.prefabProject.ProjectId;            
         }
 
         /// <summary>
@@ -31,10 +31,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// </summary>      
         public string PrefabName
         {
-            get => this.prefabProject.PrefabName;
+            get => this.prefabProject.Name;
             set
             {
-                this.prefabProject.PrefabName = value;
+                this.prefabProject.Name = value;
                 OnPropertyChanged();
             }
         }      
@@ -52,7 +52,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        public IEnumerable<PrefabVersion> PublishedVersion 
+        public IEnumerable<VersionInfo> PublishedVersion 
         {
             get => this.prefabProject.PublishedVersions; 
         }

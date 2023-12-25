@@ -101,7 +101,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 if (projectVersionViewModel.IsPublished)
                 {
                     //Create a new active version from selected version
-                    ProjectVersion newVersion = await projectVersionViewModel.CloneAsync(this.projectDataManager);
+                    VersionInfo newVersion = await projectVersionViewModel.CloneAsync(this.projectDataManager);
                     IProjectFileSystem projectFileSystem = new ProjectFileSystem(serializer, this.applicationSettings);
                     projectFileSystem.Initialize(this.automationProject, newVersion);
                     this.AvailableVersions.Add(new ProjectVersionViewModel(this.automationProject, newVersion, projectFileSystem, referenceManagerFactory));

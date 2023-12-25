@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
@@ -44,13 +43,13 @@ namespace Pixel.Persistence.Respository
         /// <inheritdoc/>
         public async Task<PrefabProject> FindByIdAsync(string prefabId, CancellationToken cancellationToken)
         {
-            return await prefabsCollection.FindFirstOrDefaultAsync(x => x.PrefabId.Equals(prefabId), cancellationToken);
+            return await prefabsCollection.FindFirstOrDefaultAsync(x => x.ProjectId.Equals(prefabId), cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<PrefabProject> FindByNameAsync(string name, CancellationToken cancellationToken)
         {
-            return await prefabsCollection.FindFirstOrDefaultAsync(x => x.PrefabName.Equals(name), cancellationToken);
+            return await prefabsCollection.FindFirstOrDefaultAsync(x => x.Name.Equals(name), cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -65,21 +64,21 @@ namespace Pixel.Persistence.Respository
         public async Task AddPrefabAsync(PrefabProject prefabProject, CancellationToken cancellationToken)
         {
             Guard.Argument(prefabProject).NotNull();
-            var exists = (await FindByIdAsync(prefabProject.PrefabId, cancellationToken)) != null;
+            var exists = (await FindByIdAsync(prefabProject.ProjectId, cancellationToken)) != null;
             if (exists)
             {
-                throw new InvalidOperationException($"Project with Id : {prefabProject.PrefabId} already exists");
+                throw new InvalidOperationException($"Project with Id : {prefabProject.ProjectId} already exists");
             }
             await prefabsCollection.InsertOneAsync(prefabProject, InsertOneOptions, cancellationToken).ConfigureAwait(false);
             logger.LogInformation("Prefab project {0} was added.", prefabProject);
         }
 
         /// <inheritdoc/>
-        public async Task AddPrefabVersionAsync(string prefabId, PrefabVersion newVersion, PrefabVersion cloneFrom, CancellationToken cancellationToken)
+        public async Task AddPrefabVersionAsync(string prefabId, VersionInfo newVersion, VersionInfo cloneFrom, CancellationToken cancellationToken)
         {
-            var filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId)
-                          & Builders<PrefabProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<PrefabVersion>.Filter.Eq(x => x.Version, newVersion.Version));
-            var projectVersions = (await this.prefabsCollection.FindAsync<List<PrefabVersion>>(filter, new FindOptions<PrefabProject, List<PrefabVersion>>()
+            var filter = Builders<PrefabProject>.Filter.Eq(x => x.ProjectId, prefabId)
+                          & Builders<PrefabProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<VersionInfo>.Filter.Eq(x => x.Version, newVersion.Version));
+            var projectVersions = (await this.prefabsCollection.FindAsync<List<VersionInfo>>(filter, new FindOptions<PrefabProject, List<VersionInfo>>()
             {
                 Projection = Builders<PrefabProject>.Projection.Expression(u => u.AvailableVersions)
             }))
@@ -105,7 +104,7 @@ namespace Pixel.Persistence.Respository
                 await this.prefabFilesRepossitory.AddOrUpdateFileAsync(prefabId, newVersion.ToString(), file);
             }
 
-            filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId);
+            filter = Builders<PrefabProject>.Filter.Eq(x => x.ProjectId, prefabId);
             var push = Builders<PrefabProject>.Update.Push(t => t.AvailableVersions, newVersion)
                 .Set(t => t.LastUpdated, DateTime.UtcNow)
                 .Inc(t => t.Revision, 1);
@@ -113,11 +112,11 @@ namespace Pixel.Persistence.Respository
         }
 
         /// <inheritdoc/>
-        public async Task UpdatePrefabVersionAsync(string prefabId, PrefabVersion prefabVersion, CancellationToken cancellationToken)
+        public async Task UpdatePrefabVersionAsync(string prefabId, VersionInfo prefabVersion, CancellationToken cancellationToken)
         {
-            var filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId)
-                         & Builders<PrefabProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<PrefabVersion>.Filter.Eq(x => x.Version, prefabVersion.Version));
-            var prefabVersions = (await this.prefabsCollection.FindAsync<List<PrefabVersion>>(filter, new FindOptions<PrefabProject, List<PrefabVersion>>()
+            var filter = Builders<PrefabProject>.Filter.Eq(x => x.ProjectId, prefabId)
+                         & Builders<PrefabProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<VersionInfo>.Filter.Eq(x => x.Version, prefabVersion.Version));
+            var prefabVersions = (await this.prefabsCollection.FindAsync<List<VersionInfo>>(filter, new FindOptions<PrefabProject, List<VersionInfo>>()
             {
                 Projection = Builders<PrefabProject>.Projection.Expression(u => u.AvailableVersions)
             })).ToList().FirstOrDefault();
@@ -142,7 +141,7 @@ namespace Pixel.Persistence.Respository
         public async Task<bool> IsPrefabDeleted(string prefabId)
         {
             Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
-            var filter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId) &
+            var filter = Builders<PrefabProject>.Filter.Eq(x => x.ProjectId, prefabId) &
                 Builders<PrefabProject>.Filter.Eq(x => x.IsDeleted, true);
             long count = await this.prefabsCollection.CountDocumentsAsync(filter, new CountOptions() { Limit = 1 });
             return count > 0;
@@ -156,7 +155,7 @@ namespace Pixel.Persistence.Respository
             {
                 throw new InvalidOperationException("Prefab is in use across one or more projects");
             }
-            var updateFilter = Builders<PrefabProject>.Filter.Eq(x => x.PrefabId, prefabId);
+            var updateFilter = Builders<PrefabProject>.Filter.Eq(x => x.ProjectId, prefabId);
             var updateDefinition = Builders<PrefabProject>.Update.Set(x => x.IsDeleted, true)
                 .Set(x => x.LastUpdated, DateTime.UtcNow)
                 .Inc(t => t.Revision, 1);

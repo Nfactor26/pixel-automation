@@ -32,17 +32,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <summary>
         /// Name of the Prefab
         /// </summary>
-        public string PrefabName => prefabProject.PrefabName;
+        public string PrefabName => prefabProject.Name;
 
         /// <summary>
         /// Available versions of the Prefab
         /// </summary>
-        public IEnumerable<PrefabVersion> AvailableVersions { get; private set; }
+        public IEnumerable<VersionInfo> AvailableVersions { get; private set; }
 
         /// <summary>
         /// Select version of Prefab to use
         /// </summary>
-        public PrefabVersion SelectedVersion { get; set; }
+        public VersionInfo SelectedVersion { get; set; }
 
         /// <summary>
         /// Indicates if the version can be changed.
@@ -101,7 +101,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             this.CanChangeVersion = !projectReferenceManager.GetPrefabReferences().HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {
-                var prefabReference = projectReferenceManager.GetPrefabReferences().GetPrefabReference(prefabProject.PrefabId);             
+                var prefabReference = projectReferenceManager.GetPrefabReferences().GetPrefabReference(prefabProject.ProjectId);             
                 this.SelectedVersion = AvailableVersions.First(a => a.Equals(prefabReference.Version));
                 this.InputMappingScriptFile = prefabReference.InputMappingScriptFile;
                 this.OutputMappingScriptFile = prefabReference.OutputMappingScriptFile;
@@ -175,7 +175,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             await this.projectReferenceManager.AddPrefabReferenceAsync(new PrefabReference() 
             { 
                 ApplicationId = prefabProject.ApplicationId,
-                PrefabId = prefabProject.PrefabId, 
+                PrefabId = prefabProject.ProjectId, 
                 Version = this.SelectedVersion,
                 InputMappingScriptFile = this.InputMappingScriptFile,
                 OutputMappingScriptFile = this.OutputMappingScriptFile

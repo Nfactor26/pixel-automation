@@ -92,7 +92,7 @@ namespace Pixel.Persistence.Services.Client
         }
 
         /// <inheritdoc/>  
-        public async Task<ProjectVersion> AddProjectVersionAsync(string projectId, ProjectVersion newVersion, ProjectVersion cloneFrom)
+        public async Task<VersionInfo> AddProjectVersionAsync(string projectId, VersionInfo newVersion, VersionInfo cloneFrom)
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
             Guard.Argument(newVersion, nameof(newVersion)).NotNull();
@@ -117,18 +117,18 @@ namespace Pixel.Persistence.Services.Client
                 DataModelAssembly = cloneFrom.DataModelAssembly
             })) ;            
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.PostAsync<ProjectVersion>(restRequest);
+            var result = await client.PostAsync<VersionInfo>(restRequest);
             return result;
         }
 
-        public async Task<ProjectVersion> UpdateProjectVersionAsync(string projectId, ProjectVersion projectVersion)
+        public async Task<VersionInfo> UpdateProjectVersionAsync(string projectId, VersionInfo projectVersion)
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
             Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
             RestRequest restRequest = new RestRequest($"projects/{projectId}/versions");
             restRequest.AddJsonBody(projectVersion);          
             var client = this.clientFactory.GetOrCreateClient();
-            var result = await client.PutAsync<ProjectVersion>(restRequest);
+            var result = await client.PutAsync<VersionInfo>(restRequest);
             return result;
         }
     }

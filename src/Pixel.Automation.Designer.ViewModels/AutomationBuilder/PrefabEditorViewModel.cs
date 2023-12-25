@@ -45,21 +45,21 @@ namespace Pixel.Automation.Designer.ViewModels
                 Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
 
                 this.PrefabProject = prefabProject;
-                this.DisplayName = prefabProject.PrefabName;
+                this.DisplayName = prefabProject.Name;
 
                 var targetVersion = versionToLoad ?? PrefabProject.LatestActiveVersion;
                 if (targetVersion != null)
                 {
-                    activity?.SetTag("PrefabProject", prefabProject.PrefabName);
+                    activity?.SetTag("PrefabProject", prefabProject.Name);
                     activity?.SetTag("ProjectVersion", versionToLoad.ToString());
-                    logger.Information("Version : '{0}' of prefab project : '{1}' will be loaded.", targetVersion, prefabProject.PrefabName);
+                    logger.Information("Version : '{0}' of prefab project : '{1}' will be loaded.", targetVersion, prefabProject.Name);
 
                     await this.projectManager.Load(prefabProject, targetVersion);
                     UpdateWorkFlowRoot();
                     return;
                 }
                 activity?.SetStatus(ActivityStatusCode.Error, "No active version could be located");
-                throw new InvalidDataException($"No active version could be located for prefab project : {this.PrefabProject.PrefabName}");
+                throw new InvalidDataException($"No active version could be located for prefab project : {this.PrefabProject.Name}");
             }             
          
         }
@@ -81,10 +81,10 @@ namespace Pixel.Automation.Designer.ViewModels
                     {
                         foreach (var file in Directory.GetFiles(this.projectManager.GetProjectFileSystem().DataModelDirectory, "*.cs"))
                         {
-                            await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.PrefabName, File.ReadAllText(file), false);
+                            await editor.AddDocumentAsync(Path.GetFileName(file), this.PrefabProject.Name, File.ReadAllText(file), false);
                         }
-                        await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName, string.Empty, false);
-                        await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.PrefabName);
+                        await editor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.Name, string.Empty, false);
+                        await editor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", this.PrefabProject.Name);
 
                         bool? hasChanges = await this.windowManager.ShowDialogAsync(editor);
                         var editorDocumentStates = editor.GetCurrentEditorState();
@@ -120,7 +120,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    logger.Information(ex, "There was an error while trying to edit data model for prefab : '{0}'", this.PrefabProject.PrefabName);
+                    logger.Information(ex, "There was an error while trying to edit data model for prefab : '{0}'", this.PrefabProject.Name);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
@@ -147,12 +147,12 @@ namespace Pixel.Automation.Designer.ViewModels
 
                     //Add the project to workspace
                     var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                    scriptEditorFactory.AddProject(this.PrefabProject.PrefabName, new string[] { }, this.EntityManager.Arguments.GetType());
-                    scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.PrefabName, File.ReadAllText(scriptFile));
+                    scriptEditorFactory.AddProject(this.PrefabProject.Name, new string[] { }, this.EntityManager.Arguments.GetType());
+                    scriptEditorFactory.AddDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.Name, File.ReadAllText(scriptFile));
                     //Create script editor and open the document to edit
                     using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                     {
-                        scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.PrefabName, string.Empty);
+                        scriptEditorScreen.OpenDocument(fileSystem.GetRelativePath(scriptFile), this.PrefabProject.Name, string.Empty);
                         var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                         if (result.HasValue && result.Value)
                         {
@@ -162,12 +162,12 @@ namespace Pixel.Automation.Designer.ViewModels
                             await this.projectManager.AddOrUpdateDataFileAsync(scriptFile);
                             logger.Information("Updated script file : {0}", scriptFile);
                         }
-                        scriptEditorFactory.RemoveProject(this.PrefabProject.PrefabName);
+                        scriptEditorFactory.RemoveProject(this.PrefabProject.Name);
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.PrefabProject.PrefabName);
+                    logger.Error(ex, "There was an error while trying to edit initialization script for project : '{0}'", this.PrefabProject.Name);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
@@ -198,7 +198,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "There was an error while trying to save project : '{0}'", this.PrefabProject.PrefabName);
+                    logger.Error(ex, "There was an error while trying to save project : '{0}'", this.PrefabProject.Name);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
@@ -217,7 +217,7 @@ namespace Pixel.Automation.Designer.ViewModels
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "There was an error while trying to close project : '{0}'", this.PrefabProject.PrefabName);
+                logger.Error(ex, "There was an error while trying to close project : '{0}'", this.PrefabProject.Name);
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }
         }

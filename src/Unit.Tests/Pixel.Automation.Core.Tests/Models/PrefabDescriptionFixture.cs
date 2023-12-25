@@ -16,8 +16,8 @@ namespace Pixel.Automation.Core.Tests.Models
             var prefabProject = new PrefabProject(prefabRoot);
 
             Assert.AreEqual(null, prefabProject.ApplicationId);
-            Assert.AreEqual(null, prefabProject.PrefabId);
-            Assert.AreEqual(null, prefabProject.PrefabName);
+            Assert.AreEqual(null, prefabProject.ProjectId);
+            Assert.AreEqual(null, prefabProject.Name);
             Assert.AreEqual(null, prefabProject.Namespace);
             Assert.NotNull(prefabProject.AvailableVersions);
             Assert.NotNull(prefabProject.PublishedVersions);
@@ -27,8 +27,8 @@ namespace Pixel.Automation.Core.Tests.Models
 
 
             prefabProject.ApplicationId = "ApplicationId";
-            prefabProject.PrefabId = "PrefabId";
-            prefabProject.PrefabName = "PrefabName";
+            prefabProject.ProjectId = "PrefabId";
+            prefabProject.Name = "PrefabName";
             prefabProject.Namespace = $"{Constants.PrefabNameSpacePrefix}.PrefabName";
             prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = false, Version = new Version(1, 0) });
             prefabProject.AvailableVersions.Add(new PrefabVersion() { IsActive = true, Version = new Version(2, 0) });
@@ -37,8 +37,8 @@ namespace Pixel.Automation.Core.Tests.Models
 
 
             Assert.AreEqual("ApplicationId", prefabProject.ApplicationId);
-            Assert.AreEqual("PrefabId", prefabProject.PrefabId);
-            Assert.AreEqual("PrefabName", prefabProject.PrefabName);
+            Assert.AreEqual("PrefabId", prefabProject.ProjectId);
+            Assert.AreEqual("PrefabName", prefabProject.Name);
             Assert.AreEqual($"{Constants.PrefabNameSpacePrefix}.PrefabName", prefabProject.Namespace);
             Assert.AreEqual(2, prefabProject.AvailableVersions.Count());
             Assert.AreEqual(1, prefabProject.PublishedVersions.Count());
@@ -56,8 +56,8 @@ namespace Pixel.Automation.Core.Tests.Models
             var prefabDescription = new PrefabProject(prefabRoot)
             {
                 ApplicationId = "ApplicationId",
-                PrefabId = "PrefabId",
-                PrefabName = "PrefabName",
+                ProjectId = "PrefabId",
+                Name = "PrefabName",
                 Description = "Description",
                 GroupName = "GroupName",
             };
@@ -65,8 +65,8 @@ namespace Pixel.Automation.Core.Tests.Models
             var clone = prefabDescription .Clone() as PrefabProject;
 
             Assert.AreEqual("ApplicationId", clone.ApplicationId);
-            Assert.AreNotEqual("PrefabId", clone.PrefabId);
-            Assert.AreEqual("PrefabName", clone.PrefabName);
+            Assert.AreNotEqual("PrefabId", clone.ProjectId);
+            Assert.AreEqual("PrefabName", clone.Name);
             Assert.AreEqual("Description", clone.Description);
             Assert.AreEqual("GroupName", clone.GroupName);
             Assert.AreSame(prefabRoot, clone.PrefabRoot);

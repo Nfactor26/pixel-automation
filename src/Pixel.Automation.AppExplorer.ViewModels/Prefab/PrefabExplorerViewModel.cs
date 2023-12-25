@@ -231,7 +231,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }
         }
 
-        private async Task EditPrefab(PrefabProjectViewModel prefabToEdit, PrefabVersion prefabVersion)
+        private async Task EditPrefab(PrefabProjectViewModel prefabToEdit, VersionInfo prefabVersion)
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(EditPrefab), ActivityKind.Internal))
             {
@@ -370,7 +370,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             try
             {
-                var project = this.Prefabs.FirstOrDefault(a => a.PrefabId.Equals(message.Project.PrefabId));
+                var project = this.Prefabs.FirstOrDefault(a => a.PrefabId.Equals(message.Project.ProjectId));
                 if (project != null)
                 {
                     project.IsOpenInEditor = false;                   
@@ -395,7 +395,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         {
             try
             {
-                var prefabProject = this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabProject.PrefabId));
+                var prefabProject = this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabProject.ProjectId));
                 if (prefabProject != null)
                 {
                     await EditPrefab(prefabProject, message.VersionToOpen);

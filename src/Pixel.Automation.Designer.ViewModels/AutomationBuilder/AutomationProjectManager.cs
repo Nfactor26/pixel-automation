@@ -69,7 +69,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.projectFileSystem.Initialize(activeProject, versionToLoad);
                 this.projectAssetDataManager.Initialize(activeProject, versionToLoad);
 
-                await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad as ProjectVersion);
+                await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad);
 
                 this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
                 this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
@@ -203,25 +203,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         ///<inheritdoc/>
         public override async Task DownloadFileByNameAsync(string fileName)
         {
-            await this.projectDataManager.DownloadProjectDataFileByNameAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileName);
+            await this.projectDataManager.DownloadProjectDataFileByNameAsync(this.activeProject, this.loadedVersion, fileName);
         }
 
         ///<inheritdoc/>
         public override async Task AddOrUpdateDataFileAsync(string targetFile)
         {
-            await this.projectDataManager.AddOrUpdateDataFileAsync(this.activeProject, this.loadedVersion as ProjectVersion, targetFile, this.activeProject.ProjectId);
+            await this.projectDataManager.AddOrUpdateDataFileAsync(this.activeProject, this.loadedVersion, targetFile, this.activeProject.ProjectId);
         }
 
         ///<inheritdoc/>
         public override async Task DeleteDataFileAsync(string fileToDelete)
         {
-            await this.projectDataManager.DeleteDataFileAsync(this.activeProject, this.loadedVersion as ProjectVersion, fileToDelete);
+            await this.projectDataManager.DeleteDataFileAsync(this.activeProject, this.loadedVersion, fileToDelete);
         }
 
         ///<inheritdoc/>
         public override async Task DownloadDataModelFilesAsync()
         {
-            await this.projectDataManager.DownloadDataModelFilesAsync(this.activeProject, this.loadedVersion as ProjectVersion);
+            await this.projectDataManager.DownloadDataModelFilesAsync(this.activeProject, this.loadedVersion);
         }
 
         ///<inheritdoc/>
@@ -269,7 +269,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                     CompileDataModelAssemblyForVersion(this.loadedVersion.Version);
                 }
 
-                await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion as ProjectVersion);
+                await this.projectDataManager.SaveProjectDataAsync(this.activeProject, this.loadedVersion);
             }            
         }
 

@@ -21,11 +21,11 @@
                          ResetValueOnEmptyText="true" ToStringFunc="@(e => e?.Name)"
                          CoerceText="false" CoerceValue="false"
                          AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" />         
-                         <MudSelect T="ProjectVersion" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
+                         <MudSelect T="VersionInfo" Label="Version" Variant="Variant.Text" @bind-Value="selectedVersion"
                             AnchorOrigin="Origin.BottomCenter" ToStringFunc="@(e => e?.Version.ToString())">
-                               @foreach (var version in selectedProject?.AvailableVersions ?? Enumerable.Empty<ProjectVersion>())
+                               @foreach (var version in selectedProject?.AvailableVersions ?? Enumerable.Empty<VersionInfo>())
                                 {
-                                    <MudSelectItem T="ProjectVersion" Value="@version">@version</MudSelectItem>
+                                    <MudSelectItem T="VersionInfo" Value="@version">@version</MudSelectItem>
                                 }
                         </MudSelect>
                         <MudTextField UserAttributes="@(new (){{"id","txtSelector"}})" Label="Selector" Variant="Variant.Text" 

@@ -79,7 +79,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task DownloadProjectDataFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion)
+    public async Task DownloadProjectDataFilesAsync(AutomationProject automationProject, VersionInfo projectVersion)
     {
         Guard.Argument(automationProject, nameof(automationProject)).NotNull();
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
@@ -105,7 +105,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileName)
+    public async Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, VersionInfo projectVersion, string fileName)
     {
         Guard.Argument(automationProject, nameof(automationProject)).NotNull();
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
@@ -128,7 +128,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/> 
-    public async Task DownloadDataModelFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion)
+    public async Task DownloadDataModelFilesAsync(AutomationProject automationProject, VersionInfo projectVersion)
     {
         Guard.Argument(automationProject, nameof(automationProject)).NotNull();
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
@@ -160,7 +160,7 @@ public class ProjectDataManager : IProjectDataManager
     /// </summary>
     /// <param name="tags"></param>
     /// <returns></returns>
-    async Task DownloadFilesWithTagsAsync(AutomationProject automationProject, ProjectVersion projectVersion, string[] tags)
+    async Task DownloadFilesWithTagsAsync(AutomationProject automationProject, VersionInfo projectVersion, string[] tags)
     {
         if (IsOnlineMode)
         {
@@ -221,7 +221,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task AddProjectVersionAsync(AutomationProject automationProject, ProjectVersion newVersion, ProjectVersion versionToClone)
+    public async Task AddProjectVersionAsync(AutomationProject automationProject, VersionInfo newVersion, VersionInfo versionToClone)
     {
         if (IsOnlineMode)
         {
@@ -262,7 +262,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task UpdateProjectVersionAsync(AutomationProject automationProject, ProjectVersion projectVersion)
+    public async Task UpdateProjectVersionAsync(AutomationProject automationProject, VersionInfo projectVersion)
     {
         if (IsOnlineMode)
         {
@@ -274,7 +274,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task AddOrUpdateDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag)
+    public async Task AddOrUpdateDataFileAsync(AutomationProject automationProject, VersionInfo projectVersion, string filePath, string tag)
     {
         if (IsOnlineMode)
         {
@@ -292,7 +292,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task DeleteDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileToDelete)
+    public async Task DeleteDataFileAsync(AutomationProject automationProject, VersionInfo projectVersion, string fileToDelete)
     {
         if (IsOnlineMode)
         {            
@@ -306,7 +306,7 @@ public class ProjectDataManager : IProjectDataManager
     }
 
     /// <inheritdoc/>  
-    public async Task SaveProjectDataAsync(AutomationProject automationProject, ProjectVersion projectVersion)
+    public async Task SaveProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion)
     {
         if (IsOnlineMode)
         {
