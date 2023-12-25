@@ -23,8 +23,8 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatNewVersionCanBeAddedToAutomationProject()
         {
             var automationProject = new AutomationProject();
-            var deployedVersion = new ProjectVersion(new System.Version(1, 0)) { IsActive = false };
-            var activeVersion = new ProjectVersion(new System.Version(1, 0)) { IsActive = true };
+            var deployedVersion = new VersionInfo(new System.Version(1, 0)) { IsActive = false };
+            var activeVersion = new VersionInfo(new System.Version(1, 0)) { IsActive = true };
             automationProject.AvailableVersions.Add(deployedVersion);
             automationProject.AvailableVersions.Add(activeVersion);
 

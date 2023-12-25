@@ -43,7 +43,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             var versionInfo = Substitute.For<VersionInfo>();
             versionInfo.Version = new Version(1, 0);
-            var prefabProject = new PrefabProject() { ApplicationId = applicationId, PrefabId = prefabId };
+            var prefabProject = new PrefabProject() { ApplicationId = applicationId, ProjectId = prefabId };
             prefabFileSystem.Initialize(prefabProject, versionInfo);
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());

@@ -77,7 +77,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     {
                         bool isLatestActieVersion = prefabProject.LatestActiveVersion.Version.Equals(prefabVersionViewModel.Version);
                         await prefabVersionViewModel.PublishAsync(this.workspaceManagerFactory, this.prefabDataManager);
-                        logger.Information("Version {0} for project : {1} is published now.", prefabVersionViewModel.Version, this.prefabProject.PrefabName);
+                        logger.Information("Version {0} for project : {1} is published now.", prefabVersionViewModel.Version, this.prefabProject.Name);
                         if (isLatestActieVersion)
                         {
                             await CloneAsync(prefabVersionViewModel);
@@ -107,11 +107,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     if (prefabVersionViewModel.IsPublished)
                     {
                         activity?.SetTag("FromVersion", prefabVersionViewModel.Version.ToString());
-                        PrefabVersion newVersion = await prefabVersionViewModel.CloneAsync(this.prefabDataManager);
+                        VersionInfo newVersion = await prefabVersionViewModel.CloneAsync(this.prefabDataManager);
                         IPrefabFileSystem fileSystem = new PrefabFileSystem(serializer, applicationSettings);
                         fileSystem.Initialize(this.prefabProject, newVersion);
                         this.AvailableVersions.Add(new PrefabVersionViewModel(this.prefabProject, newVersion, fileSystem, referenceManagerFactory));
-                        logger.Information("Version {0} for project : {1} is cloned from {2}.", newVersion.Version, this.prefabProject.PrefabName, prefabVersionViewModel.Version);
+                        logger.Information("Version {0} for project : {1} is cloned from {2}.", newVersion.Version, this.prefabProject.Name, prefabVersionViewModel.Version);
                     }
                 }
                 catch (Exception ex)

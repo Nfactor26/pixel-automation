@@ -15,10 +15,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
         public string PrefabName
         {
-            get => prefabProject.PrefabName;
+            get => prefabProject.Name;
             set
             {
-                prefabProject.PrefabName = value ?? string.Empty;              
+                prefabProject.Name = value ?? string.Empty;              
                 NotifyOfPropertyChange(PrefabName);           
                 ValidateProperty(nameof(PrefabName));
             }
@@ -51,7 +51,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             this.DisplayName = "(1/4) Create a new Prefab";
             this.applicationDescriptionViewModel = applicationDescriptionViewModel;
             this.prefabProject = prefabToolBoxItem;
-            this.prefabProject.PrefabName = "Prefab";
+            this.prefabProject.Name = "Prefab";
             this.prefabProject.Description = "Description";
         }
        

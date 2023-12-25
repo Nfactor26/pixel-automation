@@ -46,7 +46,7 @@ public interface IProjectsRepository
     /// <param name="cloneFrom"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task AddProjectVersionAsync(string projectId, ProjectVersion newVersion, ProjectVersion cloneFrom, CancellationToken cancellationToken);
+    Task AddProjectVersionAsync(string projectId, VersionInfo newVersion, VersionInfo cloneFrom, CancellationToken cancellationToken);
 
     /// <summary>
     /// Add or update a version of a Project
@@ -55,6 +55,6 @@ public interface IProjectsRepository
     /// <param name="version"></param>    
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task UpdateProjectVersionAsync(string projectId, ProjectVersion version, CancellationToken cancellationToken);
+    Task UpdateProjectVersionAsync(string projectId, VersionInfo version, CancellationToken cancellationToken);
 
 }

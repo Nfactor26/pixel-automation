@@ -10,13 +10,13 @@ public class PrefabProject : Document
     public string ApplicationId { get; set; }
 
     [DataMember(IsRequired = true, Order = 20)] 
-    public string PrefabId { get; set; }
+    public string ProjectId { get; set; }
 
     /// <summary>
     /// Display name that should be visible in Prefab Repository
     /// </summary>
     [DataMember(IsRequired = true, Order = 30)]
-    public string PrefabName { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// NameSpace for generated models. NameSpace must be unique
@@ -28,7 +28,7 @@ public class PrefabProject : Document
     /// Get all the versions created for this Prefab
     /// </summary>
     [DataMember(IsRequired = true, Order = 50)]
-    public List<PrefabVersion> AvailableVersions { get; set; } = new List<PrefabVersion>();
+    public List<VersionInfo> AvailableVersions { get; set; } = new ();
 
     /// <summary>
     /// Description of the prefab

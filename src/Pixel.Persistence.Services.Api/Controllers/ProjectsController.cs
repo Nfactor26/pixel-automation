@@ -99,7 +99,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
 
         [HttpPost("{projectId}/versions")]
-        public async Task<ActionResult<ProjectVersion>> AddProjectVersionAsync([FromRoute]string projectId, [FromBody] AddProjectVersionRequest request)
+        public async Task<ActionResult<VersionInfo>> AddProjectVersionAsync([FromRoute]string projectId, [FromBody] AddProjectVersionRequest request)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
 
         [HttpPut("{projectId}/versions")]
-        public async Task<ActionResult<ProjectVersion>> UpdateProjectVersionAsync([FromRoute] string projectId, [FromBody] ProjectVersion projectVersion)
+        public async Task<ActionResult<VersionInfo>> UpdateProjectVersionAsync([FromRoute] string projectId, [FromBody] VersionInfo projectVersion)
         {
             try
             {

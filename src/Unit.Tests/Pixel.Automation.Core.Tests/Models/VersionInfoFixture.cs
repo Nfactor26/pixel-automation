@@ -9,7 +9,7 @@ namespace Pixel.Automation.Core.Tests.Models
         [Test]
         public void ValidatethatProjectVersionCanBeInitializedFromVersionString()
         {
-            var projectVersion = new ProjectVersion("1.0.0.0");
+            var projectVersion = new VersionInfo("1.0.0.0");
 
             Assert.IsTrue(projectVersion.IsActive);
             Assert.IsFalse(projectVersion.IsPublished);
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Core.Tests.Models
         [Test]
         public void ValidatethatProjectVersionCanBeInitializedFromVersion()
         {
-            var projectVersion = new ProjectVersion(new Version(1, 0, 0, 0))
+            var projectVersion = new VersionInfo(new Version(1, 0, 0, 0))
             {
                 IsActive = false,               
                 DataModelAssembly = "Assembly",
@@ -41,7 +41,7 @@ namespace Pixel.Automation.Core.Tests.Models
         [Test]
         public void ValidatethatPrefabVersionCanBeInitializedFromVersionString()
         {
-            var prefabVersion = new PrefabVersion("1.0.0.0");
+            var prefabVersion = new VersionInfo("1.0.0.0");
 
             Assert.IsTrue(prefabVersion.IsActive);
             Assert.IsFalse(prefabVersion.IsPublished);
@@ -53,7 +53,7 @@ namespace Pixel.Automation.Core.Tests.Models
         [Test]
         public void ValidatethatProjectVersionCanBeInitializedFromVersion()
         {
-            var prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0))
+            var prefabVersion = new VersionInfo(new Version(1, 0, 0, 0))
             {
                 IsActive = false,              
                 DataModelAssembly = "Assembly",

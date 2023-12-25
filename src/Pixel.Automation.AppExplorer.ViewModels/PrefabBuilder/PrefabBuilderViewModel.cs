@@ -54,12 +54,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             logger.Information($"Create prefab initiated by user for application : {applicationDescriptionViewModel.ApplicationName}");
 
             this.stagedScreens.Clear();
-            PrefabVersion prefabVersion = new PrefabVersion(new Version(1, 0, 0, 0));
+            VersionInfo prefabVersion = new VersionInfo(new Version(1, 0, 0, 0));
             prefabProject = new PrefabProject()
             {
                 ApplicationId = applicationDescriptionViewModel.ApplicationId,
-                PrefabId = Guid.NewGuid().ToString(),            
-                AvailableVersions = new List<PrefabVersion>() { prefabVersion },
+                ProjectId = Guid.NewGuid().ToString(),            
+                AvailableVersions = new List<VersionInfo>() { prefabVersion },
                 PrefabRoot = rootEntity
             };
                     
@@ -75,7 +75,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
                 this.prefabFileSystem, entityScriptEngine, new CompositeTypeExtractor(), new ArgumentExtractor());
             this.stagedScreens.Add(prefabDataModelBuilderViewModel);
 
-            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(prefabProject.PrefabId, prefabVersion.ToString(), this.prefabFileSystem);                
+            this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(prefabProject.ProjectId, prefabVersion.ToString(), this.prefabFileSystem);                
             this.codeEditorFactory.Initialize(prefabFileSystem.DataModelDirectory, referenceManager.GetCodeEditorReferences(), Enumerable.Empty<string>());  
             var prefabDataModelEditorViewModel = new PrefabDataModelEditorViewModel(this.prefabProject, this.prefabFileSystem, this.codeEditorFactory);
             this.stagedScreens.Add(prefabDataModelEditorViewModel);
@@ -99,7 +99,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             serializer.Serialize<Entity>(prefabFileSystem.PrefabFile, prefabProject.PrefabRoot as Entity);
             UpdateAssemblyReferenceAndNameSpace(prefabProject, prefabFileSystem);
             await UpdateControlReferencesFileAsync(prefabProject.PrefabRoot as Entity);
-            logger.Information($"Created new prefab : {this.prefabProject.PrefabName}");
+            logger.Information($"Created new prefab : {this.prefabProject.Name}");
            
             await this.prefabDataManager.AddPrefabAsync(prefabProject);                
             return this.prefabProject;

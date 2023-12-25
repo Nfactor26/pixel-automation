@@ -19,11 +19,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IPrefabFileSystem fileSystem;
         private readonly Lazy<IReferenceManager> referenceManager;
 
-        public PrefabVersion PrefabVersion { get; init; }
+        public VersionInfo PrefabVersion { get; init; }
 
         public string PrefabName
         {
-            get => prefabProject.PrefabName;
+            get => prefabProject.Name;
         }
 
         public Version Version
@@ -86,12 +86,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         }
 
 
-        public PrefabVersionViewModel(PrefabProject prefabProject, PrefabVersion prefabVersion, IPrefabFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
+        public PrefabVersionViewModel(PrefabProject prefabProject, VersionInfo prefabVersion, IPrefabFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
         {         
             this.prefabProject = Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
             this.PrefabVersion = Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
             this.fileSystem = Guard.Argument(fileSystem).NotNull().Value;
-            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.PrefabId, this.PrefabVersion.ToString(), this.fileSystem); });
+            this.referenceManager = new Lazy<IReferenceManager>(() => { return referenceManagerFactory.CreateReferenceManager( this.prefabProject.ProjectId, this.PrefabVersion.ToString(), this.fileSystem); });
             this.CanOpenForEdit = !AppDomain.CurrentDomain.GetAssemblies().Any(a => a.FullName.StartsWith(GetPublishedDataModelAssemblyName()));
         }
 
@@ -100,12 +100,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             return $"{this.prefabProject.Namespace}.v{Version.Major}.{Version.Minor}";
         }
 
-        public async  Task<PrefabVersion> CloneAsync(IPrefabDataManager prefabDataManager)
+        public async  Task<VersionInfo> CloneAsync(IPrefabDataManager prefabDataManager)
         {
-            PrefabVersion newVersion;
+            VersionInfo newVersion;
             if (!this.prefabProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.PrefabVersion.Version.Major + 1)))
             {
-                newVersion = new PrefabVersion(new Version(this.PrefabVersion.Version.Major + 1, 0, 0, 0))
+                newVersion = new VersionInfo(new Version(this.PrefabVersion.Version.Major + 1, 0, 0, 0))
                 {
                     IsActive = true
                 };
@@ -114,7 +114,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             {               
                 var versionsWithSameMajor = this.prefabProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.PrefabVersion.Version.Major));
                 int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
-                newVersion = new PrefabVersion(new Version(this.PrefabVersion.Version.Major, nextMinor, 0, 0))
+                newVersion = new VersionInfo(new Version(this.PrefabVersion.Version.Major, nextMinor, 0, 0))
                 {
                     IsActive = true
                 };
@@ -136,7 +136,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 await prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.PrefabVersion);
 
                 this.fileSystem.Initialize(this.prefabProject, this.PrefabVersion);             
-                string prefabProjectName = this.prefabProject.PrefabName;
+                string prefabProjectName = this.prefabProject.Name;
                 ICodeWorkspaceManager workspaceManager = workspaceFactory.CreateCodeWorkspaceManager(this.fileSystem.DataModelDirectory);
                 workspaceManager.WithAssemblyReferences(this.referenceManager.Value.GetCodeEditorReferences());
                 workspaceManager.AddProject(prefabProjectName, this.prefabProject.Namespace, Array.Empty<string>());

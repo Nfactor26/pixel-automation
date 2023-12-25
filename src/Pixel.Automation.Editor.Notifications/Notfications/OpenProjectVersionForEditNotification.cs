@@ -15,14 +15,14 @@ public class OpenProjectVersionForEditNotification
     /// <summary>
     /// ProjectVersion to open for edit
     /// </summary>
-    public ProjectVersion VersionToOpen { get; init; }
+    public VersionInfo VersionToOpen { get; init; }
 
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="automationProject">AutomationProject to open for edit</param>
     /// <param name="versionToOpen">ProjectVersion to open for edit</param>
-    public OpenProjectVersionForEditNotification(AutomationProject automationProject, ProjectVersion versionToOpen)
+    public OpenProjectVersionForEditNotification(AutomationProject automationProject, VersionInfo versionToOpen)
     {
         AutomationProject = automationProject;
         VersionToOpen = versionToOpen;

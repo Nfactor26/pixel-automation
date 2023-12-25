@@ -40,7 +40,7 @@ public interface IPrefabsRepositoryClient
     /// <param name="newVersion"></param>
     /// <param name="cloneFrom"></param>
     /// <returns></returns>
-    Task<PrefabVersion> AddPrefabVersionAsync(string prefabId, PrefabVersion newVersion, PrefabVersion cloneFrom);
+    Task<VersionInfo> AddPrefabVersionAsync(string prefabId, VersionInfo newVersion, VersionInfo cloneFrom);
 
     /// <summary>
     /// Update version details for prefab project
@@ -48,7 +48,7 @@ public interface IPrefabsRepositoryClient
     /// <param name="prefabId"></param>
     /// <param name="prefabVersion"></param>
     /// <returns></returns>
-    Task<PrefabVersion> UpdatePrefabVersionAsync(string prefabId, PrefabVersion prefabVersion);
+    Task<VersionInfo> UpdatePrefabVersionAsync(string prefabId, VersionInfo prefabVersion);
 
     /// <summary>
     /// Check if prefab project is marked deleted

@@ -94,7 +94,7 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
     }
 
     /// <inheritdoc/>  
-    public async Task<PrefabVersion> AddPrefabVersionAsync(string projectId, PrefabVersion newVersion, PrefabVersion cloneFrom)
+    public async Task<VersionInfo> AddPrefabVersionAsync(string projectId, VersionInfo newVersion, VersionInfo cloneFrom)
     {
         Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
         Guard.Argument(newVersion, nameof(newVersion)).NotNull();
@@ -106,33 +106,33 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
         }
 
         RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/versions");
-        restRequest.AddJsonBody(new Core.Request.AddPrefabVersionRequest(new Core.Models.PrefabVersion()
+        restRequest.AddJsonBody(new Core.Request.AddPrefabVersionRequest(new Core.Models.VersionInfo()
         {
             Version = newVersion.Version,
             IsActive = newVersion.IsActive,
             DataModelAssembly = newVersion.DataModelAssembly
         },
-        new Core.Models.PrefabVersion()
+        new Core.Models.VersionInfo()
         {
             Version = cloneFrom.Version,
             IsActive = cloneFrom.IsActive,
             DataModelAssembly = cloneFrom.DataModelAssembly
         }));
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.ExecuteAsync<PrefabVersion>(restRequest, Method.Post);
+        var result = await client.ExecuteAsync<VersionInfo>(restRequest, Method.Post);
         result.EnsureSuccess();
         return result.Data;
     }
 
     /// <inheritdoc/>  
-    public async Task<PrefabVersion> UpdatePrefabVersionAsync(string prefabId, PrefabVersion prefabVersion)
+    public async Task<VersionInfo> UpdatePrefabVersionAsync(string prefabId, VersionInfo prefabVersion)
     {
         Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
         Guard.Argument(prefabVersion, nameof(prefabVersion)).NotNull();
         RestRequest restRequest = new RestRequest($"{baseUrl}/{prefabId}/versions");
         restRequest.AddJsonBody(prefabVersion);
         var client = this.clientFactory.GetOrCreateClient();
-        var result = await client.ExecuteAsync<PrefabVersion>(restRequest, Method.Put);
+        var result = await client.ExecuteAsync<VersionInfo>(restRequest, Method.Put);
         result.EnsureSuccess();
         return result.Data;
     }

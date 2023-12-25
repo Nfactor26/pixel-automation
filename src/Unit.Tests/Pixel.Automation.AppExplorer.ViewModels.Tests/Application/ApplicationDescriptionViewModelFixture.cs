@@ -84,7 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             };
             applicationDescriptionViewModel.AddScreen("Home");
 
-            var prefab = new PrefabProject() { ApplicationId = "application-id", PrefabId = "prefab-id" };
+            var prefab = new PrefabProject() { ApplicationId = "application-id", ProjectId = "prefab-id" };
             var prefabViewModel = new PrefabProjectViewModel(prefab);
             applicationDescriptionViewModel.AddPrefab(prefabViewModel, "Home");
 

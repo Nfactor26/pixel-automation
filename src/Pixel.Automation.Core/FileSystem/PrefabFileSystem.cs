@@ -40,7 +40,7 @@ namespace Pixel.Automation.Core
         public void Initialize(PrefabProject prefabProject, VersionInfo versionInfo)
         {
             Guard.Argument(prefabProject).NotNull();
-            this.Initialize(prefabProject.ApplicationId, prefabProject.PrefabId, versionInfo);
+            this.Initialize(prefabProject.ApplicationId, prefabProject.ProjectId, versionInfo);
         }
 
         /// <InheritDoc/>      

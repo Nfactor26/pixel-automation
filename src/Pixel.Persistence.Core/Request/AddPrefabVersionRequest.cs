@@ -7,17 +7,17 @@ namespace Pixel.Persistence.Core.Request;
 public class AddPrefabVersionRequest
 {
     [DataMember(Order = 10)]
-    public PrefabVersion NewVersion { get; set; }
+    public VersionInfo NewVersion { get; set; }
 
     [DataMember(Order = 20)]
-    public PrefabVersion CloneFrom { get; set; }
+    public VersionInfo CloneFrom { get; set; }
 
     public AddPrefabVersionRequest()
     {
 
     }
 
-    public AddPrefabVersionRequest(PrefabVersion newVersion, PrefabVersion cloneFrom)
+    public AddPrefabVersionRequest(VersionInfo newVersion, VersionInfo cloneFrom)
     {
         NewVersion = newVersion;
         CloneFrom = cloneFrom;

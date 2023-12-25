@@ -28,7 +28,7 @@ public interface IProjectDataManager
     /// <param name="newVersion"></param>
     /// <param name="cloneFrom"></param>
     /// <returns></returns>
-    Task AddProjectVersionAsync(AutomationProject automationProject, ProjectVersion newVersion, ProjectVersion cloneFrom);
+    Task AddProjectVersionAsync(AutomationProject automationProject, VersionInfo newVersion, VersionInfo cloneFrom);
 
     /// <summary>
     /// Update details of an existing version of AutomationProject
@@ -36,7 +36,7 @@ public interface IProjectDataManager
     /// <param name=""></param>
     /// <param name="projectVersion"></param>
     /// <returns></returns>
-    Task UpdateProjectVersionAsync(AutomationProject automationProject, ProjectVersion projectVersion);
+    Task UpdateProjectVersionAsync(AutomationProject automationProject, VersionInfo projectVersion);
 
     /// <summary>
     /// Add a data file to a given version of project
@@ -47,7 +47,7 @@ public interface IProjectDataManager
     /// <param name="filePath"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    Task AddOrUpdateDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath, string tag);
+    Task AddOrUpdateDataFileAsync(AutomationProject automationProject, VersionInfo projectVersion, string filePath, string tag);
 
     /// <summary>
     /// Delete a data file belonging to given version of project
@@ -56,7 +56,7 @@ public interface IProjectDataManager
     /// <param name="projectVersion"></param>
     /// <param name="filePath"></param>
     /// <returns></returns>
-    Task DeleteDataFileAsync(AutomationProject automationProject, ProjectVersion projectVersion, string filePath);
+    Task DeleteDataFileAsync(AutomationProject automationProject, VersionInfo projectVersion, string filePath);
 
     /// <summary>
     /// Download all the newer project files
@@ -68,13 +68,13 @@ public interface IProjectDataManager
     /// Download a file with specified nme for the version of AutomtionProject being managed
     /// </summary>
     /// <returns></returns>
-    Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, ProjectVersion projectVersion, string fileName);
+    Task DownloadProjectDataFileByNameAsync(AutomationProject automationProject, VersionInfo projectVersion, string fileName);
 
     /// <summary>
     /// Download all the data files belonging to the version of AutomationProject being managed
     /// </summary>
     /// <returns></returns>
-    Task DownloadProjectDataFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion);
+    Task DownloadProjectDataFilesAsync(AutomationProject automationProject, VersionInfo projectVersion);
 
     /// <summary>
     /// Download data model files (*.cs) belonging to the version of AutomationProject being managed
@@ -82,13 +82,13 @@ public interface IProjectDataManager
     /// <param name="automationProject"></param>
     /// <param name="projectVersion"></param>
     /// <returns></returns>
-    Task DownloadDataModelFilesAsync(AutomationProject automationProject, ProjectVersion projectVersion);
+    Task DownloadDataModelFilesAsync(AutomationProject automationProject, VersionInfo projectVersion);
 
     /// <summary>
     /// Save the data files belonging to the version of AutomationProject being managed
     /// </summary>
     /// <returns></returns>
-    Task SaveProjectDataAsync(AutomationProject automationProject, ProjectVersion projectVersion);
+    Task SaveProjectDataAsync(AutomationProject automationProject, VersionInfo projectVersion);
 
 }
 

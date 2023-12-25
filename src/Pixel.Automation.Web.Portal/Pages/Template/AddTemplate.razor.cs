@@ -28,7 +28,7 @@ namespace Pixel.Automation.Web.Portal.Pages.Template
         SessionTemplate sessionTemplate = new();
         List<AutomationProject> automationProjects = new();
         AutomationProject selectedProject;
-        ProjectVersion selectedVersion;
+        VersionInfo selectedVersion;
 
         protected override async Task OnInitializedAsync()
         {

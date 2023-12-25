@@ -27,7 +27,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         private readonly IPrefabDataManager prefabDataManager;
         private readonly ApplicationSettings applicationSettings;
         private PrefabProject prefabProject;
-        private PrefabVersion loadedVersion;
+        private VersionInfo loadedVersion;
         private Entity prefabEntity;       
              
         /// <summary>
@@ -68,14 +68,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 Guard.Argument(versionToLoad, nameof(versionToLoad)).NotNull();
               
                 this.prefabProject = prefabProject;
-                this.loadedVersion = versionToLoad as PrefabVersion;
+                this.loadedVersion = versionToLoad;
                 this.prefabFileSystem.Initialize(prefabProject, versionToLoad);
 
                 await this.prefabDataManager.DownloadPrefabDataAsync(this.prefabProject, this.loadedVersion);
 
                 this.entityManager.SetCurrentFileSystem(this.fileSystem);
                 this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
-                this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.PrefabId, versionToLoad.ToString(), this.prefabFileSystem);
+                this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.ProjectId, versionToLoad.ToString(), this.prefabFileSystem);
                 this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
                 ConfigureCodeEditor(this.referenceManager);
@@ -238,7 +238,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         ///<inheritdoc/>
         public override async Task AddOrUpdateDataFileAsync(string targetFile)
         {
-            await this.prefabDataManager.AddOrUpdateDataFileAsync(this.prefabProject, this.loadedVersion, targetFile, this.prefabProject.PrefabId);
+            await this.prefabDataManager.AddOrUpdateDataFileAsync(this.prefabProject, this.loadedVersion, targetFile, this.prefabProject.ProjectId);
         }
 
         ///<inheritdoc/>
@@ -255,7 +255,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <inheritdoc/>       
         protected override string GetProjectName()
         {
-            return this.prefabProject.PrefabName;
+            return this.prefabProject.Name;
         }
 
         /// <inheritdoc/>   

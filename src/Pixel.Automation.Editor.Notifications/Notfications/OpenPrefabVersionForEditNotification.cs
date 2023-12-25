@@ -15,14 +15,14 @@ public class OpenPrefabVersionForEditNotification
     /// <summary>
     /// ProjectVersion to open for edit
     /// </summary>
-    public PrefabVersion VersionToOpen { get; init; }
+    public VersionInfo VersionToOpen { get; init; }
 
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="prefabProject">PrefabProject to open for edit</param>
     /// <param name="versionToOpen">PrefabVersion to open for edit</param>
-    public OpenPrefabVersionForEditNotification(PrefabProject prefabProject, PrefabVersion versionToOpen)
+    public OpenPrefabVersionForEditNotification(PrefabProject prefabProject, VersionInfo versionToOpen)
     {
         PrefabProject = prefabProject;
         VersionToOpen = versionToOpen;

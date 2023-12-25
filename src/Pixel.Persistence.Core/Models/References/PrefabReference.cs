@@ -25,7 +25,7 @@ public class PrefabReference
     /// Version of Prefab in use
     /// </summary>
     [DataMember(IsRequired = false, EmitDefaultValue = false, Order = 30)]
-    public PrefabVersion Version { get; set; }
+    public VersionInfo Version { get; set; }
 
     /// <summary>
     /// Default constructor

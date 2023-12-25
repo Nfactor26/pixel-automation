@@ -12,12 +12,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         /// <summary>
         /// Collection of PrefabVersion that can be edited.
         /// </summary>
-        public BindableCollection<PrefabVersion> EditableVersions { get; private set; } = new();
+        public BindableCollection<VersionInfo> EditableVersions { get; private set; } = new();
 
         /// <summary>
         /// Selected Version to be edited on the UI
         /// </summary>
-        public PrefabVersion SelectedVersion { get; set; }
+        public VersionInfo SelectedVersion { get; set; }
 
         /// <summary>
         /// constructor

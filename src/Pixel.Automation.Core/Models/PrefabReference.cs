@@ -26,7 +26,7 @@ namespace Pixel.Automation.Core.Models
         /// Version of Prefab in use
         /// </summary>
         [DataMember(IsRequired = false, EmitDefaultValue = false , Order = 30)]
-        public PrefabVersion Version { get; set; }
+        public VersionInfo Version { get; set; }
 
         /// <summary>
         /// Input mapping script file for the prefab
@@ -58,7 +58,7 @@ namespace Pixel.Automation.Core.Models
         /// <summary>
         /// constructor
         /// </summary>
-        public PrefabReference(string applicationId, string prefabId, PrefabVersion version) : this(applicationId, prefabId)
+        public PrefabReference(string applicationId, string prefabId, VersionInfo version) : this(applicationId, prefabId)
         {           
             this.Version = version;
         }
@@ -71,7 +71,7 @@ namespace Pixel.Automation.Core.Models
             }
             if (obj is PrefabProject pd)
             {
-                return pd.ApplicationId.Equals(this.ApplicationId) && pd.PrefabId.Equals(this.PrefabId);
+                return pd.ApplicationId.Equals(this.ApplicationId) && pd.ProjectId.Equals(this.PrefabId);
             }
             return false;
         }

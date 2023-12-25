@@ -19,7 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly IProjectFileSystem fileSystem;
         private readonly Lazy<IReferenceManager> referenceManager;
 
-        public ProjectVersion ProjectVersion { get; }
+        public VersionInfo ProjectVersion { get; }
 
         public Version Version
         {
@@ -74,7 +74,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
 
-        public ProjectVersionViewModel(AutomationProject automationProject, ProjectVersion projectVersion, IProjectFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
+        public ProjectVersionViewModel(AutomationProject automationProject, VersionInfo projectVersion, IProjectFileSystem fileSystem, IReferenceManagerFactory referenceManagerFactory)
         {
             this.automationProject = Guard.Argument(automationProject, nameof(automationProject)).NotNull();
             this.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull();
@@ -83,12 +83,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
 
-        public async Task<ProjectVersion> CloneAsync(IProjectDataManager projectDataManager)
-        {            
-            ProjectVersion newVersion;
+        public async Task<VersionInfo> CloneAsync(IProjectDataManager projectDataManager)
+        {
+            VersionInfo newVersion;
             if (!this.automationProject.AvailableVersions.Any(a => a.Version.Major.Equals(this.ProjectVersion.Version.Major + 1)))
             {
-                newVersion = new ProjectVersion(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
+                newVersion = new VersionInfo(new Version(this.ProjectVersion.Version.Major + 1, 0, 0, 0))
                 {
                     IsActive = true
                 };
@@ -97,7 +97,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             {
                 var versionsWithSameMajor = this.automationProject.AvailableVersions.Select(s => s.Version).Where(v => v.Major.Equals(this.ProjectVersion.Version.Major));
                 int nextMinor = versionsWithSameMajor.Select(v => v.Minor).Max() + 1;
-                newVersion = new ProjectVersion(new Version(this.ProjectVersion.Version.Major, nextMinor, 0, 0))
+                newVersion = new VersionInfo(new Version(this.ProjectVersion.Version.Major, nextMinor, 0, 0))
                 {
                     IsActive = true
                 };

@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
@@ -90,11 +89,11 @@ namespace Pixel.Persistence.Respository
         /// <param name="newVersion"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task AddProjectVersionAsync(string projectId, ProjectVersion newVersion, ProjectVersion cloneFrom, CancellationToken cancellationToken)
+        public async Task AddProjectVersionAsync(string projectId, VersionInfo newVersion, VersionInfo cloneFrom, CancellationToken cancellationToken)
         {
             var filter = Builders<AutomationProject>.Filter.Eq(x => x.ProjectId, projectId)
-                            & Builders<AutomationProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<ProjectVersion>.Filter.Eq(x => x.Version, newVersion.Version));
-            var projectVersions = (await this.projectsCollection.FindAsync<List<ProjectVersion>>(filter, new FindOptions<AutomationProject, List<ProjectVersion>>()
+                            & Builders<AutomationProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<VersionInfo>.Filter.Eq(x => x.Version, newVersion.Version));
+            var projectVersions = (await this.projectsCollection.FindAsync<List<VersionInfo>>(filter, new FindOptions<AutomationProject, List<VersionInfo>>()
             {
                 Projection = Builders<AutomationProject>.Projection.Expression(u => u.AvailableVersions)
             })).ToList().FirstOrDefault();
@@ -146,11 +145,11 @@ namespace Pixel.Persistence.Respository
         }
 
         /// <inheritdoc/>  
-        public async Task UpdateProjectVersionAsync(string projectId, ProjectVersion projectVersion, CancellationToken cancellationToken)
+        public async Task UpdateProjectVersionAsync(string projectId, VersionInfo projectVersion, CancellationToken cancellationToken)
         {
             var filter = Builders<AutomationProject>.Filter.Eq(x => x.ProjectId, projectId)
-                             & Builders<AutomationProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<ProjectVersion>.Filter.Eq(x => x.Version, projectVersion.Version));
-            var projectVersions = (await this.projectsCollection.FindAsync<List<ProjectVersion>>(filter, new FindOptions<AutomationProject, List<ProjectVersion>>()
+                             & Builders<AutomationProject>.Filter.ElemMatch(x => x.AvailableVersions, Builders<VersionInfo>.Filter.Eq(x => x.Version, projectVersion.Version));
+            var projectVersions = (await this.projectsCollection.FindAsync<List<VersionInfo>>(filter, new FindOptions<AutomationProject, List<VersionInfo>>()
             {
                 Projection = Builders<AutomationProject>.Projection.Expression(u => u.AvailableVersions)
             }))

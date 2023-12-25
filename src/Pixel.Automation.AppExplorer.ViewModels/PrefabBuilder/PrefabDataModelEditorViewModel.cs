@@ -34,7 +34,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             try
             {               
-                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabProject.PrefabId, $"{this.prefabProject.Namespace}_{++iteration}"))
+                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabProject.ProjectId, $"{this.prefabProject.Namespace}_{++iteration}"))
                 {
                     logger.Information("Prefab assembly was successfuly compiled");
                     compilationResult.SaveAssemblyToDisk(this.prefabFileSystem.TempDirectory);                 
@@ -71,17 +71,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             //Can go back to previous screen and come back here again in which case CodeEditor should be already available.
             if(this.CodeEditor == null)
             {
-                this.codeEditorFactory.AddProject(prefabProject.PrefabId, prefabProject.Namespace, Array.Empty<string>());
+                this.codeEditorFactory.AddProject(prefabProject.ProjectId, prefabProject.Namespace, Array.Empty<string>());
                 this.CodeEditor = this.codeEditorFactory.CreateMultiCodeEditorControl();
             }
          
 
             foreach (var file in Directory.GetFiles(prefabFileSystem.DataModelDirectory, "*.cs"))
             {
-                await this.CodeEditor.AddDocumentAsync(Path.GetFileName(file), prefabProject.PrefabId, File.ReadAllText(file), false);
+                await this.CodeEditor.AddDocumentAsync(Path.GetFileName(file), prefabProject.ProjectId, File.ReadAllText(file), false);
             }
-            await this.CodeEditor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.PrefabId, generatedCode.ToString(), false);
-            await this.CodeEditor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.PrefabId);           
+            await this.CodeEditor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.ProjectId, generatedCode.ToString(), false);
+            await this.CodeEditor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.ProjectId);           
         
             await base.OnActivateAsync(cancellationToken);
 
@@ -107,7 +107,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         {
             this.CodeEditor?.Dispose();
             this.CodeEditor = null;
-            this.codeEditorFactory.RemoveProject(prefabProject.PrefabId);
+            this.codeEditorFactory.RemoveProject(prefabProject.ProjectId);
         }
     }
 }

@@ -99,7 +99,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
 
         [HttpPost("{prefabId}/versions")]
-        public async Task<ActionResult<ProjectVersion>> AddPrefabVersionAsync([FromRoute] string prefabId, [FromBody] AddPrefabVersionRequest request)
+        public async Task<ActionResult<VersionInfo>> AddPrefabVersionAsync([FromRoute] string prefabId, [FromBody] AddPrefabVersionRequest request)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
 
         [HttpPut("{prefabId}/versions")]
-        public async Task<ActionResult<PrefabVersion>> UpdatePrefabVersionAsync([FromRoute] string prefabId, [FromBody] PrefabVersion prefabVersion)
+        public async Task<ActionResult<VersionInfo>> UpdatePrefabVersionAsync([FromRoute] string prefabId, [FromBody] VersionInfo prefabVersion)
         {
             try
             {

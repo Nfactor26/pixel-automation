@@ -7,7 +7,7 @@ namespace Pixel.Persistence.Core.Models;
 /// Captures version details such as version, deployed, etc.
 /// </summary>
 [DataContract]
-public abstract class VersionInfo
+public class VersionInfo
 {
     /// <summary>
     /// Version
@@ -50,17 +50,5 @@ public abstract class VersionInfo
     {
         return Version.ToString();
     }
-
-}
-
-[DataContract]
-public class ProjectVersion : VersionInfo
-{
-
-}
-
-[DataContract]
-public class PrefabVersion : VersionInfo
-{
 
 }

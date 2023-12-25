@@ -8,7 +8,7 @@ namespace Pixel.Automation.Core.Models
     /// </summary>
     [DataContract]
     [Serializable]
-    public abstract class VersionInfo
+    public class VersionInfo
     {
         /// <summary>
         /// Version
@@ -42,6 +42,29 @@ namespace Pixel.Automation.Core.Models
 
         public bool IsPublished => !this.IsActive;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public VersionInfo() : this(new Version(1, 0))
+        {
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public VersionInfo(Version version)
+        {
+            this.Version = version;
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public VersionInfo(string version) : this(new Version(version))
+        {
+
+        }
+
         ///</inheritdoc>
         public override bool Equals(object obj)
         {
@@ -63,67 +86,5 @@ namespace Pixel.Automation.Core.Models
         {
             return this.Version.ToString();
         }
-    }
-
-    /// <summary>
-    /// Details of the version associated with a <see cref="AutomationProject"/>
-    /// </summary>
-    [DataContract]
-    [Serializable]
-    public class ProjectVersion : VersionInfo
-    {
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public ProjectVersion() : this(new Version(1, 0))
-        {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public ProjectVersion(Version version)
-        {
-            this.Version = version;
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public ProjectVersion(string version) : this(new Version(version))
-        {
-
-        }
-    }
-
-    /// <summary>
-    /// Details of the version associated with a <see cref="PrefabProject"/>
-    /// </summary>
-    [DataContract]
-    [Serializable]
-    public class PrefabVersion : VersionInfo
-    {
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public PrefabVersion() : this(new Version(1, 0))
-        {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public PrefabVersion(Version version)
-        {
-            this.Version = version;
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public PrefabVersion(string version) : this(new Version(version))
-        {
-
-        }
-    }
+    }    
 }

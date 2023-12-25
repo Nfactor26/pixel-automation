@@ -122,8 +122,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             return new PrefabProject()
             {
                 ApplicationId = "application-id",
-                PrefabId = "prefab-id",            
-                PrefabName = prefabName
+                ProjectId = "prefab-id",            
+                Name = prefabName
             };
         }
 
