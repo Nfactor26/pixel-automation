@@ -16,6 +16,7 @@ RUN dotnet restore "src/Pixel.Automation.Scripting.Components/Pixel.Automation.S
 RUN dotnet restore "src/Pixel.Automation.RestApi.Components/Pixel.Automation.RestApi.Components.csproj" --runtime linux-x64 -p:TargetFramework=net7.0
 RUN dotnet restore "src/Pixel.Automation.Assertions.Components/Pixel.Automation.Assertions.Components.csproj" --runtime linux-x64 -p:TargetFramework=net7.0
 RUN dotnet restore "src/Pixel.Automation.Appium.Components/Pixel.Automation.Appium.Components.csproj" --runtime linux-x64 -p:TargetFramework=net7.0
+RUN dotnet restore "src/Pixel.Automation.Image.Matching.Components/Pixel.Automation.Image.Matching.Components.csproj" --runtime linux-x64 -p:TargetFramework=net7.0
 
 WORKDIR "/pixel-automation/src/Pixel.Automation.Test.Runner"
 RUN dotnet build "Pixel.Automation.Test.Runner.csproj" -c release --runtime linux-x64 --self-contained false -p:TargetFramework=net7.0

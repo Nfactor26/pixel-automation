@@ -13,9 +13,9 @@ jobs:
         os: [windows-latest]
         dotnet-version: [ '7.0.x' ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
        dotnet-version: ${{ matrix.dotnet-version }}
     - name : Cache nuget packages
