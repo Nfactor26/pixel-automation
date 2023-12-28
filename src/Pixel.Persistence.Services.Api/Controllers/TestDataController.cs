@@ -77,15 +77,15 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }
         }
 
-        [HttpPost("{projectId}/{projectVersion}")]
-        public async Task<ActionResult<TestDataSource>> AddDataSourceAsync(string projectId, string projectVersion, [FromBody] TestDataSource dataSource)
+        [HttpPost("{projectId}/{projectVersion}/{groupName}")]
+        public async Task<ActionResult<TestDataSource>> AddDataSourceAsync(string projectId, string projectVersion, string groupName, [FromBody] TestDataSource dataSource)
         {
             try
             {
                 Guard.Argument(dataSource, nameof(dataSource)).NotNull();
                 dataSource.ProjectId = Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
                 dataSource.ProjectVersion = Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-                await testDataRepository.AddDataSourceAsync(projectId, projectVersion, dataSource, CancellationToken.None);
+                await testDataRepository.AddDataSourceAsync(projectId, projectVersion, groupName, dataSource, CancellationToken.None);
                 return Ok();
             }
             catch (Exception ex)

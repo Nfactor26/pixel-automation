@@ -702,12 +702,12 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     #region Test Data Source
 
     /// <inheritdoc/>  
-    public async Task<TestDataSource> AddTestDataSourceAsync(TestDataSource dataSource)
+    public async Task<TestDataSource> AddTestDataSourceAsync(string groupName, TestDataSource dataSource)
     {
         this.projectFileSystem.SaveToFile<TestDataSource>(dataSource, projectFileSystem.TestDataRepository, $"{dataSource.DataSourceId}.dat");
         if (IsOnlineMode)
         {
-            await this.testDataRepositoryClient.AddDataSourceAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), dataSource);
+            await this.testDataRepositoryClient.AddDataSourceAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), groupName, dataSource);
             await SaveTestDataSourceDataAsync(dataSource);
         }
         logger.Information("Added test data source : '{0}' to version : '{1}' of automation project : '{2}'.", dataSource.Name, projectVersion, automationProject.Name);

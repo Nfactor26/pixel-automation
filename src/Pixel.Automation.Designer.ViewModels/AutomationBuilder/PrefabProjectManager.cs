@@ -89,7 +89,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
                 SetupInitializationScriptProject(dataModel);
-
+                await OnProjectLoaded(prefabProject, versionToLoad);
                 return this.RootEntity;
             }           
         }

@@ -161,6 +161,13 @@ namespace Pixel.Automation.Core.Interfaces
         TestFixtureFiles GetTestFixtureFiles(TestFixture fixture);
 
         /// <summary>
+        /// Get TestDataSource from local storage given it's identifier
+        /// </summary>
+        /// <param name="dataSourceId"></param>
+        /// <returns></returns>
+        TestDataSource GetTestDataSourceById(string dataSourceId);
+
+        /// <summary>
         /// Load TestDataSources available on local storage
         /// </summary>
         /// <returns></returns>

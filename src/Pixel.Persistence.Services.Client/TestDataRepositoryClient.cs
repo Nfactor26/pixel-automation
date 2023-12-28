@@ -91,10 +91,10 @@ public class TestDataRepositoryClient : ITestDataRepositoryClient
     }
 
     /// <inheritdoc/>
-    public async Task<TestDataSource> AddDataSourceAsync(string projectId, string projectVersion, TestDataSource testData)
+    public async Task<TestDataSource> AddDataSourceAsync(string projectId, string projectVersion, string groupName, TestDataSource testData)
     {
         Guard.Argument(testData).NotNull();
-        RestRequest restRequest = new RestRequest($"testdata/{projectId}/{projectVersion}");
+        RestRequest restRequest = new RestRequest($"testdata/{projectId}/{projectVersion}/{groupName}");
         restRequest.AddJsonBody(testData);
         var client = this.clientFactory.GetOrCreateClient();
         var result = await client.PostAsync<TestDataSource>(restRequest);

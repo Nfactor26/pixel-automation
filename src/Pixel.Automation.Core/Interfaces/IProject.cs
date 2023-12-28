@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Pixel.Automation.Core.Interfaces;
 
-internal interface IProject
+public interface IProject
 {
     /// <summary>
     /// Identifier of the Project

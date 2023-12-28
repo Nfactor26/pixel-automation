@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System;
 using Pixel.Persistence.Respository.Interfaces;
 using System.Linq;
+using MongoDB.Driver.Core.Misc;
 
 namespace Pixel.Persistence.Respository
 {
@@ -15,7 +16,8 @@ namespace Pixel.Persistence.Respository
     {
         private readonly ILogger logger;
         private readonly IMongoCollection<TestDataSource> testDataCollection;
-        private readonly IMongoCollection<TestCase> testsCollection;       
+        private readonly IMongoCollection<TestCase> testsCollection;
+        private readonly IReferencesRepository referencesRepository;
 
         private static readonly InsertOneOptions InsertOneOptions = new InsertOneOptions();
         private static readonly FindOptions<TestDataSource> FindOptions = new FindOptions<TestDataSource>();
@@ -26,13 +28,14 @@ namespace Pixel.Persistence.Respository
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="dbSettings"></param>
-        public TestDataRepository(ILogger<TestFixtureRepository> logger, IMongoDbSettings dbSettings)
+        public TestDataRepository(ILogger<TestFixtureRepository> logger, IMongoDbSettings dbSettings, IReferencesRepository referencesRepository)
         {
             this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
             var client = new MongoClient(dbSettings.ConnectionString);
             var database = client.GetDatabase(dbSettings.DatabaseName);
-            testDataCollection = database.GetCollection<TestDataSource>(dbSettings.TestDataCollectionName);
-            testsCollection = database.GetCollection<TestCase>(dbSettings.TestsCollectionName);            
+            this.testDataCollection = database.GetCollection<TestDataSource>(dbSettings.TestDataCollectionName);
+            this.testsCollection = database.GetCollection<TestCase>(dbSettings.TestsCollectionName);
+            this.referencesRepository = Guard.Argument(referencesRepository, nameof(referencesRepository)).NotNull().Value;
         }
 
         /// <inheritdoc/>  
@@ -74,10 +77,11 @@ namespace Pixel.Persistence.Respository
         }
 
         /// <inheritdoc/>  
-        public async Task AddDataSourceAsync(string projectId, string projectVersion, TestDataSource dataSource, CancellationToken cancellationToken)
+        public async Task AddDataSourceAsync(string projectId, string projectVersion, string groupName, TestDataSource dataSource, CancellationToken cancellationToken)
         {
             Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
             Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+            Guard.Argument(groupName, nameof(groupName)).NotNull().NotEmpty();
             Guard.Argument(dataSource, nameof(dataSource)).NotNull();
 
             var exists = await FindByIdAsync(projectId, projectVersion, dataSource.DataSourceId, cancellationToken) != null;
@@ -88,6 +92,7 @@ namespace Pixel.Persistence.Respository
             dataSource.ProjectId = projectId;
             dataSource.ProjectVersion = projectVersion;
             await testDataCollection.InsertOneAsync(dataSource, InsertOneOptions, cancellationToken).ConfigureAwait(false);
+            await referencesRepository.AddDataSourceToGroupAsync(projectId, projectVersion, groupName, dataSource.DataSourceId);
             logger.LogInformation("Test Data Source {0} was added  to version {1} of project {2}", dataSource.Name, projectVersion, projectId);
         }
 
@@ -103,6 +108,7 @@ namespace Pixel.Persistence.Respository
                 dataSource.ProjectId = projectId;
                 dataSource.ProjectVersion = projectVersion;
             }
+            //we don't update entry in the  references file as this method is used when cloning a project version and references file will already have required entries
             await testDataCollection.InsertManyAsync(dataSources, new InsertManyOptions(), cancellationToken).ConfigureAwait(false);
             logger.LogInformation("{0} test data sources were added to version {1} of project {2}", dataSources.Count(), projectVersion, projectId);
         }
@@ -159,6 +165,7 @@ namespace Pixel.Persistence.Respository
                 .Inc(t => t.Revision, 1);
 
             await testDataCollection.FindOneAndUpdateAsync(fixtureFilter, updateDefinition, FindOneAndUpdateOptions, cancellationToken);
+            await referencesRepository.DeleteDataSourceAsync(projectId, projectVersion, dataSourceId);
             logger.LogInformation("Test data souce {0} was marked deleted for version {1} of project {2}", testDataSource.Name, projectVersion, projectId);
         }
 

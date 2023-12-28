@@ -49,4 +49,29 @@ public  interface IReferencesRepositoryClient
     /// <returns></returns>
     Task SetEditorReferencesAsync(string projectId, string projectVersion, EditorReferences editorReferences);
 
+
+    /// <summary>
+    /// Add a new group for test data source
+    /// </summary>
+    /// <param name="groupKey">name of the group</param>
+    /// <returns></returns>
+    Task AddTestDataSourceGroupAsync(string projectId, string projectVersion, string groupKey);
+
+    /// <summary>
+    /// Rename a test data source group
+    /// </summary>
+    /// <param name="currentKey">current group name</param>
+    /// <param name="newKey">new group name</param>
+    /// <returns></returns>
+    Task RenameTestDataSourceGroupAsync(string projectId, string projectVersion, string currentKey, string newKey);
+
+    /// <summary>
+    /// Move a test data souce to a new group
+    /// </summary>
+    /// <param name="testDataSourceId">Identifier of the test data source</param>
+    /// <param name="currentGroup">Name of current group</param>
+    /// <param name="newGroup">Name of new group</param>
+    /// <returns></returns>
+    Task MoveTestDataSourceToGroupAsync(string projectId, string projectVersion, string testDataSourceId, string currentGroup, string newGroup);
+
 }

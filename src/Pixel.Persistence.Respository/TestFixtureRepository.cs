@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Misc;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository.Interfaces;
 using System;
@@ -17,6 +16,7 @@ public class TestFixtureRepository : ITestFixtureRepository
     private readonly ILogger logger;
     private readonly IMongoCollection<TestFixture> fixturesCollection;
     private readonly IMongoCollection<TestCase> testsCollection;
+    private readonly IReferencesRepository referencesRepository;
 
     private static readonly InsertOneOptions InsertOneOptions = new InsertOneOptions();
     private static readonly FindOptions<TestFixture> FindOptions = new FindOptions<TestFixture>();
@@ -27,13 +27,14 @@ public class TestFixtureRepository : ITestFixtureRepository
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="dbSettings"></param>
-    public TestFixtureRepository(ILogger<TestFixtureRepository> logger, IMongoDbSettings dbSettings)
+    public TestFixtureRepository(ILogger<TestFixtureRepository> logger, IMongoDbSettings dbSettings, IReferencesRepository referencesRepository)
     {
         this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
         var client = new MongoClient(dbSettings.ConnectionString);
         var database = client.GetDatabase(dbSettings.DatabaseName);
         fixturesCollection = database.GetCollection<TestFixture>(dbSettings.FixturesCollectionName);
-        testsCollection = database.GetCollection<TestCase>(dbSettings.TestsCollectionName); 
+        testsCollection = database.GetCollection<TestCase>(dbSettings.TestsCollectionName);
+        this.referencesRepository = Guard.Argument(referencesRepository, nameof(referencesRepository)).NotNull().Value;
     }
 
     /// <inheritdoc/>  
@@ -74,7 +75,8 @@ public class TestFixtureRepository : ITestFixtureRepository
         }
         fixture.ProjectId = projectId;
         fixture.ProjectVersion = projectVersion;
-        await fixturesCollection.InsertOneAsync(fixture, InsertOneOptions, cancellationToken).ConfigureAwait(false);
+        await fixturesCollection.InsertOneAsync(fixture, InsertOneOptions, cancellationToken);
+        await referencesRepository.AddFixtureAsync(projectId, projectVersion, fixture.FixtureId);
         logger.LogInformation("Fixture {0} was added.", fixture);
     }
 
@@ -89,7 +91,7 @@ public class TestFixtureRepository : ITestFixtureRepository
                 fixture.ProjectId = projectId;
                 fixture.ProjectVersion = projectVersion;
             }
-
+            //we don't update entry in the  references file as this method is used when cloning a project version and references file will already have required entries
             await fixturesCollection.InsertManyAsync(fixtures, new InsertManyOptions(), cancellationToken).ConfigureAwait(false);          
         }      
     }
@@ -133,7 +135,7 @@ public class TestFixtureRepository : ITestFixtureRepository
             .Inc(t => t.Revision, 1);
 
         await fixturesCollection.FindOneAndUpdateAsync(fixtureFilter, fixtureUpdateDefinition, FindOneAndUpdateOptions, cancellationToken);
-
+        await referencesRepository.DeleteFixtureAsync(projectId, projectVersion, fixtureId);
 
         var testFilter = Builders<TestCase>.Filter.And(Builders<TestCase>.Filter.Eq(x => x.ProjectId, projectId),
                              Builders<TestCase>.Filter.Eq(x => x.ProjectVersion, projectVersion),
@@ -145,7 +147,7 @@ public class TestFixtureRepository : ITestFixtureRepository
             .Inc(t => t.Revision, 1);
 
        await testsCollection.UpdateManyAsync(testFilter, testUpdateDefinition, new UpdateOptions(), cancellationToken);
-
+       logger.LogInformation("Fixture with Id : '{0}' was deleted from version : '{0}' of project : '{1}'", fixtureId, projectVersion, projectId);
     }
     
 }

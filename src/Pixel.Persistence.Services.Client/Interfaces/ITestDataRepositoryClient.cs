@@ -39,9 +39,10 @@ namespace Pixel.Persistence.Services.Client
         /// </summary>
         /// <param name="projectId"></param>
         /// <param name="projectVersion"></param>
+        /// <param name="groupName"></param>
         /// <param name="testData"></param>
         /// <returns></returns>
-        Task<TestDataSource> AddDataSourceAsync(string projectId, string projectVersion, TestDataSource testData);
+        Task<TestDataSource> AddDataSourceAsync(string projectId, string projectVersion, string groupName, TestDataSource testData);
 
         /// <summary>
         /// Update an existing TestDataSource for a given version of project

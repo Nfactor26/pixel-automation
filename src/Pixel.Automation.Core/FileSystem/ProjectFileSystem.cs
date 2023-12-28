@@ -88,6 +88,18 @@ namespace Pixel.Automation.Core
             return new TestFixtureFiles(fixture, this.TestCaseRepository);
         }
 
+        /// <InheritDoc/> 
+        public TestDataSource GetTestDataSourceById(string dataSourceId)
+        {
+            string dataSourceFile = Path.Combine(this.TestDataRepository, $"{dataSourceId}.dat");
+            if(!File.Exists(dataSourceFile))
+            {
+                throw new FileNotFoundException($"Test data source file {dataSourceFile} doesn't exist.");
+            }
+            var testDataSource = serializer.Deserialize<TestDataSource>(dataSourceFile);
+            return testDataSource;
+        }
+
         /// <InheritDoc/>      
         public IEnumerable<TestDataSource> GetTestDataSources()
         {

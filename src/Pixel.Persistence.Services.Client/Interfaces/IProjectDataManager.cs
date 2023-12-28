@@ -217,13 +217,14 @@ public interface ITestFixtureManager
 
 public interface ITestDataManager
 {
-    
+
     /// <summary>
-    /// Add a new Test Data Source
+    /// Add a new Test Data Source to specified group
     /// </summary>
-    /// <param name="testCase"></param>
+    /// <param name="dataSource">Test data source to be added</param>
+    /// <param name="groupName">Name of the group to which data source should be added</param>
     /// <returns></returns>
-    Task<TestDataSource> AddTestDataSourceAsync(TestDataSource dataSource);
+    Task<TestDataSource> AddTestDataSourceAsync(string groupName, TestDataSource dataSource);
 
     /// <summary>
     /// Update an existing Test Data Source
