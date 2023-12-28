@@ -35,6 +35,14 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         public TestDataSource TestDataSource { get; }
 
         /// <summary>
+        /// Identifier of the TestDataSource
+        /// </summary>
+        public string DataSourceId
+        {
+            get => this.TestDataSource.DataSourceId;
+        }
+
+        /// <summary>
         /// Name of the data source
         /// </summary>
         public string Name

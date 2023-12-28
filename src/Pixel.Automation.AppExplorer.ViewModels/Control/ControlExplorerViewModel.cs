@@ -285,6 +285,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             return controlsList;
         }
        
+        /// <summary>
         /// Move a control from one screen to another
         /// </summary>
         /// <param name="controlDescription"></param>

@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Pixel.Persistence.Core.Models;
@@ -17,7 +16,7 @@ public class ReferencesRepository : IReferencesRepository
 {
     private readonly ILogger logger;
     private readonly IMongoCollection<ProjectReferences> referencesCollection;
- 
+    
     /// <summary>
     /// constructor
     /// </summary>
@@ -28,7 +27,7 @@ public class ReferencesRepository : IReferencesRepository
         this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
         var client = new MongoClient(dbSettings.ConnectionString);
         var database = client.GetDatabase(dbSettings.DatabaseName);
-        referencesCollection = database.GetCollection<ProjectReferences>(dbSettings.ProjectReferencesCollectionName);
+        referencesCollection = database.GetCollection<ProjectReferences>(dbSettings.ProjectReferencesCollectionName);        
     }
 
     /// <inheritdoc/>  
@@ -137,5 +136,69 @@ public class ReferencesRepository : IReferencesRepository
     {
         var projectReferences = await this.GetProjectReferences(projectId, projectVersion);
         await this.referencesCollection.UpdateField<ProjectReferences, string, EditorReferences>(projectReferences, x => x.EditorReferences, editorReferences);
-    }   
+    }
+
+    /// <inheritdoc/>  
+    public async Task AddFixtureAsync(string projectId, string projectVersion, string fixtureId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+        var update = Builders<ProjectReferences>.Update.Push(x => x.Fixtures, fixtureId);
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Fixture : '{0}' was added to version : '{1}' of  project : {2}", fixtureId, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task DeleteFixtureAsync(string projectId, string projectVersion, string fixtureId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+        var update = Builders<ProjectReferences>.Update.Pull(x => x.Fixtures, fixtureId);
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Fixture : '{0}' was removed from version : '{1}' of  project : {2}", fixtureId, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task AddDataSourceGroupAsync(string projectId, string projectVersion, string groupName)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion);
+        var update = Builders<ProjectReferences>.Update.Push(x => x.TestDataSources, new KeyCollectionPair<string>() { GroupName = groupName, Collection = new() });
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Data source group : '{0}' was added to version : '{1}' of  project : {2}", groupName, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task RenameDataSourceGroupAsync(string projectId, string projectVersion, string currentKey, string newKey)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+              & Builders<ProjectReferences>.Filter.ElemMatch(x => x.TestDataSources, Builders<KeyCollectionPair<string>>.Filter.Eq(x => x.GroupName, currentKey));
+        var update = Builders<ProjectReferences>.Update.Set(x => x.TestDataSources.FirstMatchingElement().GroupName, newKey);
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Data source group : '{0}' was renamed to : '{1}' for version : '{2}' of  project : {3}", currentKey, newKey, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task AddDataSourceToGroupAsync(string projectId, string projectVersion, string groupName, string testDataSourceId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+            & Builders<ProjectReferences>.Filter.ElemMatch(x => x.TestDataSources, Builders<KeyCollectionPair<string>>.Filter.Eq(x => x.GroupName, groupName));
+        var update = Builders<ProjectReferences>.Update.Push(x => x.TestDataSources.FirstMatchingElement().Collection, testDataSourceId);
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Data source : '{0}' was added to group : '{1}' of version : '{2}' of  project : {3}", testDataSourceId, groupName, projectVersion, projectId);
+    }
+
+    /// <inheritdoc/> 
+    public async Task MoveDataSourceToGroupAsync(string projectId, string projectVersion, string testDataSourceId, string currentGroup, string newGroup)
+    {
+        await DeleteDataSourceAsync(projectId, projectVersion, testDataSourceId);
+        await AddDataSourceToGroupAsync(projectId, projectVersion, newGroup, testDataSourceId);
+    }
+
+    /// <inheritdoc/>  
+    public async Task DeleteDataSourceAsync(string projectId, string projectVersion, string testDataSourceId)
+    {
+        var filter = Builders<ProjectReferences>.Filter.Eq(x => x.ProjectId, projectId) & Builders<ProjectReferences>.Filter.Eq(x => x.ProjectVersion, projectVersion)
+            & Builders<ProjectReferences>.Filter.ElemMatch(x => x.TestDataSources, Builders<KeyCollectionPair<string>>.Filter.AnyStringIn(x => x.Collection, testDataSourceId));
+        var update = Builders<ProjectReferences>.Update.Pull(x => x.TestDataSources.FirstMatchingElement().Collection, testDataSourceId);
+        var updateResult = await this.referencesCollection.UpdateOneAsync(filter, update);
+        logger.LogInformation("Data source : '{0}' was removed fro version : '{2}' of  project : {3}", testDataSourceId, projectVersion, projectId);
+    }
 }

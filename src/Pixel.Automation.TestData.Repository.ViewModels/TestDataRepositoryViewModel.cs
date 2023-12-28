@@ -8,11 +8,11 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
-using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -33,6 +33,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
     {
         private readonly ILogger logger = Log.ForContext<TestDataRepositoryViewModel>();
 
+        private readonly IProjectManager projectManager;
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IScriptEditorFactory scriptEditorFactory;
         private readonly ISerializer serializer;
@@ -41,6 +42,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         private readonly INotificationManager notificationManager;
         private readonly IEventAggregator eventAggregator;
         private readonly ITestDataManager testDataManager;
+
+        private Dictionary<string, List<TestDataSource>> CachedCollection = new Dictionary<string, List<TestDataSource>>();
 
         /// <summary>
         /// Collection of TestDataSource available for the associated automation project
@@ -72,40 +75,38 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="windowManager"></param>
         /// <param name="typeProvider"></param>
         /// <param name="typeBrowserFactory"></param>
-        public TestDataRepositoryViewModel(ISerializer serializer, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
-            IWindowManager windowManager, INotificationManager notificationManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory, IProjectAssetsDataManager projectAssetsDataManager)
+        public TestDataRepositoryViewModel(ISerializer serializer, IAutomationProjectManager projectManager, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
+            IWindowManager windowManager, INotificationManager notificationManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory,
+            IProjectAssetsDataManager projectAssetsDataManager)
         {
             this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
+            this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
             this.scriptEditorFactory = Guard.Argument(scriptEditorFactory, nameof(scriptEditorFactory)).NotNull().Value;
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
             this.typeBrowserFactory = Guard.Argument(typeBrowserFactory, nameof(typeBrowserFactory)).NotNull().Value;
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
-            this.testDataManager = Guard.Argument(projectAssetsDataManager, nameof(projectAssetsDataManager)).NotNull().Value;
-
+            this.testDataManager = Guard.Argument(projectAssetsDataManager, nameof(projectAssetsDataManager)).NotNull().Value;           
             this.eventAggregator.SubscribeOnPublishedThread(this);
             CreateCollectionView();
+            this.projectManager.ProjectLoaded += OnProjectLoaded;
         }
 
-        /// <summary>
-        /// Download and load the available TestDataSources
-        /// </summary>
-        private async Task LoadDataSourcesAsync()
+        internal async Task OnProjectLoaded(object sender, ProjectLoadedEventArgs e)
         {
-            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadDataSourcesAsync), ActivityKind.Internal))
+            var referenceManager = this.projectManager.GetReferenceManager();
+            this.Groups.AddRange(referenceManager.GetTestDataSourceGroups());
+            //Create an empty data source if no data source exist in any of the groups
+            if (!referenceManager.GetTestDataSourceGroups().Any(t => referenceManager.GetTestDataSources(t).Count() > 0))
             {
-                await this.testDataManager.DownloadAllTestDataSourcesAsync();
-                foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
-                {
-                    if (!testDataSource.IsDeleted)
-                    {
-                        this.TestDataSourceCollection.Add(testDataSource);
-                    }
-                }
+                await CreateEmptyDataSourceAsync(this.Groups.First());
             }
+            this.SelectedGroup = this.Groups.First();
+            this.projectManager.ProjectLoaded -= OnProjectLoaded;
         }
 
+       
         #endregion Constructor
 
         #region Filter 
@@ -149,6 +150,168 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         #endregion Filter         
 
+        #region Test Data Groups
+
+        /// <summary>
+        /// Collection of available test data source groups
+        /// </summary>
+        public BindableCollection<string> Groups { get; private set; } = new();
+
+        private string selectedGroup;
+        /// <summary>
+        /// Currently selected screen
+        /// </summary>
+        public string SelectedGroup
+        {
+            get => selectedGroup;
+            set
+            {
+                if(value == selectedGroup)
+                {
+                    return;
+                }
+                selectedGroup = value;
+                OnGroupChanged(value);
+                NotifyOfPropertyChange();
+            }
+        }
+
+        void OnGroupChanged(string groupName)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(groupName))
+                {
+                    this.TestDataSourceCollection.Clear();
+                    return;
+                }
+                if (this.CachedCollection.ContainsKey(groupName))
+                {
+                    this.TestDataSourceCollection.Clear();
+                    this.TestDataSourceCollection.AddRange(this.CachedCollection[groupName]);
+                    return;
+                }
+                List<TestDataSource> dataSourcesForGroup = new();
+                this.CachedCollection.Add(groupName, dataSourcesForGroup);
+                var dataSourcesInGroup = this.projectManager.GetReferenceManager().GetTestDataSources(groupName);
+                foreach (var dataSourceId in dataSourcesInGroup)
+                {
+                    var dataSource = this.projectFileSystem.GetTestDataSourceById(dataSourceId);
+                    if(!dataSource.IsDeleted)
+                    {
+                        dataSourcesForGroup.Add(dataSource);
+                    }
+                }
+                this.TestDataSourceCollection.Clear();
+                this.TestDataSourceCollection.AddRange(this.CachedCollection[groupName]);
+                logger.Information("Loaded '{0}' test data sources for group : '{1}'", dataSourcesForGroup.Count(), groupName);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "There was an error while loading data sources for group {0}", groupName);               
+                _ = notificationManager.ShowErrorNotificationAsync($"There was an error while loading data sources for group {groupName}");
+            }
+        }
+
+        /// <summary>
+        /// Create a new group for the test data sources
+        /// </summary>
+        /// <returns></returns>
+        public async Task CreateGroup()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreateGroup), ActivityKind.Internal))
+            {
+                try
+                {
+                    var dataSourceGroupViewModel = new NewDataSourceGroupViewModel(this.projectManager.GetReferenceManager(), this.notificationManager);
+                    var result = await windowManager.ShowDialogAsync(dataSourceGroupViewModel);
+                    if (result.GetValueOrDefault())
+                    {                        
+                        activity?.SetTag("ScreenName", dataSourceGroupViewModel.GroupName);                  
+                        this.Groups.Add(dataSourceGroupViewModel.GroupName);
+                        this.SelectedGroup = dataSourceGroupViewModel.GroupName;
+                        logger.Information("Group : '{0}' was created for test data source", dataSourceGroupViewModel.GroupName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while creating new screen");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Rename an existing test data source group name
+        /// </summary>
+        /// <returns></returns>
+        public async Task RenameGroup()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameGroup), ActivityKind.Internal))
+            {
+                try
+                {
+                    var renameScreenViewModel = new RenameDataSourceGroupViewModel(this.SelectedGroup, this.projectManager.GetReferenceManager(), this.notificationManager);
+                    var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
+                    if (result.GetValueOrDefault())
+                    {                      
+                        activity?.SetTag("CurrentGroupName", renameScreenViewModel.GroupName);
+                        activity?.SetTag("NewGroupName", renameScreenViewModel.NewGroupName);                      
+                        this.Groups.Add(renameScreenViewModel.NewGroupName);
+                        this.SelectedGroup = renameScreenViewModel.NewGroupName;
+                        this.Groups.Remove(renameScreenViewModel.GroupName);                      
+                        logger.Information("Renamed group {0} to {1} ", renameScreenViewModel.GroupName, renameScreenViewModel.NewGroupName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while renaming the screen");
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Move TestDataSource from one group to another
+        /// </summary>
+        /// <param name="testDataSource"></param>
+        /// <returns></returns>
+        public async Task MoveToGroup(TestDataSource testDataSource)
+        {
+            Guard.Argument(testDataSource, nameof(testDataSource)).NotNull();
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(MoveToGroup), ActivityKind.Internal))
+            {
+                try
+                {
+                    activity?.SetTag("TestDataSourceName", testDataSource.Name);
+                    var moveToGroupViewModel = new MoveToGroupViewModel(testDataSource, this.Groups, this.SelectedGroup, this.projectManager.GetReferenceManager(), this.notificationManager);
+                    var result = await windowManager.ShowDialogAsync(moveToGroupViewModel);
+                    if (result.GetValueOrDefault())
+                    {                     
+                        this.TestDataSourceCollection.Remove(testDataSource);
+                        this.CachedCollection[this.SelectedGroup].Remove(testDataSource);
+                        if(!this.CachedCollection.ContainsKey(moveToGroupViewModel.SelectedGroup))
+                        {
+                            this.CachedCollection.Add(moveToGroupViewModel.SelectedGroup, new());
+                        }
+                        this.CachedCollection[moveToGroupViewModel.SelectedGroup].Add(testDataSource);
+                        logger.Information("Moved test data source : {0} from group {1} to {2}", testDataSource.Name, this.SelectedGroup, moveToGroupViewModel.SelectedGroup);
+                        await notificationManager.ShowSuccessNotificationAsync($"Data Source : '{testDataSource.Name}' was moved to group : '{moveToGroupViewModel.SelectedGroup}'");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while moving data source : '{0}' to another group", testDataSource?.Name);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+        
+        #endregion Test Data Groups
+
         #region Create Test Data Source
 
         ///<inheritdoc/>
@@ -189,7 +352,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
                 var result = await windowManager.ShowDialogAsync(testDataSourceBuilder);
                 if (result.HasValue && result.Value)
                 {
-                    await this.testDataManager.AddTestDataSourceAsync(newTestDataSource.TestDataSource);
+                    await this.testDataManager.AddTestDataSourceAsync(this.SelectedGroup, newTestDataSource.TestDataSource);
+                    this.projectManager.GetReferenceManager().AddTestDataSource(this.SelectedGroup, newTestDataSource.DataSourceId);
+                    this.CachedCollection[this.SelectedGroup].Add(newTestDataSource.TestDataSource);
                     this.TestDataSourceCollection.Add(newTestDataSource.TestDataSource);
                 }
                 logger.Information("Data source of type {0} was created", dataSourceType.ToString());
@@ -202,7 +367,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             }
         }
 
-        private async Task CreateEmptyDataSourceAsync()
+        private async Task CreateEmptyDataSourceAsync(string groupName)
         {
             string testDataId = Guid.NewGuid().ToString();
             var testDataSource = new TestDataSource()
@@ -234,8 +399,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             scriptTextBuilder.Append("}");
             File.WriteAllText(Path.Combine(this.projectFileSystem.TestDataRepository, $"{testDataId}.csx"), scriptTextBuilder.ToString());
 
-            await this.testDataManager.AddTestDataSourceAsync(testDataSource);
+            await this.testDataManager.AddTestDataSourceAsync(groupName, testDataSource);          
             await this.testDataManager.SaveTestDataSourceDataAsync(testDataSource);
+            this.projectManager.GetReferenceManager().AddTestDataSource(groupName, testDataSource.DataSourceId);
 
         }
 
@@ -429,18 +595,21 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <returns></returns>
         protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
         {
-            await LoadDataSourcesAsync();
-            if (this.TestDataSourceCollection.Count == 0)
-            {
-                await CreateEmptyDataSourceAsync();
-                foreach (var testDataSource in this.projectFileSystem.GetTestDataSources())
-                {
-                    this.TestDataSourceCollection.Add(testDataSource);
-                }
-            }
+            await DownloadDataSourcesAsync();           
             await base.OnInitializeAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Download and load the available TestDataSources
+        /// </summary>
+        private async Task DownloadDataSourcesAsync()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DownloadDataSourcesAsync), ActivityKind.Internal))
+            {
+                await this.testDataManager.DownloadAllTestDataSourcesAsync();
+            }
+        }
+       
         /// <summary>
         /// Called when the view is deactivated. close will be true when view should be closed as well.
         /// </summary>

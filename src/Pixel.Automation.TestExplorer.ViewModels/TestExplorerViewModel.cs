@@ -50,8 +50,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         private readonly IPlatformProvider platformProvider;
         private readonly ITestCaseManager testCaseManager;
         private readonly ITestFixtureManager testFixtureManager;
-        private readonly ApplicationSettings applicationSettings;
-        private bool isInitialized = false;
+        private readonly ApplicationSettings applicationSettings;     
 
         /// <summary>
         /// TestRunner allows execution of test cases and setup and tear down of environment
@@ -118,8 +117,15 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
             this.eventAggregator.SubscribeOnPublishedThread(this);
             this.TestDataSourceDropHandler = new TestDataSourceDropHandler(this.testCaseManager);
+            this.projectManager.ProjectLoaded += OnProjectLoaded;
 
             CreateDefaultView();
+        }
+
+        internal async Task OnProjectLoaded(object sender, ProjectLoadedEventArgs e)
+        {
+            await LoadFixturesAsync();
+            this.projectManager.ProjectLoaded -= OnProjectLoaded;
         }
 
         /// <summary>
@@ -155,24 +161,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
-                    if (!isInitialized)
+                    var referenceManager = this.projectManager.GetReferenceManager();
+                    foreach(var fixtureId in referenceManager.GetAllFixtures())
                     {
-                        await this.testFixtureManager.DownloadAllFixturesAsync();
-                        await this.testCaseManager.DownloadAllTestsAsync();
-                        foreach (var testFixtureDirectory in Directory.GetDirectories(this.fileSystem.TestCaseRepository))
+                        string fixtureDirectory = Path.Combine(this.fileSystem.TestCaseRepository, fixtureId);
+                        var testFixture = this.fileSystem.LoadFiles<TestFixture>(fixtureDirectory).Single();
+                        if (testFixture.IsDeleted)
                         {
-                            var testFixture = this.fileSystem.LoadFiles<TestFixture>(testFixtureDirectory).Single();
-                            if (testFixture.IsDeleted)
-                            {
-                                continue;
-                            }
-                            TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
-                            this.TestFixtures.Add(testFixtureVM);
-                            activity?.SetTag("Fixture", testFixtureVM.DisplayName);
+                            logger.Warning("Skip loading fixture : '{0}' as it is marked deleted", testFixture.DisplayName);
+                            continue;
                         }
-                        isInitialized = true;
-                        logger.Information("Loaded {0} test fixtures from local storage for test explorer", this.TestFixtures.Count());
-                    }
+                        TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(testFixture);
+                        this.TestFixtures.Add(testFixtureVM);
+                        activity?.SetTag("Fixture", testFixtureVM.DisplayName);
+                    }                   
+                    logger.Information("Loaded {0} test fixtures from local storage for test explorer", this.TestFixtures.Count());
                 }
                 catch (Exception ex)
                 {
@@ -298,6 +301,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     if (result.HasValue && result.Value)
                     {
                         await this.testFixtureManager.AddTestFixtureAsync(newTestFixture);
+                        this.projectManager.GetReferenceManager().AddFixture(newTestFixture.FixtureId);
                         this.TestFixtures.Add(testFixtureVM);
                         logger.Information("Added new fixture : '{0}'", newTestFixture.DisplayName);
                         activity?.SetTag("Fixture", newTestFixture.DisplayName);
@@ -362,6 +366,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         Guard.Argument(fixtureVM, nameof(fixtureVM)).NotNull();
                         activity?.SetTag("Fixture", fixtureVM.DisplayName);
                         await this.testFixtureManager.DeleteTestFixtureAsync(fixtureVM.TestFixture);
+                        this.projectManager.GetReferenceManager().DeleteFixture(fixtureVM.FixtureId);
                         this.TestFixtures.Remove(fixtureVM);
                         logger.Information("Test fixture : '{0}' was deleted.", fixtureVM.DisplayName);
                     }
@@ -1427,13 +1432,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
         {
-            if(!isInitialized)
-            {
-                await LoadFixturesAsync();
-            }
+            await DownloadFixturesAndTestsAsync();
             await base.OnInitializeAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Download all the fixtures and test cases
+        /// </summary>
+        private async Task DownloadFixturesAndTestsAsync()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DownloadFixturesAndTestsAsync), ActivityKind.Internal))
+            {
+                await this.testFixtureManager.DownloadAllFixturesAsync();
+                await this.testCaseManager.DownloadAllTestsAsync();
+            }
+        }
         /// <summary>
         /// Called when the view is deactivated. close will be true when view should be closed as well.
         /// </summary>

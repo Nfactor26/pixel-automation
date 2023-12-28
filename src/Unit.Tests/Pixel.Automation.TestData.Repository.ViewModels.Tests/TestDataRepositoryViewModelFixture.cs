@@ -2,10 +2,13 @@
 using Notifications.Wpf.Core;
 using NSubstitute;
 using NUnit.Framework;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Notifications;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System;
@@ -30,6 +33,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         private INotificationManager notificationManager;
         private IEventAggregator eventAggregator;
         private IProjectAssetsDataManager dataManager;
+        private IAutomationProjectManager projectManager;
+        private IReferenceManager referenceManager;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -42,10 +47,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             notificationManager = Substitute.For<INotificationManager>();
             eventAggregator = Substitute.For<IEventAggregator>();
             dataManager = Substitute.For<IProjectAssetsDataManager>();
-
+            projectManager = Substitute.For<IAutomationProjectManager>();
+            referenceManager = Substitute.For<IReferenceManager>();
 
             var codeDataSource = new TestDataSource()
             {
+                DataSourceId = "Code",
                 DataSource = DataSource.Code,
                 Name = "CodeDataSource",
                 ScriptFile = "CodeDataSource.csx",
@@ -57,6 +64,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             var csvDataSource = new TestDataSource()
             {
+                DataSourceId = "Csv",
                 DataSource = DataSource.CsvFile,
                 Name = "CodedDataSource",
                 ScriptFile = "CsvDataSource.csx",
@@ -66,10 +74,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
                     TargetFile = "Empty.csv"
                 }
             };
-            
+
+            projectManager.GetReferenceManager().Returns(referenceManager);
+            referenceManager.GetTestDataSourceGroups().Returns(new[] { "Group-Code", "Group-Csv" });
+            referenceManager.GetTestDataSources(Arg.Is<string>("Group-Code")).Returns(new[] { codeDataSource.DataSourceId });
+            referenceManager.GetTestDataSources(Arg.Is<string>("Group-Csv")).Returns(new[] { csvDataSource.DataSourceId });
+
             projectFileSystem.WorkingDirectory.Returns(Environment.CurrentDirectory);
             projectFileSystem.TestDataRepository.Returns(Path.Combine(Environment.CurrentDirectory, "TestDataRepository"));
-            projectFileSystem.GetTestDataSources().Returns(new[] { codeDataSource, csvDataSource });
+            projectFileSystem.GetTestDataSourceById(Arg.Is<string>(codeDataSource.DataSourceId)).Returns(codeDataSource);
+            projectFileSystem.GetTestDataSourceById(Arg.Is<string>(csvDataSource.DataSourceId)).Returns(csvDataSource);
 
             typeBrowserFactory.CreateArgumentTypeBrowser().Returns(Substitute.For<IArgumentTypeBrowser>());
 
@@ -88,50 +102,72 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.ClearReceivedCalls();
             typeBrowserFactory.ClearReceivedCalls();
             windowManager.ClearReceivedCalls();
+            referenceManager.ClearReceivedCalls();
         }
 
         [TestCase]
         public async Task ValidateThatTestDataRepositoryViewModelCanBeCorrectlyInitialized()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
             Assert.IsNull(testDataRepositoryViewModel.SelectedTestDataSource);
             Assert.IsTrue(string.IsNullOrEmpty(testDataRepositoryViewModel.FilterText));
 
-            //activating view model will call OnInitializeAsync handler which will load TestDataSources from local storage
-            await testDataRepositoryViewModel.ActivateAsync();
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
-            await dataManager.Received(1).DownloadAllTestDataSourcesAsync();
+            Assert.AreEqual(2, testDataRepositoryViewModel.Groups.Count);
+            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);        
+            referenceManager.Received(2).GetTestDataSources(Arg.Is<string>("Group-Code"));
+            projectFileSystem.Received(1).GetTestDataSourceById(Arg.Is<string>("Code"));
         }
 
         [TestCase]
         public async Task ValidateThatCanCreateNewCodeDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory , dataManager);
-            await testDataRepositoryViewModel.ActivateAsync();
+
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
+
+            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
 
             await testDataRepositoryViewModel.CreateCodedTestDataSource();
 
-            Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);          
-            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
+            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+          
+            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<string>(), Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
         }
 
         [TestCase]
         public async Task ValidateThatCanCreateNewCsvDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
-            await testDataRepositoryViewModel.ActivateAsync();
+            
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
+
+            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+
+            testDataRepositoryViewModel.SelectedGroup = "Group-Csv";
+            Assert.AreEqual("Group-Csv", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
 
             await testDataRepositoryViewModel.CreateCsvTestDataSource();
 
-            Assert.AreEqual(3, testDataRepositoryViewModel.TestDataSourceCollection.Count);
-            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<TestDataSource>());
+            Assert.AreEqual("Group-Csv", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+          
+            await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<string>(), Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
         }
 
@@ -145,9 +181,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>())).Do(XamlGeneratedNamespace => { });
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(x => { });
 
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
-            await testDataRepositoryViewModel.ActivateAsync();
+       
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
             var codeDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.Code));
 
             //Act
@@ -166,9 +204,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanEditCsvDataSource()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
-            await testDataRepositoryViewModel.ActivateAsync();
+           
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
+            testDataRepositoryViewModel.SelectedGroup = "Group-Csv";
             var csvDataSource = testDataRepositoryViewModel.TestDataSourceCollection.First(a => a.DataSource.Equals(DataSource.CsvFile));
 
             //Act
@@ -184,13 +225,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatTestDataSourceIsClearedWhenDeactivated()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
-
             await testDataRepositoryViewModel.ActivateAsync();
-            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
+            await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            await testDataRepositoryViewModel.DeactivateAsync(true);
+            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
+            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+
+            await testDataRepositoryViewModel.DeactivateAsync(true); //deactivate will happen only if view model was activiated before
             Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
         }
 
@@ -198,7 +242,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanHandleShowTestDataSourceNotificationMessage()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             //Act

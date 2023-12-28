@@ -13,15 +13,15 @@ namespace Pixel.Automation.Reference.Manager;
 /// </summary>
 internal class ReferenceManager : IReferenceManager
 {
+    private ProjectReferences projectReferences;
     private readonly ApplicationSettings applicationSettings;
     private readonly IReferencesRepositoryClient referencesRepositoryClient;
     private string projectId;
     private string projectVersion;
     private IFileSystem fileSystem;
-    private ProjectReferences projectReferences;
     private ControlReferences controlReferences;
     private PrefabReferences prefabReferences;
-  
+      
     bool IsOnlineMode => !this.applicationSettings.IsOfflineMode;
 
     /// <summary>
@@ -68,13 +68,7 @@ internal class ReferenceManager : IReferenceManager
     public ControlReferences GetControlReferences()
     {
         return this.controlReferences;
-    }
-
-    ///<inheritdoc/>  
-    public PrefabReferences GetPrefabReferences()
-    {
-        return this.prefabReferences;
-    }
+    }   
 
     ///<inheritdoc/>  
     public IEnumerable<string> GetCodeEditorReferences()
@@ -174,6 +168,12 @@ internal class ReferenceManager : IReferenceManager
         }      
     }
 
+    ///<inheritdoc/>  
+    public PrefabReferences GetPrefabReferences()
+    {
+        return this.prefabReferences;
+    }
+
     /// <inheritdoc/>
     public async Task AddPrefabReferenceAsync(PrefabReference prefabReference)
     {
@@ -184,7 +184,7 @@ internal class ReferenceManager : IReferenceManager
             {
                 await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
             }
-            this.prefabReferences.AddPrefabReference(prefabReference);          
+            this.prefabReferences.AddPrefabReference(prefabReference);
             SaveLocal();
         }
     }
@@ -224,14 +224,148 @@ internal class ReferenceManager : IReferenceManager
         }
     }
 
-    private void SaveLocal()
+    /// <inheritdoc/>
+    public IEnumerable<string> GetAllFixtures()
+    {
+        return this.projectReferences.Fixtures;
+    }
+
+    /// <inheritdoc/>
+    public void AddFixture(string fixtureId)
+    {
+        if (!this.projectReferences.Fixtures.Contains(fixtureId))
+        {
+            this.projectReferences.Fixtures.Add(fixtureId);
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void DeleteFixture(string fixtureId)
+    {
+        if (this.projectReferences.Fixtures.Contains(fixtureId))
+        {
+            this.projectReferences.Fixtures.Remove(fixtureId);
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public IEnumerable<string> GetTestDataSources(string groupKey)
+    {
+        Guard.Argument(groupKey, nameof(groupKey)).NotNull().NotWhiteSpace();
+        var group = this.projectReferences.TestDataSources.FirstOrDefault(t => t.GroupName.Equals(groupKey));
+        if(group != null )
+        {
+            return group.Collection;
+        }
+        return Enumerable.Empty<string>();
+    }
+
+    /// <inheritdoc/>
+    public void AddTestDataSource(string groupKey, string testDataSourceId)
+    {
+        Guard.Argument(groupKey, nameof(groupKey)).NotNull().NotWhiteSpace();
+        Guard.Argument(testDataSourceId, nameof(testDataSourceId)).NotNull().NotWhiteSpace();
+        var group = this.projectReferences.TestDataSources.FirstOrDefault(t => t.GroupName.Equals(groupKey));
+        if (group != null)
+        {
+            group.Collection.Add(testDataSourceId);
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void DeleteTestDataSource(string groupKey, string testDataSourceId)
+    {
+        Guard.Argument(groupKey, nameof(groupKey)).NotNull().NotWhiteSpace();
+        Guard.Argument(testDataSourceId, nameof(testDataSourceId)).NotNull().NotWhiteSpace();
+        var group = this.projectReferences.TestDataSources.FirstOrDefault(t => t.GroupName.Equals(groupKey));
+        if (group != null)
+        {          
+            if (group.Collection.Contains(testDataSourceId))
+            {
+                group.Collection.Remove(testDataSourceId);
+                SaveLocal();
+            }
+        }
+    }
+
+    /// <inheritdoc/>
+    public IEnumerable<string> GetTestDataSourceGroups()
+    {
+        return this.projectReferences.TestDataSources.Select(s => s.GroupName);
+    }
+
+    /// <inheritdoc/>
+    public async Task AddTestDataSourceGroupAsync(string groupKey)
+    {
+        Guard.Argument(groupKey, nameof(groupKey)).NotNull().NotWhiteSpace();
+        if (!this.projectReferences.TestDataSources.ContainsGroup(groupKey))
+        {
+            if(IsOnlineMode)
+            {
+                await this.referencesRepositoryClient.AddTestDataSourceGroupAsync(projectId, projectVersion, groupKey);
+            }
+            this.projectReferences.TestDataSources.Add(new KeyCollectionPair<string>(groupKey));
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task RenameTestDataSourceGroupAsync(string currentKey, string newKey)
+    {
+        Guard.Argument(currentKey, nameof(currentKey)).NotNull().NotWhiteSpace();
+        Guard.Argument(newKey, nameof(newKey)).NotNull().NotWhiteSpace();       
+        if (this.projectReferences.TestDataSources.ContainsGroup(currentKey))
+        {
+            var group = this.projectReferences.TestDataSources[currentKey];
+            if(IsOnlineMode)
+            {
+                await this.referencesRepositoryClient.RenameTestDataSourceGroupAsync(projectId, projectVersion, currentKey, newKey);
+            }
+            group.GroupName = newKey;
+            SaveLocal();
+            return;
+        }
+        throw new ArgumentException($"Group : '{currentKey}' doesn't exist in the collection");
+    }
+
+    /// <inheritdoc/>
+    public async Task MoveTestDataSourceToGroupAsync(string testDataSourceId, string currentGroupKey, string newGroupKey)
+    {
+        Guard.Argument(testDataSourceId, nameof(testDataSourceId)).NotNull().NotWhiteSpace();
+        Guard.Argument(currentGroupKey, nameof(currentGroupKey)).NotNull().NotWhiteSpace();
+        Guard.Argument(newGroupKey, nameof(newGroupKey)).NotNull().NotWhiteSpace();
+        if (!this.projectReferences.TestDataSources.ContainsGroup(currentGroupKey))
+        {
+            throw new ArgumentException($"Group : '{currentGroupKey}' doesn't exist in the collection");
+        }
+        if (!this.projectReferences.TestDataSources.ContainsGroup(newGroupKey))
+        {
+            throw new ArgumentException($"Group : '{newGroupKey}' doesn't exist in the collection");
+        }
+        var currentGroup = this.projectReferences.TestDataSources[currentGroupKey];
+        var newGroup = this.projectReferences.TestDataSources[newGroupKey];
+        if(IsOnlineMode)
+        {
+            await this.referencesRepositoryClient.MoveTestDataSourceToGroupAsync(projectId, projectVersion, testDataSourceId, currentGroupKey, newGroupKey);
+        }
+        currentGroup.Collection.Remove(testDataSourceId);
+        newGroup.Collection.Add(testDataSourceId);
+        SaveLocal();
+    }
+
+
+    protected void SaveLocal()
     {
         this.fileSystem.SaveToFile<ProjectReferences>(projectReferences, Path.GetDirectoryName(this.fileSystem.ReferencesFile), Path.GetFileName(this.fileSystem.ReferencesFile));       
     }
-    
+
     private ProjectReferences CreateDefault()
     {
         var projectReferences = new ProjectReferences();
+        projectReferences.TestDataSources.Add(new KeyCollectionPair<string>("Group-1"));
         foreach (var item in this.applicationSettings.DefaultEditorReferences ?? Enumerable.Empty<string>())
         {
             projectReferences.EditorReferences.CommonEditorReferences.Add(item);
@@ -259,3 +393,4 @@ internal class ReferenceManager : IReferenceManager
         return projectReferences;
     }
 }
+

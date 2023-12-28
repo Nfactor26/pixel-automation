@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Persistence.Services.Client;
@@ -37,7 +38,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             set => this.entityManager.RootEntity = value;
         }
 
-
         public ProjectManager(ISerializer serializer, IEntityManager entityManager, IFileSystem fileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory,
             ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager)
@@ -52,6 +52,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             this.scriptEngineFactory = Guard.Argument(scriptEngineFactory, nameof(scriptEngineFactory)).NotNull().Value;    
             this.codeGenerator = Guard.Argument(codeGenerator, nameof(codeGenerator)).NotNull().Value;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;            
+        }
+
+        public event AsyncEventHandler<ProjectLoadedEventArgs> ProjectLoaded;
+
+        protected virtual async Task OnProjectLoaded(IProject project, VersionInfo versionInfo)
+        {
+            var handler = this.ProjectLoaded;
+            if(handler != null)
+            { 
+                await this.ProjectLoaded(this, new ProjectLoadedEventArgs(project.Name, project.ProjectId, versionInfo));               
+            }
         }
 
         #region abstract methods

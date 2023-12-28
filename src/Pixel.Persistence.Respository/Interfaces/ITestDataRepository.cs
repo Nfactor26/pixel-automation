@@ -44,7 +44,7 @@ namespace Pixel.Persistence.Respository.Interfaces
         /// <param name="dataSource"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task AddDataSourceAsync(string projectId, string projectVersion, TestDataSource dataSource, CancellationToken cancellationToken);
+        Task AddDataSourceAsync(string projectId, string projectVersion, string groupName, TestDataSource dataSource, CancellationToken cancellationToken);
 
         /// <summary>
         /// Add multiple TestDataSources to a given version of project

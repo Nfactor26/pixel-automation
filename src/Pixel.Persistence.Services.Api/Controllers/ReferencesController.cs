@@ -1,11 +1,10 @@
 ﻿using Dawn;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Schema;
 using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Respository.Interfaces;
-using System.Security;
+using System;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Api.Controllers
@@ -88,6 +87,52 @@ namespace Pixel.Persistence.Services.Api.Controllers
         {
             await this.referencesRepository.SetEditorReferences(projectId, projectVersion, editorReferences);
             return Ok();
+        }
+
+
+        [HttpPost("datasources/{projectId}/{projectVersion}/group/new/{groupName}")]
+        public async Task<IActionResult> AddDataSourceGroup(string projectId, string projectVersion, string groupName)
+        {
+            try
+            {
+                await this.referencesRepository.AddDataSourceGroupAsync(projectId, projectVersion, groupName);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("datasources/{projectId}/{projectVersion}/group/rename/{currentKey}/to/{newKey}")]
+        public async Task<IActionResult> RenameDataSourceGroup(string projectId, string projectVersion, string currentKey, string newKey)
+        {
+            try
+            {
+                await this.referencesRepository.RenameDataSourceGroupAsync(projectId, projectVersion, currentKey, newKey);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("datasources/{projectId}/{projectVersion}/{dataSourceId}/move/{currentGroup}/to/{newGroup}")]
+        public async Task<IActionResult> MoveDataSourceToGroup(string projectId, string projectVersion, string dataSourceId, string currentGroup, string newGroup)
+        {
+            try
+            {       
+                await this.referencesRepository.MoveDataSourceToGroupAsync(projectId, projectVersion, dataSourceId, currentGroup, newGroup);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -20,5 +20,12 @@ namespace Pixel.Persistence.Core.Models
 
         [DataMember(IsRequired = true, Order = 50)]
         public List<PrefabReference> PrefabReferences { get; set; } = new();
+
+        [DataMember(IsRequired = true, Order = 60)]
+        public List<string> Fixtures { get; set; } = new();
+              
+        [DataMember(IsRequired = true, Order = 70)]
+        public GroupedCollection<string> TestDataSources { get; set; } = new();
+
     }
 }

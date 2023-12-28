@@ -98,5 +98,46 @@ public class ReferencesRepositoryClient : IReferencesRepositoryClient
         var client = this.clientFactory.GetOrCreateClient();
         await client.PostAsync<EditorReferences>(restRequest);
     }
-   
+
+    /// <inheritdoc/>  
+    public async Task AddTestDataSourceGroupAsync(string projectId, string projectVersion, string groupKey)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(groupKey, nameof(groupKey)).NotNull();
+        
+        RestRequest restRequest = new RestRequest($"references/datasources/{projectId}/{projectVersion}/group/new/{groupKey}");     
+        var client = this.clientFactory.GetOrCreateClient();    
+        var result = await client.ExecuteAsync(restRequest, Method.Post);
+        result.EnsureSuccess();
+    }
+
+    /// <inheritdoc/>  
+    public async Task RenameTestDataSourceGroupAsync(string projectId, string projectVersion, string currentKey, string newKey)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(currentKey, nameof(currentKey)).NotNull().NotWhiteSpace();
+        Guard.Argument(newKey, nameof(newKey)).NotNull().NotWhiteSpace();
+
+        RestRequest restRequest = new RestRequest($"references/datasources/{projectId}/{projectVersion}/group/rename/{currentKey}/to/{newKey}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteAsync(restRequest, Method.Post);
+        result.EnsureSuccess();
+    }
+
+    /// <inheritdoc/>  
+    public async Task MoveTestDataSourceToGroupAsync(string projectId, string projectVersion, string testDataSourceId, string currentGroup, string newGroup)
+    {
+        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
+        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
+        Guard.Argument(testDataSourceId, nameof(testDataSourceId)).NotNull().NotEmpty();
+        Guard.Argument(currentGroup, nameof(currentGroup)).NotNull().NotWhiteSpace();
+        Guard.Argument(newGroup, nameof(newGroup)).NotNull().NotWhiteSpace();
+
+        RestRequest restRequest = new RestRequest($"references/datasources/{projectId}/{projectVersion}/{testDataSourceId}/move/{currentGroup}/to/{newGroup}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteAsync(restRequest, Method.Post);
+        result.EnsureSuccess();
+    }
 }

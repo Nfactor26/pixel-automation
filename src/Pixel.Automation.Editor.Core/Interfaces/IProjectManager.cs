@@ -10,7 +10,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
     /// Contract for managing a project
     /// </summary>
     public interface IProjectManager
-    {      
+    {
+        /// <summary>
+        /// Event handler that is triggered when the project is loaded
+        /// </summary>
+        event AsyncEventHandler<ProjectLoadedEventArgs> ProjectLoaded;
+
         /// <summary>
         /// Get the file systemm for the project
         /// </summary>

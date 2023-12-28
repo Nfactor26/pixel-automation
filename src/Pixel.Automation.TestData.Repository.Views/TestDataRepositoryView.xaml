@@ -137,6 +137,7 @@
                                                 <MenuItem x:Name="Edit" Header="Edit" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action EditDataSource($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="Rename" Header="Rename" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ToggleRename($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="Delete" Header="Delete" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action DeleteDataSource($dataContext)]"></MenuItem>
+                                                <MenuItem x:Name="MoveToGroup" Header="Move To Group" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action MoveToGroup($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="ShowUsage" Header="Show Usage" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" cal:Message.Attach="[Event Click] = [Action ShowUsage($dataContext)]"></MenuItem>
                                             </StackPanel>
                                         </ControlTemplate>
@@ -169,7 +170,21 @@
                   controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
                   Width="250"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-                <Button x:Name="Add" Click="AddDataSourceClick" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
+                <Button x:Name="AddDataSource" Click="AddDataSourceClick" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource AddButton}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <ComboBox x:Name="Screens" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>              
+                <Button x:Name="AddTestDataGroup" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                             Height="28" Width="28" ToolTip="Create a new test data source group"                                                                                    
+                             cal:Message.Attach="[Event Click] = [Action CreateGroup()]"
+                             Style="{StaticResource EditControlButtonStyle}"
+                             Content="{iconPacks:Material PlusCircleOutline, Width=24, Height=24}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="RenameTestDataGroup" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                             Height="26" Width="26" ToolTip="Rename test data source group name"                                                                                    
+                             cal:Message.Attach="[Event Click] = [Action RenameGroup()]"
+                             Style="{StaticResource EditControlButtonStyle}"
+                             Content="{iconPacks:FontAwesome PencilAltSolid, Width=24, Height=24}"/>
             </StackPanel>
 
             <ListBox  x:Name="TestDataSourceCollection"  ItemsSource="{Binding TestDataSourceCollection}" SelectedItem="{Binding SelectedTestDataSource}"
