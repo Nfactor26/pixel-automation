@@ -4,6 +4,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using System.Windows.Documents;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
@@ -68,7 +69,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <summary>
         /// Collection of screens for application used to group controls
         /// </summary>
-        public ICollection<string> Screens
+        public ICollection<ApplicationScreen> Screens
         {
             get => applicationDescription.Screens;
         }
@@ -77,23 +78,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// Tracks available screens and active screen
         /// </summary>
         public ApplicationScreenCollection ScreenCollection { get; private set; }
-
-        /// <summary>
-        /// Control identifier collection for a given application screen
-        /// </summary>
-        public Dictionary<string, List<string>> AvailableControls
-        {
-            get => applicationDescription.AvailableControls;
-        }     
-
-        /// <summary>
-        /// Identifier of the prefabs belonging to this application
-        /// </summary>
-        public Dictionary<string, List<string>> AvailablePrefabs
-        {
-            get => applicationDescription.AvailablePrefabs;
-        }       
-
+        
         /// <summary>
         /// Controls belonging to the application
         /// </summary>
@@ -104,6 +89,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// </summary>
         public List<PrefabProjectViewModel> PrefabsCollection { get; set; } = new ();
 
+
+        public ApplicationScreen this[string screenName]
+        {
+            get => Screens.Single(s => s.ScreenName.Equals(screenName));           
+        }
+            
 
         /// <summary>
         /// constructor
@@ -116,16 +107,24 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         }       
 
         /// <summary>
+        /// Check if a screen with given name is available
+        /// </summary>
+        /// <param name="screenName"></param>
+        /// <returns></returns>
+        public bool ContainsScreen(string screenName)
+        {
+            return this.Screens.Any(s => s.ScreenName.Equals(screenName));
+        }
+
+        /// <summary>
         /// Add a new screen to the application
         /// </summary>
         /// <param name="screenName"></param>
-        public void AddScreen(string screenName)
+        public void AddScreen(ApplicationScreen screenName)
         {
-            if(!this.Screens.Contains(screenName))
-            {
+            if(!this.Screens.Any(a => a.ScreenName.Equals(screenName)))
+            {               
                 this.Screens.Add(screenName);
-                this.applicationDescription.AvailableControls.Add(screenName, new List<string>());
-                this.applicationDescription.AvailablePrefabs.Add(screenName, new List<string>());
                 this.ScreenCollection.RefreshScreens();
             }
         }
@@ -137,16 +136,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="newName"></param>
         public void RenameScreen(string currentName, string newName)
         {
-            if(this.Screens.Contains(currentName))
-            {
-                var controls = this.AvailableControls[currentName];
-                this.AvailableControls.Remove(currentName);
-                var prefabs = this.AvailablePrefabs[currentName];
-                this.AvailablePrefabs.Remove(currentName);
-                this.Screens.Remove(currentName);
-                this.AddScreen(newName);
-                this.AvailableControls[newName].AddRange(controls);
-                this.AvailablePrefabs[newName].AddRange(prefabs);
+            if(this.Screens.Any(a => a.ScreenName.Equals(currentName)))
+            {    
+                var screen = this.Screens.Single(s => s.ScreenName.Equals(currentName));
+                screen.ScreenName = newName;
                 this.ScreenCollection.RefreshScreens();
             }         
         }
@@ -157,11 +150,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="screenName"></param>
         public void DeleteScreen(string screenName)
         {
-            if (this.Screens.Contains(screenName))
+            if (this.Screens.Any(a => a.ScreenName.Equals(screenName)))
             {
-                this.Screens.Remove(screenName);
-                this.applicationDescription.AvailableControls.Remove(screenName);
-                this.applicationDescription.AvailablePrefabs.Remove(screenName);
+                this.Screens.Remove(this.Screens.Single(s => s.ScreenName.Equals(screenName)));               
                 this.ScreenCollection.RefreshScreens();
             }
         }
@@ -171,8 +162,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// </summary>
         /// <param name="controlDescription"></param>
         public void AddControl(ControlDescriptionViewModel controlDescription, string screenName)
-        {           
-            var controlCollection = this.applicationDescription.AvailableControls[screenName];
+        {
+            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
+            var controlCollection = screen.AvailableControls;
             if (!controlCollection.Contains(controlDescription.ControlId))
             {
                 controlCollection.Add(controlDescription.ControlId);
@@ -189,15 +181,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="controlDescription"></param>
         public void DeleteControl(ControlDescriptionViewModel controlDescription, string screenName)
         {
-            if(this.applicationDescription.AvailableControls.ContainsKey(screenName))
+            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
+            var controlCollection = screen.AvailableControls;
+            if (controlCollection.Contains(controlDescription.ControlId))
             {
-                var controlCollection = this.applicationDescription.AvailableControls[screenName];
-                if (controlCollection.Contains(controlDescription.ControlId))
-                {
-                    controlCollection.Remove(controlDescription.ControlId);
-                }
-            }          
-            
+                controlCollection.Remove(controlDescription.ControlId);
+            }
             if (this.ControlsCollection.Contains(controlDescription))
             {
                 this.ControlsCollection.Remove(controlDescription);
@@ -212,17 +201,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="moveToScreen"></param>
         public void MoveControlToScreen(ControlDescriptionViewModel controlDescription, string currentScreen, string moveToScreen)
         {
-            if (this.applicationDescription.AvailableControls.ContainsKey(currentScreen) && this.applicationDescription.AvailableControls.ContainsKey(moveToScreen))
-            {
-                var currentScreenControls = this.applicationDescription.AvailableControls[currentScreen];
-                if (currentScreenControls.Contains(controlDescription.ControlId))
-                {
-                    currentScreenControls.Remove(controlDescription.ControlId);
-                }
-
-                var newScreenControls = this.applicationDescription.AvailableControls[moveToScreen];
-                newScreenControls.Add(controlDescription.ControlId);
-            }
+            DeleteControl(controlDescription, currentScreen);
+            AddControl(controlDescription, moveToScreen);
         }
 
         /// <summary>
@@ -230,8 +210,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// </summary>
         /// <param name="prefabProject"></param>
         public void AddPrefab(PrefabProjectViewModel prefabProject, string screenName)
-        {          
-            var prefabCollection = this.applicationDescription.AvailablePrefabs[screenName];
+        {
+            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
+            var prefabCollection = screen.AvailablePrefabs;
             if (!prefabCollection.Contains(prefabProject.PrefabId))
             {
                 prefabCollection.Add(prefabProject.PrefabId);
@@ -248,15 +229,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="prefabProject"></param>
         public void DeletePrefab(PrefabProjectViewModel prefabProject, string screenName)
         {
-            if (this.applicationDescription.AvailablePrefabs.ContainsKey(screenName))
+            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
+            var prefabCollection = screen.AvailablePrefabs;
+            if(prefabCollection.Contains(prefabProject.PrefabId))
             {
-                var prefabCollection = this.applicationDescription.AvailablePrefabs[screenName];
-                if (prefabCollection.Contains(prefabProject.PrefabId))
-                {
-                    prefabCollection.Remove(prefabProject.PrefabId);
-                }
-            }
-
+                prefabCollection.Remove(prefabProject.PrefabId);
+            }    
             if (this.PrefabsCollection.Contains(prefabProject))
             {
                 this.PrefabsCollection.Remove(prefabProject);
@@ -271,17 +249,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <param name="moveToScreen"></param>
         public void MovePrefabToScreen(PrefabProjectViewModel prefabProject, string currentScreen, string moveToScreen)
         {
-            if (this.applicationDescription.AvailablePrefabs.ContainsKey(currentScreen) && this.applicationDescription.AvailablePrefabs.ContainsKey(moveToScreen))
-            {
-                var currentScreenPrefabs = this.applicationDescription.AvailablePrefabs[currentScreen];
-                if (currentScreenPrefabs.Contains(prefabProject.PrefabId))
-                {
-                    currentScreenPrefabs.Remove(prefabProject.PrefabId);
-                }
-
-                var newScreenControls = this.applicationDescription.AvailablePrefabs[moveToScreen];
-                newScreenControls.Add(prefabProject.PrefabId);
-            }
+            DeletePrefab(prefabProject, currentScreen);
+            AddPrefab(prefabProject, moveToScreen);
         }
     }
 }

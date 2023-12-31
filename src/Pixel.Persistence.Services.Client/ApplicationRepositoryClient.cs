@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
@@ -81,15 +82,28 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public async Task AddOrUpdateApplication(ApplicationDescription applicationDescription)
+        public async Task AddApplication(ApplicationDescription applicationDescription)
         {
-            Guard.Argument(applicationDescription).NotNull();
-            logger.Debug("Add Or Update {@ApplicationDescription}", applicationDescription);
+            Guard.Argument(applicationDescription, nameof(applicationDescription)).NotNull();
+            logger.Debug("Add {@ApplicationDescription}", applicationDescription);
 
             RestRequest restRequest = new RestRequest("/application") { Method = Method.Post };
             restRequest.AddJsonBody(serializer.Serialize<ApplicationDescription>(applicationDescription));
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Post);
+            result.EnsureSuccess();
+        }
+
+        ///<inheritdoc/>
+        public async Task UpdateApplication(ApplicationDescription applicationDescription)
+        {
+            Guard.Argument(applicationDescription, nameof(applicationDescription)).NotNull();
+            logger.Debug("Update {@ApplicationDescription}", applicationDescription);
+
+            RestRequest restRequest = new RestRequest("/application") { Method = Method.Put };
+            restRequest.AddJsonBody(serializer.Serialize<ApplicationDescription>(applicationDescription));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Put);
             result.EnsureSuccess();
         }
 
@@ -100,6 +114,52 @@ namespace Pixel.Persistence.Services.Client
             RestRequest restRequest = new RestRequest($"/application/{applicationDescription.ApplicationId}");           
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Delete);
+            result.EnsureSuccess();
+        }
+
+        ///<inheritdoc/>
+        public async Task AddApplicationScreen(string applicationId, ApplicationScreen applicationScreen)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(applicationScreen, nameof(applicationScreen)).NotNull();
+            RestRequest restRequest = new RestRequest($"/application/{applicationId}/screens");
+            restRequest.AddJsonBody(serializer.Serialize<ApplicationScreen>(applicationScreen));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
+            result.EnsureSuccess();
+        }
+
+        ///<inheritdoc/>
+        public async Task RenameApplicationScreen(string applicationId, string screenId, string newName)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(screenId, nameof(screenId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(newName, nameof(newName)).NotNull().NotEmpty().NotWhiteSpace();
+            RestRequest restRequest = new RestRequest($"/application/{applicationId}/screens/rename/{screenId}/to/{newName}");       
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Put);
+            result.EnsureSuccess();
+        }
+      
+        ///<inheritdoc/>
+        public async Task MoveControlToScreen(ControlDescription controlDescription, string targetScreenId)
+        {
+            Guard.Argument(targetScreenId, nameof(targetScreenId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+            RestRequest restRequest = new RestRequest($"/application/{controlDescription.ApplicationId}/screens/control/{controlDescription.ControlId}/move/to/{targetScreenId}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
+            result.EnsureSuccess();
+        }
+
+        ///<inheritdoc/>
+        public async Task MovePrefabToScreen(PrefabProject prefabProject, string targetScreenId)
+        {
+            Guard.Argument(targetScreenId, nameof(targetScreenId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+            RestRequest restRequest = new RestRequest($"/application/{prefabProject.ApplicationId}/screens/prefab/{prefabProject.ProjectId}/move/to/{targetScreenId}");
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Post);
             result.EnsureSuccess();
         }
     }

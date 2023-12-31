@@ -41,18 +41,49 @@ namespace Pixel.Persistence.Services.Client
         Task DownloadControlsAsync(string applicationId);
 
         /// <summary>
-        /// Add or update a application file
+        /// Add a new application
         /// </summary>
         /// <param name="applicationDescription"></param>
         /// <returns></returns>
-        Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription);
+        Task AddApplicationAsync(ApplicationDescription applicationDescription);
+
+        /// <summary>
+        /// Update an existing application
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <returns></returns>
+        Task UpdateApplicationAsync(ApplicationDescription applicationDescription);
 
         /// <summary>
         /// Mark the application as deleted
         /// </summary>
         /// <param name="applicationDescription"></param>
         /// <returns></returns>
-        Task DeleteApplicationAsync(ApplicationDescription applicationDescription);                     
+        Task DeleteApplicationAsync(ApplicationDescription applicationDescription);
+
+        /// <summary>
+        /// Save application description to disk
+        /// </summary>
+        /// <param name="application"></param>
+        /// <returns></returns>
+        string SaveApplicationToDisk(ApplicationDescription application);
+
+        /// <summary>
+        /// Add a new screen to the application
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <param name="applicationScreen"></param>
+        /// <returns></returns>
+        Task AddApplicationScreen(ApplicationDescription applicationDescription, ApplicationScreen applicationScreen);
+
+        /// <summary>
+        /// Rename an existing application screen
+        /// </summary>
+        /// <param name="applicationDescription"></param>
+        /// <param name="screen"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
+        Task RenameApplicationScreen(ApplicationDescription applicationDescription, ApplicationScreen screen, string newName);
 
         /// <summary>
         /// Load all the control files from disk for a given application (e.g. for use in control explorer) and return loaded control descriptions
@@ -78,11 +109,27 @@ namespace Pixel.Persistence.Services.Client
         IEnumerable<ControlDescription> GetAllVersionsOfControl(string applicationId, string controlId);
 
         /// <summary>
-        /// Add or update a control file
+        /// Add a new control to specified screen of the applicationS
+        /// </summary>       
+        /// <param name="controlDescription"></param>
+        /// <param name="screenId"></param>
+        /// <returns></returns>
+        Task AddControlToScreenAsync(ControlDescription controlDescription, string screenId);
+
+        /// <summary>
+        /// Move control from one screen to another
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <param name="targetScreenId"></param>
+        /// <returns></returns>
+        Task MoveControlToScreen(ControlDescription controlDescription, string targetScreenId);
+
+        /// <summary>
+        /// Update details of an existing control
         /// </summary>
         /// <param name="controlDescription"></param>
         /// <returns></returns>
-        Task AddOrUpdateControlAsync(ControlDescription controlDescription);
+        Task UpdateControlAsync(ControlDescription controlDescription);
 
         /// <summary>
         /// Delete a given control

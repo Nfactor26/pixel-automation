@@ -73,13 +73,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
             Assert.AreEqual(1, prefabExplorer.Prefabs.Count);
-            Assert.AreEqual(1, applicationDescription.AvailablePrefabs.Count);
-            Assert.AreEqual(1, applicationDescription.AvailablePrefabs["Home"].Count);
+            Assert.AreEqual(1, applicationDescription.Screens.Count);
+            Assert.AreEqual(1, applicationDescription.Screens[0].AvailablePrefabs.Count);
 
             prefabExplorer.SetActiveApplication(null);
+       
             Assert.AreEqual(0, prefabExplorer.Prefabs.Count);
-            Assert.AreEqual(1, applicationDescription.AvailablePrefabs.Count);
-            Assert.AreEqual(1, applicationDescription.AvailablePrefabs["Home"].Count);
+            Assert.AreEqual(1, applicationDescription.Screens.Count);
+            Assert.AreEqual(1, applicationDescription.Screens[0].AvailablePrefabs.Count);
 
         }
 
@@ -130,7 +131,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         ApplicationDescriptionViewModel CreateApplicationDescriptionViewModel(ApplicationDescription applicationDescription)
         {
             var viewModel = new ApplicationDescriptionViewModel(applicationDescription);
-            viewModel.AddScreen("Home");
+            viewModel.AddScreen(new ApplicationScreen("Home"));
             viewModel.ScreenCollection.SetActiveScreen("Home");
             return viewModel;
         }

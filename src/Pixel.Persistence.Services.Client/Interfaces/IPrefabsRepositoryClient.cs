@@ -30,8 +30,9 @@ public interface IPrefabsRepositoryClient
     /// Add an PrefabProject
     /// </summary>
     /// <param name="prefabProject"></param>
+    /// <param name="screenId"></param>
     /// <returns></returns>
-    Task<PrefabProject> AddPrefabAsync(PrefabProject prefabProject);
+    Task<PrefabProject> AddPrefabToScreenAsync(PrefabProject prefabProject, string screenId);
 
     /// <summary>
     /// Add a new version to prefab project by clonining data from another specified version
@@ -60,7 +61,7 @@ public interface IPrefabsRepositoryClient
     /// <summary>
     /// Mark prefab project as deleted
     /// </summary>
-    /// <param name="prefabId"></param>
+    /// <param name="prefabProject"></param>
     /// <returns></returns>
-    Task DeletePrefabAsync(string prefabId);
+    Task DeletePrefabAsync(PrefabProject prefabProject);
 }

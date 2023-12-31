@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Respository;
 using Pixel.Persistence.Services.Api.Extensions;
 using System;
@@ -17,6 +17,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
     public class ControlController : ControllerBase
     {
         private readonly ILogger<ControlController> logger;
+        private readonly IApplicationRepository applicationRepository;
         private readonly IControlRepository controlRepository;
 
         /// <summary>
@@ -24,10 +25,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="controlRepository"></param>
-        public ControlController(ILogger<ControlController> logger, IControlRepository controlRepository)
+        public ControlController(ILogger<ControlController> logger, IControlRepository controlRepository, IApplicationRepository applicationRepository)
         {
-            this.logger = Guard.Argument(logger).NotNull().Value;
-            this.controlRepository = Guard.Argument(controlRepository).NotNull().Value;   
+            this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
+            this.controlRepository = Guard.Argument(controlRepository, nameof(controlRepository)).NotNull().Value;
+            this.applicationRepository = Guard.Argument(applicationRepository, nameof(applicationRepository)).NotNull().Value;
         }        
 
         /// <summary>
@@ -78,28 +80,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// <param name="controlDescription"></param>
         /// <returns></returns>
         [HttpPost]       
-        public async Task<IActionResult> AddOrUpdateControl([FromBody] object controlDescription)
+        public async Task<IActionResult> AddControlAsync([FromBody] AddControlRequest addControlRequest)
         {
             try
-            {
-                if (BsonDocument.TryParse(controlDescription.ToString(), out BsonDocument document))
-                {
-                    string applicationId = document["ApplicationId"].AsString;
-                    string controlId = document["ControlId"].AsString;
-                    if (await controlRepository.IsControlDeleted(applicationId, controlId))
-                    {
-                        return Conflict($"Control : {document["ControlName"].AsString} is marked deleted.");
-                    }
-                }
-                  
-                await controlRepository.AddOrUpdateControl(controlDescription.ToString());
+            { 
+                await controlRepository.AddControl(addControlRequest.ControlData);
+                await applicationRepository.AddControlToScreen(addControlRequest.ApplicationId, addControlRequest.ControlId, addControlRequest.ScreenId);
                 return Ok();
-            }
-            catch (ArgumentException ex)
-            {
-                logger.LogError(ex, ex.Message);
-                return BadRequest(ex);
-            }
+            }         
             catch (Exception ex)
             {
                 logger.LogError(ex, ex.Message);
@@ -107,12 +95,34 @@ namespace Pixel.Persistence.Services.Api.Controllers
             }         
         }
 
-        [HttpDelete("delete/{applicationId}/{controlId}")]
+        /// <summary>
+        /// Save the control details in database
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        [HttpPut()]
+        public async Task<IActionResult> UpdateControlAsync([FromBody] object controlDescription)
+        {
+            try
+            {
+                await controlRepository.UpdateControl(controlDescription);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpDelete("{applicationId}/{controlId}")]
         public async Task<IActionResult> DeleteControl(string applicationId, string controlId)
         {
             try
             {
                 await controlRepository.DeleteControlAsync(applicationId, controlId);
+                string screenId = await applicationRepository.GetScreenForControl(applicationId, controlId);
+                await applicationRepository.DeleteControlFromScreen(applicationId, controlId, screenId);
                 return Ok();
             }
             catch (InvalidOperationException ex)

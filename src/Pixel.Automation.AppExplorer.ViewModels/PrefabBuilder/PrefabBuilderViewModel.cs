@@ -32,6 +32,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private IReferenceManager referenceManager;
 
+        private string applicationScreenId;
         private PrefabProject prefabProject;
 
         public PrefabBuilderViewModel(ISerializer serializer, IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager,
@@ -55,13 +56,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
 
             this.stagedScreens.Clear();
             VersionInfo prefabVersion = new VersionInfo(new Version(1, 0, 0, 0));
-            prefabProject = new PrefabProject()
+            this.prefabProject = new PrefabProject()
             {
                 ApplicationId = applicationDescriptionViewModel.ApplicationId,
                 ProjectId = Guid.NewGuid().ToString(),            
                 AvailableVersions = new List<VersionInfo>() { prefabVersion },
                 PrefabRoot = rootEntity
             };
+            this.applicationScreenId = applicationDescriptionViewModel.ScreenCollection.SelectedScreen.ScreenId;
                     
             //we don't have assembly name initially until project is compiled. We don't need it anyways while building prefab.
             prefabFileSystem.Initialize(prefabProject, prefabVersion);
@@ -101,7 +103,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             await UpdateControlReferencesFileAsync(prefabProject.PrefabRoot as Entity);
             logger.Information($"Created new prefab : {this.prefabProject.Name}");
            
-            await this.prefabDataManager.AddPrefabAsync(prefabProject);                
+            await this.prefabDataManager.AddPrefabToScreenAsync(prefabProject, applicationScreenId);                
             return this.prefabProject;
         }
 

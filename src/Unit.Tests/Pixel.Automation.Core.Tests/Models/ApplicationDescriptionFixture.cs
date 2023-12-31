@@ -18,8 +18,7 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.AreEqual("ApplicationId", applicationDescription.ApplicationId);
             Assert.AreEqual("ApplicationName", applicationDescription.ApplicationName);
             Assert.IsNull(applicationDescription.ApplicationType);
-            Assert.IsNotNull(applicationDescription.AvailableControls);         
-            Assert.IsNotNull(applicationDescription.AvailablePrefabs);           
+            Assert.IsNotNull(applicationDescription.Screens);                             
 
             applicationDescription.ApplicationType = "WebApplication";
             Assert.AreEqual("WebApplication", applicationDescription.ApplicationType);

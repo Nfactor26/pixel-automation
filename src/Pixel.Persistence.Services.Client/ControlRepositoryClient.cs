@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Persistence.Core.Models;
+using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
@@ -67,24 +68,34 @@ namespace Pixel.Persistence.Services.Client
         }
 
         ///<inheritdoc/>
-        public async Task AddOrUpdateControl(ControlDescription controlDescription)
+        public async Task AddControlToScreen(ControlDescription controlDescription, string screenId)
         {
-            Guard.Argument(controlDescription).NotNull();
-            logger.Debug("Add or update {@ControlDescription}", controlDescription);
-
+            Guard.Argument(screenId, nameof(screenId)).NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();           
+            var addControlRequest = new AddControlRequest(controlDescription.ApplicationId, controlDescription.ControlId, screenId, controlDescription);
             RestRequest restRequest = new RestRequest("control");
-            restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
+            restRequest.AddJsonBody(serializer.Serialize<AddControlRequest>(addControlRequest));
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Post);
             result.EnsureSuccess();
-        }
+        }       
 
+        ///<inheritdoc/>
+        public async Task UpdateControl(ControlDescription controlDescription)
+        {
+            Guard.Argument(controlDescription, nameof(controlDescription)).NotNull();
+            RestRequest restRequest = new RestRequest("control");
+            restRequest.AddJsonBody(serializer.Serialize<ControlDescription>(controlDescription));
+            var client = this.clientFactory.GetOrCreateClient();
+            var result = await client.ExecuteAsync(restRequest, Method.Put);
+            result.EnsureSuccess();
+        }
 
         ///<inheritdoc/>
         public async Task DeleteControl(ControlDescription controlDescription)
         {
             Guard.Argument(controlDescription).NotNull();
-            RestRequest restRequest = new RestRequest($"control/delete/{controlDescription.ApplicationId}/{controlDescription.ControlId}");
+            RestRequest restRequest = new RestRequest($"control/{controlDescription.ApplicationId}/{controlDescription.ControlId}");
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Delete);
             result.EnsureSuccess();

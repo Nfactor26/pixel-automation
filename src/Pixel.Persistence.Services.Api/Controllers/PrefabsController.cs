@@ -18,6 +18,7 @@ namespace Pixel.Persistence.Services.Api.Controllers
     public class PrefabsController : ControllerBase
     {
         private readonly ILogger<PrefabsController> logger;
+        private readonly IApplicationRepository applicationRepository;
         private readonly IPrefabsRepository prefabsRepository;
 
         /// <summary>
@@ -25,10 +26,11 @@ namespace Pixel.Persistence.Services.Api.Controllers
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="projectRepository"></param>
-        public PrefabsController(ILogger<PrefabsController> logger, IPrefabsRepository prefabsRepository)
+        public PrefabsController(ILogger<PrefabsController> logger, IPrefabsRepository prefabsRepository, IApplicationRepository applicationRepository)
         {
-            this.logger = Guard.Argument(logger).NotNull().Value;
-            this.prefabsRepository = Guard.Argument(prefabsRepository).NotNull().Value;
+            this.logger = Guard.Argument(logger, nameof(logger)).NotNull().Value;
+            this.prefabsRepository = Guard.Argument(prefabsRepository, nameof(prefabsRepository)).NotNull().Value;
+            this.applicationRepository = Guard.Argument(applicationRepository, nameof(applicationRepository)).NotNull().Value; 
         }
 
         [HttpGet("id/{prefabId}")]
@@ -82,13 +84,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<PrefabProject>> AddPrefabAsync([FromBody] PrefabProject prefabProject)
+        public async Task<ActionResult<PrefabProject>> AddPrefabAsync([FromBody] AddPrefabRequest addPrefabRequest)
         {
             try
             {
-                Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
-                await prefabsRepository.AddPrefabAsync(prefabProject, CancellationToken.None);
-                return Ok(prefabProject);
+                Guard.Argument(addPrefabRequest, nameof(addPrefabRequest)).NotNull();
+                await prefabsRepository.AddPrefabAsync(addPrefabRequest.Project, CancellationToken.None);
+                await applicationRepository.AddPrefabToScreen(addPrefabRequest.Project.ApplicationId, addPrefabRequest.Project.ProjectId, addPrefabRequest.ScreenId);
+                return Ok(addPrefabRequest.Project);
             }
             catch (Exception ex)
             {
@@ -152,12 +155,14 @@ namespace Pixel.Persistence.Services.Api.Controllers
             return Ok(isDeleted);
         }
 
-        [HttpDelete("{prefabId}")]
-        public async Task<IActionResult> DeletePrefab(string prefabId)
+        [HttpDelete("{applicationId}/{prefabId}")]
+        public async Task<IActionResult> DeletePrefab(string applicationId, string prefabId)
         {
             try
             {             
                 await prefabsRepository.DeletePrefabAsync(prefabId);
+                string screenId = await applicationRepository.GetScreenForPrefab(applicationId, prefabId);
+                await applicationRepository.DeletePrefabFromScreen(applicationId, prefabId, screenId);
                 return Ok();
             }
             catch (InvalidOperationException ex)

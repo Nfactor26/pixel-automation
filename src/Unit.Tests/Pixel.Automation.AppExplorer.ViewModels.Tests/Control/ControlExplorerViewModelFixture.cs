@@ -101,11 +101,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
             Assert.AreEqual(1, controlExplorer.Controls.Count);
-            Assert.AreEqual(1, applicationDescription.AvailableControls.Count);
+            Assert.AreEqual(1, applicationDescription.Screens.Count);
+            Assert.AreEqual(1, applicationDescription.Screens[0].AvailableControls.Count);
 
             controlExplorer.SetActiveApplication(null);
             Assert.AreEqual(0, controlExplorer.Controls.Count);
-            Assert.AreEqual(1, applicationDescription.AvailableControls.Count);
+            Assert.AreEqual(1, applicationDescription.Screens.Count);
+            Assert.AreEqual(1, applicationDescription.Screens[0].AvailableControls.Count);
         }
 
         /// <summary>
@@ -131,8 +133,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             int expected = wasSaved ? 1 : 0;
             controlEditor.Received(1).Initialize(Arg.Any<ControlDescription>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IControlEditor>());
-            await applicationDataManager.Received(expected).AddOrUpdateControlAsync(Arg.Any<ControlDescription>());
-            await applicationDataManager.Received(0).AddOrUpdateApplicationAsync(Arg.Any<ApplicationDescription>());
+            await applicationDataManager.Received(expected).UpdateControlAsync(Arg.Any<ControlDescription>());
+            applicationDataManager.Received(0).SaveApplicationToDisk(Arg.Any<ApplicationDescription>());
 
         }
 
@@ -171,9 +173,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             await controlExplorer.CloneControl(controlToEdit);
             Assert.AreEqual(2, controlExplorer.Controls.Count);
 
-            await applicationDataManager.Received(1).AddOrUpdateControlAsync(Arg.Any<ControlDescription>());
-            await applicationDataManager.Received(1).AddOrUpdateApplicationAsync(Arg.Any<ApplicationDescription>());
+            await applicationDataManager.Received(1).AddControlToScreenAsync(Arg.Any<ControlDescription>(), Arg.Any<string>());         
             await applicationDataManager.Received(1).AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>());
+            applicationDataManager.Received(1).SaveApplicationToDisk(Arg.Any<ApplicationDescription>());
         }
 
         /// <summary>
@@ -208,9 +210,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             }
 
             Assert.AreEqual(2, controlExplorer.Controls.Count);
-            await applicationDataManager.Received(1).AddOrUpdateControlAsync(Arg.Any<ControlDescription>());
-            await applicationDataManager.Received(1).AddOrUpdateApplicationAsync(Arg.Any<ApplicationDescription>());
+            await applicationDataManager.Received(1).AddControlToScreenAsync(Arg.Any<ControlDescription>(), Arg.Any<string>());           
             await applicationDataManager.Received(1).AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>());
+            applicationDataManager.Received(1).SaveApplicationToDisk(Arg.Any<ApplicationDescription>());
         }
 
         /// <summary>
@@ -226,11 +228,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var controlToEdit = controlExplorer.Controls.First();
 
-            await controlExplorer.SaveControlDetails(controlToEdit, true);
+            await controlExplorer.UpdateControlDetails(controlToEdit);
             Assert.AreEqual(1, controlExplorer.Controls.Count);
 
-            await applicationDataManager.Received(1).AddOrUpdateControlAsync(Arg.Any<ControlDescription>());
-            await applicationDataManager.Received(1).AddOrUpdateApplicationAsync(Arg.Any<ApplicationDescription>());
+            await applicationDataManager.Received(1).UpdateControlAsync(Arg.Any<ControlDescription>());
+            await applicationDataManager.Received(0).UpdateApplicationAsync(Arg.Any<ApplicationDescription>());
             await applicationDataManager.Received(0).AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>());
         }
 
@@ -253,7 +255,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         ApplicationDescriptionViewModel CreateApplicationDescriptionViewModel(ApplicationDescription applicationDescription)
         {
             var viewModel = new ApplicationDescriptionViewModel(applicationDescription);
-            viewModel.AddScreen("Home");
+            viewModel.AddScreen(new ApplicationScreen("Home"));
             viewModel.ScreenCollection.SetActiveScreen("Home");
             return viewModel;
         }
