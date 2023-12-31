@@ -207,7 +207,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         SupportedPlatforms = knownApplication.SupportedPlatforms.ToArray()
                     };
                     var applicationDescriptionViewModel = new ApplicationDescriptionViewModel(newApplication);
-                    applicationDescriptionViewModel.AddScreen("Home");
+                    applicationDescriptionViewModel.AddScreen(new ApplicationScreen("Home"));
                     applicationDescriptionViewModel.ScreenCollection.SetActiveScreen("Home");
                     if (string.IsNullOrEmpty(applicationDescriptionViewModel.ApplicationName))
                     {
@@ -216,13 +216,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     }
                     activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
                     activity?.SetTag("ApplicationType", applicationDescriptionViewModel.ApplicationType);
-
+                                     
+                    await this.applicationDataManager.AddApplicationAsync(applicationDescriptionViewModel.Model);
                     this.Applications.Add(applicationDescriptionViewModel);
                     this.SelectedApplication = applicationDescriptionViewModel;
-                    await SaveApplicationAsync(applicationDescriptionViewModel);
+                  
                     await EditApplicationAsync(applicationDescriptionViewModel);
                     NotifyOfPropertyChange(() => Applications);
                     logger.Information("New application of type {0} has been added to the application repository", application.ToString());
+                  
                     await notificationManager.ShowSuccessNotificationAsync($"New application of type : '{application.ToString()}' was added");
                 }
                 catch (Exception ex)
@@ -243,7 +245,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                         try
                         {
                             activity?.SetTag("ApplicationName", applicationDescriptionViewModel.ApplicationName);
-                            await SaveApplicationAsync(applicationDescriptionViewModel);
+                            await UpdatApplicationAsync(applicationDescriptionViewModel);
                             await notificationManager.ShowSuccessNotificationAsync("Application details were saved");
                         }
                         catch (Exception ex)
@@ -259,10 +261,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                 }));
         }
 
-        public async Task SaveApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
+        async Task UpdatApplicationAsync(ApplicationDescriptionViewModel applicationDescriptionViewModel)
         {
             Guard.Argument(applicationDescriptionViewModel, nameof(applicationDescriptionViewModel)).NotNull();
-            await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescriptionViewModel.Model);
+            await this.applicationDataManager.UpdateApplicationAsync(applicationDescriptionViewModel.Model);
             logger.Information($"Saved application data for : {applicationDescriptionViewModel.ApplicationName}");
             await this.eventAggregator.PublishOnUIThreadAsync(new ApplicationUpdatedEventArgs(applicationDescriptionViewModel.ApplicationId));
             this.Applications.Remove(applicationDescriptionViewModel);
@@ -317,9 +319,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                     {
                         activity?.SetTag("ApplicationName", applicationDescription.ApplicationName);
                         activity?.SetTag("ScreenName", applicationScreenViewModel.ScreenName);
+                        var applicationScreen = new ApplicationScreen(applicationScreenViewModel.ScreenName);
+                        await this.applicationDataManager.AddApplicationScreen(applicationDescription.Model, applicationScreen);
+                        applicationDescription.AddScreen(applicationScreen);
+                        this.applicationDataManager.SaveApplicationToDisk(applicationDescription.Model);
                         applicationDescription.ScreenCollection.RefreshScreens();
-                        await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
-                        logger.Information("Added screen {0} to application {1}", applicationScreenViewModel.ScreenName, applicationDescription);                     
+                        applicationDescription.ScreenCollection.SetActiveScreen(applicationScreenViewModel.ScreenName);                    
+                        logger.Information("Added screen : '{0}' to application : '{1}'", applicationScreenViewModel.ScreenName, applicationDescription);                     
                     }
                 }
                 catch (Exception ex)
@@ -336,23 +342,25 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// </summary>
         /// <param name="selectedScreen"></param>
         /// <returns></returns>
-        public async Task RenameScreen(ApplicationDescriptionViewModel applicationDescription, string screenName)
+        public async Task RenameScreen(ApplicationDescriptionViewModel applicationDescription, ApplicationScreen activeScreen)
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(RenameScreen), ActivityKind.Internal))
             {
                 try
                 {
-                    var renameScreenViewModel = new RenameScreenViewModel(applicationDescription, screenName);
+                    var renameScreenViewModel = new RenameScreenViewModel(applicationDescription, activeScreen.ScreenName);
                     var result = await windowManager.ShowDialogAsync(renameScreenViewModel);
                     if (result.GetValueOrDefault())
                     {
                         activity?.SetTag("ApplicationName", applicationDescription.ApplicationName);
                         activity?.SetTag("CurrentScreenName", renameScreenViewModel.ScreenName);
                         activity?.SetTag("NewScreenName", renameScreenViewModel.NewScreenName);
+                        await this.applicationDataManager.RenameApplicationScreen(applicationDescription.Model, applicationDescription[activeScreen.ScreenName], renameScreenViewModel.NewScreenName);
+                        applicationDescription.RenameScreen(activeScreen.ScreenName, renameScreenViewModel.NewScreenName);
                         applicationDescription.ScreenCollection.RefreshScreens();
                         applicationDescription.ScreenCollection.SetActiveScreen(renameScreenViewModel.NewScreenName);
-                        await this.applicationDataManager.AddOrUpdateApplicationAsync(applicationDescription.Model);
-                        logger.Information("Renamed screen {0} to {1} for application {2}", renameScreenViewModel.ScreenName, renameScreenViewModel.NewScreenName, applicationDescription.ApplicationName);
+                        this.applicationDataManager.SaveApplicationToDisk(applicationDescription.Model);
+                        logger.Information("Screen : '{0}' was renamed to : '{1}' for application : '{2}'", activeScreen, renameScreenViewModel.NewScreenName, applicationDescription.ApplicationName);
                     }
                 }
                 catch (Exception ex)
@@ -429,7 +437,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
                             var previousName = applicationDescriptionViewModel.ApplicationName;
                             applicationDescriptionViewModel.ApplicationName = newName;
                             applicationDescriptionViewModel.ApplicationDetails.ApplicationName = newName;
-                            await SaveApplicationAsync(applicationDescriptionViewModel);
+                            await UpdatApplicationAsync(applicationDescriptionViewModel);
                             CanEdit = false;
                             logger.Information($"Application : {previousName} renamed to : {applicationDescriptionViewModel.ApplicationName}");
                         }

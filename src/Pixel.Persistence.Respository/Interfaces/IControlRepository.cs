@@ -37,11 +37,18 @@ public interface IControlRepository
     Task<IEnumerable<ControlImageDataFile>> GetAllControlImagesForApplication(string applicationId, DateTime laterThan);
 
     /// <summary>
-    /// Add or Update Control data
+    /// Add Control data
     /// </summary>
-    /// <param name="controlDataJson">json representation of the ControlDescription</param>     
+    /// <param name="controlData"></param>     
     /// <returns></returns>
-    Task AddOrUpdateControl(string controlDataJson);
+    Task AddControl(object controlData);
+
+    /// <summary>
+    /// Update Control data
+    /// </summary>
+    /// <param name="controlData"></param>     
+    /// <returns></returns>
+    Task UpdateControl(object controlData);
 
     /// <summary>
     /// Check if a control is marked deleted.

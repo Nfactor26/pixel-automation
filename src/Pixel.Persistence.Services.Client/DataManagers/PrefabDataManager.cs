@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
@@ -20,6 +21,7 @@ public class PrefabDataManager : IPrefabDataManager
     private readonly ISerializer serializer;
     private readonly IApplicationFileSystem applicationFileSystem;
     private readonly IPrefabsRepositoryClient prefabsRepositoryClient;
+    private readonly IApplicationRepositoryClient appRepositoryClient;
     private readonly IPrefabFilesRepositoryClient filesClient;
     private readonly IReferencesRepositoryClient referencesRepositoryClient;
     private readonly Dictionary<string, List<PrefabProject>> prefabsCache = new();
@@ -36,12 +38,14 @@ public class PrefabDataManager : IPrefabDataManager
     /// <param name="filesRepositoryClient"></param>
     /// <param name="referencesRepositoryClient"></param>
     public PrefabDataManager(ApplicationSettings applicationSettings, ISerializer serializer, IApplicationFileSystem applicationFileSystem, 
-        IPrefabsRepositoryClient prefabsRepositoryClient, IPrefabFilesRepositoryClient filesRepositoryClient, IReferencesRepositoryClient referencesRepositoryClient)
+        IPrefabsRepositoryClient prefabsRepositoryClient, IPrefabFilesRepositoryClient filesRepositoryClient, IApplicationRepositoryClient applicationRepositoryClient,
+        IReferencesRepositoryClient referencesRepositoryClient)
     {
         this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
         this.prefabsRepositoryClient = Guard.Argument(prefabsRepositoryClient).NotNull().Value;
         this.filesClient = Guard.Argument(filesRepositoryClient).NotNull().Value;
+        this.appRepositoryClient = Guard.Argument(applicationRepositoryClient).NotNull().Value;
         this.referencesRepositoryClient = Guard.Argument(referencesRepositoryClient).NotNull().Value;
         this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
     }
@@ -59,10 +63,11 @@ public class PrefabDataManager : IPrefabDataManager
     ///<inheritdoc/>
     public IEnumerable<PrefabProject> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName)
     {
-        if (applicationDescription.AvailablePrefabs.ContainsKey(screenName))
+        if (applicationDescription.Screens.Any(s => s.ScreenName.Equals(screenName)))
         {
+            var applicationScreen = applicationDescription.Screens.Single(s => s.ScreenName.Equals(screenName));
             var prefabs = GetAllPrefabs(applicationDescription.ApplicationId);
-            foreach (var prefabId in applicationDescription.AvailablePrefabs[screenName])
+            foreach (var prefabId in applicationScreen.AvailablePrefabs)
             {
                 var prefab = prefabs.FirstOrDefault(p => p.ProjectId.Equals(prefabId));
                 if (prefab != null)
@@ -209,11 +214,11 @@ public class PrefabDataManager : IPrefabDataManager
     }
 
     ///<inheritdoc/>
-    public async Task AddPrefabAsync(PrefabProject prefabProject)
+    public async Task AddPrefabToScreenAsync(PrefabProject prefabProject, string screenId)
     {
         if (IsOnlineMode)
         {
-            await this.prefabsRepositoryClient.AddPrefabAsync(prefabProject);
+            await this.prefabsRepositoryClient.AddPrefabToScreenAsync(prefabProject, screenId);
 
             //Save the automation process file, data model files (*.cs) and script files (*.csx).
             //The project references file will be saved by the reference manager once initialized.
@@ -246,6 +251,15 @@ public class PrefabDataManager : IPrefabDataManager
         else
         {
             prefabsCache.Add(prefabProject.ApplicationId, new List<PrefabProject>() { prefabProject });
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task MovePrefabToScreen(PrefabProject prefabProject, string targetScreenId)
+    {
+        if (IsOnlineMode)
+        {
+            await appRepositoryClient.MovePrefabToScreen(prefabProject, targetScreenId);
         }
     }
 
@@ -346,16 +360,16 @@ public class PrefabDataManager : IPrefabDataManager
     }
 
     ///<inheritdoc/>
-    public async Task DeletePrefbAsync(PrefabProject prefabProject)
+    public async Task DeletePrefbAsync(PrefabProject prefabToDelete)
     {
-        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        Guard.Argument(prefabToDelete, nameof(prefabToDelete)).NotNull();
         if(IsOnlineMode)
         {
-            await this.prefabsRepositoryClient.DeletePrefabAsync(prefabProject.ProjectId);
+            await this.prefabsRepositoryClient.DeletePrefabAsync(prefabToDelete);
         }
-        prefabProject.IsDeleted = true;
-        string prefabDescriptionFile = this.applicationFileSystem.GetPrefabProjectFile(prefabProject);
-        serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabProject);
+        prefabToDelete.IsDeleted = true;
+        string prefabDescriptionFile = this.applicationFileSystem.GetPrefabProjectFile(prefabToDelete);
+        serializer.Serialize<PrefabProject>(prefabDescriptionFile, prefabToDelete);
     }
 
     ///<inheritdoc/>

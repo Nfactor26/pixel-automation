@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Interfaces;
+﻿using Dawn;
+using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -7,14 +8,13 @@ namespace Pixel.Automation.Core.Models
 {
     /// <summary>
     /// ApplicationDescription stores the key aspects of an application which is being automated.
-    /// </summary>
-    [Serializable]
+    /// </summary>  
     [DataContract]
     public class ApplicationDescription
     {
         /// <summary>
         /// Unique identifier for the application
-        /// </summary>
+        /// </summary>     
         public string ApplicationId
         {
             get => ApplicationDetails.ApplicationId;
@@ -50,20 +50,8 @@ namespace Pixel.Automation.Core.Models
         /// Screens for the application. Screens are used to group control and prefabs.
         /// </summary>
         [DataMember(Order = 40)]
-        public List<string> Screens { get; private set; } = new();
-
-        /// <summary>
-        /// Control identifier collection for a given application screen
-        /// </summary>
-        [DataMember(Order = 50)]
-        public Dictionary<string, List<string>> AvailableControls { get; private set; } = new();
-
-        /// <summary>
-        /// Identifier of the prefabs belonging to this application
-        /// </summary>
-        [DataMember(Order = 60)]
-        public Dictionary<string, List<string>> AvailablePrefabs { get; private set; } = new();
-
+        public List<ApplicationScreen> Screens { get; private set; } = new();
+       
         /// <summary>
         /// Indicates if the TestCase is deleted. Deleted test cases are not loaded in explorer.
         /// </summary>
@@ -85,6 +73,34 @@ namespace Pixel.Automation.Core.Models
         public ApplicationDescription(IApplication applicationDetails)
         {
             this.ApplicationDetails = applicationDetails;
+        }
+    }
+
+    [DataContract]
+    public class ApplicationScreen
+    {
+        [DataMember(Order = 10)]
+        public string ScreenId { get; set; }
+
+        [DataMember(Order = 20)]
+        public string ScreenName { get; set; }
+
+        [DataMember(Order = 30)]
+        public List<string> AvailableControls { get; private set; } = new();
+
+        [DataMember(Order = 40)]
+        public List<string> AvailablePrefabs { get; private set; } = new();
+
+        public ApplicationScreen()
+        {
+
+        }
+
+        public ApplicationScreen(string screenName)
+        {
+            Guard.Argument(screenName, nameof(screenName)).NotNull().NotWhiteSpace();
+            this.ScreenName = screenName;
+            this.ScreenId = Guid.NewGuid().ToString();
         }
     }
 }

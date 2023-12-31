@@ -38,6 +38,36 @@ namespace Pixel.Persistence.Respository
 
         }
 
+        async Task<bool> CheckControlExists(string applicationId, string controlId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotWhiteSpace();
+            Guard.Argument(controlId, nameof(controlId)).NotNull().NotWhiteSpace();
+            var filter = CreateControlFilter(applicationId, controlId);
+            var count = await controlsCollection.CountDocumentsAsync(filter);
+            return count > 0;
+        }
+
+        async Task<bool> CheckControlVersionExists(string applicationId, string controlId, string controlVersion)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotWhiteSpace();
+            Guard.Argument(controlId, nameof(controlId)).NotNull().NotWhiteSpace();
+            var filter = CreateControlFilter(applicationId, controlId, controlVersion);
+            var count = await controlsCollection.CountDocumentsAsync(filter);
+            return count > 0;
+        }
+
+
+        async Task<BsonDocument> FindControlByIdAsync(string applicationId, string controlId)
+        {
+            Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotWhiteSpace();
+            var filter = CreateControlFilter(applicationId, controlId);
+            //exclude field not known to client.
+            var projection = Builders<BsonDocument>.Projection.Exclude("_id").Exclude("LastUpdated").Exclude("ApplicationId").Exclude("Revision");
+            var result = controlsCollection.Find<BsonDocument>(filter).Project(projection);
+            var document = await result.SingleOrDefaultAsync();
+            return document;
+        }
+
         ///<inheritdoc/>
         public async IAsyncEnumerable<DataFile> GetControlFiles(string applicationId, string controlId)
         {
@@ -119,29 +149,57 @@ namespace Pixel.Persistence.Respository
             return controlImages;
         }
 
+
         ///<inheritdoc/>
-        public async Task AddOrUpdateControl(string controlDataJson)
+        public async Task AddControl(object controlData)
         {
-            Guard.Argument(controlDataJson, nameof(controlDataJson)).NotNull().NotEmpty();
-       
-            if (BsonDocument.TryParse(controlDataJson, out BsonDocument document))
+            Guard.Argument(controlData, nameof(controlData)).NotNull();
+            if (BsonDocument.TryParse(controlData.ToString(), out BsonDocument document))
             {
                 string applicationId = document["ApplicationId"].AsString;
                 string controlId = document["ControlId"].AsString;
-                string version = document["Version"].AsString;
+                string controlVersion = document["Version"].AsString;
+                //It is possible to create a revision of control which will also add a new control with same ControlId but different version
+                if (await CheckControlVersionExists(applicationId, controlId, controlVersion))
+                {
+                    throw new InvalidOperationException($"Controld with Id : {controlId} already exists");
+                }
+                document.Add("LastUpdated", DateTime.UtcNow);
+                document.Add("Revision", 1);
+                await controlsCollection.InsertOneAsync(document);                
+                return;
+            }
+            throw new ArgumentException("Failed to parse control data in to BsonDocument");
+        }
 
-                document.Add("LastUpdated", DateTime.UtcNow);            
-              
-                //if document already exists, replace it
-                if (controlsCollection.CountDocuments<BsonDocument>(x => x["ApplicationId"].Equals(applicationId) 
-                    && x["ControlId"].Equals(controlId) && x["Version"].Equals(version), new CountOptions { Limit = 1 }) > 0)
+        ///<inheritdoc/>
+        public async Task UpdateControl(object controlData)
+        {
+            Guard.Argument(controlData, nameof(controlData)).NotNull();
+       
+            if (BsonDocument.TryParse(controlData.ToString(), out BsonDocument document))
+            {
+                string applicationId = document["ApplicationId"].AsString;
+                string controlId = document["ControlId"].AsString;             
+                if (!await CheckControlExists(applicationId, controlId))
                 {
-                    await controlsCollection.FindOneAndReplaceAsync<BsonDocument>(CreateControlFilter(applicationId, controlId, version), document);
+                    throw new InvalidOperationException($"Controld with Id : {controlId} already exists");
                 }
-                else
+                if(await IsControlDeleted(applicationId, controlId))
                 {
-                    await controlsCollection.InsertOneAsync(document);
-                }
+                    throw new InvalidOperationException($"Controld with Id : {controlId} is marked deleted");
+                }    
+                var filter = CreateControlFilter(applicationId, controlId);
+                var updateDefinition = Builders<BsonDocument>.Update
+                 .Set(x => x["ControlName"], document["ControlName"])
+                 .Set(x => x["GroupName"], document["GroupName"])
+                 .Set(x => x["ControlImage"], document["ControlImage"])
+                 .Set(x => x["ControlDetails"], document["ControlDetails"])
+                 .Set(x => x["IsDeleted"], document["IsDeleted"])
+                 .Set(x => x["LastUpdated"], DateTime.UtcNow)
+                 .Inc(x => x["Revision"], 1);
+                var result = await controlsCollection.FindOneAndUpdateAsync(filter, updateDefinition);
+                logger.LogInformation("Control : '{0}' was updated with result : '{1}'", document["ControlName"].AsString, result);
                 return;
             }
 

@@ -1,7 +1,5 @@
 ﻿using Dawn;
 using Pixel.Automation.Editor.Core;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
@@ -32,8 +30,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public async Task CreateNewScreen()
         {
             if(this.CanCreateScreen)
-            {
-                this.applicationDescriptionViewModel.AddScreen(this.ScreenName);
+            {              
                 await this.TryCloseAsync(true);               
             }           
         }

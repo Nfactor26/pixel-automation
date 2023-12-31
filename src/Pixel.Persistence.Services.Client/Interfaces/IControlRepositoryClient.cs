@@ -24,11 +24,19 @@ namespace Pixel.Persistence.Services.Client
         Task<IEnumerable<Core.Models.ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan);
 
         /// <summary>
-        /// Add or upate a control 
-        /// </summary>
+        /// Add a new control and link it with specified application screen
+        /// </summary>     
         /// <param name="controlDescription"></param>     
+        /// <param name="screenId"></param>
         /// <returns></returns>
-        Task AddOrUpdateControl(ControlDescription controlDescription);
+        Task AddControlToScreen(ControlDescription controlDescription, string screenId);     
+
+        /// <summary>
+        /// Update details of an existing control
+        /// </summary>
+        /// <param name="controlDescription"></param>
+        /// <returns></returns>
+        Task UpdateControl(ControlDescription controlDescription);
 
         /// <summary>
         /// Delete control

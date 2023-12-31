@@ -46,8 +46,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public async Task RenameScreen()
         {
             if (this.CanRenameScreen)
-            {
-                this.applicationDescriptionViewModel.RenameScreen(this.ScreenName, this.NewScreenName);
+            {              
                 await this.TryCloseAsync(true);
             }
         }

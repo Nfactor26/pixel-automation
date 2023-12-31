@@ -93,10 +93,7 @@ namespace Pixel.Persistence.Services.Client
 
         #region Applications 
 
-        /// <summary>
-        /// Get all the applications available on disk
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>    
         public IEnumerable<ApplicationDescription> GetAllApplications()
         {
             foreach (var app in Directory.GetDirectories(this.applicationSettings.ApplicationDirectory))
@@ -108,15 +105,12 @@ namespace Pixel.Persistence.Services.Client
             yield break;
         }
 
-        /// <summary>
-        /// Saves a new application to database
-        /// </summary>
-        /// <param name="applicationDescription"></param>
-        public async Task AddOrUpdateApplicationAsync(ApplicationDescription applicationDescription)
+        /// <inheritdoc/>     
+        public async Task AddApplicationAsync(ApplicationDescription applicationDescription)
         {
             if (IsOnlineMode)
             {
-                await this.appRepositoryClient.AddOrUpdateApplication(applicationDescription);
+                await this.appRepositoryClient.AddApplication(applicationDescription);
             }
 
             Directory.CreateDirectory(Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId));
@@ -124,6 +118,17 @@ namespace Pixel.Persistence.Services.Client
             SaveApplicationToDisk(applicationDescription);                 
         }
 
+        /// <inheritdoc/>     
+        public async Task UpdateApplicationAsync(ApplicationDescription applicationDescription)
+        {
+            if (IsOnlineMode)
+            {
+                await this.appRepositoryClient.UpdateApplication(applicationDescription);
+            }           
+            SaveApplicationToDisk(applicationDescription);
+        }
+
+        /// <inheritdoc/>     
         public async Task DeleteApplicationAsync(ApplicationDescription applicationDescription)
         {
             if (IsOnlineMode)
@@ -133,6 +138,26 @@ namespace Pixel.Persistence.Services.Client
             applicationDescription.IsDeleted = true;
             SaveApplicationToDisk(applicationDescription);
             logger.Information("Application : '{0}; was deleted", applicationDescription.ApplicationName);
+        }
+
+        /// <inheritdoc/>     
+        public async Task AddApplicationScreen(ApplicationDescription applicationDescription, ApplicationScreen applicationScreen)
+        {
+            if (IsOnlineMode)
+            {
+                await this.appRepositoryClient.AddApplicationScreen(applicationDescription.ApplicationId, applicationScreen);
+            }
+            SaveApplicationToDisk(applicationDescription);            
+        }
+
+        /// <inheritdoc/>     
+        public async Task RenameApplicationScreen(ApplicationDescription applicationDescription, ApplicationScreen screen, string newName)
+        {
+            if (IsOnlineMode)
+            {
+                await this.appRepositoryClient.RenameApplicationScreen(applicationDescription.ApplicationId, screen.ScreenId, newName);
+            }
+            SaveApplicationToDisk(applicationDescription);          
         }
 
         public async Task DownloadApplicationsWithControlsAsync()
@@ -191,12 +216,8 @@ namespace Pixel.Persistence.Services.Client
             }            
         }
 
-       
-        /// <summary>
-        /// Save the ApplicationDetails of ApplicationToolBoxItem to File
-        /// </summary>
-        /// <param name="application"></param>
-        private string SaveApplicationToDisk(ApplicationDescription application)
+        /// <inheritdoc/>    
+        public string SaveApplicationToDisk(ApplicationDescription application)
         {
             string appDirectory = this.applicationFileSystem.GetApplicationDirectory(application);
             if (!Directory.Exists(appDirectory))
@@ -218,14 +239,33 @@ namespace Pixel.Persistence.Services.Client
 
         #region Controls
 
-        /// <inheritdoc/>      
-        public async Task AddOrUpdateControlAsync(ControlDescription controlDescription)
-        {
-            SaveControlToDisk(controlDescription);
-            if(IsOnlineMode)
+        /// <inheritdoc/>   
+        public async Task AddControlToScreenAsync(ControlDescription controlDescription, string screenId)
+        {            
+            if (IsOnlineMode)
             {
-                await controlRepositoryClient.AddOrUpdateControl(controlDescription);
+                await controlRepositoryClient.AddControlToScreen(controlDescription, screenId);
             }
+            SaveControlToDisk(controlDescription);
+        }
+
+        /// <inheritdoc/> 
+        public async Task MoveControlToScreen(ControlDescription controlDescription, string targetScreenId)
+        {
+            if (IsOnlineMode)
+            {
+                await appRepositoryClient.MoveControlToScreen(controlDescription, targetScreenId);
+            }
+        }
+
+        /// <inheritdoc/> 
+        public async Task UpdateControlAsync(ControlDescription controlDescription)
+        {            
+            if (IsOnlineMode)
+            {
+                await controlRepositoryClient.UpdateControl(controlDescription);
+            }
+            SaveControlToDisk(controlDescription);
         }
 
         /// <inheritdoc/>      
@@ -278,9 +318,9 @@ namespace Pixel.Persistence.Services.Client
         /// <inheritdoc/>      
         public IEnumerable<ControlDescription> GetAllControls(ApplicationDescription applicationDescription)
         {
-            foreach(var screen in applicationDescription.AvailableControls)
+            foreach(var screen in applicationDescription.Screens)
             {
-                foreach(var controlId in screen.Value)
+                foreach(var controlId in screen.AvailableControls)
                 {
                     string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId);
                     foreach(var revision in Directory.EnumerateDirectories(controlDirectory))
@@ -300,9 +340,10 @@ namespace Pixel.Persistence.Services.Client
         /// <inheritdoc/>       
         public IEnumerable<ControlDescription> GetControlsForScreen(ApplicationDescription applicationDescription, string screenName)
         {
-            if(applicationDescription.AvailableControls.ContainsKey(screenName))
+            if(applicationDescription.Screens.Any(s => s.ScreenName.Equals(screenName)))
             {
-                foreach (var controlId in applicationDescription.AvailableControls[screenName])
+                var applicationScreen = applicationDescription.Screens.Single(s => s.ScreenName.Equals(screenName));
+                foreach (var controlId in applicationScreen.AvailableControls)
                 {
                     string controlDirectory = Path.Combine(applicationSettings.ApplicationDirectory, applicationDescription.ApplicationId, Constants.ControlsDirectory, controlId);
                     var latestRevision = Directory.EnumerateDirectories(controlDirectory).Max(a => a);

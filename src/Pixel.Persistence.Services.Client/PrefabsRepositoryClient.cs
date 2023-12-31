@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
 using RestSharp;
 using Serilog;
@@ -83,11 +84,33 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
     }
 
     /// <inheritdoc/>  
-    public async Task<PrefabProject> AddPrefabAsync(PrefabProject prefabProject)
+    public async Task<PrefabProject> AddPrefabToScreenAsync(PrefabProject prefabProject, string screenId)
     {
+        Guard.Argument(screenId, nameof(screenId)).NotNull().NotEmpty().NotWhiteSpace();
         Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        Core.Models.PrefabProject project = new Core.Models.PrefabProject()
+        {
+            ApplicationId = prefabProject.ApplicationId,
+            ProjectId = prefabProject.ProjectId,
+            Name = prefabProject.Name,
+            Namespace = prefabProject.Namespace,
+            GroupName = prefabProject.GroupName,
+            Description = prefabProject.Description,
+            AvailableVersions = new List<Core.Models.VersionInfo>()
+        };
+        foreach(var version in prefabProject.AvailableVersions)
+        {
+            project.AvailableVersions.Add(new Core.Models.VersionInfo()
+            {
+                Version = version.Version,
+                DataModelAssembly = version.DataModelAssembly,
+                IsActive = version.IsActive,
+                PublishedOn = version.PublishedOn
+            });
+        }
+        var addPrefabRequest = new AddPrefabRequest(screenId, project);
         RestRequest restRequest = new RestRequest(baseUrl);
-        restRequest.AddJsonBody(prefabProject);
+        restRequest.AddJsonBody(serializer.Serialize<AddPrefabRequest>(addPrefabRequest));
         var client = this.clientFactory.GetOrCreateClient();
         var result = await client.PostAsync<PrefabProject>(restRequest);
         return result;
@@ -148,10 +171,10 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
     }
 
     /// <inheritdoc/>  
-    public async Task DeletePrefabAsync(string prefabId)
+    public async Task DeletePrefabAsync(PrefabProject prefabProject)
     {
-        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
-        RestRequest restRequest = new RestRequest($"{baseUrl}/{prefabId}");
+        Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
+        RestRequest restRequest = new RestRequest($"{baseUrl}/{prefabProject.ApplicationId}/{prefabProject.ProjectId}");
         var client = this.clientFactory.GetOrCreateClient();
         var result = await client.ExecuteAsync(restRequest, Method.Delete);
         result.EnsureSuccess();

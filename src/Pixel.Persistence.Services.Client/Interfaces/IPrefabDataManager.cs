@@ -62,8 +62,17 @@ public interface IPrefabDataManager
     /// Add a new prefab
     /// </summary>
     /// <param name="prefabProject"></param>
+    /// <param name="screenId"></param>
     /// <returns></returns>
-    Task AddPrefabAsync(PrefabProject prefabProject);
+    Task AddPrefabToScreenAsync(PrefabProject prefabProject, string screenId);
+
+    /// <summary>
+    /// Move prefab from one screen to another
+    /// </summary>
+    /// <param name="prefabProject"></param>
+    /// <param name="targetScreenId"></param>
+    /// <returns></returns>
+    Task MovePrefabToScreen(PrefabProject prefabProject, string targetScreenId);
 
     /// <summary>
     /// Add a new version to project by cloning data from an existing version

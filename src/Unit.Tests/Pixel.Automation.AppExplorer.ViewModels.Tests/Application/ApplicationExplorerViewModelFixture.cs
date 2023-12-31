@@ -114,8 +114,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 
             await applicationExplorerViewModel.AddApplication(knownApplication);
             Assert.AreEqual(2, applicationExplorerViewModel.Applications.Count);
-            await applicationDataManager.Received(1).AddOrUpdateApplicationAsync(Arg.Any<ApplicationDescription>());
-            await eventAggregator.Received(3).PublishOnUIThreadAsync(Arg.Any<object>());
+            await applicationDataManager.Received(1).AddApplicationAsync(Arg.Any<ApplicationDescription>());
+            await eventAggregator.Received(2).PublishOnUIThreadAsync(Arg.Any<object>());
         }
 
         /// <summary>
