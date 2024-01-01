@@ -194,7 +194,7 @@ namespace Pixel.Automation.Designer.ViewModels
                 try
                 {
                     await projectManager.Save();
-                    await notificationManager.ShowSuccessNotificationAsync("Project was saved.");
+                    await notificationManager.ShowSuccessNotificationAsync($"Project : '{this.PrefabProject.Name}' was saved.");
                 }
                 catch (Exception ex)
                 {

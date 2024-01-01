@@ -150,8 +150,14 @@
                 <Button x:Name="BackButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
                                             Height="28" Width="28" ToolTip="Go back to application view"                                                                                      
                                             cal:Message.Attach="[Event Click] = [Action GoBack()]"
-                                            Style="{StaticResource BackButton}"/>             
-              
+                                            Style="{StaticResource BackButton}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="AddPrefabButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                            Height="28" Width="28" ToolTip="Create a new prefab project"                                                                                    
+                            cal:Message.Attach="[Event Click] = [Action AddPrefab(ApplicationIcon.DataContext)]"
+                            Style="{StaticResource EditControlButtonStyle}"
+                            Content="{iconPacks:Entypo AddToList, Width=24, Height=24}"/>
+
             </StackPanel>
             <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
             <!-- Screen management on right-->
@@ -175,8 +181,7 @@
       
         <ListBox  x:Name="Prefabs" Grid.Row="1" SelectedItem="{Binding SelectedPrefab}"
                           ItemTemplate="{StaticResource PrefabItemTemplate}"
-                          ItemContainerStyle="{StaticResource PrefabListBoxItem}"
-                          dd:DragDrop.IsDropTarget="True"  dd:DragDrop.DropHandler="{Binding PrefabDragHandler}"
+                          ItemContainerStyle="{StaticResource PrefabListBoxItem}"                       
                           dd:DragDrop.IsDragSource="True" 
                           Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type StackPanel}}}"
                           MinHeight="300"

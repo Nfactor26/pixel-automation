@@ -16,7 +16,7 @@ namespace Pixel.Automation.Core.Tests.Models
             var prefabProject = new PrefabProject(prefabRoot);
 
             Assert.AreEqual(null, prefabProject.ApplicationId);
-            Assert.AreEqual(null, prefabProject.ProjectId);
+            Assert.IsNotNull(prefabProject.ProjectId);
             Assert.AreEqual(null, prefabProject.Name);
             Assert.AreEqual(null, prefabProject.Namespace);
             Assert.NotNull(prefabProject.AvailableVersions);

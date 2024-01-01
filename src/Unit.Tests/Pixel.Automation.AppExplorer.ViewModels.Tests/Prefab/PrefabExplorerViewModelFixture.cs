@@ -26,8 +26,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         private IEventAggregator eventAggregator;
         private IVersionManagerFactory versionManagerFactory;
         private IApplicationDataManager applicationDataManager;
-        private IPrefabDataManager prefabDataManager;
-        private IPrefabBuilderFactory prefabBuilderFactory;
+        private IPrefabDataManager prefabDataManager;     
 
         [OneTimeSetUp]
         public void SetUp()
@@ -35,8 +34,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             windowManager = Substitute.For<IWindowManager>();
             notificationManager = Substitute.For<INotificationManager>();
             eventAggregator = Substitute.For<IEventAggregator>();
-            versionManagerFactory = Substitute.For<IVersionManagerFactory>();
-            prefabBuilderFactory = Substitute.For<IPrefabBuilderFactory>();          
+            versionManagerFactory = Substitute.For<IVersionManagerFactory>();                   
             applicationDataManager = Substitute.For<IApplicationDataManager>();
             prefabDataManager = Substitute.For<IPrefabDataManager>();
 
@@ -52,11 +50,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public void ValidateThatPrefabExplorerViewModelCanBeCorrectlyInitialized()
         {
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, notificationManager,
-                versionManagerFactory, applicationDataManager, prefabDataManager, prefabBuilderFactory);
+                versionManagerFactory, applicationDataManager, prefabDataManager);
 
             Assert.AreEqual("Prefab Explorer", prefabExplorer.DisplayName);
-            Assert.AreEqual(0, prefabExplorer.Prefabs.Count);
-            Assert.IsNotNull(prefabExplorer.PrefabDragHandler);
+            Assert.AreEqual(0, prefabExplorer.Prefabs.Count);      
             Assert.IsNull(prefabExplorer.SelectedPrefab);
         }
 
@@ -68,7 +65,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         public void ValidateThatPrefabsAreLoadedWhenApplicationIsActivated()
         {
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, notificationManager,
-                versionManagerFactory, applicationDataManager, prefabDataManager, prefabBuilderFactory);
+                versionManagerFactory, applicationDataManager, prefabDataManager);
             var applicationDescription = CreateApplicationDescription();
             prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
@@ -96,7 +93,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             versionManagerFactory.CreatePrefabVersionManager(Arg.Any<PrefabProject>()).Returns(versionManager);
             
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, notificationManager,
-                versionManagerFactory, applicationDataManager, prefabDataManager, prefabBuilderFactory);
+                versionManagerFactory, applicationDataManager, prefabDataManager);
             var applicationDescription = CreateApplicationDescription();
             prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
             var prefabToManage = prefabExplorer.Prefabs.First();
@@ -113,8 +110,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             windowManager.ClearReceivedCalls();
             eventAggregator.ClearReceivedCalls();
-            versionManagerFactory.ClearReceivedCalls();
-            prefabBuilderFactory.ClearReceivedCalls();
+            versionManagerFactory.ClearReceivedCalls();        
             applicationDataManager.ClearReceivedCalls();
         }
 

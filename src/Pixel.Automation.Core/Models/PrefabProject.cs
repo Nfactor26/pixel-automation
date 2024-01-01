@@ -18,7 +18,7 @@ namespace Pixel.Automation.Core.Models
 
         [DataMember(IsRequired = true, Order = 20)]
         [Browsable(false)]
-        public string ProjectId { get; set; }
+        public string ProjectId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Display name that should be visible in Prefab Repository

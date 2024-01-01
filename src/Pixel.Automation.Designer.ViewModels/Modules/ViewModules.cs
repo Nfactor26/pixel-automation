@@ -32,8 +32,8 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
           
             Kernel.Bind<IControlEditorFactory>().To<ControlEditorFactory>();
            
-            Kernel.Bind<IPrefabBuilder>().To<PrefabBuilderViewModel>();
-            Kernel.Bind<IPrefabBuilderFactory>().ToFactory();
+            //Kernel.Bind<IPrefabBuilder>().To<PrefabBuilderViewModel>();
+            //Kernel.Bind<IPrefabBuilderFactory>().ToFactory();
 
             Kernel.Bind<IArgumentExtractor>().To<ArgumentExtractor>().InSingletonScope();
             Kernel.Bind<IScriptExtactor>().To<ScriptExtractor>().InSingletonScope();

@@ -4,7 +4,6 @@ using Notifications.Wpf.Core;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
-using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
@@ -28,11 +27,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
         private readonly IWindowManager windowManager;
         private readonly INotificationManager notificationManager;
         private readonly IEventAggregator eventAggregator;    
-        private readonly IVersionManagerFactory versionManagerFactory;
+        private readonly IVersionManagerFactory versionManagerFactory;    
         private readonly IApplicationDataManager applicationDataManager;
-        private readonly IPrefabDataManager prefabDataManager;
-        private IPrefabBuilderFactory prefabBuilderFactory;
-
+        private readonly IPrefabDataManager prefabDataManager;   
 
         private ApplicationDescriptionViewModel activeApplication;
         public ApplicationDescriptionViewModel ActiveApplication
@@ -51,19 +48,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
       
         public PrefabProjectViewModel SelectedPrefab { get; set; }
 
-        public PrefabDragHandler PrefabDragHandler { get; private set; } = new ();
+        //public PrefabDragHandler PrefabDragHandler { get; private set; } = new ();
 
         public PrefabExplorerViewModel(IEventAggregator eventAggregator, IWindowManager windowManager, 
-            INotificationManager notificationManager, IVersionManagerFactory versionManagerFactory, 
-            IApplicationDataManager applicationDataManager, IPrefabDataManager prefabDataManager, IPrefabBuilderFactory prefabBuilderFactory)
+            INotificationManager notificationManager, IVersionManagerFactory versionManagerFactory, IApplicationDataManager applicationDataManager, 
+            IPrefabDataManager prefabDataManager)
         {
             this.DisplayName = "Prefab Explorer";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
-            this.eventAggregator.SubscribeOnPublishedThread(this);
-            this.prefabBuilderFactory = Guard.Argument(prefabBuilderFactory, nameof(prefabBuilderFactory)).NotNull().Value;
+            this.eventAggregator.SubscribeOnPublishedThread(this);           
             this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
             this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
-            this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
+            this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;          
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
             this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
             CreateCollectionView();
@@ -181,40 +177,69 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             }            
         }
 
+        public async Task AddPrefab(ApplicationDescriptionViewModel forApplication)
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(AddPrefab), ActivityKind.Internal))
+            {
+                try
+                {
+                    var newPrefabViewModel = new NewPrefabViewModel(forApplication, prefabDataManager);
+                    var result = await windowManager.ShowDialogAsync(newPrefabViewModel);
+                    if (result.GetValueOrDefault())
+                    {
+                        var prefabViewModel = new PrefabProjectViewModel(newPrefabViewModel.NewProject);
+                        this.Prefabs.Add(prefabViewModel);
+                        this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen.ScreenName);
+                        this.applicationDataManager.SaveApplicationToDisk(this.ActiveApplication.Model);
+                        //all the required files will be created when prefab is opened for the first time. We immediately do a save to make sure
+                        //files are added to the database if working online
+                        await EditPrefab(prefabViewModel, prefabViewModel.PrefabProject.LatestActiveVersion); 
+                        await this.prefabDataManager.SavePrefabDataAsync(prefabViewModel.PrefabProject, prefabViewModel.PrefabProject.LatestActiveVersion);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error while creating a new prefab for application : '{0}'", forApplication.ApplicationName);
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }             
+            }
+        }
+
         /// <summary>
         /// Show PrefabBuilder wizard screen that can be used to configure and create a new Prefab for the specified Entity.
         /// The entity is dragged and dropped from process designer to the PrefabExplorer to initiate the wizard.
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task CreatePrefab(Entity entity)
-        {
-            Guard.Argument(entity, nameof(entity)).NotNull();
-            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreatePrefab), ActivityKind.Internal))
-            {
-                try
-                {
-                    activity?.SetTag("FromEntity", entity.Id);
-                    var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
-                    prefabBuilder.Initialize(this.ActiveApplication, entity);
-                    var result = await windowManager.ShowDialogAsync(prefabBuilder);
-                    if (result.HasValue && result.Value)
-                    {
-                        var createdPrefab = await prefabBuilder.SavePrefabAsync();
-                        var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
-                        this.Prefabs.Add(prefabViewModel);
-                        this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen.ScreenName);                   
-                        this.applicationDataManager.SaveApplicationToDisk(this.ActiveApplication.Model);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, "There was an error while trying to create a new prefab");
-                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                    await notificationManager.ShowErrorNotificationAsync(ex);
-                }
-            }          
-        }
+        //public async Task CreatePrefab(Entity entity)
+        //{
+        //    Guard.Argument(entity, nameof(entity)).NotNull();
+        //    using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(CreatePrefab), ActivityKind.Internal))
+        //    {
+        //        try
+        //        {
+        //            activity?.SetTag("FromEntity", entity.Id);
+        //            var prefabBuilder = prefabBuilderFactory.CreatePrefabBuilder();
+        //            prefabBuilder.Initialize(this.ActiveApplication, entity);
+        //            var result = await windowManager.ShowDialogAsync(prefabBuilder);
+        //            if (result.HasValue && result.Value)
+        //            {
+        //                var createdPrefab = await prefabBuilder.SavePrefabAsync();
+        //                var prefabViewModel = new PrefabProjectViewModel(createdPrefab);
+        //                this.Prefabs.Add(prefabViewModel);
+        //                this.ActiveApplication.AddPrefab(prefabViewModel, this.ScreenCollection.SelectedScreen.ScreenName);                   
+        //                this.applicationDataManager.SaveApplicationToDisk(this.ActiveApplication.Model);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            logger.Error(ex, "There was an error while trying to create a new prefab");
+        //            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+        //            await notificationManager.ShowErrorNotificationAsync(ex);
+        //        }
+        //    }          
+        //}
 
         private readonly object locker = new();
         /// <summary>
