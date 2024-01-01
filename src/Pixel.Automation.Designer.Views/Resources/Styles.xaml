@@ -47,7 +47,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Rectangle Fill="{DynamicResource MahApps.Brushes.Accent}" Width="28" Height="28">
+                        <Rectangle Fill="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Visual="{iconPacks:FontAwesome Kind=ArrowAltCircleLeftRegular}" Stretch="Fill" />
                             </Rectangle.OpacityMask>

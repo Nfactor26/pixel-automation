@@ -78,6 +78,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.referenceManager = referenceManagerFactory.CreateReferenceManager(this.prefabProject.ProjectId, versionToLoad.ToString(), this.prefabFileSystem);
                 this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 
+                await CreateDataModelFile();
                 ConfigureCodeEditor(this.referenceManager);
 
                 var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
@@ -93,13 +94,31 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 return this.RootEntity;
             }           
         }
-    
+
+        private async Task CreateDataModelFile()
+        {
+            string[] dataModelFiles = Directory.GetFiles(this.prefabFileSystem.DataModelDirectory, "*.cs");
+            if (!dataModelFiles.Any())
+            {
+                var classGenerator = this.codeGenerator.CreateClassGenerator(Constants.PrefabDataModelName, this.GetProjectNamespace(), new[] { typeof(object).Namespace });
+                string dataModelInitialContent = classGenerator.GetGeneratedCode();
+                string dataModelFile = Path.Combine(this.fileSystem.DataModelDirectory, $"{Constants.PrefabDataModelName}.cs");
+                await File.WriteAllTextAsync(dataModelFile, dataModelInitialContent);
+                logger.Information($"Created data model file : {dataModelFile}");
+            }
+        }
 
         private void Initialize()
         {
             if (!File.Exists(this.prefabFileSystem.PrefabFile))
             {
-                throw new FileNotFoundException();
+                var targetApplication = applicationDataManager.GetAllApplications().FirstOrDefault(a => a.ApplicationId.Equals(prefabProject.ApplicationId));
+                var applicationSequence = new SequenceEntity()
+                {
+                    Name = $"Sequence : {targetApplication.ApplicationName}",
+                    TargetAppId = targetApplication.ApplicationId
+                };
+                this.prefabFileSystem.SaveToFile<Entity>(applicationSequence, Path.GetDirectoryName(this.prefabFileSystem.PrefabFile), Path.GetFileName(this.prefabFileSystem.PrefabFile));
             }         
             this.RootEntity = AddEntitiesAndPrefab();        
             
@@ -271,9 +290,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                this.RootEntity.ResetHierarchy();
-                serializer.Serialize(this.prefabFileSystem.PrefabFile, this.prefabEntity, typeProvider.GetKnownTypes());
-                if(this.prefabEntity is SequenceEntity sequenceEntity)
+                this.RootEntity.ResetHierarchy();               
+                this.prefabFileSystem.SaveToFile<Entity>(this.prefabEntity, Path.GetDirectoryName(this.prefabFileSystem.PrefabFile), Path.GetFileName(this.prefabFileSystem.PrefabFile));
+                if (this.prefabEntity is SequenceEntity sequenceEntity)
                 {
                     var prefabProcessor = sequenceEntity.Parent;
                     prefabProcessor.RemoveComponent(sequenceEntity);
