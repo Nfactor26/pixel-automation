@@ -110,6 +110,7 @@ public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
 
     public override void ResetComponent()
     {
+        base.ResetComponent();
         this.ExitCriteriaSatisfied = false;
     }
 

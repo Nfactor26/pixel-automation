@@ -19,11 +19,8 @@ namespace Pixel.Automation.Core.Components.Controls;
 public class RepeatUntilEntityProcessor : EntityProcessor
 {
     private readonly ILogger logger = Log.ForContext<RepeatUntilEntityProcessor>();
-
-    [DataMember(Order = 200)]
-    [Display(Name = "Index", Order = 10, GroupName = "Input", Description = "Index for the current iteration")]
-    public Argument Index { get; set; } = new InArgument<int>() { CanChangeType = false, AllowedModes = ArgumentMode.DataBound, Mode = ArgumentMode.DataBound };
-
+    private int loopIndex = 0;
+    
     [DataMember(Order = 210)]
     [Display(Name = "Repeat Until", Order = 20, GroupName = "Input", Description = "Repeat until specified condition is satisfied for control")]
     public UntilControl RepeatUntil { get; set; } = UntilControl.Exists;
@@ -38,16 +35,15 @@ public class RepeatUntilEntityProcessor : EntityProcessor
     }
 
     public override async Task BeginProcessAsync()
-    {
-        var argumentProcessor = this.ArgumentProcessor;
-        int index = await argumentProcessor.GetValueAsync<int>(this.Index);
+    {                 
         bool exitCriteriaSatisfied = false;
         var controlPlaceHolderEntity = this.GetComponentsByTag("Control").Single() as Entity;
         var statementsPlaceHolderEntity = this.GetComponentsByTag("Statements").Single() as Entity;
         logger.Information(": Begin Repeat Until");
+        this.loopIndex = 0;
         while (true)
         {
-            logger.Information("Current Index is : {0}", index);
+            logger.Information("Current Index is : {0}", loopIndex);
             var controlEntity = controlPlaceHolderEntity.GetFirstComponentOfType<IControlEntity>(SearchScope.Descendants);
             UIControl control = null;
             try
@@ -100,18 +96,14 @@ public class RepeatUntilEntityProcessor : EntityProcessor
 
             if (this.FoundControl.IsConfigured())
             {
-                await argumentProcessor.SetValueAsync<UIControl>(this.FoundControl, control);
+                await this.ArgumentProcessor.SetValueAsync<UIControl>(this.FoundControl, control);
             }               
             await ProcessEntity(controlPlaceHolderEntity);              
             await ProcessEntity(statementsPlaceHolderEntity);
 
-            await argumentProcessor.SetValueAsync<int>(this.Index, ++index);
+            loopIndex++;
 
-            //Reset any inner loop for  next iteration
-            foreach (var loop in this.GetInnerLoops())
-            {
-                (loop as Entity).ResetHierarchy();
-            }
+            ResetComponents();
         }
         logger.Information(": End Repeat Until");
     }
