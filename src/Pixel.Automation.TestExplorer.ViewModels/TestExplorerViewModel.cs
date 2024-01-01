@@ -219,18 +219,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                 }
             }          
         }
-
-        private bool canLoadAllTestCases = true;
-        public bool CanLoadAllTestCases
-        {
-            get => this.canLoadAllTestCases;
-            set
-            {
-                this.canLoadAllTestCases = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
+      
         /// <summary>
         /// Load test cases for all the fixtures
         /// </summary>
@@ -245,8 +234,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         await LoadTestCasesForFixture(fixtureViewModel);
                     }
-                }
-                this.CanLoadAllTestCases = false;
+                }                
             }           
         }
 
@@ -1476,6 +1464,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task HandleAsync(TestFilterNotification message, CancellationToken cancellationToken)
         {
+            if(this.TestFixtures.Any(a => !a.Tests.Any()))
+            {
+                await LoadAllTestCases();
+            }
             this.FilterText = message?.FilterText ?? string.Empty;
             await Task.CompletedTask;
         }
