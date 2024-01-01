@@ -162,7 +162,10 @@
             <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
             <!-- Screen management on right-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
-                <ComboBox x:Name="Screens" ItemsSource="{Binding ScreenCollection.Screens}" SelectedItem="{Binding ScreenCollection.SelectedScreen}" DisplayMemberPath="ScreenName" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <ComboBox x:Name="Screens" ItemsSource="{Binding ScreenCollection.Screens}" SelectedItem="{Binding ScreenCollection.SelectedScreen}" 
+                              DisplayMemberPath="ScreenName" MinWidth="180"  controls:TextBoxHelper.UseFloatingWatermark="True"
+                              controls:TextBoxHelper.ClearTextButton="True" IsEditable="True"
+                              Style="{DynamicResource MahApps.Styles.ComboBox}"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
                 <Button x:Name="AddScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
                                             Height="28" Width="28" ToolTip="Create a new application screen"                                                                                    
@@ -187,7 +190,7 @@
                           MinHeight="300"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.GroupStyle>
+            <!--<ListBox.GroupStyle>
                 <GroupStyle>
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate>
@@ -211,7 +214,7 @@
                         </Style>
                     </GroupStyle.ContainerStyle>
                 </GroupStyle>
-            </ListBox.GroupStyle>
+            </ListBox.GroupStyle>-->
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel  IsItemsHost="True"  Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Orientation="Horizontal"/>

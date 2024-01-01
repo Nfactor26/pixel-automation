@@ -124,7 +124,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             groupedItems.SortDescriptions.Add(new SortDescription(nameof(ControlDescriptionViewModel.ControlName), ListSortDirection.Ascending));
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as ControlDescriptionViewModel).ControlName.ToLower().Contains(this.filterText.ToLower());
+                if(a is ControlDescriptionViewModel controlDescription)
+                {
+                    return controlDescription.ControlName.Contains(this.filterText, StringComparison.OrdinalIgnoreCase) ||
+                            controlDescription.GroupName.Contains(this.filterText, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
             });
         }
 
@@ -236,11 +241,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
                     this.Controls.Clear();
                     activity?.SetTag("SelectedScreen", selectedScreen?.ScreenName ?? string.Empty);
                     if (selectedScreen != null)
-                    {                       
-                        var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);
-                        this.Controls.Clear();
+                    {  
+                        var controlsForSelectedScreen = LoadControlDetails(this.ActiveApplication, selectedScreen);                       
                         this.Controls.AddRange(controlsForSelectedScreen);                   
-                    }               
+                    }    
+                    else
+                    {
+                        foreach (var screen in this.activeApplication.Screens)
+                        {
+                            var controlsForScren = LoadControlDetails(this.ActiveApplication, screen);
+                            this.Controls.AddRange(controlsForScren);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
