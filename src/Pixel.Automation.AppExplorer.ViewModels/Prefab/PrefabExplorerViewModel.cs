@@ -92,26 +92,34 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                     this.Prefabs.Clear();
                     activity?.SetTag("SelectedScreen", selectedScreen?.ScreenName ?? string.Empty);
                     if (selectedScreen != null)
-                    {       
-                        var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen.ScreenName);                       
+                    {                      
+                        var prefabsForSelectedScreen = LoadPrefabs(this.ActiveApplication, selectedScreen);                       
                         this.Prefabs.AddRange(prefabsForSelectedScreen);                       
-                    }                  
+                    }
+                    else
+                    {
+                        foreach (var screen in this.activeApplication.Screens)
+                        {
+                            var prefabsForScreen = LoadPrefabs(this.ActiveApplication, screen);
+                            this.Prefabs.AddRange(prefabsForScreen);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "There was an error while trying to load prefabs for screen : '{0}'", selectedScreen);
+                    logger.Error(ex, "There was an error while trying to load prefabs for screen : '{0}'", selectedScreen?.ScreenName ?? "");
                     _ = notificationManager.ShowErrorNotificationAsync(ex);
                 }
             }
            
         }      
 
-        private List<PrefabProjectViewModel> LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel, string screenName)
+        private List<PrefabProjectViewModel> LoadPrefabs(ApplicationDescriptionViewModel applicationDescriptionViewModel, ApplicationScreen applicationScreen)
         {           
             List<PrefabProjectViewModel> prefabsList = new ();
-            if (applicationDescriptionViewModel.ContainsScreen(screenName))
+            if (applicationDescriptionViewModel.ContainsScreen(applicationScreen.ScreenName))
             {
-                var prefabIdentifiers = applicationDescriptionViewModel[screenName].AvailablePrefabs;
+                var prefabIdentifiers = applicationDescriptionViewModel[applicationScreen.ScreenName].AvailablePrefabs;
                 if (prefabIdentifiers.Any() && applicationDescriptionViewModel.PrefabsCollection.Any(a => a.PrefabId.Equals(prefabIdentifiers.First())))
                 {
                     foreach (var prefabId in prefabIdentifiers)
@@ -125,7 +133,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                 }
                 else
                 {
-                    var prefabs = this.prefabDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, screenName).ToList();
+                    var prefabs = this.prefabDataManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, applicationScreen.ScreenName).ToList();
                     foreach (var prefab in prefabs)
                     {
                         if(prefab.IsDeleted)
@@ -133,7 +141,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
                             continue;
                         }
                         var prefabProjectViewModel = new PrefabProjectViewModel(prefab);
-                        applicationDescriptionViewModel.AddPrefab(prefabProjectViewModel, screenName);
+                        applicationDescriptionViewModel.AddPrefab(prefabProjectViewModel, applicationScreen.ScreenName);
                         prefabsList.Add(prefabProjectViewModel);
                     }
                 }
@@ -384,7 +392,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefab
             groupedItems.SortDescriptions.Add(new SortDescription(nameof(PrefabProjectViewModel.PrefabName), ListSortDirection.Ascending));
             groupedItems.Filter = new Predicate<object>((a) =>
             {
-                return (a as PrefabProjectViewModel).PrefabName.ToLower().Contains(this.filterText.ToLower());
+                if (a is PrefabProjectViewModel prefabProject)
+                {
+                    return prefabProject.PrefabName.Contains(this.filterText, StringComparison.OrdinalIgnoreCase) ||
+                            prefabProject.GroupName.Contains(this.filterText, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
             });
         }
 
