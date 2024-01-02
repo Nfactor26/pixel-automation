@@ -3,6 +3,7 @@
     "Pixel.Automation.Test.Runner": {
       "commandName": "Project",
       "workingDirectory": "E:\\Git\\Pixel.Automation\\.builds\\Debug\\Runner\\net7.0-windows"
+      "workingDirectory": "F:\\Git\\Pixel.Automation\\.builds\\Debug\\Runner\\net7.0-windows"
     }
   }
 }

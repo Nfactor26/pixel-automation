@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<EnableDynamicLoading>true</EnableDynamicLoading>	
-		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>

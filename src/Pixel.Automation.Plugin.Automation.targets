@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
+	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 			<PluginProject Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj"/>	
 			<PluginProject Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Web.Playwright.Components\Pixel.Automation.Web.Playwright.Components.csproj"/>
@@ -10,14 +10,14 @@
 			<PluginProject Include="..\Pixel.Automation.RestApi.Components\Pixel.Automation.RestApi.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj"/>
 		</ItemGroup>
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">			
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">			
 			<PluginProject Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>		
 			<PluginProject Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj"/>
 		</ItemGroup>
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
 			<PluginProject Include="..\Pixel.Automation.Native.Linux\Pixel.Automation.Native.Linux.csproj"/>
 		</ItemGroup>
 		<Message Text="Build Plugins -- TargetFramework : $(TargetFramework), RunTimeIdentifier : $(RuntimeIdentifier)" Importance="high"/>
@@ -26,8 +26,8 @@
 		<Message Text="Build Plugins -- completed" Importance="high"/>
 	</Target>
 
-	<Target Name="CopyPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
+	<Target Name="CopyPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 			<PluginArtifacts Include="..\Pixel.Automation.Assertions.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Assertions.Components</Name>
 			</PluginArtifacts>			
@@ -47,7 +47,7 @@
 				<Name>Pixel.Automation.RestApi.Components</Name>
 			</PluginArtifacts>
 		</ItemGroup>
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'" >
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'" >
 			<PluginArtifacts Include="..\Pixel.Automation.Native.Windows\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Native.Windows</Name>
 			</PluginArtifacts>		
@@ -67,7 +67,7 @@
 				<Name>Pixel.Automation.Window.Management.Components</Name>
 			</PluginArtifacts>
 		</ItemGroup>
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'" >
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'" >
 			<PluginArtifacts Include="..\Pixel.Automation.Native.Linux\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Native.Linux</Name>
 			</PluginArtifacts>
@@ -80,11 +80,11 @@
 		<Message Text="Copying Plugins -- completed" Importance="high"/>
 	</Target>
 
-	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
+	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 		<ItemGroup>
 			<OpenCVRunTimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\runtimes\**\*.*"/>
 		</ItemGroup>
-		<ItemGroup  Condition="'$(RunTimeIdentifier)' == 'win10-x64'">
+		<ItemGroup  Condition="'$(RunTimeIdentifier)' == 'win-x64'">
 			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\opencv_videoio_ffmpeg480_64.dll"/>
 			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\OpenCvSharpExtern.dll"/>
 		</ItemGroup>
@@ -94,11 +94,11 @@
 		<!--For visual studio builds of pixel-designer, move runtime folder from plugins directory to application-root\runtime directory-->
 		<Move  SourceFiles="@(OpenCVRunTimeFiles)"  DestinationFolder="$(TargetDir)\runtimes\%(RecursiveDir)" ContinueOnError="true"/>
 		<!--Copy OpenCvSharpExtern.dll and opencv_videoio_ffmpeg480.dll for windows or libOpenCvSharpExtern.so for linux to application root directory from plugin directory-->
-		<Move  SourceFiles="@(OpenCVRunTimeAssemblies)" Condition="'$(RunTimeIdentifier)' == 'win10-x64'"  DestinationFolder="$(TargetDir)"/>
+		<Move  SourceFiles="@(OpenCVRunTimeAssemblies)" Condition="'$(RunTimeIdentifier)' == 'win-x64'"  DestinationFolder="$(TargetDir)"/>
 	</Target>
 
 	
-	<Target Name="selenium-manager" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">
+	<Target Name="selenium-manager" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 		<ItemGroup>
 			<PluginRuntimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Selenium.Components\selenium-manager\**\*.*"/>
 		</ItemGroup>
@@ -109,7 +109,7 @@
 
 	<!--Move .playwright folder and playwright.ps1 file to app directory and delete these from Pixel.Automation.Web.Playwright.Components
 		and Pixel.Automation.Web.Scrapper plugins-->
-	<Target Name="MovePlaywrightDependencies" AfterTargets="CopyPlugins"  Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net7.0-windows'">	
+	<Target Name="MovePlaywrightDependencies" AfterTargets="CopyPlugins"  Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">	
 		<ItemGroup>
 			<PlaywrightFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Playwright.Components\.playwright\**\*.*;"/>
 		</ItemGroup>
@@ -122,7 +122,7 @@
 	</Target>
 
 	<Target Name="RemoveUnwantedDirectories" AfterTargets="CopyPlugins" >
-		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'win10-x64'">
+		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'win-x64'">
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\linux"/>
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\macos"/>			
 			<BuildArtifacts Include="$(TargetDir)\.playwright\node\linux-x64"/>

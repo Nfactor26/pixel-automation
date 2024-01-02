@@ -2,12 +2,12 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>
