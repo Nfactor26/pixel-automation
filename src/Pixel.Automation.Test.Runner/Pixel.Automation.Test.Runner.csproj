@@ -2,11 +2,11 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFrameworks>net7.0-windows;net7.0</TargetFrameworks>	
+		<TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>	
 		<AssemblyName>pixel-run</AssemblyName>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
-		<RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>	
+		<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>	
 		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 	</PropertyGroup>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <OutputType>Library</OutputType>
-	  <TargetFramework>net7.0</TargetFramework>		
+	  <TargetFramework>net8.0</TargetFramework>		
 	  <EnableDynamicLoading>true</EnableDynamicLoading>
 	  <RuntimeIdentifiers>linux-x64;</RuntimeIdentifiers>
 	  <SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>

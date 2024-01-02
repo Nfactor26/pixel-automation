@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<EnableDynamicLoading>true</EnableDynamicLoading>		
-		<RuntimeIdentifiers>win10-x64;</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>

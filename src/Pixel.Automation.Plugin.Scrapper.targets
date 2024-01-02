@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="BuildScrapperPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net7.0-windows'">		
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">			
+	<Target Name="BuildScrapperPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net8.0-windows'">		
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">			
 			<PluginProject Include="..\Pixel.Automation.Image.Scrapper\Pixel.Automation.Image.Scrapper.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.JAB.Scrapper\Pixel.Automation.JAB.Scrapper.csproj"/>	
 			<PluginProject Include="..\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj"/>	
@@ -14,8 +14,8 @@
 	</Target>	
 
 	
-	<Target Name="CopyScrapperPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net7.0-windows'">		
-		<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">				
+	<Target Name="CopyScrapperPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net8.0-windows'">		
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">				
 			<PluginArtifacts Include="..\Pixel.Automation.Web.Scrapper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Web.Scrapper</Name>
 			</PluginArtifacts>
@@ -36,7 +36,7 @@
 		<Copy SourceFiles="%(PluginArtifacts.FullPath)" DestinationFolder="$(TargetDir)Plugins\%(PluginArtifacts.Name)\%(RecursiveDir)"/>
 	</Target>
 
-	<Target Name="DeletePlaywrightFiles" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net7.0-windows'">		
+	<Target Name="DeletePlaywrightFiles" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net8.0-windows'">		
 		<RemoveDir Directories="$(TargetDir)\Plugins\Pixel.Automation.Web.Scrapper\.playwright"/>
 		<Delete Files="$(TargetDir)\Plugins\Pixel.Automation.Web.Scrapper\playwright.ps1" />
 	</Target>

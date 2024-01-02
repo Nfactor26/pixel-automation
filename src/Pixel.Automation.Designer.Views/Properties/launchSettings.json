@@ -2,7 +2,7 @@
   "profiles": {
     "Pixel.Automation.Designer.Views": {
       "commandName": "Project",
-      "workingDirectory": "F:\\Git\\Pixel.Automation\\.builds\\Debug\\Designer\\net7.0-windows"
+      "workingDirectory": "F:\\Git\\Pixel.Automation\\.builds\\Debug\\Designer\\net8.0-windows"
     }
   }
 }
