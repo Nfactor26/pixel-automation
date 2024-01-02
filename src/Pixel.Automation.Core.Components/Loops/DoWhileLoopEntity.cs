@@ -74,11 +74,7 @@ public class DoWhileLoopEntity : Entity, ILoop
                 break;
             }
 
-            //Reset any inner loop before running next iteration
-            foreach (var loop in this.GetInnerLoops())
-            {
-                (loop as Entity).ResetHierarchy();
-            }
+            this.ResetDescendants();
 
             iteration++;
         }

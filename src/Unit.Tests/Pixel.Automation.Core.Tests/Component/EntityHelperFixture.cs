@@ -221,14 +221,36 @@ namespace Pixel.Automation.Core.Tests
             componentTwo.Received(1).ResetComponent();
         }
 
+
         [Test]
-        public void ValidateThatComponentsThatImplementILoopCanBeRetrieved()
+        public void ValidateThatResetDescendantsResetsAllComponentsButSelf()
         {
-            var foundComponents = rootEntity.GetInnerLoops();
+            IEntityManager entityManager = Substitute.For<IEntityManager>();
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Entity rootEntity = Substitute.ForPartsOf<Entity>();
+            rootEntity.EntityManager = entityManager;
+            rootEntity.When(x => x.ResetComponent()).Do(x => { });
+
+            Entity childEntity = Substitute.ForPartsOf<Entity>();
+            childEntity.When(x => x.ResetComponent()).Do(x => { });
+
+            IComponent componentOne = Substitute.For<IComponent>();
+            componentOne.When(x => x.ResetComponent()).Do(x => { });
+            rootEntity.AddComponent(componentOne);
+            rootEntity.AddComponent(childEntity);
+
+            IComponent componentTwo = Substitute.For<IComponent>();
+            componentTwo.When(x => x.ResetComponent()).Do(x => { });
+            childEntity.AddComponent(componentTwo);
+
+
+            rootEntity.ResetDescendants();
+
+            rootEntity.Received(0).ResetComponent();
+            childEntity.Received(1).ResetComponent();
+            componentOne.Received(1).ResetComponent();
+            componentTwo.Received(1).ResetComponent();
         }
-
 
         /// <summary>
         /// Validate that ancestor component of a requested type can be retreived

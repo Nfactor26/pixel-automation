@@ -36,9 +36,10 @@ public class SequentialEntityProcessor : EntityProcessor
     /// <inheritdoc/>
     public override async Task BeginProcessAsync()
     {
-        await ConfigureDelay();
-        await ProcessEntity(this);
+        ResetComponents();
         ResetDelay();
+        await ConfigureDelay();
+        await ProcessEntity(this);       
     }
 
     private async Task ConfigureDelay()

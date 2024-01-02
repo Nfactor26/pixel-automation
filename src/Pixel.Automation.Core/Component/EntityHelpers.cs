@@ -4,7 +4,6 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Pixel.Automation.Core
 {
@@ -300,35 +299,23 @@ namespace Pixel.Automation.Core
             }
             rootEntity.ResetComponent();
         }
-       
+
         /// <summary>
-        /// Get all child components that implement ILoop
+        /// Reset all the descendant components of the entity but not the entity itself
         /// </summary>
         /// <param name="rootEntity"></param>
-        /// <returns></returns>
-        public static IEnumerable<ILoop> GetInnerLoops(this Entity rootEntity)
-        {
+        public static void ResetDescendants(this Entity rootEntity)
+        {            
             foreach (var component in rootEntity.Components)
             {
-                if (!component.IsEnabled)
+                component.ResetComponent();
+                if (component is Entity)
                 {
+                    (component as Entity).ResetDescendants();
                     continue;
                 }
-
-                if (component is ILoop loopComponent)
-                {
-                    yield return loopComponent;
-                    continue;
-                }
-
-                if (component is Entity entity)
-                {
-                    foreach (var item in GetInnerLoops(entity))
-                    {
-                        yield return item;
-                    }
-                }
-            }
+               
+            }           
         }
 
         /// <summary>

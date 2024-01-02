@@ -97,11 +97,7 @@ public class ForLoopEntity : Entity, ILoop
                 yield return iterator.Current;
             }
 
-            //Reset any inner loop before running next iteration
-            foreach (var loop in this.GetInnerLoops())
-            {
-                (loop as Entity).ResetHierarchy();
-            }
+            this.ResetDescendants();
 
             iteration++;
 

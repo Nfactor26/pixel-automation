@@ -62,6 +62,7 @@ public class RetrySequence : EntityProcessor
             }              
             var retry = this.GetComponentsByName("Retry", Enums.SearchScope.Children).FirstOrDefault() as Entity;
             await this.ProcessEntity(retry);
+            ResetComponents();
             logger.Information($"Number of remaining attempts is {retryCount - currentAttempt}");
         });
 
