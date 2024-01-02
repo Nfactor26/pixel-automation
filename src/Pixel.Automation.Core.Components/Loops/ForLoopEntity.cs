@@ -1,6 +1,5 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Loops;
 
@@ -18,7 +16,7 @@ namespace Pixel.Automation.Core.Components.Loops;
 [Scriptable("ScriptFile")]
 [Initializer(typeof(ScriptFileInitializer))]
 [NoDropTarget]
-public class ForLoopEntity : Entity, ILoop
+public class ForLoopEntity : LoopEntity
 {
     private readonly ILogger logger = Log.ForContext<ForLoopEntity>();
 
@@ -32,35 +30,18 @@ public class ForLoopEntity : Entity, ILoop
     {
         get => scriptFile;
         set => scriptFile = value;
-    }
-
-
-    [NonSerialized]
-    bool exitCriteriaSatisfied;
-    [Browsable(false)]     
-    public bool ExitCriteriaSatisfied
-    {
-        get
-        {
-            return exitCriteriaSatisfied;
-        }
-
-        set
-        {
-            this.exitCriteriaSatisfied = value;
-        }
-    }        
+    }    
 
     public ForLoopEntity() : base("For Loop", "ForLoopEntity")
     {
 
     }
 
-    public  override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
+    public  override IEnumerable<Interfaces.IComponent> GetNextComponentToProcess()
     {           
         IFileSystem fileSystem = this.EntityManager.GetCurrentFileSystem();
         string[] statements = fileSystem.ReadAllText(Path.Combine(fileSystem.WorkingDirectory, this.scriptFile))?.Trim()
-            .Split(new char[] {';'});
+            .Split(new char[] {';'});       
 
         //Number of statements is 4 when ; is placed after incrment statement otherwise 3.
         if (statements.Length < 3 || statements.Length > 4)
@@ -73,18 +54,18 @@ public class ForLoopEntity : Entity, ILoop
             throw new FormatException($"For loop statement for componet with Id : {Id} is incorrectly formed." +
                            $"statement must have exactly three parts structured in the form initialization;condition;increment");
         }
+      
+        _ = ExecuteScript(statements[0] + ";").Result; //execute the initialization part
 
-        _ = ExecuteScript(statements[0]).Result; //execute the initialization part
-
-        logger.Information(": Begin for loop");
-        int iteration = 0;
+        logger.Information(": Begin for loop");      
         for (int i = 0; ; i++)
         {
-            ScriptResult scriptResult = ExecuteScript(statements[1]).Result;  //execute the condition part
+            //bool scriptResult = ExecuteConditionScript(statements[1]).Result;  //execute the condition part
+            var scriptResult = ExecuteScript(statements[1]).Result;
             this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
             if (this.exitCriteriaSatisfied)
             {
-                logger.Information($"Loop condition evaluated to false after {0} iterations", iteration);
+                logger.Information($"Loop condition evaluated to false after {0} iterations", i + 1);
                 break;
             }
 
@@ -95,29 +76,14 @@ public class ForLoopEntity : Entity, ILoop
             while (iterator.MoveNext())
             {
                 yield return iterator.Current;
-            }
-
+            }          
+            
+            _ = ExecuteScript(statements[2] + ";").Result;  //Execute the increment statement
+            
             this.ResetDescendants();
-
-            iteration++;
-
-            _ = ExecuteScript(statements[2]).Result;  //Execute the increment statement
         }
         logger.Information(": End for loop");
-    }
-
-    private async Task<ScriptResult> ExecuteScript(string scriptToExecute)
-    {
-        IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
-        ScriptResult result = await scriptExecutor.ExecuteScriptAsync(scriptToExecute);         
-        return result;
-    }
-
-    public override void ResetComponent()
-    {
-        base.ResetComponent();           
-        this.ExitCriteriaSatisfied = false;
-    }
+    }  
 
     public override void ResolveDependencies()
     {
@@ -131,7 +97,8 @@ public class ForLoopEntity : Entity, ILoop
     }
 
     public override Entity AddComponent(Interfaces.IComponent component)
-    {        
+    {
         return this;
     }
+
 }

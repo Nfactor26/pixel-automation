@@ -1,13 +1,10 @@
 ﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Loops;
 
@@ -17,7 +14,7 @@ namespace Pixel.Automation.Core.Components.Loops;
 [Scriptable("ScriptFile")]
 [Initializer(typeof(ScriptFileInitializer))]
 [NoDropTarget]
-public class WhileLoopEntity : Entity, ILoop
+public class WhileLoopEntity : LoopEntity
 {
     private readonly ILogger logger = Log.ForContext<WhileLoopEntity>();
 
@@ -29,36 +26,19 @@ public class WhileLoopEntity : Entity, ILoop
         get => scriptFile;
         set => scriptFile = value;
     }    
-
-    [NonSerialized]
-    bool exitCriteriaSatisfied;
-    [Browsable(false)]        
-    public bool ExitCriteriaSatisfied
-    {
-        get
-        {
-            return exitCriteriaSatisfied;
-        }
-
-        set
-        {
-            this.exitCriteriaSatisfied = value;
-        }
-    }
-
   
     public WhileLoopEntity() : base("While Loop", "WhileLoopEntity")
     {
 
     }
 
-    public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
-    {                
+    public override IEnumerable<Interfaces.IComponent> GetNextComponentToProcess()
+    {       
         int iteration = 0;
         logger.Information(": Begin while loop");
         while (true)
         {               
-            ScriptResult scriptResult = ExecuteScript().Result;
+            var scriptResult = ExecuteScriptFile(scriptFile).Result;
             this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
             if(this.exitCriteriaSatisfied)
             {
@@ -80,22 +60,7 @@ public class WhileLoopEntity : Entity, ILoop
             iteration++;
         }
         logger.Information(": End while loop");
-    }
-
-    private async Task<ScriptResult> ExecuteScript()
-    {
-
-        IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
-        ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
-        return result;
-
-    }
-
-    public override void ResetComponent()
-    {
-        base.ResetComponent();          
-        this.ExitCriteriaSatisfied = false;          
-    }
+    }    
 
     public override void ResolveDependencies()
     {
@@ -105,11 +70,12 @@ public class WhileLoopEntity : Entity, ILoop
         }
 
         PlaceHolderEntity statementsPlaceHolder = new PlaceHolderEntity("Statements");
-        base.AddComponent(statementsPlaceHolder);
-        
+        base.AddComponent(statementsPlaceHolder);        
     }
+
     public override Entity AddComponent(Interfaces.IComponent component)
-    {          
+    {
         return this;
     }
+
 }

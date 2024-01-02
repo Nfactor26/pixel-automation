@@ -184,6 +184,23 @@ namespace Pixel.Scripting.Engine.CSharp
             throw new FileNotFoundException($"Script file : {scriptFile}  doesn't exist");
         }
 
+        public async Task<T> CreateDelegateFromScriptAsync<T>(string scriptCode)
+        {
+            //var state = CSharpScript.Run("int Times(int x) { return x * x; }");
+            //var fn = state.CreateDelegate<Func<int, int>>("Times");
+            //var result = fn(5);
+            //Assert.Equal(25, result);
+
+            //throw new NotImplementedException("Roslyn has an open issue : https://github.com/dotnet/roslyn/issues/3720");
+
+            lastExecutionResult = await this.scriptExecutor.ExecuteScriptAsync(scriptCode, this.ScriptOptions, this.scriptGlobals, lastExecutionResult?.CurrentState);
+            if (lastExecutionResult.ReturnValue is T del)
+            {
+                return del;
+            }
+            throw new InvalidOperationException($"Script didn't return delegate of {typeof(T)}");
+        }
+
         public void ClearState()
         {
             lastExecutionResult = null;

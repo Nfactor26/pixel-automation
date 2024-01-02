@@ -35,6 +35,8 @@ namespace Pixel.Automation.Core
 
         Task<T> CreateDelegateAsync<T>(string scriptFile);
 
+        Task<T> CreateDelegateFromScriptAsync<T>(string scriptCode);
+
         void ClearState();
 
         bool HasScriptVariable(string variableName);
