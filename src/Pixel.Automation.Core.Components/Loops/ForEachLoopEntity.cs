@@ -17,25 +17,9 @@ namespace Pixel.Automation.Core.Components.Loops;
 [Serializable]
 [ToolBoxItem("For..Each Loop", "Loops", iconSource: null, description: "Contains a group of automation entity that will be prcossed in a for each loop", tags: new string[] { "foreach loop" })]
 [NoDropTarget]
-public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
+public class ForEachLoopEntity : LoopEntity , IScopedEntity
 {
     private readonly ILogger logger = Log.ForContext<ForEachLoopEntity>();
-
-    [NonSerialized]
-    bool exitCriteriaSatisfied;
-    [Browsable(false)]      
-    public bool ExitCriteriaSatisfied
-    {
-        get
-        {
-            return exitCriteriaSatisfied;
-        }
-
-        set
-        {
-            this.exitCriteriaSatisfied = value;
-        }
-    }
 
     private Argument targetCollection = new InArgument<IEnumerable<object>>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted , Mode = ArgumentMode.DataBound, CanChangeType = true };
     [DataMember(Order = 200)]
@@ -75,7 +59,7 @@ public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
     /// 
     /// </summary>
     /// <returns></returns>
-    public override IEnumerable<Core.Interfaces.IComponent> GetNextComponentToProcess()
+    public override IEnumerable<Interfaces.IComponent> GetNextComponentToProcess()
     {
         IArgumentProcessor argumentProcessor = this.ArgumentProcessor;       
         var targetEnumerable = this.TargetCollection.GetValue(argumentProcessor).Result;
@@ -104,12 +88,6 @@ public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
         this.ExitCriteriaSatisfied = true;
     }
 
-    public override void ResetComponent()
-    {
-        base.ResetComponent();
-        this.ExitCriteriaSatisfied = false;
-    }
-
     public override void ResolveDependencies()
     {
         if (this.Components.Count() > 0)
@@ -123,9 +101,10 @@ public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
     }
 
     public override Entity AddComponent(Interfaces.IComponent component)
-    {         
+    {
         return this;
     }
+
 
     #region IScopedEntity
 
@@ -163,7 +142,6 @@ public class ForEachLoopEntity : Entity, ILoop , IScopedEntity
             }
         }
     }
-
 
     public object GetScopedTypeInstance()
     {

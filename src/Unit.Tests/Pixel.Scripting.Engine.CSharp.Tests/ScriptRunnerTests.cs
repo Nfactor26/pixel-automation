@@ -26,6 +26,18 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             Assert.AreEqual(1, result.ReturnValue);
         }
 
+        [TestCase("x == 0", true)]
+        [TestCase("x != 0", false)]
+        public async Task CanExecuteCondition(string condition, bool expected)
+        {
+            ScriptRunner scriptRunner = new ScriptRunner();
+            var scriptOptions = ScriptOptions.Default.AddReferences(typeof(int).Assembly);           
+            var scriptResult = await scriptRunner.ExecuteScriptAsync("int x = 0;", scriptOptions, null);
+            var continuationResult = await scriptRunner.ExecuteScriptAsync(condition, scriptOptions, null, scriptResult.CurrentState);
+
+            Assert.AreEqual(expected, (bool)continuationResult.ReturnValue);
+        }
+
         /// <summary>
         /// Execute a script which defines a integer variable x and modifies it values.
         /// Assert that captured script state has this variable x and it's value is what is expected.

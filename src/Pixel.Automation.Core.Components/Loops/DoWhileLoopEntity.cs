@@ -1,13 +1,10 @@
 ﻿using Pixel.Automation.Core.Attributes;
-using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Core.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace Pixel.Automation.Core.Components.Loops;
 
@@ -17,7 +14,7 @@ namespace Pixel.Automation.Core.Components.Loops;
 [Scriptable("ScriptFile")]
 [Initializer(typeof(ScriptFileInitializer))]
 [NoDropTarget]
-public class DoWhileLoopEntity : Entity, ILoop
+public class DoWhileLoopEntity : LoopEntity
 {
     private readonly ILogger logger = Log.ForContext<DoWhileLoopEntity>();
 
@@ -30,29 +27,13 @@ public class DoWhileLoopEntity : Entity, ILoop
         set => scriptFile = value;
     }
 
-    [NonSerialized]
-    bool exitCriteriaSatisfied;
-    [Browsable(false)]    
-    public bool ExitCriteriaSatisfied
-    {
-        get
-        {
-            return exitCriteriaSatisfied;
-        }
-
-        set
-        {
-            this.exitCriteriaSatisfied = value;
-        }
-    }      
-
     public DoWhileLoopEntity() : base("Do..While Loop", "DoWhileLoopEntity")
     {
 
     }
 
     public override IEnumerable<Interfaces.IComponent> GetNextComponentToProcess()
-    {           
+    {       
         int iteration = 0;
         logger.Information(": Begin Do While loop");
         do
@@ -66,7 +47,7 @@ public class DoWhileLoopEntity : Entity, ILoop
                 yield return iterator.Current;
             }
 
-            ScriptResult scriptResult = ExecuteScript().Result;
+            var scriptResult = ExecuteScriptFile(this.scriptFile).Result;
             this.exitCriteriaSatisfied = !(bool)scriptResult.ReturnValue;
             if (this.exitCriteriaSatisfied)
             {
@@ -80,20 +61,7 @@ public class DoWhileLoopEntity : Entity, ILoop
         }
         while (true);
         logger.Information(": End Do While loop");
-    }
-
-    private async Task<ScriptResult> ExecuteScript()
-    {
-        IScriptEngine scriptExecutor = this.EntityManager.GetScriptEngine();
-        ScriptResult result = await scriptExecutor.ExecuteFileAsync(this.scriptFile);           
-        return result;           
-    }
-
-    public override void ResetComponent()
-    {
-        base.ResetComponent();
-        this.ExitCriteriaSatisfied = false;         
-    }
+    } 
 
     public override void ResolveDependencies()
     {
@@ -107,7 +75,8 @@ public class DoWhileLoopEntity : Entity, ILoop
     }
 
     public override Entity AddComponent(Interfaces.IComponent component)
-    {           
+    {
         return this;
     }
+
 }
