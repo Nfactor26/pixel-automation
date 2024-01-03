@@ -1,6 +1,6 @@
 ﻿using Dawn;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System.Collections.Generic;

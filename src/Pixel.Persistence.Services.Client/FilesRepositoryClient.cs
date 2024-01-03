@@ -1,8 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Persistence.Core.Models;
-using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System.Threading.Tasks;
@@ -111,14 +110,7 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
         Guard.Argument(file, nameof(file)).NotNull();
         Guard.Argument(filePath).NotNull().NotEmpty();
 
-        var projectFileRequest = new AddProjectFileRequest()
-        {
-            ProjectId = file.ProjectId,
-            ProjectVersion = file.ProjectVersion,
-            Tag = file.Tag,
-            FileName = file.FileName,
-            FilePath = file.FilePath
-        };
+        var projectFileRequest = new AddProjectFileRequest(file.ProjectId, file.ProjectVersion, file.Tag, file.FileName, file.FilePath);      
         RestRequest restRequest = new RestRequest(baseUrl) { Method = Method.Post };      
         restRequest.AddParameter(nameof(AddProjectFileRequest), serializer.Serialize<AddProjectFileRequest>(projectFileRequest), ParameterType.RequestBody);
         restRequest.AddFile("file", filePath);
@@ -134,12 +126,7 @@ public abstract class FilesRepositoryClient : IFilesRepositoryClient
         Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
         Guard.Argument(fileName, nameof(fileName)).NotNull().NotEmpty();
 
-        var deleteFileRequest = new DeleteProjectFileRequest()
-        {
-            ProjectId = projectId,
-            ProjectVersion = projectVersion,
-            FileName = fileName
-        };
+        var deleteFileRequest = new DeleteProjectFileRequest(projectId, projectVersion, fileName);       
 
         RestRequest restRequest = new RestRequest(baseUrl);
         restRequest.AddParameter(nameof(DeleteProjectFileRequest), serializer.Serialize<DeleteProjectFileRequest>(deleteFileRequest), ParameterType.RequestBody);

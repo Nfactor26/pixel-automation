@@ -16,8 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />
-		<ProjectReference Include="..\..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
+		<ProjectReference Include="..\..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />		
 	</ItemGroup>
 
 </Project>

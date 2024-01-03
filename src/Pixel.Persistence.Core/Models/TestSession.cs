@@ -2,8 +2,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 using Pixel.Persistence.Core.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Pixel.Persistence.Core.Models
@@ -101,45 +99,5 @@ namespace Pixel.Persistence.Core.Models
             this.MachineName = Environment.MachineName;
             this.OSDetails = RuntimeInformation.OSDescription;
         }
-
-
-        public TestSession(SessionTemplate template, string projectVersion) : this()
-        {
-            this.TemplateId = template.Id;
-            this.TemplateName = template.Name;
-            this.ProjectId = template.ProjectId;
-            this.ProjectName = template.ProjectName;
-            this.ProjectVersion = projectVersion;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="projectName">Name of the project</param>
-        /// <param name="projectVersion">Version of the project</param>
-        public TestSession(string projectId, string projectName, string projectVersion) : this()
-        {
-            this.ProjectId = projectId;
-            this.ProjectName = projectName;
-            this.ProjectVersion = projectVersion;            
-        }    
-      
-
-        public void OnFinished(IEnumerable<TestResult> testResultCollection)
-        {
-            this.SessionStatus = SessionStatus.Completed;
-            this.TotalNumberOfTests = testResultCollection.Count();
-            this.NumberOfTestsPassed = testResultCollection.Where(t => t.Result.Equals(TestStatus.Success)).Count();
-            this.NumberOfTestsFailed = testResultCollection.Where(a => !a.Result.Equals(TestStatus.Success)).Count();
-            this.SessionResult = testResultCollection.All(a => a.Result.Equals(TestStatus.Success)) ? TestStatus.Success : TestStatus.Failed;
-
-            double sessionTime = 0;
-            foreach (var result in testResultCollection)
-            {
-                sessionTime += result.ExecutionTime;
-            }
-            this.SessionTime = sessionTime / 60;
-        }
-
     }
 }

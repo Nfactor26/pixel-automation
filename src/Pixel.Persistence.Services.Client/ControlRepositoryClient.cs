@@ -1,9 +1,8 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Persistence.Core.Models;
-using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System;
@@ -109,13 +108,7 @@ namespace Pixel.Persistence.Services.Client
             logger.Debug("Add or update control image for control : {0} with Id : {1}", controlDescription.ControlName, controlDescription.ControlId);
 
             RestRequest restRequest = new RestRequest("control/image");
-            var controlImageMetaData = new ControlImageMetaData()
-            {
-                ApplicationId = controlDescription.ApplicationId,
-                ControlId = controlDescription.ControlId,
-                Version = controlDescription.Version.ToString(),
-                FileName = Path.GetFileName(imageFile)
-            };
+            var controlImageMetaData = new ControlImageMetaData(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version.ToString(), Path.GetFileName(imageFile), default);
             restRequest.AddParameter(nameof(ControlImageMetaData), serializer.Serialize<ControlImageMetaData>(controlImageMetaData), ParameterType.RequestBody);
             restRequest.AddFile("file", imageFile);
             var client = this.clientFactory.GetOrCreateClient();
@@ -131,13 +124,7 @@ namespace Pixel.Persistence.Services.Client
             logger.Debug("Delete control image {0} for control : {1} with Id : {2}", fileName, controlDescription.ControlName, controlDescription.ControlId);
 
             RestRequest restRequest = new RestRequest("control/image/delete");
-            var controlImageMetaData = new ControlImageMetaData()
-            {
-                ApplicationId = controlDescription.ApplicationId,
-                ControlId = controlDescription.ControlId,
-                Version = controlDescription.Version.ToString(),
-                FileName = fileName
-            };
+            var controlImageMetaData = new ControlImageMetaData(controlDescription.ApplicationId, controlDescription.ControlId, controlDescription.Version.ToString(), fileName, default);
             restRequest.AddJsonBody(serializer.Serialize<ControlImageMetaData>(controlImageMetaData));    
             var client = this.clientFactory.GetOrCreateClient();
             var result = await client.ExecuteAsync(restRequest, Method.Delete);
