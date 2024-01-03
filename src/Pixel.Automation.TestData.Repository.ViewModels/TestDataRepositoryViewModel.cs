@@ -95,6 +95,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         internal async Task OnProjectLoaded(object sender, ProjectLoadedEventArgs e)
         {
+            await DownloadDataSourcesAsync();
             var referenceManager = this.projectManager.GetReferenceManager();
             this.Groups.AddRange(referenceManager.GetTestDataSourceGroups());
             //Create an empty data source if no data source exist in any of the groups
@@ -585,19 +586,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         #endregion Edit Data Source
 
-        #region life cycle
-
-        /// <summary>
-        /// Called just before view is activiated for the first time.
-        /// Available TestDataSource are loaded from local storage during initialization.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
-        {
-            await DownloadDataSourcesAsync();           
-            await base.OnInitializeAsync(cancellationToken);
-        }
+        #region life cycle             
 
         /// <summary>
         /// Download and load the available TestDataSources

@@ -161,6 +161,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 try
                 {
+                    await DownloadFixturesAndTestsAsync();
                     var referenceManager = this.projectManager.GetReferenceManager();
                     foreach(var fixtureId in referenceManager.GetAllFixtures())
                     {
@@ -1410,20 +1411,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         #endregion Execute       
 
         #region life cycle
-
-
-        /// <summary>
-        /// Called just before view is activiated for the first time.
-        /// Fixtures and TestCases are loaded from local storage during initialization.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
-        {
-            await DownloadFixturesAndTestsAsync();
-            await base.OnInitializeAsync(cancellationToken);
-        }
-
+               
         /// <summary>
         /// Download all the fixtures and test cases
         /// </summary>
