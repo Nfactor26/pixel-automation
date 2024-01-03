@@ -32,16 +32,6 @@ jobs:
       target-framework: net7.0
       self-contained: false
 
-  build-pixel-persistence-for-win10-x64:
-    uses: ./.github/workflows/build-pixel-persistence.yml
-    with:
-      target-os: windows-latest
-
-  build-pixel-persistence-for-linux-x64:
-    uses: ./.github/workflows/build-pixel-persistence.yml
-    with:
-      target-os: ubuntu-latest
-
 
 
 
