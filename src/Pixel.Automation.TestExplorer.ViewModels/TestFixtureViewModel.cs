@@ -207,6 +207,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         }
 
         /// <summary>
+        /// Indicates if the test cases have been loaded for the fixture.
+        /// </summary>
+        public bool IsLoaded
+        {
+            get => this.Tests.Any() || (!this.Tests.Any() && !this.TestFixture.TestCases.Any());
+        }
+
+        /// <summary>
         /// Indicates whether the TestFixture is being opened for execution.
         /// If true, skip setting up editors, etc which is required only when opened for edit.
         /// </summary>

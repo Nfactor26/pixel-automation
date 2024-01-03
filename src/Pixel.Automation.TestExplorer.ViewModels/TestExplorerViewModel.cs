@@ -231,7 +231,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
             {
                 foreach (var fixtureViewModel in this.TestFixtures)
                 {
-                    if (!fixtureViewModel.Tests.Any())
+                    if (!fixtureViewModel.IsLoaded)
                     {
                         await LoadTestCasesForFixture(fixtureViewModel);
                     }
@@ -246,7 +246,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// <returns></returns>
         public async Task OnFixtureExpanded(TestFixtureViewModel testFixtureViewModel)
         {
-            if(testFixtureViewModel.NumberOfTestCases > 0 && !testFixtureViewModel.Tests.Any())
+            if(!testFixtureViewModel.IsLoaded)
             {
                 await LoadTestCasesForFixture(testFixtureViewModel);
             }
@@ -1281,7 +1281,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
         /// Run all the available TestCases
         /// </summary>
         public async Task RunAll()
-        {           
+        {
+            await LoadAllTestCases();
             isCancellationRequested = false;
             CanAbort = true;
             Task runTestCasesTask = new Task(async () =>
