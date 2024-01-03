@@ -3,9 +3,9 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Reference.Manager.Contracts;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 using Serilog;
 using Spectre.Console;
@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TestCase = Pixel.Automation.Core.TestData.TestCase;
 using TestFixture = Pixel.Automation.Core.TestData.TestFixture;
+using TestResult = Pixel.Persistence.Services.Client.Models.TestResult;
 
 namespace Pixel.Automation.Test.Runner
 {
@@ -301,7 +302,7 @@ namespace Pixel.Automation.Test.Runner
                 logger.Information("Selector is {0}", selector);
               
                 TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
-                List<Persistence.Core.Models.TestResult> testResults = new List<Persistence.Core.Models.TestResult>();
+                List<TestResult> testResults = new();
                 testSession.Id = await sessionClient.AddSessionAsync(testSession);
 
                 try
@@ -353,7 +354,7 @@ namespace Pixel.Automation.Test.Runner
                                     testResult.Id = result.Id;
                                     await UploadTraceImageFiles(result);
                                     testResults.Add(testResult);
-                                    if (testResult.Result == Persistence.Core.Enums.TestStatus.Success)
+                                    if (testResult.Result == TestStatus.Success)
                                     {
                                         console.MarkupLine($"  - [green]{testCase.DisplayName}[/]");
                                     }
@@ -402,7 +403,7 @@ namespace Pixel.Automation.Test.Runner
             }            
         }
        
-        async IAsyncEnumerable<Persistence.Core.Models.TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
+        async IAsyncEnumerable<TestResult> RunTestCaseAsync(TestFixture fixture, TestCase testCase)
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity($"Run Test Case - {testCase.DisplayName}", ActivityKind.Internal))
             {
@@ -419,7 +420,7 @@ namespace Pixel.Automation.Test.Runner
                 {
                     await foreach (var result in this.testRunner.RunTestAsync(fixture, testCase))
                     {
-                        var testResult = new Persistence.Core.Models.TestResult()
+                        var testResult = new TestResult()
                         {
                             ProjectId = automationProject.ProjectId,
                             ProjectName = automationProject.Name,
@@ -429,7 +430,7 @@ namespace Pixel.Automation.Test.Runner
                             FixtureId = fixture.FixtureId,
                             FixtureName = fixture.DisplayName,
                             TestData = result.TestData,
-                            Result = (Persistence.Core.Enums.TestStatus)((int)result.Result),
+                            Result = result.Result,
                             ExecutedOn = result.StartTime,
                             ExecutionTime = result.ExecutionTime.TotalSeconds
                         };
@@ -448,10 +449,10 @@ namespace Pixel.Automation.Test.Runner
                             switch(traceData.TraceType)
                             {
                                 case Core.Enums.TraceType.Message:
-                                    testResult.Traces.Add(new MessageTraceData(traceData.RecordedAt, (Persistence.Core.Enums.TraceLevel)(int)traceData.TraceLevel, traceData.Content));
+                                    testResult.Traces.Add(new MessageTraceData(traceData.RecordedAt, traceData.TraceLevel, traceData.Content));
                                     break;
                                 case Core.Enums.TraceType.Image:
-                                    testResult.Traces.Add(new ImageTraceData(traceData.RecordedAt, Persistence.Core.Enums.TraceLevel.Information, traceData.Content));
+                                    testResult.Traces.Add(new ImageTraceData(traceData.RecordedAt, Core.Enums.TraceLevel.Information, traceData.Content));
                                     break;
                             }                           
                         }
@@ -465,7 +466,7 @@ namespace Pixel.Automation.Test.Runner
             }             
         }
 
-        async Task UploadTraceImageFiles(Persistence.Core.Models.TestResult testResult)
+        async Task UploadTraceImageFiles(TestResult testResult)
         {
             try
             {          

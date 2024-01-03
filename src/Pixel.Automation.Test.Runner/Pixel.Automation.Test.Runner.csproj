@@ -49,7 +49,6 @@
 		<ProjectReference Include="..\Pixel.Automation.RestApi.Shared\Pixel.Automation.RestApi.Shared.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.Web.Common\Pixel.Automation.Web.Common.csproj" />
-		<ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />

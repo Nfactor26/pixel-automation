@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Controls;
+using Pixel.Persistence.Services.Client.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="applicationId"></param>
         /// <param name="laterThan"></param>
         /// <returns></returns>
-        Task<IEnumerable<Core.Models.ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan);
+        Task<IEnumerable<ControlImageDataFile>> GetControlImages(string applicationId, DateTime laterThan);
 
         /// <summary>
         /// Add a new control and link it with specified application screen

@@ -1,9 +1,9 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
-using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -309,7 +309,7 @@ public class PrefabDataManager : IPrefabDataManager
         {
             var prefabsDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, prefabProject.ApplicationId, Constants.PrefabsDirectory
                 ,prefabProject.ProjectId, prefabVersion.ToString());
-            await this.filesClient.AddProjectDataFile(new Core.Models.ProjectDataFile()
+            await this.filesClient.AddProjectDataFile(new ProjectDataFile()
             {
                 ProjectId = prefabProject.ProjectId,
                 ProjectVersion = prefabVersion.ToString(),

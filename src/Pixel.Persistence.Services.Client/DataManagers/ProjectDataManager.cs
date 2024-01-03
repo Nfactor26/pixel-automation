@@ -4,6 +4,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -279,7 +280,7 @@ public class ProjectDataManager : IProjectDataManager
         if (IsOnlineMode)
         {
             var projectsDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
-            await this.filesClient.AddProjectDataFile(new Core.Models.ProjectDataFile()
+            await this.filesClient.AddProjectDataFile(new ProjectDataFile()
             {
                 ProjectId = automationProject.ProjectId,
                 ProjectVersion = projectVersion.ToString(),
@@ -416,7 +417,7 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     {
         if (IsOnlineMode)
         {
-            await this.filesClient.AddProjectDataFile(new Core.Models.ProjectDataFile()
+            await this.filesClient.AddProjectDataFile(new ProjectDataFile()
             {
                 ProjectId = this.automationProject.ProjectId,
                 ProjectVersion = this.projectVersion.ToString(),

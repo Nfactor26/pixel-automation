@@ -60,8 +60,7 @@
 		</ProjectReference>
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj">
 			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Persistence.Core\Pixel.Persistence.Core.csproj" />
+		</ProjectReference>	
 		<ProjectReference Include="..\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj" />
 	</ItemGroup>
 

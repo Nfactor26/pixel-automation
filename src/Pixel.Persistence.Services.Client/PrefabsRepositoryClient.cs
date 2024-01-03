@@ -1,8 +1,8 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System;
@@ -88,7 +88,7 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
     {
         Guard.Argument(screenId, nameof(screenId)).NotNull().NotEmpty().NotWhiteSpace();
         Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
-        Core.Models.PrefabProject project = new Core.Models.PrefabProject()
+        PrefabProject project = new PrefabProject()
         {
             ApplicationId = prefabProject.ApplicationId,
             ProjectId = prefabProject.ProjectId,
@@ -96,11 +96,11 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
             Namespace = prefabProject.Namespace,
             GroupName = prefabProject.GroupName,
             Description = prefabProject.Description,
-            AvailableVersions = new List<Core.Models.VersionInfo>()
+            AvailableVersions = new List<VersionInfo>()
         };
         foreach(var version in prefabProject.AvailableVersions)
         {
-            project.AvailableVersions.Add(new Core.Models.VersionInfo()
+            project.AvailableVersions.Add(new VersionInfo()
             {
                 Version = version.Version,
                 DataModelAssembly = version.DataModelAssembly,
@@ -129,13 +129,13 @@ public class PrefabsRepositoryClient : IPrefabsRepositoryClient
         }
 
         RestRequest restRequest = new RestRequest($"{baseUrl}/{projectId}/versions");
-        restRequest.AddJsonBody(new Core.Request.AddPrefabVersionRequest(new Core.Models.VersionInfo()
+        restRequest.AddJsonBody(new AddPrefabVersionRequest(new VersionInfo()
         {
             Version = newVersion.Version,
             IsActive = newVersion.IsActive,
             DataModelAssembly = newVersion.DataModelAssembly
         },
-        new Core.Models.VersionInfo()
+        new VersionInfo()
         {
             Version = cloneFrom.Version,
             IsActive = cloneFrom.IsActive,

@@ -1,11 +1,10 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client
@@ -71,11 +70,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(testResult, nameof(testResult)).NotNull();
             Guard.Argument(imageFiles, nameof(imageFiles)).NotNull();         
             RestRequest restRequest = new RestRequest($"testresult/trace/images");
-            var traceImageMetaData = new TraceImageMetaData()
-            {              
-                TestResultId = testResult.Id,
-                SessionId = testResult.SessionId
-            };
+            var traceImageMetaData = new TraceImageMetaData(testResult.ProjectId, testResult.SessionId);          
             restRequest.AddParameter(nameof(TraceImageMetaData), serializer.Serialize<TraceImageMetaData>(traceImageMetaData), ParameterType.RequestBody);
             foreach(var imageFile in imageFiles)
             {

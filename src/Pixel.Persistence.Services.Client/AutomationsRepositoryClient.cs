@@ -1,8 +1,8 @@
 ﻿using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Persistence.Core.Request;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using RestSharp;
 using Serilog;
 using System;
@@ -104,13 +104,13 @@ namespace Pixel.Persistence.Services.Client
             }
 
             RestRequest restRequest = new RestRequest($"projects/{projectId}/versions");
-            restRequest.AddJsonBody(new AddProjectVersionRequest(new Pixel.Persistence.Core.Models.VersionInfo()
+            restRequest.AddJsonBody(new AddProjectVersionRequest(new VersionInfo()
             {
                 Version = newVersion.Version,
                 IsActive = newVersion.IsActive,
                 DataModelAssembly = newVersion.DataModelAssembly
             },
-            new Pixel.Persistence.Core.Models.VersionInfo()
+            new VersionInfo()
             {
                 Version = cloneFrom.Version,
                 IsActive = cloneFrom.IsActive,

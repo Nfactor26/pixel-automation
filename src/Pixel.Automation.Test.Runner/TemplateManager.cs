@@ -1,7 +1,7 @@
 ﻿using Dawn;
-using Pixel.Persistence.Core.Models;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client.Models;
 using Spectre.Console;
 using System;
 using System.Linq;

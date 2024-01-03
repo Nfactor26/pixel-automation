@@ -1,4 +1,4 @@
-﻿using Pixel.Persistence.Core.Models;
+﻿using Pixel.Persistence.Services.Client.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
