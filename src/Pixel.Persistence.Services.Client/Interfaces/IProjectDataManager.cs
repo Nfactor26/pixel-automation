@@ -103,6 +103,13 @@ public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManag
     /// <param name="automationProject"></param>
     /// <param name="projectVersion"></param>
     void Initialize(AutomationProject automationProject, VersionInfo projectVersion);
+
+    /// <summary>
+    /// Dwnload all files belonging to the active version of project having specific tags
+    /// </summary>
+    /// <param name="tags"></param>
+    /// <returns></returns>
+    Task DownloadFilesWithTagsAsync(string[] tags);
 }
 
 public interface ITestCaseManager

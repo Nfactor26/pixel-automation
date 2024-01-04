@@ -77,6 +77,15 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="Export" Content="Export" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                     cal:Message.Attach="[Event Click] = [Action ExportAsync($dataContext)]" Margin="5,2,5,2" HorizontalAlignment="Center" 
+                                     ToolTip="Export project data as zip file along with it's dependencies" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
 
