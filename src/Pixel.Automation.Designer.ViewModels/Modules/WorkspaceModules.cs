@@ -39,10 +39,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();    
             Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InSingletonScope();
             Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
-                       
-            Kernel.Bind<IFixturesRepositoryClient>().To<FixturesRepositoryClient>();
-            Kernel.Bind<ITestsRepositoryClient>().To<TestsRepositoryClient>();
-            Kernel.Bind<ITestDataRepositoryClient>().To<TestDataRepositoryClient>();
+
             Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();          
         }
     }

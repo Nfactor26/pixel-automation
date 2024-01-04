@@ -1,10 +1,7 @@
 ﻿using Caliburn.Micro;
-using Ninject.Extensions.Factory;
 using Ninject.Modules;
 using Notifications.Wpf.Core;
-using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.ControlEditor;
-using Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Designer.ViewModels.DragDropHandlers;
 using Pixel.Automation.Designer.ViewModels.Factory;
