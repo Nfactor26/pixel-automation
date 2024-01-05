@@ -3,7 +3,6 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Reference.Manager.Contracts;
-using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Persistence.Services.Client.Models;
 using Pixel.Scripting.Common.CSharp.WorkspaceManagers;
@@ -31,8 +30,7 @@ namespace Pixel.Automation.Test.Runner
         private readonly IApplicationFileSystem applicationFileSystem;
         private readonly IProjectFileSystem projectFileSystem;
         private readonly ITypeProvider typeProvider;
-        private readonly IEntityManager entityManager;
-        private readonly ITestSessionClient sessionClient;
+        private readonly IEntityManager entityManager; 
         private readonly ITestRunner testRunner;
         private readonly ITestSelector testSelector;
         private readonly IProjectDataManager projectDataManager;
@@ -40,6 +38,7 @@ namespace Pixel.Automation.Test.Runner
         private readonly IPrefabDataManager prefabDataManager;
         private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly IReferenceManagerFactory referenceManagerFactory;
+        private readonly TestSessionManager sessionManager;
         private IReferenceManager referenceManager;
         private Core.Models.AutomationProject automationProject;
         private Core.Models.VersionInfo targetVersion;
@@ -49,7 +48,7 @@ namespace Pixel.Automation.Test.Runner
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IApplicationFileSystem applicationFileSystem,
             IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,
             IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetsDataManager, IPrefabDataManager prefabDataManager,
-            ITestRunner testRunner, ITestSelector testSelector, ITestSessionClient sessionClient, IScriptEngineFactory scriptEngineFactory,
+            ITestRunner testRunner, ITestSelector testSelector, TestSessionManager sessionManager, IScriptEngineFactory scriptEngineFactory,
             IReferenceManagerFactory referenceManagerFactory)
         {
             this.entityManager = Guard.Argument(entityManager).NotNull().Value;
@@ -57,7 +56,7 @@ namespace Pixel.Automation.Test.Runner
             this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;
             this.projectFileSystem = Guard.Argument(projectFileSystem).NotNull().Value;
             this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;     
-            this.sessionClient = Guard.Argument(sessionClient).NotNull().Value;
+            this.sessionManager = Guard.Argument(sessionManager).NotNull();
             this.testRunner = Guard.Argument(testRunner).NotNull().Value;
             this.testSelector = Guard.Argument(testSelector).NotNull().Value;
             this.projectDataManager = Guard.Argument(projectDataManager).NotNull().Value;
@@ -303,7 +302,7 @@ namespace Pixel.Automation.Test.Runner
               
                 TestSession testSession = new TestSession(this.sessionTemplate, this.targetVersion.Version.ToString());
                 List<TestResult> testResults = new();
-                testSession.Id = await sessionClient.AddSessionAsync(testSession);
+                testSession.Id = await sessionManager.AddSessionAsync(testSession);
 
                 try
                 {
@@ -350,7 +349,7 @@ namespace Pixel.Automation.Test.Runner
                                 {
                                     testResult.SessionId = testSession.Id;
                                     testResult.ExecutionOrder = ++counter;
-                                    var result = await sessionClient.AddResultAsync(testResult);
+                                    var result = await sessionManager.AddResultAsync(testResult);
                                     testResult.Id = result.Id;
                                     await UploadTraceImageFiles(result);
                                     testResults.Add(testResult);
@@ -392,7 +391,8 @@ namespace Pixel.Automation.Test.Runner
                     try
                     {
                         testSession.OnFinished(testResults);
-                        await sessionClient.UpdateSessionAsync(testSession.Id, testSession);
+                        PrintSessionDetails(console, testSession);
+                        await sessionManager.UpdateSessionAsync(testSession.Id, testSession);
                     }
                     catch (Exception ex)
                     {
@@ -484,7 +484,7 @@ namespace Pixel.Automation.Test.Runner
                 }
                 try
                 {
-                    await sessionClient.AddTraceImagesAsync(testResult, filesToAdd);
+                    await sessionManager.AddTraceImagesAsync(testResult, filesToAdd);
                 }
                 catch (Exception ex)
                 {
@@ -527,6 +527,20 @@ namespace Pixel.Automation.Test.Runner
             File.WriteAllText(fileName, fileContents);
             T entity = serializer.Deserialize<T>(fileName, typeProvider.GetKnownTypes());
             return entity;
+        }
+
+        void PrintSessionDetails(IAnsiConsole console, TestSession testSession)
+        {
+            console.WriteLine();
+            console.Write(new BarChart()
+                .Width(60)
+                .Label($"[Blue bold underline]{testSession.ProjectName} - {testSession.ProjectVersion}[/]")
+                .CenterLabel()
+                .AddItem("Passed", testSession.NumberOfTestsPassed, Color.Green)
+                .AddItem("Failed", testSession.NumberOfTestsFailed, Color.Red)
+                .AddItem("Total", testSession.TotalNumberOfTests, Color.Purple));
+            console.WriteLine();
+            console.MarkupLine($"[cyan3]Total Session Time : {TimeSpan.FromMinutes(testSession.SessionTime)}[/]");
         }
     }
 }

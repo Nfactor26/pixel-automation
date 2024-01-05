@@ -29,6 +29,7 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<ITestSelector>().To<TestSelector>().InSingletonScope();
 
             Kernel.Bind<TemplateManager>().ToSelf();
+            Kernel.Bind<TestSessionManager>().ToSelf();
         }
     }
 }

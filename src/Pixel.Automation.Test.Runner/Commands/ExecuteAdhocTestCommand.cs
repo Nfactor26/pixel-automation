@@ -1,5 +1,5 @@
-﻿using Dawn;
-using Pixel.Automation.Core;
+﻿using Pixel.Automation.Core;
+using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Persistence.Services.Client.Models;
 using Spectre.Console;
@@ -16,7 +16,7 @@ namespace Pixel.Automation.Test.Runner.Commands;
 /// <summary>
 /// Execute adhoc test command is used to execute tests without using a template
 /// </summary>
-internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
+internal sealed class ExecuteAdhocTestCommand : RunTestCommand<AdhocTestSettings>
 {
     public sealed class AdhocTestSettings : ExecuteTestSettings
     {
@@ -40,21 +40,17 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
         [CommandOption("-l|--list")]
         public bool? List { get; set; }
     }
-
-    private readonly IAnsiConsole console;
-    private readonly ProjectManager projectManager;
-    private readonly IProjectDataManager projectDataManager;
-
+    
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="console"></param>
     /// <param name="projectManager"></param>
-    public ExecuteAdhocTestCommand(IAnsiConsole console, ProjectManager projectManager, IProjectDataManager projectDataManager)
+    public ExecuteAdhocTestCommand(IAnsiConsole console, IApplicationDataManager applicationDataManager,
+        IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, ProjectManager projectManager)
+        : base(console, applicationDataManager, projectDataManager, prefabDataManager, projectManager)
     {
-        this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull();
-        this.console = Guard.Argument(console, nameof(console)).NotNull().Value;
-        this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
+       
     }
 
     /// <inheritdoc/>    
@@ -62,6 +58,8 @@ internal sealed class ExecuteAdhocTestCommand : AsyncCommand<AdhocTestSettings>
     {
         using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
+            await DownloadDataAsync();
+
             var sessionTemplate = new SessionTemplate()
             {
                 Name = Guid.NewGuid().ToString(),
