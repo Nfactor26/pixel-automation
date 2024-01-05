@@ -23,7 +23,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
 
         public TestDataRepositoryHostViewModel()
         {
-            this.DisplayName = "Test Data Repository";
+            this.DisplayName = "Test Data Explorer";
             _ = this.ActivateItemAsync(defaultContent);
         }
 
