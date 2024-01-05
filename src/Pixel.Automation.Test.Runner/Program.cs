@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Ninject;
-using OpenTelemetry.Exporter;
 using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -10,19 +12,14 @@ using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.Serialization;
 using Pixel.Automation.Test.Runner.Commands;
 using Pixel.Automation.Test.Runner.Modules;
-using Pixel.Persistence.Services.Client;
-using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using Spectre.Console.Cli;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
 using System;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Resources;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner
 {
@@ -112,23 +109,7 @@ namespace Pixel.Automation.Test.Runner
 
                 #if DEBUG
                 pluginManager.ListLoadedAssemblies();
-                #endif
-
-                using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
-                {
-                    var applicationDataManager = kernel.Get<IApplicationDataManager>();
-                    await applicationDataManager.DownloadApplicationsWithControlsAsync();
-                }
-                using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
-                {
-                    var projectDataManger = kernel.Get<IProjectDataManager>();
-                    await projectDataManger.DownloadProjectsAsync();
-                }
-                using (Telemetry.DefaultSource?.StartActivity("download-prefabs", ActivityKind.Internal))
-                {
-                    var prefabDataManager = kernel.Get<IPrefabDataManager>();
-                    await prefabDataManager.DownloadPrefabsAsync();
-                }            
+                #endif                                 
           
                 //System.Diagnostics.Debugger.Launch();
                 var registrar = new TypeRegistrar(kernel);
@@ -141,12 +122,16 @@ namespace Pixel.Automation.Test.Runner
                         run.AddCommand<ExecuteTestFromTemplateCommand>("template")
                         .WithDescription("Execute tests by specifying a template and optionally project version to use")
                         .WithExample(new[] { "run", "template", "template-name"})
-                        .WithExample(new[] { "run", "template", "template-name", "--list"  })
-                        .WithExample(new[] { "run", "template", "template-name", "1.0.0.0" });
+                        .WithExample(new[] { "run", "template", "template-name", "--list"  });
                         run.AddCommand<ExecuteAdhocTestCommand>("adhoc").WithDescription("Execute tests without using a template")
                         .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializeDefault()" })
                          .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "true", "InitializeDefault()", "--list" })
                         .WithExample(new[] { "run", "adhoc", "project-name", "project-version", "\"fixture.Name.Equals(\"fixture-name\") &&" +
+                        " test.Name.Contains(\"test-prefix\")\"", "InitializeDefault()" });
+                        run.AddCommand<ExecuteTestWithImportCommand>("with-import").WithDescription("Execute tests by importing a zip file that contains automation process and dependencies")
+                        .WithExample(new[] { "run", "with-import", "zip-file-path", "true", "InitializeDefault()" })
+                        .WithExample(new[] { "run", "with-import", "zip-file-path", "true", "InitializeDefault()", "--list" })
+                        .WithExample(new[] { "run", "with-import", "zip-file-path", "\"fixture.Name.Equals(\"fixture-name\") &&" +
                         " test.Name.Contains(\"test-prefix\")\"", "InitializeDefault()" });
                     });
                     config.AddBranch<TemplateSettings>("template", template =>

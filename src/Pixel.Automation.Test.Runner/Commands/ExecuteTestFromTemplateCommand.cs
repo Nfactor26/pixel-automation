@@ -1,5 +1,7 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Persistence.Services.Client.Interfaces;
+using Pixel.Persistence.Services.Client;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
@@ -14,7 +16,7 @@ namespace Pixel.Automation.Test.Runner.Commands;
 /// <summary>
 /// Execute test from template command is used to execute tests by specifying a template and optionally project version to use
 /// </summary>
-internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestFromTemplateSettings>
+internal sealed class ExecuteTestFromTemplateCommand : RunTestCommand<ExecuteTestFromTemplateSettings>
 {
     public sealed class ExecuteTestFromTemplateSettings : ExecuteTestSettings
     {
@@ -25,24 +27,23 @@ internal sealed class ExecuteTestFromTemplateCommand : AsyncCommand<ExecuteTestF
         [Description("Only list the test cases without executing them")]
         [CommandOption("-l|--list")]
         public bool? List { get; set; }
-
     }
-
-    private readonly IAnsiConsole console;
+  
     private readonly TemplateManager templateManager;
-    private readonly ProjectManager projectManager;
-
-    public ExecuteTestFromTemplateCommand(IAnsiConsole console, TemplateManager templateManager, ProjectManager projectManager)
+   
+    public ExecuteTestFromTemplateCommand(IAnsiConsole console, IApplicationDataManager applicationDataManager,
+      IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, ProjectManager projectManager, 
+      TemplateManager templateManager) : base(console, applicationDataManager, projectDataManager, prefabDataManager, projectManager)
     {
-        this.templateManager = Guard.Argument(templateManager, nameof(templateManager)).NotNull();
-        this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull();
-        this.console = Guard.Argument(console, nameof(console)).NotNull().Value;
+        this.templateManager = Guard.Argument(templateManager, nameof(templateManager)).NotNull();      
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings)
     {
         using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
+            await DownloadDataAsync();
+
             var sessionTemplate = await templateManager.GetByNameAsync(settings.TemplateName) ??
                 throw new ArgumentException($"Template with name : {0} doesn't exist", settings.TemplateName);
             await projectManager.LoadProjectAsync(sessionTemplate, sessionTemplate.TargetVersion);
