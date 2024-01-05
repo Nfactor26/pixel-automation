@@ -211,9 +211,11 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             try
             {
-                this.Dispose();
-                await this.TryCloseAsync(true);
+                await SetSelectedItem(null);
                 await this.globalEventAggregator.PublishOnUIThreadAsync(new EditorClosedNotification<PrefabProject>(this.PrefabProject));
+                this.globalEventAggregator.Unsubscribe(this);
+                await this.TryCloseAsync(true);              
+                this.Dispose();
             }
             catch (Exception ex)
             {
