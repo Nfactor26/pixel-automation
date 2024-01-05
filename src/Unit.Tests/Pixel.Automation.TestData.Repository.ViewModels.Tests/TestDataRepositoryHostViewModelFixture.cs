@@ -20,7 +20,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             var testDataRepositoryHostViewModel = new TestDataRepositoryHostViewModel();
 
-            Assert.AreEqual("Test Data Repository", testDataRepositoryHostViewModel.DisplayName);
+            Assert.AreEqual("Test Data Explorer", testDataRepositoryHostViewModel.DisplayName);
             Assert.AreEqual(PaneLocation.Bottom, testDataRepositoryHostViewModel.PreferredLocation);
             Assert.IsNotNull(testDataRepositoryHostViewModel.ActiveItem);
         }
