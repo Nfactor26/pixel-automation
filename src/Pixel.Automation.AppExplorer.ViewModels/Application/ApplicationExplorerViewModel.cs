@@ -99,7 +99,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         public ApplicationExplorerViewModel(IEventAggregator eventAggregator, IApplicationDataManager applicationDataManager,
             ITypeProvider typeProvider, IEnumerable<IApplicationAware> childView, IWindowManager windowManager, INotificationManager notificationManager)
         {
-            this.DisplayName = "Application Repository";
+            this.DisplayName = "Application Explorer";
             this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value; ;
             this.typeProvider = Guard.Argument(typeProvider, nameof(typeProvider)).NotNull().Value; ;
             this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;

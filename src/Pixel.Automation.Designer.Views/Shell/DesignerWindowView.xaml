@@ -56,12 +56,14 @@
             </MenuItem>
             
             <MenuItem x:Name="View" Header="View"  Style="{StaticResource MahApps.Styles.MenuItem}">
-                <MenuItem x:Name="ApplicationsToolBox" Header="Applications Window" ToolTip="Show Applications toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Applications')]"/>
-                <MenuItem x:Name="ComponentsToolBox" Header="Components Window" ToolTip="Show Components toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Components')]"/>
-                <MenuItem x:Name="PropertiesToolBox" Header="Properties Window" ToolTip="Show Properties toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Properties')]"/>
-                <MenuItem x:Name="PrefabsToolBox" Header="Prefabs Window" ToolTip="Show Prefabs toolbox" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Prefabs')]"/>
+                <MenuItem x:Name="ShowStartPage"  Header="Home" ToolTip="Show Home Page"/>
                 <Separator></Separator>
-                <MenuItem x:Name="ShowStartPage"  Header="Start Page" ToolTip="Show Start Page"/>
+                <MenuItem x:Name="Components" Header="Components" ToolTip="Show Components Pane" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Components')]"/>
+                <MenuItem x:Name="Properties" Header="Properties" ToolTip="Show Properties Pane" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Properties')]"/>          
+                <Separator></Separator>
+                <MenuItem x:Name="TestExplorer" Header="Test Explorer" ToolTip="Show Test Explorer Pane" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Test Explorer')]"/>
+                <MenuItem x:Name="ApplicationExplorer" Header="Application Explorer" ToolTip="Show Application Explorer Pane" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Application Explorer')]"/>
+                <MenuItem x:Name="TestDataExplorer" Header="Test Data Explorer " ToolTip="Show Test Data Explorer Pane" cal:Message.Attach="[Event Click] = [Action ShowToolBox('Test Data Explorer')]"/>             
             </MenuItem>
             
             <MenuItem x:Name="Project" Header="Project"  Style="{StaticResource MahApps.Styles.MenuItem}">
