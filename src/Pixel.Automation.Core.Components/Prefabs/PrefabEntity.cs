@@ -143,11 +143,11 @@ public class PrefabEntity : Entity
 
     #endregion overridden methods
 
-    public Type GetPrefabDataModelType()
+    public async Task<Type> GetPrefabDataModelType()
     {
         if(this.prefabDataModel == null)
         {
-            this.LoadPrefab();
+            await this.LoadPrefab();
         }
         return this.prefabDataModel.GetType();
     }

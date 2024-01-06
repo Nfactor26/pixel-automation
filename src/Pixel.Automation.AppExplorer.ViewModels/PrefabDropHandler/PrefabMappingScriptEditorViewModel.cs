@@ -36,7 +36,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>       
-        protected override Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             string scriptFile = GetScriptFile();
             string generatedCode;
@@ -46,7 +46,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             }
             else
             {
-                generatedCode = GetGeneratedCode();
+                generatedCode = await GetGeneratedCode();
             }           
             this.ScriptEditor = this.scriptEditorFactory.CreateInlineScriptEditor(new EditorOptions() 
             {
@@ -75,7 +75,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 
             this.ScriptEditor.Activate();
           
-            return base.OnActivateAsync(cancellationToken);
+            await base.OnActivateAsync(cancellationToken);
         }
 
         protected abstract void AddProject(string[] projectReferences);
@@ -84,7 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// Get the generated code for mapping
         /// </summary>
         /// <returns></returns>
-        protected abstract string GetGeneratedCode();
+        protected abstract Task<string> GetGeneratedCode();
 
         /// <summary>
         /// Get the name of the project to which script should be added in the workspace
