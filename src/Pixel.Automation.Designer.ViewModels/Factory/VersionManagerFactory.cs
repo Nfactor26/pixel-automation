@@ -59,9 +59,9 @@ namespace Pixel.Automation.Designer.ViewModels.Factory
                this.eventAggregator, this.notificationManager, this.applicationSettings);
         }
 
-        public IVersionManager CreatePrefabReferenceManager(IReferenceManager referenceManager)
+        public IVersionManager CreatePrefabReferenceManager(IReferenceManager referenceManager, Action<IEnumerable<PrefabReference>> onVersionChanged)
         {
-            return new PrefabReferenceManagerViewModel(this.prefabDataManager, referenceManager, this.notificationManager);
+            return new PrefabReferenceManagerViewModel(this.prefabDataManager, referenceManager, this.notificationManager, onVersionChanged);
         }
 
         public IVersionManager CreateControlReferenceManager(IReferenceManager referenceManager)

@@ -2,6 +2,8 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Reference.Manager.Contracts;
+using System;
+using System.Collections.Generic;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
 {
@@ -15,7 +17,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
 
         IVersionManager CreatePrefabVersionManager(PrefabProject prefabProject);
 
-        IVersionManager CreatePrefabReferenceManager(IReferenceManager referenceManager);
+        IVersionManager CreatePrefabReferenceManager(IReferenceManager referenceManager, Action<IEnumerable<PrefabReference>> OnPrefabsChanged);
 
         IVersionManager CreateControlReferenceManager(IReferenceManager referenceManager);
 

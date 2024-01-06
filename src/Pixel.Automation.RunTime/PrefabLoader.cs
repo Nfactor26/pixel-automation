@@ -24,9 +24,14 @@ namespace Pixel.Automation.RunTime
         protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
         protected readonly IProjectFileSystem projectFileSystem;
         protected readonly IReferenceManager referenceManager;
-        protected readonly Dictionary<string, PrefabInstance> Prefabs = new Dictionary<string, PrefabInstance>();
+        protected readonly Dictionary<string, PrefabInstance> Prefabs = new();
         private PrefabReferences prefabReferences;
        
+        /// <summary>
+        /// /constructor
+        /// </summary>
+        /// <param name="projectFileSystem"></param>
+        /// <param name="referenceManager"></param>
         public PrefabLoader(IProjectFileSystem projectFileSystem, IReferenceManager referenceManager)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
@@ -34,6 +39,7 @@ namespace Pixel.Automation.RunTime
             logger.Debug($"Created a new instance of {nameof(PrefabLoader)} for Thread with Id : {Thread.CurrentThread.ManagedThreadId}");
         }
 
+        /// <inhertidoc/>
         public Entity GetPrefabEntity(string applicationId, string prefabId, IEntityManager parentEntityManager)
         {
             try
@@ -57,6 +63,7 @@ namespace Pixel.Automation.RunTime
             }
         }
 
+        /// <inhertidoc/>
         public Type GetPrefabDataModelType(string applicationId, string prefabId, IEntityManager parentEntityManager)
         {
             try
@@ -66,12 +73,12 @@ namespace Pixel.Automation.RunTime
                 {
                     logger.Information($"Prefab with applicationId {applicationId} && prefabId : {prefabId} is available in cache.");
                     var existingPrefabInstance = Prefabs[prefabId];
-                    return existingPrefabInstance.GetDataModelType();
+                    return existingPrefabInstance.DataModelType;
                 }
 
                 var prefabInstance = LoadPrefab(applicationId, prefabId, parentEntityManager);
                 Prefabs.Add(prefabId, prefabInstance);
-                return prefabInstance.GetDataModelType();
+                return prefabInstance.DataModelType;
             }
             finally
             {
@@ -79,15 +86,34 @@ namespace Pixel.Automation.RunTime
             }
         }
 
-        public void ClearCache()
+        /// <inhertidoc/>
+        public bool IsPrefabLoaded(string prefabId)
         {
-            foreach(var prefab in this.Prefabs)
-            {
-                prefab.Value.Dispose();
-            }
-            this.Prefabs.Clear();
-            logger.Information("Prefab loader cached was cleared");
+            return this.Prefabs.ContainsKey(prefabId);
         }
+
+        /// <inhertidoc/>
+        public VersionInfo GetPrefabVersion(string prefabId)
+        {
+            if (this.Prefabs.ContainsKey(prefabId))
+            {
+                return this.Prefabs[prefabId].Version;
+            }
+            throw new ArgumentException("Prefab : '{0}' is not loaded");
+        }
+
+        /// <inhertidoc/>
+        public void UnloadAndDispose(string prefabId)
+        {
+            if (this.IsPrefabLoaded(prefabId))
+            {
+                var prefab = this.Prefabs[prefabId];
+                prefab.Dispose();
+                this.Prefabs.Remove(prefabId);
+                logger.Information("Version : '{0}' of Prefab : '{1}' was unloaded", prefabId, prefab.Version);
+            }
+        }
+
 
         private PrefabInstance LoadPrefab(string applicationId, string prefabId, IEntityManager parentEntityManager)
         {
@@ -121,7 +147,7 @@ namespace Pixel.Automation.RunTime
 
             ConfigureServices(parentEntityManager, prefabFileSystem, prefabDataModelAssembly);
 
-            PrefabInstance prefabInstance = new PrefabInstance(prefabEntityManager, prefabFileSystem, dataModelType);
+            PrefabInstance prefabInstance = new PrefabInstance(applicationId, prefabId, versionToLoad, dataModelType, prefabEntityManager, prefabFileSystem);
             return prefabInstance;
         }
 
@@ -138,8 +164,8 @@ namespace Pixel.Automation.RunTime
         {
             return this.referenceManager.GetPrefabReferences();
         }
-
-
+              
+        /// <inhertidoc/>
         public void Dispose()
         {
             Dispose(true);
@@ -156,8 +182,7 @@ namespace Pixel.Automation.RunTime
                 this.Prefabs.Clear();
             }
             logger.Information("Prefab loader was disposed");
-        }
-
+        }      
     }
     
 }

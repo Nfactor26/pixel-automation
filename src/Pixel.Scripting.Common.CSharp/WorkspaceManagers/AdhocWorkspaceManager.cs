@@ -30,7 +30,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         private string workingDirectory;
         protected AdhocWorkspace workspace = default;
         protected readonly IHostServicesProvider hostServicesProvider = new RoslynFeaturesHostServicesProvider(AssemblyLoader.Instance);
-        protected List<MetadataReference> additionalReferences;     
+        protected readonly List<MetadataReference> additionalReferences = new();     
         protected readonly DocumentationProviderService documentationProviderService = new ();       
 
         public AdhocWorkspaceManager(string workingDirectory)
@@ -49,8 +49,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             workspace = new AdhocWorkspace(HostServices);
             var solution = workspace.AddSolution(SolutionInfo.Create(SolutionId.CreateNewId(), VersionStamp.Create()));
             solution = solution.AddAnalyzerReferences(GetSolutionAnalyzerReferences());
-            workspace.TryApplyChanges(solution);
-            this.additionalReferences = new List<MetadataReference>();
+            workspace.TryApplyChanges(solution);           
         }
 
         protected virtual CSharpCompilationOptions CreateCompilationOptions()
@@ -370,6 +369,17 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             {
                 var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
                 this.additionalReferences.Add(metaDataReference);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void RemoveAssemblyReference(Assembly assemblyReference)
+        {
+            Guard.Argument(assemblyReference, nameof(assemblyReference)).NotNull();          
+            if (this.additionalReferences.Any(a => a.Display.Equals(assemblyReference.Location)))
+            {
+                var referenceToRemove = this.additionalReferences.Single(r => r.Display.Equals(assemblyReference.Location));
+                this.additionalReferences.Remove(referenceToRemove);
             }
         }
     

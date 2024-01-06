@@ -156,6 +156,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             var entity = this.Load<Entity>(this.projectFileSystem.ProcessFile);         
             return entity;
         }
+   
+        public void OnPrefabVersionChanged(IEnumerable<PrefabReference> prefabs)
+        {
+            var prefabLoader = this.entityManager.GetServiceOfType<IPrefabLoader>();
+            foreach (var prefab in prefabs)
+            {
+                if(prefabLoader.IsPrefabLoaded(prefab.PrefabId))
+                {
+                    //Remove loaded assembly from script editor and script engine
+                    var prefabDataModel = prefabLoader.GetPrefabDataModelType(prefab.ApplicationId, prefab.PrefabId, this.entityManager);
+                    this.scriptEditorFactory.RemoveAssemblyReference(prefabDataModel.Assembly);
+                    this.scriptEngineFactory.RemoveReferences(prefabDataModel.Assembly);
+                    
+                    //unload and dispose the prefab. Subsequent use will load the recent version again and 
+                    //configure script editor and script engine
+                    prefabLoader.UnloadAndDispose(prefab.PrefabId);
+                }              
+            }
+        }
 
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
