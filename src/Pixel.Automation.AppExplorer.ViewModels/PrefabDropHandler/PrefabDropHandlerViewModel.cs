@@ -89,17 +89,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             var prefabComponentViewModel = this.dropTarget.ComponentCollection.FirstOrDefault(a => a.Model.Equals(this.prefabEntity));
             if (prefabComponentViewModel != null)
             {
-                dropTarget.RemoveComponent(prefabComponentViewModel);
-                var inputMappingScriptFile = Path.Combine(this.projectFileSystem.ScriptsDirectory, Path.GetFileName(this.prefabEntity.InputMappingScriptFile));
-                if (File.Exists(inputMappingScriptFile))
-                {
-                    File.Delete(inputMappingScriptFile);
-                }
-                var ouutpuMappingScriptFile = Path.Combine(this.projectFileSystem.ScriptsDirectory, Path.GetFileName(this.prefabEntity.OutputMappingScriptFile));
-                if (File.Exists(ouutpuMappingScriptFile))
-                {
-                    File.Delete(ouutpuMappingScriptFile);
-                }
+                dropTarget.RemoveComponent(prefabComponentViewModel);              
             }
             await this.TryCloseAsync(false);
         }

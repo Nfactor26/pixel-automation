@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Reference.Manager.Contracts;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -82,7 +83,18 @@ namespace Pixel.Automation.Editor.Core.Interfaces
     /// </summary>
     public interface IAutomationProjectManager: IProjectManager
     {
+        /// <summary>
+        /// Load specified version of the automation project
+        /// </summary>
+        /// <param name="activeProject"></param>
+        /// <param name="versionToLoad"></param>
+        /// <returns></returns>
         Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);
+
+        /// <summary>
+        /// Update the state of script engine and script editors whenever version of prefab is changed
+        /// </summary>       
+        void OnPrefabVersionChanged(IEnumerable<PrefabReference> prefabs);
     }
     
     /// <summary>
@@ -90,6 +102,12 @@ namespace Pixel.Automation.Editor.Core.Interfaces
     /// </summary>
     public interface IPrefabProjectManager : IProjectManager
     {
+        /// <summary>
+        /// Load specified version of the prefab project
+        /// </summary>
+        /// <param name="prefabProject"></param>
+        /// <param name="versionInfo"></param>
+        /// <returns></returns>
         Task<Entity> Load(PrefabProject prefabProject, VersionInfo versionInfo);
     }
 }

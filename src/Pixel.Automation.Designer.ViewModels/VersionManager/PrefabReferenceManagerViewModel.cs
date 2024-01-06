@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Notifications.Wpf.Core;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Reference.Manager;
@@ -18,6 +19,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         private readonly ILogger logger = Log.ForContext<PrefabReferenceManagerViewModel>();
         private readonly IReferenceManager referenceManager;
         private readonly INotificationManager notificationManager;
+        private readonly Action<IEnumerable<PrefabReference>> onVersionChanged;
         public readonly PrefabReferences prefabReferences;
 
         /// <summary>
@@ -45,11 +47,12 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
         }
 
         public PrefabReferenceManagerViewModel(IPrefabDataManager prefabDataManager, IReferenceManager referenceManager,
-            INotificationManager notificationManager)
+            INotificationManager notificationManager, Action<IEnumerable<PrefabReference>> onVersionChanged)
         {
             this.DisplayName = "Manage Prefab References";
             this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
             this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;
+            this.onVersionChanged = Guard.Argument(onVersionChanged, nameof(onVersionChanged)).NotNull();
             this.prefabReferences = this.referenceManager.GetPrefabReferences();
 
             var applications = this.prefabReferences.References.Select(r => r.ApplicationId).Distinct();
@@ -92,6 +95,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
                 if (modifiedReferences.Any())
                 {
                     await this.referenceManager.UpdatePrefabReferencesAsync(modifiedReferences);
+                    this.onVersionChanged(modifiedReferences);
                 }
                 await this.TryCloseAsync(true);
             }

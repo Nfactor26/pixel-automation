@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Pixel.Scripting.Editor.Core.Contracts
 {
@@ -118,6 +119,20 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="identifier"></param>
         void RemoveInlineScriptEditor(string identifier);
+
+        /// <summary>
+        /// Add a reference to specified assembly. Any new projets created will have 
+        /// this reference added automatically. Existing projects are not impacted.
+        /// </summary>
+        /// <param name="assembly">Assembly to add</param>
+        void AddAssemblyReference(Assembly assembly);
+
+        /// <summary>
+        /// Remove reference of an existing assembly. Any new project created will not have 
+        /// this assembly reference. Existing projects will not be impacted.
+        /// </summary>
+        /// <param name="assembly">Assembly to remove</param>
+        void RemoveAssemblyReference(Assembly assembly);
 
         /// <summary>
         /// Add additional locations from which #r assemblies can be resolved from.

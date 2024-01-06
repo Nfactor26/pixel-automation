@@ -83,8 +83,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test.Runner", "Test.Runner"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Test.Runner", "src\Pixel.Automation.Test.Runner\Pixel.Automation.Test.Runner.csproj", "{F03B95F0-6757-4FBD-887D-A7DDA95DEFCF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA656CE2-0BA6-49F0-AD4A-B54BA52DADE5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{FD0D3A59-9D7D-4C4F-B67F-C779EC7CBEB7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Persistence.Services.Client", "src\Pixel.Persistence.Services.Client\Pixel.Persistence.Services.Client.csproj", "{DC616BF5-7555-4972-99DC-71E208FA3C82}"

@@ -52,7 +52,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await prefabEntity.BeforeProcessAsync();
             await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("InputMappingScript.csx"));
-            Assert.AreEqual(typeof(Person), prefabEntity.GetPrefabDataModelType());
+            Assert.AreEqual(typeof(Person), await prefabEntity.GetPrefabDataModelType());
 
             Assert.AreEqual(1, prefabEntity.Components.Count);
 

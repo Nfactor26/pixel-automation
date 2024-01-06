@@ -142,6 +142,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="assemblyReferences"></param>
         void WithAssemblyReferences(Assembly[] assemblyReferences);
 
+        /// <summary>
+        /// Remove an assembly reference from the workspace. Any existing project which already references the assembly will not be impacted
+        /// </summary>
+        /// <param name="assemblyReference">Assembly to remove</param>
+        void RemoveAssemblyReference(Assembly assemblyReference);
+
 
     }
 

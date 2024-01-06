@@ -17,10 +17,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>   
-        protected override string GetGeneratedCode()
+        protected override async Task<string> GetGeneratedCode()
         {
             var prefabArgumentMapper = new PrefabOutputMapper();
-            var assignFrom = prefabEntity.GetPrefabDataModelType();
+            var assignFrom = await prefabEntity.GetPrefabDataModelType();
             var assignTo = dropTarget.EntityManager.Arguments.GetType();
             var propertyMappings = prefabArgumentMapper.GenerateMapping(this.scriptEngine, assignFrom, assignTo).ToList();
             string generatedCode = prefabArgumentMapper.GeneratedMappingCode(propertyMappings, assignFrom, assignTo);

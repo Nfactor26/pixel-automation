@@ -4,6 +4,7 @@ using Pixel.Scripting.Script.Editor.Script;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -50,7 +51,7 @@ namespace Pixel.Scripting.Script.Editor
         {
             this.editorService.SwitchToDirectory(workingDirectory);
         }
-
+     
         public IInlineScriptEditor CreateInlineScriptEditor()
         {
             EnsureInitialized();
@@ -163,6 +164,22 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(searchPaths).NotEmpty();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveSearchPaths(searchPaths);
+        }
+
+        public void AddAssemblyReference(Assembly assembly)
+        {
+            Guard.Argument(assembly, nameof(assembly)).NotNull();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.WithAssemblyReferences(new[] { assembly });
+            logger.Information($"Assembly : '{assembly.FullName}' reference was added to script editor worksapce");
+        }
+
+        public void RemoveAssemblyReference(Assembly assembly)
+        {
+            Guard.Argument(assembly, nameof(assembly)).NotNull();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.RemoveAssemblyReference(assembly);
+            logger.Information($"Assembly : '{assembly.FullName}' reference was removed from script editor worksapce");
         }
 
         public void Dispose()

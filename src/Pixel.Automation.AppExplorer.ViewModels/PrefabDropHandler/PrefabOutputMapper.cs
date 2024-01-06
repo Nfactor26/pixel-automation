@@ -78,7 +78,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             Guard.Argument(assignTo).NotNull();
 
             StringBuilder mappingBuilder = new StringBuilder();
-            mappingBuilder.AppendLine($"#r \"{assignFrom.Assembly.GetName().Name}.dll\"");
+            //mappingBuilder.AppendLine($"#r \"{assignFrom.Assembly.GetName().Name}.dll\"");
             mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
             mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = {assignTo.Namespace};");

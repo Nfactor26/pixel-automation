@@ -108,10 +108,16 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             }
             else
             {
-                this.SelectedVersion = AvailableVersions.Last();
+                this.SelectedVersion = AvailableVersions.Last();              
+            }
+            if(string.IsNullOrEmpty(this.InputMappingScriptFile))
+            {
                 this.InputMappingScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");
-                this.OutputMappingScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");              
-            }           
+            }
+            if(string.IsNullOrEmpty(this.OutputMappingScriptFile))
+            {
+                this.OutputMappingScriptFile = Path.GetRelativePath(this.projectFileSystem.WorkingDirectory, Path.Combine(this.projectFileSystem.ScriptsDirectory, $"{Guid.NewGuid()}.csx")).Replace("\\", "/");
+            }
         }
 
         /// <summary>
@@ -227,12 +233,19 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private bool ValidateScriptPath(string propertyName, string scriptFile)
         {
             ClearErrors(propertyName);
-            string scriptDirectory = Path.GetDirectoryName(Path.Combine(this.projectFileSystem.WorkingDirectory, scriptFile));
-            if (!(scriptDirectory.Contains(this.projectFileSystem.ScriptsDirectory) || scriptDirectory.Contains(this.projectFileSystem.TestCaseRepository)))
+            if(!string.IsNullOrEmpty(scriptFile))
             {
-                AddOrAppendErrors(propertyName, $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");
-                AddOrAppendErrors("", $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");               
-                return false;
+                string scriptDirectory = Path.GetDirectoryName(Path.Combine(this.projectFileSystem.WorkingDirectory, scriptFile));
+                if (!(scriptDirectory.Contains(this.projectFileSystem.ScriptsDirectory) || scriptDirectory.Contains(this.projectFileSystem.TestCaseRepository)))
+                {
+                    AddOrAppendErrors(propertyName, $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");
+                    AddOrAppendErrors("", $"{propertyName} file must be located in a subdirectory of '{this.projectFileSystem.WorkingDirectory}' directory");
+                    return false;
+                }
+            }
+            else
+            {
+                AddOrAppendErrors(propertyName, $"{propertyName} is required");
             }
             return true;
         }

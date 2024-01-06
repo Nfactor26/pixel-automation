@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pixel.Automation.Core.Models;
+using System;
 
 namespace Pixel.Automation.Core.Interfaces
 {
@@ -24,9 +25,24 @@ namespace Pixel.Automation.Core.Interfaces
         Type GetPrefabDataModelType(string applicationId, string prefabId, IEntityManager primaryEntityManager);
 
         /// <summary>
-        /// Clear the prefab loader cache.     
-        /// </summary>
-        void ClearCache();
+        /// Get the loaded version of prefab
+        /// </summary>     
+        /// <param name="prefabId"></param>
+        /// <returns></returns>
+        VersionInfo GetPrefabVersion(string prefabId);
 
+        /// <summary>
+        /// Check if specified version of prefab is already loaded by PrefabLoader
+        /// </summary>
+        /// <param name="applicationId"></param>      
+        /// <returns></returns>
+        bool IsPrefabLoaded(string prefabId);
+
+        /// <summary>
+        /// Unload the specified veresion of prefab and dispose it
+        /// </summary>
+        /// <param name="applicationId"></param>      
+        void UnloadAndDispose(string prefabId);
+               
     }
 }

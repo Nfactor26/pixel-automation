@@ -23,8 +23,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             //Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
             //at design time
             var scriptEditorFactory = parentEntityManager.GetServiceOfType<IScriptEditorFactory>();
+            scriptEditorFactory.AddAssemblyReference(prefabAssembly);
             scriptEditorFactory.AddSearchPaths(prefabFileSystem.ReferencesDirectory);
-        }    
+        }
     }
 
 }
