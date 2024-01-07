@@ -540,7 +540,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     throw new ArgumentException($"Test fixture with Id : '{fixtureId}' was not found.");
                 if (fixtureToClose != null)
                 {
-                    await CloseTestFixtureAsync(fixtureToClose, true);
+                    await CloseTestFixtureAsync(fixtureToClose, autoSave: true);
                 }
             }
             catch (Exception ex)
@@ -959,7 +959,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                     {
                         if (test.TestCaseId.Equals(testCaseId))
                         {
-                            await CloseTestCaseAsync(test, true);
+                            await CloseTestCaseAsync(test, autoSave: true);
                             break;
                         }
                     }

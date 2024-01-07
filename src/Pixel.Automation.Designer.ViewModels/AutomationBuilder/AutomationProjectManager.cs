@@ -13,6 +13,7 @@ using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.Diagnostics;
 using System.IO;
+using Pixel.Scripting.Editor.Core;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -89,11 +90,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEngine(this.referenceManager, dataModel);
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
-
-                await ExecuteInitializationScript(executeDefaultInitFunc : true);
+                               
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
                 SetupInitializationScriptProject(dataModel);
+                await ExecuteInitializationScript(executeDefaultInitFunc: true);
+             
                 await OnProjectLoaded(activeProject, versionToLoad);
                 return this.RootEntity;
             }           
@@ -179,7 +181,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
         /// This is required every time data model is compiled and data model has custom types defined. When data model has custom types
-        /// it's assembly details are captured during serialization.Also, Arguments refernce the data  model in this case. Hence, we need to 
+        /// it's assembly details are captured during serialization. Also, Arguments refernce the data  model in this case. Hence, we need to 
         /// save and deserialize again so that arguments refer correct assembly.
         /// </summary>
         /// <param name="entityManager"></param>
@@ -188,31 +190,34 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
-                logger.Information($"{this.GetProjectName()} will be re-loaded");
+                await this.Save();
+
+                //Dispose any inline editors that might be present and clean up script editor and script engine
+                this.RootEntity.DisposeEditors();
+                this.scriptEditorFactory.RemoveProject(RootEntity.Id);
+                this.scriptEngineFactory.RemoveReferences(this.entityManager.Arguments.GetType().Assembly);
+
                 var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
                 this.referenceManager.SetProjectReferences(reference);
-                var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);
-                ConfigureScriptEngine(this.referenceManager, dataModel);
-                ConfigureScriptEditor(this.referenceManager, dataModel);
-                this.entityManager.Arguments = dataModel;
-                SetupInitializationScriptProject(dataModel);
-                await ExecuteInitializationScript(executeDefaultInitFunc: true);
-                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
-                this.RootEntity.ResetHierarchy();
-                serializer.Serialize(this.projectFileSystem.ProcessFile, this.RootEntity, typeProvider.GetKnownTypes());
-
-                var rootEntity = DeserializeProject();
+               
+                var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);              
+                this.entityManager.Arguments = dataModel; // Setting up a new model will also configure script engine to use new assembly
+              
+                this.scriptEngineFactory.WithAdditionalAssemblyReferences(this.entityManager.Arguments.GetType().Assembly);  
+                this.ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);              
+           
+                this.Initialize();
+                this.SetupInitializationScriptProject(dataModel);
+                await this.ExecuteInitializationScript(executeDefaultInitFunc: true);
+               
                 //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
                 foreach (var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
                 {
-                    var newApplicationEntity = rootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
+                    var newApplicationEntity = this.RootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
                     newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
-                }
-                this.RootEntity = rootEntity;
-                RestoreParentChildRelation(this.RootEntity);
-                await Task.CompletedTask;
-                logger.Information($"Reload completed for project {this.GetProjectName()}");
-
+                }              
+                             
+                logger.Information($"Project : '{this.GetProjectName()}' was reloaded");
             }
         }
 
