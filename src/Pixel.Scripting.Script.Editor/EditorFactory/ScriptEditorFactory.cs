@@ -113,6 +113,11 @@ namespace Pixel.Scripting.Script.Editor
             throw new Exception($"{nameof(IScriptWorkspaceManager)} is not available");
         }
 
+        public bool HasProject(string projectName)
+        {
+            return GetWorkspaceManager().HasProject(projectName);
+        }
+
         public void AddProject(string projectName, string[] projectreferences, Type globalsType)
         {
             var workSpaceManager = GetWorkspaceManager();
