@@ -51,6 +51,11 @@ namespace Pixel.Scripting.Script.Editor
                 throw new InvalidOperationException($"{nameof(REPLEditorFactory)} is not yet initialized");
         }
 
+        public bool HasProject(string projectName)
+        {
+            throw new NotImplementedException();
+        }
+
         public void AddProject(string projectName, string[] projectreferences)
         {
             throw new NotImplementedException();

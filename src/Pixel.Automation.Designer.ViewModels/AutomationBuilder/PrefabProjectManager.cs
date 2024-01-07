@@ -14,6 +14,7 @@ using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
 using System.Diagnostics;
 using System.IO;
+using Pixel.Scripting.Editor.Core;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -85,11 +86,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 ConfigureScriptEngine(this.referenceManager, dataModel);
                 ConfigureScriptEditor(this.referenceManager, dataModel);
                 this.entityManager.Arguments = dataModel;
-
-                await ExecuteInitializationScript(executeDefaultInitFunc: false);
+                             
                 ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
                 Initialize();
                 SetupInitializationScriptProject(dataModel);
+                await ExecuteInitializationScript(executeDefaultInitFunc: false);
+
                 await OnProjectLoaded(prefabProject, versionToLoad);
                 return this.RootEntity;
             }           
@@ -225,14 +227,25 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
                 await this.Save();
-                this.Initialize();
+
+                this.RootEntity.DisposeEditors();
+                this.scriptEditorFactory.RemoveProject(RootEntity.Id);
+                this.scriptEngineFactory.RemoveReferences(this.entityManager.Arguments.GetType().Assembly);
+
                 var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
                 this.referenceManager.SetProjectReferences(reference);
+              
                 var dataModel = CompileAndCreateDataModel(Constants.PrefabDataModelName);
-                ConfigureScriptEngine(this.referenceManager, dataModel);
-                ConfigureScriptEditor(this.referenceManager, dataModel);
-                this.entityManager.Arguments = dataModel;
-                ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+                this.entityManager.Arguments = dataModel; // Setting up a new model will also configure script engine to use new assembly
+
+                this.scriptEngineFactory.WithAdditionalAssemblyReferences(this.entityManager.Arguments.GetType().Assembly);
+                this.ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+
+                this.Initialize();
+                this.SetupInitializationScriptProject(dataModel);
+                await this.ExecuteInitializationScript(executeDefaultInitFunc: true);              
+
+                logger.Information($"Prefab project: '{this.GetProjectName()}' was reloaded");
             }                  
         }
 

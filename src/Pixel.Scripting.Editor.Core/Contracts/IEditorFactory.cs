@@ -37,6 +37,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         void RemoveDocument(string documentName, string projectName);
 
         /// <summary>
+        /// Check if a project by given name already exists in worksapce
+        /// </summary>
+        /// <param name="projectName"></param>
+        bool HasProject(string projectName);
+
+        /// <summary>
         /// Remove project from solution
         /// </summary>
         /// <param name="projectName"></param>

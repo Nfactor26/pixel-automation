@@ -87,6 +87,11 @@ namespace Pixel.Scripting.Script.Editor
             throw new Exception($"{nameof(ICodeWorkspaceManager)} is not available");
         }
 
+        public bool HasProject(string projectName)
+        {
+            return GetWorkspaceManager().HasProject(projectName);
+        }
+
         public void AddProject(string projectName, string defaultNameSpace, string[] projectreferences)
         {
             var workSpaceManager = GetWorkspaceManager();
