@@ -180,6 +180,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 this.scriptEditorFactory.AddProject(RootEntity.Id, Array.Empty<string>(), dataModel.GetType());
                 var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
+                CreateInitializationScriptFile(scriptFile);
                 this.scriptEditorFactory.AddDocument(scriptFile, RootEntity.Id, this.fileSystem.ReadAllText(scriptFile));
             }          
         }
@@ -212,8 +213,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             try
             {
                 var fileSystem = this.entityManager.GetCurrentFileSystem();
-                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);
-                CreateInitializationScriptFile(scriptFile);
+                var scriptFile = Path.Combine(fileSystem.ScriptsDirectory, Constants.InitializeEnvironmentScript);           
                 var scriptEngine = this.entityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(scriptFile);
                 logger.Information("Executed initialize environment script : {scriptFile}", scriptFile);
