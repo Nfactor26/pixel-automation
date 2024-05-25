@@ -4,8 +4,11 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Enums;
+using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
+using Polly;
+using Polly.Retry;
 using Serilog;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -18,6 +21,10 @@ namespace Pixel.Automation.Web.Playwright.Components;
 public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICoordinateProvider
 {
     private readonly ILogger logger = Log.ForContext<WebControlLocatorComponent>();
+    private readonly AsyncRetryPolicy asyncRetryPolicy;
+    private readonly List<TimeSpan> retrySequence = new();
+    private int retryAttempts = 2;
+    private double retryInterval = 5;
 
     [IgnoreDataMember]
     [Browsable(false)]
@@ -57,7 +64,19 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     /// </summary>
     public WebControlLocatorComponent() : base("Playwright Control Locator", "PlaywrightControlLocator")
     {
-      
+        foreach (var i in Enumerable.Range(1, retryAttempts))
+        {
+            retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
+        }
+        asyncRetryPolicy = Policy.Handle<ElementNotFoundException>()
+        .WaitAndRetryAsync(retrySequence, (exception, timeSpan, retryCount, context) =>
+        {
+            logger.Error(exception, exception.Message); ;
+            if (retryCount < retrySequence.Count)
+            {
+                logger.Debug("Control lookup  will be attempated again.");
+            }
+        });
     }
 
 
@@ -106,7 +125,7 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
                 }
                 else
                 {
-                    return FindDescendantControl(webControlIdentity, currentRoot);
+                    return await FindDescendantControl(webControlIdentity, currentRoot);
                 }               
         }
     }
@@ -153,27 +172,38 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
     #region Descendant Control
 
-    public ILocator FindDescendantControl(IControlIdentity controlIdentity, ILocator searchRoot = null)
+    internal async  Task<ILocator> FindDescendantControl(IControlIdentity controlIdentity, ILocator searchRoot = null)
     {
         Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
+        ConfigureRetryPolicy(controlIdentity);
+
         ILocator foundControl = default;
-        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-        if (searchRoot != null)
+        foundControl = await asyncRetryPolicy.ExecuteAsync(async () =>
         {
-            foundControl = searchRoot.Locator(webControlIdentity.Identifier);
-        }
-        else
-        {
-            if (webControlIdentity.FrameHierarchy.Any())
+            WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+            if (searchRoot != null)
             {
-                IFrameLocator frameLocator = GetTargetFrame(ApplicationDetails.ActivePage, webControlIdentity);
-                foundControl = frameLocator.Locator(webControlIdentity.Identifier);
+                foundControl = searchRoot.Locator(webControlIdentity.Identifier);
             }
             else
             {
-                foundControl = ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier);
+                if (webControlIdentity.FrameHierarchy.Any())
+                {
+                    IFrameLocator frameLocator = GetTargetFrame(ApplicationDetails.ActivePage, webControlIdentity);
+                    foundControl = frameLocator.Locator(webControlIdentity.Identifier);
+                }
+                else
+                {
+                    foundControl = ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier);
+                }
             }
-        }      
+            if(foundControl == null)
+            {
+                throw new ElementNotFoundException($"Failed to locate control {controlIdentity}");
+            }
+            return await Task.FromResult(foundControl);
+        });
+      
         return foundControl;
     }
 
@@ -181,38 +211,46 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
     public async Task<IReadOnlyCollection<ILocator>> FindAllDescendantControls(IControlIdentity controlIdentity, ILocator searchRoot)
     {
         Guard.Argument(controlIdentity).Compatible<WebControlIdentity>();
-       
-        WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
-        List<ILocator> locators = new List<ILocator>();
-        if (searchRoot != null)
+        ConfigureRetryPolicy(controlIdentity);
+        var foundControls = await asyncRetryPolicy.ExecuteAsync(async () =>
         {
-            int count = await searchRoot.Locator(webControlIdentity.Identifier).CountAsync();
-            for (int i = 0; i < count; i++)
+            WebControlIdentity webControlIdentity = controlIdentity as WebControlIdentity;
+            List<ILocator> locators = new List<ILocator>();
+            if (searchRoot != null)
             {
-                locators.Add(searchRoot.Locator(webControlIdentity.Identifier).Nth(i));
-            }
-        }
-        else
-        {
-            if (webControlIdentity.FrameHierarchy.Any())
-            {
-                IFrameLocator frameLocator = GetTargetFrame(ApplicationDetails.ActivePage, webControlIdentity);
-                int count = await frameLocator.Locator(webControlIdentity.Identifier).CountAsync();
+                int count = await searchRoot.Locator(webControlIdentity.Identifier).CountAsync();
                 for (int i = 0; i < count; i++)
                 {
-                    locators.Add(frameLocator.Locator(webControlIdentity.Identifier).Nth(i));
+                    locators.Add(searchRoot.Locator(webControlIdentity.Identifier).Nth(i));
                 }
             }
             else
             {
-                int count = await ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier).CountAsync();
-                for (int i = 0; i < count; i++)
+                if (webControlIdentity.FrameHierarchy.Any())
                 {
-                    locators.Add(ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier).Nth(i));
+                    IFrameLocator frameLocator = GetTargetFrame(ApplicationDetails.ActivePage, webControlIdentity);
+                    int count = await frameLocator.Locator(webControlIdentity.Identifier).CountAsync();
+                    for (int i = 0; i < count; i++)
+                    {
+                        locators.Add(frameLocator.Locator(webControlIdentity.Identifier).Nth(i));
+                    }
+                }
+                else
+                {
+                    int count = await ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier).CountAsync();
+                    for (int i = 0; i < count; i++)
+                    {
+                        locators.Add(ApplicationDetails.ActivePage.Locator(webControlIdentity.Identifier).Nth(i));
+                    }
                 }
             }
-        }
-        return locators;       
+            if(!locators.Any())
+            {
+                throw new ElementNotFoundException($"No controls could be located for {controlIdentity}");
+            }
+            return locators;
+        });
+        return foundControls;       
     }
 
     #endregion Descendant Control
@@ -304,6 +342,20 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
 
                 highlightRectangle.Visible = false;
 
+            }
+        }
+    }
+
+    private void ConfigureRetryPolicy(IControlIdentity controlIdentity)
+    {
+        if (this.retryAttempts != controlIdentity.RetryAttempts || this.retryInterval != controlIdentity.RetryInterval)
+        {
+            this.retryAttempts = controlIdentity.RetryAttempts;
+            this.retryInterval = controlIdentity.RetryInterval;
+            retrySequence.Clear();
+            foreach (var i in Enumerable.Range(1, this.retryAttempts))
+            {
+                retrySequence.Add(TimeSpan.FromSeconds(this.retryInterval));
             }
         }
     }
