@@ -261,41 +261,51 @@ public class WebApplicationEntity : ApplicationEntity
                 throw new ArgumentException($"Incorrect driver service override : {driverService.GetType()} for browser : {browser}");
             }
             return driverService as T;
+        }    
+        driverService = CreateDriverService(browser, await GetDriverLocation());
+        return driverService as T;
+
+        async Task<string> GetDriverLocation()
+        {           
+            var autoDownloadDrivers = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
+            if (autoDownloadDrivers)
+            {
+                logger.Information("Auto download web driver is enabled");
+                return SeleniumManager.BinaryPaths($"--browser {browser.ToString().ToLower()}")["driver_path"];               
+            }
+            else
+            {
+                logger.Information("Auto download web driver is not enabled");
+                string webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
+                if (!Directory.Exists(webDriverFolder))
+                {
+                    throw new DirectoryNotFoundException($"WebDriver directory {webDriverFolder} doesn't exist.");
+                }
+                return webDriverFolder;
+            }          
         }
 
-        //download the webdriver in to target folder 
-        string webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
-        var shouldDownloadDriver = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
-        if(!shouldDownloadDriver)
-        {
-            logger.Information("Auto download web driver is not enabled");
-            if (!Directory.Exists(webDriverFolder))
+        DriverService CreateDriverService(Browsers browser, string webDriverFolder)
+        {            
+            logger.Information("Use webdriver from path : {0}", webDriverFolder);
+            DriverService driverService;
+            switch (browser)
             {
-                throw new DirectoryNotFoundException($"WebDriver directory {webDriverFolder} doesn't exist.");
-            }  
-        }
-        else
-        {
-            logger.Information("Auto download web driver is enabled");
-            webDriverFolder = SeleniumManager.DriverPath(driverOptions);
-        }
-        logger.Information("Use webdriver from path : {0}", webDriverFolder);
-        //Create a default driver service based on browser type
-        switch (browser)
-        {
-            case Browsers.FireFox:
-                driverService = FirefoxDriverService.CreateDefaultService(webDriverFolder);
-                break;
-            case Browsers.Chrome:
-                driverService = ChromeDriverService.CreateDefaultService(webDriverFolder);
-                break;
-            case Browsers.Edge:
-                driverService = EdgeDriverService.CreateDefaultService(webDriverFolder);
-                break;
-            default:
-                throw new ArgumentException("Requested web driver type is not supported");
-        }
-        return driverService as T;
+                case Browsers.FireFox:
+                    driverService = FirefoxDriverService.CreateDefaultService(webDriverFolder);
+                    break;
+                case Browsers.Chrome:
+                    driverService = ChromeDriverService.CreateDefaultService(webDriverFolder);
+                    break;
+                case Browsers.Edge:
+                    driverService = EdgeDriverService.CreateDefaultService(webDriverFolder);
+                    break;
+                default:
+                    throw new ArgumentException("Requested web driver type is not supported");
+            }
+
+            return driverService;
+        }       
     }
 
     /// <summary>
