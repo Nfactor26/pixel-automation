@@ -40,19 +40,19 @@ namespace Pixel.Automation.Core.Tests.TestData
             Assert.IsNull(dataSourceConfiguration.TargetTypeName);
             Assert.IsNull(dataSourceConfiguration.TargetFile);
             Assert.AreEqual(",", dataSourceConfiguration.Delimiter);
-            Assert.IsTrue(dataSourceConfiguration.HasHeaders);
+            Assert.IsTrue(dataSourceConfiguration.HasHeader);
 
 
             dataSourceConfiguration.TargetTypeName = "Person";
             dataSourceConfiguration.TargetFile = "Persons.csv";
             dataSourceConfiguration.Delimiter = "|";
-            dataSourceConfiguration.HasHeaders = false;
+            dataSourceConfiguration.HasHeader = false;
          
        
             Assert.AreEqual("Person", dataSourceConfiguration.TargetTypeName);
             Assert.AreEqual("Persons.csv", dataSourceConfiguration.TargetFile);
             Assert.AreEqual("|", dataSourceConfiguration.Delimiter);
-            Assert.IsFalse(dataSourceConfiguration.HasHeaders);
+            Assert.IsFalse(dataSourceConfiguration.HasHeader);
 
         }
     }
