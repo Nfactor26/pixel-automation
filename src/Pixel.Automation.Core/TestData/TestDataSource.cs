@@ -72,7 +72,7 @@ namespace Pixel.Automation.Core.TestData
     public class CsvDataSourceConfiguration : DataSourceConfiguration
     {
         [DataMember(IsRequired = true, Order = 20)]
-        public bool HasHeaders { get; set; } = true;
+        public bool HasHeader { get; set; } = true;
 
         [DataMember(IsRequired = true, Order = 30)]
         public string Delimiter { get; set; } = ",";
