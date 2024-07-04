@@ -70,7 +70,7 @@ namespace Pixel.Persistence.Services.Client
             Guard.Argument(testResult, nameof(testResult)).NotNull();
             Guard.Argument(imageFiles, nameof(imageFiles)).NotNull();         
             RestRequest restRequest = new RestRequest($"testresult/trace/images");
-            var traceImageMetaData = new TraceImageMetaData(testResult.ProjectId, testResult.SessionId);          
+            var traceImageMetaData = new TraceImageMetaData(testResult.ProjectId, testResult.Id);          
             restRequest.AddParameter(nameof(TraceImageMetaData), serializer.Serialize<TraceImageMetaData>(traceImageMetaData), ParameterType.RequestBody);
             foreach(var imageFile in imageFiles)
             {
