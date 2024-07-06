@@ -2,13 +2,12 @@
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Exceptions;
+using Pixel.Windows.Automation;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Pixel.Windows.Automation;
-using System.IO;
 
 namespace Pixel.Automation.UIA.Components
 {
@@ -73,34 +72,7 @@ namespace Pixel.Automation.UIA.Components
             AutomationElement control = targetControl.GetApiControl<AutomationElement>();
             return (targetControl.ControlName, control);
         }
-
-        /// <summary>
-        /// Take a screen shot if capturing screenshot is enabled after Act method finishes
-        /// </summary>
-        /// <returns></returns>
-        public override async Task OnCompletionAsync()
-        {
-            if (TraceManager.IsEnabled)
-            {
-                await CaptureScreenShotAsync();
-            }
-        }
-
-        /// <summary>
-        /// Capture screenshot of the active page
-        /// </summary>
-        /// <returns></returns>
-        public async Task CaptureScreenShotAsync()
-        {
-            var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
-            if (TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
-            {
-                string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");
-                await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
-                TraceManager.AddImage(Path.GetFileName(imageFile));
-            }
-        }
-
+        
         /// <summary>
         /// Throw <see cref="ConfigurationException"/> if ControlEntity is missing.
         /// </summary>
