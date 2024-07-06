@@ -86,18 +86,7 @@ public abstract class InputDeviceActor : ActorComponent
         }
 
         throw new ElementNotFoundException("Control could not be located");
-    }
-
-    public override async Task OnCompletionAsync()
-    {
-        var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
-        if (TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
-        {
-            string imageFile = Path.Combine(this.EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");                
-            await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
-            TraceManager.AddImage(Path.GetFileName(imageFile));
-        }
-    }
+    }  
 
     protected void ThrowIfMissingControlEntity()
     {

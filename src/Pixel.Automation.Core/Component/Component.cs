@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using IComponent = Pixel.Automation.Core.Interfaces.IComponent;
@@ -294,7 +295,33 @@ namespace Pixel.Automation.Core
         /// <returns></returns>
         public virtual async Task OnCompletionAsync()
         {
-            await Task.CompletedTask;
+            if (TraceManager.IsEnabled)
+            {
+                await CaptureScreenShotAsync();
+            }
+        }
+
+
+        /// <summary>
+        /// Capture screenshot of the active page
+        /// </summary>
+        /// <returns></returns>
+        public async Task CaptureScreenShotAsync()
+        {
+            var ownerApplicationEntity = this.EntityManager.GetApplicationEntity(this);
+            if (TraceManager.IsEnabled && ownerApplicationEntity.AllowCaptureScreenshot)
+            {               
+                string imageFile = GetImagePath();
+                await ownerApplicationEntity.CaptureScreenShotAsync(imageFile);
+                TraceManager.AddImage(Path.GetFileName(imageFile));
+            }
+
+            //We are using EntityManager from owner application to ensure that we are always getting a path based on file system of primary entity manager.
+            //Without this, components from prefab will end up getting path in prefab temp directory that can't be located later while trying to upload image.
+            string GetImagePath()
+            {
+                return Path.Combine((ownerApplicationEntity as Entity).EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");
+            }
         }
 
         /// <inheritdoc/>
