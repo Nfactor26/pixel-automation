@@ -23,7 +23,7 @@
 		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
 		<PackageReference Include="System.Management" Version="7.0.2" />
 		<PackageReference Include="Vanara.Core" Version="3.4.16">
 			<Private>false</Private>
