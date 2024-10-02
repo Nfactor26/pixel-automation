@@ -2,12 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Pixel.Automation.TestData.Repository.Views"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"          
              xmlns:core="clr-namespace:Pixel.Automation.Core.TestData;assembly=Pixel.Automation.Core" 
              xmlns:cal="http://www.caliburnproject.org"
-             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
+             cal:Bind.AtDesignTime="True"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:converters="clr-namespace:Pixel.Automation.Editor.Core.Converters;assembly=Pixel.Automation.Editor.Core"
              mc:Ignorable="d"
@@ -40,12 +38,26 @@
             <DataTemplate DataType="{x:Type core:CsvDataSourceConfiguration}">
                 <StackPanel Orientation="Vertical"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}">
 
+                    <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
+                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>
+                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}"                            
+                            cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]" 
+                            Style="{StaticResource ShowDialogButtonStyle}" DockPanel.Dock="Right"/>
+                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" IsReadOnly="True" BorderThickness="1,1,0,1"
+                            Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
+                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"        
+                            IsEnabled="{Binding IsInEditMode, Converter={StaticResource invBooleanConverter}}"     
+                            ToolTip="Type of data model returned from this data source" />
+                    </DockPanel>
+
+                    
                     <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}" MaxHeight="38">
                         <Label Content="File" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center" ></Label>
                         <Button x:Name="BrowseForFile" Margin="{StaticResource ButtonMargin}" 
-                                Style="{StaticResource ShowDialogButtonStyle}"
-                                cal:Message.Attach="[Event Click] = [Action BrowseForFile()]"
-                                DockPanel.Dock="Right"/>
+                            Style="{StaticResource ShowDialogButtonStyle}"
+                            cal:Message.Attach="[Event Click] = [Action BrowseForFile()]"
+                            DockPanel.Dock="Right"/>
                         <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" BorderThickness="1,1,0,1"
                             Text="{Binding DataFileName, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                             controls:TextBoxHelper.Watermark="csv data file" HorizontalAlignment="Stretch"
@@ -63,18 +75,14 @@
                     </DockPanel>
 
                     <DockPanel LastChildFill="True" MinWidth="320" Margin="{StaticResource RowMargin}"  MaxHeight="38">
-                        <Label Content="Data Type" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>                        
-                        <Button x:Name="SelectTestDataType" Margin="{StaticResource ButtonMargin}"                            
-                                cal:Message.Attach="[Event Click] = [Action SelectTestDataType()]" 
-                                Style="{StaticResource ShowDialogButtonStyle}" DockPanel.Dock="Right"/>
-                        <TextBox DockPanel.Dock="Left" VerticalAlignment="Center" IsReadOnly="True" BorderThickness="1,1,0,1"
-                            Text="{Binding TestDataType, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                            controls:TextBoxHelper.Watermark="Data Type" HorizontalAlignment="Stretch"
-                            controls:TextBoxHelper.UseFloatingWatermark="True"  MinWidth="660"        
-                            IsEnabled="{Binding IsInEditMode, Converter={StaticResource invBooleanConverter}}"     
-                            ToolTip="Type of data model returned from this data source" />
+                        <Label Content="Has Header" DockPanel.Dock="Left" MinWidth="80" VerticalAlignment="Center"></Label>
+                        <CheckBox DockPanel.Dock="Left" VerticalAlignment="Center"
+                            IsChecked="{Binding HasHeader, ValidatesOnNotifyDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Stretch"  MinWidth="660"                                                    
+                            ToolTip="Indicates if files has header row" />
                     </DockPanel>
 
+                   
                 </StackPanel>
             </DataTemplate>
             

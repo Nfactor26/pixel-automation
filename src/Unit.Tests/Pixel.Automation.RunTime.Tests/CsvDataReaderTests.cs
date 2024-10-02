@@ -17,7 +17,7 @@ namespace Pixel.Automation.RunTime.Tests
             {
                 TargetTypeName = "Student",
                 Delimiter = ",",
-                HasHeaders = true,
+                HasHeader = true,
                 TargetFile = "Resources\\student.csv"
             };
             csvDataReader = new CsvDataReader();
