@@ -266,19 +266,17 @@ public class WebApplicationEntity : ApplicationEntity
         //download the webdriver in to target folder 
         string webDriverFolder = await this.ArgumentProcessor.GetValueAsync<string>(this.WebDriverLocation);
         var shouldDownloadDriver = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
-        if(!shouldDownloadDriver)
-        {
-            logger.Information("Auto download web driver is not enabled");
-            if (!Directory.Exists(webDriverFolder))
-            {
-                throw new DirectoryNotFoundException($"WebDriver directory {webDriverFolder} doesn't exist.");
-            }  
+        if(shouldDownloadDriver)       
+        {         
+            var resultDictionary = SeleniumManager.BinaryPaths($"--browser {driverOptions.BrowserName}");
+            webDriverFolder = Path.GetDirectoryName(resultDictionary["driver_path"]);
+            logger.Information("Driver was downloaded to path {0}", webDriverFolder);
         }
-        else
+        if (!Directory.Exists(webDriverFolder))
         {
-            logger.Information("Auto download web driver is enabled");
-            webDriverFolder = SeleniumManager.DriverPath(driverOptions);
+            throw new DirectoryNotFoundException($"WebDriver directory {webDriverFolder} doesn't exist.");
         }
+
         logger.Information("Use webdriver from path : {0}", webDriverFolder);
         //Create a default driver service based on browser type
         switch (browser)
