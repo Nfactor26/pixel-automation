@@ -12,7 +12,7 @@
 		<PackageReference Include="Caliburn.Micro" Version="4.0.212">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0">
+		<PackageReference Include="System.Drawing.Common" Version="8.0.8">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
