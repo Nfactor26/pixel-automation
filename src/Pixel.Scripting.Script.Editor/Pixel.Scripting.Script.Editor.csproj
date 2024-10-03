@@ -9,8 +9,8 @@
 	<ItemGroup>
 		<PackageReference Include="AvalonEdit" Version="6.3.0.90">
 		</PackageReference>
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.103" />
-		<PackageReference Include="System.Reactive" Version="5.0.0">
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
+		<PackageReference Include="System.Reactive" Version="6.0.1">
 		</PackageReference>
 	</ItemGroup>
 
