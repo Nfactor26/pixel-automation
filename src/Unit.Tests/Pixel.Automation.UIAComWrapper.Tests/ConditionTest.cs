@@ -22,8 +22,8 @@ public class ConditionTests
         AndCondition target = new AndCondition(condition, condition2);
         Condition[] actual;
         actual = target.GetConditions();
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(actual.Length, 2);
+        Assert.That(actual is not null);
+        Assert.That(actual.Length, Is.EqualTo(2));
 
         // Negative test - include a null
         try
@@ -48,8 +48,8 @@ public class ConditionTests
         OrCondition target = new OrCondition(condition, condition2);
         Condition[] actual;
         actual = target.GetConditions();
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(actual.Length, 2);
+        Assert.That(actual is not null);
+        Assert.That(actual.Length, Is.EqualTo(2));
 
         // Negative test - include a null
         try
@@ -71,9 +71,9 @@ public class ConditionTests
     {
         Condition condition = Condition.TrueCondition;
         NotCondition target = new NotCondition(condition);
-        Assert.IsNotNull(target);
+        Assert.That(target is not null);
         Condition child = target.Condition;
-        Assert.IsNotNull(child);
+        Assert.That(child is not null);
     }
 
     /// <summary>
@@ -85,28 +85,28 @@ public class ConditionTests
         PropertyCondition cond1 = new PropertyCondition(
             AutomationElement.NameProperty, 
             "foo");
-        Assert.IsNotNull(cond1);
-        Assert.AreEqual(cond1.Value, "foo");
-        Assert.AreEqual(cond1.Property.ProgrammaticName, "AutomationElementIdentifiers.NameProperty");
+        Assert.That(cond1 is not null);
+        Assert.That(cond1.Value, Is.EqualTo("foo"));
+        Assert.That(cond1.Property.ProgrammaticName, Is.EqualTo("AutomationElementIdentifiers.NameProperty"));
 
         System.Windows.Rect rect = new System.Windows.Rect(0, 0, 20, 20);
         PropertyCondition cond2 = new PropertyCondition(
             AutomationElement.BoundingRectangleProperty,
             rect);
-        Assert.IsNotNull(cond2);
+        Assert.That(cond2 is not null);
         object value = cond2.Value;
-        Assert.IsInstanceOf<double[]>(value);
-        Assert.AreEqual(((double[])value).Length, 4);
-        Assert.AreEqual(cond2.Property.ProgrammaticName, "AutomationElementIdentifiers.BoundingRectangleProperty");
+        Assert.That(value is double[]);
+        Assert.That(((double[])value).Length, Is.EqualTo(4));
+        Assert.That(cond2.Property.ProgrammaticName, Is.EqualTo("AutomationElementIdentifiers.BoundingRectangleProperty"));
 
         PropertyCondition cond3 = new PropertyCondition(
             AutomationElement.ClickablePointProperty,
             new System.Windows.Point(0, 0));
-        Assert.IsNotNull(cond3);
+        Assert.That(cond3 is not null);
         value = cond3.Value;
-        Assert.IsInstanceOf<double[]>(value);
-        Assert.AreEqual(((double[])value).Length, 2);
-        Assert.AreEqual(cond3.Property.ProgrammaticName, "AutomationElementIdentifiers.ClickablePointProperty");
+        Assert.That(value is double[]);
+        Assert.That(((double[])value).Length, Is.EqualTo(2));
+        Assert.That(cond3.Property.ProgrammaticName, Is.EqualTo("AutomationElementIdentifiers.ClickablePointProperty"));
 
         // Negative case
         try

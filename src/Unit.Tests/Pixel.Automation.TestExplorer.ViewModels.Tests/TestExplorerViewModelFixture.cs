@@ -45,8 +45,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
                 dataManager, componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
 
             //Assert
-            Assert.AreEqual(0, testExplorerViewModel.TestFixtures.Count());
-            Assert.IsTrue(string.IsNullOrEmpty(testExplorerViewModel.FilterText));
+            Assert.That(testExplorerViewModel.TestFixtures.Count(), Is.EqualTo(0));
+            Assert.That(string.IsNullOrEmpty(testExplorerViewModel.FilterText));
         }
 
     }
@@ -174,13 +174,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Act
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager, componentViewBuilder,
                 windowManager, notificationManger, platformProvider, applicationSettings);
-            Assert.IsTrue(testExplorerViewModel.CanAddTestFixture);
+            Assert.That(testExplorerViewModel.CanAddTestFixture);
             await testExplorerViewModel.AddTestFixtureAsync();
 
             //Assert
             int expected = dialogResult ? 1 : 0;
-            Assert.IsTrue(testExplorerViewModel.CanAddTestFixture);
-            Assert.AreEqual(expected, testExplorerViewModel.TestFixtures.Count);
+            Assert.That(testExplorerViewModel.CanAddTestFixture);
+            Assert.That(testExplorerViewModel.TestFixtures.Count, Is.EqualTo(expected));
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<EditTestFixtureViewModel>());
             await dataManager.Received(expected).AddTestFixtureAsync(Arg.Any<TestFixture>());
         }
@@ -206,8 +206,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Assert
             int expected = dialogResult ? 1 : 0;
-            Assert.IsTrue(testExplorerViewModel.CanAddTestFixture);
-            Assert.AreEqual(1, testExplorerViewModel.TestFixtures.Count);
+            Assert.That(testExplorerViewModel.CanAddTestFixture);
+            Assert.That(testExplorerViewModel.TestFixtures.Count, Is.EqualTo(1));
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<EditTestFixtureViewModel>());
             await dataManager.Received(expected).UpdateTestFixtureAsync(Arg.Any<TestFixture>());
         }
@@ -241,10 +241,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             await testExplorerViewModel.OpenTestFixtureAsync(fixtureViewModel.FixtureId);
 
             //Assert
-            Assert.IsTrue(fixtureViewModel.IsOpenForEdit);
-            Assert.IsNotNull(fixtureViewModel.TestFixtureEntity);
-            Assert.IsTrue(fixtureViewModel.TestFixtureEntity.Name.Equals(testFixture.DisplayName));
-            Assert.IsTrue(fixtureViewModel.TestFixtureEntity.Tag.Equals(testFixture.FixtureId));
+            Assert.That(fixtureViewModel.IsOpenForEdit);
+            Assert.That(fixtureViewModel.TestFixtureEntity is not null);
+            Assert.That(fixtureViewModel.TestFixtureEntity.Name.Equals(testFixture.DisplayName));
+            Assert.That(fixtureViewModel.TestFixtureEntity.Tag.Equals(testFixture.FixtureId));
 
             int expected = isOpenForEdit ? 0 : 1;        
             await dataManager.Received(expected).DownloadFixtureDataAsync(Arg.Is<TestFixture>(testFixture));
@@ -275,8 +275,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Pre-Assert 
             if (isOpenForEdit)
             {
-                Assert.IsNotNull(fixtureViewModel.TestFixtureEntity);
-                Assert.IsTrue(fixtureViewModel.IsOpenForEdit);
+                Assert.That(fixtureViewModel.TestFixtureEntity is not null);
+                Assert.That(fixtureViewModel.IsOpenForEdit);
             }
 
             //Act
@@ -288,8 +288,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Assert
             if (isOpenForEdit)
             {
-                Assert.IsNull(fixtureViewModel.TestFixtureEntity);
-                Assert.IsFalse(fixtureViewModel.IsOpenForEdit);
+                Assert.That(fixtureViewModel.TestFixtureEntity is null);
+                Assert.That(fixtureViewModel.IsOpenForEdit == false);
             }
 
             int expected = isOpenForEdit ? 1 : 0;
@@ -528,7 +528,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             //Assert
             int expected = dialogResult ? 1 : 0;
-            Assert.AreEqual(expected, testFixtureViewModel.Tests.Count);
+            Assert.That(testFixtureViewModel.Tests.Count, Is.EqualTo(expected));
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<EditTestCaseViewModel>());
             await dataManager.Received(expected).AddTestCaseAsync(Arg.Any<TestCase>());
         }
@@ -598,10 +598,10 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             await testExplorerViewModel.OpenTestCaseAsync(testCaseViewModel.TestCaseId);
 
             //Assert
-            Assert.IsTrue(testCaseViewModel.IsOpenForEdit);
-            Assert.IsNotNull(testCaseViewModel.TestCaseEntity);
-            Assert.IsTrue(testCaseViewModel.TestCaseEntity.Name.Equals(testCaseViewModel.DisplayName));
-            Assert.IsTrue(testCaseViewModel.TestCaseEntity.Tag.Equals(testCaseViewModel.TestCaseId));
+            Assert.That(testCaseViewModel.IsOpenForEdit);
+            Assert.That(testCaseViewModel.TestCaseEntity is not null);
+            Assert.That(testCaseViewModel.TestCaseEntity.Name.Equals(testCaseViewModel.DisplayName));
+            Assert.That(testCaseViewModel.TestCaseEntity.Tag.Equals(testCaseViewModel.TestCaseId));
 
             int expected = isOpenForEdit ? 0 : 1;
             await dataManager.Received(expected).DownloadTestDataAsync(Arg.Any<TestCase>());
@@ -640,8 +640,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             //Assert
             if (isOpenForEdit)
             {
-                Assert.IsNull(testCaseViewModel.TestCaseEntity);
-                Assert.IsFalse(testCaseViewModel.IsOpenForEdit);
+                Assert.That(testCaseViewModel.TestCaseEntity is null);
+                Assert.That(testCaseViewModel.IsOpenForEdit == false);
             }
 
             int expected = isOpenForEdit ? 1 : 0;
@@ -868,19 +868,19 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var testExplorerViewModel = new TestExplorerViewModel(eventAggregator, projectManager, projectFileSystem, testRunner, dataManager,
                 componentViewBuilder, windowManager, notificationManager, platformProvider, applicationSettings);
 
-            Assert.IsTrue(testExplorerViewModel.CanSetUpEnvironment);
+            Assert.That(testExplorerViewModel.CanSetUpEnvironment);
 
             await testExplorerViewModel.SetUpEnvironmentAsync();
 
-            Assert.IsFalse(testExplorerViewModel.CanSetUpEnvironment);
-            Assert.IsTrue(testExplorerViewModel.CanRunTests);
-            Assert.IsTrue(testExplorerViewModel.CanTearDownEnvironment);
+            Assert.That(testExplorerViewModel.CanSetUpEnvironment == false);
+            Assert.That(testExplorerViewModel.CanRunTests);
+            Assert.That(testExplorerViewModel.CanTearDownEnvironment);
 
             await testExplorerViewModel.TearDownEnvironmentAsync();
 
-            Assert.IsTrue(testExplorerViewModel.CanSetUpEnvironment);
-            Assert.IsFalse(testExplorerViewModel.CanRunTests);
-            Assert.IsFalse(testExplorerViewModel.CanTearDownEnvironment);
+            Assert.That(testExplorerViewModel.CanSetUpEnvironment);
+            Assert.That(testExplorerViewModel.CanRunTests == false);
+            Assert.That(testExplorerViewModel.CanTearDownEnvironment == false);
 
             await testRunner.Received(1).SetUpEnvironment();
             await testRunner.Received(1).TearDownEnvironment();
@@ -900,7 +900,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await testExplorerViewModel.RunSelected();
 
-            Assert.AreEqual(1, testCaseViewModel.TestResults.Count());
+            Assert.That(testCaseViewModel.TestResults.Count(), Is.EqualTo(1));
             await testRunner.Received(1).OneTimeSetUp(Arg.Is(fixtureViewModel.TestFixture));
             await testRunner.Received(1).OneTimeTearDown(Arg.Is(fixtureViewModel.TestFixture));
             await testRunner.Received(1).TryOpenTestFixture(Arg.Is(fixtureViewModel.TestFixture));
@@ -923,7 +923,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await testExplorerViewModel.RunAll();
 
-            Assert.AreEqual(1, testCaseViewModel.TestResults.Count());
+            Assert.That(testCaseViewModel.TestResults.Count(), Is.EqualTo(1));
             await testRunner.Received(1).OneTimeSetUp(Arg.Is(fixtureViewModel.TestFixture));
             await testRunner.Received(1).OneTimeTearDown(Arg.Is(fixtureViewModel.TestFixture));
             await testRunner.Received(1).TryOpenTestFixture(Arg.Is(fixtureViewModel.TestFixture));

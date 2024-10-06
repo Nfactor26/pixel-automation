@@ -17,8 +17,8 @@ namespace Pixel.Automation.Core.Components.Tests
         public void ValidateThatSequenceEntityCanBeInitializer()
         {
             var sequenceEntity = new SequenceEntity();           
-            Assert.AreEqual(false, sequenceEntity.RequiresFocus);
-            Assert.AreEqual(string.Empty, sequenceEntity.TargetAppId);
+            Assert.That(sequenceEntity.RequiresFocus, Is.EqualTo(false));
+            Assert.That(sequenceEntity.TargetAppId, Is.EqualTo(string.Empty));
         }
 
 

@@ -69,20 +69,20 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             if(!wasCancelled)
             {
                 var couldProcessStage  = await testDataModelEditorViewModel.TryProcessStage();
-                Assert.IsTrue(couldProcessStage);          
+                Assert.That(couldProcessStage);          
                 scriptEditor.Received(1).CloseDocument(Arg.Is(true));
 
                 var result = testDataModelEditorViewModel.GetProcessedResult();
-                Assert.IsTrue((bool)result);
+                Assert.That((bool)result);
 
                 await testDataModelEditorViewModel.OnFinished();
-                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);              
+                Assert.That(testDataModelEditorViewModel.ScriptEditor is null);              
                 scriptEditor.Received(1).Dispose();
             }
             else
             {
                 await testDataModelEditorViewModel.OnCancelled();
-                Assert.IsNull(testDataModelEditorViewModel.ScriptEditor);               
+                Assert.That(testDataModelEditorViewModel.ScriptEditor is null);               
                 scriptEditor.Received(1).CloseDocument(Arg.Is(false));
                 scriptEditor.Received(1).Dispose();
             }

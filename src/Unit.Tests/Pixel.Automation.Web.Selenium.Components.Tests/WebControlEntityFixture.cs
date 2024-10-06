@@ -34,14 +34,14 @@ public class WebControlEntityFixture
         //On first request to GetControl, control should be cached if caching is enabled
         var foundControl = await webControlEntity.GetControl();
         await webControlEntity.OnCompletionAsync();
-        Assert.AreSame(control, foundControl);       
+        Assert.That(foundControl, Is.EqualTo(control));       
         await controlLocator.Received(1).FindControlAsync(Arg.Any<IControlIdentity>(), Arg.Any<UIControl>());
 
         controlLocator.ClearReceivedCalls();
 
         //On second request, control should be returned from cache if caching is enabled
         var cachedControl = await webControlEntity.GetControl();
-        Assert.AreEqual(control, cachedControl);
+        Assert.That(cachedControl, Is.EqualTo(control));
         await controlLocator.Received(expectedCallsForSecondAccess).FindControlAsync(Arg.Any<IControlIdentity>(), Arg.Any<UIControl>());
         await webControlEntity.OnCompletionAsync();
     }

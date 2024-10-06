@@ -52,9 +52,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var prefabExplorer = new PrefabExplorerViewModel(eventAggregator, windowManager, notificationManager,
                 versionManagerFactory, applicationDataManager, prefabDataManager);
 
-            Assert.AreEqual("Prefab Explorer", prefabExplorer.DisplayName);
-            Assert.AreEqual(0, prefabExplorer.Prefabs.Count);      
-            Assert.IsNull(prefabExplorer.SelectedPrefab);
+            Assert.That(prefabExplorer.DisplayName, Is.EqualTo("Prefab Explorer"));
+            Assert.That(prefabExplorer.Prefabs.Count, Is.EqualTo(0));      
+            Assert.That(prefabExplorer.SelectedPrefab is null);
         }
 
         /// <summary>
@@ -69,15 +69,15 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationDescription = CreateApplicationDescription();
             prefabExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
-            Assert.AreEqual(1, prefabExplorer.Prefabs.Count);
-            Assert.AreEqual(1, applicationDescription.Screens.Count);
-            Assert.AreEqual(1, applicationDescription.Screens[0].AvailablePrefabs.Count);
+            Assert.That(prefabExplorer.Prefabs.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens[0].AvailablePrefabs.Count, Is.EqualTo(1));
 
             prefabExplorer.SetActiveApplication(null);
        
-            Assert.AreEqual(0, prefabExplorer.Prefabs.Count);
-            Assert.AreEqual(1, applicationDescription.Screens.Count);
-            Assert.AreEqual(1, applicationDescription.Screens[0].AvailablePrefabs.Count);
+            Assert.That(prefabExplorer.Prefabs.Count, Is.EqualTo(0));
+            Assert.That(applicationDescription.Screens.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens[0].AvailablePrefabs.Count, Is.EqualTo(1));
 
         }
 

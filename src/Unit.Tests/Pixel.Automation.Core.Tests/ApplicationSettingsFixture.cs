@@ -15,10 +15,10 @@ namespace Pixel.Automation.Core.Tests
                 PersistenceServiceUri = "https://localhost:5001/api"
             };
 
-            Assert.AreEqual("Applications", applicationSettings.ApplicationDirectory);
-            Assert.AreEqual("Automations", applicationSettings.AutomationDirectory);
-            Assert.IsTrue(applicationSettings.IsOfflineMode);
-            Assert.AreEqual("https://localhost:5001/api", applicationSettings.PersistenceServiceUri);
+            Assert.That(applicationSettings.ApplicationDirectory, Is.EqualTo("Applications"));
+            Assert.That(applicationSettings.AutomationDirectory, Is.EqualTo("Automations"));
+            Assert.That(applicationSettings.IsOfflineMode);
+            Assert.That(applicationSettings.PersistenceServiceUri, Is.EqualTo("https://localhost:5001/api"));
         }
     }
 }

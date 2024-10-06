@@ -15,10 +15,10 @@ namespace Pixel.Automation.Core.Tests
         {
             Entity entity = new Entity("EntityName", "EntityTag");
 
-            Assert.AreEqual("EntityName", entity.Name);
-            Assert.AreEqual("EntityTag", entity.Tag);
-            Assert.IsNotNull(entity.Components);
-            Assert.IsTrue(entity.Components.Count == 0);
+            Assert.That(entity.Name, Is.EqualTo("EntityName"));
+            Assert.That(entity.Tag, Is.EqualTo("EntityTag"));
+            Assert.That(entity.Components is not null);
+            Assert.That(entity.Components.Count == 0);
         }
 
         [Test]
@@ -34,9 +34,9 @@ namespace Pixel.Automation.Core.Tests
 
             entity.AddComponent(component);
 
-            Assert.AreEqual(1, entity.Components.Count);
-            Assert.AreEqual(entity, component.Parent);
-            Assert.AreEqual(0, component.ProcessOrder);
+            Assert.That(entity.Components.Count, Is.EqualTo(1));
+            Assert.That(component.Parent, Is.EqualTo(entity));
+            Assert.That(component.ProcessOrder, Is.EqualTo(0));
 
             component.Received(1).ResolveDependencies();
             component.Received(1).ValidateComponent();            
@@ -57,12 +57,12 @@ namespace Pixel.Automation.Core.Tests
             entity.EntityManager = entityManager;
             entity.AddComponent(component);
 
-            Assert.AreEqual(1, entity.Components.Count);
+            Assert.That(entity.Components.Count, Is.EqualTo(1));
         
             entity.RemoveComponent(component);
-            Assert.AreEqual(0, entity.Components.Count);
-            Assert.IsNull(component.Parent);
-            Assert.IsNull(component.EntityManager);
+            Assert.That(entity.Components.Count, Is.EqualTo(0));
+            Assert.That(component.Parent is null);
+            Assert.That(component.EntityManager is null);
 
             (component as IDisposable).Received(1).Dispose();
         }
@@ -99,13 +99,13 @@ namespace Pixel.Automation.Core.Tests
             var entityComponent = new Entity("ChildEntity", "Entity");
 
             Entity entity = new Entity("EntityName", "EntityTag") { EntityManager = entityManager };
-            Assert.AreEqual(0, entity.Entities.Count());
+            Assert.That(entity.Entities.Count(), Is.EqualTo(0));
 
             entity.AddComponent(actorComponent);
             entity.AddComponent(dataComponent);
             entity.AddComponent(entityComponent);
 
-            Assert.AreEqual(1, entity.Entities.Count());
+            Assert.That(entity.Entities.Count(), Is.EqualTo(1));
         }
 
         /// <summary>
@@ -126,8 +126,8 @@ namespace Pixel.Automation.Core.Tests
 
             var componentsToBeProcessed = rootEntity.GetNextComponentToProcess().ToList();
 
-            Assert.AreEqual(1, componentsToBeProcessed.Count);
-            Assert.IsTrue(componentsToBeProcessed.Contains(actorComponent));
+            Assert.That(componentsToBeProcessed.Count, Is.EqualTo(1));
+            Assert.That(componentsToBeProcessed.Contains(actorComponent));
         }
 
 
@@ -149,8 +149,8 @@ namespace Pixel.Automation.Core.Tests
 
             var componentsToBeProcessed = rootEntity.GetNextComponentToProcess().ToList();
 
-            Assert.AreEqual(1, componentsToBeProcessed.Count);
-            Assert.IsTrue(componentsToBeProcessed.Contains(actorComponent));
+            Assert.That(componentsToBeProcessed.Count, Is.EqualTo(1));
+            Assert.That(componentsToBeProcessed.Contains(actorComponent));
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace Pixel.Automation.Core.Tests
             var componentsToBeProcessed = rootEntity.GetNextComponentToProcess().ToList();
 
 
-            Assert.AreEqual(1, componentsToBeProcessed.Count);
-            Assert.IsTrue(componentsToBeProcessed.Contains(entityProcessor));
+            Assert.That(componentsToBeProcessed.Count, Is.EqualTo(1));
+            Assert.That(componentsToBeProcessed.Contains(entityProcessor));
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Pixel.Automation.Core.Tests
 
             var componentsToBeProcessed = rootEntity.GetNextComponentToProcess().ToList();
 
-            Assert.AreEqual(0, componentsToBeProcessed.Count);         
+            Assert.That(componentsToBeProcessed.Count, Is.EqualTo(0));         
         }
 
 
@@ -233,11 +233,11 @@ namespace Pixel.Automation.Core.Tests
             var componentsToBeProcessed = rootEntity.GetNextComponentToProcess().ToList();
 
 
-            Assert.AreEqual(5, componentsToBeProcessed.Count);
-            Assert.IsTrue(componentsToBeProcessed.Contains(childEntity)); // Entities are returned twice - when encounterd and when after it's child are processed.
-            Assert.IsTrue(componentsToBeProcessed.Contains(asyncActorComponent));
-            Assert.IsTrue(componentsToBeProcessed.Contains(actorComponent));
-            Assert.IsTrue(componentsToBeProcessed.Contains(entityProcessor));
+            Assert.That(componentsToBeProcessed.Count, Is.EqualTo(5));
+            Assert.That(componentsToBeProcessed.Contains(childEntity)); // Entities are returned twice - when encounterd and when after it's child are processed.
+            Assert.That(componentsToBeProcessed.Contains(asyncActorComponent));
+            Assert.That(componentsToBeProcessed.Contains(actorComponent));
+            Assert.That(componentsToBeProcessed.Contains(entityProcessor));
         }
     }
 }

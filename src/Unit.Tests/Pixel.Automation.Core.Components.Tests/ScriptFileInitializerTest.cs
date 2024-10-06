@@ -19,12 +19,12 @@ namespace Pixel.Automation.Core.Components.Tests
             entityManager.GetCurrentFileSystem().Returns(fileSystem);
 
             var scriptableComponent = new IfEntity() { EntityManager = entityManager };
-            Assert.IsNull(scriptableComponent.ScriptFile);
+            Assert.That(scriptableComponent.ScriptFile is null);
 
             var scriptFileInitializer = new ScriptFileInitializer();
             scriptFileInitializer.IntializeComponent(scriptableComponent, entityManager);
 
-            Assert.IsNotNull(scriptableComponent.ScriptFile);
+            Assert.That(scriptableComponent.ScriptFile is not null);
         }
     }
 }

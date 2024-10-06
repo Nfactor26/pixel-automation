@@ -42,9 +42,9 @@ public class AutomationElementTest
     {
         AutomationElement actual;
         actual = AutomationElement.RootElement;
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(actual.GetCurrentPropertyValue(AutomationElement.ClassNameProperty), "#32769");
-        Assert.AreEqual(actual.GetCurrentPropertyValue(AutomationElement.NativeWindowHandleProperty), 0x10010);
+        Assert.That(actual is not null);
+        Assert.That(actual.GetCurrentPropertyValue(AutomationElement.ClassNameProperty), Is.EqualTo("#32769"));
+        Assert.That(actual.GetCurrentPropertyValue(AutomationElement.NativeWindowHandleProperty), Is.EqualTo(0x10010));
     }
 
     /// <summary>
@@ -54,8 +54,8 @@ public class AutomationElementTest
     public void FocusedElementTest()
     {
         AutomationElement actual = AutomationElement.FocusedElement;
-        Assert.IsNotNull(actual);
-        Assert.IsTrue(actual.Current.HasKeyboardFocus);
+        Assert.That(actual is not null);
+        Assert.That(actual.Current.HasKeyboardFocus);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class AutomationElementTest
         Point pt = new Point(); 
         AutomationElement actual;
         actual = AutomationElement.FromPoint(pt);
-        Assert.IsNotNull(actual);
+        Assert.That(actual is not null);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class AutomationElementTest
         int rootHwnd = (int)AutomationElement.RootElement.GetCurrentPropertyValue(
             AutomationElement.NativeWindowHandleProperty);
         AutomationElement actual = AutomationElement.FromHandle((IntPtr)rootHwnd);
-        Assert.AreEqual(actual, AutomationElement.RootElement);
+        Assert.That(actual, Is.EqualTo(AutomationElement.RootElement));
     }
 
     /// <summary>
@@ -90,10 +90,10 @@ public class AutomationElementTest
     {
         Point pt = new Point();
         AutomationElement actual1 = AutomationElement.FromPoint(pt);
-        Assert.IsNotNull(actual1);
+        Assert.That(actual1 is not null);
         AutomationElement actual2 = AutomationElement.FromPoint(pt);
-        Assert.IsNotNull(actual2);
-        Assert.AreEqual(actual1, actual2);
+        Assert.That(actual2 is not null );
+        Assert.That(actual1, Is.EqualTo(actual2));
     }
 
     /// <summary>
@@ -107,13 +107,13 @@ public class AutomationElementTest
         cacheReq.Add(AutomationElement.NativeWindowHandleProperty);
         using (cacheReq.Activate())
         {
-            Assert.AreSame(CacheRequest.Current, cacheReq);
+            Assert.That(cacheReq, Is.SameAs(CacheRequest.Current));
             AutomationElement actualCached = AutomationElement.RootElement.FindFirst(
                 TreeScope.Children,
                 Condition.TrueCondition);
-            Assert.IsNotNull(actualCached);
+            Assert.That(actualCached is not null);
             int nativeHwnd = (int)actualCached.GetCachedPropertyValue(AutomationElement.NativeWindowHandleProperty);
-            Assert.IsTrue(nativeHwnd != 0);
+            Assert.That(nativeHwnd != 0);
         }
     }
 
@@ -132,14 +132,14 @@ public class AutomationElementTest
             AutomationElementCollection actual = AutomationElement.RootElement.FindAll(
                 TreeScope.Children,
                 Condition.TrueCondition);
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.Count > 0);
+            Assert.That(actual is not null);
+            Assert.That(actual.Count > 0);
 
             foreach (AutomationElement elem in actual)
             {
-                Assert.IsNotNull(elem);
+                Assert.That(elem is not null);
                 int nativeHwnd = (int)elem.GetCachedPropertyValue(AutomationElement.NativeWindowHandleProperty);
-                Assert.IsTrue(nativeHwnd != 0);
+                Assert.That(nativeHwnd != 0);
             } 
         }
     }
@@ -149,16 +149,16 @@ public class AutomationElementTest
     {
         AutomationElement clock = GetClock();
         Point point = clock.GetClickablePoint();
-        Assert.IsTrue(point.X > 0);
-        Assert.IsTrue(point.Y > 0);
+        Assert.That(point.X > 0);
+        Assert.That(point.Y > 0);
     }
 
     [Test]
     public void GetRuntimeIdTest()
     {
         int[] runtimeId = AutomationElement.RootElement.GetRuntimeId();
-        Assert.IsNotNull(runtimeId);
-        Assert.IsTrue(runtimeId.Length > 0);
+        Assert.That(runtimeId is not null);
+        Assert.That(runtimeId.Length > 0);
     }
 
     [Test]
@@ -187,7 +187,7 @@ public class AutomationElementTest
     public void GetCurrentPatternTest()
     {
         LegacyIAccessiblePattern pattern = (LegacyIAccessiblePattern)GetTaskbar().GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
-        Assert.IsNotNull(pattern);
+        Assert.That(pattern is not null);
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public class AutomationElementTest
         using (req.Activate())
         {
             LegacyIAccessiblePattern pattern = (LegacyIAccessiblePattern)GetTaskbar().GetCachedPattern(LegacyIAccessiblePattern.Pattern);
-            Assert.IsNotNull(pattern);
+            Assert.That(pattern is not null);
         }
     }
 
@@ -209,25 +209,25 @@ public class AutomationElementTest
     public void GetSupportedTest()
     {
         AutomationProperty[] properties = GetTaskbar().GetSupportedProperties();
-        Assert.IsNotNull(properties);
-        Assert.IsTrue(properties.Length > 0);
+        Assert.That(properties is not null);
+        Assert.That(properties.Length > 0);
         foreach (AutomationProperty property in properties)
         {
-            Assert.IsNotNull(property);
-            Assert.IsNotNull(property.ProgrammaticName);
+            Assert.That(property is not null);
+            Assert.That(property.ProgrammaticName is not null);
             string programmaticName = Automation.PropertyName(property);
-            Assert.IsNotNull(programmaticName);
+            Assert.That(programmaticName is not null);
         }
 
         AutomationPattern[] patterns = GetTaskbar().GetSupportedPatterns();
-        Assert.IsNotNull(patterns);
-        Assert.IsTrue(patterns.Length > 0);
+        Assert.That(patterns is not null);
+        Assert.That(patterns.Length > 0);
         foreach (AutomationPattern pattern in patterns)
         {
-            Assert.IsNotNull(pattern);
-            Assert.IsNotNull(pattern.ProgrammaticName);
+            Assert.That(pattern is not null);
+            Assert.That(pattern.ProgrammaticName is not null);
             string programmaticName = Automation.PatternName(pattern);
-            Assert.IsNotNull(programmaticName);
+            Assert.That(programmaticName is not null);
         }
     }
 
@@ -240,13 +240,13 @@ public class AutomationElementTest
         {
             AutomationElement rootElement = AutomationElement.RootElement;
             AutomationElementCollection rootChildren = rootElement.CachedChildren;
-            Assert.IsNotNull(rootChildren);
-            Assert.IsTrue(rootChildren.Count > 0);
+            Assert.That(rootChildren is not null);
+            Assert.That(rootChildren.Count > 0);
 
             AutomationElement firstChild = rootChildren[0];
             AutomationElement cachedParent = firstChild.CachedParent;
-            Assert.IsNotNull(cachedParent);
-            Assert.AreEqual(cachedParent, rootElement);
+            Assert.That(cachedParent is not null);
+            Assert.That(cachedParent, Is.EqualTo(rootElement));
         }
     }
 
@@ -256,15 +256,15 @@ public class AutomationElementTest
         AutomationElement taskbar = GetTaskbar();
         // Pretty sure the start button doesn't support this
         object value = taskbar.GetCurrentPropertyValue(AutomationElement.ItemStatusProperty, true);
-        Assert.AreEqual(value, AutomationElement.NotSupported);
+        Assert.That(value, Is.EqualTo(AutomationElement.NotSupported));
     }
 
     [Test]
     public void BoundaryRectTest()
     {
         System.Windows.Rect boundingRect = GetTaskbar().Current.BoundingRectangle;
-        Assert.IsTrue(boundingRect.Width > 0);
-        Assert.IsTrue(boundingRect.Height > 0);
+        Assert.That(boundingRect.Width > 0);
+        Assert.That(boundingRect.Height > 0);
     }
 
     [Test]
@@ -272,11 +272,11 @@ public class AutomationElementTest
     {
         AutomationElement el1 = GetTaskbar();
         AutomationElement el2 = GetTaskbar();
-        Assert.IsTrue(Automation.Compare((AutomationElement)null, (AutomationElement)null));
-        Assert.IsFalse(Automation.Compare(null, el1));
-        Assert.IsFalse(Automation.Compare(el1, null));
-        Assert.IsTrue(Automation.Compare(el1, el2));
-        Assert.IsTrue(Automation.Compare(el1.GetRuntimeId(), el2.GetRuntimeId()));
+        Assert.That(Automation.Compare((AutomationElement)null, (AutomationElement)null));
+        Assert.That(Automation.Compare(null, el1) == false);
+        Assert.That(Automation.Compare(el1, null) == false);
+        Assert.That(Automation.Compare(el1, el2));
+        Assert.That(Automation.Compare(el1.GetRuntimeId(), el2.GetRuntimeId()));
     }
 
     [Test]
@@ -290,7 +290,7 @@ public class AutomationElementTest
         }
         catch (Exception e)
         {
-            Assert.IsInstanceOf<ElementNotAvailableException>(e);
+            Assert.That(e is ElementNotAvailableException);
         }
     }
 
@@ -298,7 +298,7 @@ public class AutomationElementTest
     public void ProviderDescriptionTest()
     {
         string description = (string)AutomationElement.RootElement.GetCurrentPropertyValue(AutomationElement.ProviderDescriptionProperty);
-        Assert.IsNotNull(description);
-        Assert.IsTrue(description.Length > 0);
+        Assert.That(description is not null);
+        Assert.That(description.Length > 0);
     }
 }

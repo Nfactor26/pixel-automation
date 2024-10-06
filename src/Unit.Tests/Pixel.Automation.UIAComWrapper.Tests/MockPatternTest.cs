@@ -529,7 +529,7 @@ namespace UIAComWrapperTests
 
             // Get the overridden element
             this.mockObject = AutomationElement.FromHandle(this.targetHwnd);
-            Assert.IsNotNull(this.mockObject);
+            Assert.That(this.mockObject is not null);
         }
 
         [TearDown]
@@ -547,15 +547,15 @@ namespace UIAComWrapperTests
             object patternAsObj;
             AnnotationPattern pattern;
             mockObject.TryGetCurrentPattern(AnnotationPattern.Pattern, out patternAsObj);
-            Assert.IsNotNull(patternAsObj);
+            Assert.That(patternAsObj is not null);
             pattern = (AnnotationPattern)patternAsObj;
 
             // Test it
-            Assert.AreEqual(AnnotationType.Comment, pattern.Current.AnnotationTypeId);
-            Assert.AreEqual("Comment", pattern.Current.AnnotationTypeName);
-            Assert.AreEqual("John Doe", pattern.Current.Author);
-            Assert.AreEqual("July 4, 1776", pattern.Current.DateTime);
-            Assert.IsTrue(Automation.Compare(this.mockObject, pattern.Current.Target));
+            Assert.That(pattern.Current.AnnotationTypeId, Is.EqualTo(AnnotationType.Comment));
+            Assert.That(pattern.Current.AnnotationTypeName, Is.EqualTo("Comment"));
+            Assert.That(pattern.Current.Author, Is.EqualTo("John Doe"));
+            Assert.That(pattern.Current.DateTime, Is.EqualTo("July 4, 1776"));
+            Assert.That(Automation.Compare(this.mockObject, pattern.Current.Target));
         }
 
         [Test]
@@ -566,13 +566,13 @@ namespace UIAComWrapperTests
             StylesPattern pattern = (StylesPattern)mockObject.GetCurrentPattern(StylesPattern.Pattern);
 
             // Test it
-            Assert.AreEqual(StyleId.Heading5, pattern.Current.StyleId);
-            Assert.AreEqual("Heading #5", pattern.Current.StyleName);
-            Assert.AreEqual("pinstriped", pattern.Current.FillPatternStyle);
-            Assert.AreEqual(0x00FF00, pattern.Current.FillColor);
-            Assert.AreEqual(0x0000FF, pattern.Current.FillPatternColor);
-            Assert.AreEqual("dodecahedron", pattern.Current.Shape);
-            Assert.AreEqual("prop1=a;prop2=b", pattern.Current.ExtendedProperties);
+            Assert.That(pattern.Current.StyleId, Is.EqualTo(StyleId.Heading5));
+            Assert.That(pattern.Current.StyleName, Is.EqualTo("Heading #5"));
+            Assert.That(pattern.Current.FillPatternStyle, Is.EqualTo("pinstriped"));
+            Assert.That(pattern.Current.FillColor, Is.EqualTo(0x00FF00));
+            Assert.That(pattern.Current.FillPatternColor, Is.EqualTo(0x0000FF));
+            Assert.That(pattern.Current.Shape, Is.EqualTo("dodecahedron"));
+            Assert.That(pattern.Current.ExtendedProperties, Is.EqualTo("prop1=a;prop2=b"));
         }
 
         [Test]
@@ -584,10 +584,10 @@ namespace UIAComWrapperTests
 
             // Test it
             AutomationElement result = pattern.GetItemByName("primary");
-            Assert.IsNotNull(result);
-            Assert.IsTrue(Automation.Compare(this.mockObject, result));
+            Assert.That(result is not null);
+            Assert.That(Automation.Compare(this.mockObject, result));
 
-            Assert.IsNull(pattern.GetItemByName("secondary"));
+            Assert.That(pattern.GetItemByName("secondary") is null);
         }
 
         [Test]
@@ -598,15 +598,15 @@ namespace UIAComWrapperTests
             SpreadsheetItemPattern pattern = (SpreadsheetItemPattern)mockObject.GetCurrentPattern(SpreadsheetItemPattern.Pattern);
 
             // Test it
-            Assert.AreEqual("E=mc^2", pattern.Current.Formula);
+            Assert.That(pattern.Current.Formula, Is.EqualTo("E=mc^2"));
             AutomationElement [] annotationObjects = pattern.Current.GetAnnotationObjects();
-            Assert.AreEqual(2, annotationObjects.Length);
-            Assert.IsTrue(Automation.Compare(this.mockObject, annotationObjects[0]));
-            Assert.IsTrue(Automation.Compare(this.mockObject, annotationObjects[1]));
+            Assert.That(annotationObjects.Length, Is.EqualTo(2));
+            Assert.That(Automation.Compare(this.mockObject, annotationObjects[0]));
+            Assert.That(Automation.Compare(this.mockObject, annotationObjects[1]));
             AnnotationType[] annotationTypes = pattern.Current.GetAnnotationTypes();
-            Assert.AreEqual(2, annotationTypes.Length);
-            Assert.AreEqual(AnnotationType.SpellingError, annotationTypes[0]);
-            Assert.AreEqual(AnnotationType.GrammarError, annotationTypes[1]);
+            Assert.That(annotationTypes.Length, Is.EqualTo(2));
+            Assert.That(annotationTypes[0], Is.EqualTo(AnnotationType.SpellingError));
+            Assert.That(annotationTypes[1], Is.EqualTo(AnnotationType.GrammarError));
 
         }
 
@@ -620,11 +620,11 @@ namespace UIAComWrapperTests
             TransformPattern2 pattern = (TransformPattern2)mockObject.GetCurrentPattern(TransformPattern2.Pattern);
 
             // Test it
-            Assert.AreEqual(0.25, pattern.Current.ZoomMinimum);
-            Assert.AreEqual(4.0, pattern.Current.ZoomMaximum);
-            Assert.AreEqual(1.0, pattern.Current.ZoomLevel);
+            Assert.That(pattern.Current.ZoomMinimum, Is.EqualTo(0.25));
+            Assert.That(pattern.Current.ZoomMaximum, Is.EqualTo(4.0));
+            Assert.That(pattern.Current.ZoomLevel, Is.EqualTo(1.0));
             pattern.Zoom(2.0);
-            Assert.AreEqual(2.0, pattern.Current.ZoomLevel);
+            Assert.That(pattern.Current.ZoomLevel, Is.EqualTo(2.0));
             try
             {
                 pattern.Zoom(10.0);
@@ -639,9 +639,9 @@ namespace UIAComWrapperTests
             }
 
             pattern.ZoomByUnit(ZoomUnit.LargeDecrement);
-            Assert.AreEqual(1.75, pattern.Current.ZoomLevel);
+            Assert.That(pattern.Current.ZoomLevel, Is.EqualTo(1.75));
             pattern.ZoomByUnit(ZoomUnit.NoAmount);
-            Assert.AreEqual(1.75, pattern.Current.ZoomLevel);
+            Assert.That(pattern.Current.ZoomLevel, Is.EqualTo(1.75));
         }
 
         [Test]
@@ -652,15 +652,15 @@ namespace UIAComWrapperTests
             DragPattern pattern = (DragPattern)mockObject.GetCurrentPattern(DragPattern.Pattern);
 
             // Test it
-            Assert.AreEqual(true, pattern.Current.IsGrabbed);
-            Assert.AreEqual("Copy", pattern.Current.DropEffect);
-            Assert.AreEqual(2, pattern.Current.DropEffects.Length);
-            Assert.AreEqual("Copy", pattern.Current.DropEffects[0]);
-            Assert.AreEqual("Move", pattern.Current.DropEffects[1]);
+            Assert.That(pattern.Current.IsGrabbed, Is.EqualTo(true));
+            Assert.That(pattern.Current.DropEffect, Is.EqualTo("Copy"));
+            Assert.That(pattern.Current.DropEffects.Length, Is.EqualTo(2));
+            Assert.That(pattern.Current.DropEffects[0], Is.EqualTo("Copy"));
+            Assert.That(pattern.Current.DropEffects[1], Is.EqualTo("Move"));
             AutomationElement[] grabbedItems = pattern.Current.GrabbedItems;
-            Assert.AreEqual(2, grabbedItems.Length);
-            Assert.IsTrue(Automation.Compare(this.mockObject, grabbedItems[0]));
-            Assert.IsTrue(Automation.Compare(this.mockObject, grabbedItems[1]));
+            Assert.That(grabbedItems.Length, Is.EqualTo(2));
+            Assert.That(Automation.Compare(this.mockObject, grabbedItems[0]));
+            Assert.That(Automation.Compare(this.mockObject, grabbedItems[1]));
         }
 
         [Test]
@@ -671,10 +671,10 @@ namespace UIAComWrapperTests
             DropTargetPattern pattern = (DropTargetPattern)mockObject.GetCurrentPattern(DropTargetPattern.Pattern);
 
             // Test it
-            Assert.AreEqual("Copy", pattern.Current.DropTargetEffect);
-            Assert.AreEqual(2, pattern.Current.DropTargetEffects.Length);
-            Assert.AreEqual("Copy", pattern.Current.DropTargetEffects[0]);
-            Assert.AreEqual("Move", pattern.Current.DropTargetEffects[1]);
+            Assert.That(pattern.Current.DropTargetEffect, Is.EqualTo("Copy"));
+            Assert.That(pattern.Current.DropTargetEffects.Length, Is.EqualTo(2));
+            Assert.That(pattern.Current.DropTargetEffects[0], Is.EqualTo("Copy"));
+            Assert.That(pattern.Current.DropTargetEffects[1], Is.EqualTo("Move"));
         }
 
         [Test]
@@ -699,14 +699,14 @@ namespace UIAComWrapperTests
                 Assert.Fail("Expected ArgumentNullException");
             }
             annotationRange = pattern.RangeFromAnnotation(this.mockObject);
-            Assert.IsNotNull(annotationRange);
-            Assert.AreEqual("fromAnnotation", annotationRange.GetText(-1));
+            Assert.That(annotationRange is not null);
+            Assert.That(annotationRange.GetText(-1), Is.EqualTo("fromAnnotation"));
             bool isActive;
             Pixel.Windows.Automation.Text.TextPatternRange caretRange;
             caretRange = pattern.GetCaretRange(out isActive);
-            Assert.AreEqual(true, isActive);
-            Assert.IsNotNull(caretRange);
-            Assert.AreEqual("caret", caretRange.GetText(-1));
+            Assert.That(isActive, Is.EqualTo(true));
+            Assert.That(caretRange is not null);
+            Assert.That(caretRange.GetText(-1), Is.EqualTo("caret"));
         }
 
         [Test]
@@ -718,11 +718,11 @@ namespace UIAComWrapperTests
 
             // Test it
             AutomationElement container = pattern.TextContainer;
-            Assert.IsTrue(Automation.Compare(this.mockObject, container));
+            Assert.That(Automation.Compare(this.mockObject, container));
             Pixel.Windows.Automation.Text.TextPatternRange childRange;
             childRange = pattern.TextRange;
-            Assert.IsNotNull(childRange);
-            Assert.AreEqual("fromChild", childRange.GetText(-1));
+            Assert.That(childRange is not null);
+            Assert.That(childRange.GetText(-1), Is.EqualTo("fromChild"));
         }
 
         private void CheckWin8()

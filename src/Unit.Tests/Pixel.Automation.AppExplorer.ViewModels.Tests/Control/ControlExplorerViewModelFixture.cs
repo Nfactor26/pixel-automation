@@ -65,8 +65,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var controlExplorer = new ControlExplorerViewModel(windowManager, notificationManager, eventAggregator,
                 controlEditorFactory, applicationDataManager);
 
-            Assert.AreEqual(0, controlExplorer.Controls.Count);
-            Assert.IsNull(controlExplorer.SelectedControl);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(0));
+            Assert.That(controlExplorer.SelectedControl is null);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             controlExplorer.SelectedControl = controlToRename;
             controlExplorer.ToggleRename(controlToRename);
 
-            Assert.IsTrue(controlExplorer.CanEdit);
+            Assert.That(controlExplorer.CanEdit);
         }
 
 
@@ -100,14 +100,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationDescription = CreateApplicationDescription();           
             controlExplorer.SetActiveApplication(CreateApplicationDescriptionViewModel(applicationDescription));
 
-            Assert.AreEqual(1, controlExplorer.Controls.Count);
-            Assert.AreEqual(1, applicationDescription.Screens.Count);
-            Assert.AreEqual(1, applicationDescription.Screens[0].AvailableControls.Count);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens[0].AvailableControls.Count, Is.EqualTo(1));
 
             controlExplorer.SetActiveApplication(null);
-            Assert.AreEqual(0, controlExplorer.Controls.Count);
-            Assert.AreEqual(1, applicationDescription.Screens.Count);
-            Assert.AreEqual(1, applicationDescription.Screens[0].AvailableControls.Count);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(0));
+            Assert.That(applicationDescription.Screens.Count, Is.EqualTo(1));
+            Assert.That(applicationDescription.Screens[0].AvailableControls.Count, Is.EqualTo(1));
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var controlToEdit = controlExplorer.Controls.First();
 
             await controlExplorer.CloneControl(controlToEdit);
-            Assert.AreEqual(2, controlExplorer.Controls.Count);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(2));
 
             await applicationDataManager.Received(1).AddControlToScreenAsync(Arg.Any<ControlDescription>(), Arg.Any<string>());         
             await applicationDataManager.Received(1).AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>());
@@ -209,7 +209,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
                 }               
             }
 
-            Assert.AreEqual(2, controlExplorer.Controls.Count);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(2));
             await applicationDataManager.Received(1).AddControlToScreenAsync(Arg.Any<ControlDescription>(), Arg.Any<string>());           
             await applicationDataManager.Received(1).AddOrUpdateControlImageAsync(Arg.Any<ControlDescription>(), Arg.Any<Stream>());
             applicationDataManager.Received(1).SaveApplicationToDisk(Arg.Any<ApplicationDescription>());
@@ -229,7 +229,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var controlToEdit = controlExplorer.Controls.First();
 
             await controlExplorer.UpdateControlDetails(controlToEdit);
-            Assert.AreEqual(1, controlExplorer.Controls.Count);
+            Assert.That(controlExplorer.Controls.Count, Is.EqualTo(1));
 
             await applicationDataManager.Received(1).UpdateControlAsync(Arg.Any<ControlDescription>());
             await applicationDataManager.Received(0).UpdateApplicationAsync(Arg.Any<ApplicationDescription>());

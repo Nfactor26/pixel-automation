@@ -21,10 +21,10 @@ namespace Pixel.Automation.Core.Components.Tests
             containerEntity.EntityManager = entityManager;
             containerEntity.ResolveDependencies();
 
-            Assert.IsNotNull(containerEntity.GroupPlaceHolder);
-            Assert.IsNotNull(containerEntity.GroupActor);
-            Assert.AreEqual(typeof(FindControlActorComponent), containerEntity.GroupActor.GetType());
-            Assert.IsTrue(containerEntity.Components.Contains(containerEntity.GroupPlaceHolder));
+            Assert.That(containerEntity.GroupPlaceHolder is not null);
+            Assert.That(containerEntity.GroupActor is not null);
+            Assert.That(containerEntity.GroupActor.GetType(), Is.EqualTo(typeof(FindControlActorComponent)));
+            Assert.That(containerEntity.Components.Contains(containerEntity.GroupPlaceHolder));
         }
 
         [Test]
@@ -62,8 +62,8 @@ namespace Pixel.Automation.Core.Components.Tests
             await containerEntity.GroupActor.ActAsync();
 
 
-            Assert.AreEqual(uiControl, foundControl);
-            Assert.AreEqual(true, wasLocated);
+            Assert.That(foundControl, Is.EqualTo(uiControl));
+            Assert.That(wasLocated, Is.EqualTo(true));
 
         }
     }

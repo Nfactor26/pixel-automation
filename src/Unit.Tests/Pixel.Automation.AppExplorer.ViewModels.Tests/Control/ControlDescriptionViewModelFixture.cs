@@ -25,22 +25,22 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 
             var controlDescriptionViewModel = new ControlDescriptionViewModel(controlDescription);
 
-            Assert.AreSame(controlDescription, controlDescriptionViewModel.ControlDescription);
-            Assert.AreSame(controlDescription.ControlDetails, controlDescriptionViewModel.ControlDetails);
-            Assert.AreEqual(controlDescription.ApplicationId, controlDescriptionViewModel.ApplicationId);
-            Assert.AreEqual(controlDescription.ControlId, controlDescriptionViewModel.ControlId);
-            Assert.AreEqual(controlDescription.GroupName, controlDescriptionViewModel.GroupName);
-            Assert.AreEqual(controlDescription.ControlName, controlDescriptionViewModel.ControlName);
-            Assert.AreEqual(controlDescription.ControlImage, controlDescriptionViewModel.ControlImage);
-            Assert.AreEqual("Control Details", controlDescriptionViewModel.ToString());
+            Assert.That(controlDescriptionViewModel.ControlDescription, Is.SameAs(controlDescription));
+            Assert.That(controlDescriptionViewModel.ControlDetails, Is.SameAs(controlDescription.ControlDetails));
+            Assert.That(controlDescriptionViewModel.ApplicationId, Is.EqualTo(controlDescription.ApplicationId));
+            Assert.That(controlDescriptionViewModel.ControlId, Is.EqualTo(controlDescription.ControlId));
+            Assert.That(controlDescriptionViewModel.GroupName, Is.EqualTo(controlDescription.GroupName));
+            Assert.That(controlDescriptionViewModel.ControlName, Is.EqualTo(controlDescription.ControlName));
+            Assert.That(controlDescriptionViewModel.ControlImage, Is.EqualTo(controlDescription.ControlImage));
+            Assert.That(controlDescriptionViewModel.ToString(), Is.EqualTo("Control Details"));
 
             controlDescriptionViewModel.ControlName = "AddButton";
             controlDescriptionViewModel.GroupName = "Buttons";
             controlDescriptionViewModel.ControlImage = "AddButton.Png";
 
-            Assert.AreEqual("Buttons", controlDescriptionViewModel.GroupName);
-            Assert.AreEqual("AddButton", controlDescriptionViewModel.ControlName);
-            Assert.AreEqual("AddButton.Png", controlDescriptionViewModel.ControlImage);
+            Assert.That(controlDescriptionViewModel.GroupName, Is.EqualTo("Buttons"));
+            Assert.That(controlDescriptionViewModel.ControlName, Is.EqualTo("AddButton"));
+            Assert.That(controlDescriptionViewModel.ControlImage, Is.EqualTo("AddButton.Png"));
         }
     }
 }

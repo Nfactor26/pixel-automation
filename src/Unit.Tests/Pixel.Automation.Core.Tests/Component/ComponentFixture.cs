@@ -27,16 +27,16 @@ namespace Pixel.Automation.Core.Tests
         public void ValidateThatComponentCanBeInitialized()
         {
             var component = new FakeComponent("Component", "Tag");
-            Assert.IsNotNull(component);
+            Assert.That(component is not null);
 
-            Assert.AreEqual("Component", component.Name);
-            Assert.AreEqual("Tag", component.Tag);
-            Assert.IsNotEmpty(component.Id);
-            Assert.IsTrue(component.IsEnabled);
-            Assert.AreEqual(1, component.ProcessOrder);
-            Assert.IsTrue(component.IsValid);
-            Assert.IsNull(component.EntityManager);
-            Assert.IsNull(component.Parent);
+            Assert.That(component.Name, Is.EqualTo("Component"));
+            Assert.That(component.Tag, Is.EqualTo("Tag"));
+            Assert.That(!string.IsNullOrEmpty(component.Id));
+            Assert.That(component.IsEnabled);
+            Assert.That(component.ProcessOrder, Is.EqualTo(1));
+            Assert.That(component.IsValid);
+            Assert.That(component.EntityManager is null);
+            Assert.That(component.Parent is null);
         }
 
         /// <summary>
@@ -48,23 +48,23 @@ namespace Pixel.Automation.Core.Tests
             var component = new FakeComponent("Component", "Tag");
             
             component.Name = "FakeComponent";
-            Assert.AreEqual("FakeComponent", component.Name);
+            Assert.That(component.Name, Is.EqualTo("FakeComponent"));
 
             component.Tag = "FakeTag";
-            Assert.AreEqual("FakeTag", component.Tag);
+            Assert.That(component.Tag, Is.EqualTo("FakeTag"));
 
             component.ProcessOrder = 10;
-            Assert.AreEqual(10, component.ProcessOrder);
+            Assert.That(component.ProcessOrder, Is.EqualTo(10));
 
             component.Parent = new Entity();
-            Assert.IsNotNull(component.Parent);
+            Assert.That(component.Parent is not null);
 
             var entityManager = Substitute.For<IEntityManager>();
             var argumentProcessor = Substitute.For<IArgumentProcessor>();
             entityManager.GetArgumentProcessor().Returns(argumentProcessor);
             component.EntityManager = entityManager;
-            Assert.IsNotNull(component.EntityManager);
-            Assert.IsNotNull(component.ArgumentProcessor);
+            Assert.That(component.EntityManager is not null);
+            Assert.That(component.ArgumentProcessor is not null);
         }
 
         /// <summary>
@@ -77,9 +77,9 @@ namespace Pixel.Automation.Core.Tests
         public void ValidateThatComponentsValidateMethodCanDetermineWhetherComponentIsValid(string name, string tag, bool expectedValidState)
         {
             var component = new FakeComponent() { Name = name, Tag = tag };
-            Assert.IsTrue(component.IsValid); //Initially all components are invalid
+            Assert.That(component.IsValid); //Initially all components are invalid
             component.ValidateComponent();
-            Assert.AreEqual(expectedValidState, component.IsValid);
+            Assert.That(component.IsValid, Is.EqualTo(expectedValidState));
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var component = new FakeComponent("Name", "Tag");
             string expectedValue = "Component -> Name:Name|Tag:Tag|IsEnabled:True";
-            Assert.AreEqual(expectedValue, component.ToString());
+            Assert.That(component.ToString(), Is.EqualTo(expectedValue));
         }
     }
 }

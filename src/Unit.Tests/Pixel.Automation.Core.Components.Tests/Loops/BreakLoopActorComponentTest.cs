@@ -23,7 +23,7 @@ namespace Pixel.Automation.Core.Components.Tests
             //causing the loop to stop
             await breakLoopActorComponent.ActAsync();
 
-            Assert.IsTrue((loopEntity as ILoop).ExitCriteriaSatisfied);
+            Assert.That((loopEntity as ILoop).ExitCriteriaSatisfied);
         }
 
         [Test]

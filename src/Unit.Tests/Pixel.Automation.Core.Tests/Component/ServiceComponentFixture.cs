@@ -22,14 +22,14 @@ namespace Pixel.Automation.Core.Tests
         public void ValidateThatServiceComponentCanBeInitialized()
         {
             var serviceComponent = new FakeServiceComponent();
-            Assert.IsNotNull(serviceComponent);
-            Assert.AreEqual("FakeServiceComponent", serviceComponent.Name);
-            Assert.AreEqual("FakeServiceComponent", serviceComponent.Tag);
+            Assert.That(serviceComponent is not null);
+            Assert.That(serviceComponent.Name, Is.EqualTo("FakeServiceComponent"));
+            Assert.That(serviceComponent.Tag, Is.EqualTo("FakeServiceComponent"));
 
             serviceComponent = new FakeServiceComponent("Name", "Tag");
-            Assert.IsNotNull(serviceComponent);
-            Assert.AreEqual("Name", serviceComponent.Name);
-            Assert.AreEqual("Tag", serviceComponent.Tag);
+            Assert.That(serviceComponent is not null);
+            Assert.That(serviceComponent.Name, Is.EqualTo("Name"));
+            Assert.That(serviceComponent.Tag, Is.EqualTo("Tag"));
         }
     }
 }

@@ -12,17 +12,17 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testFixture = new TestFixture();
 
-            Assert.IsFalse(string.IsNullOrEmpty(testFixture.FixtureId));
-            Assert.IsNull(testFixture.DisplayName);
-            Assert.AreEqual(0, testFixture.Order);
-            Assert.IsFalse(testFixture.IsMuted);
-            Assert.IsNull(testFixture.ScriptFile);
-            Assert.IsNull(testFixture.Description);
-            Assert.IsNotNull(testFixture.Tags);
-            Assert.AreEqual("Default", testFixture.Category);
-            Assert.IsNotNull(testFixture.Tests);
-            Assert.IsNull(testFixture.TestFixtureEntity);
-            Assert.AreEqual(testFixture.FixtureId, testFixture.ToString());
+            Assert.That(string.IsNullOrEmpty(testFixture.FixtureId) == false);
+            Assert.That(testFixture.DisplayName is null);
+            Assert.That(testFixture.Order, Is.EqualTo(0));
+            Assert.That(testFixture.IsMuted == false);
+            Assert.That(testFixture.ScriptFile is null);
+            Assert.That(testFixture.Description is null);
+            Assert.That(testFixture.Tags is not null);
+            Assert.That(testFixture.Category, Is.EqualTo("Default"));
+            Assert.That(testFixture.Tests is not null);
+            Assert.That(testFixture.TestFixtureEntity is null);
+            Assert.That(testFixture.ToString(), Is.EqualTo(testFixture.FixtureId));
 
             testFixture.DisplayName = "TestFixture";
             testFixture.Order = 10;
@@ -34,14 +34,14 @@ namespace Pixel.Automation.Core.Tests.TestData
             testFixture.TestFixtureEntity = new Entity();
 
        
-            Assert.AreEqual("TestFixture", testFixture.DisplayName);
-            Assert.AreEqual(10, testFixture.Order);
-            Assert.IsTrue(testFixture.IsMuted);
-            Assert.AreEqual("TestFixture.csx", testFixture.ScriptFile);
-            Assert.AreEqual("Description", testFixture.Description);
-            Assert.AreEqual(testFixture.Tags["color"], "red");
-            Assert.IsTrue(testFixture.Tests.Any());
-            Assert.IsNotNull(testFixture.TestFixtureEntity);
+            Assert.That(testFixture.DisplayName, Is.EqualTo("TestFixture"));
+            Assert.That(testFixture.Order, Is.EqualTo(10));
+            Assert.That(testFixture.IsMuted);
+            Assert.That(testFixture.ScriptFile, Is.EqualTo("TestFixture.csx"));
+            Assert.That(testFixture.Description, Is.EqualTo("Description"));
+            Assert.That("red", Is.EqualTo(testFixture.Tags["color"]));
+            Assert.That(testFixture.Tests.Any());
+            Assert.That(testFixture.TestFixtureEntity is not null);
         }
 
         [Test]
@@ -53,15 +53,15 @@ namespace Pixel.Automation.Core.Tests.TestData
             testFixture.Tests.Add(new TestCase());
             var copyOftestFixture = testFixture.Clone() as TestFixture;
 
-            Assert.AreEqual(testFixture.DisplayName, copyOftestFixture.DisplayName);
-            Assert.AreEqual(testFixture.Order, copyOftestFixture.Order);
-            Assert.AreEqual(testFixture.Description, copyOftestFixture.Description);
-            Assert.AreEqual(testFixture.IsMuted, copyOftestFixture.IsMuted);
-            Assert.AreEqual(copyOftestFixture.Tags["color"], "red");
-            Assert.AreEqual(testFixture.Category, copyOftestFixture.Category);          
-            Assert.AreNotEqual(testFixture.ScriptFile, copyOftestFixture.ScriptFile);      
-            Assert.AreNotEqual(testFixture.TestFixtureEntity, copyOftestFixture.TestFixtureEntity);
-            Assert.IsFalse(testFixture.Tests.SequenceEqual(copyOftestFixture.Tests));
+            Assert.That(copyOftestFixture.DisplayName, Is.EqualTo(testFixture.DisplayName));
+            Assert.That(copyOftestFixture.Order, Is.EqualTo(testFixture.Order));
+            Assert.That(copyOftestFixture.Description, Is.EqualTo(testFixture.Description));
+            Assert.That(copyOftestFixture.IsMuted, Is.EqualTo(testFixture.IsMuted));
+            Assert.That("red", Is.EqualTo(copyOftestFixture.Tags["color"]));
+            Assert.That(copyOftestFixture.Category, Is.EqualTo(testFixture.Category)    );          
+            Assert.That(copyOftestFixture.ScriptFile, Is.Not.EqualTo(testFixture.ScriptFile));      
+            Assert.That(copyOftestFixture.TestFixtureEntity, Is.Not.EqualTo(testFixture.TestFixtureEntity));
+            Assert.That(testFixture.Tests.SequenceEqual(copyOftestFixture.Tests) == false);
 
         }
     }

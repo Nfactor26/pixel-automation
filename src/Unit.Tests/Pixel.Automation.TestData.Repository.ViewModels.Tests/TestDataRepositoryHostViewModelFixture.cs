@@ -20,9 +20,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             var testDataRepositoryHostViewModel = new TestDataRepositoryHostViewModel();
 
-            Assert.AreEqual("Test Data Explorer", testDataRepositoryHostViewModel.DisplayName);
-            Assert.AreEqual(PaneLocation.Bottom, testDataRepositoryHostViewModel.PreferredLocation);
-            Assert.IsNotNull(testDataRepositoryHostViewModel.ActiveItem);
+            Assert.That(testDataRepositoryHostViewModel.DisplayName, Is.EqualTo("Test Data Explorer"));
+            Assert.That(testDataRepositoryHostViewModel.PreferredLocation, Is.EqualTo(PaneLocation.Bottom));
+            Assert.That(testDataRepositoryHostViewModel.ActiveItem is not null);
         }
 
         /// <summary>
@@ -37,12 +37,12 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var newScreen = Substitute.For<IScreen>();
             await testDataRepositoryHostViewModel.ActivateItemAsync(newScreen);
 
-            Assert.AreEqual(newScreen, testDataRepositoryHostViewModel.ActiveItem);
+            Assert.That(testDataRepositoryHostViewModel.ActiveItem, Is.EqualTo(newScreen));
 
             await testDataRepositoryHostViewModel.DeactivateItemAsync(newScreen, false);
 
-            Assert.AreNotEqual(newScreen, testDataRepositoryHostViewModel.ActiveItem);
-            Assert.AreEqual(defaultScreen, testDataRepositoryHostViewModel.ActiveItem);
+            Assert.That(testDataRepositoryHostViewModel.ActiveItem, Is.Not.EqualTo(newScreen));
+            Assert.That(testDataRepositoryHostViewModel.ActiveItem, Is.EqualTo(defaultScreen));
         }
     }
 }

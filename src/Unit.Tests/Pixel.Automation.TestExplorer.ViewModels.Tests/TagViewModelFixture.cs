@@ -16,12 +16,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var tagViewModel = new TagViewModel(new Core.TestData.Tag() { Key = "tag", Value = "value" });
 
-            Assert.AreEqual("tag", tagViewModel.Key);
-            Assert.AreEqual("value", tagViewModel.Value);
-            Assert.IsFalse(tagViewModel.IsEditing);
-            Assert.IsFalse(tagViewModel.IsDeleted);
-            Assert.IsNotNull(tagViewModel.SaveCommand);
-            Assert.AreEqual("tag : value", tagViewModel.ToString());
+            Assert.That(tagViewModel.Key, Is.EqualTo("tag"));
+            Assert.That(tagViewModel.Value, Is.EqualTo("value"));
+            Assert.That(tagViewModel.IsEditing == false);
+            Assert.That(tagViewModel.IsDeleted == false);
+            Assert.That(tagViewModel.SaveCommand is not null);
+            Assert.That(tagViewModel.ToString(), Is.EqualTo("tag : value"));
 
         }
 
@@ -34,7 +34,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var tagViewModel = new TagViewModel(new Core.TestData.Tag() { Key = "tag", Value = "value" });
             tagViewModel.Edit();
 
-            Assert.IsTrue(tagViewModel.IsEditing);
+            Assert.That(tagViewModel.IsEditing);
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             tagViewModel.Delete();
 
-            Assert.IsFalse(tagViewModel.IsEditing);
-            Assert.IsTrue(tagViewModel.IsDeleted);
+            Assert.That(tagViewModel.IsEditing == false);
+            Assert.That(tagViewModel.IsDeleted);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tagViewModel.Edit();
             tagViewModel.Save();
 
-            Assert.AreEqual(expected, tagViewModel.IsEditing);
+            Assert.That(tagViewModel.IsEditing, Is.EqualTo(expected));
         }
 
     }

@@ -21,13 +21,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             EditTestCaseViewModel editTestCaseViewModel = new EditTestCaseViewModel(testCase, Enumerable.Empty<string>());
 
           
-            Assert.AreEqual(testCase.DisplayName, editTestCaseViewModel.TestCaseDisplayName);
-            Assert.AreEqual(testCase.Description, editTestCaseViewModel.TestCaseDescrpition);
-            Assert.AreEqual(testCase.IsMuted, editTestCaseViewModel.IsMuted);
-            Assert.AreEqual((100 - testCase.DelayFactor), editTestCaseViewModel.DelayFactor);
-            Assert.AreEqual(testCase.Order, editTestCaseViewModel.Order);
-            Assert.AreEqual(testCase.Priority, editTestCaseViewModel.Priority);
-            Assert.AreEqual(testCase.Tags.Count, editTestCaseViewModel.TagCollection.Tags.Count);            
+            Assert.That(editTestCaseViewModel.TestCaseDisplayName, Is.EqualTo(testCase.DisplayName));
+            Assert.That(editTestCaseViewModel.TestCaseDescrpition, Is.EqualTo(testCase.Description));
+            Assert.That(editTestCaseViewModel.IsMuted, Is.EqualTo(testCase.IsMuted));
+            Assert.That(editTestCaseViewModel.DelayFactor, Is.EqualTo((100 - testCase.DelayFactor)));
+            Assert.That(editTestCaseViewModel.Order, Is.EqualTo(testCase.Order));
+            Assert.That(editTestCaseViewModel.Priority, Is.EqualTo(testCase.Priority));
+            Assert.That(editTestCaseViewModel.TagCollection.Tags.Count, Is.EqualTo(testCase.Tags.Count));            
         }
 
         /// <summary>
@@ -42,13 +42,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestCaseViewModel.Cancel();
 
-            Assert.AreNotEqual(editTestCaseViewModel.TestCaseDisplayName, testCase.DisplayName);
-            Assert.AreNotEqual(editTestCaseViewModel.TestCaseDescrpition, testCase.Description);
-            Assert.AreNotEqual(editTestCaseViewModel.Order, testCase.Order);
-            Assert.AreNotEqual(editTestCaseViewModel.IsMuted, testCase.IsMuted);
-            Assert.AreNotEqual(editTestCaseViewModel.DelayFactor,  (100 - testCase.DelayFactor));         
-            Assert.AreNotEqual(editTestCaseViewModel.Priority, testCase.Priority);
-            Assert.AreNotEqual(editTestCaseViewModel.TagCollection.Tags.Count, testCase.Tags.Count, "Tag count should not be equal");
+            Assert.That(testCase.DisplayName, Is.Not.EqualTo(editTestCaseViewModel.TestCaseDisplayName));
+            Assert.That(testCase.Description, Is.Not.EqualTo(editTestCaseViewModel.TestCaseDescrpition));
+            Assert.That(testCase.Order, Is.Not.EqualTo(editTestCaseViewModel.Order));
+            Assert.That(testCase.IsMuted, Is.Not.EqualTo(editTestCaseViewModel.IsMuted));
+            Assert.That((100 - testCase.DelayFactor), Is.Not.EqualTo(editTestCaseViewModel.DelayFactor));         
+            Assert.That(testCase.Priority, Is.Not.EqualTo(editTestCaseViewModel.Priority));
+            Assert.That(editTestCaseViewModel.TagCollection.Tags.Count, Is.Not.EqualTo(testCase.Tags.Count), "Tag count should not be equal");
         }
 
         /// <summary>
@@ -63,13 +63,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestCaseViewModel.Save();
 
-            Assert.AreEqual(editTestCaseViewModel.TestCaseDisplayName, testCase.DisplayName);
-            Assert.AreEqual(editTestCaseViewModel.TestCaseDescrpition, testCase.Description);
-            Assert.AreEqual(editTestCaseViewModel.Order, testCase.Order);
-            Assert.AreEqual(editTestCaseViewModel.IsMuted, testCase.IsMuted);
-            Assert.AreEqual(editTestCaseViewModel.DelayFactor, (100 - testCase.DelayFactor));
-            Assert.AreEqual(editTestCaseViewModel.Priority, testCase.Priority);
-            Assert.AreEqual(editTestCaseViewModel.TagCollection.Tags.Count, testCase.Tags.Count, "Tag count should be equal");
+            Assert.That(testCase.DisplayName, Is.EqualTo(editTestCaseViewModel.TestCaseDisplayName));
+            Assert.That(testCase.Description, Is.EqualTo(editTestCaseViewModel.TestCaseDescrpition));
+            Assert.That(testCase.Order, Is.EqualTo(editTestCaseViewModel.Order));
+            Assert.That(testCase.IsMuted, Is.EqualTo(editTestCaseViewModel.IsMuted));
+            Assert.That((100 - testCase.DelayFactor), Is.EqualTo(editTestCaseViewModel.DelayFactor));
+            Assert.That(testCase.Priority, Is.EqualTo(editTestCaseViewModel.Priority));
+            Assert.That(editTestCaseViewModel.TagCollection.Tags.Count, Is.EqualTo(testCase.Tags.Count), "Tag count should be equal");
         }
 
         /// <summary>
@@ -84,9 +84,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestCaseViewModel.Save();
 
-            Assert.IsFalse(editTestCaseViewModel.ShowModelErrors); // We don't show model error for validation with display name
-            Assert.IsTrue(editTestCaseViewModel.HasErrors);
-            Assert.AreNotEqual(editTestCaseViewModel.TestCaseDisplayName, testCase.DisplayName);
+            Assert.That(editTestCaseViewModel.ShowModelErrors == false); // We don't show model error for validation with display name
+            Assert.That(editTestCaseViewModel.HasErrors);
+            Assert.That(testCase.DisplayName, Is.Not.EqualTo(editTestCaseViewModel.TestCaseDisplayName));
           
         }
 
@@ -104,22 +104,22 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestCaseViewModel.Save();
           
-            Assert.IsTrue(editTestCaseViewModel.ShowModelErrors); // We don't show model error for validation with display name
-            Assert.IsTrue(editTestCaseViewModel.HasErrors);
-            Assert.AreNotEqual(3, testCase.Tags.Count);
+            Assert.That(editTestCaseViewModel.ShowModelErrors); // We don't show model error for validation with display name
+            Assert.That(editTestCaseViewModel.HasErrors);
+            Assert.That(testCase.Tags.Count, Is.Not.EqualTo(3));
 
             editTestCaseViewModel.DismissModelErrors();
-            Assert.IsFalse(editTestCaseViewModel.ShowModelErrors);
-            Assert.IsFalse(editTestCaseViewModel.HasErrors);
+            Assert.That(editTestCaseViewModel.ShowModelErrors == false);
+            Assert.That(editTestCaseViewModel.HasErrors == false);
 
             editTestCaseViewModel.TagCollection.Tags.Remove(colorTag);
             var moduleTag = new TagViewModel(new Tag() { Key = "module", Value = "auth" });
             editTestCaseViewModel.TagCollection.Add(moduleTag);
             await editTestCaseViewModel.Save();
            
-            Assert.IsFalse(editTestCaseViewModel.ShowModelErrors);
-            Assert.IsFalse(editTestCaseViewModel.HasErrors);
-            Assert.AreEqual(3, testCase.Tags.Count);
+            Assert.That(editTestCaseViewModel.ShowModelErrors == false);
+            Assert.That(editTestCaseViewModel.HasErrors == false);
+            Assert.That(testCase.Tags.Count, Is.EqualTo(3));
         }
 
         TestCase CreateTestCase()

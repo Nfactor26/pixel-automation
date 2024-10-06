@@ -14,11 +14,11 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
         {
             var scrollActorComponent = new ScrollActorComponent();
             
-            Assert.AreEqual(ScrollDirection.Down, scrollActorComponent.ScrollDirection);
+            Assert.That(scrollActorComponent.ScrollDirection, Is.EqualTo(ScrollDirection.Down));
 
             //validate that direction can be changed
             scrollActorComponent.ScrollDirection = ScrollDirection.Up;           
-            Assert.AreEqual(ScrollDirection.Up, scrollActorComponent.ScrollDirection);        
+            Assert.That(scrollActorComponent.ScrollDirection, Is.EqualTo(ScrollDirection.Up));        
           
         }
 

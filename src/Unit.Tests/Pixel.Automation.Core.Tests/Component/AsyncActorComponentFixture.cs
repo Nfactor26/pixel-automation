@@ -37,12 +37,12 @@ namespace Pixel.Automation.Core.Tests
         public void ValidateThatAsyncActorComponentCanBeInitialized()
         {
             var actorComponent = new FakeAsyncActorComponent("Name", "Tag");
-            Assert.IsNotNull(actorComponent);
-            Assert.AreEqual("Name", actorComponent.Name);
-            Assert.AreEqual("Tag", actorComponent.Tag);
-            Assert.IsFalse(actorComponent.ContinueOnError);
-            Assert.IsFalse(actorComponent.IsExecuting);
-            Assert.IsNotNull(actorComponent.ErrorMessages);
+            Assert.That(actorComponent is not null);
+            Assert.That("Name", Is.EqualTo(actorComponent.Name));
+            Assert.That("Tag", Is.EqualTo(actorComponent.Tag));
+            Assert.That(actorComponent.ContinueOnError == false);
+            Assert.That(actorComponent.IsExecuting == false);
+            Assert.That(actorComponent.ErrorMessages is not null);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var actorComponent = new FakeAsyncActorComponent("Name", "Tag");
             await actorComponent.ActAsync();
-            Assert.IsTrue(actorComponent.IsFaulted);
+            Assert.That(actorComponent.IsFaulted);
         }
 
         [Test]
@@ -58,9 +58,9 @@ namespace Pixel.Automation.Core.Tests
         {
             var actorComponent = new FakeAsyncActorComponent("Name", "Tag");
             await actorComponent.ActAsync();
-            Assert.IsTrue(actorComponent.IsFaulted);
+            Assert.That(actorComponent.IsFaulted);
             actorComponent.ResetComponent();
-            Assert.IsFalse(actorComponent.IsFaulted);
+            Assert.That(actorComponent.IsFaulted == false);
         }
     }
 }

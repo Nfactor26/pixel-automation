@@ -12,8 +12,8 @@ namespace Pixel.Automation.Core.Tests.Devices
         public void ValidateThatDimensionCanBeInitialized()
         {
             var dimension = new Dimension(800, 600);
-            Assert.AreEqual(800, dimension.Width);
-            Assert.AreEqual(600, dimension.Height);
+            Assert.That(dimension.Width, Is.EqualTo(800));
+            Assert.That(dimension.Height, Is.EqualTo(600));
         }
 
         /// <summary>
@@ -23,8 +23,8 @@ namespace Pixel.Automation.Core.Tests.Devices
         public void ValidateThatZeroExtentsStaticPropertyRepresentsZeroDimension()
         {
             var dimension = Dimension.ZeroExtents;
-            Assert.AreEqual(0, dimension.Width);
-            Assert.AreEqual(0, dimension.Height);
+            Assert.That(dimension.Width, Is.EqualTo(0));
+            Assert.That(dimension.Height, Is.EqualTo(0));
         }
     }
 }

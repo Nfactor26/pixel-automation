@@ -20,13 +20,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var testFixture = CreateTestFixture();
             EditTestFixtureViewModel editTestFixtureViewModel = new EditTestFixtureViewModel(testFixture, Enumerable.Empty<string>());
 
-            Assert.AreEqual(testFixture.DisplayName, editTestFixtureViewModel.TestFixtureDisplayName);
-            Assert.AreEqual(testFixture.Category, editTestFixtureViewModel.TestFixtureCategory);
-            Assert.AreEqual(testFixture.Description, editTestFixtureViewModel.TestFixtureDescription);
-            Assert.AreEqual(testFixture.IsMuted, editTestFixtureViewModel.IsMuted);
-            Assert.AreEqual((100 - testFixture.DelayFactor), editTestFixtureViewModel.DelayFactor);
-            Assert.AreEqual(testFixture.Order, editTestFixtureViewModel.Order);         
-            Assert.AreEqual(testFixture.Tags.Count, editTestFixtureViewModel.TagCollection.Tags.Count);
+            Assert.That(editTestFixtureViewModel.TestFixtureDisplayName, Is.EqualTo(testFixture.DisplayName));
+            Assert.That(editTestFixtureViewModel.TestFixtureCategory, Is.EqualTo(testFixture.Category));
+            Assert.That(editTestFixtureViewModel.TestFixtureDescription, Is.EqualTo(testFixture.Description));
+            Assert.That(editTestFixtureViewModel.IsMuted, Is.EqualTo(testFixture.IsMuted));
+            Assert.That(editTestFixtureViewModel.DelayFactor, Is.EqualTo((100 - testFixture.DelayFactor)));
+            Assert.That(editTestFixtureViewModel.Order, Is.EqualTo(testFixture.Order));         
+            Assert.That(editTestFixtureViewModel.TagCollection.Tags.Count, Is.EqualTo(testFixture.Tags.Count));
         }
 
         /// <summary>
@@ -41,13 +41,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestFixtureViewModel.Cancel();
 
-            Assert.AreNotEqual(editTestFixtureViewModel.TestFixtureDisplayName, testFixture.DisplayName);
-            Assert.AreNotEqual(editTestFixtureViewModel.TestFixtureCategory, testFixture.Category);
-            Assert.AreNotEqual(editTestFixtureViewModel.TestFixtureDescription, testFixture.Description);           
-            Assert.AreNotEqual(editTestFixtureViewModel.IsMuted, testFixture.IsMuted);
-            Assert.AreNotEqual(editTestFixtureViewModel.DelayFactor, (100 - testFixture.DelayFactor));
-            Assert.AreNotEqual(editTestFixtureViewModel.Order, testFixture.Order);
-            Assert.AreNotEqual(editTestFixtureViewModel.TagCollection.Tags.Count, testFixture.Tags.Count, "Tag count should not be equal");
+            Assert.That(testFixture.DisplayName, Is.Not.EqualTo(editTestFixtureViewModel.TestFixtureDisplayName));
+            Assert.That(testFixture.Category, Is.Not.EqualTo(editTestFixtureViewModel.TestFixtureCategory));
+            Assert.That(testFixture.Description, Is.Not.EqualTo(editTestFixtureViewModel.TestFixtureDescription));           
+            Assert.That(testFixture.IsMuted, Is.Not.EqualTo(editTestFixtureViewModel.IsMuted));
+            Assert.That((100 - testFixture.DelayFactor), Is.Not.EqualTo(editTestFixtureViewModel.DelayFactor));
+            Assert.That(testFixture.Order, Is.Not.EqualTo(editTestFixtureViewModel.Order));
+            Assert.That(editTestFixtureViewModel.TagCollection.Tags.Count, Is.Not.EqualTo(testFixture.Tags.Count), "Tag count should not be equal");
         }
 
         /// <summary>
@@ -63,13 +63,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestFixtureViewModel.Save();
 
-            Assert.AreEqual(editTestFixtureViewModel.TestFixtureDisplayName, testFixture.DisplayName);
-            Assert.AreEqual(editTestFixtureViewModel.TestFixtureCategory, testFixture.Category);
-            Assert.AreEqual(editTestFixtureViewModel.TestFixtureDescription, testFixture.Description);
-            Assert.AreEqual(editTestFixtureViewModel.IsMuted, testFixture.IsMuted);
-            Assert.AreEqual(editTestFixtureViewModel.DelayFactor, (100 - testFixture.DelayFactor));
-            Assert.AreEqual(editTestFixtureViewModel.Order, testFixture.Order);
-            Assert.AreEqual(editTestFixtureViewModel.TagCollection.Tags.Count, testFixture.Tags.Count, "Tag count should be equal");
+            Assert.That(editTestFixtureViewModel.TestFixtureDisplayName, Is.EqualTo(testFixture.DisplayName));
+            Assert.That(editTestFixtureViewModel.TestFixtureCategory, Is.EqualTo(testFixture.Category));
+            Assert.That(editTestFixtureViewModel.TestFixtureDescription, Is.EqualTo(testFixture.Description));
+            Assert.That(editTestFixtureViewModel.IsMuted, Is.EqualTo(testFixture.IsMuted));
+            Assert.That(editTestFixtureViewModel.Order, Is.EqualTo(testFixture.Order));
+            Assert.That(editTestFixtureViewModel.TagCollection.Tags.Count, Is.EqualTo(testFixture.Tags.Count), "Tag count should be equal");
         }
 
         /// <summary>
@@ -84,19 +83,19 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestFixtureViewModel.Save();
 
-            Assert.IsFalse(editTestFixtureViewModel.ShowModelErrors); // We don't show model error for validation with display name
-            Assert.IsTrue(editTestFixtureViewModel.HasErrors);
-            Assert.AreNotEqual(editTestFixtureViewModel.TestFixtureDisplayName, testFixture.DisplayName);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors == false); // We don't show model error for validation with display name
+            Assert.That(editTestFixtureViewModel.HasErrors);
+            Assert.That(testFixture.DisplayName, Is.Not.EqualTo(editTestFixtureViewModel.TestFixtureDisplayName));
 
             //correct the issue with display name
             editTestFixtureViewModel.TestFixtureDisplayName = "TestFixture#3";
-            Assert.IsFalse(editTestFixtureViewModel.ShowModelErrors);
-            Assert.IsFalse(editTestFixtureViewModel.HasErrors);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors == false);
+            Assert.That(editTestFixtureViewModel.HasErrors == false);
 
             //set category to empty which is required 
             editTestFixtureViewModel.TestFixtureCategory = string.Empty;
-            Assert.IsFalse(editTestFixtureViewModel.ShowModelErrors); // We don't show model error for validation with category name
-            Assert.IsTrue(editTestFixtureViewModel.HasErrors);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors == false); // We don't show model error for validation with category name
+            Assert.That(editTestFixtureViewModel.HasErrors);
         }
 
         /// <summary>
@@ -113,22 +112,22 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             await editTestFixtureViewModel.Save();
 
-            Assert.IsTrue(editTestFixtureViewModel.ShowModelErrors); // We don't show model error for validation with display name
-            Assert.IsTrue(editTestFixtureViewModel.HasErrors);
-            Assert.AreNotEqual(3, testFixture.Tags.Count);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors); // We don't show model error for validation with display name
+            Assert.That(editTestFixtureViewModel.HasErrors);
+            Assert.That(testFixture.Tags.Count, Is.Not.EqualTo(3));
 
             editTestFixtureViewModel.DismissModelErrors();
-            Assert.IsFalse(editTestFixtureViewModel.ShowModelErrors);
-            Assert.IsFalse(editTestFixtureViewModel.HasErrors);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors == false);
+            Assert.That(editTestFixtureViewModel.HasErrors == false);
 
             editTestFixtureViewModel.TagCollection.Tags.Remove(colorTag);
             var moduleTag = new TagViewModel(new Tag() { Key = "module", Value = "auth" });
             editTestFixtureViewModel.TagCollection.Add(moduleTag);
             await editTestFixtureViewModel.Save();
 
-            Assert.IsFalse(editTestFixtureViewModel.ShowModelErrors);
-            Assert.IsFalse(editTestFixtureViewModel.HasErrors);
-            Assert.AreEqual(3, testFixture.Tags.Count);
+            Assert.That(editTestFixtureViewModel.ShowModelErrors == false);
+            Assert.That(editTestFixtureViewModel.HasErrors == false);
+            Assert.That(testFixture.Tags.Count, Is.EqualTo(3));
         }
 
         TestFixture CreateTestFixture()

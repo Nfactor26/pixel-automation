@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Components.Tests
 
             await delayActorComponent.ActAsync(); //should internally sleep for 1 sec. Believe in Thread.Sleep.
 
-            argumentProcessor.Received(1).GetValueAsync<double>(Arg.Any<Argument>());
+            await argumentProcessor.Received(1).GetValueAsync<double>(Arg.Any<Argument>());
         }
     }
 }

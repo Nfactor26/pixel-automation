@@ -25,8 +25,8 @@ public class AutomationElementCollectionTest
             this.testColl = AutomationElement.RootElement.FindAll(
                 TreeScope.Children,
                 Condition.TrueCondition);
-            Assert.IsNotNull(this.testColl);
-            Assert.IsTrue(this.testColl.Count > 0);
+            Assert.That(this.testColl is not null);
+            Assert.That(this.testColl.Count > 0);
         }
     }
 
@@ -37,7 +37,7 @@ public class AutomationElementCollectionTest
     public void ItemTest()
     {
         AutomationElement actual = this.testColl[0];
-        Assert.IsNotNull(actual);
+        Assert.That(actual is not null);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class AutomationElementCollectionTest
     [Test]
     public void CountTest()
     {
-        Assert.IsTrue(this.testColl.Count > 0);
+        Assert.That(this.testColl.Count > 0);
     }
 
     /// <summary>
@@ -60,13 +60,13 @@ public class AutomationElementCollectionTest
         while (actual.MoveNext())
         {
             AutomationElement elem = (AutomationElement)actual.Current;
-            Assert.IsNotNull(elem);
+            Assert.That(elem is not null);
             ++count;
         } 
 
         actual.Reset();
         actual.MoveNext();
-        Assert.AreEqual(actual.Current, this.testColl[0]);
+        Assert.That(actual.Current, Is.EqualTo(this.testColl[0]));
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class AutomationElementCollectionTest
         this.testColl.CopyTo(array, 1);
         for (int i = 0; i < this.testColl.Count; ++i)
         {
-            Assert.AreEqual(this.testColl[i], array[i + 1]);
+            Assert.That(this.testColl[i], Is.EqualTo(array[i + 1]));
         }
     }
 }

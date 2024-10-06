@@ -52,7 +52,7 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
             };
 
             //DragStartPoint and DropEndPoint are already configured with defaults
-            Assert.AreEqual(true, mouseDragActor.ValidateComponent());            
+            Assert.That(mouseDragActor.ValidateComponent(), Is.EqualTo(true));            
         }
 
         [Test]
@@ -65,12 +65,12 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
             {
                 Target = Target.Control
             };
-            Assert.AreEqual(false, mouseDragActor.ValidateComponent());
+            Assert.That(mouseDragActor.ValidateComponent(), Is.EqualTo(false));
 
             //set the property path to correctly configure TargetControl in data bound mode
             mouseDragActor.SourceControl.PropertyPath = "VariableOnePointingToUIControl";
             mouseDragActor.TargetControl.PropertyPath = "VariableTwoPointingToUIControl";
-            Assert.AreEqual(true, mouseDragActor.ValidateComponent());
+            Assert.That(mouseDragActor.ValidateComponent(), Is.EqualTo(true));
         }
     }
 }

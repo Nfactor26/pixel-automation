@@ -22,7 +22,7 @@ public class CacheRequestTest
         TreeScope actual;
         target.TreeScope = expected;
         actual = target.TreeScope;
-        Assert.AreEqual(expected, actual);
+        Assert.That(expected, Is.EqualTo(actual));
     }
 
     /// <summary>
@@ -36,9 +36,9 @@ public class CacheRequestTest
         PropertyCondition actual;
         target.TreeFilter = expected;
         actual = (PropertyCondition)target.TreeFilter;
-        Assert.AreEqual(expected.Flags, actual.Flags);
-        Assert.AreEqual(expected.Property, actual.Property);
-        Assert.AreEqual(expected.Value, actual.Value);
+        Assert.That(actual.Flags, Is.EqualTo(expected.Flags));
+        Assert.That(actual.Property, Is.EqualTo(expected.Property));
+        Assert.That(actual.Value, Is.EqualTo(expected.Value));
     }
 
     /// <summary>
@@ -50,17 +50,17 @@ public class CacheRequestTest
         // We expect the Current one at this point to be the Default one
         CacheRequest actual;
         actual = CacheRequest.Current;
-        Assert.IsNotNull(actual);
-        Assert.AreEqual(actual.AutomationElementMode, AutomationElementMode.Full);
-        Assert.AreEqual(actual.TreeScope, TreeScope.Element);
-        Assert.IsNotNull(actual.TreeFilter);
+        Assert.That(actual is not null);
+        Assert.That(actual.AutomationElementMode, Is.EqualTo(AutomationElementMode.Full));
+        Assert.That(actual.TreeScope, Is.EqualTo(TreeScope.Element));
+        Assert.That(actual.TreeFilter is not null);
 
-        Assert.IsTrue(actual.TreeFilter is NotCondition);
+        Assert.That(actual.TreeFilter is NotCondition);
         NotCondition notCond = (NotCondition)actual.TreeFilter;
-        Assert.IsTrue(notCond.Condition is PropertyCondition);
+        Assert.That(notCond.Condition is PropertyCondition);
         PropertyCondition propCond = (PropertyCondition)notCond.Condition;
-        Assert.AreEqual(propCond.Property, AutomationElement.IsControlElementProperty);
-        Assert.AreEqual(propCond.Value, false);
+        Assert.That(propCond.Property, Is.EqualTo(AutomationElement.IsControlElementProperty));
+        Assert.That(propCond.Value, Is.EqualTo(false));
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public class CacheRequestTest
         CacheRequest target = new CacheRequest(); 
         target.AutomationElementMode = AutomationElementMode.Full;
         AutomationElementMode actual = target.AutomationElementMode;
-        Assert.AreEqual(AutomationElementMode.Full, actual);
+        Assert.That(actual, Is.EqualTo(AutomationElementMode.Full));
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public class CacheRequestTest
 
         target2.Pop();
         target.Pop();
-        Assert.AreEqual(CacheRequest.Current, defaultCR);
+        Assert.That(CacheRequest.Current, Is.EqualTo(defaultCR));
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class CacheRequestTest
         target.TreeScope = TreeScope.Subtree;
         CacheRequest actual;
         actual = target.Clone();
-        Assert.AreEqual(target.TreeScope, actual.TreeScope);
+        Assert.That(target.TreeScope, Is.EqualTo(actual.TreeScope));
     }
 
     /// <summary>
@@ -136,14 +136,14 @@ public class CacheRequestTest
     public void ActivateTest()
     {
         CacheRequest target = new CacheRequest();
-        Assert.AreNotEqual(CacheRequest.Current, target);
+        Assert.That(CacheRequest.Current, Is.Not.EqualTo(target));
         using (target.Activate())
         {
-            Assert.AreEqual(CacheRequest.Current, target);
+            Assert.That(CacheRequest.Current, Is.EqualTo(target));
             CacheRequest target2 = new CacheRequest();
             using (target2.Activate())
             {
-                Assert.AreNotEqual(CacheRequest.Current, target);
+                Assert.That(CacheRequest.Current, Is.Not.EqualTo(target));
             }
         }
     }

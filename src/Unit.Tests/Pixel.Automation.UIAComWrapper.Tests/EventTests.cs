@@ -104,8 +104,8 @@ public class EventTests
             {
                 host2.Element.SetFocus();
 
-                Assert.IsTrue(handler.Confirm());
-                Assert.IsNotNull(handler.EventSource);
+                Assert.That(handler.Confirm());
+                Assert.That(handler.EventSource is not null);
             }
 
             Automation.RemoveAutomationFocusChangedEventHandler(
@@ -128,8 +128,8 @@ public class EventTests
         InvokePattern invoke = (InvokePattern)startButton.GetCurrentPattern(InvokePattern.Pattern);
         invoke.Invoke();
         System.Windows.Forms.SendKeys.SendWait("{ESC}");
-        Assert.IsTrue(handler.Confirm());
-        Assert.IsNotNull(handler.EventSource);
+        Assert.That(handler.Confirm());
+        Assert.That(handler.EventSource is not null);
         Automation.RemoveAutomationEventHandler(
             InvokePattern.InvokedEvent,
             startButton,
@@ -152,9 +152,9 @@ public class EventTests
             handler.Start();
             System.Threading.Thread.Sleep(100 /* ms */);
             transformPattern.Move(200, 200);
-            Assert.IsTrue(handler.Confirm());
-            Assert.IsNotNull(handler.EventSource);
-            Assert.AreEqual(host.Element, handler.EventSource);
+            Assert.That(handler.Confirm());
+            Assert.That(handler.EventSource is not null);
+            Assert.That(host.Element, Is.EqualTo(handler.EventSource));
             Automation.RemoveAutomationPropertyChangedEventHandler(
                 host.Element,
                 new AutomationPropertyChangedEventHandler(handler.HandleEvent));
@@ -176,8 +176,8 @@ public class EventTests
         {
         }
 
-        Assert.IsTrue(handler.Confirm());
-        Assert.IsNotNull(handler.EventSource);
+        Assert.That(handler.Confirm());
+        Assert.That(handler.EventSource is not null);
         Automation.RemoveStructureChangedEventHandler(
             AutomationElement.RootElement,
             new StructureChangedEventHandler(handler.HandleEvent));

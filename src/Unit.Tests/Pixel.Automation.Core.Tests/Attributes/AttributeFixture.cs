@@ -18,10 +18,10 @@ namespace Pixel.Automation.Core.Tests.Attributes
         public void ValidateThatAttributeHasClassUsageFlag(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
-            Assert.AreEqual(1, attributes.Count);
+            Assert.That(attributes.Count, Is.EqualTo(1));
 
             var attribute = attributes[0];
-            Assert.AreEqual(AttributeTargets.Class, attribute.ValidOn);
+            Assert.That(attribute.ValidOn, Is.EqualTo(AttributeTargets.Class));
         }
 
         [TestCase(typeof(InjectedAttribute))]
@@ -29,10 +29,10 @@ namespace Pixel.Automation.Core.Tests.Attributes
         public void ValidateThatAttributeHasPropertyUsageFlag(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
-            Assert.AreEqual(1, attributes.Count);
+            Assert.That(attributes.Count, Is.EqualTo(1));
 
             var attribute = attributes[0];
-            Assert.AreEqual(AttributeTargets.Property, attribute.ValidOn);
+            Assert.That(attribute.ValidOn, Is.EqualTo(AttributeTargets.Property));
         }
 
 
@@ -46,10 +46,10 @@ namespace Pixel.Automation.Core.Tests.Attributes
         public void ValidateThatAttributeHasAllowMultipleFalse(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
-            Assert.AreEqual(1, attributes.Count);
+            Assert.That(attributes.Count, Is.EqualTo(1));
 
             var attribute = attributes[0];
-            Assert.IsFalse(attribute.AllowMultiple);
+            Assert.That(attribute.AllowMultiple == false);
         }
 
         [TestCase(typeof(InitializerAttribute))]
@@ -57,10 +57,10 @@ namespace Pixel.Automation.Core.Tests.Attributes
         public void ValidateThatAttributeHasAllowMultiplTrue(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
-            Assert.AreEqual(1, attributes.Count);
+            Assert.That(attributes.Count, Is.EqualTo(1));
 
             var attribute = attributes[0];
-            Assert.IsTrue(attribute.AllowMultiple);
+            Assert.That(attribute.AllowMultiple);
         }
     }
 }

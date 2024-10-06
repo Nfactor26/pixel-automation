@@ -11,11 +11,11 @@ namespace Pixel.Automation.Core.Tests.Models
         {
             var projectVersion = new VersionInfo("1.0.0.0");
 
-            Assert.IsTrue(projectVersion.IsActive);
-            Assert.IsFalse(projectVersion.IsPublished);
-            Assert.IsTrue(string.IsNullOrEmpty(projectVersion.DataModelAssembly));
-            Assert.IsTrue(string.IsNullOrEmpty(projectVersion.Description));
-            Assert.AreEqual("1.0.0.0", projectVersion.ToString());
+            Assert.That(projectVersion.IsActive);
+            Assert.That(projectVersion.IsPublished == false);
+            Assert.That(string.IsNullOrEmpty(projectVersion.DataModelAssembly));
+            Assert.That(string.IsNullOrEmpty(projectVersion.Description));
+            Assert.That("1.0.0.0", Is.EqualTo(projectVersion.ToString()));
         }
 
         [Test]
@@ -28,11 +28,11 @@ namespace Pixel.Automation.Core.Tests.Models
                 Description = "Description"
             };
 
-            Assert.IsFalse(projectVersion.IsActive);
-            Assert.IsTrue(projectVersion.IsPublished);
-            Assert.AreEqual("Assembly", projectVersion.DataModelAssembly);
-            Assert.AreEqual("Description", projectVersion.Description);
-            Assert.AreEqual("1.0.0.0", projectVersion.ToString());
+            Assert.That(projectVersion.IsActive == false);
+            Assert.That(projectVersion.IsPublished);
+            Assert.That("Assembly", Is.EqualTo(projectVersion.DataModelAssembly));
+            Assert.That("Description", Is.EqualTo(projectVersion.Description));
+            Assert.That("1.0.0.0", Is.EqualTo(projectVersion.ToString()));
         }
     }
 
@@ -43,11 +43,11 @@ namespace Pixel.Automation.Core.Tests.Models
         {
             var prefabVersion = new VersionInfo("1.0.0.0");
 
-            Assert.IsTrue(prefabVersion.IsActive);
-            Assert.IsFalse(prefabVersion.IsPublished);
-            Assert.IsTrue(string.IsNullOrEmpty(prefabVersion.DataModelAssembly));
-            Assert.IsTrue(string.IsNullOrEmpty(prefabVersion.Description));
-            Assert.AreEqual("1.0.0.0", prefabVersion.ToString());
+            Assert.That(prefabVersion.IsActive);
+            Assert.That(prefabVersion.IsPublished == false);
+            Assert.That(string.IsNullOrEmpty(prefabVersion.DataModelAssembly));
+            Assert.That(string.IsNullOrEmpty(prefabVersion.Description));
+            Assert.That("1.0.0.0", Is.EqualTo(prefabVersion.ToString()));
         }
 
         [Test]
@@ -60,11 +60,11 @@ namespace Pixel.Automation.Core.Tests.Models
                 Description = "Description"
             };
 
-            Assert.IsFalse(prefabVersion.IsActive);
-            Assert.IsTrue(prefabVersion.IsPublished);
-            Assert.AreEqual("Assembly", prefabVersion.DataModelAssembly);
-            Assert.AreEqual("Description", prefabVersion.Description);
-            Assert.AreEqual("1.0.0.0", prefabVersion.ToString());
+            Assert.That(prefabVersion.IsActive == false);
+            Assert.That(prefabVersion.IsPublished);
+            Assert.That("Assembly", Is.EqualTo(prefabVersion.DataModelAssembly));
+            Assert.That("Description", Is.EqualTo(prefabVersion.Description));
+            Assert.That("1.0.0.0", Is.EqualTo(prefabVersion.ToString()));
         }
     }
 }

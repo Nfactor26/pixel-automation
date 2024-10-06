@@ -57,11 +57,11 @@ namespace Pixel.Automation.Core.Components.Tests
         public void ValidateThatApplicationDetailsCanBeRetrievedFromApplicationEntity()
         {
             var targetApplicationDetails = applicationEntity.GetTargetApplicationDetails<IApplication>();
-            Assert.NotNull(targetApplicationDetails);
+            Assert.That(targetApplicationDetails is not null);
 
             //second time application details is returned as it is since it was already loaded earlier
             targetApplicationDetails = applicationEntity.GetTargetApplicationDetails();
-            Assert.NotNull(targetApplicationDetails);
+            Assert.That(targetApplicationDetails is not null);
 
             //serializer should receive exactly one call since application details is loaded once and then reused
             serializer.Received(1).Deserialize<ApplicationDescription>(Arg.Any<string>(), null);

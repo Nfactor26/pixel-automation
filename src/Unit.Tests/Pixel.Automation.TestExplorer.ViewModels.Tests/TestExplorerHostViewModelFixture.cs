@@ -20,9 +20,9 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var testExplorerHostViewModel = new TestExplorerHostViewModel();
 
-            Assert.AreEqual("Test Explorer", testExplorerHostViewModel.DisplayName);
-            Assert.AreEqual(PaneLocation.Left, testExplorerHostViewModel.PreferredLocation);
-            Assert.IsNotNull(testExplorerHostViewModel.ActiveItem);
+            Assert.That(testExplorerHostViewModel.DisplayName, Is.EqualTo("Test Explorer"));
+            Assert.That(testExplorerHostViewModel.PreferredLocation, Is.EqualTo(PaneLocation.Left));
+            Assert.That(testExplorerHostViewModel.ActiveItem is not null);
         }
 
         /// <summary>
@@ -37,12 +37,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var newScreen = Substitute.For<IScreen>();
             await testExplorerHostViewModel.ActivateItemAsync(newScreen);
 
-            Assert.AreEqual(newScreen, testExplorerHostViewModel.ActiveItem);
+            Assert.That(testExplorerHostViewModel.ActiveItem, Is.EqualTo(newScreen));
 
             await testExplorerHostViewModel.DeactivateItemAsync(newScreen, false);
 
-            Assert.AreNotEqual(newScreen, testExplorerHostViewModel.ActiveItem);
-            Assert.AreEqual(defaultScreen, testExplorerHostViewModel.ActiveItem);
+            Assert.That(testExplorerHostViewModel.ActiveItem, Is.Not.EqualTo(newScreen));
+            Assert.That(testExplorerHostViewModel.ActiveItem, Is.EqualTo(defaultScreen));
         }
     }
 }

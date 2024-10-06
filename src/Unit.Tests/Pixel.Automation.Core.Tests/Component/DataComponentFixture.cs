@@ -25,14 +25,14 @@ namespace Pixel.Automation.Core.Tests
         public void ValidateThatDataComponentCanBeInitialized()
         {
             var dataComponent = new FakeDataComponent();
-            Assert.IsNotNull(dataComponent);
-            Assert.AreEqual("FakeDataComponent", dataComponent.Name);
-            Assert.AreEqual("FakeDataComponent", dataComponent.Tag);
+            Assert.That(dataComponent is not null);
+            Assert.That(dataComponent.Name, Is.EqualTo("FakeDataComponent"));
+            Assert.That(dataComponent.Tag, Is.EqualTo("FakeDataComponent"));
 
             dataComponent = new FakeDataComponent("Name", "Tag");
-            Assert.IsNotNull(dataComponent);
-            Assert.AreEqual("Name", dataComponent.Name);
-            Assert.AreEqual("Tag", dataComponent.Tag);
+            Assert.That(dataComponent is not null);
+            Assert.That(dataComponent.Name, Is.EqualTo("Name"));
+            Assert.That(dataComponent.Tag, Is.EqualTo("Tag"));
         }
     }
 }

@@ -47,23 +47,23 @@ namespace Pixel.Automation.Core.Components.Tests
                 OutputMappingScriptFile = "OutputMappingScript.csx"
             };
 
-            Assert.AreEqual(0, prefabEntity.Components.Count);
-            Assert.AreEqual(typeof(Person), prefabEntity.EntityManager.Arguments.GetType());
+            Assert.That(prefabEntity.Components.Count, Is.EqualTo(0));
+            Assert.That(prefabEntity.EntityManager.Arguments.GetType(), Is.EqualTo(typeof(Person)));
 
             await prefabEntity.BeforeProcessAsync();
             await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("InputMappingScript.csx"));
-            Assert.AreEqual(typeof(Person), await prefabEntity.GetPrefabDataModelType());
+            Assert.That(await prefabEntity.GetPrefabDataModelType(), Is.EqualTo(typeof(Person)));
 
-            Assert.AreEqual(1, prefabEntity.Components.Count);
+            Assert.That(prefabEntity.Components.Count, Is.EqualTo(1));
 
             var components = prefabEntity.GetNextComponentToProcess().ToList();
-            Assert.IsTrue(components.Contains(prefabProcessRootEntity));
-            Assert.IsTrue(components.Contains(actorComponent));
+            Assert.That(components.Contains(prefabProcessRootEntity));
+            Assert.That(components.Contains(actorComponent));
 
             await prefabEntity.OnCompletionAsync();
             await scriptEngine.Received(1).CreateDelegateAsync<Action<object>>(Arg.Is("OutputMappingScript.csx"));
 
-            Assert.AreEqual(0, prefabEntity.Components.Count);
+            Assert.That(prefabEntity.Components.Count, Is.EqualTo(0));
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var component = Substitute.For<IComponent>();
             prefabEntity.AddComponent(component);
 
-            Assert.AreEqual(0, prefabEntity.Components.Count);
+            Assert.That(prefabEntity.Components.Count, Is.EqualTo(0));
         }
     }
 }

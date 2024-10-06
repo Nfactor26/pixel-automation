@@ -24,7 +24,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetAllComponents();
 
-            Assert.AreEqual(14, foundComponents.Count);
+            Assert.That(foundComponents.Count, Is.EqualTo(14));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsOfType<MockAsyncActorComponent>(Enums.SearchScope.Descendants);
 
-            Assert.AreEqual(2, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(2));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsOfType<MockAsyncActorComponent>(Enums.SearchScope.Children);      
 
-            Assert.AreEqual(0, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var component = rootEntity.GetFirstComponentOfType<MockAsyncActorComponent>(Enums.SearchScope.Descendants);
 
-            Assert.IsNotNull(component);
+            Assert.That(component is not null);
         }
 
         [Test]
@@ -65,8 +65,8 @@ namespace Pixel.Automation.Core.Tests
             var processor = rootEntity.GetFirstComponentOfType<MockEntityProcessor>(Enums.SearchScope.Descendants);
             var actor = processor.GetFirstComponentOfType<MockActorComponent>(Enums.SearchScope.Children);
 
-            Assert.IsNotNull(actor);
-            Assert.AreEqual("E3-P1-A1", actor.Name);
+            Assert.That(actor is not null);
+            Assert.That(actor.Name, Is.EqualTo("E3-P1-A1"));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsByTag("Actor", Enums.SearchScope.Descendants);
 
-            Assert.AreEqual(7, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(7));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsByTag("Actor", Enums.SearchScope.Children);
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Pixel.Automation.Core.Tests
             var whileLoopEntity = rootEntity.GetFirstComponentOfType<MockWhileLoopEntity>(Enums.SearchScope.Descendants);
             var foundEntity = rootEntity.GetComponentById(whileLoopEntity.Id, Enums.SearchScope.Descendants);
 
-            Assert.AreSame(foundEntity, whileLoopEntity);
+            Assert.That(whileLoopEntity, Is.SameAs(foundEntity));
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace Pixel.Automation.Core.Tests
             var actorComponent = rootEntity.GetFirstComponentOfType<MockActorComponent>(Enums.SearchScope.Children);
             var foundEntity = rootEntity.GetComponentById(actorComponent.Id, Enums.SearchScope.Children);
 
-            Assert.AreSame(foundEntity, actorComponent);
+            Assert.That(actorComponent, Is.SameAs(foundEntity));
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsByName("E1-E1-L1-A1", Enums.SearchScope.Descendants);
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsByName("E3", Enums.SearchScope.Children);
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Pixel.Automation.Core.Tests
         {
             var foundComponents = rootEntity.GetComponentsWithAttribute<BuilderAttribute>(Enums.SearchScope.Descendants);
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace Pixel.Automation.Core.Tests
             var entityComponent = rootEntity.GetComponentsByName("E1-E1", Enums.SearchScope.Descendants).Single() as Entity;
             var foundComponents = entityComponent.GetComponentsWithAttribute<BuilderAttribute>(Enums.SearchScope.Children);
 
-            Assert.AreEqual(1, foundComponents.Count());
+            Assert.That(foundComponents.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace Pixel.Automation.Core.Tests
 
             var rootComponent = childComponent.GetRootEntity();
 
-            Assert.AreSame(rootEntity, rootComponent);
+            Assert.That(rootComponent, Is.SameAs(rootEntity));
         }
 
 
@@ -263,7 +263,7 @@ namespace Pixel.Automation.Core.Tests
 
             var foundAncestorOfTypeEntity = actorComponent.GetAnsecstorOfType<Entity>();
 
-            Assert.AreSame(ancestorEntity, foundAncestorOfTypeEntity);
+            Assert.That(foundAncestorOfTypeEntity, Is.SameAs(ancestorEntity));
         }
 
 
@@ -288,8 +288,8 @@ namespace Pixel.Automation.Core.Tests
             
             bool found = actorComponent.TryGetAnsecstorOfType<Entity>(out Entity foundAncestorOfType);
 
-            Assert.IsTrue(found);
-            Assert.AreSame(ancestorEntity, foundAncestorOfType);
+            Assert.That(found);
+            Assert.That(foundAncestorOfType, Is.SameAs(ancestorEntity));
         }
 
         /// <summary>
@@ -302,8 +302,8 @@ namespace Pixel.Automation.Core.Tests
 
             bool found = actorComponent.TryGetAnsecstorOfType<ServiceComponent>(out ServiceComponent foundComponent);
 
-            Assert.IsFalse(found);
-            Assert.IsNull(foundComponent);
+            Assert.That(found == false);
+            Assert.That(foundComponent is null);
         }
     }
 }

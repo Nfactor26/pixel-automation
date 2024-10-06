@@ -23,8 +23,8 @@ namespace Pixel.Automation.Nativew.Windows.Tests
             {
                 using (var bitmap = Image.FromStream(ms))
                 {
-                    Assert.AreEqual(resX, bitmap.Width);
-                    Assert.AreEqual(resY, bitmap.Height);
+                    Assert.That(bitmap.Width, Is.EqualTo(resX));
+                    Assert.That(bitmap.Height, Is.EqualTo(resY));
                 }
             }           
         }
@@ -41,8 +41,8 @@ namespace Pixel.Automation.Nativew.Windows.Tests
             {
                 using (var bitmap = Image.FromStream(ms))
                 {
-                    Assert.AreEqual(400, bitmap.Width);
-                    Assert.AreEqual(600, bitmap.Height);
+                    Assert.That(bitmap.Width, Is.EqualTo(400));
+                    Assert.That(bitmap.Height, Is.EqualTo(600));
                 }
             }           
         }

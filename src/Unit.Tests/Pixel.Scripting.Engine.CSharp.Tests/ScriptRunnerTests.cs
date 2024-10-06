@@ -23,7 +23,7 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
 
             var result = await scriptRunner.ExecuteScriptAsync(scriptCode, scriptOptions, null);
 
-            Assert.AreEqual(1, result.ReturnValue);
+            Assert.That(result.ReturnValue, Is.EqualTo(1));
         }
 
         [TestCase("x == 0", true)]
@@ -35,7 +35,7 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             var scriptResult = await scriptRunner.ExecuteScriptAsync("int x = 0;", scriptOptions, null);
             var continuationResult = await scriptRunner.ExecuteScriptAsync(condition, scriptOptions, null, scriptResult.CurrentState);
 
-            Assert.AreEqual(expected, (bool)continuationResult.ReturnValue);
+            Assert.That((bool)continuationResult.ReturnValue, Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             var result = await scriptRunner.ExecuteScriptAsync(scriptCode, scriptOptions, null);
             var scriptState = result.CurrentState as ScriptState;
 
-            Assert.IsNotNull(scriptState.GetVariable("x"));
-            Assert.AreEqual(1, scriptState.GetVariable("x").Value);
+            Assert.That(scriptState.GetVariable("x") is not null);
+            Assert.That(scriptState.GetVariable("x").Value, Is.EqualTo(1));
         }
 
         /// <summary>
@@ -71,14 +71,14 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             scriptOptions = scriptOptions.AddImports(typeof(List<>).Namespace, typeof(Person).Namespace);
             var scriptCode = @"using System.Collections.Generic; Friends.Add(new Person(){ Name = ""Sheldon Cooper"", Age = 40  });";
 
-            Assert.IsTrue(person.Friends.Count() == 0);
+            Assert.That(person.Friends.Count() == 0);
 
             var result = await scriptRunner.ExecuteScriptAsync(scriptCode, scriptOptions, person);
-            Assert.IsTrue(person.Friends.Count() > 0);
+            Assert.That(person.Friends.Count() > 0);
           
             var friend = person.Friends.FirstOrDefault();
-            Assert.IsNotNull(friend);
-            Assert.AreEqual("Sheldon Cooper", friend.Name);
+            Assert.That(friend is not null);
+            Assert.That(friend.Name, Is.EqualTo("Sheldon Cooper"));
         }
 
         /// <summary>
@@ -97,18 +97,18 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             var result = await scriptRunner.ExecuteScriptAsync(scriptCode, scriptOptions, null);
             var scriptState = result.CurrentState as ScriptState;
 
-            Assert.IsNotNull(scriptState.GetVariable("x"));
-            Assert.AreEqual(1, scriptState.GetVariable("x").Value);
+            Assert.That(scriptState.GetVariable("x") is not null);
+            Assert.That(scriptState.GetVariable("x").Value, Is.EqualTo(1));
 
             //we again execute next script from previous state of ScriptRunner and capture new result and new state
             var scriptCodeNext = @"x = x + 1; int y = 0;";
             result = await scriptRunner.ExecuteScriptAsync(scriptCodeNext, scriptOptions, null,  scriptState);
             scriptState = result.CurrentState as ScriptState;
 
-            Assert.IsNotNull(scriptState.GetVariable("x"));
-            Assert.IsNotNull(scriptState.GetVariable("y"));
-            Assert.AreEqual(2, scriptState.GetVariable("x").Value);
-            Assert.AreEqual(0, scriptState.GetVariable("y").Value);
+            Assert.That(scriptState.GetVariable("x") is not null);
+            Assert.That(scriptState.GetVariable("y") is not null);
+            Assert.That(scriptState.GetVariable("x").Value, Is.EqualTo(2));
+            Assert.That(scriptState.GetVariable("y").Value, Is.EqualTo(0));
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Pixel.Scripting.Engine.CSharp.Tests
             var fn = (Func<int, int, int>)(result.ReturnValue);
             int sum = fn(2, 6);
            
-            Assert.AreEqual(8, sum);
+            Assert.That(sum, Is.EqualTo(8));
         }
 
     }

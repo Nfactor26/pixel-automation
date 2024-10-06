@@ -20,7 +20,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
 
             var result = await argument.GetValue(argumentProcessor);
 
-            Assert.AreEqual(10, result);
+            Assert.That(result, Is.EqualTo(10));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
 
             await argument.SetValue(argumentProcessor, 10);
 
-            Assert.AreEqual(10, argument.DefaultValue);
+            Assert.That(argument.DefaultValue, Is.EqualTo(10));
 
         }
 
@@ -43,7 +43,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
             var expected = "using System;\r\nInt32 GetValue()\r\n{\r\n    return default;\r\n}\r\nreturn ((Func<Int32>)GetValue);";
             var result = argument.GenerateInitialScript();
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
             var argument = new OutArgument<int>();
             var expected = "using System;\r\nvoid SetValue(Int32 argumentValue)\r\n{\r\n}\r\nreturn ((Action<Int32>)SetValue);";
             var result = argument.GenerateInitialScript();
-            Assert.AreEqual(expected, result);            
+            Assert.That(result, Is.EqualTo(expected));            
         }
 
         public record FuncArgumentTestDataRecord(Argument argument, string expectedGeneratedScript);
@@ -87,7 +87,7 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatInitialScriptCanBeGeneratedForFuncArguments(FuncArgumentTestDataRecord testDataRecord)
         {
             var result = testDataRecord.argument.GenerateInitialScript();
-            Assert.AreEqual(testDataRecord.expectedGeneratedScript, result);
+            Assert.That(result, Is.EqualTo(testDataRecord.expectedGeneratedScript));
         }
     }
 }

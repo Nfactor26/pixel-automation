@@ -10,13 +10,13 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatAutomationProjectCanBeInitialized()
         {
             var automationProject = new AutomationProject();
-            Assert.IsNotNull(automationProject.ProjectId);
-            Assert.IsEmpty(automationProject.Name);
-            Assert.IsNotNull(automationProject.AvailableVersions);
-            Assert.IsTrue(!automationProject.AvailableVersions.Any());
-            Assert.IsNotNull(automationProject.PublishedVersions);
-            Assert.IsTrue(!automationProject.PublishedVersions.Any());
-            Assert.IsNull(automationProject.LatestActiveVersion);          
+            Assert.That(automationProject.ProjectId is not null);
+            Assert.That(string.IsNullOrEmpty(automationProject.Name));
+            Assert.That(automationProject.AvailableVersions is not null);
+            Assert.That(!automationProject.AvailableVersions.Any());
+            Assert.That(automationProject.PublishedVersions is not null);
+            Assert.That(!automationProject.PublishedVersions.Any());
+            Assert.That(automationProject.LatestActiveVersion is null);          
         }
 
         [Test]
@@ -28,10 +28,10 @@ namespace Pixel.Automation.Core.Tests.Models
             automationProject.AvailableVersions.Add(deployedVersion);
             automationProject.AvailableVersions.Add(activeVersion);
 
-            Assert.AreEqual(2, automationProject.AvailableVersions.Count());
-            Assert.AreEqual(1, automationProject.PublishedVersions.Count());
-            Assert.AreEqual(deployedVersion, automationProject.PublishedVersions.First());
-            Assert.AreEqual(activeVersion, automationProject.LatestActiveVersion);
+            Assert.That(2, Is.EqualTo(automationProject.AvailableVersions.Count()));
+            Assert.That(1, Is.EqualTo(automationProject.PublishedVersions.Count()));
+            Assert.That(deployedVersion, Is.EqualTo(automationProject.PublishedVersions.First()));
+            Assert.That(activeVersion, Is.EqualTo(automationProject.LatestActiveVersion));
         }
     }
 }

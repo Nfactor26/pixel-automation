@@ -17,16 +17,16 @@ namespace Pixel.Automation.Core.Tests.Exceptions
         public void ValidateThatExceptionObjectsCanBeInitialized(Type type)
         {
             var exception = Activator.CreateInstance(type) as Exception;
-            Assert.AreEqual($"Exception of type '{type.Namespace}.{type.Name}' was thrown.", exception.Message);
-            Assert.IsNull(exception.InnerException);
+            Assert.That(exception.Message, Is.EqualTo($"Exception of type '{type.Namespace}.{type.Name}' was thrown."));
+            Assert.That(exception.InnerException is null);
 
             exception = Activator.CreateInstance(type, new object[] { type.Name }) as Exception;
-            Assert.AreEqual(type.Name, exception.Message);
-            Assert.IsNull(exception.InnerException);
+            Assert.That(exception.Message, Is.EqualTo(type.Name));
+            Assert.That(exception.InnerException is null);
 
             exception = Activator.CreateInstance(type, new object[] { type.Name, new Exception() }) as Exception;
-            Assert.AreEqual(type.Name, exception.Message);
-            Assert.IsNotNull(exception.InnerException);
+            Assert.That(exception.Message, Is.EqualTo(type.Name));
+            Assert.That(exception.InnerException is not null);
         }
     }
 }

@@ -42,9 +42,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 LookupMode = LookupMode.FindSingle,
                 MatchType = MatchType.Equals
             };
-            Assert.AreEqual(LookupMode.FindSingle, findChildWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findChildWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Index, findChildWindowActor.FilterMode);
+            Assert.That(findChildWindowActor.LookupMode, Is.EqualTo(LookupMode.FindSingle));
+            Assert.That(findChildWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findChildWindowActor.FilterMode, Is.EqualTo(FilterMode.Index));
 
             await findChildWindowActor.ActAsync();
 
@@ -86,9 +86,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 FilterMode = FilterMode.Index,
                 MatchType = MatchType.Equals               
             };
-            Assert.AreEqual(LookupMode.FindAll, findChildWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findChildWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Index, findChildWindowActor.FilterMode);           
+            Assert.That(findChildWindowActor.LookupMode, Is.EqualTo(LookupMode.FindAll));
+            Assert.That(findChildWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findChildWindowActor.FilterMode, Is.EqualTo(FilterMode.Index));           
 
             await findChildWindowActor.ActAsync();
 
@@ -144,10 +144,10 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 FilterMode = FilterMode.Custom,
                 MatchType = MatchType.Equals
             };
-            Assert.AreEqual(LookupMode.FindAll, findChildWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findChildWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Custom, findChildWindowActor.FilterMode);
-            Assert.NotNull(findChildWindowActor.Filter); //should be initialized when FilterMode getter is called.
+            Assert.That(findChildWindowActor.LookupMode, Is.EqualTo(LookupMode.FindAll));
+            Assert.That(findChildWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findChildWindowActor.FilterMode, Is.EqualTo(FilterMode.Custom));
+            Assert.That(findChildWindowActor.Filter is not null); //should be initialized when FilterMode getter is called.
 
             findChildWindowActor.Filter.ScriptFile = "FindWindow.csx";
 

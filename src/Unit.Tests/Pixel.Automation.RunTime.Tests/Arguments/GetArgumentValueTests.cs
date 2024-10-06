@@ -49,7 +49,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<int>(argument);
 
-            Assert.AreEqual(100, result);
+            Assert.That(result, Is.EqualTo(100));
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<List<int>>(argument);
 
-            Assert.AreSame(numbers, result);
+            Assert.That(result, Is.SameAs(numbers));
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<string>(argument);
 
-            Assert.AreEqual("Sheldon Cooper", result);
+            Assert.That(result, Is.EqualTo("Sheldon Cooper"));
         }
 
 
@@ -118,7 +118,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<string>(argument);
 
-            Assert.AreEqual("East Texas", result);
+            Assert.That(result, Is.EqualTo("East Texas"));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<Person>(argument);
 
-            Assert.AreSame(person, result);
+            Assert.That(result, Is.SameAs(person));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result =  await argumentProcessor.GetValueAsync<string>(argument);
 
-            Assert.AreEqual("East Texas", result);
+            Assert.That(result, Is.EqualTo("East Texas"));
         }
 
 
@@ -186,7 +186,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             scriptEngine.Received(1).HasScriptVariable("Name");
             scriptEngine.Received(1).GetVariableValue<string>("Name");
-            Assert.AreEqual("Howard Wolowitz", result);
+            Assert.That(result, Is.EqualTo("Howard Wolowitz"));
 
         }
 
@@ -205,7 +205,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var result = await argumentProcessor.GetValueAsync<int>(argument);
 
-            Assert.AreEqual(200, result);
+            Assert.That(result, Is.EqualTo(200));
         }
 
         /// <summary>

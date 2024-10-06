@@ -14,9 +14,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new OneTimeSetUpEntity();
             entity.ResolveDependencies();
 
-            Assert.AreEqual("One Time SetUp", entity.Name);
-            Assert.AreEqual("OneTimeSetUp", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("One Time SetUp"));
+            Assert.That(entity.Tag, Is.EqualTo("OneTimeSetUp"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -25,9 +25,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new OneTimeTearDownEntity();
             entity.ResolveDependencies();
 
-            Assert.AreEqual("One Time TearDown", entity.Name);
-            Assert.AreEqual("OneTimeTearDown", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("One Time TearDown"));
+            Assert.That(entity.Tag, Is.EqualTo("OneTimeTearDown"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -36,9 +36,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new SetUpEntity();
             entity.ResolveDependencies();
 
-            Assert.AreEqual("SetUp", entity.Name);
-            Assert.AreEqual("SetUp", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("SetUp"));
+            Assert.That(entity.Tag, Is.EqualTo("SetUp"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -47,9 +47,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new TearDownEntity();
             entity.ResolveDependencies();
 
-            Assert.AreEqual("Tear Down", entity.Name);
-            Assert.AreEqual("TearDown", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("Tear Down"));
+            Assert.That(entity.Tag, Is.EqualTo("TearDown"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(0));
         }     
 
         [Test]
@@ -59,9 +59,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new TestFixtureEntity() { EntityManager = entityManager };
             entity.ResolveDependencies();
           
-            Assert.AreEqual("Test Fixture", entity.Name);
-            Assert.AreEqual("TestFixture", entity.Tag);
-            Assert.AreEqual(4, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("Test Fixture"));
+            Assert.That(entity.Tag, Is.EqualTo("TestFixture"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(4));
 
         }
 
@@ -72,9 +72,9 @@ namespace Pixel.Automation.Core.Components.Tests
             var entity = new TestCaseEntity() { EntityManager = entityManager };
             entity.ResolveDependencies();
 
-            Assert.AreEqual("Test Case", entity.Name);
-            Assert.AreEqual("TestCase", entity.Tag);
-            Assert.AreEqual(0, entity.Components.Count());
+            Assert.That(entity.Name, Is.EqualTo("Test Case"));
+            Assert.That(entity.Tag, Is.EqualTo("TestCase"));
+            Assert.That(entity.Components.Count(), Is.EqualTo(0));
 
         }
     }

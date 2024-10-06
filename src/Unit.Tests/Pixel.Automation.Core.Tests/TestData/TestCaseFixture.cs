@@ -11,17 +11,17 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testCase = new TestCase();
 
-            Assert.IsFalse(string.IsNullOrEmpty(testCase.TestCaseId));
-            Assert.IsNull(testCase.FixtureId);
-            Assert.IsNull(testCase.DisplayName);
-            Assert.AreEqual(0, testCase.Order);
-            Assert.IsFalse(testCase.IsMuted);
-            Assert.IsNull(testCase.ScriptFile);
-            Assert.IsNull(testCase.TestDataId);
-            Assert.IsNull(testCase.Description);
-            Assert.IsNotNull(testCase.Tags);
-            Assert.IsNull(testCase.TestCaseEntity);
-            Assert.AreEqual(testCase.TestCaseId, testCase.ToString());
+            Assert.That(string.IsNullOrEmpty(testCase.TestCaseId) == false);
+            Assert.That(testCase.FixtureId is null);
+            Assert.That(testCase.DisplayName is null);
+            Assert.That(0, Is.EqualTo(testCase.Order));
+            Assert.That(testCase.IsMuted == false);
+            Assert.That(testCase.ScriptFile is null);
+            Assert.That(testCase.TestDataId is null);
+            Assert.That(testCase.Description is null);
+            Assert.That(testCase.Tags is not null);
+            Assert.That(testCase.TestCaseEntity is null);
+            Assert.That(testCase.TestCaseId, Is.EqualTo(testCase.ToString()));
 
             testCase.FixtureId = Guid.NewGuid().ToString();
             testCase.DisplayName = "TestCase";
@@ -33,15 +33,15 @@ namespace Pixel.Automation.Core.Tests.TestData
             testCase.Description = "Description";
             testCase.TestCaseEntity = new Entity();
 
-            Assert.IsFalse(string.IsNullOrEmpty(testCase.FixtureId));
-            Assert.AreEqual("TestCase", testCase.DisplayName);
-            Assert.AreEqual(10, testCase.Order);
-            Assert.IsTrue(testCase.IsMuted);
-            Assert.AreEqual("TestCase.csx", testCase.ScriptFile);
-            Assert.IsFalse(string.IsNullOrEmpty(testCase.TestDataId));
-            Assert.AreEqual(testCase.Tags["color"], "red");
-            Assert.AreEqual("Description", testCase.Description);
-            Assert.IsNotNull(testCase.TestCaseEntity);
+            Assert.That(string.IsNullOrEmpty(testCase.FixtureId) == false);
+            Assert.That("TestCase", Is.EqualTo(testCase.DisplayName));
+            Assert.That(10, Is.EqualTo(testCase.Order));
+            Assert.That(testCase.IsMuted);
+            Assert.That("TestCase.csx", Is.EqualTo(testCase.ScriptFile));
+            Assert.That(string.IsNullOrEmpty(testCase.TestDataId) == false);
+            Assert.That(testCase.Tags["color"], Is.EqualTo("red"));
+            Assert.That("Description", Is.EqualTo(testCase.Description));
+            Assert.That(testCase.TestCaseEntity is not null);
         }
 
         [Test]
@@ -51,15 +51,15 @@ namespace Pixel.Automation.Core.Tests.TestData
             testCase.Tags.Add("color", "red");
             var copyOfTestCase = testCase.Clone() as TestCase;
 
-            Assert.AreEqual(testCase.DisplayName, copyOfTestCase.DisplayName);
-            Assert.AreEqual(testCase.Order, copyOfTestCase.Order);
-            Assert.AreEqual(testCase.Description, copyOfTestCase.Description);
-            Assert.AreEqual(testCase.IsMuted, copyOfTestCase.IsMuted);
-            Assert.AreEqual(copyOfTestCase.Tags["color"], "red");
-            Assert.AreNotEqual(testCase.FixtureId, copyOfTestCase.FixtureId);
-            Assert.AreNotEqual(testCase.ScriptFile, copyOfTestCase.ScriptFile);
-            Assert.AreNotEqual(testCase.TestDataId, copyOfTestCase.TestDataId);
-            Assert.AreNotEqual(testCase.TestCaseEntity, copyOfTestCase.TestCaseEntity);
+            Assert.That(testCase.DisplayName, Is.EqualTo(copyOfTestCase.DisplayName));
+            Assert.That(testCase.Order, Is.EqualTo(copyOfTestCase.Order));
+            Assert.That(testCase.Description, Is.EqualTo(copyOfTestCase.Description));
+            Assert.That(testCase.IsMuted, Is.EqualTo(copyOfTestCase.IsMuted));
+            Assert.That(copyOfTestCase.Tags["color"], Is.EqualTo("red"));
+            Assert.That(testCase.FixtureId, Is.Not.EqualTo(copyOfTestCase.FixtureId));
+            Assert.That(testCase.ScriptFile, Is.Not.EqualTo(copyOfTestCase.ScriptFile));
+            Assert.That(testCase.TestDataId, Is.Not.EqualTo(copyOfTestCase.TestDataId));
+            Assert.That(testCase.TestCaseEntity, Is.Not.EqualTo(copyOfTestCase.TestCaseEntity));
 
         }
     }
