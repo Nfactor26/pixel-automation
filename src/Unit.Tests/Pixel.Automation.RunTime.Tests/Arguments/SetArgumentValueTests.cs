@@ -63,13 +63,13 @@ namespace Pixel.Automation.RunTime.Tests
            
             var ageArgument = new OutArgument<int>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age" };
             await argumentProcessor.SetValueAsync<int>(ageArgument, 50);
-            Assert.AreEqual(50, person.Age);          
+            Assert.That(person.Age, Is.EqualTo(50));          
 
             var nameArgument = new OutArgument<string>() { Mode = ArgumentMode.DataBound, PropertyPath = "Name" };
             await argumentProcessor.SetValueAsync<string>(nameArgument, "Leonard Hofstadter");
-            Assert.AreEqual("Leonard Hofstadter", person.Name);           
+            Assert.That(person.Name, Is.EqualTo("Leonard Hofstadter"));           
             await argumentProcessor.SetValueAsync<string>(nameArgument, null);
-            Assert.AreEqual(null, person.Name);
+            Assert.That(person.Name, Is.EqualTo(null));
 
             scriptEngine.Received(3).HasScriptVariable(Arg.Any<string>());
         }
@@ -90,7 +90,7 @@ namespace Pixel.Automation.RunTime.Tests
             await argumentProcessor.SetValueAsync<string>(argument, "Oklahoma");
 
             scriptEngine.Received(1).HasScriptVariable(Arg.Any<string>());
-            Assert.AreEqual("Oklahoma", person.Address.City);
+            Assert.That(person.Address.City, Is.EqualTo("Oklahoma"));
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             scriptEngine.Received(1).HasScriptVariable("number");
             scriptEngine.Received(1).SetVariableValue("number", 50);
-            Assert.AreEqual(50, number);
+            Assert.That(number, Is.EqualTo(50));
         }
 
 
@@ -138,7 +138,7 @@ namespace Pixel.Automation.RunTime.Tests
             scriptEngine.Received(1).HasScriptVariable("person");
             scriptEngine.Received(1).GetVariableValue<object>("person");
 
-            Assert.AreEqual("Oklahoma", person.Address.City);
+            Assert.That(person.Address.City, Is.EqualTo("Oklahoma"));
         }
 
 
@@ -166,7 +166,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             scriptEngine.Received(1).HasScriptVariable("Name");
             scriptEngine.Received(1).SetVariableValue("Name", "Howard Wolowitz");
-            Assert.AreNotEqual("Howard Wolowitz", person.Name); //Asser that glboals-> Name was not modified.
+            Assert.That(person.Name, Is.Not.EqualTo("Howard Wolowitz")); //Asser that glboals-> Name was not modified.
 
         }
 
@@ -205,7 +205,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             await argumentProcessor.SetValueAsync<int>(argument, 50);
 
-            Assert.AreEqual(50, person.Age);
+            Assert.That(person.Age, Is.EqualTo(50));
         }
 
         /// <summary>

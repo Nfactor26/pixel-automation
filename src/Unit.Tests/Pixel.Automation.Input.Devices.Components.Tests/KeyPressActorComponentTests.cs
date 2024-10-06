@@ -92,7 +92,7 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
                 KeySequence = keySequence
             };
             bool isValid = keyPressActor.ValidateComponent();
-            Assert.AreEqual(expectedResult, isValid);
+            Assert.That(isValid, Is.EqualTo(expectedResult));
         }
     }
 }

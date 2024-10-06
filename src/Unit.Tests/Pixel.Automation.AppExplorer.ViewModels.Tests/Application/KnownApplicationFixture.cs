@@ -2,6 +2,7 @@
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.Core.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Tests
 {
@@ -21,10 +22,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
                 }
             );
            
-            Assert.AreEqual("WinApplication", knownApplication.DisplayName);
-            Assert.AreEqual("Windows application", knownApplication.Description);
-            Assert.AreEqual(typeof(IApplication), knownApplication.UnderlyingApplicationType);
-            Assert.IsNotEmpty(knownApplication.SupportedPlatforms);
+            Assert.That(knownApplication.DisplayName, Is.EqualTo("WinApplication"));
+            Assert.That(knownApplication.Description, Is.EqualTo("Windows application"));
+            Assert.That(knownApplication.UnderlyingApplicationType, Is.EqualTo(typeof(IApplication)));
+            Assert.That(knownApplication.SupportedPlatforms.Any());
         }
     }
 }

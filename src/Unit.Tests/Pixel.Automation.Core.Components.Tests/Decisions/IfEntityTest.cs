@@ -22,7 +22,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var ifEntity = new IfEntity() { EntityManager = entityManager };
             ifEntity.ResolveDependencies();
 
-            Assert.AreEqual(2, ifEntity.Components.Count());
+            Assert.That(ifEntity.Components.Count(), Is.EqualTo(2));
 
             var ifComponent = Substitute.For<ActorComponent>();
             var elseComponent = Substitute.For<ActorComponent>();
@@ -35,11 +35,11 @@ namespace Pixel.Automation.Core.Components.Tests
          
             if (evaluatesTo)
             {
-                Assert.IsTrue(components.Contains(ifComponent));
+                Assert.That(components.Contains(ifComponent));
             }
             else
             {
-                Assert.IsTrue(components.Contains(elseComponent));
+                Assert.That(components.Contains(elseComponent));
             }       
 
         }

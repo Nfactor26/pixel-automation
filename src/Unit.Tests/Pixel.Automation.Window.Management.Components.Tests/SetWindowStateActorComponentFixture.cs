@@ -17,8 +17,8 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new SetWindowStateActorComponent();
 
-            Assert.IsNotNull(actor.ApplicationWindow);
-            Assert.AreEqual(WindowState.Maximize, actor.DesiredState);
+            Assert.That(actor.ApplicationWindow is not null);
+            Assert.That(actor.DesiredState, Is.EqualTo(WindowState.Maximize));
         }
 
         [Test]

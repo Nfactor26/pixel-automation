@@ -11,16 +11,16 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var inArgument = new InArgument<int>() { DefaultValue = 26 };
 
-            Assert.AreEqual(ArgumentMode.Default, inArgument.Mode);
-            Assert.AreEqual(26, inArgument.DefaultValue);         
-            Assert.IsTrue(inArgument.IsConfigured());
-            Assert.AreEqual(26, inArgument.GetDefaultValue());
-            Assert.IsFalse(inArgument.CanChangeType);
-            Assert.IsTrue(inArgument.CanChangeMode);
-            Assert.AreEqual(typeof(int), inArgument.GetArgumentType());
-            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.Default));
-            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
-            Assert.IsTrue(inArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.That(inArgument.Mode, Is.EqualTo(ArgumentMode.Default));
+            Assert.That(inArgument.DefaultValue, Is.EqualTo(26));         
+            Assert.That(inArgument.IsConfigured());
+            Assert.That(inArgument.GetDefaultValue(), Is.EqualTo(26));
+            Assert.That(inArgument.CanChangeType == false);
+            Assert.That(inArgument.CanChangeMode);
+            Assert.That(inArgument.GetArgumentType(), Is.EqualTo(typeof(int)));
+            Assert.That(inArgument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.That(inArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.That(inArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]
@@ -28,13 +28,13 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var inArgument = new InArgument<string>() { Mode = ArgumentMode.Scripted, ScriptFile = "Script.csx" };
 
-            Assert.AreEqual(ArgumentMode.Scripted, inArgument.Mode);
-            Assert.AreEqual("Script.csx", inArgument.ScriptFile);
-            Assert.AreEqual(null, inArgument.DefaultValue);
-            Assert.AreEqual(null, inArgument.GetDefaultValue());
-            Assert.IsTrue(inArgument.IsConfigured());             
-            Assert.AreEqual(typeof(string), inArgument.GetArgumentType());
-            Assert.AreEqual("String", inArgument.ArgumentType);        
+            Assert.That(inArgument.Mode, Is.EqualTo(ArgumentMode.Scripted));
+            Assert.That(inArgument.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(inArgument.DefaultValue is null);
+            Assert.That(inArgument.GetDefaultValue() is null);
+            Assert.That(inArgument.IsConfigured());             
+            Assert.That(inArgument.GetArgumentType(), Is.EqualTo(typeof(string)));
+            Assert.That(inArgument.ArgumentType, Is.EqualTo("String"));        
         }
 
         [Test]
@@ -42,14 +42,14 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var inArgument = new InArgument<Person>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age" };
 
-            Assert.AreEqual(ArgumentMode.DataBound, inArgument.Mode);
-            Assert.AreEqual("Age", inArgument.PropertyPath);
-            Assert.IsNull(inArgument.DefaultValue);
-            Assert.IsNull(inArgument.GetDefaultValue());
-            Assert.IsTrue(inArgument.IsConfigured());
-            Assert.AreEqual(typeof(Person), inArgument.GetArgumentType());            
-            Assert.IsTrue(string.IsNullOrEmpty(inArgument.ScriptFile));           
-            Assert.AreEqual("Person", inArgument.ArgumentType);
+            Assert.That(inArgument.Mode, Is.EqualTo(ArgumentMode.DataBound));
+            Assert.That(inArgument.PropertyPath, Is.EqualTo("Age"));
+            Assert.That(inArgument.DefaultValue is null);
+            Assert.That(inArgument.GetDefaultValue() is null);
+            Assert.That(inArgument.IsConfigured());
+            Assert.That(inArgument.GetArgumentType(), Is.EqualTo(typeof(Person)));            
+            Assert.That(string.IsNullOrEmpty(inArgument.ScriptFile));           
+            Assert.That(inArgument.ArgumentType, Is.EqualTo("Person"));
         }
 
         [Test]
@@ -58,12 +58,12 @@ namespace Pixel.Automation.Core.Tests.Arguments
             var inArgument = new InArgument<Person>() { Mode = ArgumentMode.DataBound, PropertyPath = "Age", ScriptFile = "ArgumentScript.csx" };
             var clone = inArgument.Clone() as InArgument<Person>;
            
-            Assert.AreEqual(inArgument.Mode, clone.Mode);
-            Assert.AreEqual(inArgument.PropertyPath, clone.PropertyPath);
-            Assert.AreEqual(inArgument.DefaultValue, clone.DefaultValue);           
-            Assert.AreEqual(inArgument.GetArgumentType(), clone.GetArgumentType());
-            Assert.AreEqual(inArgument.ScriptFile, clone.ScriptFile);
-            Assert.AreEqual(inArgument.ArgumentType, clone.ArgumentType);
+            Assert.That(clone.Mode, Is.EqualTo(inArgument.Mode));
+            Assert.That(clone.PropertyPath, Is.EqualTo(inArgument.PropertyPath));
+            Assert.That(clone.DefaultValue, Is.EqualTo(inArgument.DefaultValue));           
+            Assert.That(clone.GetArgumentType(), Is.EqualTo(inArgument.GetArgumentType()));
+            Assert.That(clone.ScriptFile, Is.EqualTo(inArgument.ScriptFile));
+            Assert.That(clone.ArgumentType, Is.EqualTo(inArgument.ArgumentType));
         }
     }
 }

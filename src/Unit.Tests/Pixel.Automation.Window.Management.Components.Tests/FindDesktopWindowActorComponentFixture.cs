@@ -40,9 +40,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 LookupMode = LookupMode.FindSingle,
                 MatchType = MatchType.Equals
             };
-            Assert.AreEqual(LookupMode.FindSingle, findDesktopWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findDesktopWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Index, findDesktopWindowActor.FilterMode);
+            Assert.That(findDesktopWindowActor.LookupMode, Is.EqualTo(LookupMode.FindSingle));
+            Assert.That(findDesktopWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findDesktopWindowActor.FilterMode, Is.EqualTo(FilterMode.Index));
 
             await findDesktopWindowActor.ActAsync();
 
@@ -85,9 +85,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 FilterMode = FilterMode.Index,
                 MatchType = MatchType.Equals
             };
-            Assert.AreEqual(LookupMode.FindAll, findDesktopWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findDesktopWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Index, findDesktopWindowActor.FilterMode);
+            Assert.That(findDesktopWindowActor.LookupMode, Is.EqualTo(LookupMode.FindAll));
+            Assert.That(findDesktopWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findDesktopWindowActor.FilterMode, Is.EqualTo(FilterMode.Index));
 
             await findDesktopWindowActor.ActAsync();
 
@@ -140,10 +140,10 @@ namespace Pixel.Automation.Window.Management.Components.Tests
                 FilterMode = FilterMode.Custom,
                 MatchType = MatchType.Equals                
             };
-            Assert.AreEqual(LookupMode.FindAll, findDesktopWindowActor.LookupMode);
-            Assert.AreEqual(MatchType.Equals, findDesktopWindowActor.MatchType);
-            Assert.AreEqual(FilterMode.Custom, findDesktopWindowActor.FilterMode);
-            Assert.NotNull(findDesktopWindowActor.Filter); //Filter should be initialized on when FilterMode getter is called
+            Assert.That(findDesktopWindowActor.LookupMode, Is.EqualTo(LookupMode.FindAll));
+            Assert.That(findDesktopWindowActor.MatchType, Is.EqualTo(MatchType.Equals));
+            Assert.That(findDesktopWindowActor.FilterMode, Is.EqualTo(FilterMode.Custom));
+            Assert.That(findDesktopWindowActor.Filter is not null); //Filter should be initialized on when FilterMode getter is called
 
             findDesktopWindowActor.Filter.ScriptFile = "FindWindow.csx";
             await findDesktopWindowActor.ActAsync();

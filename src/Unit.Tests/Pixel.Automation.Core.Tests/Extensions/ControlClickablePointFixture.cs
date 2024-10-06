@@ -24,8 +24,8 @@ namespace Pixel.Automation.Core.Tests
 
             controlIdentity.GetClickablePoint(new Controls.BoundingBox(0, 0, 100, 100), out double x, out double y);
          
-            Assert.AreEqual(expectedX, x);
-            Assert.AreEqual(expectedY, y);
+            Assert.That(x, Is.EqualTo(expectedX));
+            Assert.That(y, Is.EqualTo(expectedY));
         }
     }
 }

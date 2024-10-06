@@ -17,8 +17,8 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new SetWindowPositionActorComponent();
 
-            Assert.IsNotNull(actor.ApplicationWindow);
-            Assert.IsNotNull(actor.Position);
+            Assert.That(actor.ApplicationWindow is not null);
+            Assert.That(actor.Position is not null);
         }
 
         [Test]

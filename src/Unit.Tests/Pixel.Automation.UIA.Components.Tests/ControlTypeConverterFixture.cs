@@ -11,14 +11,14 @@ namespace Pixel.Automation.UIA.Components.Tests
         public void ValidateThatControlTypeCanBeConvertedToWinControlType()
         {
             WinControlType winControlType = ControlType.Button.ToWinControlType();
-            Assert.AreEqual(WinControlType.Button, winControlType);
+            Assert.That(winControlType, Is.EqualTo(WinControlType.Button));
         }
 
         [TestCase(WinControlType.Button)]
         public void ValidatethatWinControlTypeCanBeConvertedToControlType(WinControlType winControlType)
         {
             ControlType controlType = winControlType.ToUIAControlType();
-            Assert.AreEqual($"ControlType.{winControlType}", controlType.ProgrammaticName);
+            Assert.That(controlType.ProgrammaticName, Is.EqualTo($"ControlType.{winControlType}"));
         }
     }
 }

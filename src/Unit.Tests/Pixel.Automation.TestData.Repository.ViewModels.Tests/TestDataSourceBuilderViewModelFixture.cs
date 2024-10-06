@@ -17,7 +17,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var screen = Substitute.For<IStagedScreen>();
             var testDataSourceBuilderViewModel = new TestDataSourceBuilderViewModel(new[] { screen });
 
-            Assert.AreEqual("Data Source Editor", testDataSourceBuilderViewModel.DisplayName);         
+            Assert.That(testDataSourceBuilderViewModel.DisplayName, Is.EqualTo("Data Source Editor"));         
             
         }
 

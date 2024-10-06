@@ -9,8 +9,8 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatPropertyDescriptionCanBeInitialized()
         {
             var propertyDescription = new PropertyDescription("Address", typeof(string));
-            Assert.AreEqual("Address", propertyDescription.PropertyName);
-            Assert.AreEqual(typeof(string), propertyDescription.PropertyType);
+            Assert.That("Address", Is.EqualTo(propertyDescription.PropertyName));
+            Assert.That(typeof(string), Is.EqualTo(propertyDescription.PropertyType));
         }
     }
 }

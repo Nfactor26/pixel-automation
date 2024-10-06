@@ -15,13 +15,13 @@ namespace Pixel.Automation.Core.Tests.Models
             application.ApplicationName.Returns("ApplicationName");
             var applicationDescription = new ApplicationDescription(application);
 
-            Assert.AreEqual("ApplicationId", applicationDescription.ApplicationId);
-            Assert.AreEqual("ApplicationName", applicationDescription.ApplicationName);
-            Assert.IsNull(applicationDescription.ApplicationType);
-            Assert.IsNotNull(applicationDescription.Screens);                             
+            Assert.That("ApplicationId", Is.EqualTo(applicationDescription.ApplicationId));
+            Assert.That("ApplicationName", Is.EqualTo(applicationDescription.ApplicationName));
+            Assert.That(applicationDescription.ApplicationType is null);
+            Assert.That(applicationDescription.Screens is not null);                             
 
             applicationDescription.ApplicationType = "WebApplication";
-            Assert.AreEqual("WebApplication", applicationDescription.ApplicationType);
+            Assert.That("WebApplication", Is.EqualTo(applicationDescription.ApplicationType));
         }
 
 
@@ -34,12 +34,12 @@ namespace Pixel.Automation.Core.Tests.Models
         //    var controlDescription = new ControlDescription(controlDetails);
         //    applicationDescription.AddControl(controlDescription);
 
-        //    Assert.IsTrue(applicationDescription.AvailableControls.Contains(controlDescription.ControlId));
-        //    Assert.IsTrue(applicationDescription.ControlsCollection.Contains(controlDescription));
+        //    Assert.That(applicationDescription.AvailableControls.Contains(controlDescription.ControlId));
+        //    Assert.That(applicationDescription.ControlsCollection.Contains(controlDescription));
 
         //    applicationDescription.DeleteControl(controlDescription);
-        //    Assert.IsTrue(!applicationDescription.AvailableControls.Contains(controlDescription.ControlId));
-        //    Assert.IsTrue(!applicationDescription.ControlsCollection.Contains(controlDescription));
+        //    Assert.That(!applicationDescription.AvailableControls.Contains(controlDescription.ControlId));
+        //    Assert.That(!applicationDescription.ControlsCollection.Contains(controlDescription));
         //}
 
         //[Test]
@@ -49,12 +49,12 @@ namespace Pixel.Automation.Core.Tests.Models
         //    var prefabProject = new PrefabProject() { ApplicationId = "A1", PrefabId = "P1" };
         //    applicationDescription.AddPrefab(prefabProject);
 
-        //    Assert.IsTrue(applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
-        //    Assert.IsTrue(applicationDescription.PrefabsCollection.Contains(prefabProject));
+        //    Assert.That(applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
+        //    Assert.That(applicationDescription.PrefabsCollection.Contains(prefabProject));
 
         //    applicationDescription.DeletePrefab(prefabProject);
-        //    Assert.IsTrue(!applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
-        //    Assert.IsTrue(!applicationDescription.PrefabsCollection.Contains(prefabProject));
+        //    Assert.That(!applicationDescription.AvailablePrefabs.Contains(prefabProject.PrefabId));
+        //    Assert.That(!applicationDescription.PrefabsCollection.Contains(prefabProject));
         //}
     }
 }

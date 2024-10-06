@@ -21,16 +21,16 @@ public class ScenarioTests
             // Find a well-known combo box
             AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-            Assert.IsNotNull(combo);
+            Assert.That(combo is not null);
 
             ExpandCollapsePattern expando = (ExpandCollapsePattern)combo.GetCurrentPattern(ExpandCollapsePattern.Pattern);
-            Assert.AreEqual(expando.Current.ExpandCollapseState, ExpandCollapseState.Collapsed);
+            Assert.That(expando.Current.ExpandCollapseState, Is.EqualTo(ExpandCollapseState.Collapsed));
             expando.Expand();
             System.Threading.Thread.Sleep(100 /* ms */);
-            Assert.AreEqual(expando.Current.ExpandCollapseState, ExpandCollapseState.Expanded);
+            Assert.That(expando.Current.ExpandCollapseState, Is.EqualTo(ExpandCollapseState.Expanded));
             expando.Collapse();
             System.Threading.Thread.Sleep(100 /* ms */);
-            Assert.AreEqual(expando.Current.ExpandCollapseState, ExpandCollapseState.Collapsed);
+            Assert.That(expando.Current.ExpandCollapseState, Is.EqualTo(ExpandCollapseState.Collapsed));
         }
     }
 
@@ -47,10 +47,10 @@ public class ScenarioTests
                 // Find a well-known combo box
                 AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-                Assert.IsNotNull(combo);
+                Assert.That(combo is not null);
 
                 ExpandCollapsePattern expando = (ExpandCollapsePattern)combo.GetCachedPattern(ExpandCollapsePattern.Pattern);
-                Assert.AreEqual(expando.Cached.ExpandCollapseState, ExpandCollapseState.Collapsed);
+                Assert.That(expando.Cached.ExpandCollapseState, Is.EqualTo(ExpandCollapseState.Collapsed));
             }
         }
     }
@@ -95,29 +95,29 @@ public class ScenarioTests
             // Find a well-known slider
             AutomationElement slider = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "101"));
-            Assert.IsNotNull(slider);
+            Assert.That(slider is not null);
 
             RangeValuePattern range = (RangeValuePattern)slider.GetCurrentPattern(RangeValuePattern.Pattern);
             double originalValue = range.Current.Value;
             try
             {
-                Assert.IsTrue(range.Current.SmallChange >= 0);
-                Assert.IsTrue(range.Current.LargeChange >= 0);
-                Assert.IsTrue(originalValue >= range.Current.Minimum);
-                Assert.IsTrue(originalValue <= range.Current.Maximum);
-                Assert.IsFalse(range.Current.IsReadOnly);
+                Assert.That(range.Current.SmallChange >= 0);
+                Assert.That(range.Current.LargeChange >= 0);
+                Assert.That(originalValue >= range.Current.Minimum);
+                Assert.That(originalValue <= range.Current.Maximum);
+                Assert.That(range.Current.IsReadOnly == false);
                 range.SetValue(range.Current.Minimum);
                 System.Threading.Thread.Sleep(100 /* ms */);
-                Assert.AreEqual(range.Current.Value, range.Current.Minimum);
+                Assert.That(range.Current.Value, Is.EqualTo(range.Current.Minimum));
 
                 range.SetValue(range.Current.Maximum);
                 System.Threading.Thread.Sleep(100 /* ms */);
-                Assert.AreEqual(range.Current.Value, range.Current.Maximum);
+                Assert.That(range.Current.Value, Is.EqualTo(range.Current.Maximum));
 
                 double midpoint = (range.Current.Maximum + range.Current.Minimum) / 2;
                 range.SetValue(midpoint);
                 System.Threading.Thread.Sleep(100 /* ms */);
-                Assert.AreEqual(range.Current.Value, midpoint);
+                Assert.That(range.Current.Value, Is.EqualTo(midpoint));
             }
             finally
             {
@@ -142,15 +142,15 @@ public class ScenarioTests
                 // Find a well-known slider
                 AutomationElement slider = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "101"));
-                Assert.IsNotNull(slider);
+                Assert.That(slider is not null);
 
                 RangeValuePattern range = (RangeValuePattern)slider.GetCachedPattern(RangeValuePattern.Pattern);
                 double originalValue = range.Cached.Value;
-                Assert.IsTrue(range.Cached.SmallChange >= 0);
-                Assert.IsTrue(range.Cached.LargeChange >= 0);
-                Assert.IsTrue(originalValue >= range.Cached.Minimum);
-                Assert.IsTrue(originalValue <= range.Cached.Maximum);
-                Assert.IsFalse(range.Cached.IsReadOnly);
+                Assert.That(range.Cached.SmallChange >= 0);
+                Assert.That(range.Cached.LargeChange >= 0);
+                Assert.That(originalValue >= range.Cached.Minimum);
+                Assert.That(originalValue <= range.Cached.Maximum);
+                Assert.That(range.Cached.IsReadOnly == false);
             }
         }
     }
@@ -167,46 +167,46 @@ public class ScenarioTests
             AutomationElement mainContent = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.IsTextPatternAvailableProperty, true));
             TextPattern text = (TextPattern)mainContent.GetCurrentPattern(TextPattern.Pattern);
-            Assert.AreEqual(text.SupportedTextSelection, SupportedTextSelection.Single);
+            Assert.That(text.SupportedTextSelection, Is.EqualTo(SupportedTextSelection.Single));
 
             TextPatternRange range1 = text.DocumentRange;
-            Assert.IsNotNull(range1);
-            Assert.AreEqual(text, range1.TextPattern);
+            Assert.That(range1 is not null);
+            Assert.That(text, Is.EqualTo(range1.TextPattern));
             TextPatternRange range2 = range1.Clone();
-            Assert.IsNotNull(range2);
-            Assert.IsTrue(range1.Compare(range2));
-            Assert.IsTrue(0 == range1.CompareEndpoints(TextPatternRangeEndpoint.Start, range2, TextPatternRangeEndpoint.Start));
-            Assert.IsTrue(0 == range1.CompareEndpoints(TextPatternRangeEndpoint.End, range2, TextPatternRangeEndpoint.End));
+            Assert.That(range2 is not null);
+            Assert.That(range1.Compare(range2));
+            Assert.That (0 == range1.CompareEndpoints(TextPatternRangeEndpoint.Start, range2, TextPatternRangeEndpoint.Start));
+            Assert.That(0 == range1.CompareEndpoints(TextPatternRangeEndpoint.End, range2, TextPatternRangeEndpoint.End));
 
             string keyString = "Constitution of the United States";
             TextPatternRange range3 = range1.FindText(keyString, false, true);
-            Assert.IsNotNull(range3);
+            Assert.That(range3 is not null);
             string foundString = range3.GetText(-1);
-            Assert.AreEqual(keyString, foundString);
+            Assert.That(foundString, Is.EqualTo(keyString));
             range3.Select();
             TextPatternRange[] selectedRanges = text.GetSelection();
-            Assert.AreEqual(1, selectedRanges.Length);
+            Assert.That(selectedRanges.Length, Is.EqualTo(1));
             TextPatternRange selectedRange = selectedRanges[0];
-            Assert.IsTrue(range3.Compare(selectedRange));
+            Assert.That(range3.Compare(selectedRange));
 
             // Test attributes.  Casts will fail if types are wrong
             System.Globalization.CultureInfo culture = (System.Globalization.CultureInfo)range3.GetAttributeValue(TextPattern.CultureAttribute);
             string fontName = (string)range3.GetAttributeValue(TextPattern.FontNameAttribute);
             bool hiddenValue = (bool)range3.GetAttributeValue(TextPattern.IsItalicAttribute);
-            Assert.AreEqual(AutomationElement.NotSupported, range3.GetAttributeValue(TextPattern.IsHiddenAttribute));
+            Assert.That(range3.GetAttributeValue(TextPattern.IsHiddenAttribute), Is.EqualTo(AutomationElement.NotSupported));
 
             TextPatternRange range5 = range1.FindAttribute(TextPattern.IsItalicAttribute, true, false /* backward */);
-            Assert.IsNotNull(range5);
-            Assert.AreEqual("Note", range5.GetText(-1));
+            Assert.That(range5 is not null);
+            Assert.That(range5.GetText(-1), Is.EqualTo("Note"));
 
             range5.ExpandToEnclosingUnit(TextUnit.Line);
             string line5 = range5.GetText(-1);
-            Assert.AreEqual("Preamble Note ", line5);
+            Assert.That(line5, Is.EqualTo("Preamble Note "));
 
             System.Windows.Rect[] rects = range3.GetBoundingRectangles();
-            Assert.AreEqual(rects.Length, 1);
-            Assert.IsTrue(rects[0].Width > 0);
-            Assert.IsTrue(rects[0].Height > 0);
+            Assert.That(rects.Length, Is.EqualTo(1));
+            Assert.That(rects[0].Width > 0);
+            Assert.That(rects[0].Height > 0);
         }
     }
 
@@ -218,7 +218,7 @@ public class ScenarioTests
             // Find a well-known checkbox
             AutomationElement checkbox = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "109"));
-            Assert.IsNotNull(checkbox);
+            Assert.That(checkbox is not null);
 
             TogglePattern toggle = (TogglePattern)checkbox.GetCurrentPattern(TogglePattern.Pattern);
             ToggleState originalState = toggle.Current.ToggleState;
@@ -226,7 +226,7 @@ public class ScenarioTests
             // Slight wait for effect
             System.Threading.Thread.Sleep(100 /* ms */);
             ToggleState currentState = toggle.Current.ToggleState;
-            Assert.AreNotEqual(originalState, currentState);
+            Assert.That(currentState, Is.Not.EqualTo(originalState));
 
             // Put it back
             while (currentState != originalState)
@@ -250,11 +250,11 @@ public class ScenarioTests
                 // Find a well-known checkbox
                 AutomationElement checkbox = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "114"));
-                Assert.IsNotNull(checkbox);
+                Assert.That(checkbox is not null);
 
                 TogglePattern toggle = (TogglePattern)checkbox.GetCachedPattern(TogglePattern.Pattern);
                 ToggleState originalState = toggle.Cached.ToggleState;
-                Assert.IsTrue(originalState == ToggleState.On || originalState == ToggleState.Off);
+                Assert.That(originalState == ToggleState.On || originalState == ToggleState.Off);
             }
         }
     }
@@ -267,9 +267,9 @@ public class ScenarioTests
         {
             TransformPattern transformPattern = (TransformPattern)host.Element.GetCurrentPattern(TransformPattern.Pattern);
             // Coded to expectations for an explorer window
-            Assert.IsTrue(transformPattern.Current.CanMove);
-            Assert.IsTrue(transformPattern.Current.CanResize);
-            Assert.IsFalse(transformPattern.Current.CanRotate);
+            Assert.That(transformPattern.Current.CanMove);
+            Assert.That(transformPattern.Current.CanResize);
+            Assert.That(transformPattern.Current.CanRotate == false);
             
             // Little move
             transformPattern.Move(10, 10);
@@ -295,9 +295,9 @@ public class ScenarioTests
 
                 TransformPattern transformPattern = (TransformPattern)cachedEl.GetCachedPattern(TransformPattern.Pattern);
                 // Coded to expectations for an explorer window
-                Assert.IsTrue(transformPattern.Cached.CanMove);
-                Assert.IsTrue(transformPattern.Cached.CanResize);
-                Assert.IsFalse(transformPattern.Cached.CanRotate);
+                Assert.That(transformPattern.Cached.CanMove);
+                Assert.That(transformPattern.Cached.CanResize);
+                Assert.That(transformPattern.Cached.CanRotate == false);
 
                 // Little move
                 transformPattern.Move(10, 10);
@@ -316,11 +316,11 @@ public class ScenarioTests
             // Find a well-known combo box
             AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-            Assert.IsNotNull(combo);
+            Assert.That(combo is not null);
 
             ValuePattern value = (ValuePattern)combo.GetCurrentPattern(ValuePattern.Pattern);
-            Assert.IsFalse(value.Current.IsReadOnly);
-            Assert.IsTrue(value.Current.Value.Length > 0);
+            Assert.That(value.Current.IsReadOnly == false);
+            Assert.That(value.Current.Value.Length > 0);
         }
     }
 
@@ -341,11 +341,11 @@ public class ScenarioTests
                 // Find a well-known combo box
                 AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-                Assert.IsNotNull(combo);
+                Assert.That(combo is not null);
 
                 ValuePattern value = (ValuePattern)combo.GetCurrentPattern(ValuePattern.Pattern);
-                Assert.IsFalse(value.Current.IsReadOnly);
-                Assert.IsTrue(value.Current.Value.Length > 0);
+                Assert.That(value.Current.IsReadOnly == false);
+                Assert.That(value.Current.Value.Length > 0);
             }
         }
     }
@@ -357,11 +357,11 @@ public class ScenarioTests
         {
             // Window Pattern
             WindowPattern windowPattern = (WindowPattern)host.Element.GetCurrentPattern(WindowPattern.Pattern);
-            Assert.IsTrue(windowPattern.Current.CanMaximize);
-            Assert.IsTrue(windowPattern.Current.CanMinimize);
-            Assert.IsFalse(windowPattern.Current.IsTopmost);
-            Assert.AreNotEqual(windowPattern.Current.WindowVisualState, WindowVisualState.Minimized);
-            Assert.AreNotEqual(windowPattern.Current.WindowInteractionState, WindowInteractionState.Closing);
+            Assert.That(windowPattern.Current.CanMaximize);
+            Assert.That(windowPattern.Current.CanMinimize);
+            Assert.That(windowPattern.Current.IsTopmost == false);
+            Assert.That(windowPattern.Current.WindowVisualState, Is.Not.EqualTo(WindowVisualState.Minimized));
+            Assert.That(windowPattern.Current.WindowInteractionState, Is.Not.EqualTo(WindowInteractionState.Closing));
         }
     }
 
@@ -383,11 +383,11 @@ public class ScenarioTests
 
                 // Window Pattern
                 WindowPattern windowPattern = (WindowPattern)cachedEl.GetCachedPattern(WindowPattern.Pattern);
-                Assert.IsTrue(windowPattern.Cached.CanMaximize);
-                Assert.IsTrue(windowPattern.Cached.CanMinimize);
-                Assert.IsFalse(windowPattern.Cached.IsTopmost);
-                Assert.AreNotEqual(windowPattern.Cached.WindowVisualState, WindowVisualState.Minimized);
-                Assert.AreNotEqual(windowPattern.Cached.WindowInteractionState, WindowInteractionState.Closing);
+                Assert.That(windowPattern.Cached.CanMaximize);
+                Assert.That(windowPattern.Cached.CanMinimize);
+                Assert.That(windowPattern.Cached.IsTopmost == false);
+                Assert.That(windowPattern.Cached.WindowVisualState, Is.Not.EqualTo(WindowVisualState.Minimized));
+                Assert.That(windowPattern.Cached.WindowInteractionState, Is.Not.EqualTo(WindowInteractionState.Closing));
             }
         }
     }
@@ -400,32 +400,32 @@ public class ScenarioTests
             // Find a well-known combo box
             AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-            Assert.IsNotNull(combo);
+            Assert.That(combo is not null);
 
             // BLOCK
             {
                 LegacyIAccessiblePattern acc = (LegacyIAccessiblePattern)combo.GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
-                Assert.AreEqual(0, acc.Current.ChildId);
-                Assert.IsTrue(acc.Current.Name.Length > 0);
-                Assert.IsTrue(acc.Current.Value.Length > 0);
-                Assert.AreEqual("Alt+f", acc.Current.KeyboardShortcut);
-                Assert.AreEqual((uint)0x2E /* combo box */, acc.Current.Role);
-                Assert.AreEqual((uint)0x100400 /* collapsed|focusable */, acc.Current.State & 0x100400);
+                Assert.That(acc.Current.ChildId, Is.EqualTo(0));
+                Assert.That(acc.Current.Name.Length > 0);
+                Assert.That(acc.Current.Value.Length > 0);
+                Assert.That(acc.Current.KeyboardShortcut, Is.EqualTo("Alt+f"));
+                Assert.That(acc.Current.Role, Is.EqualTo((uint)0x2E));
+                Assert.That(acc.Current.State & 0x100400, Is.EqualTo((uint)0x100400));
             }
 
             // Get the tab controls
             AutomationElement tabCtrl = host.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.AutomationIdProperty, "12320"));
-            Assert.IsNotNull(tabCtrl);
+            Assert.That(tabCtrl is not null);
 
             // Try out the selection
             // BLOCK
             {
                 LegacyIAccessiblePattern acc = (LegacyIAccessiblePattern)tabCtrl.GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
                 AutomationElement[] selection = acc.Current.GetSelection();
-                Assert.IsTrue(selection.Length > 0);
-                Assert.IsInstanceOf<AutomationElement>(selection[0]);
-                Assert.AreEqual(ControlType.TabItem, selection[0].Current.ControlType);
+                Assert.That(selection.Length > 0);
+                Assert.That(selection[0] is AutomationElement);
+                Assert.That(ControlType.TabItem, Is.EqualTo(selection[0].Current.ControlType));
             }
 
         }
@@ -450,31 +450,31 @@ public class ScenarioTests
                 // Find a well-known combo box
                 AutomationElement combo = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "1021"));
-                Assert.IsNotNull(combo);
+                Assert.That(combo is not null);
 
                 // BLOCK
                 {
                     LegacyIAccessiblePattern acc = (LegacyIAccessiblePattern)combo.GetCachedPattern(LegacyIAccessiblePattern.Pattern);
-                    Assert.AreEqual(0, acc.Cached.ChildId);
-                    Assert.IsTrue(acc.Cached.Name.Length > 0);
-                    Assert.IsTrue(acc.Cached.Value.Length > 0);
-                    Assert.AreEqual("Alt+f", acc.Cached.KeyboardShortcut);
-                    Assert.AreEqual((uint)0x2E /* combo box */, acc.Cached.Role);
-                    Assert.AreEqual((uint)0x100400 /* collapsed|focusable */, acc.Cached.State & 0x100400);
+                    Assert.That(acc.Cached.ChildId, Is.EqualTo(0));
+                    Assert.That(acc.Cached.Name.Length > 0);
+                    Assert.That(acc.Cached.Value.Length > 0);
+                    Assert.That(acc.Cached.KeyboardShortcut, Is.EqualTo("Alt+f"));
+                    Assert.That(acc.Cached.Role, Is.EqualTo((uint)0x2E));
+                    Assert.That(acc.Cached.State & 0x100400 , Is.EqualTo((uint)0x100400));
                 }
 
                 // Get the tab controls
                 AutomationElement tabCtrl = host.Element.FindFirst(TreeScope.Subtree,
                     new PropertyCondition(AutomationElement.AutomationIdProperty, "12320"));
-                Assert.IsNotNull(tabCtrl);
+                Assert.That(tabCtrl is not null);
 
                 // BLOCK
                 {
                     LegacyIAccessiblePattern acc = (LegacyIAccessiblePattern)tabCtrl.GetCachedPattern(LegacyIAccessiblePattern.Pattern);
                     AutomationElement[] selection = acc.Cached.GetSelection();
-                    Assert.IsTrue(selection.Length > 0);
-                    Assert.IsInstanceOf<AutomationElement>(selection[0]);
-                    Assert.AreEqual(ControlType.TabItem, selection[0].Current.ControlType);
+                    Assert.That(selection.Length > 0);
+                    Assert.That(selection[0] is AutomationElement);
+                    Assert.That(ControlType.TabItem, Is.EqualTo(selection[0].Current.ControlType));
                 }
 
             }
@@ -494,32 +494,32 @@ public class ScenarioTests
         // Get the clock
         AutomationElement taskbar = AutomationElement.RootElement.FindFirst(TreeScope.Children,
             new PropertyCondition(AutomationElement.ClassNameProperty, "Shell_TrayWnd"));
-        Assert.IsNotNull(taskbar);
+        Assert.That(taskbar is not null);
 
         AutomationElement clock = taskbar.FindFirst(TreeScope.Subtree,
             new PropertyCondition(AutomationElement.ClassNameProperty, "TrayClockWClass"));
-        Assert.IsNotNull(clock);
+        Assert.That(clock is not null);
 
         // Get the IAccessible for the clock
         IntPtr clockHwnd = (IntPtr)clock.Current.NativeWindowHandle;
         Guid iidAccessible = new Guid("{618736E0-3C3D-11CF-810C-00AA00389B71}");
         object obj = null;
         int retVal = AccessibleObjectFromWindow(clockHwnd, (uint)0xFFFFFFFC, ref iidAccessible, ref obj);
-        Assert.IsNotNull(obj);
+        Assert.That(obj is not null);
         Accessibility.IAccessible accessible = (Accessibility.IAccessible)obj;
-        Assert.IsNotNull(accessible);
-        Assert.AreEqual(0x2B /* clock */, accessible.get_accRole(0));
+        Assert.That(accessible is not null);
+        Assert.That(accessible.get_accRole(0), Is.EqualTo(0x2B));
 
         // Convert to an element
         AutomationElement element = AutomationElement.FromIAccessible(accessible, 0);
-        Assert.IsNotNull(element);
-        Assert.AreEqual(ControlType.Button, element.Current.ControlType);
+        Assert.That(element is not null);
+        Assert.That(ControlType.Button, Is.EqualTo(element.Current.ControlType));
 
         // Round-trip: let's get the IAccessible back out
         LegacyIAccessiblePattern legacy = (LegacyIAccessiblePattern)element.GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
         Accessibility.IAccessible legacyIAcc = legacy.GetIAccessible();
-        Assert.IsNotNull(legacyIAcc);
-        Assert.AreEqual(0x2B /* clock */, legacyIAcc.get_accRole(0));
+        Assert.That(legacyIAcc is not null);
+        Assert.That(legacyIAcc.get_accRole(0), Is.EqualTo(0x2B));
     }
 
 }

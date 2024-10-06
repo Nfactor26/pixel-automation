@@ -13,17 +13,17 @@ public class TreeWalkerTest
     public void PreDefinedConditionsTest()
     {
         Condition rawView = Automation.RawViewCondition;
-        Assert.IsNotNull(rawView);
+        Assert.That(rawView is not null);
 
         Condition controlView = Automation.ControlViewCondition;
-        Assert.IsInstanceOf<NotCondition>(controlView);
+        Assert.That(controlView is NotCondition);
         NotCondition notCond = (NotCondition)controlView;
-        Assert.IsInstanceOf<PropertyCondition>(notCond.Condition);
+        Assert.That(notCond.Condition is PropertyCondition);
 
         Condition contentView = Automation.ContentViewCondition;
-        Assert.IsInstanceOf<NotCondition>(contentView);
+        Assert.That(contentView is NotCondition);
         NotCondition notCond2 = (NotCondition)contentView;
-        Assert.IsInstanceOf<OrCondition>(notCond2.Condition);
+        Assert.That(notCond2.Condition is OrCondition);
     }
 
     //

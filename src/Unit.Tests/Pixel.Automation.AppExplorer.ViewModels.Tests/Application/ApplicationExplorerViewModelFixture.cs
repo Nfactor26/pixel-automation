@@ -59,11 +59,11 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationExplorerViewModel = new ApplicationExplorerViewModel(eventAggregator, applicationDataManager, typeProvider,
                 new[] { childScreen }, windowManager, notificationManager);
 
-            Assert.AreEqual(1, applicationExplorerViewModel.Applications.Count);
-            Assert.AreEqual(1, applicationExplorerViewModel.KnownApplications.Count);
-            Assert.AreEqual(1, applicationExplorerViewModel.ChildViews.Count);
-            Assert.AreEqual(PaneLocation.Bottom, applicationExplorerViewModel.PreferredLocation);
-            Assert.AreEqual(280, applicationExplorerViewModel.PreferredHeight);
+            Assert.That(applicationExplorerViewModel.Applications.Count, Is.EqualTo(1));
+            Assert.That(applicationExplorerViewModel.KnownApplications.Count, Is.EqualTo(1));
+            Assert.That(applicationExplorerViewModel.ChildViews.Count, Is.EqualTo(1));
+            Assert.That(applicationExplorerViewModel.PreferredLocation, Is.EqualTo(PaneLocation.Bottom));
+            Assert.That(applicationExplorerViewModel.PreferredHeight, Is.EqualTo(280));
 
             applicationDataManager.Received(1).GetAllApplications();
         }
@@ -79,7 +79,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             applicationExplorerViewModel.OpenApplication(applicationDescription);
 
-            Assert.IsTrue(applicationExplorerViewModel.IsApplicationOpen);
+            Assert.That(applicationExplorerViewModel.IsApplicationOpen);
             childScreen.Received(1).SetActiveApplication(Arg.Any<ApplicationDescriptionViewModel>());
             eventAggregator.Received(1).HandlerExistsFor(Arg.Is<Type>(typeof(RepositoryApplicationOpenedEventArgs)));
             eventAggregator.Received(1).PublishOnUIThreadAsync(Arg.Any<object>());
@@ -96,10 +96,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var applicationDescription = applicationExplorerViewModel.Applications.First();
             
             applicationExplorerViewModel.OpenApplication(applicationDescription);
-            Assert.IsTrue(applicationExplorerViewModel.IsApplicationOpen);
+            Assert.That(applicationExplorerViewModel.IsApplicationOpen);
           
             applicationExplorerViewModel.GoBack();
-            Assert.IsFalse(applicationExplorerViewModel.IsApplicationOpen);
+            Assert.That(applicationExplorerViewModel.IsApplicationOpen == false);
             childScreen.Received(1).SetActiveApplication(Arg.Is(default(ApplicationDescriptionViewModel)));
             eventAggregator.Received(2).HandlerExistsFor(Arg.Is<Type>(typeof(RepositoryApplicationOpenedEventArgs)));
             eventAggregator.Received(2).PublishOnUIThreadAsync(Arg.Any<object>());
@@ -113,7 +113,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var knownApplication = applicationExplorerViewModel.KnownApplications.First();
 
             await applicationExplorerViewModel.AddApplication(knownApplication);
-            Assert.AreEqual(2, applicationExplorerViewModel.Applications.Count);
+            Assert.That(applicationExplorerViewModel.Applications.Count, Is.EqualTo(2));
             await applicationDataManager.Received(1).AddApplicationAsync(Arg.Any<ApplicationDescription>());
             await eventAggregator.Received(2).PublishOnUIThreadAsync(Arg.Any<object>());
         }
@@ -131,7 +131,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             applicationExplorerViewModel.SelectedApplication = applicationDescription;
             applicationExplorerViewModel.ToggleRename(applicationDescription);
 
-            Assert.IsTrue(applicationExplorerViewModel.CanEdit);
+            Assert.That(applicationExplorerViewModel.CanEdit);
         }
        
 

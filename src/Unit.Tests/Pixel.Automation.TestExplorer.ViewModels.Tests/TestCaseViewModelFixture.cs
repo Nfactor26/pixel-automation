@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.TestData;
+using System.Diagnostics.CodeAnalysis;
 using TestCase = Pixel.Automation.Core.TestData.TestCase;
 
 namespace Pixel.Automation.TestExplorer.ViewModels.Tests
@@ -31,24 +32,23 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testCase.Tags.Add("priority", "high");
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
 
-            Assert.IsNotNull(testCaseViewModel.TestCase);
-            Assert.IsTrue(!string.IsNullOrEmpty(testCaseViewModel.TestCaseId));
-            Assert.AreEqual("TestCase#1", testCaseViewModel.DisplayName);
-            Assert.AreEqual(1, testCaseViewModel.Order);
-            Assert.AreEqual("Test case description", testCaseViewModel.Description);
-            Assert.AreEqual("Fixture#1", testCaseViewModel.FixtureId);
-            Assert.AreEqual(testCaseEntity, testCaseViewModel.TestCaseEntity);
-            Assert.IsTrue(testCaseViewModel.Tags.Contains("color"));
-            Assert.IsTrue(testCaseViewModel.Tags.Contains("priority"));
-            Assert.AreEqual("Script.csx", testCaseViewModel.ScriptFile);
-            Assert.IsNull(testCaseViewModel.TestDataId);
-            Assert.IsFalse(testCaseViewModel.IsMuted);
-            Assert.IsFalse(testCaseViewModel.IsSelected);
-            Assert.IsTrue(testCaseViewModel.IsVisible);
-            Assert.IsFalse(testCaseViewModel.IsOpenForEdit);
-            Assert.IsFalse(testCaseViewModel.CanOpenForEdit);
-            Assert.IsFalse(testCaseViewModel.IsRunning);
-            Assert.NotNull(testCaseViewModel.TestResults);  
+            Assert.That(testCaseViewModel.TestCase is not null);
+            Assert.That(!string.IsNullOrEmpty(testCaseViewModel.TestCaseId));
+            Assert.That(testCaseViewModel.DisplayName, Is.EqualTo("TestCase#1"));
+            Assert.That(testCaseViewModel.Order, Is.EqualTo(1));
+            Assert.That(testCaseViewModel.Description, Is.EqualTo("Test case description"));
+            Assert.That(testCaseViewModel.FixtureId, Is.EqualTo("Fixture#1"));
+            Assert.That(testCaseViewModel.TestCaseEntity, Is.EqualTo(testCaseEntity));
+            Assert.That(testCaseViewModel.Tags.Contains("color"));
+            Assert.That(testCaseViewModel.Tags.Contains("priority"));
+            Assert.That(testCaseViewModel.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(testCaseViewModel.TestDataId is null);
+            Assert.That(testCaseViewModel.IsSelected == false);
+            Assert.That(testCaseViewModel.IsVisible);
+            Assert.That(testCaseViewModel.IsOpenForEdit == false);
+            Assert.That(testCaseViewModel.CanOpenForEdit == false);
+            Assert.That(testCaseViewModel.IsRunning == false);
+            Assert.That(testCaseViewModel.TestResults is not null);  
 
         }
 
@@ -71,13 +71,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             };
             testCaseViewModel.Tags.Add("color", "red");       
         
-            Assert.AreEqual("TestCase#1", testCase.DisplayName);
-            Assert.AreEqual(1, testCase.Order);
-            Assert.AreEqual("Test case description", testCase.Description);         
-            Assert.AreEqual(testCaseEntity, testCase.TestCaseEntity);
-            Assert.AreEqual(testCase.Tags["color"], "red");
-            Assert.AreEqual("Script.csx", testCase.ScriptFile);
-            Assert.IsTrue(testCase.IsMuted);
+            Assert.That(testCase.DisplayName, Is.EqualTo("TestCase#1"));
+            Assert.That(testCase.Order, Is.EqualTo(1));
+            Assert.That(testCase.Description, Is.EqualTo("Test case description"));         
+            Assert.That(testCase.TestCaseEntity, Is.EqualTo(testCaseEntity));
+            Assert.That(testCase.Tags["color"], Is.EqualTo("red"));
+            Assert.That(testCase.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(testCase.IsMuted);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             TestCaseViewModel testCaseViewModel = new TestCaseViewModel(testCase);
             testCaseViewModel.SetTestDataSource(dataSourceId);
 
-            Assert.AreEqual(shouldBePossibleToEdit, testCaseViewModel.CanOpenForEdit);           
+            Assert.That(testCaseViewModel.CanOpenForEdit, Is.EqualTo(shouldBePossibleToEdit));           
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
 
             testCaseViewModel.UpdateVisibility(filterText);
 
-            Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);
+            Assert.That(testCaseViewModel.IsVisible, Is.EqualTo(shouldBeVisible));
             
         }
     }

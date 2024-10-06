@@ -14,32 +14,32 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatOutArgumentIsConfiguredIsFalseInDefaultMode()
         {
             var outArgument = new OutArgument<int>() { Mode = ArgumentMode.Default };
-            Assert.IsFalse(outArgument.IsConfigured());
+            Assert.That(outArgument.IsConfigured() == false);
         }
 
         [Test]
         public void ValidateThatOutArgumentCanBeInitializedInDataBoundMode()
         {
             var outArgument = new OutArgument<Person>() { PropertyPath = "Age" };
-            Assert.AreEqual(ArgumentMode.DataBound, outArgument.Mode);
-            Assert.AreEqual("Age", outArgument.PropertyPath);
-            Assert.AreEqual(typeof(Person), outArgument.GetArgumentType());
-            Assert.IsFalse(outArgument.CanChangeType);
-            Assert.IsTrue(outArgument.CanChangeMode);
-            Assert.IsTrue(outArgument.IsConfigured());
-            Assert.IsFalse(outArgument.AllowedModes.HasFlag(ArgumentMode.Default));
-            Assert.IsTrue(outArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
-            Assert.IsTrue(outArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.That(outArgument.Mode, Is.EqualTo(ArgumentMode.DataBound));
+            Assert.That(outArgument.PropertyPath, Is.EqualTo("Age"));
+            Assert.That(outArgument.GetArgumentType(), Is.EqualTo(typeof(Person)));
+            Assert.That(outArgument.CanChangeType == false);
+            Assert.That(outArgument.CanChangeMode);
+            Assert.That(outArgument.IsConfigured());
+            Assert.That(outArgument.AllowedModes.HasFlag(ArgumentMode.Default) == false);
+            Assert.That(outArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.That(outArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]
         public void ValidateThatOutArgumentCanBeInitializedInScriptedMode()
         {
             var outArgument = new OutArgument<int>() { Mode = ArgumentMode.Scripted, ScriptFile = "Script.csx" };
-            Assert.AreEqual(ArgumentMode.Scripted, outArgument.Mode);
-            Assert.AreEqual("Script.csx", outArgument.ScriptFile);
-            Assert.AreEqual(typeof(int), outArgument.GetArgumentType());
-            Assert.IsTrue(outArgument.IsConfigured());
+            Assert.That(outArgument.Mode, Is.EqualTo(ArgumentMode.Scripted));
+            Assert.That(outArgument.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(outArgument.GetArgumentType(), Is.EqualTo(typeof(int)));
+            Assert.That(outArgument.IsConfigured());
         }
 
 
@@ -49,11 +49,11 @@ namespace Pixel.Automation.Core.Tests.Arguments
             var outArgument = new OutArgument<Person>() { PropertyPath = "Age", ScriptFile = "ArgumentScript.csx" };           
             var clone = outArgument.Clone() as OutArgument<Person>;
 
-            Assert.AreEqual(outArgument.Mode, clone.Mode);
-            Assert.AreEqual(outArgument.PropertyPath, clone.PropertyPath);        
-            Assert.AreEqual(outArgument.GetArgumentType(), clone.GetArgumentType());
-            Assert.AreEqual(outArgument.ScriptFile, clone.ScriptFile);
-            Assert.AreEqual(outArgument.ArgumentType, clone.ArgumentType);
+            Assert.That(clone.Mode, Is.EqualTo(outArgument.Mode));
+            Assert.That(clone.PropertyPath, Is.EqualTo(outArgument.PropertyPath));        
+            Assert.That(clone.GetArgumentType(), Is.EqualTo(outArgument.GetArgumentType()));
+            Assert.That(clone.ScriptFile, Is.EqualTo(outArgument.ScriptFile));
+            Assert.That(clone.ArgumentType, Is.EqualTo(outArgument.ArgumentType));
         }
     }
 }

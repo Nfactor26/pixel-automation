@@ -18,11 +18,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
         {
             var tagCollectionViewModel = new TagCollectionViewModel();
 
-            Assert.AreEqual(0, tagCollectionViewModel.Tags.Count);
-            Assert.IsNull(tagCollectionViewModel.SelectedTag);
-            Assert.IsFalse(tagCollectionViewModel.HasErrors);
-            Assert.IsFalse(tagCollectionViewModel.CanEdit);
-            Assert.IsFalse(tagCollectionViewModel.CanDelete);
+            Assert.That(tagCollectionViewModel.Tags.Count, Is.EqualTo(0));
+            Assert.That(tagCollectionViewModel.SelectedTag is null);
+            Assert.That(tagCollectionViewModel.HasErrors == false);
+            Assert.That(tagCollectionViewModel.CanEdit == false);
+            Assert.That(tagCollectionViewModel.CanDelete == false);
         }
 
         /// <summary>
@@ -34,12 +34,12 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var tagCollectionViewModel = new TagCollectionViewModel();
             tagCollectionViewModel.AddNew();
 
-            Assert.AreEqual(1, tagCollectionViewModel.Tags.Count);
-            Assert.IsNotNull(tagCollectionViewModel.SelectedTag);
+            Assert.That(tagCollectionViewModel.Tags.Count, Is.EqualTo(1));
+            Assert.That(tagCollectionViewModel.SelectedTag is not null);
             //when a new tag is added, it is automatically put in edit mode.
             //Hence, TagCollectionViewModel will CanEdit = false
-            Assert.IsFalse(tagCollectionViewModel.CanEdit);
-            Assert.IsTrue(tagCollectionViewModel.CanDelete);
+            Assert.That(tagCollectionViewModel.CanEdit == false);
+            Assert.That(tagCollectionViewModel.CanDelete);
 
         }
 
@@ -54,11 +54,11 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tagCollectionViewModel.Add(tagViewModel);
             tagCollectionViewModel.SelectedTag = tagViewModel;
 
-            Assert.IsFalse(tagViewModel.IsEditing);
+            Assert.That(tagViewModel.IsEditing == false);
 
             tagCollectionViewModel.EditSelected();
 
-            Assert.IsTrue(tagViewModel.IsEditing);          
+            Assert.That(tagViewModel.IsEditing);          
         }
 
         /// <summary>
@@ -73,14 +73,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tagCollectionViewModel.SelectedTag = tagViewModel;
 
 
-            Assert.AreEqual(1, tagCollectionViewModel.Tags.Count);
-            Assert.IsFalse(tagViewModel.IsDeleted);
+            Assert.That(tagCollectionViewModel.Tags.Count, Is.EqualTo(1));
+            Assert.That(tagViewModel.IsDeleted == false);
 
             tagCollectionViewModel.DeleteSelected();
 
-            Assert.AreEqual(0, tagCollectionViewModel.Tags.Count);
-            Assert.IsTrue(tagViewModel.IsDeleted);
-            Assert.IsNull(tagCollectionViewModel.SelectedTag);
+            Assert.That(tagCollectionViewModel.Tags.Count, Is.EqualTo(0));
+            Assert.That(tagViewModel.IsDeleted);
+            Assert.That(tagCollectionViewModel.SelectedTag is null);
         }
 
         /// <summary>
@@ -98,13 +98,13 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             tagCollectionViewModel.Add(new TagViewModel(new Core.TestData.Tag() { Key = "tag1", Value = "" }));
 
             var isValid = tagCollectionViewModel.Validate(out List<string> validationErrors);
-            Assert.IsFalse(isValid);
+            Assert.That(isValid == false);
 
-            Assert.IsTrue(tagCollectionViewModel.HasErrors);
-            Assert.AreEqual(3, validationErrors.Count());
-            Assert.IsTrue(validationErrors.Contains("All tags must have a key and value."));
-            Assert.IsTrue(validationErrors.Contains("All tags open for edit must be saved."));
-            Assert.IsTrue(validationErrors.Contains("Tag keys must be unique"));
+            Assert.That(tagCollectionViewModel.HasErrors);
+            Assert.That(validationErrors.Count(), Is.EqualTo(3));
+            Assert.That(validationErrors.Contains("All tags must have a key and value."));
+            Assert.That(validationErrors.Contains("All tags open for edit must be saved."));
+            Assert.That(validationErrors.Contains("Tag keys must be unique"));
 
         }
     }

@@ -70,16 +70,16 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             (fileSystem as DummyFileSystem).Initialize(versionInfo);
 
-            Assert.AreEqual(versionInfo.ToString(), fileSystem.ActiveVersion.ToString());
-            Assert.AreEqual(workingdirectory, fileSystem.WorkingDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ScriptsDirectory), fileSystem.ScriptsDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.TemporaryDirectory), fileSystem.TempDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.DataModelDirectory), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ReferencesDirectory), fileSystem.ReferencesDirectory);           
-            Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.ReferencesDirectory));          
+            Assert.That(versionInfo.ToString(), Is.EqualTo(fileSystem.ActiveVersion.ToString()));
+            Assert.That(workingdirectory, Is.EqualTo(fileSystem.WorkingDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.ScriptsDirectory), Is.EqualTo(fileSystem.ScriptsDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.TemporaryDirectory), Is.EqualTo(fileSystem.TempDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.DataModelDirectory), Is.EqualTo(fileSystem.DataModelDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.ReferencesDirectory), Is.EqualTo(fileSystem.ReferencesDirectory));           
+            Assert.That(Directory.Exists(fileSystem.WorkingDirectory));
+            Assert.That(Directory.Exists(fileSystem.ScriptsDirectory));
+            Assert.That(Directory.Exists(fileSystem.DataModelDirectory));
+            Assert.That(Directory.Exists(fileSystem.ReferencesDirectory));          
         }
 
         [Test]
@@ -93,16 +93,16 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             fileSystem.SwitchToVersion(versionInfo);
 
 
-            Assert.AreEqual(versionInfo.ToString(), fileSystem.ActiveVersion.ToString());
-            Assert.AreEqual(workingdirectory, fileSystem.WorkingDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ScriptsDirectory), fileSystem.ScriptsDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.TemporaryDirectory), fileSystem.TempDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.DataModelDirectory), fileSystem.DataModelDirectory);
-            Assert.AreEqual(Path.Combine(workingdirectory, Constants.ReferencesDirectory), fileSystem.ReferencesDirectory);          
-            Assert.IsTrue(Directory.Exists(fileSystem.WorkingDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.ScriptsDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.DataModelDirectory));
-            Assert.IsTrue(Directory.Exists(fileSystem.ReferencesDirectory));
+            Assert.That(versionInfo.ToString(), Is.EqualTo(fileSystem.ActiveVersion.ToString()));
+            Assert.That(workingdirectory, Is.EqualTo(fileSystem.WorkingDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.ScriptsDirectory), Is.EqualTo(fileSystem.ScriptsDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.TemporaryDirectory), Is.EqualTo(fileSystem.TempDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.DataModelDirectory), Is.EqualTo(fileSystem.DataModelDirectory));
+            Assert.That(Path.Combine(workingdirectory, Constants.ReferencesDirectory), Is.EqualTo(fileSystem.ReferencesDirectory));          
+            Assert.That(Directory.Exists(fileSystem.WorkingDirectory));
+            Assert.That(Directory.Exists(fileSystem.ScriptsDirectory));
+            Assert.That(Directory.Exists(fileSystem.DataModelDirectory));
+            Assert.That(Directory.Exists(fileSystem.ReferencesDirectory));
         } 
 
     
@@ -112,7 +112,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             serializer.Deserialize<Person>(Arg.Any<string>(), Arg.Any<List<Type>>()).Returns(new Person() { Name = "Luffy" });
             var person = fileSystem.LoadFile<Person>("Any valid file path containing serializer person data");
-            Assert.AreEqual("Luffy", person.Name);
+            Assert.That("Luffy", Is.EqualTo(person.Name));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             var persons = fileSystem.LoadFiles<Person>(saveToLocation);
             
-            Assert.AreEqual(2, persons.Count());
+            Assert.That(2, Is.EqualTo(persons.Count()));
             serializer.Received(2).Deserialize<Person>(Arg.Any<string>(), Arg.Any<List<Type>>());
         }
 
@@ -160,13 +160,13 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             string saveToLocation = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, fileSystemIdentifer, Guid.NewGuid().ToString());
             Directory.CreateDirectory(saveToLocation);
             fileSystem.CreateOrReplaceFile(saveToLocation, "1.txt", "Hello World!!");          
-            Assert.IsTrue(File.Exists(Path.Combine(saveToLocation, "1.txt")));
-            Assert.AreEqual("Hello World!!", File.ReadAllText(Path.Combine(saveToLocation, "1.txt")));
+            Assert.That(File.Exists(Path.Combine(saveToLocation, "1.txt")));
+            Assert.That("Hello World!!", Is.EqualTo(File.ReadAllText(Path.Combine(saveToLocation, "1.txt"))));
 
             //This time existing file should be deleted first and then file should be created with new content
             fileSystem.CreateOrReplaceFile(saveToLocation, "1.txt", "Hello Again!!");
-            Assert.IsTrue(File.Exists(Path.Combine(saveToLocation, "1.txt")));
-            Assert.AreEqual("Hello Again!!", File.ReadAllText(Path.Combine(saveToLocation, "1.txt")));
+            Assert.That(File.Exists(Path.Combine(saveToLocation, "1.txt")));
+            Assert.That("Hello Again!!", Is.EqualTo(File.ReadAllText(Path.Combine(saveToLocation, "1.txt"))));
 
         }
 
@@ -176,7 +176,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         {
             var absolutePath = Path.Combine(fileSystem.WorkingDirectory, "A", "B");
             var relativePath = fileSystem.GetRelativePath(absolutePath);
-            Assert.AreEqual("A\\B", relativePath);
+            Assert.That("A\\B", Is.EqualTo(relativePath));
         }
     }
 }

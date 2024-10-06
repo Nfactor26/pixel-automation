@@ -140,7 +140,7 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
                 EntityManager = entityManager               
             };
                        
-            Assert.AreEqual(expectedResult, deviceInputActor.IsKeySequenceValid(keySequence));
+            Assert.That(deviceInputActor.IsKeySequenceValid(keySequence), Is.EqualTo(expectedResult));
             syntheticKeyboard.Received(1).GetSynthethicKeyCodes(Arg.Is<string>(keySequence));
 
         }

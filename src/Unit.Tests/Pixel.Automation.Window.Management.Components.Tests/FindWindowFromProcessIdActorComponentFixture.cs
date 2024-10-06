@@ -16,9 +16,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new FindWindowFromProcessIdActorComponent();
 
-            Assert.IsNotNull(actor.ProcessId);
-            Assert.IsFalse(actor.ProcessId.CanChangeType);
-            Assert.IsNotNull(actor.FoundWindow);
+            Assert.That(actor.ProcessId is not null);
+            Assert.That(actor.ProcessId.CanChangeType == false);
+            Assert.That(actor.FoundWindow is not null);
 
         }
 

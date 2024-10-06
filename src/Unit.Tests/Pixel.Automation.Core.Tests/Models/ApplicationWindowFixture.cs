@@ -11,11 +11,11 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatApplicationWindowCanBeInitialized()
         {
             var applicationWindow = new ApplicationWindow(0, IntPtr.Zero, "WindowTitle", BoundingBox.Empty, false);
-            Assert.AreEqual(0, applicationWindow.ProcessId);
-            Assert.AreEqual(IntPtr.Zero, applicationWindow.HWnd);
-            Assert.AreEqual("WindowTitle", applicationWindow.WindowTitle);
-            Assert.AreEqual(BoundingBox.Empty, applicationWindow.WindowBounds);
-            Assert.AreEqual(false, applicationWindow.IsVisible);
+            Assert.That(0, Is.EqualTo(applicationWindow.ProcessId));
+            Assert.That(IntPtr.Zero, Is.EqualTo(applicationWindow.HWnd));
+            Assert.That("WindowTitle", Is.EqualTo(applicationWindow.WindowTitle));
+            Assert.That(BoundingBox.Empty, Is.EqualTo(applicationWindow.WindowBounds));
+            Assert.That(false, Is.EqualTo(applicationWindow.IsVisible));
 
             applicationWindow.ProcessId = 1;
             applicationWindow.HWnd = new IntPtr(1);
@@ -23,11 +23,11 @@ namespace Pixel.Automation.Core.Tests.Models
             applicationWindow.WindowBounds = new BoundingBox(0, 0, 600, 800);
             applicationWindow.IsVisible = true;
 
-            Assert.AreEqual(1, applicationWindow.ProcessId);
-            Assert.AreEqual(new IntPtr(1), applicationWindow.HWnd);
-            Assert.AreEqual("NewWindowTitle", applicationWindow.WindowTitle);
-            Assert.AreEqual(new BoundingBox(0, 0, 600, 800), applicationWindow.WindowBounds);
-            Assert.AreEqual(true, applicationWindow.IsVisible);
+            Assert.That(1, Is.EqualTo(applicationWindow.ProcessId));
+            Assert.That(new IntPtr(1), Is.EqualTo(applicationWindow.HWnd));
+            Assert.That("NewWindowTitle", Is.EqualTo(applicationWindow.WindowTitle));
+            Assert.That(new BoundingBox(0, 0, 600, 800), Is.EqualTo(applicationWindow.WindowBounds));
+            Assert.That(true, Is.EqualTo(applicationWindow.IsVisible));
 
 
         }

@@ -10,9 +10,9 @@ namespace Pixel.Automation.Core.Tests.Models
         {
             var scriptResult = new ScriptResult(new object(), new object());
             
-            Assert.IsNotNull(scriptResult.CurrentState);
-            Assert.IsNotNull(scriptResult.ReturnValue);
-            Assert.IsTrue(scriptResult.IsCompleteSubmission);
+            Assert.That(scriptResult.CurrentState is not null);
+            Assert.That(scriptResult.ReturnValue is not null);
+            Assert.That(scriptResult.IsCompleteSubmission);
         }
     }
 }

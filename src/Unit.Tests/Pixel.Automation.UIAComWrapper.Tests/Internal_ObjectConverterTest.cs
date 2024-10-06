@@ -58,8 +58,8 @@ public class ObjectConverterTest
             {
                 output = Utility.WrapObjectAsProperty(mapping.property, mapping.input);
             }
-            Assert.IsTrue(output == null || info == null || output.GetType() == info.Type);
-            Assert.AreEqual(output, mapping.expected);
+            Assert.That(output == null || info == null || output.GetType() == info.Type);
+            Assert.That(mapping.expected, Is.EqualTo(output));
         }
     }
 }

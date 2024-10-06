@@ -52,19 +52,19 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         {
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, dataSource, Enumerable.Empty<string>(), typeBrowser);
 
-            Assert.IsFalse(testDataSourceViewModel.IsInEditMode);
-            Assert.IsTrue(testDataSourceViewModel.CanSelectTestDataType);
-            Assert.IsNotNull(testDataSourceViewModel.TestDataSource);
-            Assert.IsTrue(!string.IsNullOrEmpty(testDataSourceViewModel.ScriptFile));
-            Assert.AreEqual(dataSource, testDataSourceViewModel.DataSource);
-            Assert.IsNotNull(testDataSourceViewModel.MetaData);
+            Assert.That(testDataSourceViewModel.IsInEditMode == false);
+            Assert.That(testDataSourceViewModel.CanSelectTestDataType);
+            Assert.That(testDataSourceViewModel.TestDataSource is not null);
+            Assert.That(!string.IsNullOrEmpty(testDataSourceViewModel.ScriptFile));
+            Assert.That(testDataSourceViewModel.DataSource, Is.EqualTo(dataSource));
+            Assert.That(testDataSourceViewModel.MetaData is not null);
             switch (dataSource)
             {
                 case DataSource.Code:
-                    Assert.IsTrue(testDataSourceViewModel.MetaData.GetType().Equals(typeof(DataSourceConfiguration)));
+                    Assert.That(testDataSourceViewModel.MetaData.GetType().Equals(typeof(DataSourceConfiguration)));
                     break;
                 case DataSource.CsvFile:
-                    Assert.IsTrue(testDataSourceViewModel.MetaData.GetType().Equals(typeof(CsvDataSourceConfiguration)));
+                    Assert.That(testDataSourceViewModel.MetaData.GetType().Equals(typeof(CsvDataSourceConfiguration)));
                     break;
             }    
         }
@@ -84,9 +84,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             };
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, codeDataSource);
 
-            Assert.IsTrue(testDataSourceViewModel.IsInEditMode);
-            Assert.IsFalse(testDataSourceViewModel.CanSelectTestDataType);
-            Assert.AreSame(codeDataSource, testDataSourceViewModel.TestDataSource);           
+            Assert.That(testDataSourceViewModel.IsInEditMode);
+            Assert.That(testDataSourceViewModel.CanSelectTestDataType == false);
+            Assert.That(testDataSourceViewModel.TestDataSource, Is.SameAs(codeDataSource));           
         }
 
         [Test]       
@@ -101,8 +101,8 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
 
             //Assert
             var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
-            Assert.AreEqual(typeof(EmptyModel), result.DataSourceType);
-            Assert.AreEqual(nameof(EmptyModel), testDataSourceViewModel.TestDataType);
+            Assert.That(result.DataSourceType, Is.EqualTo(typeof(EmptyModel)));
+            Assert.That(testDataSourceViewModel.TestDataType, Is.EqualTo(nameof(EmptyModel)));
         
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<IArgumentTypeBrowser>());
             typeBrowser.Received(1).GetCreatedType();           
@@ -120,9 +120,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var result = testDataSourceViewModel.GetProcessedResult() as TestDataSourceResult;
 
             //Assert          
-            Assert.IsTrue(couldProcessStage);
-            Assert.AreSame(testDataSourceViewModel.TestDataSource, result.TestDataSource);
-            Assert.AreEqual(typeof(EmptyModel), result.DataSourceType);
+            Assert.That(couldProcessStage);
+            Assert.That(result.TestDataSource, Is.SameAs(testDataSourceViewModel.TestDataSource));
+            Assert.That(result.DataSourceType, Is.EqualTo(typeof(EmptyModel)));
         }
 
         [TestCase(DataSource.Code, "EmptyDataSource", "Empty", "", "", true)]
@@ -147,7 +147,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             bool result = testDataSourceViewModel.Validate();
 
             //Assert
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
     }
 }

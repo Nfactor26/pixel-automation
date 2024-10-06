@@ -106,12 +106,12 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
             };
 
             //MoveTo is already initialized with a screen coordinate
-            Assert.AreEqual(true, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(true));
 
             //We are initializing MoveTo again but leaivng out the default value of screen coordinate.
             //Default instance of ScreenCoordinate is automatically created as the default value
             mouseClickActor.ClickAt = new InArgument<ScreenCoordinate>();
-            Assert.AreEqual(true, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(true));
         }
 
         [Test]
@@ -124,11 +124,11 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
             {
                 Target = Target.Control
             };
-            Assert.AreEqual(false, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(false));
 
             //set the property path to correctly configure TargetControl in data bound mode
             mouseClickActor.TargetControl.PropertyPath = "VariablePointingToUIControl";
-            Assert.AreEqual(true, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(true));
         }
 
         [Test]
@@ -146,11 +146,11 @@ namespace Pixel.Automation.Input.Devices.Components.Tests
                 EntityManager = entityManager,
                 Target = Target.Control
             };
-            Assert.AreEqual(false, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(false));
 
             //Now we add the control entity
             mouseClickActor.Parent = controlEntity;
-            Assert.AreEqual(true, mouseClickActor.ValidateComponent());
+            Assert.That(mouseClickActor.ValidateComponent(), Is.EqualTo(true));
 
         }
     }

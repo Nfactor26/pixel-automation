@@ -36,14 +36,14 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
                 ApplicationType = "WinApplication"
             };
 
-            Assert.IsNotNull(applicationDescriptionViewModel.Model);
-            Assert.IsNotNull(applicationDescriptionViewModel.ApplicationDetails);
-            Assert.AreEqual(applicationDescription.ApplicationId, applicationDescriptionViewModel.ApplicationId);
-            Assert.AreEqual(applicationDescription.ApplicationName, applicationDescriptionViewModel.ApplicationName);
-            Assert.AreEqual("WinApplication", applicationDescriptionViewModel.ApplicationType);
-            Assert.AreEqual(0, applicationDescriptionViewModel.Screens.Count);           
-            Assert.AreEqual(0, applicationDescriptionViewModel.ControlsCollection.Count);
-            Assert.AreEqual(0, applicationDescriptionViewModel.PrefabsCollection.Count);
+            Assert.That(applicationDescriptionViewModel.Model is not null);
+            Assert.That(applicationDescriptionViewModel.ApplicationDetails is not null);
+            Assert.That(applicationDescriptionViewModel.ApplicationId, Is.EqualTo(applicationDescription.ApplicationId));
+            Assert.That(applicationDescriptionViewModel.ApplicationName, Is.EqualTo(applicationDescription.ApplicationName));
+            Assert.That(applicationDescriptionViewModel.ApplicationType, Is.EqualTo("WinApplication"));
+            Assert.That(applicationDescriptionViewModel.Screens.Count, Is.EqualTo(0));           
+            Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(0));
+            Assert.That(applicationDescriptionViewModel.PrefabsCollection.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -59,17 +59,17 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var control = new Control.ControlDescriptionViewModel(new ControlDescription());
             applicationDescriptionViewModel.AddControl(control, "Home");
                     
-            Assert.AreEqual(1, applicationDescriptionViewModel["Home"].AvailableControls.Count);           
-            Assert.AreEqual(1, applicationDescriptionViewModel.ControlsCollection.Count);
-            Assert.AreEqual(1, applicationDescriptionViewModel.ScreenCollection.Screens.Count());
+            Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(1));           
+            Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(1));
+            Assert.That(applicationDescriptionViewModel.ScreenCollection.Screens.Count(), Is.EqualTo(1));
 
             applicationDescriptionViewModel.DeleteControl(control, "Home");
 
-            Assert.AreEqual(0, applicationDescriptionViewModel["Home"].AvailableControls.Count);
-            Assert.AreEqual(0, applicationDescriptionViewModel.ControlsCollection.Count);
+            Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(0));
+            Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(0));
 
             applicationDescriptionViewModel.DeleteScreen("Home");
-            Assert.AreEqual(0, applicationDescriptionViewModel.ScreenCollection.Screens.Count());
+            Assert.That(applicationDescriptionViewModel.ScreenCollection.Screens.Count(), Is.EqualTo(0));
 
         }
 
@@ -87,13 +87,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
             var prefabViewModel = new PrefabProjectViewModel(prefab);
             applicationDescriptionViewModel.AddPrefab(prefabViewModel, "Home");
          
-            Assert.AreEqual(1, applicationDescriptionViewModel["Home"].AvailablePrefabs.Count);
-            Assert.AreEqual(1, applicationDescriptionViewModel.PrefabsCollection.Count);
+            Assert.That(applicationDescriptionViewModel["Home"].AvailablePrefabs.Count, Is.EqualTo(1));
+            Assert.That(applicationDescriptionViewModel.PrefabsCollection.Count, Is.EqualTo(1));
 
             applicationDescriptionViewModel.DeletePrefab(prefabViewModel, "Home");
       
-            Assert.AreEqual(0, applicationDescriptionViewModel["Home"].AvailablePrefabs.Count);
-            Assert.AreEqual(0, applicationDescriptionViewModel.PrefabsCollection.Count);
+            Assert.That(applicationDescriptionViewModel["Home"].AvailablePrefabs.Count, Is.EqualTo(0));
+            Assert.That(applicationDescriptionViewModel.PrefabsCollection.Count, Is.EqualTo(0));
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Pixel.Automation.Core.Tests.Models
             var controlImage = new byte[10];
             var scapedControl = new ScrapedControl() { ControlData = controlIdentity, ControlImage = controlImage };
 
-            Assert.AreSame(controlIdentity, scapedControl.ControlData);
-            Assert.AreSame(controlImage, scapedControl.ControlImage);
+            Assert.That(controlIdentity, Is.SameAs(scapedControl.ControlData));
+            Assert.That(controlImage, Is.SameAs(scapedControl.ControlImage));
         }
 
     }

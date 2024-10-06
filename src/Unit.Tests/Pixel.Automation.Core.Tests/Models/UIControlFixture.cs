@@ -68,7 +68,7 @@ namespace Pixel.Automation.Core.Tests.Models
             var uiControl = new DummyUIControl(underlyingControl);
 
             var apiControl = uiControl.GetApiControl<IDummyControl>();
-            Assert.AreSame(underlyingControl, apiControl);
+            Assert.That(underlyingControl, Is.SameAs(apiControl));
         }
 
         [Test]

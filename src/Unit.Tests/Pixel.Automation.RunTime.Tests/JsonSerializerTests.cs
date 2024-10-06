@@ -32,14 +32,14 @@ namespace Pixel.Automation.Core.RunTime.Tests
 
             serializer.Serialize<Person>("Person.json", person);
 
-            Assert.IsTrue(File.Exists("Person.json"));
+            Assert.That(File.Exists("Person.json"));
 
             var result = serializer.Deserialize<Person>("Person.json");
 
-            Assert.IsNotNull(result);
+            Assert.That(result is not null);
 
-            Assert.AreEqual(person, result);
-            Assert.AreEqual(1, result.Friends.Count);
+            Assert.That(result, Is.EqualTo(person));
+            Assert.That(result.Friends.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -53,9 +53,9 @@ namespace Pixel.Automation.Core.RunTime.Tests
             jsonString.AppendLine("}");
 
             var person = serializer.DeserializeContent<Person>(jsonString.ToString());
-            Assert.IsNotNull(person);
-            Assert.AreEqual("Sasuke Uchiha", person.Name);
-            Assert.AreEqual(26, person.Age);
+            Assert.That(person is not null);
+            Assert.That(person.Name, Is.EqualTo("Sasuke Uchiha"));
+            Assert.That(person.Age, Is.EqualTo(26));
         }
     }
 }

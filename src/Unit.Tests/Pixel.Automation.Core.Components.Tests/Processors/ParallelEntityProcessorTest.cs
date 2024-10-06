@@ -31,7 +31,7 @@ namespace Pixel.Automation.Core.Components.Tests
             processor.ResolveDependencies();
 
 
-            Assert.AreEqual(2, processor.Components.Count);
+            Assert.That(processor.Components.Count, Is.EqualTo(2));
 
             var parallelBlockOne = processor.Components[0] as Entity;
             parallelBlockOne.AddComponent(entityOne);
@@ -71,7 +71,7 @@ namespace Pixel.Automation.Core.Components.Tests
             processor.EntityManager = entityManager;
             processor.ResolveDependencies();
             
-            Assert.AreEqual(2, processor.Components.Count);
+            Assert.That(processor.Components.Count, Is.EqualTo(2));
 
             var parallelBlockOne = processor.Components[0] as Entity;
             parallelBlockOne.AddComponent(entityOne);
@@ -88,10 +88,10 @@ namespace Pixel.Automation.Core.Components.Tests
         public void AssertThatComponentsCanNotBeAddedToParallelProcessor()
         {
             ParallelEntityProcessor processor = new ParallelEntityProcessor();
-            Assert.AreEqual(0, processor.Components.Count, "There should be no components in a ParallelEntityProcessor by default");
+            Assert.That(processor.Components.Count, Is.EqualTo(0), "There should be no components in a ParallelEntityProcessor by default");
 
             processor.AddComponent(new Entity());
-            Assert.AreEqual(0, processor.Components.Count, "ParallelEntityProcessor should not allow components to be added externally");
+            Assert.That(processor.Components.Count, Is.EqualTo(0), "ParallelEntityProcessor should not allow components to be added externally");
         }
     }
 }

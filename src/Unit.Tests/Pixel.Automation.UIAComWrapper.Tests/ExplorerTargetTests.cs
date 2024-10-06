@@ -35,20 +35,20 @@ public class ExplorerTargetTests
     {
         AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
             new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-        Assert.IsNotNull(itemsView);
+        Assert.That(itemsView is not null);
 
         // Try out the Grid Pattern
         GridPattern grid = (GridPattern)itemsView.GetCurrentPattern(GridPattern.Pattern);
-        Assert.IsTrue(grid.Current.ColumnCount > 0);
-        Assert.IsTrue(grid.Current.RowCount > 0);
+        Assert.That(grid.Current.ColumnCount > 0);
+        Assert.That(grid.Current.RowCount > 0);
 
         // GridItem
         AutomationElement gridItemElement = grid.GetItem(0, 0);
-        Assert.IsNotNull(gridItemElement);
+        Assert.That(gridItemElement is not null);
         GridItemPattern gridItem = (GridItemPattern)gridItemElement.GetCurrentPattern(GridItemPattern.Pattern);
-        Assert.AreEqual(gridItem.Current.Row, 0);
-        Assert.AreEqual(gridItem.Current.Column, 0);
-        Assert.AreEqual(gridItem.Current.ContainingGrid, itemsView);
+        Assert.That(gridItem.Current.Row, Is.EqualTo(0));
+        Assert.That(gridItem.Current.Column, Is.EqualTo(0));
+        Assert.That(itemsView, Is.EqualTo(gridItem.Current.ContainingGrid));
     }
 
     public void GridPatternCachedTest()
@@ -66,20 +66,20 @@ public class ExplorerTargetTests
         {
             AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-            Assert.IsNotNull(itemsView);
+            Assert.That(itemsView is not null);
 
             // Try out the Grid Pattern
             GridPattern grid = (GridPattern)itemsView.GetCachedPattern(GridPattern.Pattern);
-            Assert.IsTrue(grid.Cached.ColumnCount > 0);
-            Assert.IsTrue(grid.Cached.RowCount > 0);
+            Assert.That(grid.Cached.ColumnCount > 0);
+            Assert.That(grid.Cached.RowCount > 0);
 
             // GridItem
             AutomationElement gridItemElement = grid.GetItem(0, 0);
-            Assert.IsNotNull(gridItemElement);
+            Assert.That(gridItemElement is not null);
             GridItemPattern gridItem = (GridItemPattern)gridItemElement.GetCachedPattern(GridItemPattern.Pattern);
-            Assert.AreEqual(gridItem.Cached.Row, 0);
-            Assert.AreEqual(gridItem.Cached.Column, 0);
-            Assert.AreEqual(gridItem.Cached.ContainingGrid, itemsView);
+            Assert.That(gridItem.Cached.Row, Is.EqualTo(0));
+            Assert.That(gridItem.Cached.Column, Is.EqualTo(0));
+            Assert.That(gridItem.Cached.ContainingGrid, Is.EqualTo(itemsView));
         }
     }
 
@@ -95,11 +95,11 @@ public class ExplorerTargetTests
         {
             AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-            Assert.IsNotNull(itemsView);
+            Assert.That(itemsView is not null);
 
             MultipleViewPattern multiView = (MultipleViewPattern)itemsView.GetCachedPattern(MultipleViewPattern.Pattern);
             int[] supportedViews = multiView.Cached.GetSupportedViews();
-            Assert.IsNotNull(supportedViews.Length > 0);
+            Assert.That(supportedViews.Length > 0);
             bool inSupportedViews = false;
             foreach (int view in supportedViews)
             {
@@ -109,9 +109,9 @@ public class ExplorerTargetTests
                     break;
                 }
                 string viewName = multiView.GetViewName(view);
-                Assert.IsTrue(viewName.Length > 0);
+                Assert.That(viewName.Length > 0);
             }
-            Assert.IsTrue(inSupportedViews);
+            Assert.That(inSupportedViews);
         }
     }
 
@@ -120,11 +120,11 @@ public class ExplorerTargetTests
     {
         AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
             new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-        Assert.IsNotNull(itemsView);
+        Assert.That(itemsView is not null);
 
         MultipleViewPattern multiView = (MultipleViewPattern)itemsView.GetCurrentPattern(MultipleViewPattern.Pattern);
         int[] supportedViews = multiView.Current.GetSupportedViews();
-        Assert.IsNotNull(supportedViews.Length > 0);
+        Assert.That(supportedViews.Length > 0);
         bool inSupportedViews = false;
         foreach (int view in supportedViews)
         {
@@ -134,9 +134,9 @@ public class ExplorerTargetTests
                 break;
             }
             string viewName = multiView.GetViewName(view);
-            Assert.IsTrue(viewName.Length > 0);
+            Assert.That(viewName.Length > 0);
         }
-        Assert.IsTrue(inSupportedViews);
+        Assert.That(inSupportedViews);
     }
 
     [Test]
@@ -144,22 +144,22 @@ public class ExplorerTargetTests
     {
         AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
             new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-        Assert.IsNotNull(itemsView);
+        Assert.That(itemsView is not null);
 
         // TablePattern test
         TablePattern table = (TablePattern)itemsView.GetCurrentPattern(TablePattern.Pattern);
-        Assert.IsTrue(table.Current.ColumnCount > 0);
-        Assert.IsTrue(table.Current.RowCount > 0);
-        Assert.IsTrue(table.Current.GetRowHeaders().Length == 0);
-        Assert.IsTrue(table.Current.GetColumnHeaders().Length > 0);
+        Assert.That(table.Current.ColumnCount > 0);
+        Assert.That(table.Current.RowCount > 0);
+        Assert.That(table.Current.GetRowHeaders().Length == 0);
+        Assert.That(table.Current.GetColumnHeaders().Length > 0);
 
         AutomationElement tableItemElement = table.GetItem(0, 0);
         TableItemPattern tableItem = (TableItemPattern)tableItemElement.GetCurrentPattern(TableItemPattern.Pattern);
-        Assert.AreEqual(tableItem.Current.Row, 0);
-        Assert.AreEqual(tableItem.Current.Column, 0);
-        Assert.AreEqual(tableItem.Current.ContainingGrid, itemsView);
-        Assert.IsTrue(tableItem.Current.GetColumnHeaderItems().Length == 1);
-        Assert.IsTrue(tableItem.Current.GetRowHeaderItems().Length == 0);
+        Assert.That(tableItem.Current.Row, Is.EqualTo(0));
+        Assert.That(tableItem.Current.Column, Is.EqualTo(0));
+        Assert.That(tableItem.Current.ContainingGrid, Is.EqualTo(itemsView));
+        Assert.That(tableItem.Current.GetColumnHeaderItems().Length == 1);
+        Assert.That(tableItem.Current.GetRowHeaderItems().Length == 0);
     }
 
     [Test]
@@ -183,22 +183,22 @@ public class ExplorerTargetTests
         {
             AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
                 new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-            Assert.IsNotNull(itemsView);
+            Assert.That(itemsView is not null);
 
             // TablePattern test
             TablePattern table = (TablePattern)itemsView.GetCachedPattern(TablePattern.Pattern);
-            Assert.IsTrue(table.Cached.ColumnCount > 0);
-            Assert.IsTrue(table.Cached.RowCount > 0);
-            Assert.IsTrue(table.Cached.GetRowHeaders().Length == 0);
-            Assert.IsTrue(table.Cached.GetColumnHeaders().Length > 0);
+            Assert.That(table.Cached.ColumnCount > 0);
+            Assert.That(table.Cached.RowCount > 0);
+            Assert.That(table.Cached.GetRowHeaders().Length == 0);
+            Assert.That(table.Cached.GetColumnHeaders().Length > 0);
 
             AutomationElement tableItemElement = table.GetItem(0, 0);
             TableItemPattern tableItem = (TableItemPattern)tableItemElement.GetCachedPattern(TableItemPattern.Pattern);
-            Assert.AreEqual(tableItem.Cached.Row, 0);
-            Assert.AreEqual(tableItem.Cached.Column, 0);
-            Assert.AreEqual(tableItem.Cached.ContainingGrid, itemsView);
-            Assert.IsTrue(tableItem.Cached.GetColumnHeaderItems().Length == 1);
-            Assert.IsTrue(tableItem.Cached.GetRowHeaderItems().Length == 0);
+            Assert.That(tableItem.Cached.Row, Is.EqualTo(0));
+            Assert.That(tableItem.Cached.Column, Is.EqualTo(0));
+            Assert.That(itemsView, Is.EqualTo(tableItem.Cached.ContainingGrid));
+            Assert.That(tableItem.Cached.GetColumnHeaderItems().Length == 1);
+            Assert.That(tableItem.Cached.GetRowHeaderItems().Length == 0);
         }
     }
 
@@ -211,11 +211,11 @@ public class ExplorerTargetTests
         iter = walker.GetFirstChild(iter);
         iter = walker.GetNextSibling(iter);
         iter = walker.GetParent(iter);
-        Assert.AreEqual(startingElement, iter);
+        Assert.That(iter, Is.EqualTo(startingElement));
         iter = walker.GetLastChild(iter);
         iter = walker.GetPreviousSibling(iter);
         iter = walker.GetParent(iter);
-        Assert.AreEqual(startingElement, iter);
+        Assert.That(iter, Is.EqualTo(startingElement));
     }
 
     [Test]
@@ -224,29 +224,29 @@ public class ExplorerTargetTests
     {
         AutomationElement itemsView = ExplorerTargetTests.explorerHost.Element.FindFirst(TreeScope.Subtree,
             new PropertyCondition(AutomationElement.ClassNameProperty, "UIItemsView"));
-        Assert.IsNotNull(itemsView);
+        Assert.That(itemsView is not null);
 
         // Get the container
-        Assert.IsTrue((bool)itemsView.GetCurrentPropertyValue(AutomationElement.IsItemContainerPatternAvailableProperty));
+        Assert.That((bool)itemsView.GetCurrentPropertyValue(AutomationElement.IsItemContainerPatternAvailableProperty));
         ItemContainerPattern container = (ItemContainerPattern)itemsView.GetCurrentPattern(ItemContainerPattern.Pattern);
         
         // Look for something we know is there and is probably below the fold
         AutomationElement item1 = container.FindItemByProperty(null, AutomationElement.NameProperty, "winver");
-        Assert.IsNotNull(item1);
+        Assert.That(item1 is not null);
 
         // Let's get another one
         AutomationElement item2 = container.FindItemByProperty(item1, AutomationElement.NameProperty, "xcopy");
-        Assert.IsNotNull(item2);
+        Assert.That(item2 is not null);
 
         // Check the bounding rect -- should be empty
         System.Windows.Rect rect1 = item2.Current.BoundingRectangle;
-        Assert.AreEqual(0, rect1.Width);
-        Assert.AreEqual(0, rect1.Height);
+        Assert.That(rect1.Width, Is.EqualTo(0));
+        Assert.That(rect1.Height, Is.EqualTo(0));
 
         // Get the virtualized pattern
-        Assert.IsTrue((bool)item2.GetCurrentPropertyValue(AutomationElement.IsVirtualizedItemPatternAvailableProperty));
+        Assert.That((bool)item2.GetCurrentPropertyValue(AutomationElement.IsVirtualizedItemPatternAvailableProperty));
         VirtualizedItemPattern virtItem2 = (VirtualizedItemPattern)item2.GetCurrentPattern(VirtualizedItemPattern.Pattern);
-        Assert.IsNotNull(item2);
+        Assert.That(item2 is not null);
 
         // Realize the item and give the window a moment to scroll
         virtItem2.Realize();
@@ -254,8 +254,8 @@ public class ExplorerTargetTests
 
         // Check the bounding rect now - should not be empty
         System.Windows.Rect rect2 = item2.Current.BoundingRectangle;
-        Assert.AreNotEqual(0, rect2.Width);
-        Assert.AreNotEqual(0, rect2.Height);
+        Assert.That(rect2.Width, Is.Not.EqualTo(0));
+        Assert.That(rect2.Height, Is.Not.EqualTo(0));
 
 
     }

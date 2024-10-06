@@ -15,15 +15,15 @@ namespace Pixel.Automation.Core.Tests.Models
             var prefabRoot = Substitute.For<IComponent>();
             var prefabProject = new PrefabProject(prefabRoot);
 
-            Assert.AreEqual(null, prefabProject.ApplicationId);
-            Assert.IsNotNull(prefabProject.ProjectId);
-            Assert.AreEqual(null, prefabProject.Name);
-            Assert.AreEqual(null, prefabProject.Namespace);
-            Assert.NotNull(prefabProject.AvailableVersions);
-            Assert.NotNull(prefabProject.PublishedVersions);
-            Assert.IsNull(prefabProject.LatestActiveVersion);
-            Assert.AreEqual(null, prefabProject.Description);
-            Assert.AreEqual("Default", prefabProject.GroupName);
+            Assert.That(prefabProject.ApplicationId, Is.EqualTo(null));
+            Assert.That(prefabProject.ProjectId is not null);
+            Assert.That(prefabProject.Name, Is.EqualTo(null));
+            Assert.That(prefabProject.Namespace, Is.EqualTo(null));
+            Assert.That(prefabProject.AvailableVersions is not null);
+            Assert.That(prefabProject.PublishedVersions is not null);
+            Assert.That(prefabProject.LatestActiveVersion is null);
+            Assert.That(prefabProject.Description, Is.EqualTo(null));
+            Assert.That(prefabProject.GroupName, Is.EqualTo("Default"));
 
 
             prefabProject.ApplicationId = "ApplicationId";
@@ -36,15 +36,15 @@ namespace Pixel.Automation.Core.Tests.Models
             prefabProject.GroupName = "GroupName";
 
 
-            Assert.AreEqual("ApplicationId", prefabProject.ApplicationId);
-            Assert.AreEqual("PrefabId", prefabProject.ProjectId);
-            Assert.AreEqual("PrefabName", prefabProject.Name);
-            Assert.AreEqual($"{Constants.PrefabNameSpacePrefix}.PrefabName", prefabProject.Namespace);
-            Assert.AreEqual(2, prefabProject.AvailableVersions.Count());
-            Assert.AreEqual(1, prefabProject.PublishedVersions.Count());
-            Assert.NotNull(prefabProject.LatestActiveVersion);
-            Assert.AreEqual("Description", prefabProject.Description);
-            Assert.AreEqual("GroupName", prefabProject.GroupName);
+            Assert.That(prefabProject.ApplicationId, Is.EqualTo("ApplicationId"));
+            Assert.That(prefabProject.ProjectId, Is.EqualTo("PrefabId"));
+            Assert.That(prefabProject.Name, Is.EqualTo("PrefabName"));
+            Assert.That(prefabProject.Namespace, Is.EqualTo($"{Constants.PrefabNameSpacePrefix}.PrefabName"));
+            Assert.That(prefabProject.AvailableVersions.Count(), Is.EqualTo(2));
+            Assert.That(prefabProject.PublishedVersions.Count(), Is.EqualTo(1));
+            Assert.That(prefabProject.LatestActiveVersion is not null);
+            Assert.That(prefabProject.Description, Is.EqualTo("Description"));
+            Assert.That(prefabProject.GroupName, Is.EqualTo("GroupName"));
         }
 
         [Test]
@@ -64,13 +64,13 @@ namespace Pixel.Automation.Core.Tests.Models
 
             var clone = prefabDescription .Clone() as PrefabProject;
 
-            Assert.AreEqual("ApplicationId", clone.ApplicationId);
-            Assert.AreNotEqual("PrefabId", clone.ProjectId);
-            Assert.AreEqual("PrefabName", clone.Name);
-            Assert.AreEqual("Description", clone.Description);
-            Assert.AreEqual("GroupName", clone.GroupName);
-            Assert.AreSame(prefabRoot, clone.PrefabRoot);
-            Assert.AreNotSame(prefabDescription.AvailableVersions, clone.AvailableVersions);
+            Assert.That(clone.ApplicationId, Is.EqualTo("ApplicationId"));
+            Assert.That(clone.ProjectId, Is.Not.EqualTo("PrefabId"));
+            Assert.That(clone.Name, Is.EqualTo("PrefabName")    );
+            Assert.That(clone.Description, Is.EqualTo("Description"));
+            Assert.That(clone.GroupName, Is.EqualTo("GroupName"));
+            Assert.That(clone.PrefabRoot, Is.SameAs(prefabRoot));
+            Assert.That(clone.AvailableVersions, Is.Not.SameAs(prefabDescription.AvailableVersions));
         }
     }
 }

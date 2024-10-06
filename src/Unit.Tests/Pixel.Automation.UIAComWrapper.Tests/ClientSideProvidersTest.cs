@@ -91,7 +91,7 @@ public class ClientSideProvidersTest
             AutomationElement startButton = AutomationElement.FromHandle(this.startButtonHwnd);
 
             // Validate that it is ours
-            Assert.AreEqual(SampleButtonProvider.ButtonName, startButton.Current.Name);
+            Assert.That(startButton.Current.Name, Is.EqualTo(SampleButtonProvider.ButtonName));
 
             // Unregister it
             ClientSettings.RegisterClientSideProviders(new ClientSideProviderDescription[0]);
@@ -100,7 +100,7 @@ public class ClientSideProvidersTest
             startButton = AutomationElement.FromHandle(this.startButtonHwnd);
 
             // Validate that it is not ours
-            Assert.AreNotEqual(SampleButtonProvider.ButtonName, startButton.Current.Name);
+            Assert.That(startButton.Current.Name, Is.Not.EqualTo(SampleButtonProvider.ButtonName));
         }
         finally
         {
@@ -130,7 +130,7 @@ public class ClientSideProvidersTest
             AutomationElement startButton = AutomationElement.FromHandle(this.startButtonHwnd);
 
             // Validate that it is ours
-            Assert.AreEqual(SampleButtonProvider.ButtonName, startButton.Current.Name);
+            Assert.That(startButton.Current.Name, Is.EqualTo(SampleButtonProvider.ButtonName));
         }
         finally
         {
@@ -160,7 +160,7 @@ public class ClientSideProvidersTest
             AutomationElement startButton = AutomationElement.FromHandle(this.startButtonHwnd);
 
             // Validate that it is not ours
-            Assert.AreNotEqual(SampleButtonProvider.ButtonName, startButton.Current.Name);
+            Assert.That(startButton.Current.Name, Is.Not.EqualTo(SampleButtonProvider.ButtonName));
         }
         finally
         {
@@ -190,7 +190,7 @@ public class ClientSideProvidersTest
             AutomationElement startButton = AutomationElement.FromHandle(this.startButtonHwnd);
 
             // Validate that it is ours
-            Assert.AreEqual(SampleButtonProvider.ButtonName, startButton.Current.Name);
+            Assert.That(startButton.Current.Name, Is.EqualTo(SampleButtonProvider.ButtonName));
         }
         finally
         {

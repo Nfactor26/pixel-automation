@@ -111,16 +111,16 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
-            Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
-            Assert.IsNull(testDataRepositoryViewModel.SelectedTestDataSource);
-            Assert.IsTrue(string.IsNullOrEmpty(testDataRepositoryViewModel.FilterText));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(0));
+            Assert.That(testDataRepositoryViewModel.SelectedTestDataSource is null);
+            Assert.That(string.IsNullOrEmpty(testDataRepositoryViewModel.FilterText));
 
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
             await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            Assert.AreEqual(2, testDataRepositoryViewModel.Groups.Count);
-            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);        
+            Assert.That(testDataRepositoryViewModel.Groups.Count, Is.EqualTo(2));
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Code"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(1));        
             referenceManager.Received(2).GetTestDataSources(Arg.Is<string>("Group-Code"));
             projectFileSystem.Received(1).GetTestDataSourceById(Arg.Is<string>("Code"));
         }
@@ -134,13 +134,13 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
             await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Code"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(1));
 
             await testDataRepositoryViewModel.CreateCodedTestDataSource();
 
-            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Code"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(2));
           
             await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<string>(), Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
@@ -155,17 +155,17 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
             await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Code"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(1));
 
             testDataRepositoryViewModel.SelectedGroup = "Group-Csv";
-            Assert.AreEqual("Group-Csv", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Csv"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(1));
 
             await testDataRepositoryViewModel.CreateCsvTestDataSource();
 
-            Assert.AreEqual("Group-Csv", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(2, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Csv"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(2));
           
             await dataManager.Received(1).AddTestDataSourceAsync(Arg.Any<string>(), Arg.Any<TestDataSource>());
             await windowManager.Received(1).ShowDialogAsync(Arg.Any<TestDataSourceBuilderViewModel>());
@@ -231,11 +231,11 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
             await testDataRepositoryViewModel.OnProjectLoaded(projectManager, new ProjectLoadedEventArgs(string.Empty, string.Empty, null));
 
-            Assert.AreEqual("Group-Code", testDataRepositoryViewModel.SelectedGroup);
-            Assert.AreEqual(1, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.SelectedGroup, Is.EqualTo("Group-Code"));
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(1));
 
             await testDataRepositoryViewModel.DeactivateAsync(true); //deactivate will happen only if view model was activiated before
-            Assert.AreEqual(0, testDataRepositoryViewModel.TestDataSourceCollection.Count);
+            Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(0));
         }
 
         [TestCase]
@@ -249,7 +249,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             await testDataRepositoryViewModel.HandleAsync(new ShowTestDataSourceNotification("test-data-id"), CancellationToken.None);
 
             //Assert
-            Assert.AreEqual("test-data-id", testDataRepositoryViewModel.FilterText);
+            Assert.That(testDataRepositoryViewModel.FilterText, Is.EqualTo("test-data-id"));
 
         }
     }

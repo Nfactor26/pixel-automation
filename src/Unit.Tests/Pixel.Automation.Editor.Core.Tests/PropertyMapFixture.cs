@@ -15,10 +15,10 @@ namespace Pixel.Automation.Editor.Core.Tests
                 AssignToType = typeof(string)
             };
 
-            Assert.AreEqual(typeof(int).Name, propertyMap.AssignFrom);
-            Assert.AreEqual(typeof(int), propertyMap.AssignFromType);
-            Assert.AreEqual(typeof(string).Name, propertyMap.AssignTo);
-            Assert.AreEqual(typeof(string), propertyMap.AssignToType);
+            Assert.That(propertyMap.AssignFrom, Is.EqualTo(typeof(int).Name));
+            Assert.That(propertyMap.AssignFromType, Is.EqualTo(typeof(int)));
+            Assert.That(propertyMap.AssignTo, Is.EqualTo(typeof(string).Name));
+            Assert.That(propertyMap.AssignToType, Is.EqualTo(typeof(string)));
         }
     }
 }

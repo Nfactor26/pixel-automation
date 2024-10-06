@@ -40,14 +40,14 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, versionInfo.ToString());
            
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestCasesDirectory), projectFileSystem.TestCaseRepository);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestDataDirectory), projectFileSystem.TestDataRepository);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);           
+            Assert.That(Path.Combine(workingDirectory, Constants.TestCasesDirectory), Is.EqualTo(projectFileSystem.TestCaseRepository));
+            Assert.That(Path.Combine(workingDirectory, Constants.TestDataDirectory), Is.EqualTo(projectFileSystem.TestDataRepository));
+            Assert.That(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), Is.EqualTo(projectFileSystem.ProjectFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), Is.EqualTo(projectFileSystem.ProcessFile));           
 
-            Assert.IsTrue(Directory.Exists(workingDirectory));
-            Assert.IsTrue(Directory.Exists(projectFileSystem.TestCaseRepository));
-            Assert.IsTrue(Directory.Exists(projectFileSystem.TestDataRepository));
+            Assert.That(Directory.Exists(workingDirectory));
+            Assert.That(Directory.Exists(projectFileSystem.TestCaseRepository));
+            Assert.That(Directory.Exists(projectFileSystem.TestDataRepository));
 
         }
 
@@ -62,14 +62,14 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             projectFileSystem.SwitchToVersion(versionInfo);
           
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestCasesDirectory), projectFileSystem.TestCaseRepository);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.TestDataDirectory), projectFileSystem.TestDataRepository);
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), projectFileSystem.ProjectFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), projectFileSystem.ProcessFile);         
+            Assert.That(Path.Combine(workingDirectory, Constants.TestCasesDirectory), Is.EqualTo(projectFileSystem.TestCaseRepository));
+            Assert.That(Path.Combine(workingDirectory, Constants.TestDataDirectory), Is.EqualTo(projectFileSystem.TestDataRepository));
+            Assert.That(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, projectId, $"{projectId}.atm"), Is.EqualTo(projectFileSystem.ProjectFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.AutomationProcessFileName), Is.EqualTo(projectFileSystem.ProcessFile));         
 
-            Assert.IsTrue(Directory.Exists(workingDirectory));
-            Assert.IsTrue(Directory.Exists(projectFileSystem.TestCaseRepository));
-            Assert.IsTrue(Directory.Exists(projectFileSystem.TestDataRepository));
+            Assert.That(Directory.Exists(workingDirectory));
+            Assert.That(Directory.Exists(projectFileSystem.TestCaseRepository));
+            Assert.That(Directory.Exists(projectFileSystem.TestDataRepository));
         }
 
 
@@ -85,11 +85,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             var fixture = new Core.TestData.TestFixture() { FixtureId = "f100" };
             var fixtureFiles = projectFileSystem.GetTestFixtureFiles(fixture);
             string fixturesDirectory = Path.Combine(workingDirectory, Constants.TestCasesDirectory, fixture.FixtureId);
-            Assert.IsNotNull(fixtureFiles);
-            Assert.AreEqual(fixturesDirectory, fixtureFiles.FixtureDirectory);
-            Assert.AreEqual(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.fixture"), fixtureFiles.FixtureFile);
-            Assert.AreEqual(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.proc"), fixtureFiles.ProcessFile);
-            Assert.AreEqual(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.csx"), fixtureFiles.ScriptFile);
+            Assert.That(fixtureFiles is not null);
+            Assert.That(fixturesDirectory, Is.EqualTo(fixtureFiles.FixtureDirectory));
+            Assert.That(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.fixture"), Is.EqualTo(fixtureFiles.FixtureFile));
+            Assert.That(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.proc"), Is.EqualTo(fixtureFiles.ProcessFile));
+            Assert.That(Path.Combine(fixturesDirectory, $"{fixture.FixtureId}.csx"), Is.EqualTo(fixtureFiles.ScriptFile));
         }
 
         /// <summary>
@@ -104,11 +104,11 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             var testCase = new Core.TestData.TestCase() { FixtureId = "f100" , TestCaseId ="t100" };
             var testCaseFiles = projectFileSystem.GetTestCaseFiles(testCase);
             string testCaseDirectory = Path.Combine(workingDirectory, Constants.TestCasesDirectory, testCase.FixtureId, testCase.TestCaseId);
-            Assert.IsNotNull(testCaseFiles);
-            Assert.AreEqual(testCaseDirectory, testCaseFiles.TestDirectory);
-            Assert.AreEqual(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.test"), testCaseFiles.TestFile);
-            Assert.AreEqual(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.proc"), testCaseFiles.ProcessFile);
-            Assert.AreEqual(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.csx"), testCaseFiles.ScriptFile);
+            Assert.That(testCaseFiles is not null);
+            Assert.That(testCaseDirectory, Is.EqualTo(testCaseFiles.TestDirectory));
+            Assert.That(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.test"), Is.EqualTo(testCaseFiles.TestFile));
+            Assert.That(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.proc"), Is.EqualTo(testCaseFiles.ProcessFile));
+            Assert.That(Path.Combine(testCaseDirectory, $"{testCase.TestCaseId}.csx"), Is.EqualTo(testCaseFiles.ScriptFile));
         }
     }
 }

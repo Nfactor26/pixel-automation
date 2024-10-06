@@ -31,16 +31,16 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatArugmentCanBeInitializedInDataBoundMode()
         {
             var argument = new DummyArgument<Person>() { PropertyPath = "Age", CanChangeType =false };
-            Assert.AreEqual(ArgumentMode.DataBound, argument.Mode);
-            Assert.IsTrue(argument.CanChangeMode);
-            Assert.IsFalse(argument.CanChangeType);
-            Assert.IsTrue(string.IsNullOrEmpty(argument.ScriptFile));
-            Assert.AreEqual("Age", argument.PropertyPath);
-            Assert.AreEqual("Person", argument.ArgumentType);
-            Assert.IsTrue(argument.IsConfigured());
-            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Default));
-            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
-            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.That(argument.Mode, Is.EqualTo(ArgumentMode.DataBound));
+            Assert.That(argument.CanChangeMode);
+            Assert.That(argument.CanChangeType == false);
+            Assert.That(string.IsNullOrEmpty(argument.ScriptFile));
+            Assert.That(argument.PropertyPath, Is.EqualTo("Age"));
+            Assert.That(argument.ArgumentType, Is.EqualTo("Person"));
+            Assert.That(argument.IsConfigured());
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.Default));
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
 
         }
 
@@ -48,13 +48,13 @@ namespace Pixel.Automation.Core.Tests.Arguments
         public void ValidateThatArugmentCanBeInitializedInScrpitedMode()
         {
             var argument = new DummyArgument<int>() { Mode = ArgumentMode.Scripted, ScriptFile = "Script.csx" };
-            Assert.AreEqual(ArgumentMode.Scripted, argument.Mode);
-            Assert.IsTrue(argument.CanChangeMode);
-            Assert.IsFalse(argument.CanChangeType);
-            Assert.AreEqual("Script.csx", argument.ScriptFile);
-            Assert.IsTrue(string.IsNullOrEmpty(argument.PropertyPath));
-            Assert.AreEqual("Int32", argument.ArgumentType);
-            Assert.IsTrue(argument.IsConfigured());
+            Assert.That(argument.Mode, Is.EqualTo(ArgumentMode.Scripted));
+            Assert.That(argument.CanChangeMode);
+            Assert.That(argument.CanChangeType == false);
+            Assert.That(argument.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(string.IsNullOrEmpty(argument.PropertyPath));
+            Assert.That(argument.ArgumentType, Is.EqualTo("Int32"));
+            Assert.That(argument.IsConfigured());
         }
 
         [Test]
@@ -62,15 +62,15 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var argument = new DummyArgument<int>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.Scripted, ScriptFile = "Script.csx" };
            
-            Assert.IsFalse(argument.AllowedModes.HasFlag(ArgumentMode.Default));
-            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
-            Assert.IsTrue(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
-            Assert.AreEqual(ArgumentMode.Scripted, argument.Mode);
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.Default) == false);
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.DataBound));
+            Assert.That(argument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.That(argument.Mode, Is.EqualTo(ArgumentMode.Scripted));
 
             argument.Mode = ArgumentMode.Default;
        
-            Assert.AreNotEqual(ArgumentMode.Default, argument.Mode);
-            Assert.AreEqual(ArgumentMode.Scripted, argument.Mode);
+            Assert.That(argument.Mode, Is.Not.EqualTo(ArgumentMode.Default));
+            Assert.That(argument.Mode, Is.EqualTo(ArgumentMode.Scripted));
 
         }
     }

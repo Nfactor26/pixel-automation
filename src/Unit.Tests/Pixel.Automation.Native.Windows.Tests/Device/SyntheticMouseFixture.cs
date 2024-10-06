@@ -27,14 +27,14 @@ namespace Pixel.Automation.Nativew.Windows.Tests.Device
         public void ValidateThatSyntheticMouseCanBeInitialized()
         {
             var syntheticMouse = new SyntheticMouse();
-            Assert.IsNotNull(syntheticMouse);
+            Assert.That(syntheticMouse is not null);
         }
 
         [Test]
         public void ValidateThatMouseWheelTickSizeCanBeChanged()
         {
             syntheticMouse.MouseWheelClickSize = 10;
-            Assert.AreEqual(10, syntheticMouse.MouseWheelClickSize);
+            Assert.That(syntheticMouse.MouseWheelClickSize, Is.EqualTo(10));
         }
 
         [Test]

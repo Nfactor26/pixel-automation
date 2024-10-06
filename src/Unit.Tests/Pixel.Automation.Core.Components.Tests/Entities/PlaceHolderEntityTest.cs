@@ -27,7 +27,7 @@ namespace Pixel.Automation.Core.Components.Tests
             var actorComponent = Substitute.For<ActorComponent>();
 
             placeHolderEntity.AddComponent(entity);
-            Assert.AreEqual(1, placeHolderEntity.Components.Count());
+            Assert.That(placeHolderEntity.Components.Count(), Is.EqualTo(1));
 
             Assert.Throws<ArgumentException>(() => { placeHolderEntity.AddComponent(actorComponent); });
 
@@ -56,7 +56,7 @@ namespace Pixel.Automation.Core.Components.Tests
             placeHolderEntity.AddComponent(entity);
             placeHolderEntity.AddComponent(actorComponent);
             placeHolderEntity.AddComponent(component);
-            Assert.AreEqual(3, placeHolderEntity.Components.Count());
+            Assert.That(placeHolderEntity.Components.Count(), Is.EqualTo(3));
 
             Assert.Throws<InvalidOperationException>(() => { placeHolderEntity.AddComponent(asyncActorComponent); });
 

@@ -17,8 +17,8 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new ResizeWindowActorComponent();
 
-            Assert.IsNotNull(actor.ApplicationWindow);
-            Assert.IsNotNull(actor.Dimension);
+            Assert.That(actor.ApplicationWindow is not null);
+            Assert.That(actor.Dimension is not null);
         }
 
         [Test]

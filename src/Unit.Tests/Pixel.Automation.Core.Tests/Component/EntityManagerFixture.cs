@@ -90,10 +90,10 @@ namespace Pixel.Automation.Core.Tests
         [Order(20)]
         public void VerifyThatServicesCanBeRetrievedUsingGetServiceOfTypeMethod()
         {
-            Assert.AreSame(this.serializer, entityManager.GetServiceOfType<ISerializer>());
-            Assert.AreSame(this.fileSystem, entityManager.GetServiceOfType<IFileSystem>());                      
-            Assert.AreSame(this.syntheticMouse, entityManager.GetServiceOfType<ISyntheticMouse>());
-            Assert.AreSame(this.syntheticKeyboard, entityManager.GetServiceOfType<ISyntheticKeyboard>());
+            Assert.That(entityManager.GetServiceOfType<ISerializer>(), Is.SameAs(this.serializer));
+            Assert.That(entityManager.GetServiceOfType<IFileSystem>(), Is.SameAs(this.fileSystem));                      
+            Assert.That(entityManager.GetServiceOfType<ISyntheticMouse>(), Is.SameAs(this.syntheticMouse));
+            Assert.That(entityManager.GetServiceOfType<ISyntheticKeyboard>(), Is.SameAs(this.syntheticKeyboard));
 
             this.serviceResolver.Received(1).Get<ISerializer>();
             this.serviceResolver.Received(1).Get<IFileSystem>();           
@@ -107,7 +107,7 @@ namespace Pixel.Automation.Core.Tests
         public void VerifyThatFileSystemCanBeRetrieved()
         {
             var fileSystem = entityManager.GetCurrentFileSystem();
-            Assert.AreSame(this.fileSystem, fileSystem);
+            Assert.That(fileSystem, Is.SameAs(this.fileSystem));
         }
 
 
@@ -116,7 +116,7 @@ namespace Pixel.Automation.Core.Tests
         public void VerifyThatArgumentProcessorCanBeRetrieved()
         {
             var argumentProcessor = entityManager.GetArgumentProcessor();
-            Assert.IsNotNull(argumentProcessor);
+            Assert.That(argumentProcessor is not null);
         }
 
 
@@ -125,7 +125,7 @@ namespace Pixel.Automation.Core.Tests
         public void VerifyThatScriptEngineCanBeRetrieved()
         {
             var scriptEngine = entityManager.GetScriptEngine();
-            Assert.IsNotNull(scriptEngine);
+            Assert.That(scriptEngine is not null);
         }
 
         [Test]
@@ -134,8 +134,8 @@ namespace Pixel.Automation.Core.Tests
         {
             var devices = entityManager.GetAllServicesOfType<IDevice>();
 
-            Assert.IsTrue(devices.Contains(this.syntheticKeyboard));
-            Assert.IsTrue(devices.Contains(this.syntheticMouse));
+            Assert.That(devices.Contains(this.syntheticKeyboard));
+            Assert.That(devices.Contains(this.syntheticMouse));
 
             this.serviceResolver.Received(1).GetAll<IDevice>();
         }
@@ -157,20 +157,20 @@ namespace Pixel.Automation.Core.Tests
             var addresssVariables = entityManager.GetPropertiesOfType(typeof(Address));
             var personCollectionVariables = entityManager.GetPropertiesOfType(typeof(List<Person>));
 
-            Assert.AreEqual(2, stringVariables.Count());
-            Assert.IsTrue(stringVariables.Contains("PropertyOne"));
-            Assert.IsTrue(stringVariables.Contains("Name"));
+            Assert.That(stringVariables.Count(), Is.EqualTo(2));
+            Assert.That(stringVariables.Contains("PropertyOne"));
+            Assert.That(stringVariables.Contains("Name"));
 
-            Assert.AreEqual(2, intVariables.Count());
-            Assert.IsTrue(intVariables.Contains("PropertyTwo"));
-            Assert.IsTrue(intVariables.Contains("Age"));
+            Assert.That(intVariables.Count(), Is.EqualTo(2));
+            Assert.That(intVariables.Contains("PropertyTwo"));
+            Assert.That(intVariables.Contains("Age"));
 
 
-            Assert.AreEqual(1, addresssVariables.Count());
-            Assert.IsTrue(addresssVariables.Contains("Address"));
+            Assert.That(addresssVariables.Count(), Is.EqualTo(1));
+            Assert.That(addresssVariables.Contains("Address"));
 
-            Assert.AreEqual(1, personCollectionVariables.Count());
-            Assert.IsTrue(personCollectionVariables.Contains("Friends"));
+            Assert.That(personCollectionVariables.Count(), Is.EqualTo(1));
+            Assert.That(personCollectionVariables.Contains("Friends"));
 
         }
 
@@ -185,15 +185,15 @@ namespace Pixel.Automation.Core.Tests
             Entity rootEntity = new Entity("Root", "Root"); 
             this.entityManager.RootEntity = rootEntity;
             var secondaryEntityManager = new EntityManager(this.entityManager);          
-            Assert.AreSame(secondaryEntityManager.RootEntity, this.entityManager.RootEntity);
-            Assert.AreSame(secondaryEntityManager.GetCurrentFileSystem(), this.entityManager.GetCurrentFileSystem());
-            Assert.AreSame(this.entityManager, rootEntity.EntityManager);
+            Assert.That(this.entityManager.RootEntity, Is.SameAs(secondaryEntityManager.RootEntity));
+            Assert.That(this.entityManager.GetCurrentFileSystem(), Is.SameAs(secondaryEntityManager.GetCurrentFileSystem()));
+            Assert.That(rootEntity.EntityManager, Is.SameAs(this.entityManager));
          
             secondaryEntityManager.Arguments = new Person();
 
-            Assert.AreSame(secondaryEntityManager.GetServiceOfType<IScriptEngineFactory>(), this.entityManager.GetServiceOfType<IScriptEngineFactory>());
-            Assert.AreNotSame(secondaryEntityManager.GetScriptEngine(), this.entityManager.GetScriptEngine());
-            Assert.AreNotSame(secondaryEntityManager.GetArgumentProcessor(), this.entityManager.GetArgumentProcessor());
+            Assert.That(this.entityManager.GetServiceOfType<IScriptEngineFactory>(), Is.SameAs(secondaryEntityManager.GetServiceOfType<IScriptEngineFactory>()));
+            Assert.That(this.entityManager.GetScriptEngine(), Is.Not.SameAs(secondaryEntityManager.GetScriptEngine()));
+            Assert.That(this.entityManager.GetArgumentProcessor(), Is.Not.SameAs(secondaryEntityManager.GetArgumentProcessor()));
         }
 
         /// <summary>
@@ -235,8 +235,8 @@ namespace Pixel.Automation.Core.Tests
             entityManager.Dispose();
 
             (disposableComponent as IDisposable).Received(1).Dispose();
-            Assert.IsNull(entityManager.RootEntity);
-            Assert.IsNull(entityManager.Arguments);
+            Assert.That(entityManager.RootEntity is null);
+            Assert.That(entityManager.Arguments is null);
         }
 
 
@@ -270,12 +270,12 @@ namespace Pixel.Automation.Core.Tests
             component.Parent.Returns(applicationEntity);
 
             var targetApplicationDetailsOne = entityManager.GetOwnerApplication<IApplication>(component);
-            Assert.IsNotNull(targetApplicationDetailsOne);
+            Assert.That(targetApplicationDetailsOne is not null);
 
             var targetApplicationDetailsTwo = entityManager.GetOwnerApplication(component);
-            Assert.IsNotNull(targetApplicationDetailsTwo);
+            Assert.That(targetApplicationDetailsTwo is not null);
 
-            Assert.AreSame(targetApplicationDetailsOne, targetApplicationDetailsTwo);
+            Assert.That(targetApplicationDetailsOne, Is.SameAs(targetApplicationDetailsTwo));
         }
 
 
@@ -317,13 +317,13 @@ namespace Pixel.Automation.Core.Tests
             actorComponent.Parent = sequence;
 
             var ownerApplicationDetailsOne = entityManager.GetOwnerApplication<IApplication>(actorComponent);
-            Assert.IsNotNull(ownerApplicationDetailsOne);
+            Assert.That(ownerApplicationDetailsOne is not null);
 
 
             var ownerApplicationDetailsTwo = entityManager.GetOwnerApplication<IApplication>(actorComponent);
-            Assert.IsNotNull(ownerApplicationDetailsTwo);
+            Assert.That(ownerApplicationDetailsTwo is not null);
 
-            Assert.AreSame(ownerApplicationDetailsOne, ownerApplicationDetailsTwo);
+            Assert.That(ownerApplicationDetailsOne, Is.SameAs(ownerApplicationDetailsTwo));
         }
 
         /// <summary>
@@ -367,11 +367,11 @@ namespace Pixel.Automation.Core.Tests
             sequence.AddComponent(controlIdentity as IComponent);
 
             var retrievedControlLocator = entityManager.GetControlLocator(controlIdentity);
-            Assert.IsNotNull(retrievedControlLocator);
+            Assert.That(retrievedControlLocator is not null);
 
             //Typically same class will implement both IControlLocator and ICoordinateProvider
             var retrievedCoordinateProvider = entityManager.GetCoordinateProvider(controlIdentity);
-            Assert.IsNotNull(retrievedCoordinateProvider);
+            Assert.That(retrievedCoordinateProvider is not null);
         }
 
     }

@@ -33,7 +33,7 @@ namespace Pixel.Automation.Core.Components.Tests
             {
                 Console.SetOut(textWriter);
                 await consoleOutputActorComponent.ActAsync();
-                Assert.AreEqual("Hello World !!", consoleOutput);
+                Assert.That(consoleOutput, Is.EqualTo("Hello World !!"));
 
             }
             finally

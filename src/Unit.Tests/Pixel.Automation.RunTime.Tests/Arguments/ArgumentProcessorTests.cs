@@ -16,7 +16,7 @@ namespace Pixel.Automation.RunTime.Tests
             var argumentProcessor = new ArgumentProcessor();
             argumentProcessor.Initialize(scriptEngine, new object());
 
-            Assert.IsNotNull(argumentProcessor);
+            Assert.That(argumentProcessor is not null);
         }     
     }
 }

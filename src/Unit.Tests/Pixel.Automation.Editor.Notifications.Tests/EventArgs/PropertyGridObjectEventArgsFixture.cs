@@ -9,7 +9,7 @@ class PropertyGridObjectEventArgsFixture
     public void ValidateThaPropertyGridObjectEventArgsCanBeInitialized()
     {
         var propertyGridObjectEventArgs = new PropertyGridObjectEventArgs(new Entity());
-        Assert.IsNotNull(propertyGridObjectEventArgs.ObjectToDisplay);
-        Assert.IsFalse(propertyGridObjectEventArgs.IsReadOnly);
+        Assert.That(propertyGridObjectEventArgs.ObjectToDisplay is not null);
+        Assert.That(propertyGridObjectEventArgs.IsReadOnly == false);
     }
 }

@@ -30,9 +30,9 @@ namespace Pixel.Automation.Core.Tests.Extensions
         {
             var model = new DummyModel();
 
-            Assert.IsFalse(GetDisplayAttribute(model, "PropertyOne"));
+            Assert.That(GetDisplayAttribute(model, "PropertyOne") == false);
             model.SetDispalyAttribute("PropertyOne", true);
-            Assert.IsTrue(GetDisplayAttribute(model, "PropertyOne"));
+            Assert.That(GetDisplayAttribute(model, "PropertyOne"));
 
             bool GetDisplayAttribute(object component, string propertyName)
             {
@@ -55,8 +55,8 @@ namespace Pixel.Automation.Core.Tests.Extensions
 
             bool found = actorComponent.TryGetScopedParent(out IScopedEntity scopedParentEntity);
 
-            Assert.IsTrue(found);
-            Assert.AreSame(scopedEntity, scopedParentEntity);
+            Assert.That(found);
+            Assert.That(scopedEntity, Is.SameAs(scopedParentEntity));
         }
 
         [Test]
@@ -71,8 +71,8 @@ namespace Pixel.Automation.Core.Tests.Extensions
 
             bool found = actorComponent.TryGetScopedParent(out IScopedEntity scopedParentEntity);
 
-            Assert.IsFalse(found);
-            Assert.IsNull(scopedParentEntity);
+            Assert.That(found == false);
+            Assert.That(scopedParentEntity is null);
         }
     }
 }

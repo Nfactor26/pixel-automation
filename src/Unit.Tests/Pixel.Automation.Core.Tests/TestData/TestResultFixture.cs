@@ -11,22 +11,22 @@ namespace Pixel.Automation.Core.Tests.TestData
         {
             var testResult = new TestResult();
             
-            Assert.AreEqual(TestStatus.None, testResult.Result);
-            Assert.AreEqual(TimeSpan.Zero, testResult.ExecutionTime);
-            Assert.IsEmpty(testResult.ErrorMessage);
-            Assert.IsNull(testResult.TestData);
-            Assert.IsNull(testResult.Error);
+            Assert.That(testResult.Result, Is.EqualTo(TestStatus.None));
+            Assert.That(testResult.ExecutionTime, Is.EqualTo(TimeSpan.Zero));
+            Assert.That(string.IsNullOrEmpty(testResult.ErrorMessage));
+            Assert.That(testResult.TestData is null);
+            Assert.That(testResult.Error is null);
 
             testResult.ExecutionTime = TimeSpan.FromSeconds(5);
             testResult.Result = TestStatus.Failed;
             testResult.Error = new Exception("Could not find control");
             testResult.TestData = "Model.ToString()";
 
-            Assert.AreEqual(TestStatus.Failed, testResult.Result);
-            Assert.AreEqual(TimeSpan.FromSeconds(5), testResult.ExecutionTime);
-            Assert.AreEqual("System.Exception: Could not find control", testResult.ErrorMessage);
-            Assert.IsNotNull(testResult.Error);
-            Assert.AreEqual("Model.ToString()", testResult.TestData);
+            Assert.That(testResult.Result, Is.EqualTo(TestStatus.Failed));
+            Assert.That(testResult.ExecutionTime, Is.EqualTo(TimeSpan.FromSeconds(5)));
+            Assert.That(testResult.ErrorMessage, Is.EqualTo("System.Exception: Could not find control"));
+            Assert.That(testResult.Error is not null);
+            Assert.That(testResult.TestData, Is.EqualTo("Model.ToString()"));
         }
     }
 }

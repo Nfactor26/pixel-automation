@@ -9,10 +9,10 @@ namespace Pixel.Automation.Core.Tests.Models
         public void ValidateThatBoundingBoxCanBeInitialized()
         {
             var boundingBox = new BoundingBox(0, 0, 800, 600);
-            Assert.AreEqual(0, boundingBox.X);
-            Assert.AreEqual(0, boundingBox.Y);
-            Assert.AreEqual(800, boundingBox.Width);
-            Assert.AreEqual(600, boundingBox.Height);
+            Assert.That(0, Is.EqualTo(boundingBox.X));
+            Assert.That(0, Is.EqualTo(boundingBox.Y));
+            Assert.That(800, Is.EqualTo(boundingBox.Width));
+            Assert.That(600, Is.EqualTo(boundingBox.Height));
         }
     }
 }

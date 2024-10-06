@@ -106,7 +106,7 @@ namespace Pixel.Automation.Nativew.Windows.Tests.Device
         public void ValidateThatSyntheticKeyboardCanRecognizeModifierKeys(SyntheticKeyCode keyCode, bool expectedResult)
         {
             bool isModifierKey = this.syntheticKeyboard.IsModifierKey(keyCode);
-            Assert.AreEqual(expectedResult, isModifierKey);
+            Assert.That(isModifierKey, Is.EqualTo(expectedResult));
         }
 
 
@@ -189,7 +189,7 @@ namespace Pixel.Automation.Nativew.Windows.Tests.Device
         public void ValidateThatKeyCodeCanBeCorrectlyParsed(string keyCode, SyntheticKeyCode expectedKeyCode)
         {
             var parsedKey = this.syntheticKeyboard.GetSynthethicKeyCodes(keyCode).Single();
-            Assert.AreEqual(expectedKeyCode, parsedKey);
+            Assert.That(parsedKey, Is.EqualTo(expectedKeyCode));
         }
 
 
@@ -201,7 +201,7 @@ namespace Pixel.Automation.Nativew.Windows.Tests.Device
         public void ValidateThatHotKeyCanBeCorrectlyParsed(string keyCode, int expectedKeyCount)
         {
             var parsedKeys = this.syntheticKeyboard.GetSynthethicKeyCodes(keyCode);
-            Assert.AreEqual(expectedKeyCount, parsedKeys.Count());
+            Assert.That(parsedKeys.Count(), Is.EqualTo(expectedKeyCount));
         }
 
         [TestCase("")]

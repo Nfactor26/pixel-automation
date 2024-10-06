@@ -48,9 +48,9 @@ namespace Pixel.Automation.Core.Tests.FileSystem
 
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
             
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), prefabFileSystem.PrefabFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);            
+            Assert.That(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), Is.EqualTo(prefabFileSystem.PrefabDescriptionFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), Is.EqualTo(prefabFileSystem.PrefabFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), Is.EqualTo(prefabFileSystem.TemplateFile));            
 
         }
 
@@ -64,9 +64,9 @@ namespace Pixel.Automation.Core.Tests.FileSystem
             workingDirectory = Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
             prefabFileSystem.SwitchToVersion(versionInfo);
 
-            Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), prefabFileSystem.PrefabDescriptionFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), prefabFileSystem.PrefabFile);
-            Assert.AreEqual(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), prefabFileSystem.TemplateFile);
+            Assert.That(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm"), Is.EqualTo(prefabFileSystem.PrefabDescriptionFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.PrefabProcessFileName), Is.EqualTo(prefabFileSystem.PrefabFile));
+            Assert.That(Path.Combine(workingDirectory, Constants.PrefabTemplateFileName), Is.EqualTo(prefabFileSystem.TemplateFile));
         }
     }
 }

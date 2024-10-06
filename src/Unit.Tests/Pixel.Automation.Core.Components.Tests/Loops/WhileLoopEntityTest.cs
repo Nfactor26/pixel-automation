@@ -29,16 +29,16 @@ namespace Pixel.Automation.Core.Components.Tests
             whileLoopEntity.ResolveDependencies();
             var placeHolderEntity = whileLoopEntity.Components[0] as PlaceHolderEntity;
 
-            Assert.IsNotNull(placeHolderEntity);
+            Assert.That(placeHolderEntity is not null);
 
             var actorComponent = Substitute.For<ActorComponent>();
             placeHolderEntity.AddComponent(actorComponent);
 
             var iterationResult = whileLoopEntity.GetNextComponentToProcess().ToList();
 
-            Assert.AreEqual(2, iterationResult.Count);
-            Assert.AreEqual(actorComponent, iterationResult.ElementAt(0));
-            Assert.AreEqual(actorComponent, iterationResult.ElementAt(1));
+            Assert.That(iterationResult.Count, Is.EqualTo(2));
+            Assert.That(iterationResult.ElementAt(0), Is.EqualTo(actorComponent));
+            Assert.That(iterationResult.ElementAt(1), Is.EqualTo(actorComponent));
 
             scriptEngine.Received(3).ExecuteFileAsync(Arg.Any<string>());
         }
@@ -61,7 +61,7 @@ namespace Pixel.Automation.Core.Components.Tests
             whileLoopEntity.EntityManager = entityManager;
             whileLoopEntity.ResolveDependencies();
             var placeHolderEntity = whileLoopEntity.Components[0] as PlaceHolderEntity;           
-            Assert.IsNotNull(placeHolderEntity);
+            Assert.That(placeHolderEntity is not null);
           
             var actorComponent = Substitute.For<ActorComponent>();
             var nestedLoopEntity = Substitute.For<Entity, ILoop>();
@@ -76,13 +76,13 @@ namespace Pixel.Automation.Core.Components.Tests
 
             var iterationResult = whileLoopEntity.GetNextComponentToProcess().ToList();
 
-            Assert.AreEqual(6, iterationResult.Count);
-            Assert.AreEqual(nestedLoopEntity, iterationResult.ElementAt(0));
-            Assert.AreEqual(actorComponent, iterationResult.ElementAt(1));
-            Assert.AreEqual(nestedLoopEntity, iterationResult.ElementAt(2));
-            Assert.AreEqual(nestedLoopEntity, iterationResult.ElementAt(3));
-            Assert.AreEqual(actorComponent, iterationResult.ElementAt(4));
-            Assert.AreEqual(nestedLoopEntity, iterationResult.ElementAt(5));
+            Assert.That(iterationResult.Count, Is.EqualTo(6));
+            Assert.That(iterationResult.ElementAt(0), Is.EqualTo(nestedLoopEntity));
+            Assert.That(iterationResult.ElementAt(1), Is.EqualTo(actorComponent));
+            Assert.That(iterationResult.ElementAt(2), Is.EqualTo(nestedLoopEntity));
+            Assert.That(iterationResult.ElementAt(3), Is.EqualTo(nestedLoopEntity));
+            Assert.That(iterationResult.ElementAt(4), Is.EqualTo(actorComponent));
+            Assert.That(iterationResult.ElementAt(5), Is.EqualTo(nestedLoopEntity));
             
             nestedLoopEntity.Received(2).ResetComponent();
         }

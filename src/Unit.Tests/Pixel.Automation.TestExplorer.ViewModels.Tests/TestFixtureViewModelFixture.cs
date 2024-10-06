@@ -31,21 +31,21 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testFixture.Tags.Add("priority", "low");
             TestFixtureViewModel testFixtureviewModel = new TestFixtureViewModel(testFixture);
 
-            Assert.IsNotNull(testFixtureviewModel.TestFixture);
-            Assert.IsTrue(!string.IsNullOrEmpty(testFixtureviewModel.FixtureId));
-            Assert.AreEqual("TestFixture#1", testFixtureviewModel.DisplayName);
-            Assert.AreEqual(1, testFixtureviewModel.Order);
-            Assert.AreEqual("Test fixture description", testFixtureviewModel.Description);          
-            Assert.IsTrue(testFixtureviewModel.Tags.Contains("color"));
-            Assert.IsTrue(testFixtureviewModel.Tags.Contains("priority"));
-            Assert.AreEqual("Script.csx", testFixtureviewModel.ScriptFile);
-            Assert.AreEqual(fixtureEntity, testFixtureviewModel.TestFixtureEntity);
-            Assert.IsFalse(testFixtureviewModel.IsMuted);
-            Assert.IsFalse(testFixtureviewModel.IsSelected);
-            Assert.IsTrue(testFixtureviewModel.IsVisible);
-            Assert.IsFalse(testFixtureviewModel.IsOpenForEdit);
-            Assert.IsTrue(testFixtureviewModel.CanOpenForEdit);
-            Assert.IsNotNull(testFixtureviewModel.Tests);
+            Assert.That(testFixtureviewModel.TestFixture is not null);
+            Assert.That(!string.IsNullOrEmpty(testFixtureviewModel.FixtureId));
+            Assert.That(testFixtureviewModel.DisplayName, Is.EqualTo("TestFixture#1"));
+            Assert.That(testFixtureviewModel.Order, Is.EqualTo(1));
+            Assert.That(testFixtureviewModel.Description, Is.EqualTo("Test fixture description"));          
+            Assert.That(testFixtureviewModel.Tags.Contains("color"));
+            Assert.That(testFixtureviewModel.Tags.Contains("priority"));
+            Assert.That(testFixtureviewModel.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(testFixtureviewModel.TestFixtureEntity, Is.EqualTo(fixtureEntity));
+            Assert.That(testFixtureviewModel.IsMuted == false);
+            Assert.That(testFixtureviewModel.IsSelected == false);
+            Assert.That(testFixtureviewModel.IsVisible);
+            Assert.That(testFixtureviewModel.IsOpenForEdit == false);
+            Assert.That(testFixtureviewModel.CanOpenForEdit);
+            Assert.That(testFixtureviewModel.Tests is not null);
         }
 
         /// <summary>
@@ -68,14 +68,14 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testFixtureViewModel.Tags.Add("color", "red");
             testFixtureViewModel.Tags.Add("priority", "high");
 
-            Assert.AreEqual("TestFixture#1", testFixture.DisplayName);
-            Assert.AreEqual(1, testFixture.Order);
-            Assert.AreEqual("Test fixture description", testFixture.Description);
-            Assert.AreEqual(fixtureEntity, testFixture.TestFixtureEntity);
-            Assert.IsTrue(testFixtureViewModel.Tags.Contains("color"));
-            Assert.IsTrue(testFixtureViewModel.Tags.Contains("priority"));
-            Assert.AreEqual("Script.csx", testFixture.ScriptFile);
-            Assert.IsTrue(testFixture.IsMuted);
+            Assert.That(testFixture.DisplayName, Is.EqualTo("TestFixture#1"));
+            Assert.That(testFixture.Order, Is.EqualTo(1));
+            Assert.That(testFixture.Description, Is.EqualTo("Test fixture description"));
+            Assert.That(testFixture.TestFixtureEntity, Is.EqualTo(fixtureEntity));
+            Assert.That(testFixtureViewModel.Tags.Contains("color"));
+            Assert.That(testFixtureViewModel.Tags.Contains("priority"));
+            Assert.That(testFixture.ScriptFile, Is.EqualTo("Script.csx"));
+            Assert.That(testFixture.IsMuted);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             TestFixtureViewModel testCaseViewModel = new TestFixtureViewModel(testFixture);
             testCaseViewModel.UpdateVisibility(filterText);
 
-            Assert.AreEqual(shouldBeVisible, testCaseViewModel.IsVisible);
+            Assert.That(testCaseViewModel.IsVisible, Is.EqualTo(shouldBeVisible));
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             testfixtureViewModel.UpdateVisibility(filterText);
             testCaseViewModel.UpdateVisibility(filterText);
 
-            Assert.AreEqual(shouldBeVisible, testfixtureViewModel.IsVisible);
+            Assert.That(testfixtureViewModel.IsVisible, Is.EqualTo(shouldBeVisible));
         }
     }
 }

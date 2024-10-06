@@ -17,7 +17,7 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new GetForegroundWindowActorComponent();
 
-            Assert.IsNotNull(actor.ForeGroundWindow);
+            Assert.That(actor.ForeGroundWindow is not null);
         }
 
         [Test]

@@ -11,14 +11,14 @@ namespace Pixel.Automation.Core.Tests.Arguments
         {
             var funcArgument = new FuncArgument<int>() { ScriptFile = "FuncScript.csx" };
 
-            Assert.AreEqual(ArgumentMode.Scripted, funcArgument.Mode);
-            Assert.AreEqual("FuncScript.csx", funcArgument.ScriptFile);
-            Assert.IsFalse(funcArgument.CanChangeType);
-            Assert.IsFalse(funcArgument.CanChangeMode);
-            Assert.AreEqual(typeof(int), funcArgument.GetArgumentType());
-            Assert.IsFalse(funcArgument.AllowedModes.HasFlag(ArgumentMode.Default));
-            Assert.IsFalse(funcArgument.AllowedModes.HasFlag(ArgumentMode.DataBound));
-            Assert.IsTrue(funcArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
+            Assert.That(funcArgument.Mode, Is.EqualTo(ArgumentMode.Scripted));
+            Assert.That(funcArgument.ScriptFile, Is.EqualTo("FuncScript.csx"));
+            Assert.That(funcArgument.CanChangeType == false);
+            Assert.That(funcArgument.CanChangeMode == false);
+            Assert.That(funcArgument.GetArgumentType(), Is.EqualTo(typeof(int)));
+            Assert.That(funcArgument.AllowedModes.HasFlag(ArgumentMode.Default) == false);
+            Assert.That(funcArgument.AllowedModes.HasFlag(ArgumentMode.DataBound) == false);
+            Assert.That(funcArgument.AllowedModes.HasFlag(ArgumentMode.Scripted));
         }
 
         [Test]
@@ -27,11 +27,11 @@ namespace Pixel.Automation.Core.Tests.Arguments
             var funcArgument = new FuncArgument<int>() { ScriptFile = "FuncScript.csx" };
             var clone = funcArgument.Clone() as FuncArgument<int>;
 
-            Assert.AreEqual(funcArgument.Mode, clone.Mode);
-            Assert.AreEqual(funcArgument.PropertyPath, clone.PropertyPath);
-            Assert.AreEqual(funcArgument.GetArgumentType(), clone.GetArgumentType());
-            Assert.AreEqual(funcArgument.ScriptFile, clone.ScriptFile);
-            Assert.AreEqual(funcArgument.ArgumentType, clone.ArgumentType);
+            Assert.That(clone.Mode, Is.EqualTo(funcArgument.Mode));
+            Assert.That(clone.PropertyPath, Is.EqualTo(funcArgument.PropertyPath));
+            Assert.That(clone.GetArgumentType(), Is.EqualTo(funcArgument.GetArgumentType()));
+            Assert.That(clone.ScriptFile, Is.EqualTo(funcArgument.ScriptFile));
+            Assert.That(clone.ArgumentType, Is.EqualTo(funcArgument.ArgumentType));
         }
     }
 }

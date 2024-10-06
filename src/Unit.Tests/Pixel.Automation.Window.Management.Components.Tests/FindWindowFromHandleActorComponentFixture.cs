@@ -17,9 +17,9 @@ namespace Pixel.Automation.Window.Management.Components.Tests
         {
             var actor = new FindWindowFromHandleActorComponent();
 
-            Assert.IsNotNull(actor.WindowHandle);
-            Assert.IsFalse(actor.WindowHandle.CanChangeType);
-            Assert.IsNotNull(actor.FoundWindow);
+            Assert.That(actor.WindowHandle is not null);
+            Assert.That(actor.WindowHandle.CanChangeType  == false);
+            Assert.That(actor.FoundWindow is not null);
         
         }
 

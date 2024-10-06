@@ -42,7 +42,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 
-            Assert.AreEqual(2, dataRows.Count());
+            Assert.That(dataRows.Count(), Is.EqualTo(2));
 
             fileSystem.Received(1).Exists("DataSourceId.dat");
             if(!string.IsNullOrEmpty(dataSourceSuffix))
@@ -96,7 +96,7 @@ namespace Pixel.Automation.RunTime.Tests
 
             var dataRows = dataSourceReader.LoadData("DataSourceId");
 
-            Assert.AreEqual(2, dataRows.Count());
+            Assert.That(dataRows.Count(), Is.EqualTo(2));
 
             fileSystem.Received(1).Exists("DataSourceId.dat");
             if (!string.IsNullOrEmpty(dataSourceSuffix))

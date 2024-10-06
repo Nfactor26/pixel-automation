@@ -59,8 +59,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             WebControlIdentity webControlIdentity = new WebControlIdentity();
             var controlIdentity = Substitute.For<IControlIdentity>();
 
-            Assert.IsTrue(controlLocator.CanProcessControlOfType(webControlIdentity));
-            Assert.IsFalse(controlLocator.CanProcessControlOfType(controlIdentity));
+            Assert.That(controlLocator.CanProcessControlOfType(webControlIdentity));
+            Assert.That(controlLocator.CanProcessControlOfType(controlIdentity) == false);
         }
         
 
@@ -84,8 +84,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
             var locatedControl = webControlLocator.FindDescendantControl(controlIdentity, webDriver);
 
-            Assert.IsNotNull(locatedControl);
-            Assert.AreSame(controlOne, locatedControl);
+            Assert.That(locatedControl is not null);
+            Assert.That(locatedControl, Is.EqualTo(controlOne));
 
             webDriver.Received(1).FindElement(Arg.Any<By>());
         }
@@ -109,8 +109,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
             var locatedControls = webControlLocator.FindAllDescendantControls(controlIdentity, webDriver);
 
-            Assert.IsNotNull(locatedControls);
-            Assert.AreEqual(2, locatedControls.Count);
+            Assert.That(locatedControls is not null);
+            Assert.That(locatedControls.Count, Is.EqualTo(2));
 
             webDriver.Received(1).FindElements(Arg.Any<By>());
         }
@@ -154,8 +154,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
             var locatedControl = controlLocator.FindSiblingControl(controlIdentity, webDriver);
 
-            Assert.IsNotNull(locatedControl);
-            Assert.AreSame(webElement, locatedControl);
+            Assert.That(locatedControl is not null);
+            Assert.That(locatedControl, Is.SameAs(webElement));
 
 
             switch (findBy)
@@ -199,8 +199,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         
             var locatedControls = webControlLocator.FindAllSiblingControls(controlIdentity, webDriver);
 
-            Assert.IsNotNull(locatedControls);
-            Assert.AreEqual(2, locatedControls.Count);
+            Assert.That(locatedControls is not null);
+            Assert.That(locatedControls.Count, Is.EqualTo(2));
             
             switch(findBy)
             {
@@ -265,8 +265,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
             var locatedControl = controlLocator.FindAncestorControl(controlIdentity, webDriver);
 
-            Assert.IsNotNull(locatedControl);
-            Assert.AreSame(webElement, locatedControl);
+            Assert.That(locatedControl is not null);
+            Assert.That(locatedControl, Is.EqualTo(webElement));
 
             switch (findBy)
             {
@@ -330,8 +330,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             {
                 case Core.Enums.SearchScope.Descendants:
                     var locatedControl = await controlLocator.FindControlAsync(controlIdentity);
-                    Assert.IsNotNull(locatedControl);
-                    Assert.AreSame(webElement, locatedControl.GetApiControl<IWebElement>());
+                    Assert.That(locatedControl is not null);
+                    Assert.That(locatedControl.GetApiControl<IWebElement>(), Is.EqualTo(webElement));
                     webDriver.Received(1).FindElement(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
@@ -341,8 +341,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
                 case Core.Enums.SearchScope.Sibling:
 
                     var foundControl = await controlLocator.FindControlAsync(controlIdentity);
-                    Assert.IsNotNull(foundControl);
-                    Assert.AreSame(webElement, foundControl.GetApiControl<IWebElement>());
+                    Assert.That(foundControl is not null);
+                    Assert.That(foundControl.GetApiControl<IWebElement>(), Is.EqualTo(webElement));
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());
                     break;
             }        
@@ -367,8 +367,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             {
                 case Core.Enums.SearchScope.Descendants:
                     var locatedControl = await webControlLocator.FindControlAsync(controlIdentity);
-                    Assert.IsNotNull(locatedControl);
-                    Assert.AreSame(controlTwo, locatedControl.GetApiControl<IWebElement>());
+                    Assert.That(locatedControl is not null);
+                    Assert.That(locatedControl.GetApiControl<IWebElement>(), Is.EqualTo(controlTwo));
                     webDriver.Received(1).FindElements(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
@@ -378,8 +378,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             
                 case Core.Enums.SearchScope.Sibling:
                     var foundControl = await webControlLocator.FindControlAsync(controlIdentity);
-                    Assert.IsNotNull(foundControl);
-                    Assert.AreSame(controlTwo, foundControl.GetApiControl<IWebElement>());
+                    Assert.That(foundControl is not null);
+                    Assert.That(foundControl.GetApiControl<IWebElement>(), Is.EqualTo(controlTwo));
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());
                     break;
             }
@@ -410,8 +410,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             {
                 case Core.Enums.SearchScope.Descendants:
                     var locatedControls = await webControlLocator.FindAllControlsAsync(controlIdentity);
-                    Assert.IsNotNull(locatedControls);
-                    Assert.AreEqual(2, locatedControls.Count());
+                    Assert.That(locatedControls is not null);
+                    Assert.That(locatedControls.Count(), Is.EqualTo(2));
                     webDriver.Received(2).FindElements(Arg.Any<By>());
                     break;
                 case Core.Enums.SearchScope.Children:
@@ -421,8 +421,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
 
                 case Core.Enums.SearchScope.Sibling:
                     var foundControls = await webControlLocator.FindAllControlsAsync(controlIdentity);
-                    Assert.IsNotNull(foundControls);
-                    Assert.AreEqual(2, foundControls.Count());
+                    Assert.That(foundControls is not null);
+                    Assert.That(foundControls.Count(), Is.EqualTo(2));
                     (webDriver as IJavaScriptExecutor).Received(1).ExecuteScript(Arg.Any<string>(), Arg.Any<ISearchContext>(), Arg.Any<string>());
                     break;
             }

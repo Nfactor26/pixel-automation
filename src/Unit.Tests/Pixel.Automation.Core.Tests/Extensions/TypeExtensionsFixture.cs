@@ -26,7 +26,7 @@ namespace Pixel.Automation.Core.Tests.Extensions
         public void ValidateThatCorrectTypeDisplayNameIsGenerated(Type type, string expectedDisplayName)
         {
             var displayName = type.GetDisplayName();
-            Assert.AreEqual(expectedDisplayName, displayName);
+            Assert.That(displayName, Is.EqualTo(expectedDisplayName));
         }
 
         /// <summary>
@@ -48,10 +48,10 @@ namespace Pixel.Automation.Core.Tests.Extensions
                     Country = "Hidden Leaf"
                 }
             };
-            Assert.AreEqual(person.GetPropertyValue<string>("Name"), "Naruto");
-            Assert.AreEqual(person.GetPropertyValue<int>("Age"), 16);
-            Assert.AreEqual(person.GetPropertyValue<object>("Age"), 16); //integer is assignable to object
-            Assert.IsTrue(person.GetPropertyValue<Address>("Address").City.Equals("Konoha"));
+            Assert.That(person.GetPropertyValue<string>("Name"), Is.EqualTo("Naruto"));
+            Assert.That(person.GetPropertyValue<int>("Age"), Is.EqualTo(16));
+            Assert.That(person.GetPropertyValue<object>("Age"), Is.EqualTo(16)); //integer is assignable to object
+            Assert.That(person.GetPropertyValue<Address>("Address").City.Equals("Konoha"));
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace Pixel.Automation.Core.Tests.Extensions
             person.SetPropertyValue<int>("Age", 15);
             person.Address.SetPropertyValue<string>("Country", "Hidden Sand");
 
-            Assert.AreEqual(person.GetPropertyValue<string>("Name"), "Gaara");
-            Assert.AreEqual(person.GetPropertyValue<int>("Age"), 15);
-            Assert.IsTrue(person.GetPropertyValue<Address>("Address").Country.Equals("Hidden Sand"));
+            Assert.That(person.GetPropertyValue<string>("Name"), Is.EqualTo("Gaara"));
+            Assert.That(person.GetPropertyValue<int>("Age"), Is.EqualTo(15));
+            Assert.That(person.GetPropertyValue<Address>("Address").Country.Equals("Hidden Sand"));
         }
 
 
@@ -130,7 +130,7 @@ namespace Pixel.Automation.Core.Tests.Extensions
 
             string imports = typeof(Person).GetRequiredImportsForType(new List<Assembly>() { this.GetType().Assembly }, new List<string>() { "System.Console" });
 
-            Assert.AreEqual(sb.ToString(), imports);
+            Assert.That(imports, Is.EqualTo(sb.ToString()));
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Pixel.Automation.Core.Tests.Extensions
        
             string imports = typeof(List<Person>).GetRequiredImportsForType(new List<Assembly>() { this.GetType().Assembly }, new List<string>(){ "System.Console" });
            
-            Assert.AreEqual(sb.ToString(), imports);
+            Assert.That(imports, Is.EqualTo(sb.ToString()));
         }
     }
 }

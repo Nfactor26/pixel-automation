@@ -33,7 +33,7 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
         {
             var boundingBox = await webUIControl.GetBoundingBoxAsync();
 
-            Assert.AreEqual(new BoundingBox(0, 0, 100, 100), boundingBox);
+            Assert.That(boundingBox, Is.EqualTo(new BoundingBox(0, 0, 100, 100)));
         }
 
         [Test]
@@ -42,8 +42,8 @@ namespace Pixel.Automation.Web.Selenium.Components.Tests
             var (x, y) = await webUIControl.GetClickablePointAsync();
 
             //since pivot mode is center and x offset is 10 
-            Assert.AreEqual(60, x);
-            Assert.AreEqual(50, y);
+            Assert.That(x, Is.EqualTo(60));
+            Assert.That(y, Is.EqualTo(50));
         }
     }
 }

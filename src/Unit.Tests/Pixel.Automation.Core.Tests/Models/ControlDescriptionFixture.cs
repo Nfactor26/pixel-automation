@@ -15,21 +15,21 @@ namespace Pixel.Automation.Core.Tests.Models
             control.ApplicationId.Returns("ApplicationId");                   
             var controlDescription = new ControlDescription(control);
 
-            Assert.AreEqual("ApplicationId", controlDescription.ApplicationId);
-            Assert.IsNotNull(controlDescription.ControlId);
-            Assert.IsNotEmpty(controlDescription.ControlId);
-            Assert.AreEqual(control, controlDescription.ControlDetails);
-            Assert.IsNull(controlDescription.ControlName);
-            Assert.AreEqual("Default", controlDescription.GroupName);
-            Assert.IsNull(controlDescription.ControlImage);
+            Assert.That("ApplicationId", Is.EqualTo(controlDescription.ApplicationId));
+            Assert.That(controlDescription.ControlId is not null);
+            Assert.That(!string.IsNullOrEmpty(controlDescription.ControlId));
+            Assert.That(control, Is.EqualTo(controlDescription.ControlDetails));
+            Assert.That(controlDescription.ControlName is null);
+            Assert.That("Default", Is.EqualTo(controlDescription.GroupName));
+            Assert.That(controlDescription.ControlImage is null);
 
             controlDescription.ControlName = "ControlName";
             controlDescription.ControlImage = "ControlImage";
             controlDescription.GroupName = "GroupName";
 
-            Assert.AreEqual("ControlName", controlDescription.ControlName);
-            Assert.AreEqual("ControlImage", controlDescription.ControlImage);
-            Assert.AreEqual("GroupName", controlDescription.GroupName);
+            Assert.That("ControlName", Is.EqualTo(controlDescription.ControlName));
+            Assert.That("ControlImage", Is.EqualTo(controlDescription.ControlImage));
+            Assert.That("GroupName", Is.EqualTo(controlDescription.GroupName));
         }
 
         [Test]
@@ -46,12 +46,12 @@ namespace Pixel.Automation.Core.Tests.Models
             };
 
             var clone = controlDescription.Clone() as ControlDescription;
-            Assert.AreEqual(controlDescription.ControlName, clone.ControlName);
-            Assert.AreEqual(controlDescription.ControlImage, clone.ControlImage);
-            Assert.AreEqual(controlDescription.GroupName, clone.GroupName);
-            Assert.AreEqual(controlDescription.ControlDetails, clone.ControlDetails);
-            Assert.IsNotNull(clone.ControlId);
-            Assert.IsNotEmpty(clone.ControlId);
+            Assert.That(controlDescription.ControlName, Is.EqualTo(clone.ControlName));
+            Assert.That(controlDescription.ControlImage, Is.EqualTo(clone.ControlImage));
+            Assert.That(controlDescription.GroupName, Is.EqualTo(clone.GroupName));
+            Assert.That(controlDescription.ControlDetails, Is.EqualTo(clone.ControlDetails));
+            Assert.That(clone.ControlId is not null);
+            Assert.That(!string.IsNullOrEmpty(clone.ControlId));
         }
     }
 }
