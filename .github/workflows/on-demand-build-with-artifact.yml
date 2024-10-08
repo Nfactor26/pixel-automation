@@ -13,7 +13,7 @@ jobs:
     with:
       target-os: windows-latest
       target-runtime: win10-x64
-      target-framework: net7.0-windows
+      target-framework: net8.0-windows
       self-contained: false
 
   build-pixel-runner-for-win10-x64:
@@ -21,7 +21,7 @@ jobs:
     with:
       target-os: windows-latest
       target-runtime: win10-x64
-      target-framework: net7.0-windows
+      target-framework: net8.0-windows
       self-contained: false
 
   build-pixel-runner-for-linux-x64:
@@ -29,7 +29,7 @@ jobs:
     with:
       target-os: windows-latest
       target-runtime: linux-x64
-      target-framework: net7.0
+      target-framework: net8.0
       self-contained: false
 
 
