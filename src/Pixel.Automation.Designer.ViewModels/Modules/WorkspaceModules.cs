@@ -7,7 +7,7 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.TypeBrowser;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
-using Pixel.Automation.TestData.Repository.ViewModels;
+using Pixel.Automation.TestDataExplorer.ViewModels;
 using Pixel.Automation.TestExplorer.ViewModels;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
@@ -21,7 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>().InSingletonScope();
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
             Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
-            Kernel.Bind<ITestDataRepository>().To<TestDataRepositoryViewModel>();
+            Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();
             Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
 
             Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();

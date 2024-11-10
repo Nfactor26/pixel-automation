@@ -55,7 +55,7 @@
 		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj">
 			<Private>false</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.TestDataExplorer.ViewModels\Pixel.Automation.TestDataExplorer.ViewModels.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj">
 			<Private>false</Private>
 		</ProjectReference>

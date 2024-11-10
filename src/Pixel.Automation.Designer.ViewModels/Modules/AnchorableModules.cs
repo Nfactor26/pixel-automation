@@ -8,7 +8,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.TestData.Repository.ViewModels;
+using Pixel.Automation.TestDataExplorer.ViewModels;
 using Pixel.Automation.TestExplorer.ViewModels;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,7 +25,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IAnchorable>().To<TestExplorerHostViewModel>().InSingletonScope();
 
             Kernel.Bind<IAnchorable>().To<ApplicationExplorerViewModel>().InSingletonScope();
-            Kernel.Bind<IAnchorable>().To<TestDataRepositoryHostViewModel>().InSingletonScope();
+            Kernel.Bind<IAnchorable>().To<TestDataExplorerHostViewModel>().InSingletonScope();
 
             //Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
             //.EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IToolBox>()
