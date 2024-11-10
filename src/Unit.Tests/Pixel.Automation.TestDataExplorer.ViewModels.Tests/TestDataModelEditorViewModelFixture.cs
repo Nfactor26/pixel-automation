@@ -9,7 +9,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
+namespace Pixel.Automation.TestDataExplorer.ViewModels.Tests
 {
     /// <summary>
     /// Test Fixture for <see cref="TestDataModelEditorViewModel"/>

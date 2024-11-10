@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Pixel.Automation.Editor.Core;
 using System;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
+namespace Pixel.Automation.TestDataExplorer.ViewModels.Tests
 {
     /// <summary>
     /// Test Fixture for <see cref="TestDataSourceBuilderViewModel"/>

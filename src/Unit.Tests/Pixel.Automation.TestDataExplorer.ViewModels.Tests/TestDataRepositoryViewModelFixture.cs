@@ -17,7 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
+namespace Pixel.Automation.TestDataExplorer.ViewModels.Tests
 {
     /// <summary>
     /// Test Fixture for <see cref="TestDataRepositoryViewModel"/>
@@ -108,7 +108,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatTestDataRepositoryViewModelCanBeCorrectlyInitialized()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             Assert.That(testDataRepositoryViewModel.TestDataSourceCollection.Count, Is.EqualTo(0));
@@ -128,7 +128,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatCanCreateNewCodeDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory , dataManager);
 
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
@@ -149,7 +149,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatCanCreateNewCsvDataSource()
         {
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
             
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
@@ -181,7 +181,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
             scriptEditorFactory.When(x => x.AddProject(Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<Type>())).Do(XamlGeneratedNamespace => { });
             scriptEditorFactory.When(x => x.RemoveProject(Arg.Any<string>())).Do(x => { });
 
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
        
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
@@ -204,7 +204,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanEditCsvDataSource()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
            
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
@@ -225,7 +225,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatTestDataSourceIsClearedWhenDeactivated()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
             await testDataRepositoryViewModel.ActivateAsync();
             //projectManager.ProjectLoaded += Raise.Event<AsyncEventHandler<ProjectLoadedEventArgs>>();
@@ -242,7 +242,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         public async Task ValidateThatCanHandleShowTestDataSourceNotificationMessage()
         {
             //Arrange
-            var testDataRepositoryViewModel = new TestDataRepositoryViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
+            var testDataRepositoryViewModel = new TestDataExplorerViewModel(serializer, projectManager, projectFileSystem, scriptEditorFactory,
                 windowManager, notificationManager, eventAggregator, typeBrowserFactory, dataManager);
 
             //Act

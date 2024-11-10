@@ -4,13 +4,13 @@ using NUnit.Framework;
 using Pixel.Automation.Editor.Core;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
+namespace Pixel.Automation.TestDataExplorer.ViewModels.Tests
 {
     /// <summary>
     /// Test Fixture for <see cref="TestDataRepositoryHostViewModel"/>
     /// </summary>
     [TestFixture]
-    public class TestDataRepositoryHostViewModelFixture
+    public class TestDataExplorerHostViewModelFixture
     {
         /// <summary>
         /// Validate  that TestExplorerViewModel has a correct initial state after initialization
@@ -18,7 +18,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public void ValidateThatTestDataRepositoryHostViewModelIsCorrectlyInitialized()
         {
-            var testDataRepositoryHostViewModel = new TestDataRepositoryHostViewModel();
+            var testDataRepositoryHostViewModel = new TestDataExplorerHostViewModel();
 
             Assert.That(testDataRepositoryHostViewModel.DisplayName, Is.EqualTo("Test Data Explorer"));
             Assert.That(testDataRepositoryHostViewModel.PreferredLocation, Is.EqualTo(PaneLocation.Bottom));
@@ -32,7 +32,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels.Tests
         [TestCase]
         public async Task ValidateThatDeactivatingActiveItemShouldSetDefaultContentAsActiveItem()
         {
-            var testDataRepositoryHostViewModel = new TestDataRepositoryHostViewModel();
+            var testDataRepositoryHostViewModel = new TestDataExplorerHostViewModel();
             var defaultScreen = testDataRepositoryHostViewModel.ActiveItem;
             var newScreen = Substitute.For<IScreen>();
             await testDataRepositoryHostViewModel.ActivateItemAsync(newScreen);
