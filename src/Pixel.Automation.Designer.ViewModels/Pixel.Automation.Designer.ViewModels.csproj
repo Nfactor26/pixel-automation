@@ -18,8 +18,8 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
 		<PackageReference Include="Polly" Version="8.4.2" />
 		<PackageReference Include="MahApps.Metro" Version="2.4.9" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
 		<PackageReference Include="Ninject" Version="3.3.6" />
 		<PackageReference Include="Ninject.Extensions.ChildKernel" Version="3.3.0" />
 		<PackageReference Include="ninject.extensions.conventions" Version="3.3.0" />
@@ -28,7 +28,7 @@
 		<PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-		<PackageReference Include="Serilog.Settings.Configuration" Version="8.0.2" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
