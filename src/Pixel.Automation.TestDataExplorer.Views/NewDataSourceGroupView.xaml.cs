@@ -1,4 +1,4 @@
-﻿namespace Pixel.Automation.TestData.Repository.Views;
+﻿namespace Pixel.Automation.TestDataExplorer.Views;
 
 /// <summary>
 /// Interaction logic for NewDataSourceGroupView.xaml

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels
+namespace Pixel.Automation.TestDataExplorer.ViewModels
 {
     /// <summary>
     /// Allows to configure the details of a <see cref="TestDataSource"/>

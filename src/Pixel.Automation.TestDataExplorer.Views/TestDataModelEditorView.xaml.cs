@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pixel.Automation.TestData.Repository.Views
+namespace Pixel.Automation.TestDataExplorer.Views
 {
     /// <summary>
-    /// Interaction logic for TestDataSourceBuilderView.xaml
+    /// Interaction logic for TestDataModelEditorView.xaml
     /// </summary>
-    public partial class TestDataSourceBuilderView
+    public partial class TestDataModelEditorView : UserControl
     {
-        public TestDataSourceBuilderView()
+        public TestDataModelEditorView()
         {
             InitializeComponent();
         }

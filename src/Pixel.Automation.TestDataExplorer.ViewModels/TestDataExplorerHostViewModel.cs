@@ -4,12 +4,12 @@ using Pixel.Automation.Editor.Core.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels
+namespace Pixel.Automation.TestDataExplorer.ViewModels
 {
     /// <summary>
-    /// Host control for the TestDataRepository screen
+    /// Host control for the TestDataExplorer screen
     /// </summary>
-    public class TestDataRepositoryHostViewModel : AnchorableHost, ITestDataRepositoryHost
+    public class TestDataExplorerHostViewModel : AnchorableHost, ITestDataRepositoryHost
     {      
         /// <summary>
         /// Preferred location of the panel
@@ -19,9 +19,9 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
             get { return PaneLocation.Bottom; }
         }    
 
-        private IScreen defaultContent = new MockTestDataRepositoryViewModel();
+        private IScreen defaultContent = new MockTestDataExplorerViewModel();
 
-        public TestDataRepositoryHostViewModel()
+        public TestDataExplorerHostViewModel()
         {
             this.DisplayName = "Test Data Explorer";
             _ = this.ActivateItemAsync(defaultContent);

@@ -1,14 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Pixel.Automation.TestData.Repository.Views
+namespace Pixel.Automation.TestDataExplorer.Views
 {
     /// <summary>
-    /// Interaction logic for TestDataRepositoryView.xaml
+    /// Interaction logic for TestDataExplorerView.xaml
     /// </summary>
-    public partial class TestDataRepositoryView : UserControl
+    public partial class TestDataExplorerView : UserControl
     {
-        public TestDataRepositoryView()
+        public TestDataExplorerView()
         {
             InitializeComponent();
         }

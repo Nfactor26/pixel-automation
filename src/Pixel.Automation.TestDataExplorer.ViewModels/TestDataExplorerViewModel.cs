@@ -24,14 +24,14 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels
+namespace Pixel.Automation.TestDataExplorer.ViewModels
 {
     /// <summary>
     /// TestDataRepository allows creating different data sources which can be used in a test. TestDataRepository belongs to a workspace.
     /// </summary>
-    public class TestDataRepositoryViewModel : Screen, ITestDataRepository, IHandle<ShowTestDataSourceNotification>
+    public class TestDataExplorerViewModel : Screen, ITestDataRepository, IHandle<ShowTestDataSourceNotification>
     {
-        private readonly ILogger logger = Log.ForContext<TestDataRepositoryViewModel>();
+        private readonly ILogger logger = Log.ForContext<TestDataExplorerViewModel>();
 
         private readonly IProjectManager projectManager;
         private readonly IProjectFileSystem projectFileSystem;
@@ -75,7 +75,7 @@ namespace Pixel.Automation.TestData.Repository.ViewModels
         /// <param name="windowManager"></param>
         /// <param name="typeProvider"></param>
         /// <param name="typeBrowserFactory"></param>
-        public TestDataRepositoryViewModel(ISerializer serializer, IAutomationProjectManager projectManager, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
+        public TestDataExplorerViewModel(ISerializer serializer, IAutomationProjectManager projectManager, IProjectFileSystem projectFileSystem, IScriptEditorFactory scriptEditorFactory,
             IWindowManager windowManager, INotificationManager notificationManager, IEventAggregator eventAggregator, IArgumentTypeBrowserFactory typeBrowserFactory,
             IProjectAssetsDataManager projectAssetsDataManager)
         {

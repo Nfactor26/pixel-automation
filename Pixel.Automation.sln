@@ -55,8 +55,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Designer.V
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Scripting.Script.Editor", "src\Pixel.Scripting.Script.Editor\Pixel.Scripting.Script.Editor.csproj", "{E68A9169-63D0-4913-BE05-54A9BCA38E82}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.ViewModels", "src\Pixel.Automation.TestData.Repository.ViewModels\Pixel.Automation.TestData.Repository.ViewModels.csproj", "{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Components", "src\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj", "{0D040153-2183-4D25-861D-B3AD74953A4E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.UIA.Scrapper", "src\Pixel.Automation.UIA.Scrapper\Pixel.Automation.UIA.Scrapper.csproj", "{10A70DD1-20E3-42C7-8D98-AD11C2970F4D}"
@@ -92,8 +90,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.Views", "src\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj", "{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestExplorer.ViewModels.Tests", "src\Unit.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests\Pixel.Automation.TestExplorer.ViewModels.Tests.csproj", "{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestData.Repository.Views", "src\Pixel.Automation.TestData.Repository.Views\Pixel.Automation.TestData.Repository.Views.csproj", "{DC83E05E-6BD8-49B4-B133-87ADF186E432}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Editor.Controls", "src\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj", "{7D2893AE-B880-4AB1-9377-B508D4C0958C}"
 EndProject
@@ -170,6 +166,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.Native.Linux", "src\Pixel.Automation.Native.Linux\Pixel.Automation.Native.Linux.csproj", "{1436F4EE-4E05-4188-9A3A-42CC8807BB71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Pixel.Trace", "src\Serilog.Sinks.Pixel.Trace\Serilog.Sinks.Pixel.Trace.csproj", "{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestDataExplorer.ViewModels", "src\Pixel.Automation.TestDataExplorer.ViewModels\Pixel.Automation.TestDataExplorer.ViewModels.csproj", "{CE86FAF0-3618-4931-A0F4-685EE2EFF863}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pixel.Automation.TestDataExplorer.Views", "src\Pixel.Automation.TestDataExplorer.Views\Pixel.Automation.TestDataExplorer.Views.csproj", "{A8363B2C-9625-47ED-9C75-10843EAFC9DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,10 +249,6 @@ Global
 		{E68A9169-63D0-4913-BE05-54A9BCA38E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E68A9169-63D0-4913-BE05-54A9BCA38E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E68A9169-63D0-4913-BE05-54A9BCA38E82}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDEB001F-0AAA-4575-93CC-70E4997CFAE2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D040153-2183-4D25-861D-B3AD74953A4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D040153-2183-4D25-861D-B3AD74953A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D040153-2183-4D25-861D-B3AD74953A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -309,10 +305,6 @@ Global
 		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC83E05E-6BD8-49B4-B133-87ADF186E432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC83E05E-6BD8-49B4-B133-87ADF186E432}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC83E05E-6BD8-49B4-B133-87ADF186E432}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC83E05E-6BD8-49B4-B133-87ADF186E432}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D2893AE-B880-4AB1-9377-B508D4C0958C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7D2893AE-B880-4AB1-9377-B508D4C0958C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D2893AE-B880-4AB1-9377-B508D4C0958C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -441,6 +433,14 @@ Global
 		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE86FAF0-3618-4931-A0F4-685EE2EFF863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE86FAF0-3618-4931-A0F4-685EE2EFF863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE86FAF0-3618-4931-A0F4-685EE2EFF863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE86FAF0-3618-4931-A0F4-685EE2EFF863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8363B2C-9625-47ED-9C75-10843EAFC9DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8363B2C-9625-47ED-9C75-10843EAFC9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8363B2C-9625-47ED-9C75-10843EAFC9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8363B2C-9625-47ED-9C75-10843EAFC9DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -467,7 +467,6 @@ Global
 		{2DFBE5B9-BC50-41E9-A745-262966B61740} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 		{236A8EA6-96DD-496D-B65B-A5A35C66F6EE} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 		{E68A9169-63D0-4913-BE05-54A9BCA38E82} = {4E906FCE-BF6F-44B0-8E8D-C3F6AFEE6874}
-		{CDEB001F-0AAA-4575-93CC-70E4997CFAE2} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
 		{0D040153-2183-4D25-861D-B3AD74953A4E} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{10A70DD1-20E3-42C7-8D98-AD11C2970F4D} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
 		{F5CBC403-00B6-4156-9719-78081997B25D} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
@@ -483,7 +482,6 @@ Global
 		{31FC611F-42BE-4506-AEF5-89BB59963695} = {2CDDC9CB-DC5E-4E43-9C6C-DBC379581B34}
 		{AA4CE8C2-8F3B-403C-97FF-4AC09120BB30} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 		{B6B5E69E-F32C-45C0-9D69-6F7AE1B5CC74} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
-		{DC83E05E-6BD8-49B4-B133-87ADF186E432} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 		{7D2893AE-B880-4AB1-9377-B508D4C0958C} = {94422BB0-2426-4FA2-B9C4-29F94A3CAD7F}
 		{9EF4F6E1-22DF-4568-9D97-8087EAFD960F} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{B88DCFEF-61DD-4752-B1E0-D10287752CF6} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
@@ -517,6 +515,8 @@ Global
 		{59970211-C97D-4B93-8D13-ED34FD40C780} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{1436F4EE-4E05-4188-9A3A-42CC8807BB71} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{65FC70E2-B2F6-45AF-B0CF-21BAC68D7255} = {7E4532E6-7928-4E6F-8874-15482508447F}
+		{CE86FAF0-3618-4931-A0F4-685EE2EFF863} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
+		{A8363B2C-9625-47ED-9C75-10843EAFC9DB} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

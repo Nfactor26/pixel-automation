@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels
+namespace Pixel.Automation.TestDataExplorer.ViewModels
 {
     /// <summary>
     /// Generate the code for data source script and show the code in script editor

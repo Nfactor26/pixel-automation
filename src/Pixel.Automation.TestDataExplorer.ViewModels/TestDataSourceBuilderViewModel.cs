@@ -3,7 +3,7 @@ using Pixel.Automation.Editor.Core;
 using System.Collections.Generic;
 using Pixel.Automation.Core.TestData;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels
+namespace Pixel.Automation.TestDataExplorer.ViewModels
 {
     /// <summary>
     /// Host for the screens that user goes through while configuring a <see cref="TestDataSource"/>

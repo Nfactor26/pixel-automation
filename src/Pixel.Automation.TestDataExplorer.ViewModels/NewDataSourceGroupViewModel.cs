@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.TestData.Repository.ViewModels;
+namespace Pixel.Automation.TestDataExplorer.ViewModels;
 
 /// <summary>
 /// View model used to create a new group for test data source
