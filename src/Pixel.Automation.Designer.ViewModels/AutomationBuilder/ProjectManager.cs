@@ -163,8 +163,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureScriptEditor), ActivityKind.Internal))
             {
                 logger.Information($"Trying to configure script editor for project  : {this.GetProjectName()}.");
-                var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences());
-                assemblyReferences.Add(dataModel.GetType().Assembly.Location);
+                var assemblyReferences = new List<string>(referenceManager.GetScriptEditorReferences())
+                {
+                    dataModel.GetType().Assembly.Location
+                };
                 this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences, referenceManager.GetImportsForScripts());
                 this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")));
                 logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");

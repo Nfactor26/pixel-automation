@@ -368,7 +368,10 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             foreach (var assembly in assemblyReferences)
             {
                 var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
-                this.additionalReferences.Add(metaDataReference);
+                if(!this.additionalReferences.Any(a => a.Display.Equals(assembly.Location)))
+                {
+                    this.additionalReferences.Add(metaDataReference);
+                }
             }
         }
 

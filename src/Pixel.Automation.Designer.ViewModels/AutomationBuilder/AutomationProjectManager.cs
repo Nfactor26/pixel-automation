@@ -194,7 +194,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 //Dispose any inline editors that might be present and clean up script editor and script engine
                 this.RootEntity.DisposeEditors();
+
                 this.scriptEditorFactory.RemoveProject(RootEntity.Id);
+                this.scriptEditorFactory.RemoveAssemblyReference(this.entityManager.Arguments.GetType().Assembly);
+               
                 this.scriptEngineFactory.RemoveReferences(this.entityManager.Arguments.GetType().Assembly);
 
                 var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
@@ -202,9 +205,10 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                
                 var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);              
                 this.entityManager.Arguments = dataModel; // Setting up a new model will also configure script engine to use new assembly
-              
+
+                this.scriptEditorFactory.AddAssemblyReference(dataModel.GetType().Assembly);
+
                 this.scriptEngineFactory.WithAdditionalAssemblyReferences(this.entityManager.Arguments.GetType().Assembly);  
-                this.ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);              
            
                 this.Initialize();
                 this.SetupInitializationScriptProject(dataModel);
