@@ -6,7 +6,7 @@
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"           
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight"
-             d:DesignHeight="450" d:DesignWidth="800" MinHeight="450">
+             d:DesignHeight="450" d:DesignWidth="800" MinHeight="450" MinWidth="700">
     <controls:MetroWindow.Resources>
         <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
     </controls:MetroWindow.Resources>
@@ -28,12 +28,12 @@
                   Grid.Column="1" GridLinesVisibility="All"
                   Margin="10" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled"    
                   AutoGenerateColumns="False"  EnableRowVirtualization="True"            
-                  RowHeaderWidth="0" HorizontalAlignment="Center" VerticalAlignment="Top">
+                  RowHeaderWidth="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Prefab Name">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock x:Name="Version" Width="250" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Margin="15,0,0,0"                                  
+                            <TextBlock x:Name="PrefabName" Width="400" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Margin="15,0,0,0"                                  
                                       Text="{Binding PrefabName}" ></TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
