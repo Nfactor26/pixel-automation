@@ -58,7 +58,13 @@
                                         Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
                                         Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
                                         Kind="EdgeBrands" x:Shared="false"  />
-        
+
+
+        <iconPacks:PackIconFontAwesome x:Key="WebKit"  Margin="2" Padding="4"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"    
+                                        Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Height="{Binding Path=Height, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                                        Kind="SafariBrands" x:Shared="false"  />
+
         <DataTemplate x:Key="WebApplication">
             <Border IsHitTestVisible="True" Background="{DynamicResource  MahApps.Brushes.Control.Background}" BorderThickness="0">
                 <ContentPresenter x:Name="IconPlaceHolder" Content="{StaticResource FireFox}"/>
@@ -69,7 +75,10 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding PreferredBrowser, Converter={StaticResource enumToStringConverter}}" Value="Edge">
                     <Setter Property="Content" Value="{StaticResource Edge}"  TargetName="IconPlaceHolder"/>
-                </DataTrigger>              
+                </DataTrigger>
+                <DataTrigger Binding="{Binding PreferredBrowser, Converter={StaticResource enumToStringConverter}}" Value="WebKit">
+                    <Setter Property="Content" Value="{StaticResource WebKit}"  TargetName="IconPlaceHolder"/>
+                </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate> 
         
