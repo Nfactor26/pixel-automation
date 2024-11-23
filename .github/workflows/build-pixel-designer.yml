@@ -24,7 +24,7 @@ jobs:
    steps:
    
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.10.2
+      uses: gittools/actions/gitversion/setup@v3.0.3
       with:
         versionSpec: '5.x'
 
@@ -35,7 +35,7 @@ jobs:
 
     - name: Determine Version
       id:   gitversion
-      uses: gittools/actions/gitversion/execute@v0.10.2
+      uses: gittools/actions/gitversion/execute@v3.0.3
 
     - name: Display GitVersion outputs
       run: |   
@@ -50,6 +50,12 @@ jobs:
         echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
         echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
         echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+
+    - name: Update assembly version  
+      uses: vers-one/dotnet-project-version-updater@v1.7
+      with:
+        file: "src/**/*.csproj", "!src/**/Unit.Tests"
+        version: ${{ steps.gitversion.outputs.assemblySemVer }}
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
