@@ -23,6 +23,13 @@
     ]
   },
   {
+    "Name": "Pixel.Automation.IO.Components",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
     "Name": "Pixel.Automation.Java.Access.Bridge.Components",
     "Type": 1,
     "SupportedPlatforms": [
