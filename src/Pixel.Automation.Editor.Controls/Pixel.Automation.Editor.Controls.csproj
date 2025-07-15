@@ -7,10 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
-		<PackageReference Include="MahApps.Metro" Version="2.4.9" />
-		<PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+		<PackageReference Include="Caliburn.Micro" Version="$(CaliburnMicroVersion)" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="$(DotNetProjectsExtendedWpfToolkitVersion)" />
+		<PackageReference Include="MahApps.Metro" Version="$(MahAppsMetroVersion)" />
+		<PackageReference Include="MahApps.Metro.IconPacks" Version="$(MahAppsMetroIconPacksVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

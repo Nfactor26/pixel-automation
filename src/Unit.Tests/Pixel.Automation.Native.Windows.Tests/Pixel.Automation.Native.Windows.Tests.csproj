@@ -8,14 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
-    <PackageReference Include="NSubstitute" Version="5.3.0" />
-    <PackageReference Include="NUnit" Version="4.2.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="Vanara.Core" Version="4.0.4" />
-    <PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4" />
-    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="MouseKeyHook" Version="$(MouseKeyHookVersion)" />
+    <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
+    <PackageReference Include="NUnit" Version="$(NUnitVersion)" />
+    <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterVersion)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkVersion)" />
+    <PackageReference Include="Vanara.Core" Version="$(VanaraCoreVersion)" />
+    <PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)" />
+    <PackageReference Include="Dawn.Guard" Version="$(DawnGuardVersion)" />
   </ItemGroup>
 
   <ItemGroup>

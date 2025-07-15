@@ -7,11 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
-		<PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+		<PackageReference Include="Caliburn.Micro" Version="$(CaliburnMicroVersion)" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="$(DirksterAvalonDockVersion)" />
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="$(DotNetProjectsExtendedWpfToolkitVersion)" />
+		<PackageReference Include="Notifications.Wpf.Core" Version="$(NotificationsWpfCoreVersion)" />
+		<PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommonVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

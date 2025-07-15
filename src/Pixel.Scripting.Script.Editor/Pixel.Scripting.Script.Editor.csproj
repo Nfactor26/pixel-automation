@@ -7,10 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AvalonEdit" Version="6.3.0.90">
+		<PackageReference Include="AvalonEdit" Version="$(AvalonEditVersion)">
 		</PackageReference>
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
-		<PackageReference Include="System.Reactive" Version="6.0.1">
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="$(DotNetProjectsExtendedWpfToolkitVersion)" />
+		<PackageReference Include="System.Reactive" Version="$(SystemReactiveVersion)">
 		</PackageReference>
 	</ItemGroup>
 
