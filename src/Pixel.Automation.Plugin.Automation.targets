@@ -9,6 +9,7 @@
 			<PluginProject Include="..\Pixel.Automation.Appium.Components\Pixel.Automation.Appium.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.RestApi.Components\Pixel.Automation.RestApi.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Image.Matching.Components\Pixel.Automation.Image.Matching.Components.csproj"/>
+			<PluginProject Include="..\Pixel.Automation.IO.Components\Pixel.Automation.IO.Components.csproj" />
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">			
 			<PluginProject Include="..\Pixel.Automation.Native.Windows\Pixel.Automation.Native.Windows.csproj"/>
@@ -45,6 +46,9 @@
 			</PluginArtifacts>
 		   <PluginArtifacts Include="..\Pixel.Automation.RestApi.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.RestApi.Components</Name>
+			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.IO.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.IO.Components</Name>
 			</PluginArtifacts>
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'" >
