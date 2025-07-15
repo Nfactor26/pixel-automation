@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-    <PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
+    <PackageReference Include="Caliburn.Micro" Version="$(CaliburnMicroVersion)" />
+    <PackageReference Include="Notifications.Wpf.Core" Version="$(NotificationsWpfCoreVersion)" />
   </ItemGroup>
   
  <ItemGroup>

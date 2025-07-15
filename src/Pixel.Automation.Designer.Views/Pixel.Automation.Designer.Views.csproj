@@ -21,7 +21,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Include="Notifications.Wpf.Core" Version="1.4.1" />
+	  <PackageReference Include="Notifications.Wpf.Core" Version="$(NotificationsWpfCoreVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -17,27 +17,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0">
+		<PackageReference Include="Dawn.Guard" Version="$(DawnGuardVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="InputSimulatorStandard" Version="1.0.0">
+		<PackageReference Include="InputSimulatorStandard" Version="$(InputSimulatorStandardVersion)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
-		<PackageReference Include="System.Management" Version="8.0.0" />
-		<PackageReference Include="Vanara.Core" Version="4.0.4">
+		<PackageReference Include="SixLabors.ImageSharp" Version="$(SixLaborsImageSharpVersion)" />
+		<PackageReference Include="System.Management" Version="$(SystemManagementVersion)" />
+		<PackageReference Include="Vanara.Core" Version="$(VanaraCoreVersion)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="4.0.4">
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="$(VanaraPInvokeGdi32Version)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="4.0.4">
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="$(VanaraPInvokeKernel32Version)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Shared" Version="4.0.4">
+		<PackageReference Include="Vanara.PInvoke.Shared" Version="$(VanaraPInvokeSharedVersion)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.User32" Version="4.0.4">
+		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)">
 			<Private>false</Private>
 		</PackageReference>
 	</ItemGroup>

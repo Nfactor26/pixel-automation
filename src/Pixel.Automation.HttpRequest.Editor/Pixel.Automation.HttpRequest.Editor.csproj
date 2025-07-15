@@ -7,8 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
-		<PackageReference Include="Caliburn.Micro" Version="4.0.212" />			
+		<PackageReference Include="AvalonEdit" Version="$(AvalonEditVersion)" />
+		<PackageReference Include="Caliburn.Micro" Version="$(CaliburnMicroVersion)" />			
 	</ItemGroup>
 
 	<ItemGroup>

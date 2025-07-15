@@ -12,16 +12,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dawn.Guard" Version="1.12.0">
+		<PackageReference Include="Dawn.Guard" Version="$(DawnGuardVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<!--<PackageReference Include="McMaster.NETCore.Plugins" Version="1.4.0" />-->		
-		<PackageReference Include="Serilog" Version="4.1.0">
+		<PackageReference Include="Serilog" Version="$(SerilogVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="AutoMapper" Version="13.0.1" />
-		<PackageReference Include="CsvHelper" Version="33.0.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+		<PackageReference Include="AutoMapper" Version="$(AutoMapperVersion)" />
+		<PackageReference Include="CsvHelper" Version="$(CsvHelperVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

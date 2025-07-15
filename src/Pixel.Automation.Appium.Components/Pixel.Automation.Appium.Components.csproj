@@ -8,8 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Appium.WebDriver" Version="6.0.0" />
-		<PackageReference Include="Selenium.Support" Version="4.25.0" />		
+		<PackageReference Include="Appium.WebDriver" Version="$(AppiumWebDriverVersion)" />
+		<PackageReference Include="Selenium.Support" Version="$(SeleniumSupportVersion)" />		
 	</ItemGroup>
 
 	<ItemGroup>

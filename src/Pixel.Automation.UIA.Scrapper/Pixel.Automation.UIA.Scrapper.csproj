@@ -9,8 +9,8 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="MouseKeyHook" Version="5.7.1" />		
-		<PackageReference Include="Caliburn.Micro" Version="4.0.212">
+		<PackageReference Include="MouseKeyHook" Version="$(MouseKeyHookVersion)" />		
+		<PackageReference Include="Caliburn.Micro" Version="$(CaliburnMicroVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>

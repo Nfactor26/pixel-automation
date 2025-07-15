@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">	
+﻿<Project Sdk="Microsoft.NET.Sdk"> 
 
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>		
@@ -7,22 +7,22 @@
 	</PropertyGroup>
 
 	<ItemGroup>	
-		<PackageReference Include="Serilog" Version="4.1.0">
+		<PackageReference Include="Serilog" Version="$(SerilogVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108">
+		<PackageReference Include="OpenCvSharp4" Version="$(OpenCvSharp4Version)">
 			<IncludeAssets>all</IncludeAssets>
 		</PackageReference>		
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-		<PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="4.6.0.20220608">
+		<PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="$(OpenCvSharp4RuntimeUbuntu1804x64Version)">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-		<PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108">
+		<PackageReference Include="OpenCvSharp4.runtime.win" Version="$(OpenCvSharp4RuntimeWinVersion)">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
