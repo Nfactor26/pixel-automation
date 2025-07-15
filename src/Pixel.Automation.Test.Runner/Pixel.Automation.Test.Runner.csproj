@@ -57,6 +57,7 @@
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Engine.CSharp\Pixel.Scripting.Engine.CSharp.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.IO.Components\Pixel.Automation.IO.Components.csproj" />
 		<ProjectReference Include="..\Serilog.Sinks.Pixel.Trace\Serilog.Sinks.Pixel.Trace.csproj" />
 	</ItemGroup>
 	

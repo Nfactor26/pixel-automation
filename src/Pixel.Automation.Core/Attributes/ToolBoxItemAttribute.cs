@@ -6,7 +6,7 @@ namespace Pixel.Automation.Core.Attributes
     /// <summary>
     /// Any component decorated with this attribute will appear in the components tool box provide by the designer application.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ToolBoxItemAttribute : Attribute
     {
         /// <summary>
