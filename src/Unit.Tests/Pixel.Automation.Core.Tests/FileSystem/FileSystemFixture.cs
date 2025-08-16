@@ -56,7 +56,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, fileSystemIdentifer));
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, fileSystemIdentifer), true);
         }
 
         [Test]
