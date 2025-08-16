@@ -12,8 +12,8 @@ namespace Pixel.Automation.Core.Tests.FileSystem
     {
         private ApplicationSettings appSettings;
         private PrefabFileSystem prefabFileSystem;
-        private string prefabId = "Prefab-Id";     
-        private string applicationId = "Application-Id";
+        private string prefabId = Guid.NewGuid().ToString();     
+        private string applicationId = Guid.NewGuid().ToString();
         private string workingDirectory;
 
         [OneTimeSetUp]
@@ -33,8 +33,7 @@ namespace Pixel.Automation.Core.Tests.FileSystem
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, "1.0.0.0"));
-            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.AutomationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, "2.0.0.0"));
+            Directory.Delete(Path.Combine(Environment.CurrentDirectory, appSettings.ApplicationDirectory, applicationId));         
         }
 
         [Test]
