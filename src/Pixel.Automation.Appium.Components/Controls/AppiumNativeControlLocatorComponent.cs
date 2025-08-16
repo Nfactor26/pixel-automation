@@ -242,7 +242,7 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
                 foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElement(MobileBy.AndroidViewMatcher(identifier)); });
                 break;
             case "IOS UI Automation":
-                foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElement(MobileBy.IosUIAutomation(identifier)); });
+                foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElement(MobileBy.IosNSPredicate(identifier)); });
                 break;           
             case "XPath":
                 foundControl = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElement(By.XPath(identifier)); });
@@ -291,7 +291,7 @@ public class AppiumNativeControlLocatorComponent : ServiceComponent, IControlLoc
                 foundControls = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElements(MobileBy.AndroidViewMatcher(identifier)); });
                 break;
             case "Ios UI Automation":
-                foundControls = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElements(MobileBy.IosUIAutomation(identifier)); });
+                foundControls = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElements(MobileBy.IosNSPredicate(identifier)); });
                 break;
             case "XPath":
                 foundControls = new WebElementWait(searchRoot, TimeSpan.FromSeconds(searchTimeout)).Until(p => { return p.FindElements(By.XPath(identifier)); });

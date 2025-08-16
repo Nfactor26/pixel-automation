@@ -1,6 +1,4 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Appium.Android;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
@@ -21,12 +19,7 @@ public class HideKeyboardCodeActorComponent : AppiumElementActorComponent
     [DataMember]
     [Display(Name = "Key", GroupName = "Input", Order = 10, Description = "[Optional] The button pressed by the mobile driver to attempt hiding the keyboard")]
     public Argument Key { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.Default };
-
-    [DataMember]
-    [Display(Name = "Strategy", GroupName = "Input", Order = 20, Description = "[Optional] Hide keyboard strategy (optional, UIAutomation only). Available strategies - 'press', 'pressKey', 'swipeDown', 'tapOut', 'tapOutside', 'default'.")]
-    public Argument Strategy { get; set; } = new InArgument<string>() { CanChangeType = false, Mode = ArgumentMode.Default };
-       
-
+    
     /// <summary>
     /// Default constructor
     /// </summary>
@@ -44,15 +37,17 @@ public class HideKeyboardCodeActorComponent : AppiumElementActorComponent
         if(this.Key.IsConfigured())
         {
             key = await this.ArgumentProcessor.GetValueAsync<string>(this.Key);
-        }
-        string strategy = null;
-        if(this.Strategy.IsConfigured())
-        {
-            strategy = await this.ArgumentProcessor.GetValueAsync<string>(this.Strategy);
-        }
+        }      
         if(!this.ApplicationDetails.Driver.IsKeyboardShown())
         {
-            this.ApplicationDetails.Driver.HideKeyboard(key, strategy);
+            if(string.IsNullOrEmpty(key))
+            {
+                this.ApplicationDetails.Driver.HideKeyboard();
+            }
+            else
+            {
+                this.ApplicationDetails.Driver.HideKeyboard(key);
+            }
             logger.Information("Keyboard was hidden");
         }
     }

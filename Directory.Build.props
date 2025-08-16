@@ -1,79 +1,79 @@
 <Project>
   <PropertyGroup>
-    <!-- Centralized package versions -->
-    <SerilogVersion>4.1.0</SerilogVersion>
+    <!-- Centralized package versions - updated to latest as of June 2024 -->
+    <SerilogVersion>4.3.0</SerilogVersion>
     <SerilogEnrichersEnvironmentVersion>3.0.1</SerilogEnrichersEnvironmentVersion>
     <SerilogEnrichersThreadVersion>4.0.0</SerilogEnrichersThreadVersion>
     <SerilogEnrichersSpanVersion>3.1.0</SerilogEnrichersSpanVersion>
     <SerilogEnrichersProcessVersion>3.0.0</SerilogEnrichersProcessVersion>
-    <SerilogSettingsConfigurationVersion>8.0.4</SerilogSettingsConfigurationVersion>
-    <SerilogSinksFileVersion>6.0.0</SerilogSinksFileVersion>
-    <SerilogSinksHttpVersion>9.0.0</SerilogSinksHttpVersion>
-    <SerilogSinksOpenTelemetryVersion>4.1.1</SerilogSinksOpenTelemetryVersion>
+    <SerilogSettingsConfigurationVersion>9.0.0</SerilogSettingsConfigurationVersion>
+    <SerilogSinksFileVersion>7.0.0</SerilogSinksFileVersion>
+    <SerilogSinksHttpVersion>9.2.0</SerilogSinksHttpVersion>
+    <SerilogSinksOpenTelemetryVersion>4.2.0</SerilogSinksOpenTelemetryVersion>
     <SerilogSinksSpectreConsoleVersion>0.3.3</SerilogSinksSpectreConsoleVersion>
     <SerilogSinksConsoleVersion>6.0.0</SerilogSinksConsoleVersion>
     <SerilogSinksPeriodicBatchingVersion>5.0.0</SerilogSinksPeriodicBatchingVersion>
-    <SpectreConsoleVersion>0.49.1</SpectreConsoleVersion>
-    <SpectreConsoleCliVersion>0.49.1</SpectreConsoleCliVersion>
-    <OpenTelemetryExporterConsoleVersion>1.9.0</OpenTelemetryExporterConsoleVersion>
-    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.9.0</OpenTelemetryExporterOpenTelemetryProtocolVersion>
-    <OpenTelemetryExtensionsHostingVersion>1.9.0</OpenTelemetryExtensionsHostingVersion>
-    <OpenTelemetryInstrumentationHttpVersion>1.9.0</OpenTelemetryInstrumentationHttpVersion>
+    <SpectreConsoleVersion>0.49.2</SpectreConsoleVersion>
+    <SpectreConsoleCliVersion>0.49.2</SpectreConsoleCliVersion>
+    <OpenTelemetryExporterConsoleVersion>1.12.0</OpenTelemetryExporterConsoleVersion>
+    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.12.0</OpenTelemetryExporterOpenTelemetryProtocolVersion>
+    <OpenTelemetryExtensionsHostingVersion>1.12.0</OpenTelemetryExtensionsHostingVersion>
+    <OpenTelemetryInstrumentationHttpVersion>1.12.0</OpenTelemetryInstrumentationHttpVersion>
     <DawnGuardVersion>1.12.0</DawnGuardVersion>
     <SystemComponentModelAnnotationsVersion>5.0.0</SystemComponentModelAnnotationsVersion>
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     <SystemDynamicRuntimeVersion>4.3.0</SystemDynamicRuntimeVersion>
-    <SeleniumSupportVersion>4.26.1</SeleniumSupportVersion>
-    <SeleniumWebDriverVersion>4.26.1</SeleniumWebDriverVersion>
-    <AvalonEditVersion>6.3.0.90</AvalonEditVersion>
-    <DotNetProjectsExtendedWpfToolkitVersion>5.0.115</DotNetProjectsExtendedWpfToolkitVersion>
+    <SeleniumSupportVersion>4.35.0</SeleniumSupportVersion>
+    <SeleniumWebDriverVersion>4.35.0</SeleniumWebDriverVersion>
+    <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
+    <DotNetProjectsExtendedWpfToolkitVersion>5.0.124</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
-    <PollyVersion>8.4.2</PollyVersion>
-    <AutoMapperVersion>13.0.1</AutoMapperVersion>
-    <CsvHelperVersion>33.0.1</CsvHelperVersion>
+    <PollyVersion>8.6.2</PollyVersion>
+    <AutoMapperVersion>15.0.1</AutoMapperVersion>
+    <CsvHelperVersion>33.1.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
-    <SixLaborsImageSharpVersion>3.1.5</SixLaborsImageSharpVersion>
-    <SystemManagementVersion>8.0.0</SystemManagementVersion>
-    <VanaraCoreVersion>4.0.4</VanaraCoreVersion>
-    <VanaraPInvokeGdi32Version>4.0.4</VanaraPInvokeGdi32Version>
-    <VanaraPInvokeKernel32Version>4.0.4</VanaraPInvokeKernel32Version>
-    <VanaraPInvokeSharedVersion>4.0.4</VanaraPInvokeSharedVersion>
-    <VanaraPInvokeUser32Version>4.0.4</VanaraPInvokeUser32Version>
+    <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
+    <SystemManagementVersion>9.0.8</SystemManagementVersion>
+    <VanaraCoreVersion>4.1.6</VanaraCoreVersion>
+    <VanaraPInvokeGdi32Version>4.1.6</VanaraPInvokeGdi32Version>
+    <VanaraPInvokeKernel32Version>4.1.6</VanaraPInvokeKernel32Version>
+    <VanaraPInvokeSharedVersion>4.1.6</VanaraPInvokeSharedVersion>
+    <VanaraPInvokeUser32Version>4.1.6</VanaraPInvokeUser32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
-    <CaliburnMicroVersion>4.0.212</CaliburnMicroVersion>
-    <MahAppsMetroVersion>2.4.9</MahAppsMetroVersion>
+    <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
+    <MahAppsMetroVersion>2.4.10</MahAppsMetroVersion>
     <MahAppsMetroIconPacksVersion>4.11.0</MahAppsMetroIconPacksVersion>
-    <NotificationsWpfCoreVersion>1.4.1</NotificationsWpfCoreVersion>
-    <MicrosoftCodeAnalysisCommonVersion>4.11.0</MicrosoftCodeAnalysisCommonVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>4.11.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisCSharpFeaturesVersion>4.11.0</MicrosoftCodeAnalysisCSharpFeaturesVersion>
-    <MicrosoftCodeAnalysisCSharpScriptingVersion>4.11.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
+    <NotificationsWpfCoreVersion>2.0.1</NotificationsWpfCoreVersion>
+    <MicrosoftCodeAnalysisCommonVersion>4.14.0</MicrosoftCodeAnalysisCommonVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>4.14.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisCSharpFeaturesVersion>4.14.0</MicrosoftCodeAnalysisCSharpFeaturesVersion>
+    <MicrosoftCodeAnalysisCSharpScriptingVersion>4.14.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
     <SystemRuntimeLoaderVersion>4.3.0</SystemRuntimeLoaderVersion>
     <DirksterAvalonDockVersion>4.72.1</DirksterAvalonDockVersion>
-    <SystemDrawingCommonVersion>8.0.10</SystemDrawingCommonVersion>
-    <GongWpfDragDropVersion>3.2.1</GongWpfDragDropVersion>
-    <OpenCvSharp4Version>4.10.0.20241108</OpenCvSharp4Version>
+    <SystemDrawingCommonVersion>9.0.8</SystemDrawingCommonVersion>
+    <GongWpfDragDropVersion>4.0.0</GongWpfDragDropVersion>
+    <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
-    <OpenCvSharp4RuntimeWinVersion>4.10.0.20241108</OpenCvSharp4RuntimeWinVersion>
-    <MicrosoftPlaywrightVersion>1.48.0</MicrosoftPlaywrightVersion>
-    <FluentAssertionsVersion>6.12.2</FluentAssertionsVersion>
-    <AppiumWebDriverVersion>6.0.0</AppiumWebDriverVersion>
+    <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
+    <MicrosoftPlaywrightVersion>1.54.0</MicrosoftPlaywrightVersion>
+    <FluentAssertionsVersion>8.6.0</FluentAssertionsVersion>
+    <AppiumWebDriverVersion>8.0.0</AppiumWebDriverVersion>
     <RestSharpVersion>112.1.0</RestSharpVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.2</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>8.0.1</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>9.0.8</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>9.0.8</MicrosoftExtensionsConfigurationJsonVersion>
     <NinjectVersion>3.3.6</NinjectVersion>
     <NinjectExtensionsChildKernelVersion>3.3.0</NinjectExtensionsChildKernelVersion>
     <NinjectExtensionsConventionsVersion>3.3.0</NinjectExtensionsConventionsVersion>
     <NinjectExtensionsFactoryVersion>3.3.3</NinjectExtensionsFactoryVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>8.0.1</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsConfigurationVersion>8.0.0</MicrosoftExtensionsConfigurationVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>9.0.8</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftExtensionsConfigurationVersion>9.0.8</MicrosoftExtensionsConfigurationVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
-    <NUnitVersion>4.2.2</NUnitVersion>
-    <NUnit3TestAdapterVersion>4.6.0</NUnit3TestAdapterVersion>
-    <MicrosoftNETTestSdkVersion>17.11.1</MicrosoftNETTestSdkVersion>
-    <CoverletCollectorVersion>6.0.2</CoverletCollectorVersion>
-    <NUnitAnalyzersVersion>4.3.0</NUnitAnalyzersVersion>
+    <NUnitVersion>4.4.0</NUnitVersion>
+    <NUnit3TestAdapterVersion>5.1.0</NUnit3TestAdapterVersion>
+    <MicrosoftNETTestSdkVersion>17.14.1</MicrosoftNETTestSdkVersion>
+    <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
+    <NUnitAnalyzersVersion>4.10.0</NUnitAnalyzersVersion>
     <!-- Add more versions as needed -->
   </PropertyGroup>
 </Project>
