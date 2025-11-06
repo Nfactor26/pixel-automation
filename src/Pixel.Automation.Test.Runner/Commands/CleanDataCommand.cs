@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Pixel.Persistence.Services.Client;
 using Spectre.Console.Cli;
+using System.Threading;
 
 namespace Pixel.Automation.Test.Runner.Commands;
 
@@ -20,10 +21,10 @@ internal sealed class CleanDataCommand : Command<Settings>
         this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
     }
 
-    /// <inheritdoc/>    
-    public override int Execute(CommandContext context, Settings settings)
+    /// <inheritdoc/> 
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        applicationDataManager.CleanLocalData();       
+        applicationDataManager.CleanLocalData();
         return 0;
     }
 }

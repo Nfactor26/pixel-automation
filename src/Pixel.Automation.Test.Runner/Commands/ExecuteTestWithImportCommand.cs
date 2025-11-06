@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteTestWithImportCommand;
 
@@ -49,7 +50,7 @@ internal class ExecuteTestWithImportCommand : RunTestCommand<ExecuteTestWithImpo
         TraceManager.IsEnabled = false;
     }
 
-    public async override Task<int> ExecuteAsync(CommandContext context, ExecuteTestWithImportSettings settings)
+    public async override Task<int> ExecuteAsync(CommandContext context, ExecuteTestWithImportSettings settings, CancellationToken cancellationToken)
     {
         using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {

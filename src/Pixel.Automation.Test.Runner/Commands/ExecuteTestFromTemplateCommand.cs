@@ -1,12 +1,13 @@
 ﻿using Dawn;
 using Pixel.Automation.Core;
-using Pixel.Persistence.Services.Client.Interfaces;
 using Pixel.Persistence.Services.Client;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteTestFromTemplateCommand;
 
@@ -38,7 +39,7 @@ internal sealed class ExecuteTestFromTemplateCommand : RunTestCommand<ExecuteTes
         this.templateManager = Guard.Argument(templateManager, nameof(templateManager)).NotNull();      
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, ExecuteTestFromTemplateSettings settings, CancellationToken cancellationToken)
     {
         using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {
