@@ -2,6 +2,7 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner.Commands;
@@ -26,7 +27,7 @@ internal sealed class EditTemplateCommand : AsyncCommand<TemplateSettings>
     }
 
     /// <inheritdoc/>    
-    public override async Task<int> ExecuteAsync(CommandContext context, TemplateSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, TemplateSettings settings, CancellationToken cancellationToken)
     {
         var templateName = console.Ask<string>("Enter name of [green]template[/] to edit");
         var templateToEdit = await templateManager.GetByNameAsync(templateName) ?? 

@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static Pixel.Automation.Test.Runner.Commands.ExecuteAdhocTestCommand;
 
@@ -54,7 +55,7 @@ internal sealed class ExecuteAdhocTestCommand : RunTestCommand<AdhocTestSettings
     }
 
     /// <inheritdoc/>    
-    public override async Task<int> ExecuteAsync(CommandContext context, AdhocTestSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, AdhocTestSettings settings, CancellationToken cancellationToken)
     {
         using (Telemetry.DefaultSource?.StartActivity(nameof(ExecuteAsync), ActivityKind.Internal))
         {

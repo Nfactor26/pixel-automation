@@ -1,4 +1,5 @@
 ﻿using Spectre.Console.Cli;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Test.Runner.Commands;
@@ -20,7 +21,7 @@ internal sealed class ListTemplatesCommand : AsyncCommand<TemplateSettings>
     }
 
     /// <inheritdoc/>    
-    public override async Task<int> ExecuteAsync(CommandContext context, TemplateSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, TemplateSettings settings, CancellationToken cancellationToken)
     {
         await templateManager.ListAllAsync();
         return 0;
