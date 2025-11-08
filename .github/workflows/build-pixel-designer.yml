@@ -6,6 +6,9 @@ on:
       target-os:
         required: true
         type: string
+      dotnet-version:
+        required: true
+        type: string
       target-runtime:
         required: true
         type: string
@@ -61,7 +64,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+        dotnet-version: ${{ inputs.dotnet-version }}
 
     - name: Install latest version of nuget
       uses: nuget/setup-nuget@v2
@@ -75,7 +78,6 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-          
     - name: Restore dependencies
       run: dotnet restore Pixel.Automation.sln
 
