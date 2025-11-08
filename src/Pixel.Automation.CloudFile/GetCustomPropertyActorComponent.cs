@@ -10,7 +10,8 @@ using Windows.Storage;
 namespace Pixel.Automations.CloudFile;
 
 /// <summary>
-/// Use <see cref="ClickActorComponent"/> to clear the value of a control.  
+/// Retrieves a custom property from a specified cloud file.
+/// Use <see cref="GetCustomPropertyActorComponent"/> to obtain the value of a property by its identifier from a file or directory in the cloud.  
 /// </summary>
 [DataContract]
 [Serializable]

@@ -15,7 +15,7 @@
 		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Shell32" Version="$(VanaraPInvokeUser32Version)" >
+		<PackageReference Include="Vanara.PInvoke.Shell32" Version="$(VanaraPInvokeShell32Version)" >
 			<Private>false</Private>
 		</PackageReference>
 		<PackageReference Include="Vanara.Windows.Shell" Version="$(VanaraCoreVersion)" >

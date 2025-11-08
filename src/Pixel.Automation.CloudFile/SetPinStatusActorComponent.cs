@@ -26,7 +26,7 @@ public class SetPinStatusActorComponent : ActorComponent
     public Argument Path { get; set; } = new InArgument<string>() { Mode = ArgumentMode.Default, DefaultValue = string.Empty };
 
     [DataMember]
-    [DisplayName("Path")]
+    [DisplayName("Pin Status")]
     [Category("Input")]
     [Description("Pin Status to set. Set Pinned to 'Always Keep On Device' or UnPinned to 'Free Up Space'.")]
     public Argument PinStatus { get; set; } = new InArgument<PinState>() { AllowedModes = ArgumentMode.DataBound | ArgumentMode.Scripted, Mode = ArgumentMode.DataBound, CanChangeType = false };
