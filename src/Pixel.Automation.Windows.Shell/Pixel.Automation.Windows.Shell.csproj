@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
+		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Vanara.Core" Version="$(VanaraCoreVersion)" >
+			<Private>false</Private>
+		</PackageReference>
+		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)">
+			<Private>false</Private>
+		</PackageReference>
+		<PackageReference Include="Vanara.PInvoke.Shell32" Version="$(VanaraPInvokeUser32Version)" >
+			<Private>false</Private>
+		</PackageReference>
+		<PackageReference Include="Vanara.Windows.Shell" Version="$(VanaraCoreVersion)" >
+			<Private>false</Private>
+		</PackageReference>
+	</ItemGroup>
+
+	<!--<ItemGroup>
+		<COMReference Include="SHDocVw">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>1</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>eab22ac0-30c1-11cf-a7eb-0000c05bae0b</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+		<COMReference Include="Shell32">
+			<WrapperTool>tlbimp</WrapperTool>
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>1</VersionMajor>
+			<Guid>50a7e9b0-70ef-11d1-b75a-00a0c90564fe</Guid>
+			<Lcid>0</Lcid>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>true</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>-->
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
+
+</Project>
