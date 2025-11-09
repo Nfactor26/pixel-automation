@@ -104,10 +104,10 @@
 	
 	<Target Name="selenium-manager" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 		<ItemGroup>
-			<PluginRuntimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Selenium.Components\selenium-manager\**\*.*"/>
+			<PluginRuntimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Selenium.Components\runtimes\**\*.*"/>
 		</ItemGroup>
-		<Move  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(TargetDir)\selenium-manager\%(RecursiveDir)" ContinueOnError="true"/>
-		<RemoveDir Directories="$(TargetDir)\Plugins\Pixel.Automation.Web.Selenium.Components\selenium-manager"/>
+		<Move  SourceFiles="@(PluginRuntimeFiles)"  DestinationFolder="$(TargetDir)\runtimes\%(RecursiveDir)" ContinueOnError="true"/>
+		<RemoveDir Directories="$(TargetDir)\Plugins\Pixel.Automation.Web.Selenium.Components\runtimes"/>
 		<Message Text="Move selenium-manager -- completed" Importance="high"/>
 	</Target>
 

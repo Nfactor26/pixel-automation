@@ -12,7 +12,7 @@ namespace Pixel.Automation.Web.Playwright.Components;
 /// </summary>
 [DataContract]
 [Serializable]
-[ToolBoxItem("Type", "Playwright", iconSource: null, description: "Type in to text field character by character", tags: new string[] { "Type", "Web" })]
+[ToolBoxItem("Press Sequentially", "Playwright", iconSource: null, description: "Press keys one by one", tags: new string[] { "Type", "Web" })]
 
 public class PressSequentiallyActorComponent : PlaywrightActorComponent
 {

@@ -24,8 +24,8 @@
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     <SystemDynamicRuntimeVersion>4.3.0</SystemDynamicRuntimeVersion>
-    <SeleniumSupportVersion>4.35.0</SeleniumSupportVersion>
-    <SeleniumWebDriverVersion>4.35.0</SeleniumWebDriverVersion>
+    <SeleniumSupportVersion>4.38.0</SeleniumSupportVersion>
+    <SeleniumWebDriverVersion>4.38.0</SeleniumWebDriverVersion>
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
     <DotNetProjectsExtendedWpfToolkitVersion>5.0.124</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
@@ -35,11 +35,12 @@
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
     <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
     <SystemManagementVersion>9.0.8</SystemManagementVersion>
-    <VanaraCoreVersion>4.1.6</VanaraCoreVersion>
-    <VanaraPInvokeGdi32Version>4.1.6</VanaraPInvokeGdi32Version>
-    <VanaraPInvokeKernel32Version>4.1.6</VanaraPInvokeKernel32Version>
-    <VanaraPInvokeSharedVersion>4.1.6</VanaraPInvokeSharedVersion>
-    <VanaraPInvokeUser32Version>4.1.6</VanaraPInvokeUser32Version>
+    <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
+    <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
+    <VanaraPInvokeKernel32Version>4.2.1</VanaraPInvokeKernel32Version>
+    <VanaraPInvokeSharedVersion>4.2.1</VanaraPInvokeSharedVersion>
+    <VanaraPInvokeUser32Version>4.2.1</VanaraPInvokeUser32Version>
+    <VanaraPInvokeShell32Version>4.2.1</VanaraPInvokeShell32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
     <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
     <MahAppsMetroVersion>2.4.10</MahAppsMetroVersion>
@@ -56,9 +57,9 @@
     <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
     <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
-    <MicrosoftPlaywrightVersion>1.54.0</MicrosoftPlaywrightVersion>
+    <MicrosoftPlaywrightVersion>1.55.0</MicrosoftPlaywrightVersion>
     <FluentAssertionsVersion>8.6.0</FluentAssertionsVersion>
-    <AppiumWebDriverVersion>8.0.0</AppiumWebDriverVersion>
+    <AppiumWebDriverVersion>8.0.1</AppiumWebDriverVersion>
     <RestSharpVersion>112.1.0</RestSharpVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>9.0.8</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsConfigurationJsonVersion>9.0.8</MicrosoftExtensionsConfigurationJsonVersion>

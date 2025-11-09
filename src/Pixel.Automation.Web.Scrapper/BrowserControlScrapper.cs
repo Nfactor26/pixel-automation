@@ -105,7 +105,6 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
                 $"--disable-extensions-except={pathToExtension}",
                 $"--load-extension={pathToExtension}"
             },
-            Channel = "chrome",
             ViewportSize = ViewportSize.NoViewport
         });
         var page = browserContext.Pages[0];
@@ -162,11 +161,13 @@ public class BrowserControlScrapper : PropertyChangedBase, IControlScrapper, IHa
     }
 
     /// <summary>
-    /// Install chrome stock browser for use with scraping
+    /// Install open source chromium browser for use with scraping. 
+    /// Chrome and Edge browser deprecated support for extensions in automation mode.
     /// </summary>  
     void InstallBrowser()
-    {        
-        Program.Main(new[] { "install", "chrome" });        
+    {
+        logger.Information("Check and install browser : Chromium if needed");
+        Program.Main(new[] { "install", "chromium" });
     }
 
 
