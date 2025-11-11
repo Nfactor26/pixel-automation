@@ -85,7 +85,7 @@ jobs:
       run: dotnet build src/Pixel.Automation.Designer.Views/Pixel.Automation.Designer.Views.csproj -c release --no-restore --runtime ${{ inputs.target-runtime }} --self-contained ${{ inputs.self-contained }} -p:TargetFramework=${{ inputs.target-framework }}
 
     - name: Upload pixel-designer artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pixel-designer-${{ inputs.target-runtime }}
         path: .builds/release/designer/${{ inputs.target-framework }}/${{ inputs.target-runtime }}
