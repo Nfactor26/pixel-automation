@@ -106,9 +106,6 @@
 	<Target Name="MoveOpenCVRuntimes" AfterTargets="CopyPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 		<ItemGroup>
 			<OpenCVRunTimeFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\runtimes\**\*.*"/>
-		</ItemGroup>		
-		<ItemGroup  Condition="'$(RunTimeIdentifier)' == 'linux-x64'">
-			<OpenCVRunTimeAssemblies Include="$(TargetDir)\Plugins\Pixel.Automation.Image.Matching.Components\libOpenCvSharpExtern.so"/>			
 		</ItemGroup>
 		<!--For visual studio builds of pixel-designer, move runtime folder from plugins directory to application-root\runtime directory-->
 		<Move  SourceFiles="@(OpenCVRunTimeFiles)"  DestinationFolder="$(TargetDir)\runtimes\%(RecursiveDir)"/>	
