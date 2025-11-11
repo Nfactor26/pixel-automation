@@ -103,5 +103,19 @@
     "SupportedPlatforms": [
       "WINDOWS"
     ]
+  },
+  {
+    "Name": "Pixel.Automation.CloudFile",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
+  },
+  {
+    "Name": "Pixel.Automation.Windows.Shell",
+    "Type": 1,
+    "SupportedPlatforms": [
+      "WINDOWS"
+    ]
   }
 ]

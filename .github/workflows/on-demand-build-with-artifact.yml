@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/build-pixel-designer.yml
     with:
       target-os: windows-latest
+      dotnet-version: 8.0.x
       target-runtime: win10-x64
       target-framework: net8.0-windows
       self-contained: false
@@ -20,6 +21,7 @@ jobs:
     uses: ./.github/workflows/build-pixel-runner.yml
     with:
       target-os: windows-latest
+      dotnet-version: 8.0.x
       target-runtime: win10-x64
       target-framework: net8.0-windows
       self-contained: false
@@ -28,6 +30,7 @@ jobs:
     uses: ./.github/workflows/build-pixel-runner.yml
     with:
       target-os: windows-latest
+      dotnet-version: 8.0.x
       target-runtime: linux-x64
       target-framework: net8.0
       self-contained: false

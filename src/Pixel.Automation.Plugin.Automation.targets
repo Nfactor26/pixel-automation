@@ -1,6 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
+	<Target Name="BuildPlugins" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows' Or '$(TargetFramework)' == 'net8.0-windows10.0.22621.0'">
+		<!-- Define Plugin Projects to build based on TargetFramework -->
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 			<PluginProject Include="..\Pixel.Automation.Assertions.Components\Pixel.Automation.Assertions.Components.csproj"/>	
 			<PluginProject Include="..\Pixel.Automation.Scripting.Components\Pixel.Automation.Scripting.Components.csproj"/>
@@ -16,18 +17,24 @@
 			<PluginProject Include="..\Pixel.Automation.UIA.Components\Pixel.Automation.UIA.Components.csproj"/>
 			<PluginProject Include="..\Pixel.Automation.Java.Access.Bridge.Components\Pixel.Automation.Java.Access.Bridge.Components.csproj"/>		
 			<PluginProject Include="..\Pixel.Automation.Input.Devices.Components\Pixel.Automation.Input.Devices.Components.csproj"/>
-			<PluginProject Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj"/>
-		</ItemGroup>
+			<PluginProject Include="..\Pixel.Automation.Window.Management.Components\Pixel.Automation.Window.Management.Components.csproj"/>		
+			<PluginProject Include="..\Pixel.Automation.Windows.Shell\Pixel.Automation.Windows.Shell.csproj"/>
+		</ItemGroup>		
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
 			<PluginProject Include="..\Pixel.Automation.Native.Linux\Pixel.Automation.Native.Linux.csproj"/>
 		</ItemGroup>
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.22621.0'">
+			<PluginProject Include="..\Pixel.Automation.CloudFile\Pixel.Automation.CloudFile.csproj"/>
+		</ItemGroup>
+		<!--Build using MSBuild-->
 		<Message Text="Build Plugins -- TargetFramework : $(TargetFramework), RunTimeIdentifier : $(RuntimeIdentifier)" Importance="high"/>
 		<MSBuild Projects="@(PluginProject)" Targets="Build" Properties="Configuration=$(Configuration);
 				 RuntimeIdentifier=$(RuntimeIdentifier);"/>
 		<Message Text="Build Plugins -- completed" Importance="high"/>
 	</Target>
 
-	<Target Name="CopyPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
+	<Target Name="CopyPlugins" AfterTargets="BuildPlugins" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows' Or '$(TargetFramework)' == 'net8.0-windows10.0.22621.0'">
+		<!-- Define Plugin Artifacts to copy based on TargetFramework -->
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">
 			<PluginArtifacts Include="..\Pixel.Automation.Assertions.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Assertions.Components</Name>
@@ -70,6 +77,12 @@
 			<PluginArtifacts Include="..\Pixel.Automation.Window.Management.Components\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
 				<Name>Pixel.Automation.Window.Management.Components</Name>
 			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.CloudFile\bin\$(Configuration)\net8.0-windows10.0.22621.0\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.CloudFile</Name>
+			</PluginArtifacts>
+			<PluginArtifacts Include="..\Pixel.Automation.Windows.Shell\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.Windows.Shell</Name>
+			</PluginArtifacts>
 		</ItemGroup>
 		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'" >
 			<PluginArtifacts Include="..\Pixel.Automation.Native.Linux\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
@@ -79,6 +92,12 @@
 				<Name>Pixel.Automation.Image.Matching.Components</Name>
 			</PluginArtifacts>
 		</ItemGroup>
+		<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.22621.0'" >
+			<PluginArtifacts Include="..\Pixel.Automation.CloudFile\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\**\*.*">
+				<Name>Pixel.Automation.CloudFile</Name>
+			</PluginArtifacts>		
+		</ItemGroup>
+		<!--Copy plugins to plugins folder-->
 		<Message Text="Copying Plugins -- %(PluginArtifacts.FullPath) to $(TargetDir)Plugin\%(PluginArtifacts.Name)" Importance="high"/>
 		<Copy SourceFiles="%(PluginArtifacts.FullPath)" DestinationFolder="$(TargetDir)Plugins\%(PluginArtifacts.Name)\%(RecursiveDir)"/>
 		<Message Text="Copying Plugins -- completed" Importance="high"/>

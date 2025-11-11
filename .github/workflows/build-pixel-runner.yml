@@ -6,6 +6,9 @@ on:
       target-framework:
         required: true
         type: string
+      dotnet-version:
+        required: true
+        type: string  
       target-os:
         required: true
         type: string
@@ -61,7 +64,12 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-       dotnet-version: ${{ matrix.dotnet-version }}
+       dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Install latest version of nuget
+      uses: nuget/setup-nuget@v2
+      with:
+        nuget-version: 'latest'
 
     - name : Cache nuget packages
       uses: actions/cache@v4

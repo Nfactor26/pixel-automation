@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableDynamicLoading>true</EnableDynamicLoading>	
+		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
+		<SatelliteResourceLanguages>en-US;</SatelliteResourceLanguages>
+		<UseWinRT>true</UseWinRT>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Vanara.Windows.Shell" Version="$(VanaraCoreVersion)" />
+		<PackageReference Include="Vanara.Core" Version="$(VanaraCoreVersion)" />
+		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="$(VanaraPInvokeGdi32Version)" />
+		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="$(VanaraPInvokeKernel32Version)" />
+		<PackageReference Include="Vanara.PInvoke.Shared" Version="$(VanaraPInvokeSharedVersion)" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)" />
+		<PackageReference Include="Vanara.PInvoke.CldApi" Version="$(VanaraCoreVersion)" />
+		<PackageReference Include="Vanara.PInvoke.Ole" Version="$(VanaraCoreVersion)" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
+</Project>
