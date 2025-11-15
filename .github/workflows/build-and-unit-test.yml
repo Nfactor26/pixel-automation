@@ -36,4 +36,4 @@ jobs:
     - name: Build
       run: dotnet build Pixel.Automation.sln -c release --no-restore
     - name: Test
-      run: dotnet test Pixel.Automation.sln --no-build --verbosity normal --filter 'FullyQualifiedName!~UIAComWrapper'
+      run: dotnet test Pixel.Automation.sln -c release --no-build --verbosity normal --filter 'FullyQualifiedName!~UIAComWrapper'
