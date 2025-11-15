@@ -34,6 +34,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Pixel.Automation.sln
     - name: Build
-      run: dotnet build Pixel.Automation.sln --no-restore
+      run: dotnet build Pixel.Automation.sln -c release --no-restore
     - name: Test
       run: dotnet test Pixel.Automation.sln --no-build --verbosity normal --filter 'FullyQualifiedName!~UIAComWrapper'

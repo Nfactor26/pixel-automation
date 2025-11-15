@@ -9,15 +9,9 @@ on:
       dotnet-version:
         required: true
         type: string
-      target-runtime:
-        required: true
-        type: string
       target-framework:
         required: true
         type: string     
-      self-contained:
-        required: true
-        type: string
 
 jobs:
 
@@ -81,11 +75,17 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Pixel.Automation.sln
 
-    - name: Build pixel-designer for runtime win10-64 and targetframework net6.0-windows
-      run: dotnet build src/Pixel.Automation.Designer.Views/Pixel.Automation.Designer.Views.csproj -c release --no-restore --runtime ${{ inputs.target-runtime }} --self-contained ${{ inputs.self-contained }} -p:TargetFramework=${{ inputs.target-framework }}
+    - name: Build pixel-designer and runner
+      run: dotnet build Pixel.Automation.sln -c release --no-restore
 
     - name: Upload pixel-designer artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: pixel-designer-${{ inputs.target-runtime }}
-        path: .builds/release/designer/${{ inputs.target-framework }}/${{ inputs.target-runtime }}
+        name: pixel-designer-${{ inputs.target-framework }}
+        path: .builds/release/designer/${{ inputs.target-framework }}
+
+    - name: Upload pixel-runner artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: pixel-runner-${{ inputs.target-framework }}
+        path: .builds/release/runner/${{ inputs.target-framework }}
