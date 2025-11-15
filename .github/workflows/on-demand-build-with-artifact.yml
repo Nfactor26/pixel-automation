@@ -8,23 +8,12 @@ on:
 
 jobs:
 
-  build-pixel-designer-for-win10-x64:
+  build-pixel-designer-and-runner-for-win10-x64:
     uses: ./.github/workflows/build-pixel-designer.yml
     with:
       target-os: windows-latest
       dotnet-version: 8.0.x
-      target-runtime: win-x64
       target-framework: net8.0-windows
-      self-contained: false
-
-  build-pixel-runner-for-win10-x64:
-    uses: ./.github/workflows/build-pixel-runner.yml
-    with:
-      target-os: windows-latest
-      dotnet-version: 8.0.x
-      target-runtime: win-x64
-      target-framework: net8.0-windows
-      self-contained: false
 
   build-pixel-runner-for-linux-x64:
     uses: ./.github/workflows/build-pixel-runner.yml
