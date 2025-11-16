@@ -2,8 +2,11 @@
 using Roslyn.Utilities;
 using System.Collections;
 using System.Collections.Immutable;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Reference.Manager;
@@ -27,17 +30,22 @@ public class AssemblyReferences
     {
         var result = Empty.With(typeNamespaceImports: new[]
         {
-            typeof(object),
-            typeof(Thread),
-            typeof(Task),
-            typeof(List<>),
-            typeof(Regex),
-            typeof(StringBuilder),
-            typeof(Uri),
-            typeof(Enumerable),
-            typeof(IEnumerable),
-            typeof(Path),
-            typeof(Assembly)
+            typeof(object),          // System.Private.CoreLib.dll
+            typeof(Thread),          // System.Threading.Thread.dll
+            typeof(Task),            // System.Threading.Tasks.dll
+            typeof(List<>),          // System.Collections.dll
+            typeof(Regex),           // System.Text.RegularExpressions.dll
+            typeof(StringBuilder),   // System.Text.dll
+            typeof(Uri),             // System.Runtime.dll
+            typeof(Enumerable),      // System.Linq.dll         
+            typeof(Component),       // System.ComponentModel.Primitives.dll
+            typeof(Console),         // System.Console.dll
+            typeof(Assembly),        // System.Reflection.dll
+            typeof(Process),         // System.Diagnostics.Process.dll
+            typeof(Encoding),        // System.Text.Encoding.dll
+            typeof(File),            // System.IO.FileSystem.dll
+           typeof(HttpClient),       // System.Net.Http.dll
+
         }, assemblyReferences: new[]
         {
             typeof(Microsoft.CSharp.RuntimeBinder.Binder).Assembly
