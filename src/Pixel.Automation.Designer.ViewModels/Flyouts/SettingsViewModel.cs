@@ -14,6 +14,8 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
         public ThemeSettings ThemeSettings { get; private set; }
 
         public ApplicationSettings ApplicationSettings { get; private set; }
+
+        public bool ShowConsoleWindow { get; set; }
        
         public SettingsViewModel(IConfiguration configurationManager, ApplicationSettings applicationSettings, UserSettings userSettings)
         {
@@ -25,6 +27,7 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
 
             this.ApplicationSettings = applicationSettings;
             this.ThemeSettings = new ThemeSettings(userSettings);
+            this.ShowConsoleWindow = userSettings.ShowConsoleWindow;
         }
 
 
@@ -33,7 +36,8 @@ namespace Pixel.Automation.Designer.ViewModels.Flyouts
             var userSettings = new UserSettings()
             {
                 Theme = this.ThemeSettings.SelectedAppTheme?.Name ?? "Light",
-                Accent = this.ThemeSettings.SelectedAccentColor?.Name ?? "Crimson"
+                Accent = this.ThemeSettings.SelectedAccentColor?.Name ?? "Crimson",
+                ShowConsoleWindow = this.ShowConsoleWindow
             };  
           
             AddOrUpdateSection("userSettings", userSettings);

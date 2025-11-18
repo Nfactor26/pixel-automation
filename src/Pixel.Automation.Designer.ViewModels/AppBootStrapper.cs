@@ -11,6 +11,7 @@ using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.Modules;
 using Pixel.Automation.Designer.ViewModels.Shell;
+using Pixel.Automation.Editor.Core;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.Serialization;
 using Pixel.Persistence.Services.Client;
@@ -35,21 +36,23 @@ namespace Pixel.Automation.Designer.ViewModels
            
         public AppBootstrapper()
         {
-            #if DEBUG
-            ConsoleManager.Show();
-            #endif
-           
             configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
-
+           
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
-
           
             logger = Log.ForContext<AppBootstrapper>();
+
+            var userSettings = configuration.GetSection("userSettings").Get<UserSettings>();
+            if (userSettings.ShowConsoleWindow)
+            {
+                ConsoleManager.Show();
+            }
+           
             Initialize();
         }
 
