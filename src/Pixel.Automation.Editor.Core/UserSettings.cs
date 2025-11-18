@@ -10,5 +10,8 @@ namespace Pixel.Automation.Editor.Core
 
         [DataMember]
         public string Accent { get; set; }
+
+        [DataMember]
+        public bool ShowConsoleWindow { get; set; }
     }
 }

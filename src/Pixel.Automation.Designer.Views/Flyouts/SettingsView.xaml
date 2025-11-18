@@ -33,7 +33,12 @@
                         <CheckBox x:Name="IsOfflineMode" IsChecked="{Binding ApplicationSettings.IsOfflineMode}" Content="Work Offline"></CheckBox>
                         <Button x:Name="InfoIsOfflineMode" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,0"
                                     ToolTip="Indicates whether to work in offline mode. Data is stored locally in offline mode."/>
-                    </StackPanel>                   
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginTop}">
+                        <CheckBox x:Name="ShowConsoleWindow" IsChecked="{Binding ShowConsoleWindow}" Content="Show Console Window"/>
+                        <Button x:Name="InfoShowConsoleWindow" Style="{StaticResource InfoButtonStyle}" Margin="5,0,0,0"
+                                ToolTip="Show or hide the console window. Console window can show live logs and telemetry data."/>
+                    </StackPanel>
                 </StackPanel>
             </Controls:MetroTabItem>
             
