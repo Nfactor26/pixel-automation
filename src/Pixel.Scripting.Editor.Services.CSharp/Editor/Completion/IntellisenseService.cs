@@ -46,17 +46,17 @@ namespace Pixel.Scripting.Editor.Services.Completion
             if (completionList != null)
             {
                 // Only trigger on space if Roslyn has object creation items
-                if (request.TriggerCharacter == ' ' && !completionList.Items.Any(i => i.IsObjectCreationCompletionItem()))
+                if (request.TriggerCharacter == ' ' && !completionList.ItemsList.Any(i => i.IsObjectCreationCompletionItem()))
                 {
                     return completions;
                 }
 
                 // get recommended symbols to match them up later with SymbolCompletionProvider
                 var semanticModel = await document.GetSemanticModelAsync();
-                var recommendedSymbols = await Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel, position, this.workspaceManager.GetWorkspace());
+                var recommendedSymbols = await Recommender.GetRecommendedSymbolsAtPositionAsync(document, position);
 
                 var isSuggestionMode = completionList.SuggestionModeItem != null;
-                foreach (var item in completionList.Items)
+                foreach (var item in completionList.ItemsList)
                 {
                     var completionText = item.DisplayText;
                     var preselect = item.Rules.MatchPriority == MatchPriority.Preselect;
@@ -123,7 +123,7 @@ namespace Pixel.Scripting.Editor.Services.Completion
                     }
                 }
             }
-            return completions
+            return completions.Distinct()
                 .OrderByDescending(c => c.CompletionText.IsValidCompletionStartsWithExactCase(wordToComplete))
                 .ThenByDescending(c => c.CompletionText.IsValidCompletionStartsWithIgnoreCase(wordToComplete))
                 .ThenByDescending(c => c.CompletionText.IsCamelCaseMatch(wordToComplete))

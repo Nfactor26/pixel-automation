@@ -13,6 +13,10 @@ namespace Pixel.Scripting.Common.CSharp
         private readonly ConcurrentDictionary<string, ImmutableArray<PortableExecutableReference>> cache;
         private readonly List<string> whiteListedReferences = new List<string>();
 
+        public ImmutableArray<string> SearchPaths => resolver.SearchPaths;
+        
+        public string BaseDirectory => resolver.BaseDirectory;
+
         public CachedScriptMetadataResolver(ScriptMetadataResolver scriptMetaDataResolver, bool useCache = false)
         {
             resolver = scriptMetaDataResolver;
