@@ -56,7 +56,7 @@ public class LoadDirectiveCompletionProvider : CompletionProvider
         if (document.Project.CompilationOptions?.MetadataReferenceResolver is CachedScriptMetadataResolver resolver)
         {
             string baseDir = resolver.BaseDirectory;
-            if (Path.Exists(Path.Combine(baseDir, "Scripts")))
+            if (Directory.Exists(Path.Combine(baseDir, "Scripts")))
             {
                 baseDir = Path.Combine(baseDir, "Scripts");
             }
