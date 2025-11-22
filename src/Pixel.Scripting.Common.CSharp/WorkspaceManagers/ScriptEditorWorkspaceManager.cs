@@ -96,9 +96,9 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             
             var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));           
             compilationOptions = compilationOptions.WithMetadataReferenceResolver(metaDataReferenceResolver);
-           
+
             //SourceFileResolver is required so that #load directive can be used in script
-            this.scriptCompilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
+            compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
             return compilationOptions;
         }
 
