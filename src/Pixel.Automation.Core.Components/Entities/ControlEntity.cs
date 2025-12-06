@@ -115,16 +115,36 @@ public abstract class ControlEntity : Entity, IControlEntity
         }
     }
 
+    private Argument configureScript = new FuncArgument<Func<IControlIdentity, Task>>()
+    {
+        CanChangeType = false,
+        AllowedModes = ArgumentMode.Scripted,
+        Mode = ArgumentMode.Scripted
+    };
+
+    [DataMember(Order = 255)]
+    [Display(Name = "Configure Script", GroupName = "Customize", Order = 45)]
+    [Description("Script that executes before look happens. Example usage : Use it to modify control identity details")]
+    public virtual Argument ConfigureScript
+    {
+        get => configureScript;
+        set
+        {   
+            configureScript = value;
+            OnPropertyChanged();
+        }
+    }
+
     [DataMember(Order = 260)]
     [Display(Name = "Enable Caching", GroupName = "Caching", Order = 50,
         Description = "Subsequent requests for target control from child components will return cached value if caching is enabled")]
     public bool CacheControl { get; set; } = false;
 
-  
+    private ControlDescription controlDescription;
     [Browsable(false)]
     public ControlDescription ControlDescription
     {
-        get => LoadControlDescription();            
+        get => controlDescription;            
     }
 
     [Browsable(false)]
@@ -206,5 +226,32 @@ public abstract class ControlEntity : Entity, IControlEntity
         var fn = await scriptEngine.CreateDelegateAsync<Func<IComponent, UIControl, Task<bool>>>(predicateScriptFile);
         bool isMatch = await fn(this, targetElement);
         return isMatch;
+    }
+
+    /// <summary>
+    /// This method modifies the ControlDetails by executing the ConfigureScript if configured. Use the returned ControlDetails for further processing.
+    /// Trying to get ControlDetails directly will give the original details without any modification.
+    /// </summary>
+    /// <returns></returns>
+    protected async Task ExecuteConfigureScriptAsync()
+    {
+        if (this.ConfigureScript.IsConfigured())
+        {
+            IScriptEngine scriptEngine = this.EntityManager.GetScriptEngine();
+            var fn = await scriptEngine.CreateDelegateAsync<Func<IControlIdentity, Task>>(this.ConfigureScript.ScriptFile);           
+            await fn(this.ControlDetails);          
+        }     
+    }
+
+    public override Task BeforeProcessAsync()
+    {
+       this.controlDescription = LoadControlDescription();
+       return base.BeforeProcessAsync();
+    }
+
+    public override Task OnCompletionAsync()
+    {
+        this.controlDescription = null;
+        return base.OnCompletionAsync();
     }
 }

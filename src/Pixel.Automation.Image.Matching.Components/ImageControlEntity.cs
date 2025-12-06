@@ -91,6 +91,9 @@ public class ImageControlEntity : ControlEntity
     {
         BoundingBox regionOfInterest = await GetRegionOfInterest();
         ImageControlLocatorComponent controlLocator;
+
+        await ExecuteConfigureScriptAsync();
+
         if (this.EntityManager.TryGetOwnerApplication(this, out IApplication application))
         {
             controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as ImageControlLocatorComponent;
@@ -128,6 +131,7 @@ public class ImageControlEntity : ControlEntity
     public override async Task<IEnumerable<UIControl>> GetAllControls()
     {
         BoundingBox regionOfInterest = await GetRegionOfInterest();
+        await ExecuteConfigureScriptAsync();
         ImageControlLocatorComponent controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails) as ImageControlLocatorComponent;
         var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, new ImageUIControl(this.ControlDetails, regionOfInterest));          
         return foundControls;

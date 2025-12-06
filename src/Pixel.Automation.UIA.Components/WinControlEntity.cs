@@ -46,6 +46,8 @@ public class WinControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
+        await ExecuteConfigureScriptAsync();
+
         var uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         switch (LookupMode)
         {
@@ -84,6 +86,7 @@ public class WinControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
+        await ExecuteConfigureScriptAsync();
         var uiaControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         var foundControls = await uiaControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);            
         return foundControls;

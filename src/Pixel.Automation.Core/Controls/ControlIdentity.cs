@@ -171,5 +171,20 @@ namespace Pixel.Automation.Core.Controls
 
         /// <inheritdoc/>
         public abstract object Clone();
+
+        /// <inheritdoc/>
+        public IControlIdentity GetDescendant(string name)
+        {
+            IControlIdentity current = this;
+            while(current != null)
+            {
+                if (string.Equals(current.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return current;
+                }
+                current = current.Next;
+            }
+            throw new ArgumentException($"Descendant control with name '{name}' not found.");
+        }
     }
 }

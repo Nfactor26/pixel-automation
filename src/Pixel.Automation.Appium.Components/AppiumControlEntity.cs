@@ -51,6 +51,8 @@ public class AppiumControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
+        await ExecuteConfigureScriptAsync();
+
         var androidControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         switch (LookupMode)
         {
@@ -90,6 +92,8 @@ public class AppiumControlEntity : ControlEntity
         {
             searchRoot = await controlEntity.GetControl();
         }
+
+        await ExecuteConfigureScriptAsync();
         var controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
         return foundControls;
