@@ -29,7 +29,8 @@ public class WebControlEntityFixture
             LookupMode = Core.Enums.LookupMode.FindSingle,
             CacheControl = enableCaching,
             SearchRoot = new InArgument<UIControl>()
-        };      
+        };
+        await webControlEntity.BeforeProcessAsync();
 
         //On first request to GetControl, control should be cached if caching is enabled
         var foundControl = await webControlEntity.GetControl();
