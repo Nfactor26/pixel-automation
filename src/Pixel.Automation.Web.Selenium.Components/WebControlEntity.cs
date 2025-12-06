@@ -52,6 +52,8 @@ public class WebControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
+        await ExecuteConfigureScriptAsync();
+
         var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         switch (LookupMode)
         {
@@ -91,6 +93,8 @@ public class WebControlEntity : ControlEntity
         {
             searchRoot = await controlEntity.GetControl();
         }
+
+        await ExecuteConfigureScriptAsync();
         var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);           
         return foundControls;

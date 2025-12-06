@@ -63,6 +63,11 @@ namespace Pixel.Automation.Core.Interfaces
         {
             get; set;
         }
+
+        /// <summary>
+        /// Get the descendant control identity by name
+        /// </summary>      
+        IControlIdentity GetDescendant(string name);
     }
 
     /// <summary>

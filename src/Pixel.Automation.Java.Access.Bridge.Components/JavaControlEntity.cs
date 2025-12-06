@@ -46,6 +46,8 @@ public class JavaControlEntity : ControlEntity
             searchRoot = await controlEntity.GetControl();
         }
 
+        await ExecuteConfigureScriptAsync();
+
         var controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         switch (LookupMode)
         {
@@ -82,6 +84,8 @@ public class JavaControlEntity : ControlEntity
         {
             searchRoot = await controlEntity.GetControl();
         }
+
+        await ExecuteConfigureScriptAsync();
         var controlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
         var foundControls = await controlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
         return foundControls;

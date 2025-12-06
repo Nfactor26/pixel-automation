@@ -36,11 +36,11 @@ namespace Pixel.Automation.RunTime
             if (Controls.ContainsKey(controlId))
             {
                 logger.Debug("Control with applicationId {0} && controlId : {1} is available in cache.", applicationId, controlId);
-                return Controls[controlId];
+                return Controls[controlId].Clone() as ControlDescription;
             }
             var control = LoadControl(applicationId, controlId);
             this.Controls.Add(controlId, control);
-            return control;
+            return control.Clone() as ControlDescription;
         }
 
         /// <inheritdoc/>      
@@ -65,14 +65,7 @@ namespace Pixel.Automation.RunTime
             var controlVersionInUse = controlReferences.GetControlVersionInUse(applicationId, controlId);
             var controlFile = Path.Combine(applicationSettings.ApplicationDirectory, applicationId, Constants.ControlsDirectory, controlId, controlVersionInUse.ToString(),  $"{controlId}.dat");
             logger.Debug("Control with applicationId {0} && controlId : {1} and version : {2} has been loaded.", applicationId, controlId, controlVersionInUse);
-            var controlDescription = this.fileSystem.LoadFile<ControlDescription>(controlFile);
-            var rootIdentity = controlDescription.ControlDetails;
-            while (rootIdentity != null)
-            {
-                rootIdentity.Name = controlDescription.ControlName + ":" + rootIdentity.Name;
-                rootIdentity = rootIdentity.Next;
-            }
-            return controlDescription;
+            return this.fileSystem.LoadFile<ControlDescription>(controlFile);         
         }
 
         /// <summary>

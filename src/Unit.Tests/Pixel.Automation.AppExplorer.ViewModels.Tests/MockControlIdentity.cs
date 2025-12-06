@@ -39,5 +39,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Tests
         {
             return this.Name;
         }
+
+        public IControlIdentity GetDescendant(string name)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

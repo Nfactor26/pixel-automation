@@ -124,11 +124,26 @@ public class ImageControlIdentity : NotifyPropertyChanged, IImageControlIdentity
 
     }
 
-   /// <summary>
-   /// Get the configured images for the control. Multiple image can be associated with a image control identity e.g. for different themese and reoslutions.
-   /// One of them can be picked at runtime for image matching based on configuration.
-   /// </summary>
-   /// <returns></returns>
+    /// <inheritdoc/>
+    public IControlIdentity GetDescendant(string name)
+    {
+        IControlIdentity current = this;
+        while (current != null)
+        {
+            if (string.Equals(current.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return current;
+            }
+            current = current.Next;
+        }
+        throw new ArgumentException($"Descendant control with name '{name}' not found.");
+    }
+
+    /// <summary>
+    /// Get the configured images for the control. Multiple image can be associated with a image control identity e.g. for different themese and reoslutions.
+    /// One of them can be picked at runtime for image matching based on configuration.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<ImageDescription> GetImages()
     {
         return this.ControlImages;
@@ -201,5 +216,5 @@ public class ImageControlIdentity : NotifyPropertyChanged, IImageControlIdentity
     public override string ToString()
     {
         return $"{this.Name} -> MatchStrategy:{this.matchStrategy}|Threshold:{this.thresHold}";
-    }       
+    }  
 }

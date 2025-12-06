@@ -46,6 +46,8 @@ namespace Pixel.Automation.Web.Playwright.Components
                 searchRoot = await controlEntity.GetControl();
             }
 
+            await ExecuteConfigureScriptAsync();
+
             var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             switch (LookupMode)
             {
@@ -86,6 +88,8 @@ namespace Pixel.Automation.Web.Playwright.Components
             {
                 searchRoot = await controlEntity.GetControl();
             }
+
+            await ExecuteConfigureScriptAsync();
             var webControlLocator = this.EntityManager.GetControlLocator(this.ControlDetails);
             var foundControls = await webControlLocator.FindAllControlsAsync(this.ControlDetails, searchRoot);
             return foundControls;
