@@ -144,7 +144,14 @@ public abstract class ControlEntity : Entity, IControlEntity
     [Browsable(false)]
     public ControlDescription ControlDescription
     {
-        get => controlDescription;            
+        get
+        {
+            if (controlDescription is null)
+            {
+                controlDescription = LoadControlDescription();
+            }
+            return controlDescription;
+        }
     }
 
     [Browsable(false)]
