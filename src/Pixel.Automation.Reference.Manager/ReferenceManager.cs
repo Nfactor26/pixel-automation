@@ -73,13 +73,13 @@ internal class ReferenceManager : IReferenceManager
     ///<inheritdoc/>  
     public IEnumerable<string> GetCodeEditorReferences()
     {
-        return this.projectReferences.EditorReferences.CommonEditorReferences.Union(this.projectReferences.EditorReferences.CodeEditorReferences);
+        return this.projectReferences.EditorReferences.GetCodeEditorReferences();
     }
 
     ///<inheritdoc/>  
     public IEnumerable<string> GetScriptEditorReferences()
     {
-        return this.projectReferences.EditorReferences.CommonEditorReferences.Union(this.projectReferences.EditorReferences.ScriptEditorReferences);
+        return this.projectReferences.EditorReferences.GetScriptEditorReferences();
     }
 
     ///<inheritdoc/>  

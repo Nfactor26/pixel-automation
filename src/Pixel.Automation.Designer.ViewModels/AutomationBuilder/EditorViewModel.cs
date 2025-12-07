@@ -2,6 +2,7 @@
 using Dawn;
 using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -122,7 +123,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 if (!result.GetValueOrDefault())
                 {
                     return;
-                }
+                }               
                 logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
             }
             catch (Exception ex)
@@ -242,7 +243,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// Reload the project while preserving the last editor state e.g. test cases opened earlier
         /// </summary>
         /// <returns></returns>
-        protected abstract Task Reload();       
+        protected abstract Task Reload(EditorReferences existing, EditorReferences updated);       
 
         /// <inheritdoc/>      
         public async Task ManageControlReferencesAsync()
@@ -264,12 +265,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             try
             {
-                var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem(),
-                    this.projectManager.GetReferenceManager());
+                var referenceManager = this.projectManager.GetReferenceManager();
+                var existingReferences = referenceManager.GetEditorReferences().Clone() as EditorReferences;
+                var versionManager = this.versionManagerFactory.CreateAssemblyReferenceManager(this.EntityManager.GetCurrentFileSystem(), referenceManager);
                 var result = await this.windowManager.ShowDialogAsync(versionManager);
                 if(result.HasValue && result.Value)
                 {
-                    await this.Reload();
+                    var editedReferences = referenceManager.GetEditorReferences().Clone() as EditorReferences;                  
+                    await this.Reload(existingReferences, editedReferences);
                 }               
             }
             catch (Exception ex)
@@ -453,8 +456,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }  
         }
-
-
+      
         #endregion IHandle<T>
 
         #region IDisposable
@@ -472,7 +474,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 this.ActiveItem = null;
             }
         }
-       
+
         #endregion IDisposable
     }
 }

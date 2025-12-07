@@ -59,10 +59,16 @@ namespace Pixel.Automation.Core
         IScriptEngineFactory WithWhiteListedReferences(IEnumerable<string> whiteListedReferences);
 
         /// <summary>
-        /// Remove one or more default assembly references to be made available to the script
+        /// Remove one or more assembly references to be made available to the script
         /// </summary>
         /// <param name="references"></param>
         void RemoveReferences(params Assembly[] references);
+
+        /// <summary>
+        /// Remove one or more assembly references to be made available to the script
+        /// </summary>
+        /// <param name="references">Path of assembly references</param>
+        void RemoveReferences(params string[] references);
 
         /// <summary>
         /// Create script engine

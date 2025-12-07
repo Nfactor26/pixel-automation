@@ -4,6 +4,7 @@ using Pixel.Scripting.Script.Editor.REPL;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -89,6 +90,26 @@ namespace Pixel.Scripting.Script.Editor
         protected virtual void Dispose(bool isDisposing)
         {
             this.editorService.Dispose();
+        }
+
+        public void AddAssemblyReference(Assembly assembly)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddAssemblyReferences(params string[] assemblies)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAssemblyReference(Assembly assembly)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAssemblyReferences(params string[] assemblies)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -148,7 +148,11 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="assemblyReference">Assembly to remove</param>
         void RemoveAssemblyReference(Assembly assemblyReference);
 
-
+        /// <summary>
+        /// Remove assembly references from the workspace. Any existing project which already references the assembly will not be impacted
+        /// </summary>
+        /// <param name="assemblyReference"></param>
+        void RemoveAssemblyReferences(params string[] assemblyReference);
     }
 
     public interface IScriptWorkspaceManager : IWorkspaceManager
@@ -179,6 +183,12 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="imports"></param>
         void AddImports(params string[] imports);
+
+        /// <summary>
+        /// Remove imports from the CompilationOptions.
+        /// </summary>
+        /// <param name="imports"></param>
+        void RemoveImports(params string[] imports);
 
     }
 

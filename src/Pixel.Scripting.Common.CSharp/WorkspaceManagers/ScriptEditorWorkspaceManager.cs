@@ -127,8 +127,29 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         {
             foreach(var import in imports)
             {
-                this.imports.Add(import);
+                if(!this.imports.Contains(import))
+                {
+                    this.imports.Add(import);
+                }
             }
+            UpdateCompilationOptions();
+        }
+
+        public void RemoveImports(params string[] imports)
+        {
+            if(this.GetAllProjects().Any())
+            {
+                throw new InvalidOperationException("Cannot remove imports when there are existing projects in workspace.");
+               
+            }
+            foreach (var import in imports)
+            {
+                if(this.imports.Contains(import))
+                {
+                    this.imports.Remove(import);
+                }              
+            }
+            UpdateCompilationOptions();
         }
 
         void UpdateCompilationOptions()
@@ -138,7 +159,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
 
             this.metaDataReferenceResolver = this.metaDataReferenceResolver?.WithScriptMetaDataResolver(metaDataResolver);
-            this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver);
+            this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver)
+                    .WithUsings(AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));
         }
     }
 }

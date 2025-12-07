@@ -47,6 +47,34 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="projectName"></param>
         void RemoveProject(string projectName);
+
+        /// <summary>
+        /// Add a reference to specified assembly. Any new projets created will have 
+        /// this reference added automatically. Existing projects are not impacted.
+        /// </summary>
+        /// <param name="assembly">Assembly to add</param>
+        void AddAssemblyReference(Assembly assembly);
+
+        /// <summary>
+        /// Add a reference to specified assemblies. Any new projets created will have 
+        /// these reference added automatically. Existing projects are not impacted.
+        /// </summary>
+        /// <param name="assemblies">Path of the assemblies</param>
+        void AddAssemblyReferences(params string[] assemblies);
+
+        /// <summary>
+        /// Remove reference of an existing assembly. Any new project created will not have 
+        /// this assembly reference. Existing projects will not be impacted.
+        /// </summary>
+        /// <param name="assembly">Assembly to remove</param>
+        void RemoveAssemblyReference(Assembly assembly);
+
+        /// <summary>
+        /// Remove reference of an existing assembly. Any new project created will not have 
+        /// this assembly reference. Existing projects will not be impacted.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        void RemoveAssemblyReferences(params string[] assemblies);
     }
 
     public interface ICodeEditorFactory : IEditorFactory
@@ -83,7 +111,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// <param name="projectName">Name of the project to be compiled</param>
         /// <param name="outputAssemblyName">Desired name of the output assembly</param>
         /// <returns>CompilationResult</returns>
-        CompilationResult CompileProject(string projectName, string outputAssemblyName);
+        CompilationResult CompileProject(string projectName, string outputAssemblyName);        
     }
 
     public interface IScriptEditorFactory : IEditorFactory
@@ -124,21 +152,7 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// Dispose and remove cahced inline script editor from cache
         /// </summary>
         /// <param name="identifier"></param>
-        void RemoveInlineScriptEditor(string identifier);
-
-        /// <summary>
-        /// Add a reference to specified assembly. Any new projets created will have 
-        /// this reference added automatically. Existing projects are not impacted.
-        /// </summary>
-        /// <param name="assembly">Assembly to add</param>
-        void AddAssemblyReference(Assembly assembly);
-
-        /// <summary>
-        /// Remove reference of an existing assembly. Any new project created will not have 
-        /// this assembly reference. Existing projects will not be impacted.
-        /// </summary>
-        /// <param name="assembly">Assembly to remove</param>
-        void RemoveAssemblyReference(Assembly assembly);
+        void RemoveInlineScriptEditor(string identifier);            
 
         /// <summary>
         /// Add additional locations from which #r assemblies can be resolved from.
@@ -151,6 +165,20 @@ namespace Pixel.Scripting.Editor.Core.Contracts
         /// </summary>
         /// <param name="searchPaths"></param>
         void RemoveSearchPaths(params string[] searchPaths);
+
+        /// <summary>
+        /// Add using imports. Any new projets created will have 
+        /// these imports added automatically. Existing projects are not impacted.
+        /// </summary>
+        /// <param name="imports"></param>
+        void AddImports(params string[] imports);
+
+        /// <summary>
+        /// Remove using imports. Any new projets created will not have
+        /// these imports. Existing projects are not impacted.
+        /// </summary>
+        /// <param name="imports"></param>
+        void RemoveImports(params string[] imports);
 
     }
 

@@ -100,7 +100,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         public abstract Task Save();
 
         ///<inheritdoc/>
-        public abstract Task Reload();
+        public abstract Task Reload(EditorReferences existing, EditorReferences updated);
 
         #endregion abstract methods
         
@@ -351,6 +351,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         #endregion helper methods
-     
+
     }
 }

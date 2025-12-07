@@ -27,7 +27,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Get the RefereManager for the project
         /// </summary>
         /// <returns></returns>
-        IReferenceManager GetReferenceManager();
+        IReferenceManager GetReferenceManager();        
 
         /// <summary>
         /// Download a file associated with project given it's name
@@ -69,7 +69,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// Reload the project
         /// </summary>
         /// <returns></returns>
-        Task Reload();
+        Task Reload(EditorReferences existing, EditorReferences updated);
 
         /// <summary>
         /// Save all project data

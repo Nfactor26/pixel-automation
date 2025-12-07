@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Core.Models
 {
     [DataContract]
-    public class EditorReferences
+    public class EditorReferences : ICloneable
     {
         /// <summary>
         /// Assembly references that should be added to both code editor and script editor projects
@@ -46,5 +48,57 @@ namespace Pixel.Automation.Core.Models
         [DataMember]
         public ICollection<string> WhiteListedReferences { get; set; } = new List<string>();
 
+
+        public IEnumerable<string> GetCodeEditorReferences()
+        {
+            return this.CommonEditorReferences.Union(this.CodeEditorReferences);
+        }
+
+        public IEnumerable<string> GetScriptEditorReferences()
+        {
+            return this.CommonEditorReferences.Union(this.ScriptEditorReferences);
+        }
+
+        public object Clone()
+        {
+            return new EditorReferences
+            {
+                CommonEditorReferences = [.. this.CommonEditorReferences],
+                CodeEditorReferences = [.. this.CodeEditorReferences],
+                ScriptEditorReferences = [.. this.ScriptEditorReferences],
+                ScriptEngineReferences = [.. this.ScriptEngineReferences],
+                ScriptImports = [.. this.ScriptImports],
+                WhiteListedReferences = [.. this.WhiteListedReferences]
+            };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is EditorReferences other)
+            {
+               if(other.CommonEditorReferences.SequenceEqual(this.CommonEditorReferences) &&
+                  other.CodeEditorReferences.SequenceEqual(this.CodeEditorReferences) &&
+                  other.ScriptEditorReferences.SequenceEqual(this.ScriptEditorReferences) &&
+                  other.ScriptEngineReferences.SequenceEqual(this.ScriptEngineReferences) &&
+                  other.ScriptImports.SequenceEqual(this.ScriptImports) &&
+                  other.WhiteListedReferences.SequenceEqual(this.WhiteListedReferences))
+               {
+                   return true;
+               }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                this.CommonEditorReferences,
+                this.CodeEditorReferences,
+                this.ScriptEditorReferences,
+                this.ScriptEngineReferences,
+                this.ScriptImports,
+                this.WhiteListedReferences
+            );
+        }
     }
 }
