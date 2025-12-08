@@ -11,6 +11,7 @@ using Pixel.Automation.RestApi.Shared;
 
 namespace Pixel.Automation.RestApi.Components;
 
+[ImportReferencesFrom(typeof(ScriptReferencesProvider))]
 public class RestApiApplicationEntity : ApplicationEntity
 {
     /// <summary>

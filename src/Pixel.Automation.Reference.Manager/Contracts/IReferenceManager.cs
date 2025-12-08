@@ -193,4 +193,16 @@ public interface IReferenceManager
     /// <returns></returns>
     Task UpdatePrefabReferencesAsync(IEnumerable<PrefabReference> prefabReferences);
 
+    /// <summary>
+    /// Add script references and imports provided by the given <see cref="IScriptReferencesProvider"/>
+    /// </summary>
+    /// <param name="referenceProvider"></param>
+    void AddScriptReferencesForProvider(IScriptReferencesProvider referenceProvider);
+
+    /// <summary>
+    /// Remove script references and imports provided by the given <see cref="IScriptReferencesProvider"/>
+    /// </summary>
+    /// <param name="referenceProvider"></param>
+    void RemoveScriptReferencesForProvider(IScriptReferencesProvider referenceProvider);
+
 }

@@ -19,7 +19,7 @@ using MessageBox = System.Windows.MessageBox;
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
     public  abstract class EditorViewModel : ScreenBase, IEditor, IDisposable, IHandle<ControlUpdatedEventArgs>, IHandle<ApplicationUpdatedEventArgs>,
-        IHandle<TestEntityRemovedEventArgs>, IHandle<ControlAddedEventArgs>
+        IHandle<TestEntityRemovedEventArgs>, IHandle<ControlAddedEventArgs>, IHandle<ApplicationAddedEventArgs>
     {
         #region data members
 
@@ -116,14 +116,21 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 {
                     scripts = this.scriptExtractor.ExtractScripts(componentViewModel.Model).ToList();
                 }
-          
+                
+                var existingReferences = this.projectManager.GetReferenceManager().GetEditorReferences().Clone() as EditorReferences;
+
                 var deleteScriptsViewModel = new DeleteComponentViewModel(componentViewModel, scripts ?? Enumerable.Empty<ScriptStatus>(), 
                     this.projectManager, this.globalEventAggregator);
                 var result = await this.windowManager.ShowDialogAsync(deleteScriptsViewModel);
                 if (!result.GetValueOrDefault())
                 {
                     return;
-                }               
+                }
+                if(componentViewModel.Model is IApplicationEntity appEntity)
+                {
+                    var updatedReferences = this.projectManager.GetReferenceManager().GetEditorReferences().Clone() as EditorReferences;
+                    await this.Reload(existingReferences, updatedReferences);
+                }
                 logger.Information($"Component : {componentViewModel.Model.Name} has been deleted");
             }
             catch (Exception ex)
@@ -456,7 +463,27 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 await notificationManager.ShowErrorNotificationAsync(ex);
             }  
         }
-      
+
+        /// <summary>
+        /// Handl notification for an application added event to update the reference manager with required script references for application plugin.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task HandleAsync(ApplicationAddedEventArgs message, CancellationToken cancellationToken)
+        {
+            var existingReferences = this.projectManager.GetReferenceManager().GetEditorReferences().Clone() as EditorReferences;
+            var appEntity = message.Application;
+            var importReferencesFromType = System.ComponentModel.TypeDescriptor.GetAttributes(appEntity.GetType()).OfType<ImportReferencesFromAttribute>()?.FirstOrDefault()?.ReferencesProvider;
+            if (importReferencesFromType is not null)
+            {
+                var referencesProvider = Activator.CreateInstance(importReferencesFromType) as IScriptReferencesProvider;
+                this.projectManager.GetReferenceManager().AddScriptReferencesForProvider(referencesProvider);
+            }
+            var updatedReferences = this.projectManager.GetReferenceManager().GetEditorReferences().Clone() as EditorReferences;
+            await this.Reload(existingReferences, updatedReferences);
+        }
+
         #endregion IHandle<T>
 
         #region IDisposable

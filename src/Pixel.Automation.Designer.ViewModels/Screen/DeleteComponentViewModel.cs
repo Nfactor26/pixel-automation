@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
@@ -78,6 +79,17 @@ namespace Pixel.Automation.Designer.ViewModels
                 catch (Exception ex)
                 {
                     logger.Error("There was an error while trying to delete file : {0}", script.Item, ex);
+                }
+            }
+
+            if(componentViewModel.Model is IApplicationEntity appEntity)
+            {
+                var referenceManager = this.projectManager.GetReferenceManager();
+                var importReferencesFromType = System.ComponentModel.TypeDescriptor.GetAttributes(appEntity.GetType()).OfType<ImportReferencesFromAttribute>()?.FirstOrDefault()?.ReferencesProvider;
+                if (importReferencesFromType is not null)
+                {
+                    var referencesProvider = Activator.CreateInstance(importReferencesFromType) as IScriptReferencesProvider;
+                    referenceManager.RemoveScriptReferencesForProvider(referencesProvider);
                 }
             }
 

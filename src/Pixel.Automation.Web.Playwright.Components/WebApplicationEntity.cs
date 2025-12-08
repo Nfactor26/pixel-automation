@@ -1,5 +1,6 @@
 ﻿using Microsoft.Playwright;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Runtime.Serialization;
 
 namespace Pixel.Automation.Web.Playwright.Components;
 
+[ImportReferencesFrom(typeof(ScriptReferencesProvider))]
 public class WebApplicationEntity : ApplicationEntity
 {
     [Browsable(false)]

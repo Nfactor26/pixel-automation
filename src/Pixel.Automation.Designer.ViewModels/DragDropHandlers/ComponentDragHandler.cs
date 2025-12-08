@@ -382,6 +382,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 //Add the ApplicationEntity to ApplicationPool and load ApplicationDetails
                 parentEntity.AddComponent(applicationEntity);
                 applicationEntity.GetTargetApplicationDetails();
+                _ = eventAggregator.PublishOnUIThreadAsync(new ApplicationAddedEventArgs(applicationEntity));
             }
         }
     }

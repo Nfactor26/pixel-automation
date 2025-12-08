@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Appium.Service;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Interfaces;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ namespace Pixel.Automation.Appium.Components;
 /// <summary>
 /// ApplicationEntity for Appium based applications
 /// </summary>
+[ImportReferencesFrom(typeof(ScriptReferencesProvider))]
 public class AppiumApplicationEntity : ApplicationEntity
 {
     protected bool useRemoteServer = true;
