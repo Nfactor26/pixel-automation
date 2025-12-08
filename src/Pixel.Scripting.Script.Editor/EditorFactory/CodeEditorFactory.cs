@@ -5,6 +5,8 @@ using Pixel.Scripting.Script.Editor.MultiEditor;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace Pixel.Scripting.Script.Editor
 {
@@ -143,6 +145,59 @@ namespace Pixel.Scripting.Script.Editor
             return workSpaceManager.CompileProject(projectName, outputAssemblyName);
         }
 
+        public void AddAssemblyReference(Assembly assembly)
+        {
+            Guard.Argument(assembly, nameof(assembly)).NotNull();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.WithAssemblyReferences(new[] { assembly });
+            logger.Debug("Assembly : '{0}' reference was added to code editor workspace : {1}", assembly.FullName, this.Identifier);
+        }
+
+        public void AddAssemblyReferences(params string[] assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                var reference = LoadReference(assembly);
+                AddAssemblyReference(reference);
+            }
+        }
+
+        public void RemoveAssemblyReference(Assembly assembly)
+        {
+            Guard.Argument(assembly, nameof(assembly)).NotNull();
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.RemoveAssemblyReference(assembly);
+            logger.Debug("Assembly : '{0}' reference was removed from code editor workspace: {1}", assembly.FullName, this.Identifier);
+        }
+
+        public void RemoveAssemblyReferences(params string[] assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                var reference = LoadReference(assembly);
+                RemoveAssemblyReference(reference);
+            }
+        }
+
+        private static Assembly LoadReference(string assembly)
+        {
+            Assembly reference = default;
+            if (!Path.IsPathRooted(assembly))
+            {
+                string assemblyLocation = Path.Combine(Environment.CurrentDirectory, assembly);
+                if (!File.Exists(assemblyLocation))
+                {
+                    throw new FileNotFoundException($"{assemblyLocation} was not found");
+                }
+                reference = Assembly.LoadFrom(assemblyLocation);
+            }
+            else
+            {
+                reference = Assembly.LoadFrom(assembly);
+            }
+            return reference;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -151,6 +206,6 @@ namespace Pixel.Scripting.Script.Editor
         protected virtual void Dispose(bool isDisposing)
         {
             this.editorService.Dispose();           
-        }
+        }      
     }
 }

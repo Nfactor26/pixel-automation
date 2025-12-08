@@ -339,26 +339,27 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         /// <inheritdoc/>
         public void WithAssemblyReferences(IEnumerable<string> assemblyReferences)
         {
-            Guard.Argument(assemblyReferences).NotNull();          
-            int index = 0;
+            Guard.Argument(assemblyReferences).NotNull();           
             foreach (var reference in assemblyReferences)
             {
-                if(!Path.IsPathRooted(reference) && !File.Exists(Path.GetFullPath(reference)))
+                MetadataReference  metaDataReference = default;
+                if (!Path.IsPathRooted(reference) && !File.Exists(Path.GetFullPath(reference)))
                 {
                     //when we have a relative path which doesn't belong to working directory, get the assembly first so that assembly can be resolved by name as well.
                     var assembly = Assembly.LoadFrom(reference);
-                    var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
-                    this.additionalReferences.Add(metaDataReference);
+                    metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));                   
                 }
                 else
                 {
                     //when we have an absolute path, create reference directly from file
-                    var metaDataReference = MetadataReference.CreateFromFile(reference, documentation: documentationProviderService.GetDocumentationProvider(reference));
-                    this.additionalReferences.Add(metaDataReference);
+                    metaDataReference = MetadataReference.CreateFromFile(reference, documentation: documentationProviderService.GetDocumentationProvider(reference));                   
                 }
-                index++;
+                if (!this.additionalReferences.Any(a => a.Display.Equals(metaDataReference.Display) ||
+                           Path.GetFullPath(a.Display).Equals(Path.GetFullPath(metaDataReference.Display))))
+                {
+                    this.additionalReferences.Add(metaDataReference);
+                }               
             }
-
         }
 
         /// <inheritdoc/>
@@ -368,7 +369,8 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             foreach (var assembly in assemblyReferences)
             {
                 var metaDataReference = MetadataReference.CreateFromFile(assembly.Location, documentation: documentationProviderService.GetDocumentationProvider(assembly.Location));
-                if(!this.additionalReferences.Any(a => a.Display.Equals(assembly.Location)))
+                if(!this.additionalReferences.Any(a => a.Display.Equals(metaDataReference.Display) ||                  
+                           Path.GetFullPath(a.Display).Equals(Path.GetFullPath(metaDataReference.Display))))
                 {
                     this.additionalReferences.Add(metaDataReference);
                 }
@@ -378,14 +380,48 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
         /// <inheritdoc/>
         public void RemoveAssemblyReference(Assembly assemblyReference)
         {
-            Guard.Argument(assemblyReference, nameof(assemblyReference)).NotNull();          
-            if (this.additionalReferences.Any(a => a.Display.Equals(assemblyReference.Location)))
+            Guard.Argument(assemblyReference, nameof(assemblyReference)).NotNull();
+            if(this.GetAllProjects().Any())
             {
-                var referenceToRemove = this.additionalReferences.Single(r => r.Display.Equals(assemblyReference.Location));
+                throw new InvalidOperationException("Cannot remove assembly references when there are existing projects in workspace.");
+            }
+            if (this.additionalReferences.Any(a => a.Display.Equals(assemblyReference.Location) ||
+                Path.GetFullPath(a.Display).Equals(Path.GetFullPath(assemblyReference.Location))))
+            {
+                var referenceToRemove = this.additionalReferences.Single(r => r.Display.Equals(assemblyReference.Location) || Path.GetFullPath(r.Display).Equals(Path.GetFullPath(assemblyReference.Location)));
                 this.additionalReferences.Remove(referenceToRemove);
             }
         }
-    
+
+        /// <inheritdoc/>
+        public void RemoveAssemblyReferences(params string[] assemblyReference)
+        {
+            foreach (var assembly in assemblyReference)
+            {
+                var reference = LoadReference(assembly);
+                RemoveAssemblyReference(reference);
+            }
+        }
+
+        private static Assembly LoadReference(string assembly)
+        {
+            Assembly reference = default;
+            if (!Path.IsPathRooted(assembly))
+            {
+                string assemblyLocation = Path.Combine(Environment.CurrentDirectory, assembly);
+                if (!File.Exists(assemblyLocation))
+                {
+                    throw new FileNotFoundException($"{assemblyLocation} was not found");
+                }
+                reference = Assembly.LoadFrom(assemblyLocation);
+            }
+            else
+            {
+                reference = Assembly.LoadFrom(assembly);
+            }
+            return reference;
+        }
+
         #endregion IWorkspaceManager
 
         #region Host Services

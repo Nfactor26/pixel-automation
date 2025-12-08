@@ -116,7 +116,8 @@ namespace Pixel.Automation.Designer.ViewModels
                             logger.Information("Updated state of data model file {@0}", document);
                         }
                     }
-                    await this.Reload();
+                    var editorReferences = this.projectManager.GetReferenceManager().GetEditorReferences();
+                    await this.Reload(editorReferences, editorReferences);
                 }
                 catch (Exception ex)
                 {
@@ -174,11 +175,11 @@ namespace Pixel.Automation.Designer.ViewModels
             }
         }
 
-        protected override async Task Reload()
+        protected override async Task Reload(EditorReferences existing, EditorReferences updated)
         {
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {              
-                await this.projectManager.Reload();
+                await this.projectManager.Reload(existing, updated);
                 this.UpdateWorkFlowRoot();
             }           
         }

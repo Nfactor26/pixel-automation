@@ -4,13 +4,15 @@ using Pixel.Scripting.Script.Editor.Script;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace Pixel.Scripting.Script.Editor
 {
     public class ScriptEditorFactory : IScriptEditorFactory
     {
-        private readonly ILogger logger = Log.ForContext<ScriptEditorFactory>();       
+        private readonly ILogger logger = Log.ForContext<ScriptEditorFactory>();
+        private readonly string Identifier = Guid.NewGuid().ToString();
         private readonly IEditorService editorService;
         private bool isInitialized = false;
         private Dictionary<string, WeakReference<IInlineScriptEditor>> inlineEditors = new Dictionary<string, WeakReference<IInlineScriptEditor>>();
@@ -19,7 +21,7 @@ namespace Pixel.Scripting.Script.Editor
         {
             Guard.Argument(editorService).NotNull();
             this.editorService = editorService;
-            logger.Debug($"Create a new instance of {nameof(ScriptEditorFactory)}");
+            logger.Debug("Create a new instance of {0} with Id : {1}", nameof(ScriptEditorFactory), this.Identifier);
         }
 
         private void EnsureInitialized()
@@ -44,7 +46,7 @@ namespace Pixel.Scripting.Script.Editor
             });
             this.isInitialized = true;
 
-            logger.Information("{0} is initialized now with working directory set to {1}.", nameof(ScriptEditorFactory), workingDirectory);
+            logger.Information("{0} is initialized now with working directory set to {1}.", this.Identifier, workingDirectory);
         }
 
         public void SwitchWorkingDirectory(string workingDirectory)
@@ -79,7 +81,7 @@ namespace Pixel.Scripting.Script.Editor
 
             editor = new InlineScriptEditorViewModel(this.editorService);
             inlineEditors.Add(cacheKey, new WeakReference<IInlineScriptEditor>(editor));
-            logger.Debug("Created and cached inline script editor for {0}", cacheKey);
+            logger.Debug("Created and cached inline script editor : {0}", cacheKey);
         
             return editor;          
         }
@@ -93,7 +95,7 @@ namespace Pixel.Scripting.Script.Editor
                     editor.Dispose();
                 }
                 inlineEditors.Remove(identifier);
-                logger.Debug("Removed inline script editor for {0} from script editor factory cahce", identifier);
+                logger.Debug("Removed inline script editor : {0} from script editor factory cache", identifier);
             }
         }
 
@@ -126,7 +128,7 @@ namespace Pixel.Scripting.Script.Editor
                 workSpaceManager.AddProject(projectName, projectreferences, globalsType);
                 return;
             }
-            logger.Information($"Project {projectName} already exists in workspace");
+            logger.Warning($"Project {projectName} already exists in workspace");
         }
 
         public void RemoveProject(string projectName)
@@ -143,7 +145,7 @@ namespace Pixel.Scripting.Script.Editor
                 workSpaceManager.AddDocument(documentName, projectName, documentContent);
                 return;
             }
-            logger.Information($"Document {documentName} already exists in project {projectName}");
+            logger.Warning($"Document {documentName} already exists in project {projectName}");
         }
 
         public void RemoveDocument(string documentName, string projectName)
@@ -154,7 +156,7 @@ namespace Pixel.Scripting.Script.Editor
                 workSpaceManager.TryRemoveDocument(documentName, projectName);
                 return;
             }
-            logger.Information($"Document {documentName} doesn't exists in project {projectName}. Can't remove document.");            
+            logger.Warning($"Document {documentName} doesn't exists in project {projectName}. Can't remove document.");            
         }             
 
         public void AddSearchPaths(params string[] searchPaths)
@@ -176,7 +178,7 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.WithAssemblyReferences(new[] { assembly });
-            logger.Information($"Assembly : '{assembly.FullName}' reference was added to script editor worksapce");
+            logger.Debug("Assembly : '{0}' reference was added to script editor workspace : {1}", assembly.FullName, this.Identifier);
         }
 
         public void RemoveAssemblyReference(Assembly assembly)
@@ -184,7 +186,58 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveAssemblyReference(assembly);
-            logger.Information($"Assembly : '{assembly.FullName}' reference was removed from script editor worksapce");
+            logger.Debug("Assembly : '{0}' reference was removed from script editor workspace: {1}", assembly.FullName, this.Identifier);
+        }
+
+        public void AddAssemblyReferences(params string[] assemblies)
+        {
+            foreach(var assembly in assemblies)
+            {
+                var reference = LoadReference(assembly);
+                AddAssemblyReference(reference);
+            }
+        }
+
+        public void RemoveAssemblyReferences(params string[] assemblies)
+        {
+            foreach(var assembly in assemblies)
+            {
+                var reference = LoadReference(assembly);
+                RemoveAssemblyReference(reference);
+            }
+        }
+
+        private static Assembly LoadReference(string assembly)
+        {
+            Assembly reference = default;
+            if (!Path.IsPathRooted(assembly))
+            {
+                string assemblyLocation = Path.Combine(Environment.CurrentDirectory, assembly);
+                if (!File.Exists(assemblyLocation))
+                {
+                    throw new FileNotFoundException($"{assemblyLocation} was not found");
+                }
+                reference = Assembly.LoadFrom(assemblyLocation);
+            }
+            else
+            {
+                reference = Assembly.LoadFrom(assembly);
+            }
+            return reference;
+        }
+
+        public void AddImports(params string[] imports)
+        {
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.AddImports(imports);
+            logger.Debug("Imports : '{0}' were added to script editor workspace : {1}", string.Join(',', imports), this.Identifier);
+        }
+
+        public void RemoveImports(params string[] imports)
+        {
+            var workSpaceManager = GetWorkspaceManager();
+            workSpaceManager.RemoveImports(imports);
+            logger.Debug("Imports : '{0}' were removed from script editor workspace : {1}", string.Join(',', imports), this.Identifier);
         }
 
         public void Dispose()
@@ -203,6 +256,6 @@ namespace Pixel.Scripting.Script.Editor
             }
             this.inlineEditors.Clear();
             this.editorService.Dispose();
-        }
+        }     
     }
 }

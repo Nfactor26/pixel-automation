@@ -186,30 +186,49 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// </summary>
         /// <param name="entityManager"></param>
         /// <returns></returns>
-        public override async Task Reload()
+        public override async Task Reload(EditorReferences existing, EditorReferences updated)
         {
+            Guard.Argument(existing, nameof(existing)).NotNull();
+            Guard.Argument(updated, nameof(updated)).NotNull();
+
             using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(Reload), ActivityKind.Internal))
             {
                 await this.Save();
+
+                this.codeEditorFactory.RemoveProject(GetProjectName());
+                this.codeEditorFactory.RemoveAssemblyReferences(existing.CodeEditorReferences.ToArray());
 
                 //Dispose any inline editors that might be present and clean up script editor and script engine
                 this.RootEntity.DisposeEditors();
 
                 this.scriptEditorFactory.RemoveProject(RootEntity.Id);
                 this.scriptEditorFactory.RemoveAssemblyReference(this.entityManager.Arguments.GetType().Assembly);
-               
-                this.scriptEngineFactory.RemoveReferences(this.entityManager.Arguments.GetType().Assembly);
+                this.scriptEditorFactory.RemoveAssemblyReferences(existing.ScriptEditorReferences.ToArray());
+                this.scriptEditorFactory.RemoveImports(existing.ScriptImports.ToArray());
 
+                this.scriptEngineFactory.RemoveReferences(this.entityManager.Arguments.GetType().Assembly);
+                this.scriptEngineFactory.RemoveReferences(existing.ScriptEngineReferences.ToArray());
+                this.scriptEngineFactory.RemoveNamespaces(existing.ScriptImports.ToArray());
+                
                 var reference = this.fileSystem.LoadFile<ProjectReferences>(this.fileSystem.ReferencesFile);
                 this.referenceManager.SetProjectReferences(reference);
-               
+
+                this.codeEditorFactory.AddAssemblyReferences(updated.CodeEditorReferences.ToArray());
                 var dataModel = CompileAndCreateDataModel(Constants.AutomationProcessDataModelName);              
                 this.entityManager.Arguments = dataModel; // Setting up a new model will also configure script engine to use new assembly
 
                 this.scriptEditorFactory.AddAssemblyReference(dataModel.GetType().Assembly);
+                this.scriptEditorFactory.AddAssemblyReferences(updated.ScriptEditorReferences.ToArray());
+                this.scriptEditorFactory.AddImports(updated.ScriptImports.ToArray());
 
-                this.scriptEngineFactory.WithAdditionalAssemblyReferences(this.entityManager.Arguments.GetType().Assembly);  
-           
+                //TODO : If a reference was white listed earlier, we need to remove it
+                this.scriptEngineFactory.WithAdditionalAssemblyReferences(this.entityManager.Arguments.GetType().Assembly)
+                    .WithAdditionalAssemblyReferences(updated.ScriptEngineReferences.ToArray())
+                    .WithAdditionalNamespaces(updated.ScriptImports.ToArray())
+                    .WithWhiteListedReferences(updated.WhiteListedReferences);
+
+                this.ConfigureArgumentTypeProvider(this.entityManager.Arguments.GetType().Assembly);
+
                 this.Initialize();
                 this.SetupInitializationScriptProject(dataModel);
                 await this.ExecuteInitializationScript(executeDefaultInitFunc: true);

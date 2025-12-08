@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Arguments;
+﻿using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -12,7 +11,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.UIA.Components;
+namespace Pixel.Automation.Core.Components;
 
 /// <summary>
 /// Use <see cref="AttachApplicationActorComponent"/> to attach to an existing application process which needs to be automated.

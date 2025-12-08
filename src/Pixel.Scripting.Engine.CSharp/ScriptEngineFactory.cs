@@ -173,20 +173,7 @@ namespace Pixel.Scripting.Engine.CSharp
             {
                 foreach (var reference in assemblyReferences)
                 {
-                    Assembly assembly = default;
-                    if (!Path.IsPathRooted(reference))
-                    {
-                        string assemblyLocation = Path.Combine(Environment.CurrentDirectory, reference);
-                        if (!File.Exists(assemblyLocation))
-                        {
-                            throw new FileNotFoundException($"{assemblyLocation} was not found");
-                        }
-                        assembly = Assembly.LoadFrom(assemblyLocation);
-                    }
-                    else
-                    {
-                        assembly = Assembly.LoadFrom(reference);
-                    }
+                    Assembly assembly = LoadReference(reference);
 
                     if (this.scriptOptions.MetadataReferences.Any(m => m.Display.Equals(assembly.Location)))
                     {
@@ -196,6 +183,25 @@ namespace Pixel.Scripting.Engine.CSharp
                 }
                 return this;
             }
+        }
+
+        private static Assembly LoadReference(string assembly)
+        {
+            Assembly reference = default;
+            if (!Path.IsPathRooted(assembly))
+            {
+                string assemblyLocation = Path.Combine(Environment.CurrentDirectory, assembly);
+                if (!File.Exists(assemblyLocation))
+                {
+                    throw new FileNotFoundException($"{assemblyLocation} was not found");
+                }
+                reference = Assembly.LoadFrom(assemblyLocation);
+            }
+            else
+            {
+                reference = Assembly.LoadFrom(assembly);
+            }
+            return reference;
         }
 
         ///<inheritdoc/>
@@ -244,6 +250,16 @@ namespace Pixel.Scripting.Engine.CSharp
                 this.createdScriptEngines.RemoveAll(a=> itemsToRemove.Contains(a));
             }
 
+        }
+
+        ///<inheritdoc/>
+        public void RemoveReferences(params string[] references)
+        {
+            foreach (var assembly in references)
+            {
+                var reference = LoadReference(assembly);
+                RemoveReferences(reference);
+            }
         }
 
         ///<inheritdoc/>

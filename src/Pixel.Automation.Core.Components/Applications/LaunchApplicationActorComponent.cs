@@ -1,5 +1,4 @@
-﻿using Pixel.Automation.Core;
-using Pixel.Automation.Core.Attributes;
+﻿using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Interfaces;
 using Serilog;
 using System;
@@ -7,7 +6,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Pixel.Automation.UIA.Components;
+namespace Pixel.Automation.Core.Components;
 
 /// <summary>
 /// Use <see cref="LaunchApplicationActorComponent"/> to launch an application.
