@@ -400,7 +400,7 @@ internal class ReferenceManager : IReferenceManager
         foreach (var reference in referencesProvider.GetAssemblyReferences())
         {
             var relativePath = "./" + Path.GetRelativePath(Environment.CurrentDirectory, reference);
-            if (!editorReferences.ScriptEngineReferences.Contains(reference))
+            if (!editorReferences.ScriptEditorReferences.Contains(reference))
             {
                 editorReferences.ScriptEditorReferences.Add(relativePath);
             }

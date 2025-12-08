@@ -7,8 +7,8 @@ public class ImportReferencesFromAttribute : Attribute
 {
     public Type ReferencesProvider { get; } 
 
-    public ImportReferencesFromAttribute(Type referecnesProvider)
+    public ImportReferencesFromAttribute(Type referencesProvider)
     {
-        this.ReferencesProvider = referecnesProvider;
+        this.ReferencesProvider = referencesProvider;
     }
 }

@@ -465,7 +465,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         /// <summary>
-        /// Handl notification for an application added event to update the reference manager with required script references for application plugin.
+        /// Handle notification for an application added event to update the reference manager with required script references for application plugin.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
