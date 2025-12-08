@@ -150,7 +150,7 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.WithAssemblyReferences(new[] { assembly });
-            logger.Debug("Assembly : '{0}' reference was added to code editor worksapce : {1}", assembly.FullName, this.Identifier);
+            logger.Debug("Assembly : '{0}' reference was added to code editor workspace : {1}", assembly.FullName, this.Identifier);
         }
 
         public void AddAssemblyReferences(params string[] assemblies)
@@ -167,7 +167,7 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveAssemblyReference(assembly);
-            logger.Debug("Assembly : '{0}' reference was removed from code editor worksapce: {1}", assembly.FullName, this.Identifier);
+            logger.Debug("Assembly : '{0}' reference was removed from code editor workspace: {1}", assembly.FullName, this.Identifier);
         }
 
         public void RemoveAssemblyReferences(params string[] assemblies)

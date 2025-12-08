@@ -178,7 +178,7 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.WithAssemblyReferences(new[] { assembly });
-            logger.Debug("Assembly : '{0}' reference was added to script editor worksapce : {1}", assembly.FullName, this.Identifier);
+            logger.Debug("Assembly : '{0}' reference was added to script editor workspace : {1}", assembly.FullName, this.Identifier);
         }
 
         public void RemoveAssemblyReference(Assembly assembly)
@@ -186,7 +186,7 @@ namespace Pixel.Scripting.Script.Editor
             Guard.Argument(assembly, nameof(assembly)).NotNull();
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveAssemblyReference(assembly);
-            logger.Debug("Assembly : '{0}' reference was removed from script editor worksapce: {1}", assembly.FullName, this.Identifier);
+            logger.Debug("Assembly : '{0}' reference was removed from script editor workspace: {1}", assembly.FullName, this.Identifier);
         }
 
         public void AddAssemblyReferences(params string[] assemblies)
@@ -230,14 +230,14 @@ namespace Pixel.Scripting.Script.Editor
         {
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.AddImports(imports);
-            logger.Debug("Imports : '{0}' were added to script editor worksapce : {1}", string.Join(',', imports), this.Identifier);
+            logger.Debug("Imports : '{0}' were added to script editor workspace : {1}", string.Join(',', imports), this.Identifier);
         }
 
         public void RemoveImports(params string[] imports)
         {
             var workSpaceManager = GetWorkspaceManager();
             workSpaceManager.RemoveImports(imports);
-            logger.Debug("Imports : '{0}' were removed from script editor worksapce : {1}", string.Join(',', imports), this.Identifier);
+            logger.Debug("Imports : '{0}' were removed from script editor workspace : {1}", string.Join(',', imports), this.Identifier);
         }
 
         public void Dispose()
