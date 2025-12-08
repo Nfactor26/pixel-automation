@@ -392,5 +392,57 @@ internal class ReferenceManager : IReferenceManager
         }
         return projectReferences;
     }
+
+    /// <inheritdoc/>
+    public void AddScriptReferencesForProvider(IScriptReferencesProvider referencesProvider)
+    {
+        var editorReferences = GetEditorReferences();
+        foreach (var reference in referencesProvider.GetAssemblyReferences())
+        {
+            var relativePath = "./" + Path.GetRelativePath(Environment.CurrentDirectory, reference);
+            if (!editorReferences.ScriptEditorReferences.Contains(reference))
+            {
+                editorReferences.ScriptEditorReferences.Add(relativePath);
+            }
+            if (!editorReferences.ScriptEngineReferences.Contains(relativePath))
+            {
+                editorReferences.ScriptEngineReferences.Add(relativePath);
+            }
+        }
+        foreach (var import in referencesProvider.GetImports())
+        {
+            if (!editorReferences.ScriptImports.Contains(import))
+            {
+                editorReferences.ScriptImports.Add(import);
+            }
+        }
+        SaveLocal();
+    }
+
+    /// <inheritdoc/>
+    public void RemoveScriptReferencesForProvider(IScriptReferencesProvider referenceProvider)
+    {
+        var editorReferences = GetEditorReferences();
+        foreach (var reference in referenceProvider.GetAssemblyReferences())
+        {
+            var relativePath = "./" + Path.GetRelativePath(Environment.CurrentDirectory, reference);
+            if (editorReferences.ScriptEditorReferences.Contains(relativePath))
+            {
+                editorReferences.ScriptEditorReferences.Remove(relativePath);
+            }
+            if (editorReferences.ScriptEngineReferences.Contains(relativePath))
+            {
+                editorReferences.ScriptEngineReferences.Remove(relativePath);
+            }
+        }
+        foreach (var import in referenceProvider.GetImports())
+        {
+            if (editorReferences.ScriptImports.Contains(import))
+            {
+                editorReferences.ScriptImports.Remove(import);
+            }
+        }
+        SaveLocal();
+    }
 }
 

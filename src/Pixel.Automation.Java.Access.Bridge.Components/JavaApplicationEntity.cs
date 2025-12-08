@@ -1,5 +1,6 @@
 ﻿using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
+using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
 using Pixel.Automation.Core.Exceptions;
 using Pixel.Automation.Core.Interfaces;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pixel.Automation.Java.Access.Bridge.Components;
 
+[ImportReferencesFrom(typeof(ScriptReferencesProvider))]
 public class JavaApplicationEntity : ApplicationEntity
 {
     [Browsable(false)]

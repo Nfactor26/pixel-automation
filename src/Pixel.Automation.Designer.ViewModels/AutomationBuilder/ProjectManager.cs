@@ -351,6 +351,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         }
 
         #endregion helper methods
-
+     
     }
 }
