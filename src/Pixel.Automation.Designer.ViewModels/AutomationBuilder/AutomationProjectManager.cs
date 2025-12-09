@@ -195,6 +195,8 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 await this.Save();
 
+                var applicationEntitiesExisting = this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants);
+
                 this.codeEditorFactory.RemoveProject(GetProjectName());
                 this.codeEditorFactory.RemoveAssemblyReferences(existing.CodeEditorReferences.ToArray());
 
@@ -234,7 +236,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 await this.ExecuteInitializationScript(executeDefaultInitFunc: true);
                
                 //we don't want any launched applications to be lost. Copy over ApplicationDetails from each ApplicationEntity in to newly loaded root entity.
-                foreach (var applicationEntity in this.entityManager.RootEntity.GetComponentsOfType<ApplicationEntity>(SearchScope.Descendants))
+                foreach (var applicationEntity in applicationEntitiesExisting)
                 {
                     var newApplicationEntity = this.RootEntity.GetComponentById(applicationEntity.Id, SearchScope.Descendants) as IApplicationEntity;
                     newApplicationEntity.SetTargetApplicationDetails(applicationEntity.GetTargetApplicationDetails());
