@@ -107,7 +107,7 @@
 		<ItemGroup>
 			<ScriptsFolder Include="..\Scripts\**\*.*"/>
 		</ItemGroup>
-		<Message Text="Copying Scripts -- %(CopyScripts.FullPath) to $(TargetDir)\Scripts\%(RecursiveDir)" Importance="high"/>
+		<Message Text="Copying Scripts -- %(ScriptsFolder.FullPath) to $(TargetDir)\Scripts\%(RecursiveDir)" Importance="high"/>
 		<Copy SourceFiles="%(ScriptsFolder.FullPath)" DestinationFolder="$(TargetDir)\Scripts\%(RecursiveDir)"/>
 	    <Message Text="Copying Scripts folder -- completed" Importance="high"/>
 	</Target>
