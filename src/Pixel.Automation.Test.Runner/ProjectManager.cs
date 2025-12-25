@@ -200,6 +200,7 @@ namespace Pixel.Automation.Test.Runner
         {
             this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, projectFileSystem.ReferencesDirectory)
                 .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
+                .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Scripts")))
                 .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
                 .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
                 .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)
