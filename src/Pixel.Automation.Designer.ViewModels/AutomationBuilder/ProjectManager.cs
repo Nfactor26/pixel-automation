@@ -169,6 +169,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
                 };
                 this.scriptEditorFactory.Initialize(this.fileSystem.WorkingDirectory, assemblyReferences, referenceManager.GetImportsForScripts());
                 this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")));
+                this.scriptEditorFactory.AddSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Scripts")));
                 logger.Information($"Configure script editor for project  : {this.GetProjectName()} completed.");
             }            
         }
@@ -197,6 +198,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 this.scriptEngineFactory.WithSearchPaths(Environment.CurrentDirectory, Environment.CurrentDirectory, fileSystem.ReferencesDirectory)
                  .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Plugins")))
+                 .WithAdditionalSearchPaths(Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Scripts")))
                  .WithWhiteListedReferences(referenceManager.GetWhiteListedReferences())
                  .WithAdditionalAssemblyReferences(referenceManager.GetScriptEngineReferences())
                  .WithAdditionalAssemblyReferences(dataModel.GetType().Assembly)

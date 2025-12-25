@@ -57,15 +57,13 @@ public class LoadDirectiveCompletionProvider : CompletionProvider
         {
             string baseDir = resolver.BaseDirectory;
             if (Directory.Exists(Path.Combine(baseDir, "Scripts")))
-            {
-                baseDir = Path.Combine(baseDir, "Scripts");
-            }
-
-            foreach (var scriptFile in Directory.GetFiles(baseDir, "*.csx", enumerationOptions: new EnumerationOptions() { RecurseSubdirectories = false }))
-            {
-                var item = CompletionItem.Create(displayText: Path.GetFileName(scriptFile), rules: s_rules);
-                context.AddItem(item);
-            }
+            {              
+                foreach (var scriptFile in Directory.GetFiles(Path.Combine(baseDir, "Scripts"), "*.csx", enumerationOptions: new EnumerationOptions() { RecurseSubdirectories = true }))
+                {
+                    var item = CompletionItem.Create(displayText: Path.GetFileName(scriptFile), rules: s_rules);
+                    context.AddItem(item);
+                }
+            }         
 
             foreach (var path in resolver.SearchPaths)
             {
