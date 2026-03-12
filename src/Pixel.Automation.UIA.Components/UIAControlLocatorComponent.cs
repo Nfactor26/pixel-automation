@@ -68,12 +68,16 @@ public class UIAControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         }
         policy = Policy
        .Handle<ElementNotFoundException>()
+       .Or<IndexOutOfRangeException>()
        .WaitAndRetry(retrySequence,(exception, timeSpan, retryCount, context) =>
-       {
-           logger.Error(exception, exception.Message); ;
+       {          
            if(retryCount < retrySequence.Count)
            {
-               logger.Debug("Control lookup  will be attempated again.");
+               logger.Debug("Control lookup  failed. Remaining attempts : {0}", retrySequence.Count - retryCount);
+           }
+           else
+           {
+               logger.Error(exception, exception.Message);
            }
        });          
     }

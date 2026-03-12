@@ -54,10 +54,13 @@ public class ImageControlLocatorComponent : ServiceComponent, IControlLocator, I
         policy = Policy.Handle<ElementNotFoundException>()
         .WaitAndRetryAsync(retrySequence, (exception, timeSpan, retryCount, context) =>
         {
-            logger.Error(exception, "Failed to locate image control."); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Debug($"Control lookup  will be attempated again upto {retrySequence.Count - retryCount} times.");
+                logger.Debug("Control lookup  failed. Remaining attempts : {0}", retrySequence.Count - retryCount);
+            }
+            else
+            {
+                logger.Error(exception, exception.Message);
             }
         });
 

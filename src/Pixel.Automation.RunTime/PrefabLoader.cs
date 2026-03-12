@@ -25,8 +25,7 @@ namespace Pixel.Automation.RunTime
         protected readonly IProjectFileSystem projectFileSystem;
         protected readonly IReferenceManager referenceManager;
         protected readonly Dictionary<string, PrefabInstance> Prefabs = new();
-        private PrefabReferences prefabReferences;
-       
+        
         /// <summary>
         /// /constructor
         /// </summary>
