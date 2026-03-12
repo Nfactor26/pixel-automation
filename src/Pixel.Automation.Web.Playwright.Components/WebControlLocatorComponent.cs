@@ -68,13 +68,16 @@ public class WebControlLocatorComponent : ServiceComponent, IControlLocator, ICo
         {
             retrySequence.Add(TimeSpan.FromSeconds(retryInterval));
         }
-        asyncRetryPolicy = Policy.Handle<ElementNotFoundException>()
+        asyncRetryPolicy = Policy.Handle<ElementNotFoundException>().Or<IndexOutOfRangeException>()
         .WaitAndRetryAsync(retrySequence, (exception, timeSpan, retryCount, context) =>
         {
-            logger.Error(exception, exception.Message); ;
             if (retryCount < retrySequence.Count)
             {
-                logger.Debug("Control lookup  will be attempated again.");
+                logger.Debug("Control lookup  failed. Remaining attempts : {0}", retrySequence.Count - retryCount);
+            }
+            else
+            {
+                logger.Error(exception, exception.Message);
             }
         });
     }
