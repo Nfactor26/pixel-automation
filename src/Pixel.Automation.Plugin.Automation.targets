@@ -134,7 +134,7 @@
 		and Pixel.Automation.Web.Scrapper plugins-->
 	<Target Name="MovePlaywrightDependencies" AfterTargets="CopyPlugins"  Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net8.0-windows'">	
 		<ItemGroup>
-			<PlaywrightFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Playwright.Components\.playwright\**\*.*;"/>
+			<PlaywrightFiles Include="$(TargetDir)\Plugins\Pixel.Automation.Web.Playwright.Components\.playwright\**\*;"/>
 		</ItemGroup>
 		<Message Text="Move Playwright Dependencies -- Target Directory : $(TargetDir)" Importance="high"/>
 		<Move  SourceFiles="@(PlaywrightFiles)" DestinationFolder="$(TargetDir)\.playwright\%(RecursiveDir)"/>
@@ -145,14 +145,14 @@
 	</Target>
 
 	<Target Name="RemoveUnwantedDirectories" AfterTargets="CopyPlugins" >
-		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'win-x64'">
+		<ItemGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\linux"/>
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\macos"/>			
 			<BuildArtifacts Include="$(TargetDir)\.playwright\node\linux-x64"/>
 			<BuildArtifacts Include="$(TargetDir)\runtimes\win-arm64"/>
 			<BuildArtifacts Include="$(TargetDir)\runtimes\win-x86"/>
 		</ItemGroup>
-		<ItemGroup Condition="'$(RunTimeIdentifier)' == 'linux-x64'">
+		<ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\windows"/>
 			<BuildArtifacts Include="$(TargetDir)\selenium-manager\macos"/>			
 			<BuildArtifacts Include="$(TargetDir)\.playwright\node\win32_x64"/>			
