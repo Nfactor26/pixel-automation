@@ -16,6 +16,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Automation.PrefabExplorer.ViewModels;
 using Serilog;
 using System.IO;
 using System.Windows;
@@ -112,6 +113,16 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     return;
                 }
 
+                if (dropInfo.Data is PrefabViewModel prefab && dropInfo.TargetItem is EntityComponentViewModel)
+                {
+                    if (dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
+                    {
+                        dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+                        dropInfo.Effects = DragDropEffects.Copy;
+                    }
+                    return;
+                }
+
                 //Handle dragging of prefab
                 if (dropInfo.Data is PrefabProjectViewModel prefabProject && dropInfo.TargetItem is EntityComponentViewModel)
                 {
@@ -180,7 +191,11 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     }
                 }
 
-              
+                if (dropInfo.Data is PrefabViewModel)
+                {
+                    HandlerPrefabDropV2(dropInfo);
+                    return;
+                }
 
                 if (dropInfo.Data is PrefabProjectViewModel)
                 {                  
@@ -286,6 +301,14 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 IWindowManager windowManager = targetItem.Model.EntityManager.GetServiceOfType<IWindowManager>();
                 windowManager.ShowDialogAsync(prefabDropHandler);               
             }          
+        }
+
+        void HandlerPrefabDropV2(IDropInfo dropInfo)
+        {
+            if (dropInfo.Data is PrefabViewModel prefab && dropInfo.TargetItem is EntityComponentViewModel targetItem)
+            {
+                targetItem.AddComponent(new PrefabHostEntity() { PrefabId = prefab.PrefabId, Name = prefab.DisplayName });
+            }
         }
 
         void HandleControlDrop(IDropInfo dropInfo)

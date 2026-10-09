@@ -90,6 +90,16 @@
 		<StyleKey>SlimStyle</StyleKey>
 	</ComponentTemplate>
 	<ComponentTemplate>
+		<Name>PrefabEntityV2</Name>
+		<DataTemplateKey>PrefabV2Template</DataTemplateKey>
+		<StyleKey>ContainerStyle</StyleKey>
+	</ComponentTemplate>
+	<ComponentTemplate>
+		<Name>PrefabHostEntity</Name>
+		<DataTemplateKey>PrefabHostTemplate</DataTemplateKey>
+		<StyleKey>PrefabHostStyle</StyleKey>
+	</ComponentTemplate>
+	<ComponentTemplate>
 		<Name>ControlEntity</Name>
 		<DataTemplateKey>ControlTemplate</DataTemplateKey>
 		<StyleKey>ControlComponentStyle</StyleKey>

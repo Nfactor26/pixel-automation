@@ -5,6 +5,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.TypeBrowser;
+using Pixel.Automation.PrefabExplorer.ViewModels;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.TestDataExplorer.ViewModels;
@@ -22,6 +23,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
             Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
             Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();
+            Kernel.Bind<IPrefabExplorer>().To<PrefabExplorerViewModel>();
             Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
 
             Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
@@ -40,7 +42,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InSingletonScope();
             Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
 
-            Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();          
+            Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();          
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Pixel.Automation.Core.Attributes;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
@@ -22,9 +23,14 @@ public class ScriptFileInitializer : IComponentInitializer
             string scriptsDirectory = fileSystem.ScriptsDirectory;
             if(fileSystem is IProjectFileSystem projectFileSystem)
             {
+
+                if(component.TryGetAnsecstorOfType(out PrefabHostEntity prefabHost))
+                {
+                    scriptsDirectory = Path.Combine(projectFileSystem.PrefabsRepository, prefabHost.PrefabId);                    
+                }
                 //On opening a TestFixture or TestCase, it's tag is set to it's Id. We combine them to get the path where scripts should reside
                 //when the component is added to a TestCase or TestFixture
-                if (component.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity))
+                else if (component.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity))
                 {
                     scriptsDirectory = Path.Combine(projectFileSystem.TestCaseRepository, testFixtureEntity.Tag);
                     if (component.TryGetAnsecstorOfType(out TestCaseEntity testCaseEntity))

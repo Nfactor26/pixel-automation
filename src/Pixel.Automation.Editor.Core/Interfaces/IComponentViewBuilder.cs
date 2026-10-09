@@ -1,18 +1,22 @@
-﻿using Pixel.Automation.Core.TestData;
+﻿using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.ViewModels;
 
-namespace Pixel.Automation.Editor.Core.Interfaces
-{  
-    public interface IComponentViewBuilder
-    {
-        void SetRoot(EntityComponentViewModel root);
+namespace Pixel.Automation.Editor.Core.Interfaces;
 
-        void OpenTestFixture(TestFixture fixture);
+public interface IComponentViewBuilder
+{
+    void SetRoot(EntityComponentViewModel root);
 
-        void CloseTestFixture(TestFixture fixture);
+    void OpenTestFixture(TestFixture fixture);
 
-        void OpenTestCase(TestCase testCase);
+    void CloseTestFixture(TestFixture fixture);
 
-        void CloseTestCase(TestCase testCase);
-    }
+    void OpenTestCase(TestCase testCase);
+
+    void CloseTestCase(TestCase testCase);
+
+    void OpenPrefab(Prefab prefab);
+
+    void ClosePrefab(Prefab prefab); 
 }

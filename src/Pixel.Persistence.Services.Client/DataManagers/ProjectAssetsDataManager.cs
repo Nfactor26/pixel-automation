@@ -15,14 +15,15 @@ using System.Threading.Tasks;
 
 namespace Pixel.Persistence.Services.Client;
 
-public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
+public class ProjectAssetsDataManager : IProjectAssetsDataManager
 {
-    private readonly ILogger logger = Log.ForContext<TestAndFixtureAndTestDataManager>();
+    private readonly ILogger logger = Log.ForContext<ProjectAssetsDataManager>();
 
     private readonly IFixturesRepositoryClient fixturesClient;
     private readonly ITestsRepositoryClient testsClient;
     private readonly IProjectFilesRepositoryClient filesClient;
     private readonly ITestDataRepositoryClient testDataRepositoryClient;
+    private readonly IPrefabsRepositoryClientV2 prefabsClient;
     private readonly IApplicationFileSystem applicationFileSystem;
     private readonly IProjectFileSystem projectFileSystem;
     private readonly ISerializer serializer;
@@ -43,23 +44,26 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     /// <param name="filesClient"></param>
     /// <param name="fixturesClient"></param>
     /// <param name="testsClient"></param>
+    /// <param name="testDataClient"></param>
+    /// <param name="prefabsClient"></param>
     /// <param name="applicationFileSystem"></param>
     /// <param name="projectFileSystem"></param>
-    /// <param name="applicationSettings"></param>
-    /// <param name="testDataRepositoryClient"></param>
-    public TestAndFixtureAndTestDataManager(ISerializer serializer, IProjectFilesRepositoryClient filesClient,
+    /// <param name="applicationSettings"></param>  
+    public ProjectAssetsDataManager(ISerializer serializer, IProjectFilesRepositoryClient filesClient,
         IFixturesRepositoryClient fixturesClient, ITestsRepositoryClient testsClient,
+        ITestDataRepositoryClient testDataClient, IPrefabsRepositoryClientV2 prefabsClient,
         IApplicationFileSystem applicationFileSystem, IProjectFileSystem projectFileSystem,
-        ApplicationSettings applicationSettings, ITestDataRepositoryClient testDataRepositoryClient)
+        ApplicationSettings applicationSettings)
     {
         this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
         this.filesClient = Guard.Argument(filesClient, nameof(filesClient)).NotNull().Value;
         this.fixturesClient = Guard.Argument(fixturesClient, nameof(fixturesClient)).NotNull().Value;
         this.testsClient = Guard.Argument(testsClient, nameof(testsClient)).NotNull().Value;
+        this.testDataRepositoryClient = Guard.Argument(testDataClient, nameof(testDataClient)).NotNull().Value;
+        this.prefabsClient = Guard.Argument(prefabsClient, nameof(prefabsClient)).NotNull().Value;
         this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
-        this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;
-        this.testDataRepositoryClient = Guard.Argument(testDataRepositoryClient, nameof(testDataRepositoryClient)).NotNull().Value;
+        this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;     
     }
 
     /// <inheritdoc/>  
@@ -376,6 +380,122 @@ public class TestAndFixtureAndTestDataManager : IProjectAssetsDataManager
     }
 
     #endregion Tests
+
+    #region Prefabs
+
+    /// <inheritdoc/>  
+    public async Task<Prefab> GetPrefabAsync(string prefabId)
+    {
+        if (IsOnlineMode)
+        {
+            return await this.prefabsClient.GetByIdAsync(automationProject.ProjectId, projectVersion.ToString(), prefabId);
+        }
+        return null;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Prefab> AddPrefabAsync(Prefab prefab)
+    {
+        var prefabFiles = this.projectFileSystem.GetPrefabFiles(prefab);
+        if (string.IsNullOrEmpty(prefab.ScriptFile))
+        {
+            prefab.ScriptFile = this.projectFileSystem.GetRelativePath(prefabFiles.ScriptFile).Replace("\\", "/");
+            this.projectFileSystem.CreateOrReplaceFile(prefabFiles.PrefabDirectory, Path.GetFileName(prefab.ScriptFile), string.Empty);
+        }
+        this.projectFileSystem.SaveToFile<Prefab>(prefab, prefabFiles.PrefabDirectory);
+        this.projectFileSystem.SaveToFile<Entity>(prefab.WorkFlowEntity, prefabFiles.PrefabDirectory, prefabFiles.ProcessFile);
+
+        if (IsOnlineMode)
+        {
+            await this.prefabsClient.AddPrefabAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), prefab);
+            await AddDataFileAsync(prefabFiles.ProcessFile, prefab.PrefabId);
+            await AddDataFileAsync(prefabFiles.ScriptFile, prefab.PrefabId);
+        }
+        logger.Information("Added Prefab : '{0}' to version : '{1}' of automation project : '{2}'.", prefab.DisplayName, projectVersion, automationProject.Name);
+        return prefab;
+    }
+
+    public async Task<Prefab> UpdatePrefabAsync(Prefab prefab)
+    {
+        var prefabFiles = this.projectFileSystem.GetPrefabFiles(prefab);
+        this.projectFileSystem.SaveToFile<Prefab>(prefab, prefabFiles.PrefabDirectory);
+        if (IsOnlineMode)
+        {
+            await this.prefabsClient.UpdatePrefabAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), prefab);
+        }
+        logger.Information("Updated Prefab : '{0}' for version : '{1}' of automation project : '{2}'.", prefab.DisplayName, projectVersion, automationProject.Name);
+        return prefab;
+    }
+
+    public async Task DeletePrefabAsync(Prefab prefab)
+    {
+        if (IsOnlineMode)
+        {
+            await this.prefabsClient.DeletePrefabAsync(this.automationProject.ProjectId, this.projectVersion.ToString(), prefab.PrefabId);
+        }
+        var prefabFiles = this.projectFileSystem.GetPrefabFiles(prefab);
+        Directory.Delete(prefabFiles.PrefabDirectory, true);
+        logger.Information("Deleted Prefab : '{0}' from version : '{1}' of automation project : '{2}'.", prefab.DisplayName, projectVersion, automationProject.Name);
+    }
+
+    public async Task SavePrefabDataAsync(Prefab prefab)
+    {
+        var prefabFiles = this.projectFileSystem.GetPrefabFiles(prefab);
+        this.projectFileSystem.SaveToFile<Entity>(prefab.WorkFlowEntity, prefabFiles.PrefabDirectory, prefabFiles.ProcessFile);
+        if (IsOnlineMode)
+        {
+            await AddDataFileAsync(prefabFiles.ProcessFile, prefab.PrefabId);
+            foreach (var scriptFile in Directory.EnumerateFiles(prefabFiles.PrefabDirectory, "*.csx"))
+            {
+                await AddDataFileAsync(scriptFile, prefab.PrefabId);
+            }
+        }
+        logger.Information("Saved data files for Prefab : '{0}' for version : '{1}' of automation project : '{2}'.", prefab.DisplayName, projectVersion, automationProject.Name);
+    }
+
+    public async Task DownloadPrefabDataAsync(Prefab prefab)
+    {
+        if (IsOnlineMode)
+        {
+            //There can be abandoned script files locally if some other user delted a component from test cases along with it's script files.
+            //We don't want this script file to be saved back from this user after he edits and saves the test case. Hence, we delete all script files
+            //before retrieving latest data.
+            var prefabFiles = this.projectFileSystem.GetPrefabFiles(prefab);
+            foreach (var file in Directory.GetFiles(prefabFiles.PrefabDirectory, "*.csx"))
+            {
+                File.Delete(file);
+            }
+            await DownloadFilesWithTagsAsync(new[] { prefab.PrefabId });
+            logger.Information("Downloaded data files for Prefab : '{0}' for version : '{1}' of automation project : '{2}'.", prefab.DisplayName, projectVersion, automationProject.Name);
+        }
+    }
+
+    public async Task DownloadAllPrefabsAsync()
+    {
+        if (IsOnlineMode)
+        {
+            var orefabs = await this.prefabsClient.GetAllForProjectAsync(automationProject.ProjectId, projectVersion.ToString(), lastUpdated);
+            SavePrefabsLocally(orefabs);
+        }
+    }
+
+    private void SavePrefabsLocally(IEnumerable<Prefab> prefabs)
+    {
+        var workingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, automationProject.ProjectId, projectVersion.ToString());
+        foreach (var prefab in prefabs)
+        {           
+            var prefabDirectory = Path.Combine(workingDirectory, Constants.PrefabsDirectory, prefab.PrefabId);
+            var prefabFile = Path.Combine(prefabDirectory, $"{prefab.PrefabId}.prefab");
+            if (!Directory.Exists(prefabDirectory))
+            {
+                Directory.CreateDirectory(prefabDirectory);
+            }
+            serializer.Serialize(prefabFile, prefab);
+            logger.Information("Updated local copy of Prefab : {0}", prefab.DisplayName);
+        }
+    }
+
+    #endregion
 
     #region Test Data Source
 

@@ -14,6 +14,7 @@ public class PersistenceModules : NinjectModule
         Kernel.Bind<ITestSessionClient>().To<TestSessionClient>().InSingletonScope();
         Kernel.Bind<IAutomationsRepositoryClient>().To<AutomationsRepositoryClient>().InSingletonScope();
         Kernel.Bind<IPrefabsRepositoryClient>().To<PrefabsRepositoryClient>().InSingletonScope();
+        Kernel.Bind<IPrefabsRepositoryClientV2>().To<PrefabsRepositoryClientV2>().InSingletonScope();
         Kernel.Bind<IReferencesRepositoryClient>().To<ReferencesRepositoryClient>().InSingletonScope();
         Kernel.Bind<IProjectFilesRepositoryClient>().To<ProjectFilesRepositoryClient>().InSingletonScope();
         Kernel.Bind<IPrefabFilesRepositoryClient>().To<PrefabFilesRepositoryClient>().InSingletonScope();

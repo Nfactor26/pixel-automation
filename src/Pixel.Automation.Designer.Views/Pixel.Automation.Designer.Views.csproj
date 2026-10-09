@@ -26,11 +26,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pixel.Automation.Core\Pixel.Automation.Core.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />	
+		<ProjectReference Include="..\Pixel.Automation.Core.Components\Pixel.Automation.Core.Components.csproj" />			
 		<ProjectReference Include="..\Pixel.Automation.RunTime\Pixel.Automation.RunTime.csproj" />		
 		<ProjectReference Include="..\Pixel.Automation.Editor.Core\Pixel.Automation.Editor.Core.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.TestDataExplorer.Views\Pixel.Automation.TestDataExplorer.Views.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.Editor.Controls\Pixel.Automation.Editor.Controls.csproj" />		
 		<ProjectReference Include="..\Pixel.Scripting.CodeGeneration\Pixel.Scripting.CodeGeneration.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Common.CSharp\Pixel.Scripting.Common.CSharp.csproj" />
 		<ProjectReference Include="..\Pixel.Scripting.Editor.Core\Pixel.Scripting.Editor.Core.csproj" />
@@ -47,7 +46,9 @@
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.Views\Pixel.Automation.AppExplorer.Views.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />		
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />		
+		<ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.PrefabExplorer.Views\Pixel.Automation.PrefabExplorer.Views.csproj" />
+		<ProjectReference Include="..\Pixel.Automation.TestDataExplorer.Views\Pixel.Automation.TestDataExplorer.Views.csproj" />
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
 	</ItemGroup>
 

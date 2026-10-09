@@ -95,7 +95,7 @@ public interface IProjectDataManager
 /// <summary>
 /// Defines contract for managing test cases, test fixutres and test data asssociated with a specific version of Project 
 /// </summary>
-public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManager, ITestDataManager
+public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManager, ITestDataManager, IPrefabManager
 {
     /// <summary>
     /// Initialize the ProjectDataManager with the AutomationProject and it's version to manage
@@ -220,6 +220,57 @@ public interface ITestFixtureManager
     /// </summary>
     /// <returns></returns>
     Task DownloadAllFixturesAsync();
+}
+
+public interface IPrefabManager
+{
+    /// <summary>
+    /// Get Prefab matching specified prefabId
+    /// </summary> 
+    /// <param name="prefabId">Identifier of the prefab</param>
+    /// <returns></returns>
+    Task<Prefab> GetPrefabAsync(string prefabId);
+
+    /// <summary>
+    /// Add a new Prefab
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    Task<Prefab> AddPrefabAsync(Prefab prefab);
+
+    /// <summary>
+    /// Update an existing Prefab
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    Task<Prefab> UpdatePrefabAsync(Prefab prefab);
+
+    /// <summary>
+    /// (soft) Delete an existing Prefab
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    Task DeletePrefabAsync(Prefab prefab);
+
+    /// <summary>
+    /// Save data files belonging to a Prefab
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    Task SavePrefabDataAsync(Prefab prefab);
+
+    /// <summary>
+    /// Download data files belonging to a Prefab
+    /// </summary>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    Task DownloadPrefabDataAsync(Prefab prefab);
+
+    /// <summary>
+    /// Download all the Prefabs available for the version of AutomationProject being managed
+    /// </summary>
+    /// <returns></returns>
+    Task DownloadAllPrefabsAsync();
 }
 
 public interface ITestDataManager

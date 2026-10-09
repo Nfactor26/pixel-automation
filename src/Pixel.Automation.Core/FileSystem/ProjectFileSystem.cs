@@ -26,6 +26,9 @@ namespace Pixel.Automation.Core
         public string TestCaseRepository { get; protected set; }
 
         /// <InheritDoc/>      
+        public string PrefabsRepository { get; protected set; }
+
+        /// <InheritDoc/>      
         public string TestDataRepository { get; protected set; }
         
         /// <summary>
@@ -62,11 +65,16 @@ namespace Pixel.Automation.Core
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
             this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);        
             this.TestCaseRepository = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory);
+            this.PrefabsRepository = Path.Combine(this.WorkingDirectory, Constants.PrefabsDirectory);
             this.TestDataRepository = Path.Combine(this.WorkingDirectory, Constants.TestDataDirectory);
 
             if (!Directory.Exists(TestCaseRepository))
             {
                 Directory.CreateDirectory(TestCaseRepository);
+            }
+            if (!Directory.Exists(PrefabsRepository))
+            {
+                Directory.CreateDirectory(PrefabsRepository);
             }
             if (!Directory.Exists(TestDataRepository))
             {
@@ -86,6 +94,12 @@ namespace Pixel.Automation.Core
         public TestFixtureFiles GetTestFixtureFiles(TestFixture fixture)
         {
             return new TestFixtureFiles(fixture, this.TestCaseRepository);
+        }
+
+        /// <InheritDoc/>      
+        public PrefabFiles GetPrefabFiles(Prefab prefab)
+        {
+            return new PrefabFiles(prefab, this.PrefabsRepository);
         }
 
         /// <InheritDoc/> 

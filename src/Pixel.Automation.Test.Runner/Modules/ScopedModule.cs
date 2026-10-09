@@ -14,7 +14,7 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InSingletonScope();
             Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope(); // since nested prefabs are not supported
             Kernel.Bind<IControlLoader>().To<ControlLoader>().InSingletonScope();
-            Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();
+            Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();
         }
     }
 }

@@ -33,13 +33,15 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ITestExplorer testExplorer;
         private readonly ITestExplorerHost testExplorerHost;        
         private readonly ITestDataRepository testDataRepository;
-        private readonly ITestDataRepositoryHost testDataRepositoryHost;       
+        private readonly ITestDataRepositoryHost testDataRepositoryHost;
+        private readonly IPrefabExplorerHost prefabsRepositoryHost;
+        private readonly IPrefabExplorer prefabExplorer;
         #endregion data members
 
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             INotificationManager notificationManager, ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
-            IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
+            IPrefabExplorer prefabExplorer, IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
             : base(globalEventAggregator, windowManager, notificationManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
@@ -48,7 +50,8 @@ namespace Pixel.Automation.Designer.ViewModels
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
             this.componentViewBuilder = Guard.Argument(componentViewBuilder, nameof(componentViewBuilder)).NotNull().Value;
             this.testExplorer = Guard.Argument(testExplorer, nameof(testExplorer)).NotNull().Value;
-            this.testDataRepository = Guard.Argument(testDataRepository, nameof(testDataRepository)).NotNull().Value;           
+            this.testDataRepository = Guard.Argument(testDataRepository, nameof(testDataRepository)).NotNull().Value;
+            this.prefabExplorer = Guard.Argument(prefabExplorer, nameof(prefabExplorer)).NotNull().Value;
             Guard.Argument(anchorables, nameof(anchorables)).NotNull().NotEmpty().DoesNotContainNull();
 
             foreach (var item in anchorables)
@@ -61,6 +64,11 @@ namespace Pixel.Automation.Designer.ViewModels
                 if(item is ITestExplorerHost explorerHost)
                 {
                     testExplorerHost = explorerHost;                  
+                }
+
+                if(item is IPrefabExplorerHost prefabsHost)
+                {
+                    prefabsRepositoryHost = prefabsHost;
                 }
             }         
         }
@@ -254,6 +262,7 @@ namespace Pixel.Automation.Designer.ViewModels
             //whenever we activate the automation editor, activate the test explorer and test data repository associated with it as well
             await this.testExplorerHost.ActivateItemAsync(this.testExplorer);
             await this.testDataRepositoryHost.ActivateItemAsync(this.testDataRepository);
+            await this.prefabsRepositoryHost.ActivateItemAsync(this.prefabExplorer);
             await base.OnActivateAsync(cancellationToken);
             logger.Debug("Automation Project screen - {0} was activated", this.CurrentProject.Name);
         }
@@ -263,7 +272,8 @@ namespace Pixel.Automation.Designer.ViewModels
             //whenever we deactivate the automation editor, we deactivate the test explorer and test data repository associated with it as well.
             //false parameter tells that we should not close the test explorer but only deactivate.
             await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, false);
-            await this.testDataRepositoryHost.DeactivateItemAsync(this.testExplorer, false);          
+            await this.testDataRepositoryHost.DeactivateItemAsync(this.testExplorer, false);
+            await this.prefabsRepositoryHost.DeactivateItemAsync(this.prefabExplorer, false);
             await base.OnDeactivateAsync(close, cancellationToken);
             logger.Debug("Automation Project screen - {0} was de-activated", this.CurrentProject.Name);
         }

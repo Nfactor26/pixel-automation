@@ -13,6 +13,7 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>();
             Kernel.Bind<IAutomationsRepositoryClient>().To<AutomationsRepositoryClient>();
             Kernel.Bind<IPrefabsRepositoryClient>().To<PrefabsRepositoryClient>();
+            Kernel.Bind<IPrefabsRepositoryClientV2>().To<PrefabsRepositoryClientV2>();
             Kernel.Bind<IReferencesRepositoryClient>().To<ReferencesRepositoryClient>();
             Kernel.Bind<IProjectFilesRepositoryClient>().To<ProjectFilesRepositoryClient>();
             Kernel.Bind<IPrefabFilesRepositoryClient>().To<PrefabFilesRepositoryClient>();

@@ -270,6 +270,64 @@
         </DataTemplate.Triggers>
     </DataTemplate>
 
+
+    <HierarchicalDataTemplate x:Key="PrefabV2Template"  ItemsSource="{Binding ComponentCollection}">
+        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
+            Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">
+                <iconPacks:PackIconMaterial Kind="VectorLink" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                                           Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+            </StackPanel>
+            <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Visibility="Collapsed" Margin="0,0,4,0"
+                                         HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button x:Name="btnDrillIn" Margin="0,0,2,0" HorizontalAlignment="Right" 
+                             Height="20" Width="20" ToolTip="Drill In"
+                             cal:Message.Attach="[Event Click] = [Action ZoomInToEntity($dataContext)]"                   
+                             Style="{DynamicResource EditControlButtonStyle}"
+                             Content="{iconPacks:MaterialLight ArrangeBringForward}"/>
+            </StackPanel>
+        </DockPanel>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="pnlActions"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+        </DataTemplate.Triggers>
+    </HierarchicalDataTemplate>
+
+    <HierarchicalDataTemplate x:Key="PrefabHostTemplate"  ItemsSource="{Binding ComponentCollection}">
+        <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
+                Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">
+                <iconPacks:PackIconMaterial Kind="PackageVariantClosed" Foreground="{DynamicResource MahApps.Brushes.Accent}" 
+                                                               Background="{DynamicResource MahApps.Brushes.Control.Background}"/>
+            </StackPanel>
+            <Label DockPanel.Dock="Left"  Content="{Binding Model.Name}"  HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            <StackPanel x:Name="pnlActions" DockPanel.Dock="Right" Margin="0,0,4,0"
+                                             HorizontalAlignment="Right" Orientation="Horizontal">
+                <editorControls:OpenPrefabMenuButton x:Name="OpenForEdit" OwnerComponent="{Binding Model}" Visibility="Collapsed"/>               
+                <editorControls:SaveAndClosePrefabMenuButton x:Name="SaveAndClose" OwnerComponent="{Binding Model}" Visibility="Collapsed"/>
+                <Button x:Name="DeleteComponent" Width="20"  Height="20" HorizontalAlignment="Right"
+                                       cal:Message.Attach="[Event Click] = [Action DeleteComponent($dataContext)]"
+                                       ToolTip="Delete" Style="{DynamicResource EditControlButtonStyle}"
+                                       Content="{iconPacks:Material CloseCircleOutline}" Visibility="Collapsed"/>
+            </StackPanel>
+        </DockPanel>
+        <DataTemplate.Triggers>
+            <Trigger Property="IsMouseOver"  Value="true">
+                <Setter TargetName="OpenForEdit"  Property="Visibility" Value="Visible"/>
+                <Setter TargetName="DeleteComponent"  Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding Model.IsInDesignMode}" Value="True">              
+                <Setter TargetName="SaveAndClose" Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Model.IsInDesignMode}" Value="True">
+                <Setter TargetName="OpenForEdit" Property="Visibility" Value="Collapsed"/>
+                <Setter TargetName="DeleteComponent" Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </HierarchicalDataTemplate>
+
     <DataTemplate x:Key="HttpRequest">
         <Border x:Name="brdContainer"  BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
                 HorizontalAlignment="Stretch" Margin="0,4,0,4" MinWidth="224" dd:DragDrop.IsDragSource="True"
