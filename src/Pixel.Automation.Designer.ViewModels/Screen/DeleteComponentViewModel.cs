@@ -117,9 +117,10 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 if (componentToDelete.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
                 {
+                    testCaseEntity.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);                  
                     foreach (var prefab in prefabsToBeRemoved)
                     {
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabRemovedEventArgs(prefab.PrefabId, testCaseEntity.Tag));
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabRemovedEventArgs(prefab.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
                     }
                 }
                 else if (componentToDelete.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))

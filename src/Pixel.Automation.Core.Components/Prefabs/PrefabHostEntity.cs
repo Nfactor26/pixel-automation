@@ -66,7 +66,7 @@ public class PrefabHostEntity : Entity
     public async Task LoadPrefab()
     {
         var fileSystem = this.EntityManager.GetCurrentFileSystem() as IProjectFileSystem;
-        this.prefabEntity = fileSystem.LoadFile<PrefabEntityV2>(Path.Combine(fileSystem.PrefabsRepository, this.PrefabId, $"{this.PrefabId}.proc"));
+        this.prefabEntity = fileSystem.LoadFile<PrefabEntity>(Path.Combine(fileSystem.PrefabsRepository, this.PrefabId, $"{this.PrefabId}.proc"));
         
         IEntityManager prefabEntityManager = new EntityManager(this.EntityManager);
         prefabEntityManager.SetIdentifier($"Prefab - {this.PrefabId}");
@@ -112,7 +112,7 @@ public class PrefabHostEntity : Entity
 
     public override Entity AddComponent(IComponent component)
     {
-        if(component is PrefabEntityV2 prefabEntity && !this.Components.Any())
+        if(component is PrefabEntity prefabEntity && !this.Components.Any())
         {
             this.Components.Add(component);
             prefabEntity.EntityManager.RestoreParentChildRelation(prefabEntity);

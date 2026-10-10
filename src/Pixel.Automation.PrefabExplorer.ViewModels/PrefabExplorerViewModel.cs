@@ -188,7 +188,7 @@ public class PrefabExplorerViewModel : Screen, IPrefabExplorer, IHandle<OpenPref
                 Prefab prefab = new Prefab()
                 {                    
                     DisplayName = $"Prefab#{this.Prefabs.Count() + 1}",                  
-                    WorkFlowEntity = new PrefabEntityV2()
+                    WorkFlowEntity = new PrefabEntity()
                 };
                
                 var testCaseEditor = new EditPrefabViewModel(prefab, this.Prefabs.Select(s => s.DisplayName), argumentTypeBrowserFactory, windowManager);
@@ -306,7 +306,7 @@ public class PrefabExplorerViewModel : Screen, IPrefabExplorer, IHandle<OpenPref
             await this.prefabManager.DownloadPrefabDataAsync(prefabVM.Prefab);
 
             var prefabFiles = this.fileSystem.GetPrefabFiles(prefabVM.Prefab);
-            prefabVM.WorkflowEntity = this.projectManager.Load<PrefabEntityV2>(prefabFiles.ProcessFile);
+            prefabVM.WorkflowEntity = this.projectManager.Load<PrefabEntity>(prefabFiles.ProcessFile);
 
             if (await TryOpenForEdit())
             {

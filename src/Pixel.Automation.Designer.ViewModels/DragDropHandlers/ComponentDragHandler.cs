@@ -178,7 +178,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
                 if (dropInfo.Data is PrefabViewModel)
                 {
-                    HandlerPrefabDropV2(dropInfo);
+                    HandlerPrefabDrop(dropInfo);
                     return;
                 }               
 
@@ -271,11 +271,21 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
         }
 
-        void HandlerPrefabDropV2(IDropInfo dropInfo)
+        void HandlerPrefabDrop(IDropInfo dropInfo)
         {
             if (dropInfo.Data is PrefabViewModel prefab && dropInfo.TargetItem is EntityComponentViewModel targetItem)
             {
                 targetItem.AddComponent(new PrefabHostEntity() { PrefabId = prefab.PrefabId, Name = prefab.DisplayName });
+
+                if (targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                {
+                    targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
+                    _ = this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(prefab.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
+                }
+                else if (targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                {
+                    _ = this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(prefab.PrefabId, testFixtureEntity.Tag));
+                }               
             }
         }
 
