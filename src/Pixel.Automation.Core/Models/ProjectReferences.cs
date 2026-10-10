@@ -14,10 +14,7 @@ public class ProjectReferences
     public EditorReferences EditorReferences { get; set; } = new EditorReferences();
 
     [DataMember(IsRequired = true, Order = 20)]
-    public List<ControlReference> ControlReferences { get; set; } = new();
-
-    [DataMember(IsRequired = true, Order = 30)]
-    public List<PrefabReference> PrefabReferences { get; set; } = new();
+    public List<ControlReference> ControlReferences { get; set; } = new();   
 
     [DataMember(IsRequired = true, Order = 40)]
     public List<string> Fixtures { get; set; } = new();

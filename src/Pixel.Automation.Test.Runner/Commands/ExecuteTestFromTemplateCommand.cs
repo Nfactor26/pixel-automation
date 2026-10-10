@@ -33,8 +33,8 @@ internal sealed class ExecuteTestFromTemplateCommand : RunTestCommand<ExecuteTes
     private readonly TemplateManager templateManager;
    
     public ExecuteTestFromTemplateCommand(IAnsiConsole console, IApplicationDataManager applicationDataManager,
-      IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, ProjectManager projectManager, 
-      TemplateManager templateManager) : base(console, applicationDataManager, projectDataManager, prefabDataManager, projectManager)
+      IProjectDataManager projectDataManager, ProjectManager projectManager, 
+      TemplateManager templateManager) : base(console, applicationDataManager, projectDataManager, projectManager)
     {
         this.templateManager = Guard.Argument(templateManager, nameof(templateManager)).NotNull();      
     }

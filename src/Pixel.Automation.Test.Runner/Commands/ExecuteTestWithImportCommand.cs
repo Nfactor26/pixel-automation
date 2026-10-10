@@ -42,8 +42,8 @@ internal class ExecuteTestWithImportCommand : RunTestCommand<ExecuteTestWithImpo
     }
 
     public ExecuteTestWithImportCommand(IAnsiConsole console, IApplicationDataManager applicationDataManager,
-      IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, ProjectManager projectManager,
-      ApplicationSettings appSettings) : base(console, applicationDataManager, projectDataManager, prefabDataManager, projectManager)
+      IProjectDataManager projectDataManager, ProjectManager projectManager,
+      ApplicationSettings appSettings) : base(console, applicationDataManager, projectDataManager, projectManager)
     {      
         this.appSettings = Guard.Argument(appSettings, nameof(appSettings)).NotNull().Value;
         appSettings.IsOfflineMode = true;

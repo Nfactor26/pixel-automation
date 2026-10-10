@@ -3,15 +3,9 @@
     public static class Constants
     {
         /// <summary>
-        /// Prefix for generate namespace for automation and prefab projects
+        /// Prefix for generate namespace for automation projects
         /// </summary>
         public static readonly string NamespacePrefix = "Pixel.Automation";
-
-        /// <summary>
-        /// Namespace prefix for prefab projects
-        /// </summary>
-        public static readonly string PrefabNameSpacePrefix = "Pixel.Prefabs";
-
 
         /// <summary>
         /// Directory name where the controls belonging to application are stored locally
@@ -54,22 +48,7 @@
         /// <summary>
         /// Directory name where the temporary files ( output of data model project) for a automation or prefab project is stored.
         /// </summary>
-        public static readonly string TemporaryDirectory = "Temp";
-
-        /// <summary>
-        /// Data model name for the auto generated Prefab data model
-        /// </summary>
-        public static readonly string PrefabDataModelName = "PrefabDataModel";
-
-        /// <summary>
-        /// Name of the prefab template file  used in prefab project editor
-        /// </summary>
-        public static readonly string PrefabTemplateFileName = "Template.proc";
-
-        /// <summary>
-        /// Name of Prefab entity file which contains the automation workflow
-        /// </summary>
-        public static readonly string PrefabProcessFileName = "Prefab.proc";
+        public static readonly string TemporaryDirectory = "Temp";    
      
         /// <summary>
         /// Data model name for the data model associated with the automation project.

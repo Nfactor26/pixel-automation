@@ -7,7 +7,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
     public class ControlVersionPickerViewModel : Screen
     {
         /// <summary>
-        /// Collection of PrefabVersion that can be edited.
+        /// Collection of Control Versions that can be edited.
         /// </summary>
         public BindableCollection<Version> EditableVersions { get; private set; } = new();
 
@@ -19,7 +19,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
         /// <summary>
         /// constructor
         /// </summary>
-        /// <param name="prefabProject"></param>
+        /// <param name="controls"></param>
         public ControlVersionPickerViewModel(IEnumerable<ControlDescription> controls)
         {
             Guard.Argument(controls, nameof(controls)).NotNull();

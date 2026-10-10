@@ -29,16 +29,7 @@ public  interface IReferencesRepositoryClient
     /// <param name="projectVersion"></param>
     /// <param name="controlReference"></param>
     /// <returns></returns>
-    Task AddOrUpdateControlReferences(string projectId, string projectVersion, ControlReference controlReference);
-   
-    /// <summary>
-    /// Add or update a PrefabRerence for a given version of project
-    /// </summary>
-    /// <param name="projectId"></param>
-    /// <param name="projectVersion"></param>
-    /// <param name="prefabReference"></param>
-    /// <returns></returns>
-    Task AddOrUpdatePrefabReferences(string projectId, string projectVersion, PrefabReference prefabReference);
+    Task AddOrUpdateControlReferences(string projectId, string projectVersion, ControlReference controlReference);  
      
     /// <summary>
     /// Set the EditorReferences for a given version of project

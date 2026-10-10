@@ -74,19 +74,6 @@ public class ReferencesRepositoryClient : IReferencesRepositoryClient
     }
 
     /// <inheritdoc/>
-    public async Task AddOrUpdatePrefabReferences(string projectId, string projectVersion, PrefabReference prefabReference)
-    {
-        Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();
-        Guard.Argument(projectVersion, nameof(projectVersion)).NotNull().NotEmpty();
-        Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
-
-        RestRequest restRequest = new RestRequest($"references/prefabs/{projectId}/{projectVersion}");
-        restRequest.AddJsonBody(prefabReference);
-        var client = this.clientFactory.GetOrCreateClient();
-        await client.PostAsync<PrefabReference>(restRequest);
-    }
-
-    /// <inheritdoc/>
     public async Task SetEditorReferencesAsync(string projectId, string projectVersion, EditorReferences editorReferences)
     {
         Guard.Argument(projectId, nameof(projectId)).NotNull().NotEmpty();

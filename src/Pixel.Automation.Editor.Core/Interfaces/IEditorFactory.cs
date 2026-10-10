@@ -9,12 +9,6 @@
         /// Create an instance of IAutomationEditor
         /// </summary>
         /// <returns></returns>
-        IAutomationEditor CreateAutomationEditor();
-
-        /// <summary>
-        /// Create an instance of IPrefabEditorScreen
-        /// </summary>
-        /// <returns></returns>
-        IPrefabEditor CreatePrefabEditor();
+        IAutomationEditor CreateAutomationEditor();       
     }
 }

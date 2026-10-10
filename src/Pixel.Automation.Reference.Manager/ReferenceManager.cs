@@ -8,8 +8,7 @@ using Pixel.Persistence.Services.Client.Interfaces;
 namespace Pixel.Automation.Reference.Manager;
 
 /// <summary>
-/// ReferenceManager is used to retrieve required assembly references and imports for code editor , script editor and script runtime for a automation project 
-/// or prefab project
+/// ReferenceManager is used to retrieve required assembly references and imports for code editor , script editor and script runtime for a automation project
 /// </summary>
 internal class ReferenceManager : IReferenceManager
 {
@@ -19,8 +18,7 @@ internal class ReferenceManager : IReferenceManager
     private string projectId;
     private string projectVersion;
     private IFileSystem fileSystem;
-    private ControlReferences controlReferences;
-    private PrefabReferences prefabReferences;
+    private ControlReferences controlReferences; 
       
     bool IsOnlineMode => !this.applicationSettings.IsOfflineMode;
 
@@ -54,8 +52,7 @@ internal class ReferenceManager : IReferenceManager
             SaveLocal();
         }
 
-        this.controlReferences = new ControlReferences(this.projectReferences.ControlReferences);
-        this.prefabReferences = new PrefabReferences(this.projectReferences.PrefabReferences);
+        this.controlReferences = new ControlReferences(this.projectReferences.ControlReferences);       
     }
 
     ///<inheritdoc/>  
@@ -166,62 +163,6 @@ internal class ReferenceManager : IReferenceManager
                 SaveLocal();
             }
         }      
-    }
-
-    ///<inheritdoc/>  
-    public PrefabReferences GetPrefabReferences()
-    {
-        return this.prefabReferences;
-    }
-
-    /// <inheritdoc/>
-    public async Task AddPrefabReferenceAsync(PrefabReference prefabReference)
-    {
-        Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
-        if (!this.prefabReferences.HasReference(prefabReference))
-        {
-            if (IsOnlineMode)
-            {
-                await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
-            }
-            this.prefabReferences.AddPrefabReference(prefabReference);
-            SaveLocal();
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task UpdatePrefabReferenceAsync(PrefabReference prefabReference)
-    {
-        Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
-        if (this.prefabReferences.HasReference(prefabReference))
-        {
-            var existingReference = this.prefabReferences.GetPrefabReference(prefabReference.PrefabId);
-            existingReference.Version = prefabReference.Version;
-            if (IsOnlineMode)
-            {
-                await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
-            }
-            SaveLocal();
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task UpdatePrefabReferencesAsync(IEnumerable<PrefabReference> prefabReferences)
-    {
-        Guard.Argument(prefabReferences, nameof(prefabReferences)).NotNull();
-        foreach (var prefabReference in prefabReferences)
-        {
-            if (this.prefabReferences.HasReference(prefabReference))
-            {
-                var existingReference = this.prefabReferences.GetPrefabReference(prefabReference.PrefabId);
-                existingReference.Version = prefabReference.Version;
-                if (IsOnlineMode)
-                {
-                    await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
-                }
-                SaveLocal();
-            }
-        }
     }
 
     /// <inheritdoc/>

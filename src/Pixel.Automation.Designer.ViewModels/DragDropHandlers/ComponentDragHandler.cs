@@ -3,8 +3,6 @@ using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
-using Pixel.Automation.AppExplorer.ViewModels.Prefab;
-using Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -65,7 +63,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                                 }
                             }
                             //It should not be possible to drag an item if the targetItem doesn't allow drop or source and target have different EntityManager
-                            if (targetItem is EntityComponentViewModel entityTarget && !(entityTarget.Model is PrefabEntity) && entityTarget.IsDropTarget && 
+                            if (targetItem is EntityComponentViewModel entityTarget && !(entityTarget.Model is PrefabHostEntity) && entityTarget.IsDropTarget && 
                                 (sourceItem.Model.EntityManager == targetItem.Model.EntityManager) && (sourceItem.Parent != targetItem))
                             {
                                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
@@ -123,19 +121,6 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     return;
                 }
 
-                //Handle dragging of prefab
-                if (dropInfo.Data is PrefabProjectViewModel prefabProject && dropInfo.TargetItem is EntityComponentViewModel)
-                {
-                    if (dropInfo.VisualTarget is FrameworkElement fe && fe.DataContext.GetType() == typeof(AutomationEditorViewModel))
-                    {
-                        if (prefabProject.PublishedVersion.Any())
-                        {
-                            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-                            dropInfo.Effects = DragDropEffects.Copy;
-                        }
-                    }
-                    return;
-                }
             }
             catch (Exception ex)
             {
@@ -195,13 +180,7 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                 {
                     HandlerPrefabDropV2(dropInfo);
                     return;
-                }
-
-                if (dropInfo.Data is PrefabProjectViewModel)
-                {                  
-                    HandlerPrefabDrop(dropInfo);
-                    return;
-                }
+                }               
 
                 if (dropInfo.Data is ControlDescriptionViewModel)
                 {
@@ -290,17 +269,6 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
 
             }
 
-        }
-
-        void HandlerPrefabDrop(IDropInfo dropInfo)
-        {
-            if(dropInfo.Data is PrefabProjectViewModel prefabProjectViewModel && dropInfo.TargetItem is EntityComponentViewModel targetItem)
-            {
-                var entityManager = targetItem.Model.EntityManager;              
-                var prefabDropHandler = new PrefabDropHandlerViewModel(entityManager, prefabProjectViewModel, targetItem);               
-                IWindowManager windowManager = targetItem.Model.EntityManager.GetServiceOfType<IWindowManager>();
-                windowManager.ShowDialogAsync(prefabDropHandler);               
-            }          
         }
 
         void HandlerPrefabDropV2(IDropInfo dropInfo)

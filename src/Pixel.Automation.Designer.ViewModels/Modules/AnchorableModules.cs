@@ -5,7 +5,6 @@ using Ninject.Modules;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
-using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.PrefabExplorer.ViewModels;
@@ -42,6 +41,5 @@ public class AnchorableModules : NinjectModule
         //Kernel.Bind<IFlyOut>().To<SettingsViewModel>().InSingletonScope();
 
         Kernel.Bind<IApplicationAware>().To<ControlExplorerViewModel>().InSingletonScope();
-        Kernel.Bind<IApplicationAware>().To<AppExplorer.ViewModels.Prefab.PrefabExplorerViewModel>().InSingletonScope();
     }
 }

@@ -4,17 +4,15 @@ using Pixel.Automation.RunTime;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 
-namespace Pixel.Automation.Test.Runner.Modules
+namespace Pixel.Automation.Test.Runner.Modules;
+
+public class ScopedModules : NinjectModule
 {
-    public class ScopedModules : NinjectModule
-    {
-        public override void Load()
-        {           
-            Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
-            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InSingletonScope();
-            Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope(); // since nested prefabs are not supported
-            Kernel.Bind<IControlLoader>().To<ControlLoader>().InSingletonScope();
-            Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();
-        }
+    public override void Load()
+    {           
+        Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
+        Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InSingletonScope();         
+        Kernel.Bind<IControlLoader>().To<ControlLoader>().InSingletonScope();
+        Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();
     }
 }

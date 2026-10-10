@@ -301,25 +301,6 @@ namespace Pixel.Automation.Designer.ViewModels
             }               
         }
       
-        /// <inheritdoc/>  
-        public async Task ManagePrefabReferencesAsync()
-        {
-            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefabReferencesAsync), ActivityKind.Internal))
-            {
-                try
-                {
-                    var projectFileSystem = this.projectManager.GetProjectFileSystem() as IProjectFileSystem;
-                    var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.projectManager.GetReferenceManager() , (p) => { this.projectManager.OnPrefabVersionChanged(p); });
-                    await this.windowManager.ShowDialogAsync(versionManager);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, "There was an error on manage prefab reference screen");
-                    await notificationManager.ShowErrorNotificationAsync(ex);
-                }
-            }          
-        }      
-
         #endregion Save project
 
         #region Close Screen

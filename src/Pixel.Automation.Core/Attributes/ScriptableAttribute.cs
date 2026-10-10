@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace Pixel.Automation.Core.Attributes
 {
     /// <summary>
-    /// Indicates that a component has local scripts.
-    /// This information is used by prefab builder to import associated script files
+    /// Indicates that a component has local scripts. 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ScriptableAttribute : Attribute

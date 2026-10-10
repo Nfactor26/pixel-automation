@@ -23,7 +23,7 @@ namespace Pixel.Automation.Core.Models
         public bool IsActive { get; set; } = true;
 
         /// <summary>
-        /// Data model assembly name for the automation or prefab project
+        /// Data model assembly name for the automation project
         /// </summary>
         [DataMember(IsRequired = false, Order = 30)]
         public string DataModelAssembly { get; set; }

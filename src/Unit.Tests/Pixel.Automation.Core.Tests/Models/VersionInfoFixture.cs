@@ -35,36 +35,4 @@ namespace Pixel.Automation.Core.Tests.Models
             Assert.That("1.0.0.0", Is.EqualTo(projectVersion.ToString()));
         }
     }
-
-    class PrefabVersionFixture
-    {
-        [Test]
-        public void ValidatethatPrefabVersionCanBeInitializedFromVersionString()
-        {
-            var prefabVersion = new VersionInfo("1.0.0.0");
-
-            Assert.That(prefabVersion.IsActive);
-            Assert.That(prefabVersion.IsPublished == false);
-            Assert.That(string.IsNullOrEmpty(prefabVersion.DataModelAssembly));
-            Assert.That(string.IsNullOrEmpty(prefabVersion.Description));
-            Assert.That("1.0.0.0", Is.EqualTo(prefabVersion.ToString()));
-        }
-
-        [Test]
-        public void ValidatethatProjectVersionCanBeInitializedFromVersion()
-        {
-            var prefabVersion = new VersionInfo(new Version(1, 0, 0, 0))
-            {
-                IsActive = false,              
-                DataModelAssembly = "Assembly",
-                Description = "Description"
-            };
-
-            Assert.That(prefabVersion.IsActive == false);
-            Assert.That(prefabVersion.IsPublished);
-            Assert.That("Assembly", Is.EqualTo(prefabVersion.DataModelAssembly));
-            Assert.That("Description", Is.EqualTo(prefabVersion.Description));
-            Assert.That("1.0.0.0", Is.EqualTo(prefabVersion.ToString()));
-        }
-    }
 }

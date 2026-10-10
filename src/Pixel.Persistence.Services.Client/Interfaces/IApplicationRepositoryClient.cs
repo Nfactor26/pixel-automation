@@ -67,14 +67,6 @@ namespace Pixel.Persistence.Services.Client
         /// <param name="targetScreenId"></param>
         /// <returns></returns>
         Task MoveControlToScreen(ControlDescription controlDescription, string targetScreenId);
-
-        /// <summary>
-        /// Move prefab from one screen to another
-        /// </summary>
-        /// <param name="prefabProject"></param>
-        /// <param name="targetScreenId"></param>
-        /// <returns></returns>
-        Task MovePrefabToScreen(PrefabProject prefabProject, string targetScreenId);
-
+       
     }
 }

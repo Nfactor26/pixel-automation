@@ -47,7 +47,7 @@ namespace Pixel.Automation.Core.Models
         public IApplication ApplicationDetails { get; set; }
 
         /// <summary>
-        /// Screens for the application. Screens are used to group control and prefabs.
+        /// Screens for the application. Screens are used to group control.
         /// </summary>
         [DataMember(Order = 40)]
         public List<ApplicationScreen> Screens { get; private set; } = new();
@@ -87,9 +87,6 @@ namespace Pixel.Automation.Core.Models
 
         [DataMember(Order = 30)]
         public List<string> AvailableControls { get; private set; } = new();
-
-        [DataMember(Order = 40)]
-        public List<string> AvailablePrefabs { get; private set; } = new();
 
         public ApplicationScreen()
         {

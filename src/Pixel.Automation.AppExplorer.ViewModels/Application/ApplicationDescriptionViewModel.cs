@@ -1,10 +1,8 @@
 ﻿using Dawn;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
-using Pixel.Automation.AppExplorer.ViewModels.Prefab;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using System.Windows.Documents;
 
 namespace Pixel.Automation.AppExplorer.ViewModels.Application
 {
@@ -82,12 +80,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         /// <summary>
         /// Controls belonging to the application
         /// </summary>
-        public List<ControlDescriptionViewModel> ControlsCollection { get; set; } = new ();
-
-        /// <summary>
-        /// Prefabs belonging to the application
-        /// </summary>
-        public List<PrefabProjectViewModel> PrefabsCollection { get; set; } = new ();
+        public List<ControlDescriptionViewModel> ControlsCollection { get; set; } = new ();      
 
 
         public ApplicationScreen this[string screenName]
@@ -203,54 +196,6 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         {
             DeleteControl(controlDescription, currentScreen);
             AddControl(controlDescription, moveToScreen);
-        }
-
-        /// <summary>
-        /// Add a new prefab to the application
-        /// </summary>
-        /// <param name="prefabProject"></param>
-        public void AddPrefab(PrefabProjectViewModel prefabProject, string screenName)
-        {
-            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
-            var prefabCollection = screen.AvailablePrefabs;
-            if (!prefabCollection.Contains(prefabProject.PrefabId))
-            {
-                prefabCollection.Add(prefabProject.PrefabId);
-            }
-            if (!this.PrefabsCollection.Contains(prefabProject))
-            {
-                this.PrefabsCollection.Add(prefabProject);
-            }
-        }
-
-        /// <summary>
-        /// Remove an existing prefab from the application
-        /// </summary>
-        /// <param name="prefabProject"></param>
-        public void DeletePrefab(PrefabProjectViewModel prefabProject, string screenName)
-        {
-            var screen = this.Screens.Single(s => s.ScreenName.Equals(screenName));
-            var prefabCollection = screen.AvailablePrefabs;
-            if(prefabCollection.Contains(prefabProject.PrefabId))
-            {
-                prefabCollection.Remove(prefabProject.PrefabId);
-            }    
-            if (this.PrefabsCollection.Contains(prefabProject))
-            {
-                this.PrefabsCollection.Remove(prefabProject);
-            }
-        }
-
-        /// <summary>
-        /// Move Control from one screen to another
-        /// </summary>
-        /// <param name="controlDescription"></param>
-        /// <param name="currentScreen"></param>
-        /// <param name="moveToScreen"></param>
-        public void MovePrefabToScreen(PrefabProjectViewModel prefabProject, string currentScreen, string moveToScreen)
-        {
-            DeletePrefab(prefabProject, currentScreen);
-            AddPrefab(prefabProject, moveToScreen);
         }
     }
 }

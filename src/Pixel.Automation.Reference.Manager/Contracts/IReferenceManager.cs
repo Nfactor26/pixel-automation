@@ -164,34 +164,7 @@ public interface IReferenceManager
     /// <param name="currentGroup">Name of current group</param>
     /// <param name="newGroup">Name of new group</param>
     /// <returns></returns>
-    Task MoveTestDataSourceToGroupAsync(string testDataSourceId, string currentGroup, string newGroup);
-
-    /// <summary>
-    /// Get the <see cref="PrefabReferences"/> for the project
-    /// </summary>
-    /// <returns></returns>
-    PrefabReferences GetPrefabReferences();
-
-    /// <summary>
-    /// Add a new PrefabReference to the version of project being managed
-    /// </summary>
-    /// <param name="prefabReference"></param>
-    /// <returns></returns>
-    Task AddPrefabReferenceAsync(PrefabReference prefabReference);
-
-    /// <summary>
-    /// Update an existing PrefabReferences belonging to the version of project being managed e.g. version of prefab
-    /// </summary>
-    /// <param name="prefabReference"></param>
-    /// <returns></returns>
-    Task UpdatePrefabReferenceAsync(PrefabReference prefabReference);
-
-    /// <summary>
-    /// Update multiple ContolReference belonging to the version of project being managed
-    /// </summary>
-    /// <param name="prefabReferences"></param>
-    /// <returns></returns>
-    Task UpdatePrefabReferencesAsync(IEnumerable<PrefabReference> prefabReferences);
+    Task MoveTestDataSourceToGroupAsync(string testDataSourceId, string currentGroup, string newGroup);  
 
     /// <summary>
     /// Add script references and imports provided by the given <see cref="IScriptReferencesProvider"/>

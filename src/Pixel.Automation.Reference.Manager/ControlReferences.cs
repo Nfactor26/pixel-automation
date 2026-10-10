@@ -6,7 +6,7 @@ namespace Pixel.Automation.Reference.Manager
 {
 
     /// <summary>
-    /// Maintains a mapping of Prefabs (along with PrefabEntity identifer) used in a AutomationProcess.
+    /// Maintains a mapping of Controls used in a AutomationProcess.
     /// </summary>
     [DataContract]
     public class ControlReferences
@@ -38,7 +38,7 @@ namespace Pixel.Automation.Reference.Manager
         /// <summary>
         /// Remove reference to a Control for a given automation process
         /// </summary>
-        /// <param name="prefabRerence"></param>
+        /// <param name="controlReference"></param>
         public void RemoveControlReference(ControlReference controlReference)
         {
             References.RemoveAll(a => a.Equals(controlReference));
@@ -47,7 +47,7 @@ namespace Pixel.Automation.Reference.Manager
         /// <summary>
         /// Check if the automation process uses a control whose details are provided
         /// </summary>
-        /// <param name="prefabProject"></param>
+        /// <param name="controlReference"></param>
         /// <returns></returns>
         public bool HasReference(ControlReference controlReference)
         {
@@ -58,7 +58,7 @@ namespace Pixel.Automation.Reference.Manager
         /// Check if the automation process uses a control whose details are provided
         /// </summary>
         /// <param name="applicationId"></param>
-        /// <param name="prefabId"></param>
+        /// <param name="controlId"></param>
         /// <returns></returns>
         public bool HasReference(string controlId)
         {

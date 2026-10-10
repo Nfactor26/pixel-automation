@@ -7,7 +7,7 @@ using Pixel.Automation.Reference.Manager.Contracts;
 namespace Pixel.Automation.Reference.Manager;
 
 /// <summary>
-/// Use ReferenceManagerFactor to create an instance of ReferenceManager for a given version of Automation Project or Prefab Project
+/// Use ReferenceManagerFactor to create an instance of ReferenceManager for a given version of Automation Project
 /// </summary>
 public class ReferenceManagerFactory : IReferenceManagerFactory
 {

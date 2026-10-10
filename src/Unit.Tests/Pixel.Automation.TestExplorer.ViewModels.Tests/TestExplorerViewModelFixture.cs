@@ -5,7 +5,6 @@ using NSubstitute.Core;
 using NUnit.Framework;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Loops;
-using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.Sequences;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
@@ -713,8 +712,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels.Tests
             var fixtureViewModel = CreateTestFixtureViewModel(true);
             var testCaseViewModel = CreateTestCaseViewModel(fixtureViewModel.TestFixture, true);
             testCaseViewModel.ScriptFile = string.Empty;
-            var testEntity = testCaseViewModel.TestCaseEntity;
-            testEntity.AddComponent(new PrefabEntity());
+            var testEntity = testCaseViewModel.TestCaseEntity;           
             fixtureViewModel.AddTestCase(testCaseViewModel, this.projectFileSystem);
 
             //Act

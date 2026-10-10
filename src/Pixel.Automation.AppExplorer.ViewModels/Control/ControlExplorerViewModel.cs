@@ -688,9 +688,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
 
         /// <summary>
         /// Broadcast a FilterTestMessage which is processed by Test explorer view to filter and show only those test cases
-        /// which uses this prefab
+        /// which uses this control
         /// </summary>
-        /// <param name="targetPrefab"></param>
+        /// <param name="controlDescription"></param>
         /// <returns></returns>
         public async Task ShowUsage(ControlDescriptionViewModel controlDescription)
         {

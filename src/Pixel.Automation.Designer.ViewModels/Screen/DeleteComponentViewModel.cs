@@ -102,17 +102,17 @@ namespace Pixel.Automation.Designer.ViewModels
 
         private async Task NotifyOfRemovedPrefabs(IComponent componentToDelete)
         {      
-            //If deleted component is a PrefabEntity or present as a descendant, Raise a notification that Prefab was removed
+            //If deleted component is a PrefabHostEntity or present as a descendant, Raise a notification that Prefab was removed
             if (componentToDelete is Entity entity)
             {
-                List<PrefabEntity> prefabsToBeRemoved = new();
-                if (entity is PrefabEntity prefabEntity)
+                List<PrefabHostEntity> prefabsToBeRemoved = new();
+                if (entity is PrefabHostEntity prefabEntity)
                 {
                     prefabsToBeRemoved.Add(prefabEntity);
                 }
-                else if (entity.HasComponentsOfType<PrefabEntity>())
+                else if (entity.HasComponentsOfType<PrefabHostEntity>())
                 {
-                    prefabsToBeRemoved.AddRange(entity.GetComponentsOfType<PrefabEntity>(Core.Enums.SearchScope.Descendants));
+                    prefabsToBeRemoved.AddRange(entity.GetComponentsOfType<PrefabHostEntity>(Core.Enums.SearchScope.Descendants));
                 }
 
                 if (componentToDelete.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))

@@ -13,7 +13,7 @@ namespace Pixel.Automation.Editor.Controls.Buttons
     /// </summary>
     public partial class ConfigureHttpRequestButton : UserControl
     {
-        private readonly ILogger logger = Log.ForContext<ConfigurePrefabMenuButton>();
+        private readonly ILogger logger = Log.ForContext<ConfigureHttpRequestButton>();
 
         public static readonly DependencyProperty OwnerComponentProperty = DependencyProperty.Register("OwnerComponent", typeof(Component), typeof(ConfigureHttpRequestButton),
                                                                                       new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));

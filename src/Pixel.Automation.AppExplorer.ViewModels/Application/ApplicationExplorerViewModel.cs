@@ -35,7 +35,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Application
         private readonly INotificationManager notificationManager;
 
         /// <summary>
-        /// Child views that are dependent on the selected application such as control explorer and prefab explorer
+        /// Child views that are dependent on the selected application such as control explorer
         /// </summary>
         public BindableCollection<IApplicationAware> ChildViews { get; private set; } = new BindableCollection<IApplicationAware>();
 

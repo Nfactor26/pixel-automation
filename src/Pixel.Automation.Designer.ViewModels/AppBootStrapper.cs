@@ -73,8 +73,7 @@ namespace Pixel.Automation.Designer.ViewModels
                             {
 
                                 var applicationDataManger = IoC.Get<IApplicationDataManager>();
-                                var projectDataManager = IoC.Get<IProjectDataManager>();
-                                var prefabDataManager = IoC.Get<IPrefabDataManager>();
+                                var projectDataManager = IoC.Get<IProjectDataManager>();                             
                                 using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
                                 {
                                     await applicationDataManger.DownloadApplicationsWithControlsAsync();
@@ -82,12 +81,7 @@ namespace Pixel.Automation.Designer.ViewModels
                                 using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
                                 {
                                     await projectDataManager.DownloadProjectsAsync();
-                                }
-                                using (Telemetry.DefaultSource?.StartActivity("download-prefabs", ActivityKind.Internal))
-                                {
-                                    await prefabDataManager.DownloadPrefabsAsync();
-                                }
-
+                                }                               
                             }
                             catch (Exception ex)
                             {

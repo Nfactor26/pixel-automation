@@ -12,19 +12,16 @@ public class PersistenceModules : NinjectModule
         Kernel.Bind<IApplicationRepositoryClient>().To<ApplicationRepositoryClient>().InSingletonScope();
         Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>().InSingletonScope();          
         Kernel.Bind<ITestSessionClient>().To<TestSessionClient>().InSingletonScope();
-        Kernel.Bind<IAutomationsRepositoryClient>().To<AutomationsRepositoryClient>().InSingletonScope();
-        Kernel.Bind<IPrefabsRepositoryClient>().To<PrefabsRepositoryClient>().InSingletonScope();
+        Kernel.Bind<IAutomationsRepositoryClient>().To<AutomationsRepositoryClient>().InSingletonScope();      
         Kernel.Bind<IPrefabsRepositoryClientV2>().To<PrefabsRepositoryClientV2>().InSingletonScope();
         Kernel.Bind<IReferencesRepositoryClient>().To<ReferencesRepositoryClient>().InSingletonScope();
-        Kernel.Bind<IProjectFilesRepositoryClient>().To<ProjectFilesRepositoryClient>().InSingletonScope();
-        Kernel.Bind<IPrefabFilesRepositoryClient>().To<PrefabFilesRepositoryClient>().InSingletonScope();
+        Kernel.Bind<IProjectFilesRepositoryClient>().To<ProjectFilesRepositoryClient>().InSingletonScope();       
         Kernel.Bind<IFixturesRepositoryClient>().To<FixturesRepositoryClient>().InSingletonScope();
         Kernel.Bind<ITestsRepositoryClient>().To<TestsRepositoryClient>().InSingletonScope();
         Kernel.Bind<ITestDataRepositoryClient>().To<TestDataRepositoryClient>().InSingletonScope();
      
         Kernel.Bind<IDataManagerFactory>().To<DataManagerFactory>().InSingletonScope();
         Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
-        Kernel.Bind<IProjectDataManager>().To<ProjectDataManager>().InSingletonScope();
-        Kernel.Bind<IPrefabDataManager>().To<PrefabDataManager>().InSingletonScope();
+        Kernel.Bind<IProjectDataManager>().To<ProjectDataManager>().InSingletonScope();     
     }
 }

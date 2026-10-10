@@ -24,8 +24,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
             Assert.That(attribute.ValidOn, Is.EqualTo(AttributeTargets.Class));
         }
 
-        [TestCase(typeof(InjectedAttribute))]
-        [TestCase(typeof(ParameterUsageAttribute))]   
+        [TestCase(typeof(InjectedAttribute))]      
         public void ValidateThatAttributeHasPropertyUsageFlag(Type attributeType)
         {
             var attributes = (IList<AttributeUsageAttribute>)attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), false);
@@ -39,8 +38,7 @@ namespace Pixel.Automation.Core.Tests.Attributes
         [TestCase(typeof(BuilderAttribute))]
         [TestCase(typeof(ContainerEntityAttribute))]    
         [TestCase(typeof(FileDescriptionAttribute))]
-        [TestCase(typeof(InjectedAttribute))]
-        [TestCase(typeof(ParameterUsageAttribute))]      
+        [TestCase(typeof(InjectedAttribute))]      
         [TestCase(typeof(ScriptableAttribute))]
         [TestCase(typeof(ToolBoxItemAttribute))]
         public void ValidateThatAttributeHasAllowMultipleFalse(Type attributeType)

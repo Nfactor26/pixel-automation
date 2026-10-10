@@ -1,14 +1,13 @@
 ﻿using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Pixel.Automation.Core.Interfaces
 {
     public interface IFileSystem
     {      
         /// <summary>
-        /// Working directory for a given project or prefab
+        /// Working directory for a given project
         /// </summary>
         string WorkingDirectory { get; }
 
@@ -184,63 +183,6 @@ namespace Pixel.Automation.Core.Interfaces
         /// <returns></returns>
         IEnumerable<TestDataSource> GetTestDataSources();
 
-    }
-
-    public interface IPrefabFileSystem : IVersionedFileSystem
-    {   
-        /// <summary>
-        /// Prefab description file 
-        /// </summary>
-        string PrefabDescriptionFile { get; }
-
-        /// <summary>
-        /// Prefab data file that contains serialized entity
-        /// </summary>
-        string PrefabFile { get; }
-        
-        /// <summary>
-        /// While editing a prefab , Prefab is embedded in to this template.
-        /// Single template exists irrespective of version of prefab
-        /// </summary>
-        string TemplateFile { get; }
-
-        /// <summary>
-        /// Initialize the prefab file system given prefab project and version information
-        /// </summary>
-        /// <param name="prefabProject">Prefab project</param>
-        /// <param name="prefabVersion">Target version of the prefab</param>
-        void Initialize(PrefabProject prefabProject, VersionInfo prefabVersion);            
-
-        /// <summary>
-        /// Get the data model assembly for the prefab
-        /// </summary>
-        /// <returns></returns>
-        Assembly GetDataModelAssembly();
-        
-        /// <summary>
-        /// Check if data model assembly has been updated
-        /// </summary>
-        /// <returns></returns>
-        bool HasDataModelAssemblyChanged();
-
-        /// <summary>
-        /// Get the process entity for the prefab
-        /// </summary>
-        /// <returns></returns>
-        Entity GetPrefabEntity();
-
-        /// <summary>
-        /// Save the specified entity as the prefab template
-        /// </summary>
-        /// <param name="templateRoot"></param>
-        void CreateOrReplaceTemplate(Entity templateRoot);
-
-        /// <summary>
-        /// Get the available template if any for the prefab
-        /// </summary>
-        /// <returns></returns>
-        Entity GetTemplate();
-
-    }
+    }  
    
 }

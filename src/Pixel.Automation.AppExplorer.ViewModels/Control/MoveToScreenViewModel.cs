@@ -5,7 +5,7 @@ using Pixel.Automation.Editor.Core;
 namespace Pixel.Automation.AppExplorer.ViewModels.Control
 {
     /// <summary>
-    /// Allow users to pick a new screen name for control or prefab
+    /// Allow users to pick a new screen name for control
     /// </summary>
     public class MoveToScreenViewModel : SmartScreen 
     {    

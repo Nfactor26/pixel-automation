@@ -12,14 +12,6 @@ public interface IProjectFilesRepositoryClient : IFilesRepositoryClient
 }
 
 /// <summary>
-/// Use <see cref="IFilesRepositoryClient"/> to manage the files associated with a given version of prefab project
-/// </summary>
-public interface IPrefabFilesRepositoryClient : IFilesRepositoryClient
-{
-
-}
-
-/// <summary>
 /// Use <see cref="IFilesRepositoryClient"/> to manage the files associated with a given version of project
 /// </summary>
 public interface IFilesRepositoryClient

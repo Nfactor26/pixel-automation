@@ -21,22 +21,9 @@ public class ProjectFilesRepositoryClient : FilesRepositoryClient, IProjectFiles
     }
 }
 
-public class PrefabFilesRepositoryClient : FilesRepositoryClient, IPrefabFilesRepositoryClient
-{
-    public PrefabFilesRepositoryClient(IRestClientFactory clientFactory, ISerializer serializer)
-        : base(clientFactory, serializer)
-    {
-    }
-
-    protected override string GetBaseUrl()
-    {
-        return "prefabfiles";
-    }
-}
-
 public abstract class FilesRepositoryClient : IFilesRepositoryClient
 {
-    protected readonly ILogger logger = Log.ForContext<PrefabsRepositoryClient>();
+    protected readonly ILogger logger = Log.ForContext<FilesRepositoryClient>();
     protected readonly IRestClientFactory clientFactory;
     protected readonly ISerializer serializer;
     protected readonly string baseUrl;

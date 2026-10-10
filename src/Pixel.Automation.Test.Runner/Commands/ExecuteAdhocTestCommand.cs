@@ -48,8 +48,8 @@ internal sealed class ExecuteAdhocTestCommand : RunTestCommand<AdhocTestSettings
     /// <param name="console"></param>
     /// <param name="projectManager"></param>
     public ExecuteAdhocTestCommand(IAnsiConsole console, IApplicationDataManager applicationDataManager,
-        IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, ProjectManager projectManager)
-        : base(console, applicationDataManager, projectDataManager, prefabDataManager, projectManager)
+        IProjectDataManager projectDataManager, ProjectManager projectManager)
+        : base(console, applicationDataManager, projectDataManager, projectManager)
     {
        
     }

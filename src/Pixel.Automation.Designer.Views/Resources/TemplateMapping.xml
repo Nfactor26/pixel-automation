@@ -82,13 +82,8 @@
 		<Name>RestApiApplicationEntity</Name>
 		<DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
 		<StyleKey>ContainerStyle</StyleKey>
-	</ComponentTemplate>
-	
-	<ComponentTemplate>
-		<Name>PrefabEntity</Name>
-		<DataTemplateKey>PrefabTemplate</DataTemplateKey>
-		<StyleKey>SlimStyle</StyleKey>
-	</ComponentTemplate>
+	</ComponentTemplate>	
+
 	<ComponentTemplate>
 		<Name>PrefabEntityV2</Name>
 		<DataTemplateKey>PrefabV2Template</DataTemplateKey>

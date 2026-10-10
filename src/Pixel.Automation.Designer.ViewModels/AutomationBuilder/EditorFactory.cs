@@ -1,26 +1,20 @@
 ﻿using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core.Interfaces;
 
-namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
+namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder;
+
+public class EditorFactory : IEditorFactory
 {
-    public class EditorFactory : IEditorFactory
+    private IServiceResolver serviceResolver;
+
+    public EditorFactory(IServiceResolver serviceResolver)
     {
-        private IServiceResolver serviceResolver;
+        this.serviceResolver = serviceResolver;
+        this.serviceResolver.RegisterDefault<IServiceResolver>(serviceResolver);
+    }
 
-        public EditorFactory(IServiceResolver serviceResolver)
-        {
-            this.serviceResolver = serviceResolver;
-            this.serviceResolver.RegisterDefault<IServiceResolver>(serviceResolver);
-        }
-
-        public IAutomationEditor CreateAutomationEditor()
-        {
-           return serviceResolver.Get<IAutomationEditor>();
-        }
-
-        public IPrefabEditor CreatePrefabEditor()
-        {
-            return serviceResolver.Get<IPrefabEditor>();
-        }
+    public IAutomationEditor CreateAutomationEditor()
+    {
+       return serviceResolver.Get<IAutomationEditor>();
     }
 }

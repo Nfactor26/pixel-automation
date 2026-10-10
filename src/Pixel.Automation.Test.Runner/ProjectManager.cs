@@ -34,8 +34,7 @@ namespace Pixel.Automation.Test.Runner
         private readonly ITestRunner testRunner;
         private readonly ITestSelector testSelector;
         private readonly IProjectDataManager projectDataManager;
-        private readonly IProjectAssetsDataManager projectAssetsDataManager;
-        private readonly IPrefabDataManager prefabDataManager;
+        private readonly IProjectAssetsDataManager projectAssetsDataManager;       
         private readonly IScriptEngineFactory scriptEngineFactory;
         private readonly IReferenceManagerFactory referenceManagerFactory;
         private readonly TestSessionManager sessionManager;
@@ -47,7 +46,7 @@ namespace Pixel.Automation.Test.Runner
 
         public ProjectManager(IEntityManager entityManager, ISerializer serializer, IApplicationFileSystem applicationFileSystem,
             IProjectFileSystem projectFileSystem, ITypeProvider typeProvider,
-            IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetsDataManager, IPrefabDataManager prefabDataManager,
+            IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetsDataManager,
             ITestRunner testRunner, ITestSelector testSelector, TestSessionManager sessionManager, IScriptEngineFactory scriptEngineFactory,
             IReferenceManagerFactory referenceManagerFactory)
         {
@@ -60,8 +59,7 @@ namespace Pixel.Automation.Test.Runner
             this.testRunner = Guard.Argument(testRunner).NotNull().Value;
             this.testSelector = Guard.Argument(testSelector).NotNull().Value;
             this.projectDataManager = Guard.Argument(projectDataManager).NotNull().Value;
-            this.projectAssetsDataManager = Guard.Argument(projectAssetsDataManager).NotNull().Value;
-            this.prefabDataManager = Guard.Argument(prefabDataManager).NotNull().Value;
+            this.projectAssetsDataManager = Guard.Argument(projectAssetsDataManager).NotNull().Value;          
             this.scriptEngineFactory = Guard.Argument(scriptEngineFactory).NotNull().Value;
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory).NotNull().Value;
         }
@@ -108,12 +106,7 @@ namespace Pixel.Automation.Test.Runner
             await this.projectAssetsDataManager.DownloadAllTestDataSourcesAsync();
 
             this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.automationProject.ProjectId, this.targetVersion.ToString(), this.projectFileSystem);
-            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
-
-            foreach (var prefabReference in this.referenceManager.GetPrefabReferences().References)
-            {
-                await this.prefabDataManager.DownloadPrefabDataAsync( prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
-            }
+            this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);          
          
             this.entityManager.SetCurrentFileSystem(this.projectFileSystem);
             this.entityManager.RegisterDefault<IFileSystem>(this.projectFileSystem as IFileSystem);

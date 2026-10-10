@@ -29,7 +29,7 @@
                          Text="{Binding Name, Mode=OneWay}" VerticalAlignment="Top"
                          Controls:TextBoxHelper.Watermark="Control Name"
                          Controls:TextBoxHelper.UseFloatingWatermark="True"                                                   
-                         ToolTip="Name of Prefab" />
+                         ToolTip="Name of Control" />
         </DockPanel>
         <DockPanel LastChildFill="True" MinWidth="320" Grid.Row="2">
             <Label Content="Screen" DockPanel.Dock="Left" MinWidth="80"></Label>

@@ -21,8 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IReferenceManagerFactory referenceManagerFactory;
-        private readonly IProjectDataManager projectDataManager;
-        private readonly IPrefabDataManager prefabDataManager;
+        private readonly IProjectDataManager projectDataManager;       
         private readonly IProjectAssetsDataManager projectAssetDataManager;
         private AutomationProject activeProject;
         private VersionInfo loadedVersion;     
@@ -41,19 +40,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="codeGenerator"></param>
         /// <param name="applicationDataManager"></param>
         /// <param name="referenceManagerFactory"></param>
-        /// <param name="projectDataManager"></param>
-        /// <param name="prefabDataManager"></param>
+        /// <param name="projectDataManager"></param>     
         /// <param name="projectAssetDataManager"></param>
         public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager,
-            IReferenceManagerFactory referenceManagerFactory, IProjectDataManager projectDataManager, IPrefabDataManager prefabDataManager, IProjectAssetsDataManager projectAssetDataManager) 
+            IReferenceManagerFactory referenceManagerFactory, IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetDataManager) 
         : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;          
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
             this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
-            this.projectAssetDataManager = Guard.Argument(projectAssetDataManager, nameof(projectAssetDataManager)).NotNull().Value;
-            this.prefabDataManager = Guard.Argument(prefabDataManager, nameof(prefabDataManager)).NotNull().Value;
+            this.projectAssetDataManager = Guard.Argument(projectAssetDataManager, nameof(projectAssetDataManager)).NotNull().Value;          
         }
 
         #region methods
@@ -74,11 +71,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
                 this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
-
-                foreach (var prefabReference in this.referenceManager.GetPrefabReferences().References)
-                {
-                    await this.prefabDataManager.DownloadPrefabDataAsync(prefabReference.ApplicationId, prefabReference.PrefabId, prefabReference.Version.ToString());
-                }
 
                 this.entityManager.SetCurrentFileSystem(this.fileSystem);
                 this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
@@ -159,25 +151,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             return entity;
         }
    
-        public void OnPrefabVersionChanged(IEnumerable<PrefabReference> prefabs)
-        {
-            var prefabLoader = this.entityManager.GetServiceOfType<IPrefabLoader>();
-            foreach (var prefab in prefabs)
-            {
-                if(prefabLoader.IsPrefabLoaded(prefab.PrefabId))
-                {
-                    //Remove loaded assembly from script editor and script engine
-                    var prefabDataModel = prefabLoader.GetPrefabDataModelType(prefab.ApplicationId, prefab.PrefabId, this.entityManager);
-                    this.scriptEditorFactory.RemoveAssemblyReference(prefabDataModel.Assembly);
-                    this.scriptEngineFactory.RemoveReferences(prefabDataModel.Assembly);
-                    
-                    //unload and dispose the prefab. Subsequent use will load the recent version again and 
-                    //configure script editor and script engine
-                    prefabLoader.UnloadAndDispose(prefab.PrefabId);
-                }              
-            }
-        }
-
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
         /// This is required every time data model is compiled and data model has custom types defined. When data model has custom types

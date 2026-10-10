@@ -12,7 +12,7 @@ namespace Pixel.Automation.RunTime
 {
     public class ControlLoader : IControlLoader
     {
-        protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
+        protected readonly ILogger logger = Log.ForContext<ControlLoader>();
         protected readonly IFileSystem fileSystem;
         protected readonly IReferenceManager referenceManager;
         protected readonly ApplicationSettings applicationSettings;
