@@ -16,7 +16,10 @@ namespace Pixel.Automation.Core.Components.Prefabs;
 public class PrefabHostEntity : Entity
 {
     [NonSerialized]
-    private Entity prefabEntity;    
+    private Entity prefabEntity;
+
+    [NonSerialized]
+    private Entity designTimePrefabEntity;
 
     [DataMember(Order = 510)]
     [Browsable(false)]
@@ -33,6 +36,10 @@ public class PrefabHostEntity : Entity
         set
         {
             isInDesignMode = value;
+            if(!isInDesignMode)
+            {
+                this.designTimePrefabEntity = null;
+            }
             OnPropertyChanged();
         }
     }
@@ -44,8 +51,16 @@ public class PrefabHostEntity : Entity
 
     public override async Task BeforeProcessAsync()
     {
+        //When testcase is executed while prefab is in design mode, clear the components so that new 
+        //component can be loaded for execution. This is needed since design time and runtime uses different arguments.
+        if (this.IsInDesignMode)
+        {
+            this.Components.Clear();         
+        }
+       
         try
         {
+           
             Debug.Assert(!this.Components.Any(), "There should be no child componets in a Prefab Entity");
             await LoadPrefab();
             base.AddComponent(this.prefabEntity);          
@@ -73,43 +88,61 @@ public class PrefabHostEntity : Entity
     }
 
     public override async Task OnCompletionAsync()
-    {
+    {      
         try
         {
             if(this.prefabEntity is not null)
             {
                 var prefabEntityManager = this.prefabEntity.EntityManager;
                 prefabEntityManager.Dispose();
-            }
-            this.prefabEntity = null;
+            }           
+            await base.OnCompletionAsync();
         }
         finally
         {
-          
+            this.prefabEntity = null;
             this.Components.Clear();           
+        }
+        if (this.IsInDesignMode)
+        {
+            Debug.Assert(this.designTimePrefabEntity is not null, "Design Time PrefabEntity should not be null");
+            AddComponent(this.designTimePrefabEntity);
         }
     }
 
     public override async Task OnFaultAsync(IComponent faultingComponent)
     {
-        if (this.prefabEntity is not null)
+        try
         {
-            var prefabEntityManager = this.prefabEntity.EntityManager;
-            prefabEntityManager.Dispose();
+            if (this.prefabEntity is not null)
+            {
+                var prefabEntityManager = this.prefabEntity.EntityManager;
+                prefabEntityManager.Dispose();
+            }
+            await base.OnFaultAsync(faultingComponent);
         }
-        this.prefabEntity = null;
-        this.Components.Clear();    
-        await base.OnFaultAsync(faultingComponent);
+        finally
+        {
+            this.prefabEntity = null;
+            this.Components.Clear();
+        }
+        if (this.IsInDesignMode)
+        {
+            Debug.Assert(this.designTimePrefabEntity is not null, "Design Time PrefabEntity should not be null");
+            AddComponent(this.designTimePrefabEntity);
+        }
+
     }
 
     #region overridden methods
 
     public override Entity AddComponent(IComponent component)
     {
-        if(component is PrefabEntity prefabEntity && !this.Components.Any())
+        if(this.IsInDesignMode && component is PrefabEntity prefabEntity && !this.Components.Any())
         {
             this.Components.Add(component);
             prefabEntity.EntityManager.RestoreParentChildRelation(prefabEntity);
+            this.designTimePrefabEntity = prefabEntity;
         }
         return this;
     }
