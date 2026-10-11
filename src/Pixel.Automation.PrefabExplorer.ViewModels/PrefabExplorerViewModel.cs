@@ -327,6 +327,9 @@ public class PrefabExplorerViewModel : Screen, IPrefabExplorer, IHandle<OpenPref
                 // Argumet is the supported shape instance so that there are no additional variables visible from test case data source type at design time
                 prefabEntityManager.Arguments = Activator.CreateInstance(this.entityManager.Arguments.GetType().Assembly.FullName, prefabVM.SupportedShape).Unwrap();
 
+                //Copy the values from the arguments of testcase entity manager to prefab entity manager. This will allow to execute components of prefab at design time one at a time.
+                TypeExtensions.CopyProperties(workflowEntity.Parent.EntityManager.Arguments, prefabEntityManager.Arguments);
+
                 var scriptEngine = prefabEntityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(prefabVM.ScriptFile);
 
