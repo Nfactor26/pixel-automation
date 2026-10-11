@@ -58,12 +58,14 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         {
             var prefabHost = GetPrefabHost(this.root, prefab);
             prefabHost.AddComponent(prefab.WorkFlowEntity);
+            Debug.Assert(prefabHost.ComponentCollection.Count == 1, "PrefabHost should have exactly 1 component after it is opened");
         }
 
         public void ClosePrefab(Prefab prefab)
         {
             var prefabHost = GetPrefabHost(this.root, prefab);
             prefabHost.RemoveComponent(prefab.WorkFlowEntity);
+            Debug.Assert(prefabHost.ComponentCollection.Count == 0, "PrefabHost should not have any components after it is closed");
         }
 
 

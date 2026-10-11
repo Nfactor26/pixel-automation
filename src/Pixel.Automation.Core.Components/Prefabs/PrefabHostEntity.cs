@@ -21,14 +21,8 @@ public class PrefabHostEntity : Entity
     [DataMember(Order = 510)]
     [Browsable(false)]
     public string PrefabId { get; set; }
-
-
-    [IgnoreDataMember]
-    [Browsable(false)]
-    public override List<IComponent> Components
-    {
-        get => base.Components;
-    }
+   
+    public override List<IComponent> Components => base.Components;
 
     private bool isInDesignMode;
     [IgnoreDataMember]
@@ -121,5 +115,11 @@ public class PrefabHostEntity : Entity
     }
 
     #endregion overridden methods
+
+
+    public bool ShouldSerializeComponents()
+    {      
+        return false;
+    }
 
 }

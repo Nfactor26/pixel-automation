@@ -2,6 +2,7 @@
 using Dawn;
 using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Enums;
 using Pixel.Automation.Core.Interfaces;
@@ -11,6 +12,7 @@ using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
+using Pixel.Automation.Editor.Notifications.Notfications;
 using Pixel.Scripting.Editor.Core.Contracts;
 using Serilog;
 using System.Diagnostics;
@@ -232,8 +234,13 @@ namespace Pixel.Automation.Designer.ViewModels
                 logger.Information("Closing all open TestCases for project: {0}", this.CurrentProject.Name);
 
                 //closing fixture will also close test cases
-                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants);
-                var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct();
+                var testCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).ToList();
+                var testFixtures = testCaseEntities.Select(t => t.Parent as TestFixtureEntity).Distinct().ToList();
+                var prefabHostEntities = testFixtures.SelectMany(a => a.GetComponentsOfType<PrefabHostEntity>(SearchScope.Descendants)).ToList();
+                foreach (var prefabHost in prefabHostEntities)
+                {
+                    await this.globalEventAggregator.PublishOnCurrentThreadAsync(new ClosePrefabRequestNotification(prefabHost.PrefabId, prefabHost, true));
+                }
                 foreach (var fixture in testFixtures)
                 {
                     await this.testExplorer.CloseTestFixtureAsync(fixture.Tag);
@@ -243,11 +250,19 @@ namespace Pixel.Automation.Designer.ViewModels
 
                 UpdateWorkFlowRoot();
 
-                //Opening test case will also open parent TestFixture if not already open.
+                //Opening test case will also open parent TestFixture if not already open.            
                 logger.Information("Opening all test cases back for projoect : {0}", this.CurrentProject.Name);
                 foreach (var testEntity in testCaseEntities)
                 {
                     await this.testExplorer.OpenTestCaseAsync(testEntity.Tag);
+                }
+
+                var reOpenedTestCaseEntities = this.EntityManager.RootEntity.GetComponentsOfType<TestCaseEntity>(SearchScope.Descendants).ToList();
+                var reOpenedPrefabHostEntities = reOpenedTestCaseEntities.SelectMany(a => a.GetComponentsOfType<PrefabHostEntity>(SearchScope.Descendants)).ToList();
+                foreach (var prefabHost in reOpenedPrefabHostEntities)
+                {
+                    if(prefabHostEntities.Any(p => p.Tag.Equals(prefabHost.Tag)))
+                        await this.globalEventAggregator.PublishOnCurrentThreadAsync(new OpenPrefabRequestNotification(prefabHost.PrefabId, prefabHost));
                 }
             }            
         }
