@@ -227,7 +227,7 @@
         </DataTemplate.Triggers>
     </DataTemplate>
   
-    <HierarchicalDataTemplate x:Key="PrefabV2Template"  ItemsSource="{Binding ComponentCollection}">
+    <HierarchicalDataTemplate x:Key="PrefabTemplate"  ItemsSource="{Binding ComponentCollection}">
         <DockPanel LastChildFill="True" Width="Auto" HorizontalAlignment="Stretch" MinWidth="220" Margin="0,4,0,4" 
             Background="{DynamicResource MahApps.Brushes.Control.Background}" IsHitTestVisible="True">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4" ToolTip="Control" DockPanel.Dock="Left">

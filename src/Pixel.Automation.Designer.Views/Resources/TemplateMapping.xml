@@ -85,8 +85,8 @@
 	</ComponentTemplate>	
 
 	<ComponentTemplate>
-		<Name>PrefabEntityV2</Name>
-		<DataTemplateKey>PrefabV2Template</DataTemplateKey>
+		<Name>PrefabEntity</Name>
+		<DataTemplateKey>PrefabTemplate</DataTemplateKey>
 		<StyleKey>ContainerStyle</StyleKey>
 	</ComponentTemplate>
 	<ComponentTemplate>
