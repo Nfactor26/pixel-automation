@@ -1,0 +1,69 @@
+﻿using System;
+using System.Runtime.Serialization;
+
+namespace Pixel.Automation.Core.Models;
+
+public class PrefabReference
+{
+    /// <summary>
+    /// ApplicationId to which Prefab belongs
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 10)]
+    public string ApplicationId { get; set; }
+
+    /// <summary>
+    /// Identifier of Prefab
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 20)]
+    public string PrefabId { get; set; }
+
+    /// <summary>
+    /// Version of Prefab in use
+    /// </summary>
+    [DataMember(IsRequired = false, EmitDefaultValue = false, Order = 30)]
+    public Version Version { get; set; }    
+
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    public PrefabReference()
+    {
+
+    }
+
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public PrefabReference(string applicationId, string prefabId)
+    {
+        this.ApplicationId = applicationId;
+        this.PrefabId = prefabId;
+    }
+
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public PrefabReference(string applicationId, string prefabId, Version version) : this(applicationId, prefabId)
+    {
+        this.Version = version;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is PrefabReference pr)
+        {
+            return pr.ApplicationId.Equals(this.ApplicationId) && pr.PrefabId.Equals(this.PrefabId);
+        }
+        if (obj is Prefab prefab)
+        {
+            return prefab.ApplicationId.Equals(this.ApplicationId) && prefab.PrefabId.Equals(this.PrefabId);
+        }
+        return false;
+    }
+
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ApplicationId, PrefabId);
+    }
+}

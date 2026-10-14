@@ -3,6 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
+using Pixel.Persistence.Services.Client.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,8 @@ namespace Pixel.Persistence.Services.Client
         private readonly ILogger logger = Log.ForContext<ApplicationDataManager>();
 
         private readonly IApplicationRepositoryClient appRepositoryClient;
-        private readonly IControlRepositoryClient controlRepositoryClient;              
+        private readonly IControlRepositoryClient controlRepositoryClient;
+        private readonly IPrefabRepositoryClient prefabRepositoryClient;
         private readonly ISerializer serializer;
         private readonly ITypeProvider typeProvider;
         private readonly ApplicationSettings applicationSettings;
@@ -32,12 +34,14 @@ namespace Pixel.Persistence.Services.Client
         #region Constructor
 
         public ApplicationDataManager(ISerializer serializer, ITypeProvider typeProvider, IApplicationRepositoryClient appRepositoryClient,
-            IControlRepositoryClient controlRepositoryClient, ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
+            IControlRepositoryClient controlRepositoryClient, IPrefabRepositoryClient prefabRepositoryClient,
+            ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem)
         {
             this.serializer = Guard.Argument(serializer).NotNull().Value;
             this.typeProvider = Guard.Argument(typeProvider).NotNull().Value;            
             this.appRepositoryClient = Guard.Argument(appRepositoryClient).NotNull().Value;
-            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;            
+            this.controlRepositoryClient = Guard.Argument(controlRepositoryClient).NotNull().Value;
+            this.prefabRepositoryClient = Guard.Argument(prefabRepositoryClient).NotNull().Value;
             this.applicationSettings = Guard.Argument(applicationSettings).NotNull();
             this.applicationFileSystem = Guard.Argument(applicationFileSystem).NotNull().Value;            
             
@@ -160,16 +164,18 @@ namespace Pixel.Persistence.Services.Client
             SaveApplicationToDisk(applicationDescription);          
         }
 
-        public async Task DownloadApplicationsWithControlsAsync()
+        public async Task DownloadApplicationsWithControlsAndPrefabsAsync()
         {
             await DownloadApplicationsAsync();
             var applications = GetAllApplications();
             foreach(var application in applications)
             {
                 await DownloadControlsAsync(application.ApplicationId);
+                await DownloadPrefabsAsync(application.ApplicationId);
             }
         }
 
+        /// <inheritdoc/>
         public async Task DownloadApplicationsAsync()
         {
             if(IsOnlineMode)
@@ -183,6 +189,7 @@ namespace Pixel.Persistence.Services.Client
             }            
         }
 
+        /// <inheritdoc/>
         public async Task DownloadControlsAsync(string applicationId)
         {
             if(IsOnlineMode)
@@ -214,6 +221,37 @@ namespace Pixel.Persistence.Services.Client
                     logger.Information("Downloaded control image : {0} for application : {1}", image.FileName, applicationId);
                 }
             }            
+        }
+
+        /// <inheritdoc/>
+        public async Task DownloadPrefabsAsync(string applicationId)
+        {
+            if (IsOnlineMode)
+            {
+                var prefabs = await this.prefabRepositoryClient.GetPrefabs(applicationId, this.lastUpdated);
+                foreach (var prefab in prefabs)
+                {
+                    SavePrefabToDisk(prefab);
+                    logger.Information("Downloaded Prefab : {0} for application : {1}", prefab.DisplayName, prefab.ApplicationId);
+                }             
+            }
+
+            void SavePrefabToDisk(Prefab prefab)
+            {
+                string prefabsDirectory = GetPrefabsDirectory(prefab);               
+                Directory.CreateDirectory(prefabsDirectory);
+                string prefabFile = Path.Combine(prefabsDirectory, $"{prefab.PrefabId}.prefab");
+                if (File.Exists(prefabFile))
+                {
+                    File.Delete(prefabFile);
+                }
+                serializer.Serialize<Prefab>(prefabFile, prefab);               
+            }
+
+            string GetPrefabsDirectory(Prefab prefab)
+            {
+                return Path.Combine(applicationSettings.ApplicationDirectory, prefab.ApplicationId, Constants.PrefabsDirectory, prefab.PrefabId, prefab.Version.ToString());
+            }
         }
 
         /// <inheritdoc/>    

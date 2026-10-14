@@ -5,7 +5,6 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Designer.ViewModels.AutomationBuilder;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.TypeBrowser;
-using Pixel.Automation.PrefabExplorer.ViewModels;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.TestDataExplorer.ViewModels;
@@ -21,8 +20,7 @@ public class WorkspaceModules : NinjectModule
     {
         Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>().InSingletonScope();       
         Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
-        Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();
-        Kernel.Bind<IPrefabExplorer>().To<PrefabExplorerViewModel>();
+        Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();      
         Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
 
         Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();          
@@ -35,7 +33,8 @@ public class WorkspaceModules : NinjectModule
         Kernel.Bind<IArgumentTypeBrowserFactory>().To<ArgumentTypeBrowserFactory>().InSingletonScope();
         Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 
-        Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();              
+        Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();
+        Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope();
         Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
 
         Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();          

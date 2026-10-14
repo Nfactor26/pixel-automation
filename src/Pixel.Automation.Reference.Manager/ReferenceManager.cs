@@ -18,8 +18,9 @@ internal class ReferenceManager : IReferenceManager
     private string projectId;
     private string projectVersion;
     private IFileSystem fileSystem;
-    private ControlReferences controlReferences; 
-      
+    private ControlReferences controlReferences;
+    private PrefabReferences prefabReferences;
+
     bool IsOnlineMode => !this.applicationSettings.IsOfflineMode;
 
     /// <summary>
@@ -52,7 +53,8 @@ internal class ReferenceManager : IReferenceManager
             SaveLocal();
         }
 
-        this.controlReferences = new ControlReferences(this.projectReferences.ControlReferences);       
+        this.controlReferences = new ControlReferences(this.projectReferences.ControlReferences);
+        this.prefabReferences = new PrefabReferences(this.projectReferences.PrefabReferences);
     }
 
     ///<inheritdoc/>  
@@ -164,6 +166,63 @@ internal class ReferenceManager : IReferenceManager
             }
         }      
     }
+
+    ///<inheritdoc/>  
+    public PrefabReferences GetPrefabReferences()
+    {
+        return this.prefabReferences;
+    }
+
+    /// <inheritdoc/>
+    public async Task AddPrefabReferenceAsync(PrefabReference prefabReference)
+    {
+        Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
+        if (!this.prefabReferences.HasReference(prefabReference))
+        {
+            if (IsOnlineMode)
+            {
+                await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
+            }
+            this.prefabReferences.AddPrefabReference(prefabReference);
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdatePrefabReferenceAsync(PrefabReference prefabReference)
+    {
+        Guard.Argument(prefabReference, nameof(prefabReference)).NotNull();
+        if (this.prefabReferences.HasReference(prefabReference))
+        {
+            var existingReference = this.prefabReferences.GetPrefabReference(prefabReference.PrefabId);
+            existingReference.Version = prefabReference.Version;
+            if (IsOnlineMode)
+            {
+                await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
+            }
+            SaveLocal();
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdatePrefabReferencesAsync(IEnumerable<PrefabReference> prefabReferences)
+    {
+        Guard.Argument(prefabReferences, nameof(prefabReferences)).NotNull();
+        foreach (var prefabReference in prefabReferences)
+        {
+            if (this.prefabReferences.HasReference(prefabReference))
+            {
+                var existingReference = this.prefabReferences.GetPrefabReference(prefabReference.PrefabId);
+                existingReference.Version = prefabReference.Version;
+                if (IsOnlineMode)
+                {
+                    await this.referencesRepositoryClient.AddOrUpdatePrefabReferences(this.projectId, this.projectVersion, prefabReference);
+                }
+                SaveLocal();
+            }
+        }
+    }
+
 
     /// <inheritdoc/>
     public IEnumerable<string> GetAllFixtures()
@@ -334,6 +393,7 @@ internal class ReferenceManager : IReferenceManager
         return projectReferences;
     }
 
+  
     /// <inheritdoc/>
     public void AddScriptReferencesForProvider(IScriptReferencesProvider referencesProvider)
     {
@@ -385,5 +445,6 @@ internal class ReferenceManager : IReferenceManager
         }
         SaveLocal();
     }
+
 }
 

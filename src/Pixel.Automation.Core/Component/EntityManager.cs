@@ -91,13 +91,13 @@ namespace Pixel.Automation.Core
         /// <param name="entityManager"></param>
         public EntityManager(IEntityManager parentEntityManager)
         {
-            this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>();
+            this.serviceProvider = parentEntityManager.GetServiceOfType<IServiceResolver>() ?? throw new NullReferenceException("Failed to get IServiceResolver");
             this.isPrimaryEntityManager = false;
             this.RootEntity = parentEntityManager.RootEntity;         
             this.SetCurrentFileSystem(parentEntityManager.GetCurrentFileSystem());
             logger.Information("Created a new instance of secondary entity manager");
         }
-
+        
         #endregion Constructor
 
         #region Run time services
@@ -144,8 +144,6 @@ namespace Pixel.Automation.Core
 
         private void UpdateServices(object newArgs, object prevArgs)
         {
-            IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
-
             if(isPrimaryEntityManager)
             {
                 var previousDataModelAssembly = prevArgs.GetType().Assembly;
@@ -154,6 +152,7 @@ namespace Pixel.Automation.Core
                 //Note : Important check . Otherwise all script engine states are cleared which is not desirable during test execution
                 if (previousDataModelAssembly != newDataModelAssembly)
                 {
+                    IScriptEngineFactory scriptEngineFactory = this.GetServiceOfType<IScriptEngineFactory>();
                     scriptEngineFactory.RemoveReferences(previousDataModelAssembly);
                     scriptEngineFactory.WithAdditionalAssemblyReferences(newDataModelAssembly);
                 }

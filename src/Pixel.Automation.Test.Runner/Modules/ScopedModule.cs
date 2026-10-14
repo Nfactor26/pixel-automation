@@ -13,6 +13,7 @@ public class ScopedModules : NinjectModule
         Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
         Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InSingletonScope();         
         Kernel.Bind<IControlLoader>().To<ControlLoader>().InSingletonScope();
+        Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope();
         Kernel.Bind<IProjectAssetsDataManager>().To<ProjectAssetsDataManager>().InSingletonScope();
     }
 }

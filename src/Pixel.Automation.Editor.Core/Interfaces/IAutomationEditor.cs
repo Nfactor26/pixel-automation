@@ -15,6 +15,12 @@ public interface IAutomationEditor : IEditor, IDisposable
     /// Load project from the current workspace
     /// </summary>
     /// <param name="project"></param>
-    Task DoLoad(AutomationProject project, VersionInfo versionInfo = null);      
+    Task DoLoad(AutomationProject project, VersionInfo versionInfo = null);
+
+    /// <summary>
+    /// Manage prefab references for the project.
+    /// </summary>
+    /// <returns></returns>
+    Task ManagePrefabReferencesAsync();
 
 }

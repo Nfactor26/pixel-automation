@@ -24,10 +24,7 @@ namespace Pixel.Automation.Core
 
         /// <InheritDoc/>      
         public string TestCaseRepository { get; protected set; }
-
-        /// <InheritDoc/>      
-        public string PrefabsRepository { get; protected set; }
-
+      
         /// <InheritDoc/>      
         public string TestDataRepository { get; protected set; }
         
@@ -64,18 +61,13 @@ namespace Pixel.Automation.Core
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, versionInfo.ToString());       
             this.ProjectFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.AutomationDirectory, projectId, $"{projectId}.atm");
             this.ProcessFile = Path.Combine(this.WorkingDirectory, Constants.AutomationProcessFileName);        
-            this.TestCaseRepository = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory);
-            this.PrefabsRepository = Path.Combine(this.WorkingDirectory, Constants.PrefabsDirectory);
+            this.TestCaseRepository = Path.Combine(this.WorkingDirectory, Constants.TestCasesDirectory);           
             this.TestDataRepository = Path.Combine(this.WorkingDirectory, Constants.TestDataDirectory);
 
             if (!Directory.Exists(TestCaseRepository))
             {
                 Directory.CreateDirectory(TestCaseRepository);
-            }
-            if (!Directory.Exists(PrefabsRepository))
-            {
-                Directory.CreateDirectory(PrefabsRepository);
-            }
+            }          
             if (!Directory.Exists(TestDataRepository))
             {
                 Directory.CreateDirectory(TestDataRepository);
@@ -94,12 +86,6 @@ namespace Pixel.Automation.Core
         public TestFixtureFiles GetTestFixtureFiles(TestFixture fixture)
         {
             return new TestFixtureFiles(fixture, this.TestCaseRepository);
-        }
-
-        /// <InheritDoc/>      
-        public PrefabFiles GetPrefabFiles(Prefab prefab)
-        {
-            return new PrefabFiles(prefab, this.PrefabsRepository);
         }
 
         /// <InheritDoc/> 

@@ -76,7 +76,7 @@ namespace Pixel.Automation.Designer.ViewModels
                                 var projectDataManager = IoC.Get<IProjectDataManager>();                             
                                 using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
                                 {
-                                    await applicationDataManger.DownloadApplicationsWithControlsAsync();
+                                    await applicationDataManger.DownloadApplicationsWithControlsAndPrefabsAsync();
                                 }
                                 using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
                                 {

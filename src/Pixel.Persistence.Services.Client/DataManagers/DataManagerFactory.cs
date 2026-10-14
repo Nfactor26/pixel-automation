@@ -14,12 +14,11 @@ public class DataManagerFactory : IDataManagerFactory
     private readonly IProjectFilesRepositoryClient projectFilesClient;
     private readonly IFixturesRepositoryClient fixturesClient;
     private readonly ITestsRepositoryClient testsClient;
-    private readonly ITestDataRepositoryClient testsDataClient;
-    private readonly IPrefabsRepositoryClientV2 prefabsClient;
+    private readonly ITestDataRepositoryClient testsDataClient;  
 
     public DataManagerFactory(ApplicationSettings applicationSettings, IApplicationFileSystem applicationFileSystem, ISerializer serializer,
         IProjectFilesRepositoryClient projectFilesClient, IFixturesRepositoryClient fixturesClient,
-        ITestsRepositoryClient testsClient, ITestDataRepositoryClient testsDataClient, IPrefabsRepositoryClientV2 prefabsClient)
+        ITestsRepositoryClient testsClient, ITestDataRepositoryClient testsDataClient, IPrefabRepositoryClient prefabsClient)
     {
         this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
@@ -27,14 +26,13 @@ public class DataManagerFactory : IDataManagerFactory
         this.projectFilesClient = Guard.Argument(projectFilesClient, nameof(projectFilesClient)).NotNull().Value;
         this.fixturesClient = Guard.Argument(fixturesClient, nameof(fixturesClient)).NotNull().Value;
         this.testsClient = Guard.Argument(testsClient, nameof(testsClient)).NotNull().Value;
-        this.testsDataClient = Guard.Argument(testsDataClient, nameof(testsDataClient)).NotNull().Value;
-        this.prefabsClient = Guard.Argument(prefabsClient, nameof(prefabsClient)).NotNull().Value;
+        this.testsDataClient = Guard.Argument(testsDataClient, nameof(testsDataClient)).NotNull().Value;      
     }
 
     ///<inheritdoc/>
     public IProjectAssetsDataManager CreateProjectAssetsDataManager(AutomationProject automationProject, VersionInfo versionInfo, IProjectFileSystem fileSystem)
     {
-        var assetsDataManager = new ProjectAssetsDataManager(serializer, projectFilesClient, fixturesClient, testsClient, testsDataClient, prefabsClient, applicationFileSystem,
+        var assetsDataManager = new ProjectAssetsDataManager(serializer, projectFilesClient, fixturesClient, testsClient, testsDataClient, applicationFileSystem,
             fileSystem, applicationSettings);
         assetsDataManager.Initialize(automationProject, versionInfo);
         return assetsDataManager;

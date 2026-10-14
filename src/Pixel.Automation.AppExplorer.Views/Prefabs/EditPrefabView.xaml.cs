@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Pixel.Automation.PrefabExplorer.Views;
+namespace Pixel.Automation.AppExplorer.Views.Prefabs;
 
 /// <summary>
 /// Interaction logic for EditPrefabView.xaml

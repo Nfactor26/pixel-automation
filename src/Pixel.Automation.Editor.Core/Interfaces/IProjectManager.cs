@@ -2,6 +2,7 @@
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Reference.Manager.Contracts;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -89,5 +90,10 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <param name="versionToLoad"></param>
         /// <returns></returns>
         Task<Entity> Load(AutomationProject activeProject, VersionInfo versionToLoad);
+
+        /// <summary>
+        /// Update the state of script engine and script editors whenever version of prefab is changed
+        /// </summary>       
+        void OnPrefabVersionChanged(IEnumerable<PrefabReference> prefabs);
     }    
 }

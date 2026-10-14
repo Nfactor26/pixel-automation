@@ -150,7 +150,13 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             var entity = this.Load<Entity>(this.projectFileSystem.ProcessFile);         
             return entity;
         }
-   
+
+
+        public void OnPrefabVersionChanged(IEnumerable<PrefabReference> prefabs)
+        {
+           //TODO : Close any open Prefab being edited by sending a close notification
+        }
+
         /// <summary>
         /// Save and load project again. Update services to use new data model . One time registration of services is skipped unlike load.
         /// This is required every time data model is compiled and data model has custom types defined. When data model has custom types

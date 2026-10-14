@@ -88,6 +88,9 @@ namespace Pixel.Automation.Core.Models
         [DataMember(Order = 30)]
         public List<string> AvailableControls { get; private set; } = new();
 
+        [DataMember(Order = 30)]
+        public List<string> AvailablePrefabs { get; private set; } = new();
+
         public ApplicationScreen()
         {
 

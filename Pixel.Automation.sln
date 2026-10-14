@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.7.11919.86 stable
+VisualStudioVersion = 18.7.11919.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7E4532E6-7928-4E6F-8874-15482508447F}"
 EndProject
@@ -178,10 +178,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.CloudFile", "src\Pixel.Automation.CloudFile\Pixel.Automation.CloudFile.csproj", "{A292C0BE-D8C5-AF83-CB40-0E52D077DB9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.Windows.Shell", "src\Pixel.Automation.Windows.Shell\Pixel.Automation.Windows.Shell.csproj", "{E293F35B-B916-B4B5-73BF-04A34B9E4029}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.PrefabExplorer.ViewModels", "src\Pixel.Automation.PrefabExplorer.ViewModels\Pixel.Automation.PrefabExplorer.ViewModels.csproj", "{E13AADBA-2713-4E45-9C79-EE03932FB000}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel.Automation.PrefabExplorer.Views", "src\Pixel.Automation.PrefabExplorer.Views\Pixel.Automation.PrefabExplorer.Views.csproj", "{B7889405-E146-45FE-B3DC-C71462B57180}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -469,14 +465,6 @@ Global
 		{E293F35B-B916-B4B5-73BF-04A34B9E4029}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E293F35B-B916-B4B5-73BF-04A34B9E4029}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E293F35B-B916-B4B5-73BF-04A34B9E4029}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E13AADBA-2713-4E45-9C79-EE03932FB000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E13AADBA-2713-4E45-9C79-EE03932FB000}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E13AADBA-2713-4E45-9C79-EE03932FB000}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E13AADBA-2713-4E45-9C79-EE03932FB000}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7889405-E146-45FE-B3DC-C71462B57180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7889405-E146-45FE-B3DC-C71462B57180}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7889405-E146-45FE-B3DC-C71462B57180}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7889405-E146-45FE-B3DC-C71462B57180}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -557,8 +545,6 @@ Global
 		{DEC1093A-E88E-41B1-BDC0-617B1B362039} = {242744A0-4C9B-4B89-9AC0-4188D186D4D2}
 		{A292C0BE-D8C5-AF83-CB40-0E52D077DB9A} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
 		{E293F35B-B916-B4B5-73BF-04A34B9E4029} = {2B0C7388-18D7-4E3C-8BDF-B7A414520615}
-		{E13AADBA-2713-4E45-9C79-EE03932FB000} = {85AB536F-8852-40FB-BCB5-6CFE666630D4}
-		{B7889405-E146-45FE-B3DC-C71462B57180} = {40DB0F5D-BB65-4027-B0A2-682628455D6A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DEAA90E2-A175-4FAA-99F1-30B64D8D3125}

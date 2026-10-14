@@ -151,4 +151,14 @@ public class ApplicationRepositoryClient : IApplicationRepositoryClient
         var result = await client.ExecuteAsync(restRequest, Method.Post);
         result.EnsureSuccess();
     }
+
+    public async Task MovePrefabToScreen(Prefab prefab, string targetScreenId)
+    {
+        Guard.Argument(targetScreenId, nameof(targetScreenId)).NotNull().NotEmpty().NotWhiteSpace();
+        Guard.Argument(prefab, nameof(prefab)).NotNull();
+        RestRequest restRequest = new RestRequest($"/application/{prefab.ApplicationId}/screens/prefab/{prefab.PrefabId}/move/to/{targetScreenId}");
+        var client = this.clientFactory.GetOrCreateClient();
+        var result = await client.ExecuteAsync(restRequest, Method.Post);
+        result.EnsureSuccess();
+    }
 }

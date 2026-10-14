@@ -7,7 +7,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
-using Pixel.Automation.PrefabExplorer.ViewModels;
+using Pixel.Automation.AppExplorer.ViewModels.Prefabs;
 using Pixel.Automation.TestDataExplorer.ViewModels;
 using Pixel.Automation.TestExplorer.ViewModels;
 using System.Collections.ObjectModel;
@@ -23,8 +23,7 @@ public class AnchorableModules : NinjectModule
         Kernel.Bind<IAnchorable>().To<TestExplorerHostViewModel>().InSingletonScope();
 
         Kernel.Bind<IAnchorable>().To<ApplicationExplorerViewModel>().InSingletonScope();
-        Kernel.Bind<IAnchorable>().To<TestDataExplorerHostViewModel>().InSingletonScope();
-        Kernel.Bind<IAnchorable>().To<PrefabExplorerHostViewModel>().InSingletonScope();
+        Kernel.Bind<IAnchorable>().To<TestDataExplorerHostViewModel>().InSingletonScope();       
 
         //Kernel.Bind(x => x.FromAssembliesInPath(".", a => a.GetAssemblyName()
         //.EndsWith("ViewModels")).SelectAllClasses().InheritedFrom<IToolBox>()
@@ -41,5 +40,6 @@ public class AnchorableModules : NinjectModule
         //Kernel.Bind<IFlyOut>().To<SettingsViewModel>().InSingletonScope();
 
         Kernel.Bind<IApplicationAware>().To<ControlExplorerViewModel>().InSingletonScope();
+        Kernel.Bind<IApplicationAware>().To<PrefabExplorerViewModel>().InSingletonScope();
     }
 }

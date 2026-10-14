@@ -16,11 +16,16 @@ public class PrefabFiles
 
     public string ScriptFile { get; private set; }
 
+    /// <summary>
+    /// constructor
+    /// </summary>
+    /// <param name="prefab">Prefab</param>
+    /// <param name="workingDirectory">Complete path for the Prefab version</param>
     public PrefabFiles(Prefab prefab, string workingDirectory)
     {
         Guard.Argument(prefab).NotNull();
         Guard.Argument(workingDirectory).NotNull().NotEmpty().NotWhiteSpace();
-        PrefabDirectory = Path.Combine(workingDirectory, prefab.PrefabId);
+        PrefabDirectory = workingDirectory;
         if (!Directory.Exists(PrefabDirectory))
         {
             Directory.CreateDirectory(PrefabDirectory);

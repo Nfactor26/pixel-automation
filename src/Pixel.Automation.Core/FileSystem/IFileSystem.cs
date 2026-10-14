@@ -12,6 +12,11 @@ namespace Pixel.Automation.Core.Interfaces
         string WorkingDirectory { get; }
 
         /// <summary>
+        /// Get the Applications Directory
+        /// </summary>
+        string ApplicationsDirectory { get; }
+
+        /// <summary>
         /// Directory where the scripts are stored
         /// </summary>
         string ScriptsDirectory { get; }
@@ -136,11 +141,6 @@ namespace Pixel.Automation.Core.Interfaces
         string TestCaseRepository { get; }
 
         /// <summary>
-        /// Directory containing the prefab files
-        /// </summary>
-        string PrefabsRepository { get; }
-
-        /// <summary>
         /// Directory containing the test data files
         /// </summary>
         string TestDataRepository { get; }
@@ -162,13 +162,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Get an instance of <see cref="TestFixtureFiles"/> for a given TestFixture
         /// </summary>       
         /// <returns></returns>
-        TestFixtureFiles GetTestFixtureFiles(TestFixture fixture);
-
-        /// <summary>
-        /// Get an instance of <see cref="PrefabFiles"/> for a given Prefab
-        /// </summary>       
-        /// <returns></returns>
-        PrefabFiles GetPrefabFiles(Prefab prefab);
+        TestFixtureFiles GetTestFixtureFiles(TestFixture fixture);      
 
         /// <summary>
         /// Get TestDataSource from local storage given it's identifier

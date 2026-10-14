@@ -6,6 +6,7 @@ using Pixel.Automation.Core.Interfaces;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Pixel.Automation.Core.Components;
 
@@ -26,7 +27,9 @@ public class ScriptFileInitializer : IComponentInitializer
 
                 if(component.TryGetAnsecstorOfType(out PrefabHostEntity prefabHost))
                 {
-                    scriptsDirectory = Path.Combine(projectFileSystem.PrefabsRepository, prefabHost.PrefabId);                    
+                    var prefabLoader = entityManager.GetServiceOfType<IPrefabLoader>();
+                    Version prefabVersionInUse = prefabLoader.GetPrefabVersionInUse(prefabHost.ApplicationId, prefabHost.PrefabId);
+                    scriptsDirectory = Path.Combine(projectFileSystem.ApplicationsDirectory, prefabHost.ApplicationId, Constants.PrefabsDirectory, prefabHost.PrefabId, prefabVersionInUse.ToString());                    
                 }
                 //On opening a TestFixture or TestCase, it's tag is set to it's Id. We combine them to get the path where scripts should reside
                 //when the component is added to a TestCase or TestFixture

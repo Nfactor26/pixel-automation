@@ -185,7 +185,25 @@ namespace Pixel.Automation.Designer.ViewModels
                 return;
             }
             await activeItem.EditScriptAsync();
-        }            
+        }
+
+        public bool CanManagePrefabReferences
+        {
+            get
+            {
+                return this.ActiveItem is IAutomationEditor;
+            }
+
+        }
+
+        public async Task ManagePrefabReferencesAsync()
+        {
+            var activeItem = this.ActiveItem as IAutomationEditor;
+            if (activeItem != null)
+            {
+                await activeItem.ManagePrefabReferencesAsync();
+            }
+        }
 
         public bool CanManageControlReferences
         {
@@ -236,7 +254,8 @@ namespace Pixel.Automation.Designer.ViewModels
                 NotifyOfPropertyChange(() => CanEditDataModel);
                 NotifyOfPropertyChange(() => CanEditScript);
                 NotifyOfPropertyChange(() => CanSave);
-                NotifyOfPropertyChange(() => CanSaveAll);            
+                NotifyOfPropertyChange(() => CanSaveAll);
+                NotifyOfPropertyChange(() => CanManagePrefabReferences);
                 NotifyOfPropertyChange(() => CanManageControlReferences);
                 NotifyOfPropertyChange(() => CanManageAssemblyReferences);
             }

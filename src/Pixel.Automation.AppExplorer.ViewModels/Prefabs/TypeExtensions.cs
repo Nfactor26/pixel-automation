@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Pixel.Automation.PrefabExplorer.ViewModels;
+namespace Pixel.Automation.AppExplorer.ViewModels.Prefabs;
 
 public static class TypeExtensions
 {

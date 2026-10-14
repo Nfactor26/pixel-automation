@@ -16,27 +16,37 @@ public class Prefab : ICloneable
     /// </summary>
     [DataMember(IsRequired = true, Order = 10)]
     public string PrefabId { get; set; } = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// Identifier of the application to which Prefab belongs
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 20)]
+    public string ApplicationId { get; set;  }
   
     /// <summary>
     /// Display name for the Prefab
     /// </summary>
-    [DataMember(IsRequired = true, Order = 20)]
+    [DataMember(IsRequired = true, Order = 30)]
     public string DisplayName { get; set; }
+
+    /// <summary>
+    /// Version of the control
+    /// </summary>
+    [DataMember(Order = 40)]
+    public Version Version { get; set; }
+
+    /// <summary>
+    /// Group name to which the control belongs. "Default" is the default group.
+    /// </summary>
+    [DataMember(Order = 50)]
+    public string GroupName { get; set; } = "Default";
 
     /// <summary>
     /// Description for the Prefab
     /// </summary>
-    [DataMember(IsRequired = false, Order = 30)]
-    public string Description { get; set; }
-
-    /// <summary>
-    /// Prefabs will be able to use public properties from this type for their Arguments.
-    /// Only TestCases that have a data source with type compatible to Supportedshape can use this Prefab.
-    /// Compatible here means that all public properties of this type are present on target type
-    /// </summary>
     [DataMember(IsRequired = false, Order = 40)]
-    public string SupportedShape { get; set; }
-
+    public string Description { get; set; }
+   
     /// <summary>
     /// Script file for the test case. This script file can be used for any temporary variables required 
     /// during test execution.
@@ -68,8 +78,9 @@ public class Prefab : ICloneable
         Prefab copy = new Prefab()
         {
             DisplayName = this.DisplayName,
-            Description = this.Description,
-            SupportedShape = this.SupportedShape,
+            Description = this.Description,          
+            ApplicationId = this.ApplicationId,
+            WorkFlowEntity = this.WorkFlowEntity
         };
         return copy;
     }

@@ -29,7 +29,7 @@ internal abstract class RunTestCommand<T> : AsyncCommand<T> where T : CommandSet
     {
         using (Telemetry.DefaultSource?.StartActivity("download-applications-and-controls", ActivityKind.Internal))
         {
-            await applicationDataManager.DownloadApplicationsWithControlsAsync();
+            await applicationDataManager.DownloadApplicationsWithControlsAndPrefabsAsync();
         }
         using (Telemetry.DefaultSource?.StartActivity("download-projects", ActivityKind.Internal))
         {

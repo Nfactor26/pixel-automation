@@ -95,7 +95,7 @@ public interface IProjectDataManager
 /// <summary>
 /// Defines contract for managing test cases, test fixutres and test data asssociated with a specific version of Project 
 /// </summary>
-public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManager, ITestDataManager, IPrefabManager
+public interface IProjectAssetsDataManager : ITestCaseManager, ITestFixtureManager, ITestDataManager
 {
     /// <summary>
     /// Initialize the ProjectDataManager with the AutomationProject and it's version to manage
@@ -271,6 +271,16 @@ public interface IPrefabManager
     /// </summary>
     /// <returns></returns>
     Task DownloadAllPrefabsAsync();
+
+
+    IEnumerable<Prefab> GetAllPrefabs(string applicationId);
+
+    ///<inheritdoc/>
+    IEnumerable<Prefab> GetPrefabsForScreen(ApplicationDescription applicationDescription, string screenName);
+
+    Task AddPrefabToScreenAsync(Prefab prefabProject, string screenId);
+
+
 }
 
 public interface ITestDataManager

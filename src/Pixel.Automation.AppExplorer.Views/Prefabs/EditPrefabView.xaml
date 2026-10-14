@@ -1,9 +1,9 @@
-﻿<controls:MetroWindow x:Class="Pixel.Automation.PrefabExplorer.Views.EditPrefabView"
+﻿<controls:MetroWindow x:Class="Pixel.Automation.AppExplorer.Views.Prefabs.EditPrefabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Pixel.Automation.PrefabExplorer.Views"
+             xmlns:local="clr-namespace:Pixel.Automation.AppExplorer.Views.Prefabs"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
@@ -27,19 +27,7 @@
                    controls:TextBoxHelper.ClearTextButton="True" controls:TextBoxHelper.UseFloatingWatermark="True"                     
                    controls:TextBoxHelper.Watermark="Name"  HorizontalAlignment="Stretch"
                    VerticalAlignment="Top" Margin="5,5,5,0"></TextBox>
-            </StackPanel>
-
-            <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
-                <Label Content="Supported Shape" VerticalAlignment="Center"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBox x:Name="SupportedShape" Text="{Binding SupportedShape}" ToolTip="Supported data model"                                   
-                            controls:TextBoxHelper.Watermark="Supported Shape" HorizontalAlignment="Stretch" Width="490" IsEnabled="False"
-                            VerticalAlignment="Top" Margin="5,5,0,0"></TextBox>
-                    <Button x:Name="PickModelAsync" Style="{DynamicResource ChangeArgumentTypeButtonStyle}" 
-                            ToolTip="Pick Model" DockPanel.Dock="Right" Height="26" VerticalAlignment="Bottom"/>
-                </StackPanel>
-               
-            </StackPanel>
+            </StackPanel>           
 
             <StackPanel Orientation="Vertical" Margin="{StaticResource ControlMargin}">
                 <Label Content="Description"/>

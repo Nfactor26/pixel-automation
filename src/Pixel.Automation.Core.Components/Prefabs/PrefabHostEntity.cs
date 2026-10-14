@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -22,6 +21,10 @@ public class PrefabHostEntity : Entity
     private Entity designTimePrefabEntity;
 
     [DataMember(Order = 510)]
+    [Browsable(false)]
+    public string ApplicationId { get; set; }
+
+    [DataMember(Order = 520)]
     [Browsable(false)]
     public string PrefabId { get; set; }
    
@@ -74,17 +77,8 @@ public class PrefabHostEntity : Entity
 
     public async Task LoadPrefab()
     {
-        var fileSystem = this.EntityManager.GetCurrentFileSystem() as IProjectFileSystem;
-        this.prefabEntity = fileSystem.LoadFile<PrefabEntity>(Path.Combine(fileSystem.PrefabsRepository, this.PrefabId, $"{this.PrefabId}.proc"));
-        
-        IEntityManager prefabEntityManager = new EntityManager(this.EntityManager);
-        prefabEntityManager.SetIdentifier($"Prefab - {this.PrefabId}");
-        prefabEntity.EntityManager = prefabEntityManager;
-        prefabEntityManager.Arguments = this.EntityManager.Arguments;
-
-        var scriptEngine = prefabEntityManager.GetScriptEngine();
-        scriptEngine.ClearState();
-        await scriptEngine.ExecuteFileAsync(Path.Combine(fileSystem.PrefabsRepository, this.PrefabId, $"{this.PrefabId}.csx"));
+        var prefabLoader = this.EntityManager.GetServiceOfType<IPrefabLoader>();
+        this.prefabEntity = await prefabLoader.GetPrefabEntity(ApplicationId, PrefabId, this.EntityManager);
     }
 
     public override async Task OnCompletionAsync()

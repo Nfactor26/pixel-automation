@@ -3,7 +3,7 @@ using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 
-namespace Pixel.Automation.PrefabExplorer.ViewModels;
+namespace Pixel.Automation.AppExplorer.ViewModels.Prefabs;
 
 /// <summary>
 /// View Model for <see cref="TestCase"/>
@@ -33,6 +33,14 @@ public class PrefabViewModel : NotifyPropertyChanged
     }
 
     /// <summary>
+    /// Identifier of the TestCase
+    /// </summary>
+    public string ApplicationId
+    {
+        get => Prefab.ApplicationId;        
+    }
+
+    /// <summary>
     /// DisplayName for the TestCase
     /// </summary>
     public string DisplayName
@@ -41,6 +49,27 @@ public class PrefabViewModel : NotifyPropertyChanged
         set
         {
             Prefab.DisplayName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
+    /// Version of the control
+    /// </summary>
+    public Version Version
+    {
+        get => this.Prefab.Version;
+    }
+
+    /// <summary>
+    /// Group assigned to control
+    /// </summary>
+    public string GroupName
+    {
+        get => this.Prefab.GroupName;
+        set
+        {
+            this.Prefab.GroupName = value;
             OnPropertyChanged();
         }
     }
@@ -102,11 +131,6 @@ public class PrefabViewModel : NotifyPropertyChanged
         }
     }
 
-    public string SupportedShape
-    {
-        get => Prefab.SupportedShape;
-    }
-
     /// <summary>
     /// Guard method for determining whether the TestCase can be opened for edit
     /// </summary>
@@ -160,7 +184,7 @@ public class PrefabViewModel : NotifyPropertyChanged
         }
         else
         {
-            this.Prefab.ControlsUsed.Add(new Core.Models.ControlUsage() { ControlId = controlId, Count = 1 });
+            this.Prefab.ControlsUsed.Add(new ControlUsage() { ControlId = controlId, Count = 1 });
             wasUsagedAddedd = true;
         }
         this.IsDirty = true;

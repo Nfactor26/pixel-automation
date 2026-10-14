@@ -35,15 +35,13 @@ namespace Pixel.Automation.Designer.ViewModels
         private readonly ITestExplorer testExplorer;
         private readonly ITestExplorerHost testExplorerHost;        
         private readonly ITestDataRepository testDataRepository;
-        private readonly ITestDataRepositoryHost testDataRepositoryHost;
-        private readonly IPrefabExplorerHost prefabsRepositoryHost;
-        private readonly IPrefabExplorer prefabExplorer;
+        private readonly ITestDataRepositoryHost testDataRepositoryHost;      
         #endregion data members
 
         #region constructor
         public AutomationEditorViewModel(IServiceResolver serviceResolver, IEventAggregator globalEventAggregator, IWindowManager windowManager, 
             INotificationManager notificationManager, ISerializer serializer, IEntityManager entityManager, ITestExplorer testExplorer, ITestDataRepository testDataRepository,
-            IPrefabExplorer prefabExplorer, IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
+            IAutomationProjectManager projectManager, IComponentViewBuilder componentViewBuilder, IScriptExtactor scriptExtractor, IReadOnlyCollection<IAnchorable> anchorables, 
             IVersionManagerFactory versionManagerFactory, IDropTarget dropTarget, ApplicationSettings applicationSettings)
             : base(globalEventAggregator, windowManager, notificationManager, serializer, entityManager, projectManager, scriptExtractor, versionManagerFactory, dropTarget, applicationSettings)
         {
@@ -52,8 +50,7 @@ namespace Pixel.Automation.Designer.ViewModels
             this.projectManager = Guard.Argument(projectManager, nameof(projectManager)).NotNull().Value;
             this.componentViewBuilder = Guard.Argument(componentViewBuilder, nameof(componentViewBuilder)).NotNull().Value;
             this.testExplorer = Guard.Argument(testExplorer, nameof(testExplorer)).NotNull().Value;
-            this.testDataRepository = Guard.Argument(testDataRepository, nameof(testDataRepository)).NotNull().Value;
-            this.prefabExplorer = Guard.Argument(prefabExplorer, nameof(prefabExplorer)).NotNull().Value;
+            this.testDataRepository = Guard.Argument(testDataRepository, nameof(testDataRepository)).NotNull().Value;          
             Guard.Argument(anchorables, nameof(anchorables)).NotNull().NotEmpty().DoesNotContainNull();
 
             foreach (var item in anchorables)
@@ -66,11 +63,6 @@ namespace Pixel.Automation.Designer.ViewModels
                 if(item is ITestExplorerHost explorerHost)
                 {
                     testExplorerHost = explorerHost;                  
-                }
-
-                if(item is IPrefabExplorerHost prefabsHost)
-                {
-                    prefabsRepositoryHost = prefabsHost;
                 }
             }         
         }
@@ -276,8 +268,7 @@ namespace Pixel.Automation.Designer.ViewModels
         {
             //whenever we activate the automation editor, activate the test explorer and test data repository associated with it as well
             await this.testExplorerHost.ActivateItemAsync(this.testExplorer);
-            await this.testDataRepositoryHost.ActivateItemAsync(this.testDataRepository);
-            await this.prefabsRepositoryHost.ActivateItemAsync(this.prefabExplorer);
+            await this.testDataRepositoryHost.ActivateItemAsync(this.testDataRepository);          
             await base.OnActivateAsync(cancellationToken);
             logger.Debug("Automation Project screen - {0} was activated", this.CurrentProject.Name);
         }
@@ -287,8 +278,7 @@ namespace Pixel.Automation.Designer.ViewModels
             //whenever we deactivate the automation editor, we deactivate the test explorer and test data repository associated with it as well.
             //false parameter tells that we should not close the test explorer but only deactivate.
             await this.testExplorerHost.DeactivateItemAsync(this.testExplorer, false);
-            await this.testDataRepositoryHost.DeactivateItemAsync(this.testExplorer, false);
-            await this.prefabsRepositoryHost.DeactivateItemAsync(this.prefabExplorer, false);
+            await this.testDataRepositoryHost.DeactivateItemAsync(this.testExplorer, false);        
             await base.OnDeactivateAsync(close, cancellationToken);
             logger.Debug("Automation Project screen - {0} was de-activated", this.CurrentProject.Name);
         }
@@ -315,7 +305,25 @@ namespace Pixel.Automation.Designer.ViewModels
                 }
             }               
         }
-      
+
+        /// <inheritdoc/>  
+        public async Task ManagePrefabReferencesAsync()
+        {
+            using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ManagePrefabReferencesAsync), ActivityKind.Internal))
+            {
+                try
+                {                   
+                    var versionManager = this.versionManagerFactory.CreatePrefabReferenceManager(this.projectManager.GetReferenceManager(), (p) => { this.projectManager.OnPrefabVersionChanged(p); });
+                    await this.windowManager.ShowDialogAsync(versionManager);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "There was an error on manage prefab reference screen");
+                    await notificationManager.ShowErrorNotificationAsync(ex);
+                }
+            }
+        }
+
         #endregion Save project
 
         #region Close Screen

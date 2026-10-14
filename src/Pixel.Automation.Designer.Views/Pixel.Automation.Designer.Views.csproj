@@ -47,7 +47,6 @@
 		<ProjectReference Include="..\Pixel.Automation.AppExplorer.ViewModels\Pixel.Automation.AppExplorer.ViewModels.csproj" />		
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.Views\Pixel.Automation.TestExplorer.Views.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.TestExplorer.ViewModels\Pixel.Automation.TestExplorer.ViewModels.csproj" />
-		<ProjectReference Include="..\Pixel.Automation.PrefabExplorer.Views\Pixel.Automation.PrefabExplorer.Views.csproj" />
 		<ProjectReference Include="..\Pixel.Automation.TestDataExplorer.Views\Pixel.Automation.TestDataExplorer.Views.csproj" />
 		<ProjectReference Include="..\Xceed.Wpf.AvalonDock.Themes.MahApps\Xceed.Wpf.AvalonDock.Themes.MahApps.csproj" />
 	</ItemGroup>

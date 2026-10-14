@@ -24,7 +24,7 @@ namespace Pixel.Persistence.Services.Client
         /// Download most recent version of application and controls
         /// </summary>
         /// <returns></returns>
-        Task DownloadApplicationsWithControlsAsync();
+        Task DownloadApplicationsWithControlsAndPrefabsAsync();
 
 
         /// <summary>
@@ -34,11 +34,18 @@ namespace Pixel.Persistence.Services.Client
         Task DownloadApplicationsAsync();
 
         /// <summary>
-        /// Download most recent version of all the controls and their images for a given application
+        /// Download all the controls and their images for a given application
         /// </summary>
         /// <param name="applicationId"></param>
         /// <returns></returns>
         Task DownloadControlsAsync(string applicationId);
+
+        /// <summary>
+        /// Download all the Prefabs for a given application
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <returns></returns>
+        Task DownloadPrefabsAsync(string applicationId);
 
         /// <summary>
         /// Add a new application

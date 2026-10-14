@@ -21,6 +21,9 @@ namespace Pixel.Automation.Core
         /// <InheritDoc/>
         public string WorkingDirectory { get; protected set; }
 
+        /// <InheritDoc/>
+        public string ApplicationsDirectory { get; protected set;  }
+
         /// <InheritDoc/>      
         public string ScriptsDirectory { get; protected set; }
 
@@ -55,6 +58,7 @@ namespace Pixel.Automation.Core
                 throw new InvalidOperationException("WorkingDirectory is not initialized");
             }
 
+            this.ApplicationsDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory);
             this.ScriptsDirectory = Path.Combine(this.WorkingDirectory, Constants.ScriptsDirectory);
             this.TempDirectory = Path.Combine(this.WorkingDirectory, Constants.TemporaryDirectory);
             this.DataModelDirectory = Path.Combine(this.WorkingDirectory, Constants.DataModelDirectory);

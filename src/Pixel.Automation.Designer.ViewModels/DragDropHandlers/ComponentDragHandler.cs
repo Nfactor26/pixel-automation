@@ -3,6 +3,7 @@ using Dawn;
 using GongSolutions.Wpf.DragDrop;
 using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
+using Pixel.Automation.AppExplorer.ViewModels.Prefabs;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -14,7 +15,7 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.Interfaces;
 using Pixel.Automation.Editor.Core.ViewModels;
-using Pixel.Automation.PrefabExplorer.ViewModels;
+using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
 using System.Windows;
@@ -275,17 +276,12 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
         {
             if (dropInfo.Data is PrefabViewModel prefab && dropInfo.TargetItem is EntityComponentViewModel targetItem)
             {
-                targetItem.AddComponent(new PrefabHostEntity() { PrefabId = prefab.PrefabId, Name = prefab.DisplayName });
-
-                if (targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
-                {
-                    targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
-                    _ = this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(prefab.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
-                }
-                else if (targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
-                {
-                    _ = this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(prefab.PrefabId, testFixtureEntity.Tag));
-                }               
+                var entityManager = targetItem.Model.EntityManager;
+                var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
+                var fileSystem = entityManager.GetServiceOfType<IFileSystem>();
+                var prefabDropHandler = new PrefabVersionSelectorViewModel(referenceManager, fileSystem, this.eventAggregator, prefab, targetItem);
+                IWindowManager windowManager = entityManager.GetServiceOfType<IWindowManager>();
+                windowManager.ShowDialogAsync(prefabDropHandler);
             }
         }
 
@@ -306,12 +302,12 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     controlEntity.ControlId = controlItem.ControlId;
                     targetItem.AddComponent(controlEntity);
                     //Notify on event aggregator so that control references file for the project  can be updated
-                    if(targetItem.Model.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+                    if(targetItem.Model.TryGetAnsecstorOfType(out TestCaseEntity testCaseEntity))
                     {
-                        testCaseEntity.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
+                        testCaseEntity.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity);
                         this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
                     }
-                    else if(targetItem.Model.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
+                    else if(targetItem.Model.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity))
                     {
                         this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag));
                     }

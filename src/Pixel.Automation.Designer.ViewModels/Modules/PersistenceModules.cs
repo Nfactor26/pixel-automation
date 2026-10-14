@@ -13,7 +13,7 @@ public class PersistenceModules : NinjectModule
         Kernel.Bind<IControlRepositoryClient>().To<ControlRepositoryClient>().InSingletonScope();          
         Kernel.Bind<ITestSessionClient>().To<TestSessionClient>().InSingletonScope();
         Kernel.Bind<IAutomationsRepositoryClient>().To<AutomationsRepositoryClient>().InSingletonScope();      
-        Kernel.Bind<IPrefabsRepositoryClientV2>().To<PrefabsRepositoryClientV2>().InSingletonScope();
+        Kernel.Bind<IPrefabRepositoryClient>().To<PrefabsRepositoryClient>().InSingletonScope();
         Kernel.Bind<IReferencesRepositoryClient>().To<ReferencesRepositoryClient>().InSingletonScope();
         Kernel.Bind<IProjectFilesRepositoryClient>().To<ProjectFilesRepositoryClient>().InSingletonScope();       
         Kernel.Bind<IFixturesRepositoryClient>().To<FixturesRepositoryClient>().InSingletonScope();
@@ -22,6 +22,7 @@ public class PersistenceModules : NinjectModule
      
         Kernel.Bind<IDataManagerFactory>().To<DataManagerFactory>().InSingletonScope();
         Kernel.Bind<IApplicationDataManager>().To<ApplicationDataManager>().InSingletonScope();
-        Kernel.Bind<IProjectDataManager>().To<ProjectDataManager>().InSingletonScope();     
+        Kernel.Bind<IProjectDataManager>().To<ProjectDataManager>().InSingletonScope();
+        Kernel.Bind<IPrefabDataManager>().To<PrefabDataManager>().InSingletonScope();
     }
 }
