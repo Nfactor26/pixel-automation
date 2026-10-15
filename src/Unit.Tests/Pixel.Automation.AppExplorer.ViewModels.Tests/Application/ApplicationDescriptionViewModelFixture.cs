@@ -40,8 +40,7 @@ public class ApplicationDescriptionViewModelFixture
         Assert.That(applicationDescriptionViewModel.ApplicationId, Is.EqualTo(applicationDescription.ApplicationId));
         Assert.That(applicationDescriptionViewModel.ApplicationName, Is.EqualTo(applicationDescription.ApplicationName));
         Assert.That(applicationDescriptionViewModel.ApplicationType, Is.EqualTo("WinApplication"));
-        Assert.That(applicationDescriptionViewModel.Screens.Count, Is.EqualTo(0));           
-        Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(0));      
+        Assert.That(applicationDescriptionViewModel.Screens.Count, Is.EqualTo(0));          
     }
 
     [Test]
@@ -57,14 +56,12 @@ public class ApplicationDescriptionViewModelFixture
         var control = new Control.ControlDescriptionViewModel(new ControlDescription());
         applicationDescriptionViewModel.AddControl(control, "Home");
                 
-        Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(1));           
-        Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(1));
+        Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(1));     
         Assert.That(applicationDescriptionViewModel.ScreenCollection.Screens.Count(), Is.EqualTo(1));
 
         applicationDescriptionViewModel.DeleteControl(control, "Home");
 
-        Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(0));
-        Assert.That(applicationDescriptionViewModel.ControlsCollection.Count, Is.EqualTo(0));
+        Assert.That(applicationDescriptionViewModel["Home"].AvailableControls.Count, Is.EqualTo(0));       
 
         applicationDescriptionViewModel.DeleteScreen("Home");
         Assert.That(applicationDescriptionViewModel.ScreenCollection.Screens.Count(), Is.EqualTo(0));

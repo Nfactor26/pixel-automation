@@ -267,33 +267,18 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Control
             List<ControlDescriptionViewModel> controlsList = new List<ControlDescriptionViewModel>();
             if (applicationDescriptionViewModel.ContainsScreen(selectedScreen.ScreenName))
             {
-                var controlIdentifers = selectedScreen.AvailableControls;
-                if (controlIdentifers.Any() && applicationDescriptionViewModel.ControlsCollection.Any(a => a.ControlId.Equals(controlIdentifers.First())))
+                var controls = this.applicationDataManager.GetControlsForScreen(applicationDescriptionViewModel.Model, selectedScreen.ScreenName).ToList();
+                foreach (var control in controls)
                 {
-                    foreach (var controlId in controlIdentifers)
+                    if (control.IsDeleted)
                     {
-                        var controls = applicationDescriptionViewModel.ControlsCollection.Where(a => a.ControlId.Equals(controlId));
-                        if (controls.Any())
-                        {
-                            controlsList.AddRange(controls);
-                        }
+                        continue;
                     }
+                    var controlDescriptionViewModel = new ControlDescriptionViewModel(control);
+                    applicationDescriptionViewModel.AddControl(controlDescriptionViewModel, selectedScreen.ScreenName);
+                    controlsList.Add(controlDescriptionViewModel);
                 }
-                else
-                {
-                    var controls = this.applicationDataManager.GetControlsForScreen(applicationDescriptionViewModel.Model, selectedScreen.ScreenName).ToList();
-                    foreach (var control in controls)
-                    {
-                        if(control.IsDeleted)
-                        {
-                            continue;
-                        }
-                        var controlDescriptionViewModel = new ControlDescriptionViewModel(control);
-                        applicationDescriptionViewModel.AddControl(controlDescriptionViewModel, selectedScreen.ScreenName);
-                        controlsList.Add(controlDescriptionViewModel);
-                    }
-                }
-                     
+
             }          
             return controlsList;
         }

@@ -219,31 +219,16 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         List<PrefabViewModel> prefabsList = new();
         if (applicationDescriptionViewModel.ContainsScreen(selectedScreen.ScreenName))
         {
-            var prefabIdentifiers = selectedScreen.AvailablePrefabs;
-            if (prefabIdentifiers.Any() && applicationDescriptionViewModel.PrefabsCollection.Any(a => a.PrefabId.Equals(prefabIdentifiers.First())))
+            var prefabs = this.prefabManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, selectedScreen.ScreenName).ToList();
+            foreach (var prefab in prefabs)
             {
-                foreach (var prefabId in prefabIdentifiers)
+                if (prefab.IsDeleted)
                 {
-                    var prefabs = applicationDescriptionViewModel.PrefabsCollection.Where(a => a.PrefabId.Equals(prefabId));
-                    if (prefabs.Any())
-                    {
-                        prefabsList.AddRange(prefabs);
-                    }
+                    continue;
                 }
-            }
-            else
-            {
-                var prefabs = this.prefabManager.GetPrefabsForScreen(applicationDescriptionViewModel.Model, selectedScreen.ScreenName).ToList();
-                foreach (var prefab in prefabs)
-                {
-                    if (prefab.IsDeleted)
-                    {
-                        continue;
-                    }
-                    var prefabViewModel = new PrefabViewModel(prefab);
-                    applicationDescriptionViewModel.AddPrefab(prefabViewModel, selectedScreen.ScreenName);
-                    prefabsList.Add(prefabViewModel);
-                }
+                var prefabViewModel = new PrefabViewModel(prefab);
+                applicationDescriptionViewModel.AddPrefab(prefabViewModel, selectedScreen.ScreenName);
+                prefabsList.Add(prefabViewModel);
             }
 
         }

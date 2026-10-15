@@ -76,24 +76,12 @@ public class ApplicationDescriptionViewModel : NotifyPropertyChanged
     /// <summary>
     /// Tracks available screens and active screen
     /// </summary>
-    public ApplicationScreenCollection ScreenCollection { get; private set; }
-    
-    /// <summary>
-    /// Controls belonging to the application
-    /// </summary>
-    public List<ControlDescriptionViewModel> ControlsCollection { get; set; } = new (); //TODO : Why do we need this?
-
-    /// <summary>
-    /// Controls belonging to the application
-    /// </summary>
-    public List<PrefabViewModel> PrefabsCollection { get; set; } = new(); //TODO : Why do we need this?
-
+    public ApplicationScreenCollection ScreenCollection { get; private set; }   
 
     public ApplicationScreen this[string screenName]
     {
         get => Screens.Single(s => s.ScreenName.Equals(screenName));           
-    }
-        
+    }        
 
     /// <summary>
     /// constructor
@@ -167,11 +155,7 @@ public class ApplicationDescriptionViewModel : NotifyPropertyChanged
         if (!controlCollection.Contains(controlDescription.ControlId))
         {
             controlCollection.Add(controlDescription.ControlId);
-        }
-        if (!this.ControlsCollection.Contains(controlDescription))
-        {
-            this.ControlsCollection.Add(controlDescription);
-        }
+        }      
     }
 
     /// <summary>
@@ -185,11 +169,7 @@ public class ApplicationDescriptionViewModel : NotifyPropertyChanged
         if (controlCollection.Contains(controlDescription.ControlId))
         {
             controlCollection.Remove(controlDescription.ControlId);
-        }
-        if (this.ControlsCollection.Contains(controlDescription))
-        {
-            this.ControlsCollection.Remove(controlDescription);
-        }
+        }       
     }
 
     /// <summary>
@@ -216,11 +196,7 @@ public class ApplicationDescriptionViewModel : NotifyPropertyChanged
         if (!prefabCollection.Contains(prefab.PrefabId))
         {
             prefabCollection.Add(prefab.PrefabId);
-        }
-        if (!this.PrefabsCollection.Contains(prefab))
-        {
-            this.PrefabsCollection.Add(prefab);
-        }
+        }       
     }
 
     /// <summary>
@@ -234,11 +210,7 @@ public class ApplicationDescriptionViewModel : NotifyPropertyChanged
         if (prefabCollection.Contains(prefab.PrefabId))
         {
             prefabCollection.Remove(prefab.PrefabId);
-        }
-        if (this.PrefabsCollection.Contains(prefab))
-        {
-            this.PrefabsCollection.Remove(prefab);
-        }
+        }        
     }
 
     /// <summary>
