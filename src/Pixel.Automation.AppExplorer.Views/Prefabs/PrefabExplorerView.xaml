@@ -88,6 +88,7 @@
                                                         IsEnabled="{Binding CanOpenForEdit}" cal:Message.Attach="[Event Click] = [Action EditPrefabDataModelScriptAsync($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="CreateRevision" Header="Create Revision" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                                                         cal:Message.Attach="[Event Click] = [Action CreateRevisionAsync($dataContext)]"></MenuItem>
+                                                <MenuItem x:Name="MoveToScreen" Header="Move To Screen" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action MoveToScreen($dataContext)]"></MenuItem>
                                             </StackPanel>
                                         </ControlTemplate>
                                     </ContextMenu.Template>
@@ -114,29 +115,69 @@
     </UserControl.Resources>
     <Grid Margin="5,5,0,0" Background="{DynamicResource MahApps.Brushes.Control.Background}">
 
-        <StackPanel x:Name="PrefabsPanel" HorizontalAlignment="Stretch"  Margin="0,4,0,6"  Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0">
+            <!-- SearchBox and Back button on left-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
+                <StackPanel x:Name="ApplicationIcon" DataContext="{Binding ActiveApplication}" IsHitTestVisible="True" dd:DragDrop.IsDragSource="True"
+                        Background="{DynamicResource MahApps.Brushes.Control.Background}" ToolTip="{Binding ApplicationName}" >
+                    <ContentControl Foreground="{DynamicResource MahApps.Brushes.Accent}"                                
+                        Margin="2" Width="28" Height="28" Content="{StaticResource ApplicationIcon}" IsHitTestVisible="False">
+                    </ContentControl>
+                </StackPanel>
+
                 <TextBox Name="Filter" Margin="6,1,0,1" Text="{Binding FilterText,UpdateSourceTrigger=PropertyChanged}" controls:TextBoxHelper.ClearTextButton="True"                      
-                      controls:TextBoxHelper.UseFloatingWatermark="False" IsEnabled="True"                     
-                      controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
-                      Width="250"/>
+                          controls:TextBoxHelper.UseFloatingWatermark="False"                     
+                          controls:TextBoxHelper.Watermark="Search"   Grid.Column="0" HorizontalAlignment="Left"
+                          Width="250"/>
                 <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-                <Button x:Name="AddTestFixture" Margin="0,0,2,0" HorizontalAlignment="Right" 
-                                 Height="20" Width="20" ToolTip="Add s new Prefab"                             
-                                 cal:Message.Attach="[Event Click] = [Action AddPrefabAsync()]"                       
-                                 Style="{StaticResource EditControlButtonStyle}"
-                                 Content="{iconPacks:Material PlaylistPlus}"/>
-                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
-                <ComboBox x:Name="Screens" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" MinWidth="180" Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <Button x:Name="BackButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                          Height="28" Width="28" ToolTip="Go back to application view"                                                                                      
+                          cal:Message.Attach="[Event Click] = [Action GoBack()]"
+                          Style="{StaticResource BackButton}"/>
             </StackPanel>
 
-            <ListBox  x:Name="Prefabs"  ItemsSource="{Binding Prefabs}" SelectedItem="{Binding SelectedPrefab}"
-                 Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"                
-                 Style="{StaticResource PrefabsListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"                 
-                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            </ListBox>
+            <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
 
-        </StackPanel>
+            <Button x:Name="AddPrefab" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  
+                  Height="28" Width="28" ToolTip="Create a new Prefab"                             
+                  cal:Message.Attach="[Event Click] = [Action AddPrefabAsync()]"                       
+                  Style="{StaticResource EditControlButtonStyle}"
+                  Content="{iconPacks:Material PlaylistPlus, Width=24, Height=24}"/>
+
+            <Separator Width="1" Margin="10,0,10,0" BorderThickness="2" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" DockPanel.Dock="Left"/>
+            <!-- Screen management on right-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Left">
+                <ComboBox x:Name="Screens" ItemsSource="{Binding ScreenCollection.Screens}" SelectedItem="{Binding ScreenCollection.SelectedScreen}" 
+                          DisplayMemberPath="ScreenName" MinWidth="180"  controls:TextBoxHelper.UseFloatingWatermark="True"
+                          controls:TextBoxHelper.ClearTextButton="True" IsEditable="True"
+                          Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="AddScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                          Height="28" Width="28" ToolTip="Create a new application screen"                                                                                    
+                          cal:Message.Attach="[Event Click] = [Action CreateScreen(ApplicationIcon.DataContext)]"
+                          Style="{StaticResource EditControlButtonStyle}"
+                          Content="{iconPacks:Material PlusCircleOutline, Width=24, Height=24}"/>
+                <Separator Width="1" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{DynamicResource MahApps.Brushes.Accent}"/>
+                <Button x:Name="RenameScreenButton" Margin="0,0,2,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                          
+                          Height="26" Width="26" ToolTip="Create a new application screen"                                                                                    
+                          cal:Message.Attach="[Event Click] = [Action RenameScreen(ApplicationIcon.DataContext, Screens.SelectedItem)]"
+                          Style="{StaticResource EditControlButtonStyle}"
+                          Content="{iconPacks:FontAwesome PencilAltSolid, Width=24, Height=24}"/>
+            </StackPanel>
+
+        </DockPanel>
+
+        <ListBox  x:Name="Prefabs" Grid.Row="1" ItemsSource="{Binding Prefabs}" SelectedItem="{Binding SelectedPrefab}"
+                Width="{Binding Path=Width, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"                
+                Style="{StaticResource PrefabsListStyle}" BorderThickness="0" Background="{DynamicResource MahApps.Brushes.Control.Background}"                 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        </ListBox>        
+       
     </Grid>
 </UserControl>
