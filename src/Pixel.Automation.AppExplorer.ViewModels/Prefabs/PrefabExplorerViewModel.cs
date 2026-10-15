@@ -38,7 +38,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     private readonly IWindowManager windowManager;
     private readonly INotificationManager notificationManager;   
     private readonly IPrefabDataManager prefabManager;
-    private readonly ICodeEditorFactory codeEditorFactory;
+    private readonly ICodeEditorFactory codeEditorFactory;   
     private readonly ApplicationSettings applicationSettings;
 
     private ApplicationDescriptionViewModel activeApplication;
@@ -569,7 +569,12 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             string GetNewDataModelAssemblyName()
             {
                 string tempDirectory = Path.Combine(prefabFiles.PrefabDirectory, "Temp");
-                foreach(var file in Directory.GetFiles(tempDirectory))
+                if (!Directory.Exists(tempDirectory))
+                {
+                    Directory.CreateDirectory(tempDirectory);
+                }
+
+                foreach (var file in Directory.GetFiles(tempDirectory))
                 {
                     try
                     {
@@ -581,12 +586,8 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                     }
                 }
 
-                int compilationIteration = 1;
-               
-                if(!Directory.Exists(tempDirectory))
-                {
-                    Directory.CreateDirectory(tempDirectory);
-                }              
+                int compilationIteration = 0;    
+                       
                 var assemblyFiles = Directory.GetFiles(tempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(tempDirectory, f)));
                 if (assemblyFiles.Any())
                 {
