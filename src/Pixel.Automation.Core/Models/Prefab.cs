@@ -55,6 +55,12 @@ public class Prefab : ICloneable
     public string ScriptFile { get; set; }
 
     /// <summary>
+    /// DataModel file which defines the type used by Prefab and Provides an instance of it
+    /// </summary>
+    [DataMember(IsRequired = true, Order = 110)]
+    public string DataModelFile { get; set; }
+
+    /// <summary>
     /// Collection of Identifiers of controls used by the Prefab
     /// </summary>
     [DataMember(IsRequired = true, Order = 130)]

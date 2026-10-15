@@ -6,7 +6,6 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Prefabs;
-using Pixel.Automation.Core.Controls;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -20,6 +19,7 @@ using Serilog;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
 
@@ -37,8 +37,10 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     private readonly IEventAggregator eventAggregator;
     private readonly IWindowManager windowManager;
     private readonly INotificationManager notificationManager;   
-    private readonly IPrefabDataManager prefabManager;     
-    
+    private readonly IPrefabDataManager prefabManager;
+    private readonly ICodeEditorFactory codeEditorFactory;
+    private readonly ApplicationSettings applicationSettings;
+
     private ApplicationDescriptionViewModel activeApplication;
 
     public ApplicationDescriptionViewModel ActiveApplication
@@ -86,17 +88,33 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// <param name="windowManager"></param>
     /// <param name="applicationSettings"></param>
     public PrefabExplorerViewModel(IEventAggregator eventAggregator, IPrefabDataManager prefabManager, IApplicationDataManager applicationDataManager,
-        IWindowManager windowManager, INotificationManager notificationManager)
+        ICodeEditorFactory codeEditorFactory,
+        IWindowManager windowManager, INotificationManager notificationManager, ApplicationSettings applicationSettings)
     {
         this.DisplayName = "Prefab Explorer";
         this.prefabManager = Guard.Argument(prefabManager, nameof(prefabManager)).NotNull().Value;
         this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
+        this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;
         this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
         this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
+        this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings));
         this.notificationManager = Guard.Argument(notificationManager, nameof(notificationManager)).NotNull().Value;            
         this.eventAggregator.SubscribeOnPublishedThread(this);        
 
         CreateCollectionView();
+
+        ConfigureCodeEditor();
+
+    }
+
+    void ConfigureCodeEditor()
+    {
+        using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ConfigureCodeEditor), ActivityKind.Internal))
+        {
+            logger.Debug($"Trying to configure code editor for Prefab Explorer");
+            this.codeEditorFactory.Initialize(Environment.CurrentDirectory, applicationSettings.DefaultEditorReferences.Union(applicationSettings.DefaultCodeReferences), Enumerable.Empty<string>());
+            logger.Debug($"Configure code editor for Prefab Explorer completed.");
+        }
     }
 
     #endregion
@@ -174,7 +192,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             {
                 this.Prefabs.Clear();
                 activity?.SetTag("SelectedScreen", selectedScreen?.ScreenName ?? string.Empty);
-                if (selectedScreen != null)
+                if (selectedScreen is not null)
                 {
                     var prefabsForSelectedScreen = LoadPrefabDetails(this.ActiveApplication, selectedScreen);
                     this.Prefabs.AddRange(prefabsForSelectedScreen);
@@ -413,6 +431,36 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     }
 
     /// <summary>
+    /// Edit the initialization script for a Prefab
+    /// </summary>
+    /// <param name="fixtureVM"></param>
+    /// <returns></returns>
+    public async Task EditPrefabDataModelScriptAsync(PrefabViewModel prefabVM)
+    {
+        try
+        {
+            if (!prefabVM.IsOpenForEdit)
+            {
+                codeEditorFactory.AddProject(prefabVM.PrefabId, $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}", []);
+                using (ICodeEditorScreen codeEditorScreen = codeEditorFactory.CreateCodeEditor())
+                {
+                    codeEditorScreen.OpenDocument(prefabVM.DataModelFile, prefabVM.PrefabId, string.Empty);
+                    var result = await this.windowManager.ShowDialogAsync(codeEditorScreen);
+                    if (result.HasValue && result.Value)
+                    {
+                        logger.Information("Data Model file : '{0}' was edited for Prefab : '{1}'.", prefabVM.ScriptFile, prefabVM.DisplayName);                       
+                    }                   
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "Error while trying to edit Data Model file for Prefab : '{0}'", prefabVM?.DisplayName);
+            await notificationManager.ShowErrorNotificationAsync(ex);
+        }
+    }
+
+    /// <summary>
     /// Delete an existing Prefab
     /// </summary>
     /// <param name="prefabVM"></param>
@@ -486,11 +534,12 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                 var componentViewBuilder = prefabHost.EntityManager.GetServiceOfType<IComponentViewBuilder>();
                 componentViewBuilder.OpenPrefab(prefabVM.Prefab);
 
-                // TODO : This should be a design time argument for prefab
-                prefabEntityManager.Arguments = prefabHost.EntityManager.Arguments;
-
+                //This data model is only used at design time so that visibility is limited to members from this model
+                var dataModelInstance = CompileDataModel();              
+                prefabEntityManager.Arguments = dataModelInstance;
                 //Copy the values from the arguments of testcase entity manager to prefab entity manager. This will allow to execute components of prefab at design time one at a time.
-                //TypeExtensions.CopyProperties(workflowEntity.Parent.EntityManager.Arguments, prefabEntityManager.Arguments);
+                //This will also throw an exception if types are not compatible
+                TypeExtensions.CopyProperties(prefabHost.EntityManager.Arguments, prefabEntityManager.Arguments);
 
                 var scriptEngine = prefabEntityManager.GetScriptEngine();
                 await scriptEngine.ExecuteFileAsync(prefabFiles.ScriptFile);
@@ -508,6 +557,74 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                 editorFactory.AddProject(prefabVM.PrefabId, new string[] { }, prefabEntityManager.Arguments.GetType());
                 string scriptFileContent = File.ReadAllText(prefabFiles.ScriptFile);
                 editorFactory.AddDocument(prefabFiles.ScriptFile, prefabVM.PrefabId, scriptFileContent);
+            }
+
+
+            object CompileDataModel()
+            {
+                string tempDirectory = Path.Combine(prefabFiles.PrefabDirectory, "Temp");
+                this.codeEditorFactory.AddProject(prefabVM.PrefabId, $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}", []);
+                this.codeEditorFactory.AddDocument(Path.GetFileName(prefabFiles.DataModelFile), prefabVM.PrefabId, File.ReadAllText(prefabFiles.DataModelFile));
+                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabVM.PrefabId, GetNewDataModelAssemblyName()))
+                {
+                    compilationResult.SaveAssemblyToDisk(tempDirectory);
+                    string assemblyLocation = Path.Combine(tempDirectory, compilationResult.OutputAssemblyName);
+                    Assembly assembly = Assembly.LoadFrom(assemblyLocation);
+                    logger.Information($"Data model assembly compiled and assembly loaded from {assemblyLocation}");
+                    Type typeofDataModel = assembly.GetTypes().FirstOrDefault();
+                    if (typeofDataModel != null)
+                    {
+                        return Activator.CreateInstance(typeofDataModel);
+                    }
+                    logger.Warning("No data model found for Prefab : {0}", prefabVM.DisplayName);
+                    return new object();
+                }
+            }
+
+            string GetNewDataModelAssemblyName()
+            {
+                string tempDirectory = Path.Combine(prefabFiles.PrefabDirectory, "Temp");
+                foreach(var file in Directory.GetFiles(tempDirectory))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+
+                int compilationIteration = 1;
+               
+                if(!Directory.Exists(tempDirectory))
+                {
+                    Directory.CreateDirectory(tempDirectory);
+                }              
+                var assemblyFiles = Directory.GetFiles(tempDirectory, "*.dll").Select(f => new FileInfo(Path.Combine(tempDirectory, f)));
+                if (assemblyFiles.Any())
+                {
+                    var mostRecentAssembly = assemblyFiles.OrderBy(a => a.CreationTime).Last();
+                    string assemblyName = Path.GetFileNameWithoutExtension(mostRecentAssembly.Name);
+                    if (int.TryParse(assemblyName.Split('_', StringSplitOptions.RemoveEmptyEntries).Last(), out int lastIteration))
+                    {
+                        compilationIteration = lastIteration;
+                    }
+                }
+
+                //There are some scenarios where the data model assembly with same name is already loaded in domain
+                compilationIteration++;
+                string dataModelAssemblyName = $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}";
+                string dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                while (loadedAssemblies.Any(a => a.GetName().Name.Equals(dataModelAssemblyNameWithIteration)))
+                {
+                    compilationIteration++;
+                    dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
+                }
+
+                return dataModelAssemblyNameWithIteration;
             }
         }
     }
@@ -652,6 +769,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         try
         {
             Guard.Argument(message.PrefabId, nameof(OpenPrefabRequestNotification.PrefabId)).NotNull().NotEmpty();
+
             var hostEntityManager = message.PrefabHost.EntityManager;
             var referenceManager = hostEntityManager.GetServiceOfType<IReferenceManager>();
             var versionInUse = referenceManager.GetPrefabReferences().GetPrefabReference(message.PrefabId).Version;
@@ -665,7 +783,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                     return;
                 }
                 message.PrefabHost.IsInDesignMode = true;
-                var prefabVM = new PrefabViewModel(targetPrefab);               
+                var prefabVM =  this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabId)) ?? new PrefabViewModel(targetPrefab);               
                 await OpenPrefabAsync(prefabVM, message.PrefabHost);
                 openForEdit.Add(prefabVM);
             }

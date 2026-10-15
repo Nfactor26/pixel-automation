@@ -24,7 +24,6 @@ public class ScriptFileInitializer : IComponentInitializer
             string scriptsDirectory = fileSystem.ScriptsDirectory;
             if(fileSystem is IProjectFileSystem projectFileSystem)
             {
-
                 if(component.TryGetAnsecstorOfType(out PrefabHostEntity prefabHost))
                 {
                     var prefabLoader = entityManager.GetServiceOfType<IPrefabLoader>();

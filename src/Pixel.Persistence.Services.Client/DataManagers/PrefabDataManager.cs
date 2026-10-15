@@ -149,6 +149,14 @@ public class PrefabDataManager : IPrefabDataManager
                 fs.Write(string.Empty);
             }
         }
+        if (string.IsNullOrEmpty(prefab.DataModelFile))
+        {
+            prefab.DataModelFile = Path.GetRelativePath(Environment.CurrentDirectory, prefabFiles.DataModelFile);
+            using (var fs = File.CreateText(prefabFiles.DataModelFile))
+            {
+                fs.Write(string.Empty);
+            }
+        }
         serializer.Serialize<Prefab>(prefabFiles.PrefabFile, prefab);
         serializer.Serialize<Entity>(prefabFiles.ProcessFile, prefab.WorkFlowEntity);        
 
@@ -157,6 +165,7 @@ public class PrefabDataManager : IPrefabDataManager
             await this.prefabsRepositoryClient.AddPrefabToScreenAsync(prefab, screenId);
             await AddOrUpdateDataFileAsync(prefab, prefabFiles.ProcessFile, prefab.PrefabId);
             await AddOrUpdateDataFileAsync(prefab, prefabFiles.ScriptFile, prefab.PrefabId);
+            await AddOrUpdateDataFileAsync(prefab, prefabFiles.DataModelFile, prefab.PrefabId);
         }     
 
         ////when a new prefab is created , add it to the prefabs cache

@@ -16,6 +16,8 @@ public class PrefabFiles
 
     public string ScriptFile { get; private set; }
 
+    public string DataModelFile { get; private set; }
+
     /// <summary>
     /// constructor
     /// </summary>
@@ -33,5 +35,6 @@ public class PrefabFiles
         PrefabFile = Path.Combine(PrefabDirectory, $"{prefab.PrefabId}.prefab");
         ProcessFile = Path.Combine(PrefabDirectory, $"{prefab.PrefabId}.proc");
         ScriptFile = Path.Combine(PrefabDirectory, $"{prefab.PrefabId}.csx");
+        DataModelFile = Path.Combine(PrefabDirectory, $"DataModel.csx");
     }
 }

@@ -102,6 +102,15 @@ public class PrefabViewModel : NotifyPropertyChanged
         set => Prefab.ScriptFile = value;
     }
 
+    /// <summary>
+    /// Script that provides the data model used by Prefab
+    /// </summary>
+    public string DataModelFile
+    {
+        get => Prefab.DataModelFile;
+        set => Prefab.DataModelFile = value;
+    }
+
     bool isSelected;
     /// <summary>
     /// Indicates if the TestCase is currently selected in TestExplorer
