@@ -286,6 +286,7 @@ namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
             {
                 if(document.TryGetText(out SourceText documentText))
                 {
+                    string filePath = Path.IsPathRooted(targetDocument) ? targetDocument : Path.Combine(this.GetWorkingDirectory(), targetDocument);
                     using (StreamWriter writer = File.CreateText(Path.Combine(this.GetWorkingDirectory(), targetDocument)))
                     {
                         documentText.Write(writer);

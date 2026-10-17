@@ -12,155 +12,154 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers
-{
-    /// <summary>
-    /// ScriptWorkSpaceManager wraps an AdhocWorkspace and supports .csx (script) files
-    /// Each script file is added to a new project. Removing script file will also remove that project.
-    /// </summary>
-    public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
-    {      
-        private List<string> searchPaths = new List<string>();
-        private CachedScriptMetadataResolver metaDataReferenceResolver;
-        private CSharpCompilationOptions scriptCompilationOptions;
-        private HashSet<string> imports = new HashSet<string>();
+namespace Pixel.Scripting.Common.CSharp.WorkspaceManagers;
 
-        public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
-        {                   
-            logger = Log.ForContext<ScriptWorkSpaceManager>();
-        }     
+/// <summary>
+/// ScriptWorkSpaceManager wraps an AdhocWorkspace and supports .csx (script) files
+/// Each script file is added to a new project. Removing script file will also remove that project.
+/// </summary>
+public class ScriptWorkSpaceManager : AdhocWorkspaceManager , IScriptWorkspaceManager
+{      
+    private List<string> searchPaths = new List<string>();
+    private CachedScriptMetadataResolver metaDataReferenceResolver;
+    private CSharpCompilationOptions scriptCompilationOptions;
+    private HashSet<string> imports = new HashSet<string>();
 
-        public  void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType)
+    public ScriptWorkSpaceManager(string workingDirectory) : base(workingDirectory)
+    {                   
+        logger = Log.ForContext<ScriptWorkSpaceManager>();
+    }     
+
+    public  void AddProject(string projectName, IEnumerable<string> projectReferences, Type globalsType)
+    {
+        Guard.Argument(projectName).NotNull().NotEmpty();
+        Guard.Argument(projectReferences).NotNull();         
+        Guard.Argument(globalsType).NotNull();
+
+        if (scriptCompilationOptions == null)
         {
-            Guard.Argument(projectName).NotNull().NotEmpty();
-            Guard.Argument(projectReferences).NotNull();         
-            Guard.Argument(globalsType).NotNull();
+            scriptCompilationOptions = CreateCompilationOptions();
+        }
+        ProjectId id = ProjectId.CreateNewId();
 
-            if (scriptCompilationOptions == null)
+        var otherProjectReferences = new List<ProjectReference>();
+        foreach (var reference in projectReferences)
+        {
+            var project = GetProjectByName(reference);
+            otherProjectReferences.Add(new ProjectReference(project.Id));
+        }
+
+        var scriptProjectInfo = ProjectInfo.Create(id, VersionStamp.Create(), projectName,
+          Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences: otherProjectReferences, isSubmission: true, hostObjectType: globalsType)
+           .WithMetadataReferences(new[]
+           {
+                MetadataReference.CreateFromFile(globalsType.Assembly.Location)
+           }
+           .Concat(this.additionalReferences)
+           )
+           .WithCompilationOptions(scriptCompilationOptions);
+
+        workspace.AddProject(scriptProjectInfo);
+
+        logger.Information($"Added new project : {projectName}. Workspace has total {workspace.CurrentSolution.Projects.Count()} project now.");
+
+    }
+
+    /// <inheritdoc/>
+    public override void AddDocument(string targetDocument, string addToProject, string initialContent)
+    {
+        Guard.Argument(targetDocument).NotEmpty().NotNull();
+        Guard.Argument(initialContent).NotNull();
+
+
+        var project = GetProjectByName(addToProject);
+        if(project.Documents.Any())
+        {
+            throw new InvalidOperationException($"{project.Id} already has a document : {project.Documents.First().Name}. Scripting projects can contain only one document at a time.");
+        }
+
+        var scriptDocumentInfo = DocumentInfo.Create(
+        DocumentId.CreateNewId(project.Id), Path.GetFileName(targetDocument),
+        sourceCodeKind: SourceCodeKind.Script,
+        filePath: Path.IsPathRooted(targetDocument) ? targetDocument : Path.Combine(this.GetWorkingDirectory(), targetDocument),
+        loader: TextLoader.From(TextAndVersion.Create(SourceText.From(initialContent), VersionStamp.Create())));           
+
+        var updatedSolution = workspace.CurrentSolution.AddDocument(scriptDocumentInfo);
+        workspace.TryApplyChanges(updatedSolution);
+
+        logger.Information($"Added document {targetDocument} to project {addToProject}");
+    }              
+ 
+    protected override CSharpCompilationOptions CreateCompilationOptions()
+    {
+        this.metaDataReferenceResolver = CreateMetaDataResolver();
+        
+        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));           
+        compilationOptions = compilationOptions.WithMetadataReferenceResolver(metaDataReferenceResolver);
+
+        //SourceFileResolver is required so that #load directive can be used in script
+        compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
+        return compilationOptions;
+    }
+
+    private CachedScriptMetadataResolver CreateMetaDataResolver()
+    {            
+        var metaDataResolver = ScriptMetadataResolver.Default;
+        metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);           
+        metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
+
+        return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
+    }
+
+    public void AddSearchPaths(params string[] searchPaths)
+    {
+        this.searchPaths = this.searchPaths.Union(searchPaths).ToList();
+        UpdateCompilationOptions();
+    }     
+
+    public void RemoveSearchPaths(params string[] searchPaths)
+    {
+        this.searchPaths = this.searchPaths.Except(searchPaths).ToList();
+        UpdateCompilationOptions();
+    }
+
+    public void AddImports(params string[] imports)
+    {
+        foreach(var import in imports)
+        {
+            if(!this.imports.Contains(import))
             {
-                scriptCompilationOptions = CreateCompilationOptions();
+                this.imports.Add(import);
             }
-            ProjectId id = ProjectId.CreateNewId();
+        }
+        UpdateCompilationOptions();
+    }
 
-            var otherProjectReferences = new List<ProjectReference>();
-            foreach (var reference in projectReferences)
+    public void RemoveImports(params string[] imports)
+    {
+        if(this.GetAllProjects().Any())
+        {
+            throw new InvalidOperationException("Cannot remove imports when there are existing projects in workspace.");
+           
+        }
+        foreach (var import in imports)
+        {
+            if(this.imports.Contains(import))
             {
-                var project = GetProjectByName(reference);
-                otherProjectReferences.Add(new ProjectReference(project.Id));
-            }
-
-            var scriptProjectInfo = ProjectInfo.Create(id, VersionStamp.Create(), projectName,
-              Guid.NewGuid().ToString(), LanguageNames.CSharp, projectReferences: otherProjectReferences, isSubmission: true, hostObjectType: globalsType)
-               .WithMetadataReferences(new[]
-               {
-                    MetadataReference.CreateFromFile(globalsType.Assembly.Location)
-               }
-               .Concat(this.additionalReferences)
-               )
-               .WithCompilationOptions(scriptCompilationOptions);
-
-            workspace.AddProject(scriptProjectInfo);
-
-            logger.Information($"Added new project : {projectName}. Workspace has total {workspace.CurrentSolution.Projects.Count()} project now.");
-
+                this.imports.Remove(import);
+            }              
         }
+        UpdateCompilationOptions();
+    }
 
-        /// <inheritdoc/>
-        public override void AddDocument(string targetDocument, string addToProject, string initialContent)
-        {
-            Guard.Argument(targetDocument).NotEmpty().NotNull();
-            Guard.Argument(initialContent).NotNull();
+    void UpdateCompilationOptions()
+    {
+        var metaDataResolver = ScriptMetadataResolver.Default;
+        metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
+        metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
 
-
-            var project = GetProjectByName(addToProject);
-            if(project.Documents.Any())
-            {
-                throw new InvalidOperationException($"{project.Id} already has a document : {project.Documents.First().Name}. Scripting projects can contain only one document at a time.");
-            }
-
-            var scriptDocumentInfo = DocumentInfo.Create(
-            DocumentId.CreateNewId(project.Id), Path.GetFileName(targetDocument),
-            sourceCodeKind: SourceCodeKind.Script,
-            filePath: Path.Combine(this.GetWorkingDirectory(), targetDocument),
-            loader: TextLoader.From(TextAndVersion.Create(SourceText.From(initialContent), VersionStamp.Create())));           
-
-            var updatedSolution = workspace.CurrentSolution.AddDocument(scriptDocumentInfo);
-            workspace.TryApplyChanges(updatedSolution);
-
-            logger.Information($"Added document {targetDocument} to project {addToProject}");
-        }              
-     
-        protected override CSharpCompilationOptions CreateCompilationOptions()
-        {
-            this.metaDataReferenceResolver = CreateMetaDataResolver();
-            
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, usings: AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));           
-            compilationOptions = compilationOptions.WithMetadataReferenceResolver(metaDataReferenceResolver);
-
-            //SourceFileResolver is required so that #load directive can be used in script
-            compilationOptions = compilationOptions.WithSourceReferenceResolver(new SourceFileResolver(this.searchPaths, this.GetWorkingDirectory()));
-            return compilationOptions;
-        }
-
-        private CachedScriptMetadataResolver CreateMetaDataResolver()
-        {            
-            var metaDataResolver = ScriptMetadataResolver.Default;
-            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);           
-            metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
-
-            return new CachedScriptMetadataResolver(metaDataResolver, useCache: true);
-        }
-
-        public void AddSearchPaths(params string[] searchPaths)
-        {
-            this.searchPaths = this.searchPaths.Union(searchPaths).ToList();
-            UpdateCompilationOptions();
-        }     
-
-        public void RemoveSearchPaths(params string[] searchPaths)
-        {
-            this.searchPaths = this.searchPaths.Except(searchPaths).ToList();
-            UpdateCompilationOptions();
-        }
-
-        public void AddImports(params string[] imports)
-        {
-            foreach(var import in imports)
-            {
-                if(!this.imports.Contains(import))
-                {
-                    this.imports.Add(import);
-                }
-            }
-            UpdateCompilationOptions();
-        }
-
-        public void RemoveImports(params string[] imports)
-        {
-            if(this.GetAllProjects().Any())
-            {
-                throw new InvalidOperationException("Cannot remove imports when there are existing projects in workspace.");
-               
-            }
-            foreach (var import in imports)
-            {
-                if(this.imports.Contains(import))
-                {
-                    this.imports.Remove(import);
-                }              
-            }
-            UpdateCompilationOptions();
-        }
-
-        void UpdateCompilationOptions()
-        {
-            var metaDataResolver = ScriptMetadataResolver.Default;
-            metaDataResolver = metaDataResolver.WithBaseDirectory(Environment.CurrentDirectory);
-            metaDataResolver = metaDataResolver.WithSearchPaths(this.searchPaths);
-
-            this.metaDataReferenceResolver = this.metaDataReferenceResolver?.WithScriptMetaDataResolver(metaDataResolver);
-            this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver)
-                    .WithUsings(AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));
-        }
+        this.metaDataReferenceResolver = this.metaDataReferenceResolver?.WithScriptMetaDataResolver(metaDataResolver);
+        this.scriptCompilationOptions = this.scriptCompilationOptions?.WithMetadataReferenceResolver(this.metaDataReferenceResolver)
+                .WithUsings(AssemblyReferences.DefaultNamespaces.Imports.Union(this.imports));
     }
 }
