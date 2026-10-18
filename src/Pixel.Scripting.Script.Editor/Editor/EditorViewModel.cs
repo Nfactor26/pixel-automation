@@ -108,8 +108,12 @@ namespace Pixel.Scripting.Script.Editor
 
         protected virtual void Dispose(bool isDisposing)
         {
-            (editor as IDisposable).Dispose();
-            editor = null;
+            if(editor is IDisposable disposable)
+            {
+                disposable.Dispose();
+                editor = null;
+                GC.SuppressFinalize(this);
+            }           
             logger.Debug($"{nameof(EditorViewModel)} with Id : {Identifier} is disposed now.");
         }
 
