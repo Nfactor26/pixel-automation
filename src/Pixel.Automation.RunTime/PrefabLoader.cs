@@ -6,8 +6,6 @@ using Pixel.Automation.Reference.Manager;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pixel.Automation.RunTime;
@@ -19,19 +17,21 @@ namespace Pixel.Automation.RunTime;
 public class PrefabLoader : IPrefabLoader
 {
     protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
-    protected readonly IApplicationFileSystem applicationFileSystem;
-    protected readonly IReferenceManager referenceManager;       
+    protected readonly ISerializer serializer;
+    protected readonly IReferenceManager referenceManager;
+    protected readonly ApplicationSettings applicationSettings;
     
     /// <summary>
     /// /constructor
     /// </summary>
     /// <param name="applicationFileSystem"></param>
     /// <param name="referenceManager"></param>
-    public PrefabLoader(IApplicationFileSystem applicationFileSystem, IReferenceManager referenceManager)
+    public PrefabLoader(ApplicationSettings applicationSettings, ISerializer serializer, IReferenceManager referenceManager)
     {
-        this.applicationFileSystem = Guard.Argument(applicationFileSystem, nameof(applicationFileSystem)).NotNull().Value;
+        this.applicationSettings =  Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
+        this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
         this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
-        logger.Debug($"Created a new instance of {nameof(PrefabLoader)} for Thread with Id : {Thread.CurrentThread.ManagedThreadId}");
+        logger.Debug($"Created a new instance of {nameof(PrefabLoader)}");
     }
 
     /// <inhertidoc/>
@@ -45,14 +45,12 @@ public class PrefabLoader : IPrefabLoader
 
         IEntityManager prefabEntityManager = new EntityManager(hostEntityManager);
         prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
-
-
-        string prefabsDirectory = Path.Combine(applicationFileSystem.GetApplicationsDirectory(), applicationId, Constants.PrefabsDirectory, prefabId, versionToLoad.ToString());
-        var prefabFile = Path.Combine(prefabsDirectory, $"{prefabId}.proc");
-
-        var fileSystem = prefabEntityManager.GetCurrentFileSystem();
        
-        var prefabEntity = fileSystem.LoadFile<Entity>(prefabFile);
+        var fileSystem = new PrefabFileSystem(serializer, applicationSettings);
+        fileSystem.Initialize(new Prefab() { ApplicationId = applicationId, PrefabId = prefabId }, new VersionInfo(versionToLoad));
+        prefabEntityManager.SetCurrentFileSystem(fileSystem);
+       
+        var prefabEntity = fileSystem.LoadFile<Entity>(fileSystem.ProcessFile);
         prefabEntity.EntityManager = prefabEntityManager;
 
         prefabEntityManager.RootEntity = prefabEntity;
@@ -60,7 +58,8 @@ public class PrefabLoader : IPrefabLoader
 
         var scriptEngine = prefabEntityManager.GetScriptEngine();       
         scriptEngine.ClearState();
-        await scriptEngine.ExecuteFileAsync(Path.GetRelativePath(fileSystem.WorkingDirectory, Path.Combine(prefabsDirectory, $"{prefabId}.csx")).Replace("\\", "/"));
+        scriptEngine.SetWorkingDirectory(fileSystem.WorkingDirectory);
+        await scriptEngine.ExecuteFileAsync(fileSystem.ScriptFile);
 
         return prefabEntity;
     }

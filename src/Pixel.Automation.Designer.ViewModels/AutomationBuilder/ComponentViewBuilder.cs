@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
@@ -54,17 +55,17 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             }
         }    
         
-        public void OpenPrefab(Prefab prefab)
+        public void OpenPrefab(Prefab prefab, Entity prefabEntity)
         {
             var prefabHost = GetPrefabHost(this.root, prefab);
-            prefabHost.AddComponent(prefab.WorkFlowEntity);
+            prefabHost.AddComponent(prefabEntity);
             Debug.Assert(prefabHost.ComponentCollection.Count == 1, "PrefabHost should have exactly 1 component after it is opened");
         }
 
-        public void ClosePrefab(Prefab prefab)
+        public void ClosePrefab(Prefab prefab, Entity prefabEntity)
         {
             var prefabHost = GetPrefabHost(this.root, prefab);
-            prefabHost.RemoveComponent(prefab.WorkFlowEntity);
+            prefabHost.RemoveComponent(prefabEntity);
             Debug.Assert(prefabHost.ComponentCollection.Count == 0, "PrefabHost should not have any components after it is closed");
         }
 

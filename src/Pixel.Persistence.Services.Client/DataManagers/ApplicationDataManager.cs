@@ -250,7 +250,7 @@ namespace Pixel.Persistence.Services.Client
 
             string GetPrefabsDirectory(Prefab prefab)
             {
-                return Path.Combine(applicationSettings.ApplicationDirectory, prefab.ApplicationId, Constants.PrefabsDirectory, prefab.PrefabId, prefab.Version.ToString());
+                return Path.Combine(applicationSettings.ApplicationDirectory, prefab.ApplicationId, Constants.PrefabsDirectory, prefab.PrefabId);
             }
         }
 

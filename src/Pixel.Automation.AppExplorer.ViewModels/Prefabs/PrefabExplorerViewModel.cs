@@ -229,6 +229,11 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                 var prefabViewModel = new PrefabViewModel(prefab);
                 applicationDescriptionViewModel.AddPrefab(prefabViewModel, selectedScreen.ScreenName);
                 prefabsList.Add(prefabViewModel);
+
+                if(this.openForEdit.ContainsKey(prefab.PrefabId))
+                {
+                    prefabViewModel.IsOpenForEdit = true;
+                }
             }
 
         }
@@ -286,21 +291,21 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             {              
                 Prefab prefab = new Prefab()
                 {
-                    ApplicationId = this.ActiveApplication.ApplicationId,
-                    Version = new Version(1,0),
-                    WorkFlowEntity = new PrefabEntity()                   
+                    ApplicationId = this.ActiveApplication.ApplicationId                               
                 };
-               
+                prefab.AvailableVersions.Add(new VersionInfo("1.0"));                               
+              
                 var prefabEditor = new EditPrefabViewModel(prefab, this.Prefabs.Select(s => s.DisplayName), windowManager);
                 bool? result = await this.windowManager.ShowDialogAsync(prefabEditor);
                 if (result.HasValue && result.Value)
-                {
-                    prefab.WorkFlowEntity.Name = prefab.DisplayName;
-                    PrefabViewModel prefabVM = new PrefabViewModel(prefab);
+                {                   
+                    PrefabViewModel prefabVM = new PrefabViewModel(prefab);                   
+                    await this.prefabManager.AddPrefabToScreenAsync(prefab, new PrefabEntity(), this.ActiveApplication.ScreenCollection.SelectedScreen.ScreenName);
+                    this.Prefabs.Add(prefabVM);
+
                     this.ActiveApplication.AddPrefab(prefabVM, this.ScreenCollection.SelectedScreen.ScreenName);
                     this.applicationDataManager.SaveApplicationToDisk(this.ActiveApplication.Model);
-                    await this.prefabManager.AddPrefabToScreenAsync(prefab, this.ActiveApplication.ScreenCollection.SelectedScreen.ScreenName); 
-                    this.Prefabs.Add(prefabVM);
+
                     activity?.SetTag("Prefab", prefab.DisplayName);
                     logger.Information("Created new Prefab {0}", prefab.DisplayName);
                 }
@@ -332,13 +337,9 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                 var prefabEditor = new EditPrefabViewModel(prefabVM.Prefab, this.Prefabs.Except([prefabVM]).Select(s => s.DisplayName), windowManager);
                 bool? result = await this.windowManager.ShowDialogAsync(prefabEditor);
                 if (result.HasValue && result.Value)
-                {
-                    prefabVM.Refresh();
-                    if (prefabVM.IsOpenForEdit)
-                    {
-                        prefabVM.WorkflowEntity.Name = prefabVM.DisplayName;
-                    }
+                {                  
                     await this.prefabManager.UpdatePrefabAsync(prefabVM.Prefab);
+                    prefabVM.Refresh();
                     prefabVM.IsDirty = false;
                     logger.Information("Prefab : '{0}' was edited.", prefabVM.DisplayName);
                 }
@@ -364,13 +365,11 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             try
             {
                 activity?.SetTag("Prefab", prefab.DisplayName);
-                
-                var clone = await this.prefabManager.CreateRevision(prefab.Prefab, new Version(prefab.Version.Major + 1, 0));
-                this.Prefabs.Remove(prefab); //Remove current version from Prefabs collection
-                this.Prefabs.Add(new PrefabViewModel(clone));
 
-                logger.Information("Created a new revision for Prefab : {0}", clone.DisplayName);
-                await notificationManager.ShowSuccessNotificationAsync($"Version of Prefab : '{clone.DisplayName}' was incremented to : '{clone.Version}'");
+                var versionToCreate = new VersionInfo(new Version(prefab.Prefab.LatestActiveVersion.Version.Major + 1, 0));
+                var updated = await this.prefabManager.AddPrefabVersionAsync(prefab.Prefab, versionToCreate, prefab.Prefab.LatestActiveVersion);               
+                logger.Information("Created a new revision for Prefab : {0}", updated.DisplayName);
+                await notificationManager.ShowSuccessNotificationAsync($"Create version '{updated.LatestActiveVersion}' of Prefab: '{updated.DisplayName}'");
             }
             catch (Exception ex)
             {
@@ -392,18 +391,22 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         {          
             if (prefabVM.IsOpenForEdit)
             {
-                var prefabEntityManager = prefabVM.WorkflowEntity.EntityManager;
+                var openInstance = this.openForEdit[prefabVM.PrefabId];              
+                var prefabEntityManager = openInstance.PrefabEntity.EntityManager;
+                var fileSystem = this.prefabManager.GetPrefabFileSystem(prefabVM.Prefab, prefabVM.Prefab.LatestActiveVersion);
                 IScriptEditorFactory scriptEditorFactory = prefabEntityManager.GetServiceOfType<IScriptEditorFactory>();
                 using (IScriptEditorScreen scriptEditorScreen = scriptEditorFactory.CreateScriptEditorScreen())
                 {
-                    scriptEditorScreen.OpenDocument(prefabVM.ScriptFile, prefabVM.PrefabId, string.Empty);
+                    scriptEditorScreen.OpenDocument(fileSystem.ScriptFile, prefabVM.PrefabId, string.Empty);
                     var result = await this.windowManager.ShowDialogAsync(scriptEditorScreen);
                     if (result.HasValue && result.Value)
                     {
-                        logger.Information("Script file : '{0}' was edited for Prefab : '{1}'.", prefabVM.ScriptFile, prefabVM.DisplayName);
+                        await this.prefabManager.AddOrUpdateDataFileAsync(openInstance.Prefab, openInstance.Version, fileSystem.ScriptFile, openInstance.PrefabId);
+                        logger.Information("Script file : '{0}' was edited for Prefab : '{1}'.", fileSystem.ScriptFile, prefabVM.DisplayName);
+                        
                         var prefabScriptEngine = prefabEntityManager.GetScriptEngine();
                         prefabScriptEngine.ClearState();
-                        await prefabScriptEngine.ExecuteFileAsync(prefabVM.ScriptFile);
+                        await prefabScriptEngine.ExecuteFileAsync(fileSystem.ScriptFile);
                     }
                 }
             }
@@ -426,14 +429,17 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         {
             if (!prefabVM.IsOpenForEdit)
             {
+                //TODO : Ask user the version to edit or source it from open project
+                var fileSystem = this.prefabManager.GetPrefabFileSystem(prefabVM.Prefab, prefabVM.Prefab.LatestActiveVersion); 
                 codeEditorFactory.AddProject(prefabVM.PrefabId, $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}", []);
                 using (ICodeEditorScreen codeEditorScreen = codeEditorFactory.CreateCodeEditor())
                 {
-                    codeEditorScreen.OpenDocument(prefabVM.DataModelFile, prefabVM.PrefabId, string.Empty);
+                    codeEditorScreen.OpenDocument(fileSystem.DataModelFile, prefabVM.PrefabId, string.Empty);
                     var result = await this.windowManager.ShowDialogAsync(codeEditorScreen);
                     if (result.HasValue && result.Value)
                     {
-                        logger.Information("Data Model file : '{0}' was edited for Prefab : '{1}'.", prefabVM.ScriptFile, prefabVM.DisplayName);                       
+                        await this.prefabManager.AddOrUpdateDataFileAsync(prefabVM.Prefab, prefabVM.Prefab.LatestActiveVersion, fileSystem.DataModelFile, prefabVM.PrefabId);
+                        logger.Information("Data Model file : '{0}' was edited for Prefab : '{1}'.", fileSystem.DataModelFile, prefabVM.DisplayName);                       
                     }                   
                 }
             }
@@ -488,36 +494,42 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// <summary>
     /// Open a Prefab to be edited on automation editor
     /// </summary>
-    /// <param name="prefabVM"></param>
+    /// <param name="prefab"></param>
     /// <returns></returns>
-    async Task OpenPrefabAsync(PrefabViewModel prefabVM , PrefabHostEntity prefabHost)
+    async Task<PrefabInstance> OpenPrefabAsync(Prefab prefab, VersionInfo version, PrefabHostEntity prefabHost)
     {
         using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(OpenPrefabAsync), ActivityKind.Internal))
         {
-            Guard.Argument(prefabVM, nameof(prefabVM)).NotNull();
-            activity?.SetTag("Prefab", prefabVM.DisplayName);
+            Guard.Argument(prefab, nameof(prefab)).NotNull();
+            activity?.SetTag("Prefab", prefab.DisplayName);
            
-            await this.prefabManager.DownloadPrefabDataAsync(prefabVM.Prefab);
+            await this.prefabManager.DownloadPrefabDataAsync(prefab, version);
 
-            var prefabFiles = this.prefabManager.GetPrefabFiles(prefabVM.Prefab);
-            prefabVM.WorkflowEntity = await this.prefabManager.GetPrefabEntity(prefabVM.Prefab);
+            var fileSystem = this.prefabManager.GetPrefabFileSystem(prefab, version);
+            var workflowEntity = fileSystem.GetPrefabEntity();
 
             if (await TryOpenForEdit())
             {
-                SetupScriptEditor();
-                prefabVM.IsOpenForEdit = true;
+                SetupScriptEditor();             
                 NotifyOfPropertyChange(nameof(CanSaveAll));
             }
 
-            async Task<bool> TryOpenForEdit()
+            return new PrefabInstance()
             {
-                var workflowEntity = prefabVM.WorkflowEntity;
+                Prefab = prefab,
+                PrefabEntity = workflowEntity,
+                Version = version
+            };
+
+            async Task<bool> TryOpenForEdit()
+            {               
                 EntityManager prefabEntityManager = new EntityManager(prefabHost.EntityManager);
-                prefabEntityManager.SetIdentifier($"Prefab - {prefabVM.DisplayName}");
+                prefabEntityManager.SetCurrentFileSystem(fileSystem);
+                prefabEntityManager.SetIdentifier($"Prefab - {prefab.DisplayName}");
                 workflowEntity.EntityManager = prefabEntityManager;
                  
                 var componentViewBuilder = prefabHost.EntityManager.GetServiceOfType<IComponentViewBuilder>();
-                componentViewBuilder.OpenPrefab(prefabVM.Prefab);
+                componentViewBuilder.OpenPrefab(prefab, workflowEntity);
 
                 //This data model is only used at design time so that visibility is limited to members from this model
                 var dataModelInstance = CompileDataModel();              
@@ -527,7 +539,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                 TypeExtensions.CopyProperties(prefabHost.EntityManager.Arguments, prefabEntityManager.Arguments);
 
                 var scriptEngine = prefabEntityManager.GetScriptEngine();
-                await scriptEngine.ExecuteFileAsync(prefabFiles.ScriptFile);
+                await scriptEngine.ExecuteFileAsync(fileSystem.ScriptFile);
 
                 return true;
 
@@ -535,22 +547,22 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
 
             void SetupScriptEditor()
             {
-                var prefabEntityManager = prefabVM.WorkflowEntity.EntityManager;
+                var prefabEntityManager = workflowEntity.EntityManager;
                 IScriptEditorFactory editorFactory = prefabEntityManager.GetServiceOfType<IScriptEditorFactory>();
 
                 //Add the test script project and script file to script editor
-                editorFactory.AddProject(prefabVM.PrefabId, new string[] { }, prefabEntityManager.Arguments.GetType());
-                string scriptFileContent = File.ReadAllText(prefabFiles.ScriptFile);
-                editorFactory.AddDocument(prefabFiles.ScriptFile, prefabVM.PrefabId, scriptFileContent);
+                editorFactory.AddProject(prefab.PrefabId, new string[] { }, prefabEntityManager.Arguments.GetType());
+                string scriptFileContent = File.ReadAllText(fileSystem.ScriptFile);
+                editorFactory.AddDocument(fileSystem.ScriptFile, prefab.PrefabId, scriptFileContent);
             }
 
 
             object CompileDataModel()
             {
-                string tempDirectory = Path.Combine(prefabFiles.PrefabDirectory, "Temp");
-                this.codeEditorFactory.AddProject(prefabVM.PrefabId, $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}", []);
-                this.codeEditorFactory.AddDocument(Path.GetFileName(prefabFiles.DataModelFile), prefabVM.PrefabId, File.ReadAllText(prefabFiles.DataModelFile));
-                using (var compilationResult = this.codeEditorFactory.CompileProject(prefabVM.PrefabId, GetNewDataModelAssemblyName()))
+                string tempDirectory = fileSystem.TempDirectory;
+                this.codeEditorFactory.AddProject(prefab.PrefabId, $"{Constants.NamespacePrefix}.{prefab.DisplayName.Replace(' ', '.')}", []);
+                this.codeEditorFactory.AddDocument(Path.GetFileName(fileSystem.DataModelFile), prefab.PrefabId, File.ReadAllText(fileSystem.DataModelFile));
+                using (var compilationResult = this.codeEditorFactory.CompileProject(prefab.PrefabId, GetNewDataModelAssemblyName()))
                 {
                     compilationResult.SaveAssemblyToDisk(tempDirectory);
                     string assemblyLocation = Path.Combine(tempDirectory, compilationResult.OutputAssemblyName);
@@ -561,14 +573,14 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
                     {
                         return Activator.CreateInstance(typeofDataModel);
                     }
-                    logger.Warning("No data model found for Prefab : {0}", prefabVM.DisplayName);
+                    logger.Warning("No data model found for Prefab : {0}", prefab.DisplayName);
                     return new object();
                 }
             }
 
             string GetNewDataModelAssemblyName()
             {
-                string tempDirectory = Path.Combine(prefabFiles.PrefabDirectory, "Temp");
+                string tempDirectory = fileSystem.TempDirectory;
                 if (!Directory.Exists(tempDirectory))
                 {
                     Directory.CreateDirectory(tempDirectory);
@@ -601,7 +613,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
 
                 //There are some scenarios where the data model assembly with same name is already loaded in domain
                 compilationIteration++;
-                string dataModelAssemblyName = $"{Constants.NamespacePrefix}.{prefabVM.DisplayName.Replace(' ', '.')}";
+                string dataModelAssemblyName = $"{Constants.NamespacePrefix}.{prefab.DisplayName.Replace(' ', '.')}";
                 string dataModelAssemblyNameWithIteration = $"{dataModelAssemblyName}_{compilationIteration}";
                 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
                 while (loadedAssemblies.Any(a => a.GetName().Name.Equals(dataModelAssemblyNameWithIteration)))
@@ -618,48 +630,41 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// <summary>
     /// Close a Prefab which was previously opened to be edited on automation editor
     /// </summary>
-    /// <param name="prefabVM"></param>
+    /// <param name="prefab"></param>
     /// <param name="autoSave"></param>
     /// <returns></returns>
-    public async Task ClosePrefabAsync(PrefabViewModel prefabVM, bool autoSave)
+    async Task ClosePrefabAsync(Prefab prefab, VersionInfo version, Entity prefabEntity, bool autoSave)
     {
         using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(ClosePrefabAsync), ActivityKind.Internal))
         {
-            Guard.Argument(prefabVM, nameof(prefabVM)).NotNull();
-            activity?.SetTag("Prefab", prefabVM.DisplayName);
-            if (prefabVM.IsOpenForEdit)
+            Guard.Argument(prefab, nameof(prefab)).NotNull();
+            activity?.SetTag("Prefab", prefab.DisplayName);
+            if (autoSave)
             {
-                if (autoSave)
-                {
-                    await SavePrefabAsync(prefabVM);
-                }
+                await SavePrefabAsync(prefab, version, prefabEntity);
             }
             NotifyOfPropertyChange(nameof(CanSaveAll));
 
             CleanUpScriptEditor();
             RemoveFromEditor();
 
-            prefabVM.WorkflowEntity = null;
-            prefabVM.IsOpenForEdit = false;
-
-            logger.Information("Prefab : '{0}' was closed", prefabVM.DisplayName);
+            logger.Information("Prefab : '{0}' was closed", prefab.DisplayName);
 
             void RemoveFromEditor()
-            {
-                var workflowEntity = prefabVM.WorkflowEntity;
-                workflowEntity.EntityManager.Dispose();
+            {                
+                prefabEntity.EntityManager.Dispose();
 
-                var componentViewBuilder = workflowEntity.Parent.EntityManager.GetServiceOfType<IComponentViewBuilder>();              
-                componentViewBuilder.ClosePrefab(prefabVM.Prefab);
+                var componentViewBuilder = prefabEntity.Parent.EntityManager.GetServiceOfType<IComponentViewBuilder>();              
+                componentViewBuilder.ClosePrefab(prefab, prefabEntity);
             }
 
             void CleanUpScriptEditor()
             {
                 //Remove the script editor project that was added while opening the test case
-                var entityManager = prefabVM.WorkflowEntity.EntityManager;
+                var entityManager = prefabEntity.EntityManager;
                 var scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>();
-                scriptEditorFactory.RemoveProject(prefabVM.PrefabId);
-                prefabVM.WorkflowEntity.DisposeEditors();
+                scriptEditorFactory.RemoveProject(prefab.PrefabId);
+                prefabEntity.DisposeEditors();
             }
         }
     }
@@ -671,7 +676,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// <returns></returns>
     async Task RefreshPrefabAsync(PrefabViewModel prefabVM)
     {
-        var latestVersion = await this.prefabManager.GetPrefabByIdAsync(prefabVM.ApplicationId, prefabVM.PrefabId, prefabVM.Version.ToString());
+        var latestVersion = await this.prefabManager.GetPrefabByIdAsync(prefabVM.ApplicationId, prefabVM.PrefabId, prefabVM.Prefab.LatestActiveVersion.ToString());
         if (latestVersion != null)
         {
             prefabVM.WithPrefab(latestVersion);
@@ -683,14 +688,9 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// </summary>
     /// <param name="fixtureVM"></param>
     /// <returns></returns>
-    public async Task SavePrefabAsync(PrefabViewModel prefabVM)
+    async Task SavePrefabAsync(Prefab prefab, VersionInfo version, Entity prefabEntity)
     {
-        if (prefabVM.IsDirty)
-        {
-            await this.prefabManager.UpdatePrefabAsync(prefabVM.Prefab);
-            prefabVM.IsDirty = false;
-        }
-        await this.prefabManager.SavePrefabDataAsync(prefabVM.Prefab);
+        await this.prefabManager.SavePrefabEntityAsync(prefab, version, prefabEntity);
     }
   
     #endregion Test Case
@@ -703,24 +703,21 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     }
 
     /// <summary>
-    /// Save all open test fixtures and test cases locally.     
+    /// Save all open prefabs.     
     /// </summary>
     public async Task SaveAll()
     {
         using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SaveAll), ActivityKind.Internal))
         {
-            foreach (var prefab in this.Prefabs)
+            foreach (var prefab in this.openForEdit.Values)
             {
                 try
                 {
-                    if (prefab.IsOpenForEdit)
-                    {
-                        await SavePrefabAsync(prefab);
-                    }
+                    await SavePrefabAsync(prefab.Prefab, prefab.Version, prefab.PrefabEntity);
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "Error while trying to save prefab : {0}.", prefab.DisplayName);
+                    logger.Error(ex, "Error while trying to save prefab : {0}.", prefab.Prefab.DisplayName);
                     activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                     await notificationManager.ShowErrorNotificationAsync(ex);
                 }
@@ -748,7 +745,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
 
     }
 
-    private readonly IList<PrefabViewModel> openForEdit = new List<PrefabViewModel>();
+    private readonly Dictionary<string, PrefabInstance> openForEdit = new ();
 
     public async Task HandleAsync(OpenPrefabRequestNotification message, CancellationToken cancellationToken)
     {
@@ -762,16 +759,18 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             var targetPrefab = await this.prefabManager.GetPrefabByIdAsync(message.PrefabHost.ApplicationId, message.PrefabId, versionInUse.ToString());
             if (targetPrefab is not null)
             {
-                if (openForEdit.Any(p => p.PrefabId.Equals(targetPrefab.PrefabId)))
+                if (openForEdit.ContainsKey(targetPrefab.PrefabId))
                 {
                     await notificationManager.ShowWarningNotificationAsync($"{targetPrefab.DisplayName} is already open for edit.");
                     logger.Information("Prefab : '{0}' is already open for edit", targetPrefab.DisplayName);
                     return;
                 }
                 message.PrefabHost.IsInDesignMode = true;
-                var prefabVM =  this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabId)) ?? new PrefabViewModel(targetPrefab);               
-                await OpenPrefabAsync(prefabVM, message.PrefabHost);
-                openForEdit.Add(prefabVM);
+               
+                var openPrefabInstance = await OpenPrefabAsync(targetPrefab, new VersionInfo(versionInUse), message.PrefabHost);
+                openForEdit[targetPrefab.PrefabId] = openPrefabInstance;
+
+                MarkOpenForEdit(message);
             }
         }
         catch (Exception ex)
@@ -779,7 +778,16 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             message.PrefabHost.IsInDesignMode = false;
             logger.Error(ex, "Error while trying to open prefab with Id : '{0}'", message.PrefabId);
             await notificationManager.ShowErrorNotificationAsync(ex);
-        }       
+        }
+
+        void MarkOpenForEdit(OpenPrefabRequestNotification message)
+        {
+            var prefabVM = this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabId));
+            if (prefabVM is not null)
+            {
+                prefabVM.IsOpenForEdit = true;
+            }
+        }
     }
 
     public async Task HandleAsync(ClosePrefabRequestNotification message, CancellationToken cancellationToken)
@@ -787,22 +795,29 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         try
         {
             Guard.Argument(message.PrefabId, nameof(message.PrefabId)).NotNull().NotEmpty();
-            foreach (var prefab in this.openForEdit)
+            if(this.openForEdit.ContainsKey(message.PrefabId))
             {
-                if (prefab.PrefabId.Equals(message.PrefabId))
-                {
-                    await ClosePrefabAsync(prefab, autoSave: message.SaveChanges);
-                    openForEdit.Remove(prefab);
-                    break;
-                }
+                var prefab = openForEdit[message.PrefabId];
+                await ClosePrefabAsync(prefab.Prefab, prefab.Version, prefab.PrefabEntity, autoSave: message.SaveChanges);
             }
+            openForEdit.Remove(message.PrefabId);
             message.PrefabHost.IsInDesignMode = false;
+            MarkClosedForEdit(message);
         }
         catch (Exception ex)
         {
             logger.Error(ex, "Error while trying to close test case with Id : '{0}'", message.PrefabId);
             await notificationManager.ShowErrorNotificationAsync(ex);
-        }       
+        }
+
+        void MarkClosedForEdit(ClosePrefabRequestNotification message)
+        {
+            var prefabVM = this.Prefabs.FirstOrDefault(p => p.PrefabId.Equals(message.PrefabId));
+            if (prefabVM is not null)
+            {
+                prefabVM.IsOpenForEdit = false;
+            }
+        }
     }
 
     public async Task HandleAsync(SavePrefabRequestNotification message, CancellationToken cancellationToken)
@@ -810,14 +825,12 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         try
         {
             Guard.Argument(message.PrefabId, nameof(SavePrefabRequestNotification.PrefabId)).NotNull().NotEmpty();
-            foreach (var prefab in this.Prefabs)
+
+            if (this.openForEdit.ContainsKey(message.PrefabId))
             {
-                if (prefab.PrefabId.Equals(message.PrefabId))
-                {
-                    await SavePrefabAsync(prefab);
-                    break;
-                }
-            }
+                var prefab = openForEdit[message.PrefabId];
+                await SavePrefabAsync(prefab.Prefab, prefab.Version, prefab.PrefabEntity);
+            }           
         }
         catch (Exception ex)
         {

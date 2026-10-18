@@ -1,8 +1,8 @@
 ﻿using Pixel.Automation.Core.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 
 namespace Pixel.Automation.Core.Models;
 
@@ -27,44 +27,13 @@ public class Prefab : ICloneable
     /// Display name for the Prefab
     /// </summary>
     [DataMember(IsRequired = true, Order = 30)]
-    public string DisplayName { get; set; }
-
-    /// <summary>
-    /// Version of the control
-    /// </summary>
-    [DataMember(Order = 40)]
-    public Version Version { get; set; }
-
-    /// <summary>
-    /// Group name to which the control belongs. "Default" is the default group.
-    /// </summary>
-    [DataMember(Order = 50)]
-    public string GroupName { get; set; } = "Default";
-
+    public string DisplayName { get; set; }  
+      
     /// <summary>
     /// Description for the Prefab
     /// </summary>
     [DataMember(IsRequired = false, Order = 40)]
     public string Description { get; set; }
-   
-    /// <summary>
-    /// Script file for the test case. This script file can be used for any temporary variables required 
-    /// during test execution.
-    /// </summary>
-    [DataMember(IsRequired = true, Order = 100)]
-    public string ScriptFile { get; set; }
-
-    /// <summary>
-    /// DataModel file which defines the type used by Prefab and Provides an instance of it
-    /// </summary>
-    [DataMember(IsRequired = true, Order = 110)]
-    public string DataModelFile { get; set; }
-
-    /// <summary>
-    /// Collection of Identifiers of controls used by the Prefab
-    /// </summary>
-    [DataMember(IsRequired = true, Order = 130)]
-    public List<ControlUsage> ControlsUsed { get; private set; } = new();  
 
     /// <summary>
     /// Indicates if the Prefab is deleted. Deleted prefabs are not loaded in explorer.
@@ -73,10 +42,22 @@ public class Prefab : ICloneable
     public bool IsDeleted { get; set; }
 
     /// <summary>
-    /// Root entity for the Prefab
+    /// Get all the versions created for this Prefab
     /// </summary>
-    [JsonIgnore]
-    public Entity WorkFlowEntity { get; set; }
+    [DataMember(IsRequired = true, Order = 50)]
+    public List<VersionInfo> AvailableVersions { get; set; } = new List<VersionInfo>();
+
+    /// <inheritdoc/>  
+    public IEnumerable<VersionInfo> ActiveVersions { get => AvailableVersions.Where(a => a.IsActive).ToList(); }
+
+    /// <inheritdoc/>  
+    public IEnumerable<VersionInfo> PublishedVersions { get => AvailableVersions.Where(a => a.IsPublished).ToList(); }
+
+    /// <inheritdoc/>  
+    public VersionInfo LatestActiveVersion
+    {
+        get => this.ActiveVersions.OrderBy(a => a.Version).LastOrDefault();
+    }
 
     ///</inheritdoc>
     public object Clone()
@@ -85,8 +66,7 @@ public class Prefab : ICloneable
         {
             DisplayName = this.DisplayName,
             Description = this.Description,          
-            ApplicationId = this.ApplicationId,
-            WorkFlowEntity = this.WorkFlowEntity
+            ApplicationId = this.ApplicationId
         };
         return copy;
     }

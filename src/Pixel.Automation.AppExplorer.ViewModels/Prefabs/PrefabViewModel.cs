@@ -52,28 +52,7 @@ public class PrefabViewModel : NotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
-    /// <summary>
-    /// Version of the control
-    /// </summary>
-    public Version Version
-    {
-        get => this.Prefab.Version;
-    }
-
-    /// <summary>
-    /// Group assigned to control
-    /// </summary>
-    public string GroupName
-    {
-        get => this.Prefab.GroupName;
-        set
-        {
-            this.Prefab.GroupName = value;
-            OnPropertyChanged();
-        }
-    }
-
+   
     /// <summary>
     /// Description for the TestCase
     /// </summary>
@@ -81,36 +60,8 @@ public class PrefabViewModel : NotifyPropertyChanged
     {
         get => Prefab.Description;
         set => Prefab.Description = value;
-    }
-
-    /// <summary>
-    /// TestCaseEntity
-    /// </summary>
-    public Entity WorkflowEntity
-
-    {
-        get => Prefab.WorkFlowEntity;
-        set => Prefab.WorkFlowEntity = value;
-    }
-
-    /// <summary>
-    /// Initialization ScriptFile for the TestCase
-    /// </summary>
-    public string ScriptFile
-    {
-        get => Prefab.ScriptFile;
-        set => Prefab.ScriptFile = value;
-    }
-
-    /// <summary>
-    /// Script that provides the data model used by Prefab
-    /// </summary>
-    public string DataModelFile
-    {
-        get => Prefab.DataModelFile;
-        set => Prefab.DataModelFile = value;
-    }
-
+    }  
+  
     bool isSelected;
     /// <summary>
     /// Indicates if the TestCase is currently selected in TestExplorer
@@ -183,46 +134,46 @@ public class PrefabViewModel : NotifyPropertyChanged
     /// Associate usage of control to the test case by storing the identifier of control
     /// </summary>
     /// <param name="prefabId"></param>
-    public bool AddControlUsage(string controlId)
-    {
-        bool wasUsagedAddedd = false;
-        if (this.Prefab.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
-        {
-            var entry = this.Prefab.ControlsUsed.First(a => a.ControlId.Equals(controlId));
-            entry.Count++;
-        }
-        else
-        {
-            this.Prefab.ControlsUsed.Add(new ControlUsage() { ControlId = controlId, Count = 1 });
-            wasUsagedAddedd = true;
-        }
-        this.IsDirty = true;
-        return wasUsagedAddedd;
-    }
+    //public bool AddControlUsage(string controlId)
+    //{
+    //    bool wasUsagedAddedd = false;
+    //    if (this.Prefab.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
+    //    {
+    //        var entry = this.Prefab.ControlsUsed.First(a => a.ControlId.Equals(controlId));
+    //        entry.Count++;
+    //    }
+    //    else
+    //    {
+    //        this.Prefab.ControlsUsed.Add(new ControlUsage() { ControlId = controlId, Count = 1 });
+    //        wasUsagedAddedd = true;
+    //    }
+    //    this.IsDirty = true;
+    //    return wasUsagedAddedd;
+    //}
 
     /// <summary>
     /// Remove usage of control from the test case
     /// </summary>
     /// <param name="controlId"></param>
-    public bool RemoveControlUsage(string controlId)
-    {
-        bool wasUsagedRemoved = false;
-        if (this.Prefab.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
-        {
-            var entry = this.Prefab.ControlsUsed.First(a => a.ControlId.Equals(controlId));
-            if (entry.Count > 1)
-            {
-                entry.Count--;
-            }
-            else
-            {
-                this.Prefab.ControlsUsed.Remove(entry);
-                wasUsagedRemoved = true;
-            }
-            this.IsDirty = true;
-        }
-        return wasUsagedRemoved;
-    }
+    //public bool RemoveControlUsage(string controlId)
+    //{
+    //    bool wasUsagedRemoved = false;
+    //    if (this.Prefab.ControlsUsed.Any(a => a.ControlId.Equals(controlId)))
+    //    {
+    //        var entry = this.Prefab.ControlsUsed.First(a => a.ControlId.Equals(controlId));
+    //        if (entry.Count > 1)
+    //        {
+    //            entry.Count--;
+    //        }
+    //        else
+    //        {
+    //            this.Prefab.ControlsUsed.Remove(entry);
+    //            wasUsagedRemoved = true;
+    //        }
+    //        this.IsDirty = true;
+    //    }
+    //    return wasUsagedRemoved;
+    //}
 
     /// <summary>
     /// Determine whether this TestCase should be visible on the TestExplorer
@@ -255,10 +206,7 @@ public class PrefabViewModel : NotifyPropertyChanged
                 {
                     case "name":
                         IsVisible = this.DisplayName.ToLower().Contains(query[1]);
-                        break;
-                    case "control":
-                        IsVisible = this.Prefab.ControlsUsed.Any(p => p.ControlId.Equals(query[1]));
-                        break;
+                        break;                   
                     default:
                         IsVisible = false;
                         break;

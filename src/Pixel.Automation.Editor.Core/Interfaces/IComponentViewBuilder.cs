@@ -1,4 +1,5 @@
-﻿using Pixel.Automation.Core.Models;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Models;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.ViewModels;
 
@@ -16,7 +17,7 @@ public interface IComponentViewBuilder
 
     void CloseTestCase(TestCase testCase);
 
-    void OpenPrefab(Prefab prefab);
+    void OpenPrefab(Prefab prefab, Entity prefabEntity);
 
-    void ClosePrefab(Prefab prefab); 
+    void ClosePrefab(Prefab prefab, Entity prefabEntity); 
 }
