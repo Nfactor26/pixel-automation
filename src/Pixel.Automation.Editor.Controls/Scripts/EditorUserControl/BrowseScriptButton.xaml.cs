@@ -48,7 +48,7 @@ namespace Pixel.Automation.Editor.Controls.Scripts.EditorUserControl
                 string existingScriptFile = this.ScriptFile;
 
                 var entityManager = this.ActorComponent.EntityManager;
-                var fileSystem = entityManager.GetServiceOfType<IProjectFileSystem>();
+                var fileSystem = entityManager.GetCurrentFileSystem();
 
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "CSX File (*.csx)|*.csx";
