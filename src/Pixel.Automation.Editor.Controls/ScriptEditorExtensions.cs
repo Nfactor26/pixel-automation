@@ -34,8 +34,8 @@ public static class ScriptEditorExtensions
         {
             AddProject(editorFactory, forComponent);
             string initialContent = initialScriptContentGetter(forComponent);
-            editorFactory.AddDocument(scriptFile, forComponent.Id, initialContent);
-            scriptEditor.OpenDocument(scriptFile, forComponent.Id, initialContent);
+            editorFactory.AddDocument(GetAbsolutePath(forComponent, scriptFile), forComponent.Id, initialContent);
+            scriptEditor.OpenDocument(GetAbsolutePath(forComponent, scriptFile), forComponent.Id, initialContent);
 
             await windowManager.ShowDialogAsync(scriptEditor);
 
