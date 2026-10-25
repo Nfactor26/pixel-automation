@@ -166,11 +166,6 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
             {
                 if(prefabLoader.IsPrefabLoaded(prefab.PrefabId))
                 {
-                    //Remove loaded assembly from script editor and script engine
-                    var prefabDataModel = prefabLoader.GetPrefabDataModelType(prefab.ApplicationId, prefab.PrefabId, this.entityManager);
-                    this.scriptEditorFactory.RemoveAssemblyReference(prefabDataModel.Assembly);
-                    this.scriptEngineFactory.RemoveReferences(prefabDataModel.Assembly);
-                    
                     //unload and dispose the prefab. Subsequent use will load the recent version again and 
                     //configure script editor and script engine
                     prefabLoader.UnloadAndDispose(prefab.PrefabId);

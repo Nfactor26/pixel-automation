@@ -28,12 +28,7 @@ public class PrefabInstance : IDisposable
     /// <summary>
     /// Version of the loaded prefab
     /// </summary>
-    public VersionInfo Version { get; init; }
-    
-    /// <summary>
-    /// DataModel type of the loaded  prefab
-    /// </summary>
-    public Type DataModelType { get; init; }      
+    public VersionInfo Version { get; init; } 
 
     /// <summary>
     /// constructor
@@ -44,13 +39,12 @@ public class PrefabInstance : IDisposable
     /// <param name="dataModelType"></param>
     /// <param name="prefabEntityManager"></param>
     /// <param name="prefabFileSystem"></param>
-    public PrefabInstance(string applicationId, string prefabId, VersionInfo version, Type dataModelType,
+    public PrefabInstance(string applicationId, string prefabId, VersionInfo version,
         IEntityManager prefabEntityManager, IPrefabFileSystem prefabFileSystem)
     {
         this.ApplicationId = Guard.Argument(applicationId, nameof(applicationId)).NotNull().NotEmpty();
         this.PrefabId = Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
-        this.Version = Guard.Argument(version, nameof(version)).NotNull();
-        this.DataModelType = Guard.Argument(dataModelType, nameof(dataModelType)).NotNull().Value;
+        this.Version = Guard.Argument(version, nameof(version)).NotNull();       
         this.prefabEntityManager = Guard.Argument(prefabEntityManager, nameof(prefabEntityManager)).NotNull().Value;
         this.prefabFileSystem = Guard.Argument(prefabFileSystem, nameof(prefabFileSystem)).NotNull().Value;      
     }
@@ -71,10 +65,7 @@ public class PrefabInstance : IDisposable
         }
         var prefabRoot = this.prefabFileSystem.LoadFile<Entity>(this.prefabFileSystem.PrefabFile);
         prefabRoot.EntityManager = this.prefabEntityManager;
-        this.prefabEntityManager.RestoreParentChildRelation(prefabRoot);
-        //Setting argument will initialize all the required services such as script engine, argument processor , etc.
-        var dataModelInstance = Activator.CreateInstance(DataModelType);
-        this.prefabEntityManager.Arguments = dataModelInstance;
+        this.prefabEntityManager.RestoreParentChildRelation(prefabRoot);     
         return prefabRoot;
     }
 
@@ -87,9 +78,7 @@ public class PrefabInstance : IDisposable
     protected virtual void Dispose(bool isDisposing)
     {
         if(isDisposing)
-        {
-            var scriptEngineFactory = this.prefabEntityManager.GetServiceOfType<IScriptEngineFactory>();
-            scriptEngineFactory.RemoveReferences(this.DataModelType.Assembly);
+        {         
             this.prefabEntityManager.Dispose();
         }
     }

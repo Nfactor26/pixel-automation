@@ -2,7 +2,6 @@
 using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Automation.RunTime;
 using Pixel.Scripting.Editor.Core.Contracts;
-using System.Reflection;
 
 namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 {
@@ -16,14 +15,11 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
         }
 
-        protected override void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem, Assembly prefabAssembly)
+        protected override void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem)
         {
-            base.ConfigureServices(parentEntityManager, prefabFileSystem, prefabAssembly);
-            
-            //Script editor when working with prefab input and output mapping script should be able to resolve references from prefab references folder
-            //at design time
-            var scriptEditorFactory = parentEntityManager.GetServiceOfType<IScriptEditorFactory>();
-            scriptEditorFactory.AddAssemblyReference(prefabAssembly);
+            base.ConfigureServices(parentEntityManager, prefabFileSystem);           
+        
+            var scriptEditorFactory = parentEntityManager.GetServiceOfType<IScriptEditorFactory>();          
             scriptEditorFactory.AddSearchPaths(prefabFileSystem.ReferencesDirectory);
         }
     }

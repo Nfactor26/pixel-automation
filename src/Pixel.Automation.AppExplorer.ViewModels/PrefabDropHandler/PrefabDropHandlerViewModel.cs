@@ -38,7 +38,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         {
             Guard.Argument(entityManager, nameof(entityManager)).NotNull();
             Guard.Argument(prefabProjectViewModel, nameof(prefabProjectViewModel)).NotNull();
-            this.DisplayName = "(1/3) Select prefab version and mapping scripts";         
+            this.DisplayName = "Select prefab version";         
             this.scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>(); ;
             this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
             this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();
@@ -57,16 +57,9 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 
             var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
             var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, referenceManager,
-                this.prefabEntity, prefabProjectViewModel, dropTarget);
-            var prefabInputMappingScript = new PrefabInputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
-            var prefabOutputMappingScript = new PrefabOutputMappingScriptEditorViewModel(this.scriptEngine, this.scriptEditorFactory, this.prefabEntity, dropTarget.Model as Entity);
-
-            prefabVersionSelector.NextScreen = prefabInputMappingScript;
-            prefabInputMappingScript.NextScreen = prefabOutputMappingScript;
-
-            this.stagedScreens.Add(prefabVersionSelector);
-            this.stagedScreens.Add(prefabInputMappingScript);
-            this.stagedScreens.Add(prefabOutputMappingScript);
+                this.prefabEntity, prefabProjectViewModel, dropTarget);       
+          
+            this.stagedScreens.Add(prefabVersionSelector);           
         }
 
         public override async Task Finish()

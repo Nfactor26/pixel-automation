@@ -27,17 +27,7 @@ namespace Pixel.Automation.Core.Models
         /// </summary>
         [DataMember(IsRequired = false, EmitDefaultValue = false , Order = 30)]
         public VersionInfo Version { get; set; }
-
-        /// <summary>
-        /// Input mapping script file for the prefab
-        /// </summary>
-        public string InputMappingScriptFile { get; set; }
        
-        /// <summary>
-        /// Output mapping script file for the prefab
-        /// </summary>
-        public string OutputMappingScriptFile { get; set; }       
-
         /// <summary>
         /// Default constructor
         /// </summary>

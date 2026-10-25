@@ -8,9 +8,6 @@ using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 
 namespace Pixel.Automation.RunTime
@@ -63,29 +60,6 @@ namespace Pixel.Automation.RunTime
         }
 
         /// <inhertidoc/>
-        public Type GetPrefabDataModelType(string applicationId, string prefabId, IEntityManager parentEntityManager)
-        {
-            try
-            {
-                logger.Information($"{nameof(GetPrefabDataModelType)} request received for prefab with applicationId {applicationId} && prefabId : {prefabId}");
-                if (Prefabs.ContainsKey(prefabId))
-                {
-                    logger.Information($"Prefab with applicationId {applicationId} && prefabId : {prefabId} is available in cache.");
-                    var existingPrefabInstance = Prefabs[prefabId];
-                    return existingPrefabInstance.DataModelType;
-                }
-
-                var prefabInstance = LoadPrefab(applicationId, prefabId, parentEntityManager);
-                Prefabs.Add(prefabId, prefabInstance);
-                return prefabInstance.DataModelType;
-            }
-            finally
-            {
-                logger.Information($"{nameof(GetPrefabDataModelType)} request completed for prefab with applicationId {applicationId} && prefabId : {prefabId}");
-            }
-        }
-
-        /// <inhertidoc/>
         public bool IsPrefabLoaded(string prefabId)
         {
             return this.Prefabs.ContainsKey(prefabId);
@@ -126,37 +100,24 @@ namespace Pixel.Automation.RunTime
 
             IEntityManager prefabEntityManager = new EntityManager(parentEntityManager);
             prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
+            prefabEntityManager.Arguments = parentEntityManager.Arguments;
+
             IPrefabFileSystem prefabFileSystem = prefabEntityManager.GetServiceOfType<IPrefabFileSystem>();
             prefabFileSystem.Initialize(prefabProject, versionToLoad);
-            prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);    
+            prefabEntityManager.SetCurrentFileSystem(prefabFileSystem);        
          
-            string prefabAssembly = Path.Combine(prefabFileSystem.ReferencesDirectory, versionToLoad.DataModelAssembly);
-            if (!prefabFileSystem.Exists(prefabAssembly))
-            {
-                throw new FileNotFoundException($"Prefab data model assembly : {prefabAssembly} couldn't be located");
-            }
-            Assembly prefabDataModelAssembly = Assembly.LoadFrom(prefabAssembly);
 
-            Type dataModelType = prefabDataModelAssembly.GetTypes().FirstOrDefault(t => t.Name.Equals(Constants.PrefabDataModelName));
-            if (dataModelType == null)
-            {
-                throw new NullReferenceException($"Failed to find type {Constants.PrefabDataModelName} in prefab data model assembly for prefab with applicationId : {applicationId}" +
-                    $"and preafbId : {prefabId}");
-            }
+            ConfigureServices(parentEntityManager, prefabFileSystem);
 
-            ConfigureServices(parentEntityManager, prefabFileSystem, prefabDataModelAssembly);
-
-            PrefabInstance prefabInstance = new PrefabInstance(applicationId, prefabId, versionToLoad, dataModelType, prefabEntityManager, prefabFileSystem);
+            PrefabInstance prefabInstance = new PrefabInstance(applicationId, prefabId, versionToLoad, prefabEntityManager, prefabFileSystem);
             return prefabInstance;
         }
 
-        protected virtual void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem, Assembly prefabAssembly)
+        protected virtual void ConfigureServices(IEntityManager parentEntityManager, IPrefabFileSystem prefabFileSystem)
         {
             //Process entity manager should be able to resolve any assembly from prefab references folder such as prefab data model assembly 
             var scriptEngineFactory = parentEntityManager.GetServiceOfType<IScriptEngineFactory>();
-            scriptEngineFactory.WithAdditionalSearchPaths(prefabFileSystem.ReferencesDirectory);
-            scriptEngineFactory.WithAdditionalAssemblyReferences(prefabAssembly);
-          
+            scriptEngineFactory.WithAdditionalSearchPaths(prefabFileSystem.ReferencesDirectory);         
         }
 
         protected virtual PrefabReferences GetPrefabReferences()
