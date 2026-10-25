@@ -17,7 +17,7 @@ public class WebControlEntityFixture
     {
         var control = new WebUIControl(Substitute.For<IControlIdentity>(), Substitute.For<IWebElement>(), Substitute.For<ICoordinateProvider>());   
         var controlLoader = Substitute.For<IControlLoader>();
-        controlLoader.GetControl(Arg.Any<string>(), Arg.Any<string>()).Returns(new ControlDescription() { ControlDetails = Substitute.For<IControlIdentity>() });
+        controlLoader.GetControl(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>()).Returns(new ControlDescription() { ControlDetails = Substitute.For<IControlIdentity>() });
         var controlLocator = Substitute.For<IControlLocator>();
         controlLocator.FindControlAsync(Arg.Any<IControlIdentity>(), Arg.Any<UIControl>()).Returns(control);
         var entityManager = Substitute.For<IEntityManager>();

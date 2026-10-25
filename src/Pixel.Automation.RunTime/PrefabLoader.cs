@@ -2,8 +2,6 @@
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
-using Pixel.Automation.Reference.Manager;
-using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -18,19 +16,19 @@ public class PrefabLoader : IPrefabLoader
 {
     protected readonly ILogger logger = Log.ForContext<PrefabLoader>();
     protected readonly ISerializer serializer;
-    protected readonly IReferenceManager referenceManager;
+    protected readonly IReferenceProviderFactory referenceProviderFactory;
     protected readonly ApplicationSettings applicationSettings;
     
     /// <summary>
     /// /constructor
     /// </summary>
     /// <param name="applicationFileSystem"></param>
-    /// <param name="referenceManager"></param>
-    public PrefabLoader(ApplicationSettings applicationSettings, ISerializer serializer, IReferenceManager referenceManager)
+    /// <param name="referenceProviderFactory"></param>
+    public PrefabLoader(ApplicationSettings applicationSettings, ISerializer serializer, IReferenceProviderFactory referenceProviderFactory)
     {
         this.applicationSettings =  Guard.Argument(applicationSettings, nameof(applicationSettings)).NotNull();
         this.serializer = Guard.Argument(serializer, nameof(serializer)).NotNull().Value;
-        this.referenceManager = Guard.Argument(referenceManager, nameof(referenceManager)).NotNull().Value;
+        this.referenceProviderFactory = Guard.Argument(referenceProviderFactory, nameof(referenceProviderFactory)).NotNull().Value;
         logger.Debug($"Created a new instance of {nameof(PrefabLoader)}");
     }
 
@@ -40,8 +38,9 @@ public class PrefabLoader : IPrefabLoader
         Guard.Argument(applicationId).NotEmpty().NotNull();
         Guard.Argument(prefabId).NotEmpty().NotNull();
         Guard.Argument(hostEntityManager).NotNull();
-       
-        Version versionToLoad = GetPrefabVersionInUse(applicationId, prefabId);
+
+        var hostReferenceProvider = hostEntityManager.GetReferenceProvider();
+        Version versionToLoad = hostReferenceProvider.GetPrefabVersion(applicationId, prefabId);
 
         IEntityManager prefabEntityManager = new EntityManager(hostEntityManager);
         prefabEntityManager.SetIdentifier($"Prefab - {prefabId}");
@@ -49,6 +48,9 @@ public class PrefabLoader : IPrefabLoader
         var fileSystem = new PrefabFileSystem(serializer, applicationSettings);
         fileSystem.Initialize(new Prefab() { ApplicationId = applicationId, PrefabId = prefabId }, new VersionInfo(versionToLoad));
         prefabEntityManager.SetCurrentFileSystem(fileSystem);
+
+        var referenceProvider = this.referenceProviderFactory.CreateReferenceProvider(fileSystem);
+        prefabEntityManager.SetRefereceProvider(referenceProvider);
        
         var prefabEntity = fileSystem.LoadFile<Entity>(fileSystem.ProcessFile);
         prefabEntity.EntityManager = prefabEntityManager;
@@ -62,23 +64,6 @@ public class PrefabLoader : IPrefabLoader
         await scriptEngine.ExecuteFileAsync(fileSystem.ScriptFile);
 
         return prefabEntity;
-    }
-
-    public Version GetPrefabVersionInUse(string applicationId, string prefabId)
-    {
-        Guard.Argument(applicationId).NotEmpty().NotNull();
-        Guard.Argument(prefabId).NotEmpty().NotNull();
-
-        var prefab = new Prefab() { ApplicationId = applicationId, PrefabId = prefabId };
-        var prefabReferences = GetPrefabReferences();
-        return prefabReferences.GetPrefabVersionInUse(prefab);
-        
-    }
-
-    protected virtual PrefabReferences GetPrefabReferences()
-    {
-        return this.referenceManager.GetPrefabReferences();
-    } 
- 
+    }   
 }
 

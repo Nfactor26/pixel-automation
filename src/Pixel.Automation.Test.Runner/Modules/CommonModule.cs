@@ -1,8 +1,6 @@
 ﻿using Ninject.Modules;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
-using Pixel.Automation.Reference.Manager;
-using Pixel.Automation.Reference.Manager.Contracts;
 using Pixel.Automation.RunTime;
 using Pixel.Automation.RunTime.DataReader;
 using Pixel.Automation.RunTime.Serialization;
@@ -21,7 +19,7 @@ internal class CommonModule : NinjectModule
        
         Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();                   
         Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
-        Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();           
+        Kernel.Bind<IReferenceProviderFactory>().To<ReferenceProviderFactory>().InSingletonScope();           
       
         Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
         Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();

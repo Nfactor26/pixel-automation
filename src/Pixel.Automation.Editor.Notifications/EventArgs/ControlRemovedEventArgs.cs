@@ -24,33 +24,45 @@ public class ControlRemovedEventArgs : EventArgs
     public string RemovedFromTestCase { get; private set; }
 
     /// <summary>
+    /// Identifier of Prefab from which control is removed
+    /// </summary>
+    public string RemovedFromPrefab { get; private set; }
+
+    /// <summary>
     /// constructor
     /// </summary>
     /// <param name="control">ControlDescription of the control that was removed</param>
     public ControlRemovedEventArgs(ControlDescription control)
     {
         this.Control = Guard.Argument(control).NotNull();
+    }  
+
+    public static ControlRemovedEventArgs ForPrefab(ControlDescription control, string prefabId)
+    {
+        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+        return new ControlRemovedEventArgs(control)
+        {
+            RemovedFromPrefab = prefabId
+        };
     }
 
-    /// <summary>
-    /// constructor
-    /// </summary>
-    /// <param name="control">ControlDescription of the control that was removed</param>
-    /// <param name="removedFromFixture">Identifier of TestFixture from which control is removed</param>
-    public ControlRemovedEventArgs(ControlDescription control, string removedFromFixture) : this(control)
+    public static ControlRemovedEventArgs ForFixture(ControlDescription control, string fixtureId)
     {
-        this.RemovedFromFixture = Guard.Argument(removedFromFixture, nameof(removedFromFixture)).NotNull();
+        Guard.Argument(fixtureId, nameof(fixtureId)).NotNull().NotEmpty();
+        return new ControlRemovedEventArgs(control)
+        {
+            RemovedFromFixture = fixtureId
+        };
     }
 
-    /// <summary>
-    /// constructor
-    /// </summary>
-    /// <param name="control">ControlDescription of the control that was removed</param>
-    /// <param name="removedFromFixture">Identifier of TestFixture from which control is removed</param>
-    /// <param name="removedFromTestCase">Identifier of TestCase from which control is removed</param>
-    public ControlRemovedEventArgs(ControlDescription control, string removedFromFixture,
-        string removedFromTestCase) : this(control, removedFromFixture)
+    public static ControlRemovedEventArgs ForTest(ControlDescription control, string fixtureId, string testCaseId)
     {
-        this.RemovedFromTestCase = Guard.Argument(removedFromTestCase, nameof(removedFromTestCase)).NotNull();
+        Guard.Argument(fixtureId, nameof(fixtureId)).NotNull().NotEmpty();
+        Guard.Argument(testCaseId, nameof(testCaseId)).NotNull().NotEmpty();
+        return new ControlRemovedEventArgs(control)
+        {
+            RemovedFromFixture = fixtureId,
+            RemovedFromTestCase = testCaseId
+        };
     }
 }

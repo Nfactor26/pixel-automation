@@ -153,14 +153,14 @@ namespace Pixel.Automation.Designer.ViewModels
                     testCaseEntity.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
                     foreach (var control in controlsToBeRemoved)
                     {
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlRemovedEventArgs(control.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(ControlRemovedEventArgs.ForTest(control.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
                     }
                 }
                 else if (componentToDelete.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
                 {
                     foreach (var control in controlsToBeRemoved)
                     {
-                        await this.eventAggregator.PublishOnBackgroundThreadAsync(new  ControlRemovedEventArgs(control.ControlDescription, testFixtureEntity.Tag));
+                        await this.eventAggregator.PublishOnBackgroundThreadAsync(ControlRemovedEventArgs.ForFixture(control.ControlDescription, testFixtureEntity.Tag));
                     }
                 }
             }

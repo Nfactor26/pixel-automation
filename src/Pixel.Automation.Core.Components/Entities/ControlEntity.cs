@@ -185,7 +185,8 @@ public abstract class ControlEntity : Entity, IControlEntity
         {
             this.controlLoader = this.EntityManager.GetServiceOfType<IControlLoader>();
         }
-        return this.controlLoader.GetControl(this.ApplicationId, this.ControlId);
+        var referenceProvider = this.EntityManager.GetReferenceProvider();
+        return this.controlLoader.GetControl(this.ApplicationId, this.ControlId, referenceProvider.GetControlVersion(this.ApplicationId, this.ControlId).ToString());
     }
 
     public override IEnumerable<IComponent> GetNextComponentToProcess()

@@ -13,8 +13,9 @@ namespace Pixel.Automation.Core.Interfaces
         /// </summary>
         /// <param name="applicationId"></param>
         /// <param name="controlId"></param>
+        /// <param name="version"></param>
         /// <returns></returns>
-        ControlDescription GetControl(string applicationId, string controlId);
+        ControlDescription GetControl(string applicationId, string controlId, string version);
 
         /// <summary>
         /// Remove a control from cache if it exists.

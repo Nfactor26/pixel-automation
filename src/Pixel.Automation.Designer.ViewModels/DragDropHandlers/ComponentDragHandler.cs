@@ -18,6 +18,7 @@ using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Automation.Reference.Manager.Contracts;
 using Serilog;
 using System.IO;
+using System.IO.Packaging;
 using System.Windows;
 using DragDropEffects = System.Windows.DragDropEffects;
 using MessageBox = System.Windows.MessageBox;
@@ -301,19 +302,24 @@ namespace Pixel.Automation.Designer.ViewModels.DragDropHandlers
                     controlEntity.ApplicationId = controlItem.ApplicationId;
                     controlEntity.ControlId = controlItem.ControlId;
                     targetItem.AddComponent(controlEntity);
+                    
                     //Notify on event aggregator so that control references file for the project  can be updated
-                    if(targetItem.Model.TryGetAnsecstorOfType(out TestCaseEntity testCaseEntity))
+                    if(targetItem.Model.TryGetAnsecstorOfType(out PrefabHostEntity prefabHost))
                     {
-                        testCaseEntity.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity);
-                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag, testCaseEntity.Tag));
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(ControlAddedEventArgs.ForPrefab(targetItem.Model as Entity, controlItem.ControlDescription, prefabHost.PrefabId));
+                    }
+                    else if(targetItem.Model.TryGetAnsecstorOfType(out TestCaseEntity testCaseEntity))
+                    {
+                        prefabHost.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity);
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(ControlAddedEventArgs.ForTest(targetItem.Model as Entity, controlItem.ControlDescription, testFixtureEntity.Tag, prefabHost.Tag));
                     }
                     else if(targetItem.Model.TryGetAnsecstorOfType(out TestFixtureEntity testFixtureEntity))
                     {
-                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription, testFixtureEntity.Tag));
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(ControlAddedEventArgs.ForFixture(targetItem.Model as Entity, controlItem.ControlDescription, testFixtureEntity.Tag));
                     }
                     else
                     {
-                        this.eventAggregator.PublishOnBackgroundThreadAsync(new ControlAddedEventArgs(controlItem.ControlDescription));
+                        this.eventAggregator.PublishOnBackgroundThreadAsync(ControlAddedEventArgs.ForProject(targetItem.Model as Entity, controlItem.ControlDescription));
                     }
                 }
             }

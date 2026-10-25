@@ -20,5 +20,6 @@ public class UtilityModules : NinjectModule
         Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
         
         Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();
+        Kernel.Bind<IReferenceProviderFactory>().To<ReferenceProviderFactory>().InSingletonScope();
     }
 }

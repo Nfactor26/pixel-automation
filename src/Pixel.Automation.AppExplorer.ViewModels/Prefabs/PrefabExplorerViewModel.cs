@@ -6,6 +6,7 @@ using Pixel.Automation.AppExplorer.ViewModels.Contracts;
 using Pixel.Automation.AppExplorer.ViewModels.Control;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Prefabs;
+using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core.Helpers;
 using Pixel.Automation.Editor.Core.Interfaces;
@@ -27,7 +28,8 @@ namespace Pixel.Automation.AppExplorer.ViewModels.Prefabs;
 
 
 public class PrefabExplorerViewModel : Screen, IApplicationAware,
-    IHandle<OpenPrefabRequestNotification>, IHandle<ClosePrefabRequestNotification>, IHandle<SavePrefabRequestNotification>
+    IHandle<OpenPrefabRequestNotification>, IHandle<ClosePrefabRequestNotification>, IHandle<SavePrefabRequestNotification>,
+    IHandle<ControlAddedEventArgs>
 {
     #region Data members
 
@@ -38,7 +40,10 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     private readonly IWindowManager windowManager;
     private readonly INotificationManager notificationManager;   
     private readonly IPrefabDataManager prefabManager;
-    private readonly ICodeEditorFactory codeEditorFactory;   
+    private readonly ICodeEditorFactory codeEditorFactory;
+    private readonly IReferenceManagerFactory referenceManagerFactory;
+    private readonly IReferenceProviderFactory referenceProviderFactory;
+    private readonly IVersionManagerFactory versionManagerFactory;
     private readonly ApplicationSettings applicationSettings;
 
     private ApplicationDescriptionViewModel activeApplication;
@@ -88,13 +93,17 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
     /// <param name="windowManager"></param>
     /// <param name="applicationSettings"></param>
     public PrefabExplorerViewModel(IEventAggregator eventAggregator, IPrefabDataManager prefabManager, IApplicationDataManager applicationDataManager,
-        ICodeEditorFactory codeEditorFactory,
+        ICodeEditorFactory codeEditorFactory, IReferenceManagerFactory referenceManagerFactory, IReferenceProviderFactory referenceProviderFactory,
+        IVersionManagerFactory versionManagerFactory,
         IWindowManager windowManager, INotificationManager notificationManager, ApplicationSettings applicationSettings)
     {
         this.DisplayName = "Prefab Explorer";
         this.prefabManager = Guard.Argument(prefabManager, nameof(prefabManager)).NotNull().Value;
         this.applicationDataManager = Guard.Argument(applicationDataManager, nameof(applicationDataManager)).NotNull().Value;
         this.codeEditorFactory = Guard.Argument(codeEditorFactory, nameof(codeEditorFactory)).NotNull().Value;
+        this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
+        this.referenceProviderFactory = Guard.Argument(referenceProviderFactory, nameof(referenceProviderFactory)).NotNull().Value;
+        this.versionManagerFactory = Guard.Argument(versionManagerFactory, nameof(versionManagerFactory)).NotNull().Value;
         this.eventAggregator = Guard.Argument(eventAggregator, nameof(eventAggregator)).NotNull().Value;
         this.windowManager = Guard.Argument(windowManager, nameof(windowManager)).NotNull().Value;
         this.applicationSettings = Guard.Argument(applicationSettings, nameof(applicationSettings));
@@ -506,7 +515,10 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             await this.prefabManager.DownloadPrefabDataAsync(prefab, version);
 
             var fileSystem = this.prefabManager.GetPrefabFileSystem(prefab, version);
+            var referenceProvider = this.referenceProviderFactory.CreateReferenceProvider(fileSystem);
             var workflowEntity = fileSystem.GetPrefabEntity();
+
+            var referenceManager = this.referenceManagerFactory.CreateReferenceManager(prefab.PrefabId, version.ToString(), fileSystem);
 
             if (await TryOpenForEdit())
             {
@@ -518,16 +530,18 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             {
                 Prefab = prefab,
                 PrefabEntity = workflowEntity,
-                Version = version
+                Version = version,
+                ReferenceManager = referenceManager
             };
 
             async Task<bool> TryOpenForEdit()
             {               
                 EntityManager prefabEntityManager = new EntityManager(prefabHost.EntityManager);
                 prefabEntityManager.SetCurrentFileSystem(fileSystem);
+                prefabEntityManager.SetRefereceProvider(referenceProvider);
                 prefabEntityManager.SetIdentifier($"Prefab - {prefab.DisplayName}");
                 workflowEntity.EntityManager = prefabEntityManager;
-                 
+                                
                 var componentViewBuilder = prefabHost.EntityManager.GetServiceOfType<IComponentViewBuilder>();
                 componentViewBuilder.OpenPrefab(prefab, workflowEntity);
 
@@ -668,7 +682,27 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
             }
         }
     }
-  
+
+    /// <inheritdoc/>      
+    public async Task ManageControlReferencesAsync(PrefabViewModel prefabVM)
+    {
+        try
+        {
+            if (prefabVM.IsOpenForEdit)
+            {
+                var openInstance = this.openForEdit[prefabVM.PrefabId];
+                var versionManager = this.versionManagerFactory.CreateControlReferenceManager(openInstance.ReferenceManager);
+                await this.windowManager.ShowDialogAsync(versionManager);
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "There was an error on control references screen");
+            await notificationManager.ShowErrorNotificationAsync(ex);
+        }
+    }
+
     /// <summary>
     /// Retrieve the latest version of test case and update the underlying model on view model to use it
     /// </summary>
@@ -835,6 +869,29 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware,
         catch (Exception ex)
         {
             logger.Error(ex, "Error while trying to save prefab with Id : '{0}'", message.PrefabId);
+            await notificationManager.ShowErrorNotificationAsync(ex);
+        }
+    }
+
+    public async Task HandleAsync(ControlAddedEventArgs message, CancellationToken cancellationToken)
+    {
+        try
+        {
+
+            if (!string.IsNullOrEmpty(message.AddedToPrefab) && this.openForEdit.ContainsKey(message.AddedToPrefab))
+            {
+                var referenceManager = this.openForEdit[message.AddedToPrefab].ReferenceManager;
+                await referenceManager.AddControlReferenceAsync(new ControlReference()
+                {
+                    ApplicationId = message.Control.ApplicationId,
+                    ControlId = message.Control.ControlId,
+                    Version = message.Control.Version
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "Error while trying to add control reference to prefab");
             await notificationManager.ShowErrorNotificationAsync(ex);
         }
     }

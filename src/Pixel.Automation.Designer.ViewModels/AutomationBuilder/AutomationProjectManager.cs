@@ -21,6 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
     {
         private readonly IProjectFileSystem projectFileSystem;
         private readonly IReferenceManagerFactory referenceManagerFactory;
+        private readonly IReferenceProviderFactory referenceProviderFactory;
         private readonly IProjectDataManager projectDataManager;       
         private readonly IProjectAssetsDataManager projectAssetDataManager;
         private AutomationProject activeProject;
@@ -44,11 +45,12 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
         /// <param name="projectAssetDataManager"></param>
         public AutomationProjectManager(ISerializer serializer, IEntityManager entityManager, IProjectFileSystem projectFileSystem, ITypeProvider typeProvider, IArgumentTypeProvider argumentTypeProvider,
             ICodeEditorFactory codeEditorFactory, IScriptEditorFactory scriptEditorFactory, IScriptEngineFactory scriptEngineFactory, ICodeGenerator codeGenerator, IApplicationDataManager applicationDataManager,
-            IReferenceManagerFactory referenceManagerFactory, IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetDataManager) 
+            IReferenceManagerFactory referenceManagerFactory, IReferenceProviderFactory referenceProviderFactory, IProjectDataManager projectDataManager, IProjectAssetsDataManager projectAssetDataManager) 
         : base(serializer, entityManager, projectFileSystem, typeProvider, argumentTypeProvider, codeEditorFactory, scriptEditorFactory, scriptEngineFactory, codeGenerator, applicationDataManager)
         {
             this.projectFileSystem = Guard.Argument(projectFileSystem, nameof(projectFileSystem)).NotNull().Value;          
             this.referenceManagerFactory = Guard.Argument(referenceManagerFactory, nameof(referenceManagerFactory)).NotNull().Value;
+            this.referenceProviderFactory = Guard.Argument(referenceProviderFactory, nameof(referenceProviderFactory)).NotNull().Value;
             this.projectDataManager = Guard.Argument(projectDataManager, nameof(projectDataManager)).NotNull().Value;
             this.projectAssetDataManager = Guard.Argument(projectAssetDataManager, nameof(projectAssetDataManager)).NotNull().Value;          
         }
@@ -74,6 +76,9 @@ namespace Pixel.Automation.Designer.ViewModels.AutomationBuilder
 
                 this.entityManager.SetCurrentFileSystem(this.fileSystem);
                 this.entityManager.RegisterDefault<IFileSystem>(this.fileSystem);
+
+                var referenceProvider = referenceProviderFactory.CreateReferenceProvider(this.fileSystem);
+                this.entityManager.SetRefereceProvider(referenceProvider);
 
                 await CreateDataModelFile();
                 ConfigureCodeEditor(this.referenceManager);

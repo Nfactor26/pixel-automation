@@ -88,6 +88,8 @@
                                                         IsEnabled="{Binding CanOpenForEdit}" cal:Message.Attach="[Event Click] = [Action EditPrefabDataModelScriptAsync($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="CreateRevision" Header="Create Revision" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                                                         cal:Message.Attach="[Event Click] = [Action CreateRevisionAsync($dataContext)]"></MenuItem>
+                                                <MenuItem x:Name="ManageControlReferences" Header="Control References" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
+                                                        cal:Message.Attach="[Event Click] = [Action ManageControlReferencesAsync($dataContext)]"></MenuItem>
                                                 <MenuItem x:Name="MoveToScreen" Header="Move To Screen" cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" cal:Message.Attach="[Event Click] = [Action MoveToScreen($dataContext)]"></MenuItem>
                                             </StackPanel>
                                         </ControlTemplate>

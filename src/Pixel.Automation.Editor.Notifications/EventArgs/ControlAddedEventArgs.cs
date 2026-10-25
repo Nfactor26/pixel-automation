@@ -1,5 +1,7 @@
 ﻿using Dawn;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Controls;
+using Pixel.Automation.Core.Models;
 
 namespace Pixel.Automation.Editor.Notifications;
 
@@ -8,6 +10,11 @@ namespace Pixel.Automation.Editor.Notifications;
 /// </summary>
 public class ControlAddedEventArgs : EventArgs
 {
+    /// <summary>
+    /// Target Entity to which control was added
+    /// </summary>
+    public Entity AddedTo { get; private set; }
+    
     /// <summary>
     /// Control that was added
     /// </summary>
@@ -22,35 +29,54 @@ public class ControlAddedEventArgs : EventArgs
     /// Identifier of TestCase to which control was added
     /// </summary>
     public string AddedToTestCase { get; private set; }
+
+    /// <summary>
+    /// Identifier of Prefab to which control was added
+    /// </summary>
+    public string AddedToPrefab { get; private set; }
        
     /// <summary>
     /// constructor
     /// </summary>
     /// <param name="control">ControlDescription of the control that was added</param>
-    public ControlAddedEventArgs(ControlDescription control)
-    {           
-        this.Control = Guard.Argument(control).NotNull();
+    public ControlAddedEventArgs(Entity addedTo, ControlDescription control)
+    {   
+        this.AddedTo = Guard.Argument(addedTo, nameof(addedTo)).NotNull();
+        this.Control = Guard.Argument(control, nameof(control)).NotNull();
+    }  
+    
+
+    public static ControlAddedEventArgs ForProject(Entity addedTo, ControlDescription control)
+    {
+        return new ControlAddedEventArgs(addedTo, control);       
     }
 
-    /// <summary>
-    /// constructor
-    /// </summary>
-    /// <param name="control">ControlDescription of the control that was added</param>
-    /// <param name="addedToFixture">Identifier of TestFixture to which control was added</param>
-    public ControlAddedEventArgs(ControlDescription control, string addedToFixture) : this(control)
-    {       
-        this.AddedToFixture = Guard.Argument(addedToFixture, nameof(addedToFixture)).NotNull();       
+    public static ControlAddedEventArgs ForPrefab(Entity addedTo, ControlDescription control, string prefabId)
+    {
+        Guard.Argument(prefabId, nameof(prefabId)).NotNull().NotEmpty();
+        return new ControlAddedEventArgs(addedTo, control)
+        {
+            AddedToPrefab = prefabId
+        };
     }
 
-    /// <summary>
-    /// constructor
-    /// </summary>
-    /// <param name="control">ControlDescription of the control that was added</param>
-    /// <param name="addedToFixture">Identifier of TestFixture to which control was  added</param>
-    /// <param name="addedToTestCase">Identifier of TestCase to which control was added</param>
-    public ControlAddedEventArgs(ControlDescription control, string addedToFixture,
-        string addedToTestCase) : this(control, addedToFixture)
-    {        
-        this.AddedToTestCase = Guard.Argument(addedToTestCase, nameof(addedToTestCase)).NotNull();
+    public static ControlAddedEventArgs ForFixture(Entity addedTo, ControlDescription control, string fixtureId)
+    {
+        Guard.Argument(fixtureId, nameof(fixtureId)).NotNull().NotEmpty();
+        return new ControlAddedEventArgs(addedTo, control)
+        {
+            AddedToFixture = fixtureId
+        };
+    }
+
+    public static ControlAddedEventArgs ForTest(Entity addedTo, ControlDescription control, string fixtureId, string testCaseId)
+    {
+        Guard.Argument(fixtureId, nameof(fixtureId)).NotNull().NotEmpty();
+        Guard.Argument(testCaseId, nameof(testCaseId)).NotNull().NotEmpty();
+        return new ControlAddedEventArgs(addedTo, control)
+        {
+            AddedToFixture = fixtureId,
+            AddedToTestCase = testCaseId
+        };
     }
 }
