@@ -1,4 +1,6 @@
-﻿using Pixel.Automation.Core.TestData;
+﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core.Models;
+using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core.ViewModels;
 
 namespace Pixel.Automation.Editor.Core.Interfaces
@@ -14,5 +16,9 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         void OpenTestCase(TestCase testCase);
 
         void CloseTestCase(TestCase testCase);
+
+        void OpenPrefab(PrefabProject prefab, Entity prefabEntity);
+
+        void ClosePrefab(PrefabProject prefab, Entity prefabEntity);
     }
 }

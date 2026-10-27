@@ -59,12 +59,7 @@
         /// <summary>
         /// Data model name for the auto generated Prefab data model
         /// </summary>
-        public static readonly string PrefabDataModelName = "PrefabDataModel";
-
-        /// <summary>
-        /// Name of the prefab template file  used in prefab project editor
-        /// </summary>
-        public static readonly string PrefabTemplateFileName = "Template.proc";
+        public static readonly string PrefabDataModelName = "PrefabDataModel";       
 
         /// <summary>
         /// Name of Prefab entity file which contains the automation workflow

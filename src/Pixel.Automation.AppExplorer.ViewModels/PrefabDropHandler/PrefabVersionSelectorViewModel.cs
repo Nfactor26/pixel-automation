@@ -21,7 +21,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         private readonly ILogger logger = Log.ForContext<PrefabVersionSelectorViewModel>();
       
         private readonly PrefabProject prefabProject;
-        private readonly PrefabEntity prefabEntity;
+        private readonly PrefabHostEntity prefabEntity;
         private readonly EntityComponentViewModel dropTarget;
        
         private readonly IProjectFileSystem projectFileSystem;
@@ -58,7 +58,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         /// <param name="prefabProjectViewModel">Prefab which needs to be added to automation process</param>
         /// <param name="dropTarget">EntityComponentViewModel wrapping an Entity to which Prefab needs to be added</param>
         public PrefabVersionSelectorViewModel(IProjectFileSystem projectFileSystem, IPrefabFileSystem prefabFileSystem,
-            IReferenceManager projectReferenceManager, PrefabEntity prefabEntity,
+            IReferenceManager projectReferenceManager, PrefabHostEntity prefabEntity,
             PrefabProjectViewModel prefabProjectViewModel, EntityComponentViewModel dropTarget)
         {
             this.DisplayName = "(1/3) Select prefab version and mapping scripts";
@@ -68,7 +68,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             this.prefabEntity = prefabEntity;
             this.prefabProject = prefabProjectViewModel.PrefabProject;
             this.dropTarget = dropTarget;          
-            this.AvailableVersions = prefabProject.PublishedVersions;
+            this.AvailableVersions = prefabProject.AvailableVersions;
             this.CanChangeVersion = !projectReferenceManager.GetPrefabReferences().HasReference(prefabProject);
             if(!this.CanChangeVersion)
             {

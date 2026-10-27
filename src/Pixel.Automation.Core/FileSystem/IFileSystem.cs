@@ -185,13 +185,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// <summary>
         /// Prefab data file that contains serialized entity
         /// </summary>
-        string PrefabFile { get; }
-        
-        /// <summary>
-        /// While editing a prefab , Prefab is embedded in to this template.
-        /// Single template exists irrespective of version of prefab
-        /// </summary>
-        string TemplateFile { get; }
+        string PrefabFile { get; }    
 
         /// <summary>
         /// Initialize the prefab file system given prefab project and version information
@@ -216,19 +210,7 @@ namespace Pixel.Automation.Core.Interfaces
         /// Get the process entity for the prefab
         /// </summary>
         /// <returns></returns>
-        Entity GetPrefabEntity();
-
-        /// <summary>
-        /// Save the specified entity as the prefab template
-        /// </summary>
-        /// <param name="templateRoot"></param>
-        void CreateOrReplaceTemplate(Entity templateRoot);
-
-        /// <summary>
-        /// Get the available template if any for the prefab
-        /// </summary>
-        /// <returns></returns>
-        Entity GetTemplate();
+        Entity GetPrefabEntity();       
 
     }
    

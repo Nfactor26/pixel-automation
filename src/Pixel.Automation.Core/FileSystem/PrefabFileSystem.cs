@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Pixel.Automation.Core
 {
@@ -21,10 +20,7 @@ namespace Pixel.Automation.Core
         public string PrefabDescriptionFile { get; private set; }
 
         /// <InheritDoc/>      
-        public string PrefabFile { get; private set; }
-
-        /// <InheritDoc/>      
-        public string TemplateFile { get; private set; }
+        public string PrefabFile { get; private set; }      
     
         /// <summary>
         /// constructor
@@ -58,8 +54,7 @@ namespace Pixel.Automation.Core
 
             this.WorkingDirectory = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, versionInfo.ToString());
             this.PrefabDescriptionFile = Path.Combine(Environment.CurrentDirectory, applicationSettings.ApplicationDirectory, applicationId, Constants.PrefabsDirectory, prefabId, $"{prefabId}.atm");                    
-            this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabProcessFileName);
-            this.TemplateFile = Path.Combine(this.WorkingDirectory, Constants.PrefabTemplateFileName);
+            this.PrefabFile = Path.Combine(this.WorkingDirectory, Constants.PrefabProcessFileName);          
 
             base.Initialize();
         }
@@ -88,25 +83,6 @@ namespace Pixel.Automation.Core
         {
             return true;
         }
-
-        /// <InheritDoc/>      
-        public void CreateOrReplaceTemplate(Entity templateRoot)
-        {
-            if(File.Exists(this.TemplateFile))
-            {
-                File.Delete(this.TemplateFile);
-            }
-            this.serializer.Serialize<Entity>(this.TemplateFile, templateRoot);
-        }
-
-        /// <InheritDoc/>      
-        public Entity GetTemplate()
-        {
-            if(File.Exists(this.TemplateFile))
-            {
-                return this.serializer.Deserialize<Entity>(this.TemplateFile);
-            }
-            return default;
-        }
+      
     }
 }

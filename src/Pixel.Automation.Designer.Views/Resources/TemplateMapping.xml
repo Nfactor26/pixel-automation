@@ -83,11 +83,16 @@
 		<DataTemplateKey>ApplicationEntityTemplate</DataTemplateKey>
 		<StyleKey>ContainerStyle</StyleKey>
 	</ComponentTemplate>
-	
+
 	<ComponentTemplate>
 		<Name>PrefabEntity</Name>
 		<DataTemplateKey>PrefabTemplate</DataTemplateKey>
-		<StyleKey>SlimStyle</StyleKey>
+		<StyleKey>ContainerStyle</StyleKey>
+	</ComponentTemplate>
+	<ComponentTemplate>
+		<Name>PrefabHostEntity</Name>
+		<DataTemplateKey>PrefabHostTemplate</DataTemplateKey>
+		<StyleKey>PrefabHostStyle</StyleKey>
 	</ComponentTemplate>
 	<ComponentTemplate>
 		<Name>ControlEntity</Name>

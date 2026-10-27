@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
+using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Scripting.Editor.Core.Contracts;
@@ -71,7 +72,11 @@ namespace Pixel.Automation.Editor.Controls
 
         private static void AddProject(IScriptEditorFactory editorFactory, IComponent forComponent)
         {
-            if (forComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
+            if (forComponent.TryGetAnsecstorOfType(out PrefabHostEntity prefabHost))
+            {
+                editorFactory.AddProject(forComponent.Id, new string[] { prefabHost.PrefabId }, forComponent.EntityManager.Arguments.GetType());
+            }
+            else if (forComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
             {
                 //Test cases have a initialization script file which contains all declared variables. In order to get intellisense support for those variable, we need a reference to that project
                 editorFactory.AddProject(forComponent.Id, new string[] { testCaseEntity.Tag }, forComponent.EntityManager.Arguments.GetType());

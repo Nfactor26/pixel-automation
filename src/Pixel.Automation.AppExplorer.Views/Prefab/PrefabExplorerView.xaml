@@ -88,12 +88,23 @@
                         <ContextMenu.Template>
                             <ControlTemplate>
                                 <StackPanel>
-                                    <MenuItem x:Name="Edit" Header="Edit" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource InverseBoolConverter}}"
+                                    <MenuItem x:Name="EditDataModelAsync" Header="Edit Model" ToolTip="Open DataModel for editing using inbuilt editor"  IsEnabled="{Binding IsOpenInEditor}"
+                                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
+                                               cal:Message.Attach="[Event Click] = [Action EditDataModelAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="EditScriptAsync" Header="Edit Script" ToolTip="Open default initialization script for editing"  IsEnabled="{Binding IsOpenInEditor}"
+                                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
+                                               cal:Message.Attach="[Event Click] = [Action EditScriptAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="ManagePrefab" Header="Manage Versions" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource InverseBoolConverter}}"
                                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
-                                              cal:Message.Attach="[Event Click] = [Action EditPrefab($dataContext)]"></MenuItem>
-                                    <MenuItem x:Name="Manage" Header="Manage" IsEnabled="{Binding IsOpenInEditor, Converter={StaticResource InverseBoolConverter}}"
+                                              cal:Message.Attach="[Event Click] = [Action ManagePrefab($dataContext)]"></MenuItem>                                  
+                                    <MenuItem x:Name="ManageControlReferencesAsync" Header="Control References" ToolTip="Manage control versions used by Prefab"                                             
+                                              IsEnabled="{Binding IsOpenInEditor}"
                                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
-                                              cal:Message.Attach="[Event Click] = [Action ManagePrefab($dataContext)]"></MenuItem>
+                                              cal:Message.Attach="[Event Click] = [Action ManageControlReferencesAsync($dataContext)]"></MenuItem>
+                                    <MenuItem x:Name="ManageAssemblyReferencesAsync" Header="Assembly References" ToolTip="Manage assembly references and imports for code editor, script editor and script engine"
+                                              IsEnabled="{Binding IsOpenInEditor}"
+                                              cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}"
+                                              cal:Message.Attach="[Event Click] = [Action ManageAssemblyReferencesAsync($dataContext)]"></MenuItem>
                                     <MenuItem x:Name="ShowUsage" Header="Show Usage" 
                                               cal:Action.TargetWithoutContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type Grid}, AncestorLevel=2}}" 
                                               cal:Message.Attach="[Event Click] = [Action ShowUsage($dataContext)]"></MenuItem>

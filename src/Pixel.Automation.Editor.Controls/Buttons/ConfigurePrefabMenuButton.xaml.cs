@@ -79,7 +79,7 @@ namespace Pixel.Automation.Editor.Controls.Buttons
         {
             //We need to ensure that the prefab is loaded. If Prefab is not loaded, ScriptEditorFactory will have
             //missing references for Prefab data model assembly
-            if(this.OwnerComponent is PrefabEntity prefabEntity)
+            if(this.OwnerComponent is PrefabHostEntity prefabEntity)
             {
                 prefabEntity.LoadPrefab();
             }

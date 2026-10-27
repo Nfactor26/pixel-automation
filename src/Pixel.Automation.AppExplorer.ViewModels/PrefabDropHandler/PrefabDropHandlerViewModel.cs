@@ -8,83 +8,76 @@ using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Editor.Core;
 using Pixel.Automation.Editor.Core.ViewModels;
 using Pixel.Automation.Reference.Manager.Contracts;
-using Pixel.Scripting.Editor.Core.Contracts;
-using System.IO;
 
-namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
+namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler;
+
+/// <summary>
+/// Show a wizard to allow selection of prefab version to use and configure input and output mapping scripts for Prefab
+/// when a prefab is dropped on to automation editor from prefab explorer. The Prefab will be added as a child of the entity 
+/// which is the drop target as a part of this process.
+/// </summary>
+public class PrefabDropHandlerViewModel : Wizard
 {
+    private readonly IPrefabFileSystem prefabFileSystem;
+    private readonly IProjectFileSystem projectFileSystem;       
+    private readonly IEventAggregator eventAggregator;
+
+    private PrefabHostEntity prefabEntity;
+    private EntityComponentViewModel dropTarget;
+
     /// <summary>
-    /// Show a wizard to allow selection of prefab version to use and configure input and output mapping scripts for Prefab
-    /// when a prefab is dropped on to automation editor from prefab explorer. The Prefab will be added as a child of the entity 
-    /// which is the drop target as a part of this process.
+    /// constructor
     /// </summary>
-    public class PrefabDropHandlerViewModel : Wizard
+    /// <param name="entityManager">EntityManager of the Entity which is the drop target</param>
+    public PrefabDropHandlerViewModel(IEntityManager entityManager, PrefabProjectViewModel prefabProjectViewModel,
+        EntityComponentViewModel dropTarget)
     {
-        private readonly IPrefabFileSystem prefabFileSystem;
-        private readonly IProjectFileSystem projectFileSystem;
-        private readonly IScriptEngine scriptEngine;
-        private readonly IScriptEditorFactory scriptEditorFactory;
-        private readonly IEventAggregator eventAggregator;
+        Guard.Argument(entityManager, nameof(entityManager)).NotNull();
+        Guard.Argument(prefabProjectViewModel, nameof(prefabProjectViewModel)).NotNull();
+        this.DisplayName = "Select prefab version";          
+        this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
+        this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();       
+        this.eventAggregator = entityManager.GetServiceOfType<IEventAggregator>();
+        this.dropTarget = Guard.Argument(dropTarget, nameof(dropTarget)).NotNull();
 
-        private PrefabEntity prefabEntity;
-        private EntityComponentViewModel dropTarget;
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="entityManager">EntityManager of the Entity which is the drop target</param>
-        public PrefabDropHandlerViewModel(IEntityManager entityManager, PrefabProjectViewModel prefabProjectViewModel,
-            EntityComponentViewModel dropTarget)
+        this.prefabEntity = new PrefabHostEntity()
         {
-            Guard.Argument(entityManager, nameof(entityManager)).NotNull();
-            Guard.Argument(prefabProjectViewModel, nameof(prefabProjectViewModel)).NotNull();
-            this.DisplayName = "Select prefab version";         
-            this.scriptEditorFactory = entityManager.GetServiceOfType<IScriptEditorFactory>(); ;
-            this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
-            this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();
-            this.scriptEngine = entityManager.GetScriptEngine();
-            this.eventAggregator = entityManager.GetServiceOfType<IEventAggregator>();
-            this.dropTarget = Guard.Argument(dropTarget, nameof(dropTarget)).NotNull();
+            Name = prefabProjectViewModel.PrefabName,
+            PrefabId = prefabProjectViewModel.PrefabId,
+            ApplicationId = prefabProjectViewModel.ApplicationId
+        };
+      
+        this.stagedScreens.Clear();
 
-            this.prefabEntity = new PrefabEntity()
-            {
-                Name = prefabProjectViewModel.PrefabName,
-                PrefabId = prefabProjectViewModel.PrefabId,
-                ApplicationId = prefabProjectViewModel.ApplicationId
-            };
-          
-            this.stagedScreens.Clear();
+        var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
+        var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, referenceManager,
+            this.prefabEntity, prefabProjectViewModel, dropTarget);       
+      
+        this.stagedScreens.Add(prefabVersionSelector);           
+    }
 
-            var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
-            var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, referenceManager,
-                this.prefabEntity, prefabProjectViewModel, dropTarget);       
-          
-            this.stagedScreens.Add(prefabVersionSelector);           
-        }
-
-        public override async Task Finish()
+    public override async Task Finish()
+    {
+        var addToComponent = this.dropTarget.Model;
+        if (addToComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
         {
-            var addToComponent = this.dropTarget.Model;
-            if (addToComponent.TryGetAnsecstorOfType<TestCaseEntity>(out TestCaseEntity testCaseEntity))
-            {
-                addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
-                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
-            }
-            else if (addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
-            {
-                await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag));               
-            }
-            await base.Finish();
+            addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity);
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag, testCaseEntity.Tag));
         }
-
-        public override async Task Cancel()
+        else if (addToComponent.TryGetAnsecstorOfType<TestFixtureEntity>(out TestFixtureEntity testFixtureEntity))
         {
-            var prefabComponentViewModel = this.dropTarget.ComponentCollection.FirstOrDefault(a => a.Model.Equals(this.prefabEntity));
-            if (prefabComponentViewModel != null)
-            {
-                dropTarget.RemoveComponent(prefabComponentViewModel);              
-            }
-            await this.TryCloseAsync(false);
+            await this.eventAggregator.PublishOnBackgroundThreadAsync(new PrefabAddedEventArgs(this.prefabEntity.PrefabId, testFixtureEntity.Tag));               
         }
+        await base.Finish();
+    }
+
+    public override async Task Cancel()
+    {
+        var prefabComponentViewModel = this.dropTarget.ComponentCollection.FirstOrDefault(a => a.Model.Equals(this.prefabEntity));
+        if (prefabComponentViewModel != null)
+        {
+            dropTarget.RemoveComponent(prefabComponentViewModel);              
+        }
+        await this.TryCloseAsync(false);
     }
 }

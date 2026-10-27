@@ -255,13 +255,7 @@ public class PrefabDataManager : IPrefabDataManager
             {
                 await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, processsFile, prefabProject.ProjectId);
             }
-
-            string templateFile = Path.Combine(projectDirectory, Constants.PrefabTemplateFileName);
-            if (File.Exists(templateFile))
-            {
-                await AddOrUpdateDataFileAsync(prefabProject, prefabVersion, templateFile, prefabProject.ProjectId);
-            }
-
+            
             string referencesDirectory = Path.Combine(projectDirectory, Constants.ReferencesDirectory);
             if(Directory.Exists(referencesDirectory))
             {
