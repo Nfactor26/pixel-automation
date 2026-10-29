@@ -20,6 +20,7 @@ namespace Pixel.Automation.Core
 
         private IServiceResolver serviceProvider;
         private IFileSystem fileSystem;
+        private IReferenceProvider referenceProvider;
         private IArgumentProcessor argumentProcessor;
         private IScriptEngine scriptEngine;
         private bool areDefaultServicesInitialized = false;
@@ -119,6 +120,16 @@ namespace Pixel.Automation.Core
         public IFileSystem GetCurrentFileSystem()
         {
             return this.fileSystem;
+        }
+
+        public void SetRefereceProvider(IReferenceProvider referenceProvider)
+        {
+            this.referenceProvider = referenceProvider;
+        }
+
+        public IReferenceProvider GetReferenceProvider()
+        {
+            return this.referenceProvider;
         }
 
         public IArgumentProcessor GetArgumentProcessor()

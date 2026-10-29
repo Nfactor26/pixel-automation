@@ -17,9 +17,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler;
 /// which is the drop target as a part of this process.
 /// </summary>
 public class PrefabDropHandlerViewModel : Wizard
-{
-    private readonly IPrefabFileSystem prefabFileSystem;
-    private readonly IProjectFileSystem projectFileSystem;       
+{    
     private readonly IEventAggregator eventAggregator;
 
     private PrefabHostEntity prefabEntity;
@@ -34,9 +32,7 @@ public class PrefabDropHandlerViewModel : Wizard
     {
         Guard.Argument(entityManager, nameof(entityManager)).NotNull();
         Guard.Argument(prefabProjectViewModel, nameof(prefabProjectViewModel)).NotNull();
-        this.DisplayName = "Select prefab version";          
-        this.projectFileSystem = entityManager.GetCurrentFileSystem() as IProjectFileSystem;
-        this.prefabFileSystem = entityManager.GetServiceOfType<IPrefabFileSystem>();       
+        this.DisplayName = "Select prefab version";     ;       
         this.eventAggregator = entityManager.GetServiceOfType<IEventAggregator>();
         this.dropTarget = Guard.Argument(dropTarget, nameof(dropTarget)).NotNull();
 
@@ -50,7 +46,7 @@ public class PrefabDropHandlerViewModel : Wizard
         this.stagedScreens.Clear();
 
         var referenceManager = entityManager.GetServiceOfType<IReferenceManager>();
-        var prefabVersionSelector = new PrefabVersionSelectorViewModel(this.projectFileSystem, this.prefabFileSystem, referenceManager,
+        var prefabVersionSelector = new PrefabVersionSelectorViewModel(referenceManager,
             this.prefabEntity, prefabProjectViewModel, dropTarget);       
       
         this.stagedScreens.Add(prefabVersionSelector);           

@@ -12,35 +12,33 @@ using Pixel.Automation.TestExplorer.ViewModels;
 using Pixel.Persistence.Services.Client;
 using Pixel.Persistence.Services.Client.Interfaces;
 
-namespace Pixel.Automation.Designer.ViewModels.Modules
+namespace Pixel.Automation.Designer.ViewModels.Modules;
+
+public class WorkspaceModules : NinjectModule
 {
-    public class WorkspaceModules : NinjectModule
+    public override void Load()
     {
-        public override void Load()
-        {
-            Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>().InSingletonScope();
-            Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
-            Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
-            Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();
-            Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
+        Kernel.Bind<IAutomationEditor>().To<AutomationEditorViewModel>().InSingletonScope();
+        Kernel.Bind<IPrefabEditor>().To<PrefabEditorViewModel>().InSingletonScope();
+        Kernel.Bind<ITestExplorer>().To<TestExplorerViewModel>();
+        Kernel.Bind<ITestDataRepository>().To<TestDataExplorerViewModel>();
+        Kernel.Bind<IComponentViewBuilder>().To<ComponentViewBuilder>().InSingletonScope();
 
-            Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
-            Kernel.Bind<IPrefabProjectManager>().To<PrefabProjectManager>().InSingletonScope();
-            Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
-            Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
-            Kernel.Bind<IEntityManager>().ToConstructor(c => new EntityManager(c.Inject<IServiceResolver>())).InSingletonScope();
+        Kernel.Bind<IAutomationProjectManager>().To<AutomationProjectManager>().InSingletonScope();
+        Kernel.Bind<IPrefabProjectManager>().To<PrefabProjectManager>().InSingletonScope();
+        Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
+        Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();
+        Kernel.Bind<IEntityManager>().ToConstructor(c => new EntityManager(c.Inject<IServiceResolver>())).InSingletonScope();
 
-            Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
-            Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
-            Kernel.Bind<IArgumentTypeProvider>().To<ArgumentTypeProvider>().InSingletonScope();
-            Kernel.Bind<IArgumentTypeBrowserFactory>().To<ArgumentTypeBrowserFactory>().InSingletonScope();
-            Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
+        Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
+        Kernel.Bind<IDataSourceReader>().To<DataSourceReader>().InSingletonScope();
+        Kernel.Bind<IArgumentTypeProvider>().To<ArgumentTypeProvider>().InSingletonScope();
+        Kernel.Bind<IArgumentTypeBrowserFactory>().To<ArgumentTypeBrowserFactory>().InSingletonScope();
+        Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
 
-            Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();    
-            Kernel.Bind<IPrefabLoader>().To<DesignTimePrefabLoader>().InSingletonScope();
-            Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
+        Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();        
+        Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
 
-            Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();          
-        }
+        Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();          
     }
 }

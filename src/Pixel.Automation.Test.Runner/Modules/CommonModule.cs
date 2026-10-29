@@ -22,8 +22,9 @@ namespace Pixel.Automation.Test.Runner.Modules
             Kernel.Bind<IProjectFileSystem>().To<ProjectFileSystem>().InSingletonScope();
             Kernel.Bind<IPrefabFileSystem>().To<PrefabFileSystem>();           
             Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
-            Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();           
-          
+            Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();
+            Kernel.Bind<IReferenceProviderFactory>().To<ReferenceProviderFactory>().InSingletonScope();
+
             Kernel.Bind<IDataReader>().To<CsvDataReader>().InSingletonScope();
             Kernel.Bind<ITestRunner>().To<TestRunner>().InSingletonScope();
             Kernel.Bind<ITestSelector>().To<TestSelector>().InSingletonScope();

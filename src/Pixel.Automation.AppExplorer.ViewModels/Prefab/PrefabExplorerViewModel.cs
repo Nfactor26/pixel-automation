@@ -483,8 +483,8 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<OpenPr
             Guard.Argument(message.PrefabId, nameof(OpenPrefabRequestNotification.PrefabId)).NotNull().NotEmpty();
 
             var hostEntityManager = message.PrefabHost.EntityManager;
-            var referenceManager = hostEntityManager.GetServiceOfType<IReferenceManager>();
-            var versionInUse = referenceManager.GetPrefabReferences().GetPrefabReference(message.PrefabId).Version;
+            var referenceProvider = hostEntityManager.GetReferenceProvider();
+            var versionInUse = referenceProvider.GetPrefabVersion(message.PrefabHost.ApplicationId, message.PrefabHost.PrefabId);
             var targetPrefab = this.prefabDataManager.GetAllPrefabs(message.PrefabHost.ApplicationId).Where(p => p.ApplicationId == message.PrefabHost.ApplicationId && p.ProjectId == message.PrefabId).First();
             if (targetPrefab is not null)
             {

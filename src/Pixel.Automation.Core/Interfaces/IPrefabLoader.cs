@@ -10,16 +10,9 @@ public interface IPrefabLoader
     /// <param name="applicationId"></param>
     /// <param name="prefabId"></param>
     /// <param name="prefabVersion"></param>
-    /// <param name="primaryEntityManager"></param>
+    /// <param name="hostEntityManager"></param>
     /// <returns></returns>
-    Entity GetPrefabEntity(string applicationId, string prefabId, IEntityManager primaryEntityManager);      
-
-    /// <summary>
-    /// Get the loaded version of prefab
-    /// </summary>     
-    /// <param name="prefabId"></param>
-    /// <returns></returns>
-    VersionInfo GetPrefabVersion(string prefabId);
+    Entity GetPrefabEntity(string applicationId, string prefabId, IEntityManager hostEntityManager);   
 
     /// <summary>
     /// Check if specified version of prefab is already loaded by PrefabLoader

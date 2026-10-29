@@ -21,6 +21,7 @@ namespace Pixel.Automation.Designer.ViewModels.Modules
             Kernel.Bind<IApplicationFileSystem>().To<ApplicationFileSystem>().InSingletonScope();
             
             Kernel.Bind<IReferenceManagerFactory>().To<ReferenceManagerFactory>().InSingletonScope();
+            Kernel.Bind<IReferenceProviderFactory>().To<ReferenceProviderFactory>().InSingletonScope();
         }
     }
 }

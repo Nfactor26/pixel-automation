@@ -7,8 +7,7 @@
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" cal:Bind.AtDesignTime="True"
              xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
              mc:Ignorable="d" ResizeMode="CanResizeWithGrip" GlowBrush="{DynamicResource AccentColorBrush}"
-             WindowStartupLocation="CenterScreen"
-             MaxHeight="800" MaxWidth="1440"
+             WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight"            
              d:DesignHeight="450" d:DesignWidth="800">
     <controls:MetroWindow.Resources>
         <Thickness x:Key="ControlMargin">10 10 10 10</Thickness>
@@ -17,7 +16,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
