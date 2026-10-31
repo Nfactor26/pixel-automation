@@ -74,6 +74,8 @@ public class AutomationProjectManager : ProjectManager, IAutomationProjectManage
 
             await this.projectDataManager.DownloadProjectDataFilesAsync(activeProject, versionToLoad);
 
+            this.entityManager.SetIdentifier($"Design Automation Project : {activeProject.Name}");
+
             this.referenceManager = this.referenceManagerFactory.CreateReferenceManager(this.activeProject.ProjectId, versionToLoad.ToString(), this.projectFileSystem);
             this.entityManager.RegisterDefault<IReferenceManager>(this.referenceManager);
 

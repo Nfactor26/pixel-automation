@@ -230,7 +230,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<OpenPr
 
             var editorFactory = IoC.Get<IEditorFactory>();
             var prefabEditor = editorFactory.CreatePrefabEditor();
-            var workflowEntity = await prefabEditor.DoLoad(prefabToEdit, version);
+            var workflowEntity = await prefabEditor.LoadAsync(prefabToEdit, version);
 
             if (await TryOpenForEdit())
             {
@@ -269,7 +269,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<OpenPr
 
             if (autoSave)
             {
-                await editor.DoSave();
+                await editor.SaveAsync();
             }
 
             editor.Dispose();            
@@ -457,7 +457,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<OpenPr
             {
                 try
                 {
-                    await prefab.DoSave();
+                    await prefab.SaveAsync();
                 }
                 catch (Exception ex)
                 {
@@ -528,7 +528,7 @@ public class PrefabExplorerViewModel : Screen, IApplicationAware, IHandle<OpenPr
             if (this.openForEdit.ContainsKey(message.PrefabId))
             {
                 var editor = openForEdit[message.PrefabId];
-                await editor.DoSave();
+                await editor.SaveAsync();
             }
         }
         catch (Exception ex)

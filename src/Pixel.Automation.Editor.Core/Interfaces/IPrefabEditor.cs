@@ -11,5 +11,5 @@ public interface IPrefabEditor : IEditor
 
     Entity RootEntity { get; }
 
-    Task<Entity> DoLoad(PrefabProject prefabProject, VersionInfo versionInfo = null);
+    Task<Entity> LoadAsync(PrefabProject prefabProject, VersionInfo versionInfo = null);
 }

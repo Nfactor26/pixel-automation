@@ -40,9 +40,9 @@ public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
     
     public Entity RootEntity { get; private set; }
 
-    public async Task<Entity> DoLoad(PrefabProject prefabProject, VersionInfo versionToLoad = null)
+    public async Task<Entity> LoadAsync(PrefabProject prefabProject, VersionInfo versionToLoad = null)
     {
-        using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoLoad), ActivityKind.Internal))
+        using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(LoadAsync), ActivityKind.Internal))
         {
             Guard.Argument(prefabProject, nameof(prefabProject)).NotNull();
 
@@ -190,9 +190,9 @@ public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
 
     #region Save project
 
-    public override async Task DoSave()
+    public override async Task SaveAsync()
     {
-        using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(DoSave), ActivityKind.Internal))
+        using (var activity = Telemetry.DefaultSource?.StartActivity(nameof(SaveAsync), ActivityKind.Internal))
         {
             try
             {
@@ -212,22 +212,12 @@ public class PrefabEditorViewModel : EditorViewModel , IPrefabEditor
 
     protected override async Task CloseAsync()
     {
-        try
-        {
-            await SetSelectedItem(null);             
-            this.globalEventAggregator.Unsubscribe(this);
-            await this.TryCloseAsync(true);              
-            this.Dispose();
-        }
-        catch (Exception ex)
-        {
-            logger.Error(ex, "There was an error while trying to close project : '{0}'", this.PrefabProject.Name);
-            await notificationManager.ShowErrorNotificationAsync(ex);
-        }
+        throw new NotImplementedException();
     }
 
     protected override void Dispose(bool isDisposing)
     {
+        _ = SetSelectedItem(null);
         base.Dispose(isDisposing);
         this.serviceResolver.Dispose();
         this.globalEventAggregator.Unsubscribe(this);

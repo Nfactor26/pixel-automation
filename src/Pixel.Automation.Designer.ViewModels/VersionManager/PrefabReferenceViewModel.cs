@@ -62,7 +62,7 @@ namespace Pixel.Automation.Designer.ViewModels.VersionManager
             this.prefabReference = Guard.Argument(prefabReference).NotNull();
             this.PrefabName = prefabProject.Name;
             this.VersionInUse = prefabReference.Version.ToString();
-            foreach (var version in prefabProject.PublishedVersions)
+            foreach (var version in prefabProject.AvailableVersions)
             {
                 this.AvailableVersions.Add(version);
             }

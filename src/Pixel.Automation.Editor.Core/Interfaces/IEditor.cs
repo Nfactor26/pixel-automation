@@ -9,7 +9,7 @@ namespace Pixel.Automation.Editor.Core.Interfaces
         /// <summary>
         /// Save the project state in the current workspace
         /// </summary>
-        Task DoSave();  
+        Task SaveAsync();  
                
         /// <summary>
         /// Remove a component from view

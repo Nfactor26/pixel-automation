@@ -38,6 +38,7 @@ public class WorkspaceModules : NinjectModule
 
         Kernel.Bind<IArgumentProcessor>().To<ArgumentProcessor>().InTransientScope();        
         Kernel.Bind<IControlLoader>().To<DesignTimeControlLoader>().InSingletonScope();
+        Kernel.Bind<IPrefabLoader>().To<PrefabLoader>().InSingletonScope();
 
         Kernel.Bind<IProjectAssetsDataManager>().To<TestAndFixtureAndTestDataManager>().InSingletonScope();          
     }

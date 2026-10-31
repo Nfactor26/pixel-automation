@@ -118,7 +118,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 if (this.ActiveItem is IEditor editor)
                 {
-                    editor.DoSave();
+                    editor.SaveAsync();
                 }
             }
 
@@ -143,7 +143,7 @@ namespace Pixel.Automation.Designer.ViewModels
             {
                 if (item is IEditor editor)
                 {
-                    editor.DoSave();
+                    editor.SaveAsync();
                 }
             }
 

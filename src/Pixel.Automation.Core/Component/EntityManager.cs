@@ -96,6 +96,7 @@ namespace Pixel.Automation.Core
             this.isPrimaryEntityManager = false;
             this.RootEntity = parentEntityManager.RootEntity;         
             this.SetCurrentFileSystem(parentEntityManager.GetCurrentFileSystem());
+            this.SetRefereceProvider(parentEntityManager.GetReferenceProvider());
             logger.Information("Created a new instance of secondary entity manager");
         }
 
