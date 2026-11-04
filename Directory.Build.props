@@ -5,18 +5,18 @@
     <CrossPlatformTargetFramework>net$(DotNetTargetVersion)</CrossPlatformTargetFramework>
     <WindowsTargetFramework>$(CrossPlatformTargetFramework)-windows</WindowsTargetFramework>
     <WindowsSdkTargetFramework>$(WindowsTargetFramework)10.0.22621.0</WindowsSdkTargetFramework>
-    <!-- Centralized package versions - updated to latest as of June 2024 -->
-    <SerilogVersion>4.3.0</SerilogVersion>
+    <!-- Centralized package versions -->
+    <SerilogVersion>4.4.0</SerilogVersion>
     <SerilogEnrichersEnvironmentVersion>3.0.1</SerilogEnrichersEnvironmentVersion>
     <SerilogEnrichersThreadVersion>4.0.0</SerilogEnrichersThreadVersion>
     <SerilogEnrichersSpanVersion>3.1.0</SerilogEnrichersSpanVersion>
     <SerilogEnrichersProcessVersion>3.0.0</SerilogEnrichersProcessVersion>
     <SerilogSettingsConfigurationVersion>9.0.0</SerilogSettingsConfigurationVersion>
     <SerilogSinksFileVersion>7.0.0</SerilogSinksFileVersion>
-    <SerilogSinksHttpVersion>9.2.0</SerilogSinksHttpVersion>
+    <SerilogSinksHttpVersion>9.2.1</SerilogSinksHttpVersion>
     <SerilogSinksOpenTelemetryVersion>4.2.0</SerilogSinksOpenTelemetryVersion>
     <SerilogSinksSpectreConsoleVersion>0.3.3</SerilogSinksSpectreConsoleVersion>
-    <SerilogSinksConsoleVersion>6.0.0</SerilogSinksConsoleVersion>
+    <SerilogSinksConsoleVersion>6.1.1</SerilogSinksConsoleVersion>
     <SerilogSinksPeriodicBatchingVersion>5.0.0</SerilogSinksPeriodicBatchingVersion>
     <SpectreConsoleVersion>0.53.0</SpectreConsoleVersion>
     <SpectreConsoleCliVersion>0.53.0</SpectreConsoleCliVersion>
@@ -26,13 +26,13 @@
     <OpenTelemetryInstrumentationHttpVersion>1.12.0</OpenTelemetryInstrumentationHttpVersion>
     <DawnGuardVersion>1.12.0</DawnGuardVersion>
     <SystemComponentModelAnnotationsVersion>5.0.0</SystemComponentModelAnnotationsVersion>
-    <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+    <NewtonsoftJsonVersion>13.0.4</NewtonsoftJsonVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     <SystemDynamicRuntimeVersion>4.3.0</SystemDynamicRuntimeVersion>
     <SeleniumSupportVersion>4.38.0</SeleniumSupportVersion>
     <SeleniumWebDriverVersion>4.38.0</SeleniumWebDriverVersion>
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
-    <DotNetProjectsExtendedWpfToolkitVersion>5.0.124</DotNetProjectsExtendedWpfToolkitVersion>
+    <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
     <PollyVersion>8.6.2</PollyVersion>
     <AutoMapperVersion>15.0.1</AutoMapperVersion>
@@ -48,7 +48,7 @@
     <VanaraPInvokeShell32Version>4.2.1</VanaraPInvokeShell32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
     <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
-    <MahAppsMetroVersion>2.4.10</MahAppsMetroVersion>
+    <MahAppsMetroVersion>2.4.11</MahAppsMetroVersion>
     <MahAppsMetroIconPacksVersion>4.11.0</MahAppsMetroIconPacksVersion>
     <NotificationsWpfCoreVersion>2.0.1</NotificationsWpfCoreVersion>
     <MicrosoftCodeAnalysisCommonVersion>4.14.0</MicrosoftCodeAnalysisCommonVersion>
@@ -79,7 +79,7 @@
     <NUnit3TestAdapterVersion>5.1.0</NUnit3TestAdapterVersion>
     <MicrosoftNETTestSdkVersion>17.14.1</MicrosoftNETTestSdkVersion>
     <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
-    <NUnitAnalyzersVersion>4.10.0</NUnitAnalyzersVersion>
+    <NUnitAnalyzersVersion>4.15.0</NUnitAnalyzersVersion>
     <!-- Add more versions as needed -->
   </PropertyGroup>
 </Project>
