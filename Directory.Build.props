@@ -11,7 +11,7 @@
     <SerilogEnrichersThreadVersion>4.0.0</SerilogEnrichersThreadVersion>
     <SerilogEnrichersSpanVersion>3.1.0</SerilogEnrichersSpanVersion>
     <SerilogEnrichersProcessVersion>3.0.0</SerilogEnrichersProcessVersion>
-    <SerilogSettingsConfigurationVersion>9.0.0</SerilogSettingsConfigurationVersion>
+    <SerilogSettingsConfigurationVersion>10.0.1</SerilogSettingsConfigurationVersion>
     <SerilogSinksFileVersion>7.0.0</SerilogSinksFileVersion>
     <SerilogSinksHttpVersion>9.2.1</SerilogSinksHttpVersion>
     <SerilogSinksOpenTelemetryVersion>4.2.0</SerilogSinksOpenTelemetryVersion>
@@ -39,7 +39,7 @@
     <CsvHelperVersion>33.1.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
     <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
-    <SystemManagementVersion>9.0.8</SystemManagementVersion>
+    <SystemManagementVersion>10.0.14</SystemManagementVersion>
     <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
     <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
     <VanaraPInvokeKernel32Version>4.2.1</VanaraPInvokeKernel32Version>
@@ -57,7 +57,7 @@
     <MicrosoftCodeAnalysisCSharpScriptingVersion>4.14.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
     <SystemRuntimeLoaderVersion>4.3.0</SystemRuntimeLoaderVersion>
     <DirksterAvalonDockVersion>4.72.1</DirksterAvalonDockVersion>
-    <SystemDrawingCommonVersion>9.0.8</SystemDrawingCommonVersion>
+    <SystemDrawingCommonVersion>10.0.14</SystemDrawingCommonVersion>
     <GongWpfDragDropVersion>4.0.0</GongWpfDragDropVersion>
     <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
@@ -72,7 +72,7 @@
     <NinjectExtensionsChildKernelVersion>3.3.0</NinjectExtensionsChildKernelVersion>
     <NinjectExtensionsConventionsVersion>3.3.0</NinjectExtensionsConventionsVersion>
     <NinjectExtensionsFactoryVersion>3.3.3</NinjectExtensionsFactoryVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>9.0.8</SystemDiagnosticsDiagnosticSourceVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>10.0.14</SystemDiagnosticsDiagnosticSourceVersion>
     <MicrosoftExtensionsConfigurationVersion>10.0.14</MicrosoftExtensionsConfigurationVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
     <NUnitVersion>4.4.0</NUnitVersion>
