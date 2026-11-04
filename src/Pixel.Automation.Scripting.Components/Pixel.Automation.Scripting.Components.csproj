@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>		
+		<TargetFrameworks>$(CrossPlatformTargetFramework);$(WindowsTargetFramework)</TargetFrameworks>		
 		<EnableDynamicLoading>true</EnableDynamicLoading>	
 		<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>
