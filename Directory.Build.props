@@ -15,11 +15,11 @@
     <SerilogSinksFileVersion>7.0.0</SerilogSinksFileVersion>
     <SerilogSinksHttpVersion>9.2.1</SerilogSinksHttpVersion>
     <SerilogSinksOpenTelemetryVersion>4.2.0</SerilogSinksOpenTelemetryVersion>
-    <SerilogSinksSpectreConsoleVersion>0.3.3</SerilogSinksSpectreConsoleVersion>
+    <SerilogSinksSpectreConsoleVersion>0.4.0</SerilogSinksSpectreConsoleVersion>
     <SerilogSinksConsoleVersion>6.1.1</SerilogSinksConsoleVersion>
     <SerilogSinksPeriodicBatchingVersion>5.0.0</SerilogSinksPeriodicBatchingVersion>
-    <SpectreConsoleVersion>0.53.0</SpectreConsoleVersion>
-    <SpectreConsoleCliVersion>0.53.0</SpectreConsoleCliVersion>
+    <SpectreConsoleVersion>0.57.2</SpectreConsoleVersion>
+    <SpectreConsoleCliVersion>0.57.2</SpectreConsoleCliVersion>
     <OpenTelemetryExporterConsoleVersion>1.20.1</OpenTelemetryExporterConsoleVersion>
     <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.20.1</OpenTelemetryExporterOpenTelemetryProtocolVersion>
     <OpenTelemetryExtensionsHostingVersion>1.20.1</OpenTelemetryExtensionsHostingVersion>

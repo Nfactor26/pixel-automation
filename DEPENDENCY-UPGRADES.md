@@ -2,7 +2,7 @@
 
 Source: `dotnet package list --project Pixel.Automation.sln --outdated --format json` against the configured NuGet sources on 2026-11-04. Most versions are pinned in `Directory.Build.props`; a few are declared directly in project files.
 
-Low risk updates were applied first. Two further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
+Low risk updates were applied first. Three further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
 
 ## Low risk — updated
 
@@ -41,6 +41,14 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | System.Drawing.Common | 9.0.8 | 10.0.14 |
 | System.Management | 9.0.8 | 10.0.14 |
 
+## Console packages — updated
+
+| Package | Previous | Updated |
+| --- | --- | --- |
+| Serilog.Sinks.SpectreConsole | 0.3.3 | 0.4.0 |
+| Spectre.Console | 0.53.0 | 0.57.2 |
+| Spectre.Console.Cli | 0.53.0 | 0.57.2 |
+
 ## High risk — pending review
 
 | Package | Current | Latest |
@@ -68,10 +76,7 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | RestSharp | 112.1.0 | 114.1.0 |
 | Selenium.Support | 4.38.0 | 4.52.0 |
 | Selenium.WebDriver | 4.38.0 | 4.52.0 |
-| Serilog.Sinks.SpectreConsole | 0.3.3 | 0.4.0 |
 | SixLabors.ImageSharp | 3.1.11 | 4.1.3 |
-| Spectre.Console | 0.53.0 | 0.57.2 |
-| Spectre.Console.Cli | 0.53.0 | 0.57.2 |
 | System.Reactive | 6.0.1 | 7.0.0 |
 | Vanara.Core | 4.2.1 | 5.0.8 |
 | Vanara.PInvoke.CldApi | 4.2.1 | 5.0.8 |
@@ -87,4 +92,4 @@ Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulne
 
 ## Verification
 
-Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the third set: 704 passed, 2 skipped, 0 failed. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
+Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the fourth set: 704 passed, 2 skipped, 0 failed. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
