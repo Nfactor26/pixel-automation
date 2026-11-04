@@ -2,7 +2,7 @@
 
 Source: `dotnet package list --project Pixel.Automation.sln --outdated --format json` against the configured NuGet sources on 2026-11-04. Most versions are pinned in `Directory.Build.props`; a few are declared directly in project files.
 
-Low risk updates were applied first. Four further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
+Low risk updates were applied first. Five further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
 
 ## Low risk — updated
 
@@ -57,6 +57,13 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Microsoft.NET.Test.Sdk | 17.14.1 | 18.11.0 |
 | NUnit3TestAdapter | 5.1.0 | 6.3.1 |
 
+## Test libraries — updated
+
+| Package | Previous | Updated |
+| --- | --- | --- |
+| NSubstitute | 5.3.0 | 6.2.0 |
+| NUnit | 4.4.0 | 5.0.0 |
+
 ## High risk — pending review
 
 | Package | Current | Latest |
@@ -74,8 +81,6 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Microsoft.CodeAnalysis.CSharp.Workspaces | 4.14.0 | 5.9.0 |
 | Microsoft.Playwright | 1.55.0 | 1.64.1 |
 | Microsoft.Web.WebView2 | 1.0.1370.28 | 1.0.4314.35 |
-| NSubstitute | 5.3.0 | 6.2.0 |
-| nunit | 4.4.0 | 5.0.0 |
 | OpenCvSharp4 | 4.11.0.20250507 | 4.13.0.20260627 |
 | OpenCvSharp4.runtime.win | 4.11.0.20250507 | 4.13.0.20260627 |
 | RestSharp | 112.1.0 | 114.1.0 |
@@ -93,8 +98,8 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Vanara.PInvoke.User32 | 4.2.1 | 5.0.8 |
 | Vanara.Windows.Shell | 4.2.1 | 5.0.8 |
 
-Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulnerability warnings. Selenium 4.52 removes `SeleniumManager`, which the code calls, so that update needs a code migration. Keep related packages in a family aligned when upgrading. `IdentityModel.OidcClient` returned “Not found at the sources”; verify its package source before changing it.
+Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulnerability warnings. ImageSharp 3.2.0 and 4.1.3 compiled in Debug but failed a Release build because no Six Labors license was found; the image package remains at 3.1.11. The generated AutoMapper scripts use the old one-argument `MapperConfiguration` constructor, while the [AutoMapper upgrade guide](https://docs.automapper.io/en/latest/15.0-Upgrade-Guide.html) requires an `ILoggerFactory`; upgrade the generated scripts and verify them separately. Selenium 4.52 removes `SeleniumManager`, which the code calls, so that update needs a code migration. Keep related packages in a family aligned when upgrading. `IdentityModel.OidcClient` returned “Not found at the sources”; verify its package source before changing it.
 
 ## Verification
 
-Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the fifth set: 704 passed, 2 skipped, 0 failed. A `coverlet.collector` run produced a Cobertura coverage file. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
+Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the sixth set: 704 passed, 2 skipped, 0 failed. A `coverlet.collector` run produced a Cobertura coverage file. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.

@@ -74,8 +74,8 @@
     <NinjectExtensionsFactoryVersion>3.3.3</NinjectExtensionsFactoryVersion>
     <SystemDiagnosticsDiagnosticSourceVersion>10.0.14</SystemDiagnosticsDiagnosticSourceVersion>
     <MicrosoftExtensionsConfigurationVersion>10.0.14</MicrosoftExtensionsConfigurationVersion>
-    <NSubstituteVersion>5.3.0</NSubstituteVersion>
-    <NUnitVersion>4.4.0</NUnitVersion>
+    <NSubstituteVersion>6.2.0</NSubstituteVersion>
+    <NUnitVersion>5.0.0</NUnitVersion>
     <NUnit3TestAdapterVersion>6.3.1</NUnit3TestAdapterVersion>
     <MicrosoftNETTestSdkVersion>18.11.0</MicrosoftNETTestSdkVersion>
     <CoverletCollectorVersion>10.1.0</CoverletCollectorVersion>
