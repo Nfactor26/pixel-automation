@@ -1,5 +1,10 @@
 <Project>
   <PropertyGroup>
+    <!-- Change this value to update the target frameworks across the solution. -->
+    <DotNetTargetVersion>10.0</DotNetTargetVersion>
+    <CrossPlatformTargetFramework>net$(DotNetTargetVersion)</CrossPlatformTargetFramework>
+    <WindowsTargetFramework>$(CrossPlatformTargetFramework)-windows</WindowsTargetFramework>
+    <WindowsSdkTargetFramework>$(WindowsTargetFramework)10.0.22621.0</WindowsSdkTargetFramework>
     <!-- Centralized package versions - updated to latest as of June 2024 -->
     <SerilogVersion>4.3.0</SerilogVersion>
     <SerilogEnrichersEnvironmentVersion>3.0.1</SerilogEnrichersEnvironmentVersion>

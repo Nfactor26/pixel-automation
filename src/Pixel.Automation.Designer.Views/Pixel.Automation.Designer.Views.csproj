@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>$(WindowsTargetFramework)</TargetFramework>
 		<RuntimeIdentifiers>win-x64;</RuntimeIdentifiers>
 		<UseWPF>true</UseWPF>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
