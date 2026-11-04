@@ -2,7 +2,7 @@
 
 Source: `dotnet package list --project Pixel.Automation.sln --outdated --format json` against the configured NuGet sources on 2026-11-04. Most versions are pinned in `Directory.Build.props`; a few are declared directly in project files.
 
-Low risk updates were applied first. Five further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
+Low risk updates were applied first. Six further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
 
 ## Low risk — updated
 
@@ -64,6 +64,12 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | NSubstitute | 5.3.0 | 6.2.0 |
 | NUnit | 4.4.0 | 5.0.0 |
 
+## Reactive library — updated
+
+| Package | Previous | Updated |
+| --- | --- | --- |
+| System.Reactive | 6.0.1 | 7.0.0 |
+
 ## High risk — pending review
 
 | Package | Current | Latest |
@@ -87,7 +93,6 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Selenium.Support | 4.38.0 | 4.52.0 |
 | Selenium.WebDriver | 4.38.0 | 4.52.0 |
 | SixLabors.ImageSharp | 3.1.11 | 4.1.3 |
-| System.Reactive | 6.0.1 | 7.0.0 |
 | Vanara.Core | 4.2.1 | 5.0.8 |
 | Vanara.PInvoke.CldApi | 4.2.1 | 5.0.8 |
 | Vanara.PInvoke.Gdi32 | 4.2.1 | 5.0.8 |
@@ -98,8 +103,8 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Vanara.PInvoke.User32 | 4.2.1 | 5.0.8 |
 | Vanara.Windows.Shell | 4.2.1 | 5.0.8 |
 
-Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulnerability warnings. ImageSharp 3.2.0 and 4.1.3 compiled in Debug but failed a Release build because no Six Labors license was found; the image package remains at 3.1.11. The generated AutoMapper scripts use the old one-argument `MapperConfiguration` constructor, while the [AutoMapper upgrade guide](https://docs.automapper.io/en/latest/15.0-Upgrade-Guide.html) requires an `ILoggerFactory`; upgrade the generated scripts and verify them separately. Selenium 4.52 removes `SeleniumManager`, which the code calls, so that update needs a code migration. Keep related packages in a family aligned when upgrading. `IdentityModel.OidcClient` returned “Not found at the sources”; verify its package source before changing it.
+Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulnerability warnings. ImageSharp 3.2.0 and 4.1.3 compiled in Debug but failed a Release build because no Six Labors license was found; the image package remains at 3.1.11. The generated AutoMapper scripts use the old one-argument `MapperConfiguration` constructor, while the [AutoMapper upgrade guide](https://docs.automapper.io/en/latest/15.0-Upgrade-Guide.html) requires an `ILoggerFactory`; upgrade the generated scripts and verify them separately. [CsvHelper 34](https://joshclose.github.io/CsvHelper/migration/v34.0.0.html) removes `CsvConfiguration` and changes typed record mapping; `CsvDataReader` requires a dedicated migration before updating. Selenium 4.52 removes `SeleniumManager`, which the code calls, so that update needs a code migration. Keep related packages in a family aligned when upgrading. `IdentityModel.OidcClient` returned “Not found at the sources”; verify its package source before changing it.
 
 ## Verification
 
-Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the sixth set: 704 passed, 2 skipped, 0 failed. A `coverlet.collector` run produced a Cobertura coverage file. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
+Solution restore and build succeeded with 0 errors after each completed update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the seventh set: 704 passed, 2 skipped, 0 failed. A `coverlet.collector` run produced a Cobertura coverage file. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.

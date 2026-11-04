@@ -33,7 +33,7 @@
     <SeleniumWebDriverVersion>4.38.0</SeleniumWebDriverVersion>
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
     <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
-    <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
+    <SystemReactiveVersion>7.0.0</SystemReactiveVersion>
     <PollyVersion>8.9.0</PollyVersion>
     <AutoMapperVersion>15.0.1</AutoMapperVersion>
     <CsvHelperVersion>33.1.0</CsvHelperVersion>
