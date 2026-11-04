@@ -20,10 +20,10 @@
     <SerilogSinksPeriodicBatchingVersion>5.0.0</SerilogSinksPeriodicBatchingVersion>
     <SpectreConsoleVersion>0.53.0</SpectreConsoleVersion>
     <SpectreConsoleCliVersion>0.53.0</SpectreConsoleCliVersion>
-    <OpenTelemetryExporterConsoleVersion>1.12.0</OpenTelemetryExporterConsoleVersion>
-    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.12.0</OpenTelemetryExporterOpenTelemetryProtocolVersion>
-    <OpenTelemetryExtensionsHostingVersion>1.12.0</OpenTelemetryExtensionsHostingVersion>
-    <OpenTelemetryInstrumentationHttpVersion>1.12.0</OpenTelemetryInstrumentationHttpVersion>
+    <OpenTelemetryExporterConsoleVersion>1.20.1</OpenTelemetryExporterConsoleVersion>
+    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.20.1</OpenTelemetryExporterOpenTelemetryProtocolVersion>
+    <OpenTelemetryExtensionsHostingVersion>1.20.1</OpenTelemetryExtensionsHostingVersion>
+    <OpenTelemetryInstrumentationHttpVersion>1.20.1</OpenTelemetryInstrumentationHttpVersion>
     <DawnGuardVersion>1.12.0</DawnGuardVersion>
     <SystemComponentModelAnnotationsVersion>5.0.0</SystemComponentModelAnnotationsVersion>
     <NewtonsoftJsonVersion>13.0.4</NewtonsoftJsonVersion>
@@ -34,7 +34,7 @@
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
     <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
-    <PollyVersion>8.6.2</PollyVersion>
+    <PollyVersion>8.9.0</PollyVersion>
     <AutoMapperVersion>15.0.1</AutoMapperVersion>
     <CsvHelperVersion>33.1.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
@@ -63,17 +63,17 @@
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
     <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
     <MicrosoftPlaywrightVersion>1.55.0</MicrosoftPlaywrightVersion>
-    <FluentAssertionsVersion>8.6.0</FluentAssertionsVersion>
+    <FluentAssertionsVersion>8.11.0</FluentAssertionsVersion>
     <AppiumWebDriverVersion>8.0.1</AppiumWebDriverVersion>
     <RestSharpVersion>112.1.0</RestSharpVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>9.0.8</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>9.0.8</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>10.0.14</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>10.0.14</MicrosoftExtensionsConfigurationJsonVersion>
     <NinjectVersion>3.3.6</NinjectVersion>
     <NinjectExtensionsChildKernelVersion>3.3.0</NinjectExtensionsChildKernelVersion>
     <NinjectExtensionsConventionsVersion>3.3.0</NinjectExtensionsConventionsVersion>
     <NinjectExtensionsFactoryVersion>3.3.3</NinjectExtensionsFactoryVersion>
     <SystemDiagnosticsDiagnosticSourceVersion>9.0.8</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsConfigurationVersion>9.0.8</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationVersion>10.0.14</MicrosoftExtensionsConfigurationVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
     <NUnitVersion>4.4.0</NUnitVersion>
     <NUnit3TestAdapterVersion>5.1.0</NUnit3TestAdapterVersion>
