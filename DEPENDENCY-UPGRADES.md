@@ -2,7 +2,7 @@
 
 Source: `dotnet package list --project Pixel.Automation.sln --outdated --format json` against the configured NuGet sources on 2026-11-04. Most versions are pinned in `Directory.Build.props`; a few are declared directly in project files.
 
-Low risk updates were applied first. Three further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
+Low risk updates were applied first. Four further compatible sets were applied and validated with solution restore, build, and unit tests. High risk means an API, behavior, runtime, or broad integration review is needed before updating; it is not a claim that the current version is safe.
 
 ## Low risk — updated
 
@@ -49,6 +49,14 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Spectre.Console | 0.53.0 | 0.57.2 |
 | Spectre.Console.Cli | 0.53.0 | 0.57.2 |
 
+## Test infrastructure — updated
+
+| Package | Previous | Updated |
+| --- | --- | --- |
+| coverlet.collector | 6.0.4 | 10.1.0 |
+| Microsoft.NET.Test.Sdk | 17.14.1 | 18.11.0 |
+| NUnit3TestAdapter | 5.1.0 | 6.3.1 |
+
 ## High risk — pending review
 
 | Package | Current | Latest |
@@ -56,7 +64,6 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Appium.WebDriver | 8.0.1 | 9.0.0 |
 | AutoMapper | 15.0.1 | 16.2.0 |
 | Caliburn.Micro | 4.0.230 | 5.0.258 |
-| coverlet.collector | 6.0.4 | 10.1.0 |
 | CsvHelper | 33.1.0 | 34.0.0 |
 | Dirkster.AvalonDock | 4.72.1 | 5.0.1 |
 | IdentityModel.OidcClient | 5.1.0 | Not found at the sources |
@@ -65,12 +72,10 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Microsoft.CodeAnalysis.CSharp.Features | 4.14.0 | 5.9.0 |
 | Microsoft.CodeAnalysis.CSharp.Scripting | 4.14.0 | 5.9.0 |
 | Microsoft.CodeAnalysis.CSharp.Workspaces | 4.14.0 | 5.9.0 |
-| Microsoft.NET.Test.Sdk | 17.14.1 | 18.11.0 |
 | Microsoft.Playwright | 1.55.0 | 1.64.1 |
 | Microsoft.Web.WebView2 | 1.0.1370.28 | 1.0.4314.35 |
 | NSubstitute | 5.3.0 | 6.2.0 |
 | nunit | 4.4.0 | 5.0.0 |
-| NUnit3TestAdapter | 5.1.0 | 6.3.1 |
 | OpenCvSharp4 | 4.11.0.20250507 | 4.13.0.20260627 |
 | OpenCvSharp4.runtime.win | 4.11.0.20250507 | 4.13.0.20260627 |
 | RestSharp | 112.1.0 | 114.1.0 |
@@ -92,4 +97,4 @@ Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulne
 
 ## Verification
 
-Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the fourth set: 704 passed, 2 skipped, 0 failed. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
+Solution restore and build succeeded with 0 errors after each update set. All 16 unit test projects other than `Pixel.Automation.UIAComWrapper.Tests` passed after the fifth set: 704 passed, 2 skipped, 0 failed. A `coverlet.collector` run produced a Cobertura coverage file. The `pixel-run --help` command also succeeded with an empty `Plugins` directory. `Pixel.Automation.Test.Helpers` is a helper project and has no test assembly. Windows image capture and editor workflows were not exercised manually.
