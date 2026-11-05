@@ -5,41 +5,41 @@
     <CrossPlatformTargetFramework>net$(DotNetTargetVersion)</CrossPlatformTargetFramework>
     <WindowsTargetFramework>$(CrossPlatformTargetFramework)-windows</WindowsTargetFramework>
     <WindowsSdkTargetFramework>$(WindowsTargetFramework)10.0.22621.0</WindowsSdkTargetFramework>
-    <!-- Centralized package versions - updated to latest as of June 2024 -->
-    <SerilogVersion>4.3.0</SerilogVersion>
+    <!-- Centralized package versions -->
+    <SerilogVersion>4.4.0</SerilogVersion>
     <SerilogEnrichersEnvironmentVersion>3.0.1</SerilogEnrichersEnvironmentVersion>
     <SerilogEnrichersThreadVersion>4.0.0</SerilogEnrichersThreadVersion>
     <SerilogEnrichersSpanVersion>3.1.0</SerilogEnrichersSpanVersion>
     <SerilogEnrichersProcessVersion>3.0.0</SerilogEnrichersProcessVersion>
-    <SerilogSettingsConfigurationVersion>9.0.0</SerilogSettingsConfigurationVersion>
+    <SerilogSettingsConfigurationVersion>10.0.1</SerilogSettingsConfigurationVersion>
     <SerilogSinksFileVersion>7.0.0</SerilogSinksFileVersion>
-    <SerilogSinksHttpVersion>9.2.0</SerilogSinksHttpVersion>
+    <SerilogSinksHttpVersion>9.2.1</SerilogSinksHttpVersion>
     <SerilogSinksOpenTelemetryVersion>4.2.0</SerilogSinksOpenTelemetryVersion>
-    <SerilogSinksSpectreConsoleVersion>0.3.3</SerilogSinksSpectreConsoleVersion>
-    <SerilogSinksConsoleVersion>6.0.0</SerilogSinksConsoleVersion>
+    <SerilogSinksSpectreConsoleVersion>0.4.0</SerilogSinksSpectreConsoleVersion>
+    <SerilogSinksConsoleVersion>6.1.1</SerilogSinksConsoleVersion>
     <SerilogSinksPeriodicBatchingVersion>5.0.0</SerilogSinksPeriodicBatchingVersion>
-    <SpectreConsoleVersion>0.53.0</SpectreConsoleVersion>
-    <SpectreConsoleCliVersion>0.53.0</SpectreConsoleCliVersion>
-    <OpenTelemetryExporterConsoleVersion>1.12.0</OpenTelemetryExporterConsoleVersion>
-    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.12.0</OpenTelemetryExporterOpenTelemetryProtocolVersion>
-    <OpenTelemetryExtensionsHostingVersion>1.12.0</OpenTelemetryExtensionsHostingVersion>
-    <OpenTelemetryInstrumentationHttpVersion>1.12.0</OpenTelemetryInstrumentationHttpVersion>
+    <SpectreConsoleVersion>0.57.2</SpectreConsoleVersion>
+    <SpectreConsoleCliVersion>0.57.2</SpectreConsoleCliVersion>
+    <OpenTelemetryExporterConsoleVersion>1.20.1</OpenTelemetryExporterConsoleVersion>
+    <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.20.1</OpenTelemetryExporterOpenTelemetryProtocolVersion>
+    <OpenTelemetryExtensionsHostingVersion>1.20.1</OpenTelemetryExtensionsHostingVersion>
+    <OpenTelemetryInstrumentationHttpVersion>1.20.1</OpenTelemetryInstrumentationHttpVersion>
     <DawnGuardVersion>1.12.0</DawnGuardVersion>
     <SystemComponentModelAnnotationsVersion>5.0.0</SystemComponentModelAnnotationsVersion>
-    <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+    <NewtonsoftJsonVersion>13.0.4</NewtonsoftJsonVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     <SystemDynamicRuntimeVersion>4.3.0</SystemDynamicRuntimeVersion>
     <SeleniumSupportVersion>4.38.0</SeleniumSupportVersion>
     <SeleniumWebDriverVersion>4.38.0</SeleniumWebDriverVersion>
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
-    <DotNetProjectsExtendedWpfToolkitVersion>5.0.124</DotNetProjectsExtendedWpfToolkitVersion>
-    <SystemReactiveVersion>6.0.1</SystemReactiveVersion>
-    <PollyVersion>8.6.2</PollyVersion>
+    <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
+    <SystemReactiveVersion>7.0.0</SystemReactiveVersion>
+    <PollyVersion>8.9.0</PollyVersion>
     <AutoMapperVersion>15.0.1</AutoMapperVersion>
     <CsvHelperVersion>33.1.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
     <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
-    <SystemManagementVersion>9.0.8</SystemManagementVersion>
+    <SystemManagementVersion>10.0.14</SystemManagementVersion>
     <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
     <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
     <VanaraPInvokeKernel32Version>4.2.1</VanaraPInvokeKernel32Version>
@@ -48,7 +48,7 @@
     <VanaraPInvokeShell32Version>4.2.1</VanaraPInvokeShell32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
     <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
-    <MahAppsMetroVersion>2.4.10</MahAppsMetroVersion>
+    <MahAppsMetroVersion>2.4.11</MahAppsMetroVersion>
     <MahAppsMetroIconPacksVersion>4.11.0</MahAppsMetroIconPacksVersion>
     <NotificationsWpfCoreVersion>2.0.1</NotificationsWpfCoreVersion>
     <MicrosoftCodeAnalysisCommonVersion>4.14.0</MicrosoftCodeAnalysisCommonVersion>
@@ -57,29 +57,29 @@
     <MicrosoftCodeAnalysisCSharpScriptingVersion>4.14.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
     <SystemRuntimeLoaderVersion>4.3.0</SystemRuntimeLoaderVersion>
     <DirksterAvalonDockVersion>4.72.1</DirksterAvalonDockVersion>
-    <SystemDrawingCommonVersion>9.0.8</SystemDrawingCommonVersion>
+    <SystemDrawingCommonVersion>10.0.14</SystemDrawingCommonVersion>
     <GongWpfDragDropVersion>4.0.0</GongWpfDragDropVersion>
     <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
     <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
     <MicrosoftPlaywrightVersion>1.55.0</MicrosoftPlaywrightVersion>
-    <FluentAssertionsVersion>8.6.0</FluentAssertionsVersion>
+    <FluentAssertionsVersion>8.11.0</FluentAssertionsVersion>
     <AppiumWebDriverVersion>8.0.1</AppiumWebDriverVersion>
     <RestSharpVersion>112.1.0</RestSharpVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>9.0.8</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>9.0.8</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>10.0.14</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>10.0.14</MicrosoftExtensionsConfigurationJsonVersion>
     <NinjectVersion>3.3.6</NinjectVersion>
     <NinjectExtensionsChildKernelVersion>3.3.0</NinjectExtensionsChildKernelVersion>
     <NinjectExtensionsConventionsVersion>3.3.0</NinjectExtensionsConventionsVersion>
     <NinjectExtensionsFactoryVersion>3.3.3</NinjectExtensionsFactoryVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>9.0.8</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsConfigurationVersion>9.0.8</MicrosoftExtensionsConfigurationVersion>
-    <NSubstituteVersion>5.3.0</NSubstituteVersion>
-    <NUnitVersion>4.4.0</NUnitVersion>
-    <NUnit3TestAdapterVersion>5.1.0</NUnit3TestAdapterVersion>
-    <MicrosoftNETTestSdkVersion>17.14.1</MicrosoftNETTestSdkVersion>
-    <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
-    <NUnitAnalyzersVersion>4.10.0</NUnitAnalyzersVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>10.0.14</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftExtensionsConfigurationVersion>10.0.14</MicrosoftExtensionsConfigurationVersion>
+    <NSubstituteVersion>6.2.0</NSubstituteVersion>
+    <NUnitVersion>5.0.0</NUnitVersion>
+    <NUnit3TestAdapterVersion>6.3.1</NUnit3TestAdapterVersion>
+    <MicrosoftNETTestSdkVersion>18.11.0</MicrosoftNETTestSdkVersion>
+    <CoverletCollectorVersion>10.1.0</CoverletCollectorVersion>
+    <NUnitAnalyzersVersion>4.15.0</NUnitAnalyzersVersion>
     <!-- Add more versions as needed -->
   </PropertyGroup>
 </Project>
