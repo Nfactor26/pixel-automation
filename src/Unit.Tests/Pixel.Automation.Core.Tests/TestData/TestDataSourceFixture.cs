@@ -45,7 +45,7 @@ namespace Pixel.Automation.Core.Tests.TestData
 
             dataSourceConfiguration.TargetTypeName = "Person";
             dataSourceConfiguration.TargetFile = "Persons.csv";
-            dataSourceConfiguration.Delimiter = "|";
+            dataSourceConfiguration.Delimiter = '|';
             dataSourceConfiguration.HasHeader = false;
          
        

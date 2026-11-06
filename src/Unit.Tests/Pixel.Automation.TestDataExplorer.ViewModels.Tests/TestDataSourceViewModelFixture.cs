@@ -130,11 +130,11 @@ namespace Pixel.Automation.TestDataExplorer.ViewModels.Tests
         [TestCase(DataSource.Code, "EmptyDataSource", "", "", "", false)]
         [TestCase(DataSource.Code, "", "Empty", "", "", false)]
         [TestCase(DataSource.Code, "", "", "", "", false)]
-        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ",", "Empty.csv", true)]
-        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ",;", "Empty.csv", false)]
-        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", "", "Empty.csv", false)]
-        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ",", "", false)]
-        public void ValidateThatModelIsCorrectlyValidated(DataSource dataSource, string name, string testDataType, string delimiter, string dataFileName, bool expected)
+        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ',', "Empty.csv", true)]
+        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ';', "Empty.csv", true)]    
+        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", '\0', "Empty.csv", false)]
+        [TestCase(DataSource.CsvFile, "EmptyDataSource", "Empty", ',', "", false)]
+        public void ValidateThatModelIsCorrectlyValidated(DataSource dataSource, string name, string testDataType, char delimiter, string dataFileName, bool expected)
         {
             //Arrange           
             var testDataSourceViewModel = new TestDataSourceViewModel(windowManager, fileSystem, dataSource, new[] { "NonEmptyDataSource" }, typeBrowser);
