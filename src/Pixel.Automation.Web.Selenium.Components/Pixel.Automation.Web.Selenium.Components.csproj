@@ -27,12 +27,6 @@
 		<PackageReference Include="Serilog" Version="$(SerilogVersion)">
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpVersion)">
-			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="System.Dynamic.Runtime" Version="$(SystemDynamicRuntimeVersion)">
-			<IncludeAssets>compile</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Selenium.Support" Version="$(SeleniumSupportVersion)" />
 		<PackageReference Include="Selenium.WebDriver" Version="$(SeleniumWebDriverVersion)" />
 	</ItemGroup>

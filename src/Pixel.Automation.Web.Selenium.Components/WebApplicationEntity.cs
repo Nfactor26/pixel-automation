@@ -4,6 +4,7 @@ using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.Extensions;
+using OpenQA.Selenium.Manager;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -270,8 +271,8 @@ public class WebApplicationEntity : ApplicationEntity
         var shouldDownloadDriver = await this.ArgumentProcessor.GetValueAsync<bool>(this.AutoDownloadDriver);
         if(shouldDownloadDriver)       
         {         
-            var resultDictionary = SeleniumManager.BinaryPaths($"--browser {driverOptions.BrowserName}");
-            webDriverFolder = Path.GetDirectoryName(resultDictionary["driver_path"]);
+            var browserDiscovery = await SeleniumManager.DiscoverBrowserAsync(driverOptions.BrowserName, new BrowserDiscoveryOptions());
+            webDriverFolder = Path.GetDirectoryName(browserDiscovery.DriverPath);
             logger.Information("Driver was downloaded to path {0}", webDriverFolder);
         }
         if (!Directory.Exists(webDriverFolder))

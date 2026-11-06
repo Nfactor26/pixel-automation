@@ -29,8 +29,8 @@
     <NewtonsoftJsonVersion>13.0.4</NewtonsoftJsonVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     <SystemDynamicRuntimeVersion>4.3.0</SystemDynamicRuntimeVersion>
-    <SeleniumSupportVersion>4.38.0</SeleniumSupportVersion>
-    <SeleniumWebDriverVersion>4.38.0</SeleniumWebDriverVersion>
+    <SeleniumSupportVersion>4.52.0</SeleniumSupportVersion>
+    <SeleniumWebDriverVersion>4.52.0</SeleniumWebDriverVersion>
     <AvalonEditVersion>6.3.1.120</AvalonEditVersion>
     <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>7.0.0</SystemReactiveVersion>
@@ -60,9 +60,9 @@
     <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
     <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
     <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
-    <MicrosoftPlaywrightVersion>1.55.0</MicrosoftPlaywrightVersion>
+    <MicrosoftPlaywrightVersion>1.64.1</MicrosoftPlaywrightVersion>
     <FluentAssertionsVersion>8.11.0</FluentAssertionsVersion>
-    <AppiumWebDriverVersion>8.0.1</AppiumWebDriverVersion>
+    <AppiumWebDriverVersion>9.0.0</AppiumWebDriverVersion>
     <RestSharpVersion>112.1.0</RestSharpVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>10.0.14</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsConfigurationJsonVersion>10.0.14</MicrosoftExtensionsConfigurationJsonVersion>

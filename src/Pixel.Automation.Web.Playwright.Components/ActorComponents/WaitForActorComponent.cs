@@ -33,7 +33,7 @@ public class WaitForActorComponent : PlaywrightActorComponent
     }
 
     /// <summary>
-    /// Scroll element into view, unless it is completely visible 
+    /// Wait for control to satisfy configured LocatorWaitForOptions
     /// </summary>
     public override async Task ActAsync()
     {
