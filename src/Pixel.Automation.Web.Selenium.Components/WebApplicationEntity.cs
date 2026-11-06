@@ -1,4 +1,4 @@
-﻿using OpenQA.Selenium;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
@@ -204,7 +204,7 @@ public class WebApplicationEntity : ApplicationEntity
             var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
             var webDriver = this.GetTargetApplicationDetails<WebApplication>().WebDriver;
             var screenShot =  webDriver.TakeScreenshot();
-            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath, Core.Enums.ImageFormat.Jpeg);
+            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath);
         }        
     }
 

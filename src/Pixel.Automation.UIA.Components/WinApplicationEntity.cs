@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
 using Pixel.Automation.Core.Attributes;
 using Pixel.Automation.Core.Components;
@@ -109,7 +109,7 @@ public class WinApplicationEntity : ApplicationEntity
             var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
             var appRectangle = windowManager.GetWindowSize(this.applicationDetails.Hwnd);
             var screenShotBytes = screenCapture.CaptureArea(appRectangle);
-            await imageManager.SaveAsAsync(screenShotBytes, filePath, Core.Enums.ImageFormat.Jpeg);
+            await imageManager.SaveAsAsync(screenShotBytes, filePath);
         }           
     }
 }

@@ -163,8 +163,7 @@ public class WebApplicationEntity : ApplicationEntity
             await activePage.ScreenshotAsync(new PageScreenshotOptions
             {
                 Path = filePath,
-                Type = ScreenshotType.Jpeg,
-                Quality = 80
+                Type = ScreenshotType.Png
             });
         }        
     }

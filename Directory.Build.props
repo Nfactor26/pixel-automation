@@ -37,7 +37,6 @@
     <PollyVersion>8.9.0</PollyVersion>
     <CsvHelperVersion>34.0.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
-    <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
     <SystemManagementVersion>10.0.14</SystemManagementVersion>
     <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
     <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
