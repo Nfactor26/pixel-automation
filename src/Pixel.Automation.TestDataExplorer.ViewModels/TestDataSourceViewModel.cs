@@ -139,9 +139,9 @@ namespace Pixel.Automation.TestDataExplorer.ViewModels
         /// <summary>
         /// Delimiter used in csv data file
         /// </summary>
-        public string Delimiter
+        public char Delimiter
         {
-            get => (MetaData as CsvDataSourceConfiguration)?.Delimiter;
+            get => (MetaData as CsvDataSourceConfiguration).Delimiter;
             set
             {
                 if (MetaData is CsvDataSourceConfiguration fsMetaData)
@@ -267,11 +267,7 @@ namespace Pixel.Automation.TestDataExplorer.ViewModels
                     ValidateRequiredProperty(nameof(TestDataType), TestDataType);
                     break;
                 case nameof(Delimiter):
-                    ValidateRequiredProperty(nameof(Delimiter), Delimiter);
-                    if (Delimiter?.Length > 1)
-                    {
-                        AddOrAppendErrors(nameof(Delimiter), $"Delimiter must be a character.");                     
-                    }
+                    ValidateRequiredProperty(nameof(Delimiter), Delimiter == '\0' ? string.Empty : Delimiter.ToString());
                     break;
                 case nameof(DataFileName):
                     ValidateRequiredProperty(nameof(DataFileName), DataFileName);                   

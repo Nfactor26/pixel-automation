@@ -33,9 +33,6 @@
 		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="$(VanaraPInvokeKernel32Version)">
 			<Private>false</Private>
 		</PackageReference>
-		<PackageReference Include="Vanara.PInvoke.Shared" Version="$(VanaraPInvokeSharedVersion)">
-			<Private>false</Private>
-		</PackageReference>
 		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)">
 			<Private>false</Private>
 		</PackageReference>

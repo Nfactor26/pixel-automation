@@ -23,7 +23,7 @@
     <OpenTelemetryExporterConsoleVersion>1.20.1</OpenTelemetryExporterConsoleVersion>
     <OpenTelemetryExporterOpenTelemetryProtocolVersion>1.20.1</OpenTelemetryExporterOpenTelemetryProtocolVersion>
     <OpenTelemetryExtensionsHostingVersion>1.20.1</OpenTelemetryExtensionsHostingVersion>
-    <OpenTelemetryInstrumentationHttpVersion>1.20.1</OpenTelemetryInstrumentationHttpVersion>
+    <OpenTelemetryInstrumentationHttpVersion>1.20.2</OpenTelemetryInstrumentationHttpVersion>
     <DawnGuardVersion>1.12.0</DawnGuardVersion>
     <SystemComponentModelAnnotationsVersion>5.0.0</SystemComponentModelAnnotationsVersion>
     <NewtonsoftJsonVersion>13.0.4</NewtonsoftJsonVersion>
@@ -38,12 +38,11 @@
     <CsvHelperVersion>34.0.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
     <SystemManagementVersion>10.0.14</SystemManagementVersion>
-    <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
-    <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
-    <VanaraPInvokeKernel32Version>4.2.1</VanaraPInvokeKernel32Version>
-    <VanaraPInvokeSharedVersion>4.2.1</VanaraPInvokeSharedVersion>
-    <VanaraPInvokeUser32Version>4.2.1</VanaraPInvokeUser32Version>
-    <VanaraPInvokeShell32Version>4.2.1</VanaraPInvokeShell32Version>
+    <VanaraCoreVersion>5.0.8</VanaraCoreVersion>
+    <VanaraPInvokeGdi32Version>5.0.8</VanaraPInvokeGdi32Version>
+    <VanaraPInvokeKernel32Version>5.0.8</VanaraPInvokeKernel32Version>
+    <VanaraPInvokeUser32Version>5.0.8</VanaraPInvokeUser32Version>
+    <VanaraPInvokeShell32Version>5.0.8</VanaraPInvokeShell32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
     <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
     <MahAppsMetroVersion>2.4.11</MahAppsMetroVersion>
@@ -57,13 +56,14 @@
     <DirksterAvalonDockVersion>4.72.1</DirksterAvalonDockVersion>
     <SystemDrawingCommonVersion>10.0.14</SystemDrawingCommonVersion>
     <GongWpfDragDropVersion>4.0.0</GongWpfDragDropVersion>
-    <OpenCvSharp4Version>4.11.0.20250507</OpenCvSharp4Version>
-    <OpenCvSharp4RuntimeUbuntu1804x64Version>4.6.0.20220608</OpenCvSharp4RuntimeUbuntu1804x64Version>
-    <OpenCvSharp4RuntimeWinVersion>4.11.0.20250507</OpenCvSharp4RuntimeWinVersion>
+    <OpenCvSharp4Version>4.13.0.20260627</OpenCvSharp4Version>
+    <OpenCvSharp4RuntimeLinuxX64Version>4.13.0.20260627</OpenCvSharp4RuntimeLinuxX64Version>
+    <OpenCvSharp4RuntimeWinVersion>4.13.0.20260627</OpenCvSharp4RuntimeWinVersion>
     <MicrosoftPlaywrightVersion>1.64.1</MicrosoftPlaywrightVersion>
     <FluentAssertionsVersion>8.11.0</FluentAssertionsVersion>
     <AppiumWebDriverVersion>9.0.0</AppiumWebDriverVersion>
-    <RestSharpVersion>112.1.0</RestSharpVersion>
+    <RestSharpVersion>114.1.0</RestSharpVersion>
+    <MicrosoftWebWebView2Version>1.0.4314.35</MicrosoftWebWebView2Version>
     <MicrosoftExtensionsConfigurationBinderVersion>10.0.14</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsConfigurationJsonVersion>10.0.14</MicrosoftExtensionsConfigurationJsonVersion>
     <NinjectVersion>3.3.6</NinjectVersion>

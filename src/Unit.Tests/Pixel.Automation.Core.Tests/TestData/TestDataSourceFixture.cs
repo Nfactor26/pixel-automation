@@ -39,19 +39,19 @@ namespace Pixel.Automation.Core.Tests.TestData
             var dataSourceConfiguration = new CsvDataSourceConfiguration();
             Assert.That(dataSourceConfiguration.TargetTypeName is null);
             Assert.That(dataSourceConfiguration.TargetFile is null);
-            Assert.That(dataSourceConfiguration.Delimiter, Is.EqualTo(","));
+            Assert.That(dataSourceConfiguration.Delimiter, Is.EqualTo(','));
             Assert.That(dataSourceConfiguration.HasHeader);
 
 
             dataSourceConfiguration.TargetTypeName = "Person";
             dataSourceConfiguration.TargetFile = "Persons.csv";
-            dataSourceConfiguration.Delimiter = "|";
+            dataSourceConfiguration.Delimiter = '|';
             dataSourceConfiguration.HasHeader = false;
          
        
             Assert.That(dataSourceConfiguration.TargetTypeName, Is.EqualTo("Person"));
             Assert.That(dataSourceConfiguration.TargetFile, Is.EqualTo("Persons.csv"));
-            Assert.That(dataSourceConfiguration.Delimiter, Is.EqualTo("|"));
+            Assert.That(dataSourceConfiguration.Delimiter, Is.EqualTo('|'));
             Assert.That(dataSourceConfiguration.HasHeader == false);
 
         }

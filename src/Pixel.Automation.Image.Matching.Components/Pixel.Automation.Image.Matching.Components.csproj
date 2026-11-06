@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == '$(CrossPlatformTargetFramework)'">
-		<PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="$(OpenCvSharp4RuntimeUbuntu1804x64Version)">
+		<PackageReference Include="OpenCvSharp4.official.runtime.linux-x64" Version="$(OpenCvSharp4RuntimeLinuxX64Version)">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>

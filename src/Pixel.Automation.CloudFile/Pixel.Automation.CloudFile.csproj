@@ -12,7 +12,6 @@
 		<PackageReference Include="Vanara.Core" Version="$(VanaraCoreVersion)" />
 		<PackageReference Include="Vanara.PInvoke.Gdi32" Version="$(VanaraPInvokeGdi32Version)" />
 		<PackageReference Include="Vanara.PInvoke.Kernel32" Version="$(VanaraPInvokeKernel32Version)" />
-		<PackageReference Include="Vanara.PInvoke.Shared" Version="$(VanaraPInvokeSharedVersion)" />
 		<PackageReference Include="Vanara.PInvoke.User32" Version="$(VanaraPInvokeUser32Version)" />
 		<PackageReference Include="Vanara.PInvoke.CldApi" Version="$(VanaraCoreVersion)" />
 		<PackageReference Include="Vanara.PInvoke.Ole" Version="$(VanaraCoreVersion)" />
