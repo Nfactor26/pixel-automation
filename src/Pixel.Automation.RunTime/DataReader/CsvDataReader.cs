@@ -1,178 +1,152 @@
 ﻿using CsvHelper;
-using CsvHelper.Configuration;
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Linq;
 
-namespace Pixel.Automation.RunTime.DataReader
+namespace Pixel.Automation.RunTime.DataReader;
+
+/// <inheritdoc/>
+public class CsvDataReader : IDataReader
 {
-    /// <inheritdoc/>
-    public class CsvDataReader : IDataReader
+    
+    private CsvDataSourceConfiguration metaData;   
+    private CsvReaderOptions configuration;
+
+    public void Initialize(DataSourceConfiguration metaData)
     {
-        
-        private CsvDataSourceConfiguration metaData;   
-        private CsvConfiguration configuration;
+        Guard.Argument(metaData).HasValue();
+        this.metaData = Guard.Argument<DataSourceConfiguration>(metaData).Cast<CsvDataSourceConfiguration>();    
+        this.configuration = new CsvReaderOptions() 
+        { 
+            Separator = this.metaData.Delimiter,
+            HasHeader = this.metaData.HasHeader
+        };
 
-        public void Initialize(DataSourceConfiguration metaData)
+        if (!File.Exists(this.metaData.TargetFile))
         {
-            Guard.Argument(metaData).HasValue();
-            this.metaData = Guard.Argument<DataSourceConfiguration>(metaData).Cast<CsvDataSourceConfiguration>();    
-            this.configuration = new CsvConfiguration(CultureInfo.InvariantCulture) 
-            { 
-                Delimiter = this.metaData.Delimiter,
-                HasHeaderRecord = this.metaData.HasHeader
-            };
-
-            if (!File.Exists(this.metaData.TargetFile))
-            {
-                throw new FileNotFoundException("File doesn't exist", this.metaData.TargetFile);
-            }
-            if(string.IsNullOrEmpty(this.metaData.Delimiter))
-            {
-                throw new ArgumentException("Delimiter is not specified");
-            }        
-        }
-       
-        public IEnumerable<string[]> GetAllRows()
-        {
-            using (var streamReader = new StreamReader(this.metaData.TargetFile))
-            {
-                using (var csvReader = new CsvReader(streamReader, this.configuration))
-                {                  
-                    csvReader.Read();
-                    if (metaData.HasHeader)
-                    {
-                        csvReader.ReadHeader();
-                    }
-                    while (csvReader.Read())
-                    {
-                        string[] rowData = csvReader.Parser.Record;
-                        yield return rowData;
-                    }
-
-                }
-            }
-        }
-
-        public IEnumerable<T> GetAllRowsAs<T>() where T : class, new()
-        {
-            List<T> rows = new List<T>();
-            using (var streamReader = new StreamReader(this.metaData.TargetFile))
-            {
-                using (var csvReader = new CsvReader(streamReader, this.configuration))
-                {                  
-                    csvReader.Read();
-                    if (metaData.HasHeader)
-                    {
-                        csvReader.ReadHeader();
-                    }
-                    while (csvReader.Read())
-                    {
-                        T instance = csvReader.GetRecord<T>();
-                        rows.Add(instance);
-                    }
-
-                }
-            }
-            return rows;
-        }
-
-        public string[] GetHeaders()
+            throw new FileNotFoundException("File doesn't exist", this.metaData.TargetFile);
+        }             
+    }
+   
+    public IEnumerable<string[]> GetAllRows()
+    {
+        using (var csvReader = CsvReader.FromFile(this.metaData.TargetFile, this.configuration))
         {
             if (metaData.HasHeader)
             {
-                using (var streamReader = new StreamReader(this.metaData.TargetFile))
-                {
-                    using (var csvReader = new CsvReader(streamReader, this.configuration))
-                    {                       
-                        csvReader.Read();
-                        csvReader.ReadHeader();
-                        return csvReader.HeaderRecord;
-                    }
-                }
+                csvReader.ReadHeader();
             }
-            return Array.Empty<string>();
-        }
-
-        public int GetRowCount()
-        {
-            int rowCount = 0;
-            using (StreamReader streamReader = new StreamReader(this.metaData.TargetFile))
+            while (csvReader.Read())
             {
-                while (streamReader.ReadLine() != null)
-                {
-                    rowCount++;
-                }
+                string[] rowData = csvReader.Current.ToArray();
+                yield return rowData;
             }
+
+        }
+    }
+
+    public IEnumerable<T> GetAllRowsAs<T>() where T : class, new()
+    {
+        List<T> rows = new List<T>();
+        using (var csvReader = CsvReader.FromFile(this.metaData.TargetFile, this.configuration))
+        {
             if (metaData.HasHeader)
             {
-                --rowCount;
+                csvReader.ReadHeader();
             }
-            return rowCount;
-        }
-
-        public string[] GetRowData(int rowIndex)
-        {
-            using (var streamReader = new StreamReader(this.metaData.TargetFile))
+            while (csvReader.Read())
             {
-                using (var csvReader = new CsvReader(streamReader, this.configuration))
-                {
-                    csvReader.Read();
-                    if (metaData.HasHeader)
-                    {
-                        csvReader.ReadHeader();
-                    }
-
-                    int currentRow = -1;
-                    while (currentRow < rowIndex && csvReader.Read())
-                    {
-                        currentRow++;
-                    }
-                    if (currentRow < rowIndex)
-                    {
-                        throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
-                    }
-                    return csvReader.Parser.Record;
-                }
+                T instance = csvReader.GetRecord<T>();
+                rows.Add(instance);
             }
 
-        }
+        }      
+        return rows;
+    }
 
-        public T GetRowDataAs<T>(int rowIndex) where T : class, new()
+    public string[] GetHeaders()
+    {
+        if (metaData.HasHeader)
         {
-            using (var streamReader = new StreamReader(this.metaData.TargetFile))
+            using (var csvReader = CsvReader.FromFile(this.metaData.TargetFile, this.configuration))
             {
-                using (var csvReader = new CsvReader(streamReader, this.configuration))
-                {                    
-                    csvReader.Read();
-                    if (metaData.HasHeader)
-                    {
-                        csvReader.ReadHeader();
-                    }
+                csvReader.ReadHeader();
+                return csvReader.Headers.ToArray();
+            }
+        }
+        return Array.Empty<string>();
+    }
 
-                    int currentRow = -1;
-                    while (currentRow < rowIndex && csvReader.Read())
-                    {
-                        currentRow++;
-                    }
-                    if (currentRow < rowIndex)
-                    {
-                        throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
-                    }
-                    T instance = csvReader.GetRecord<T>();
-                    return instance;
-                }
+    public int GetRowCount()
+    {
+        int rowCount = 0;
+        using (StreamReader streamReader = new StreamReader(this.metaData.TargetFile))
+        {
+            while (streamReader.ReadLine() != null)
+            {
+                rowCount++;
+            }
+        }
+        if (metaData.HasHeader)
+        {
+            --rowCount;
+        }
+        return rowCount;
+    }
+
+    public string[] GetRowData(int rowIndex)
+    {
+        using (var csvReader = CsvReader.FromFile(this.metaData.TargetFile, this.configuration))
+        {               
+            if (metaData.HasHeader)
+            {
+                csvReader.ReadHeader();
             }
 
+            int currentRow = -1;
+            while (currentRow < rowIndex && csvReader.Read())
+            {
+                currentRow++;
+            }
+            if (currentRow < rowIndex)
+            {
+                throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
+            }
+            return csvReader.Current.ToArray();
         }
 
-        public bool CanProcessFileType(string fileType)
+    }
+
+    public T GetRowDataAs<T>(int rowIndex) where T : class, new()
+    {
+        using (var csvReader = CsvReader.FromFile(this.metaData.TargetFile, this.configuration))
         {
-            return fileType?.Equals("csv") ?? false;
+            if (metaData.HasHeader)
+            {
+                csvReader.ReadHeader();
+            }
+
+            int currentRow = -1;
+            while (currentRow < rowIndex && csvReader.Read())
+            {
+                currentRow++;
+            }
+            if (currentRow < rowIndex)
+            {
+                throw new IndexOutOfRangeException($"Row Index {rowIndex} doesn't exist in file");
+            }
+            T instance = csvReader.GetRecord<T>();
+            return instance;
         }
+
+    }
+
+    public bool CanProcessFileType(string fileType)
+    {
+        return fileType?.Equals("csv") ?? false;
     }
 }
