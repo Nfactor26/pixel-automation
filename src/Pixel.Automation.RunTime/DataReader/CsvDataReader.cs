@@ -1,5 +1,4 @@
 ﻿using CsvHelper;
-using CsvHelper.Configuration;
 using Dawn;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
