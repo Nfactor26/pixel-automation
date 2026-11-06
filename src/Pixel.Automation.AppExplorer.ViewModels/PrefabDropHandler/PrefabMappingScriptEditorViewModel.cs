@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Components.Prefabs;
 using Pixel.Automation.Core.Components.TestCase;
 using Pixel.Automation.Editor.Core;
@@ -36,7 +36,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
         }
 
         /// <inheritdoc/>       
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             string scriptFile = GetScriptFile();
             string generatedCode;
@@ -75,7 +75,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 
             this.ScriptEditor.Activate();
           
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
         }
 
         protected abstract void AddProject(string[] projectReferences);

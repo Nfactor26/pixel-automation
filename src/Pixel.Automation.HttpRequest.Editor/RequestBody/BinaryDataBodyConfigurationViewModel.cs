@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.RestApi.Shared;
@@ -42,7 +42,7 @@ public class BinaryDataBodyConfigurationViewModel : Screen, IConfigurationScreen
     }
 
     /// </inheritdoc>
-    protected override Task OnActivateAsync(CancellationToken cancellationToken)
+    protected override Task OnActivatedAsync(CancellationToken cancellationToken)
     {
         if (this.httpRequest.RequestBody == null || this.httpRequest.RequestBody.GetType() != typeof(BinaryBodyContent))
         {
@@ -52,6 +52,6 @@ public class BinaryDataBodyConfigurationViewModel : Screen, IConfigurationScreen
         {
             this.RequestBody = binaryBodyContent;
         }
-        return base.OnActivateAsync(cancellationToken);
+        return base.OnActivatedAsync(cancellationToken);
     }
 }

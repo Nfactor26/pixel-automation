@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -122,13 +122,13 @@ namespace Pixel.Automation.Editor.Core
         }
 
 
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {        
             if (this.ActiveItem == null)
             {
                 await ActivateItemAsync(this.stagedScreens.First(), CancellationToken.None);
             }
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
         }
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)

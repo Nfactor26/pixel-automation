@@ -70,15 +70,20 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | --- | --- | --- |
 | System.Reactive | 6.0.1 | 7.0.0 |
 
-## High risk — pending review
+## Caliburn.Micro and AvalonDock — updated; migration review pending
+
+| Package | Previous | Updated |
+| --- | --- | --- |
+| Caliburn.Micro | 4.0.230 | 5.0.258 |
+| Dirkster.AvalonDock | 4.72.1 | 5.0.1 |
+
+## Other high risk — pending review
 
 | Package | Current | Latest |
 | --- | --- | --- |
 | Appium.WebDriver | 8.0.1 | 9.0.0 |
 | AutoMapper | 15.0.1 | 16.2.0 |
-| Caliburn.Micro | 4.0.230 | 5.0.258 |
 | CsvHelper | 33.1.0 | 34.0.0 |
-| Dirkster.AvalonDock | 4.72.1 | 5.0.1 |
 | IdentityModel.OidcClient | 5.1.0 | Not found at the sources |
 | MahApps.Metro.IconPacks | 4.11.0 | 6.2.1 |
 | Microsoft.CodeAnalysis.Common | 4.14.0 | 5.9.0 |
@@ -104,6 +109,23 @@ The OpenTelemetry update requires the Configuration packages at version 10 or la
 | Vanara.Windows.Shell | 4.2.1 | 5.0.8 |
 
 Review priorities: AutoMapper and SixLabors.ImageSharp still produce NuGet vulnerability warnings. ImageSharp 3.2.0 and 4.1.3 compiled in Debug but failed a Release build because no Six Labors license was found; the image package remains at 3.1.11. The generated AutoMapper scripts use the old one-argument `MapperConfiguration` constructor, while the [AutoMapper upgrade guide](https://docs.automapper.io/en/latest/15.0-Upgrade-Guide.html) requires an `ILoggerFactory`; upgrade the generated scripts and verify them separately. [CsvHelper 34](https://joshclose.github.io/CsvHelper/migration/v34.0.0.html) removes `CsvConfiguration` and changes typed record mapping; `CsvDataReader` requires a dedicated migration before updating. Selenium 4.52 removes `SeleniumManager`, which the code calls, so that update needs a code migration. Keep related packages in a family aligned when upgrading. `IdentityModel.OidcClient` returned “Not found at the sources”; verify its package source before changing it.
+
+## Caliburn.Micro and AvalonDock migration notes
+
+The package versions above are now updated. The solution targets .NET 10, which is supported by AvalonDock 5; the framework target is not a blocker.
+
+### Breaking changes found
+
+- **Caliburn.Micro 5:** The v5 release notes describe async/lifecycle modernization and API refactoring, but do not provide an exhaustive v4-to-v5 breaking-change list. This solution has broad Caliburn usage: WPF bootstrapper and XAML conventions, `Screen` lifecycle overrides, `IEventAggregator`, `IWindowManager`, and `PropertyChangedBase`. Compile errors and runtime binding/lifecycle differences must be treated as migration findings rather than assuming source compatibility. Caliburn's major async event-aggregator and lifecycle changes were already introduced in v4, so they are not new v5 migration steps here.
+- **Dirkster.AvalonDock 5:** XML serialization moved out of `Dirkster.AvalonDock` into `Dirkster.AvalonDock.Serializer.Xml`, with serializer namespace changes; the v5 layout model no longer implements `IXmlSerializable`; themes/serializers are modular packages; public API cleanup may require renames; behavior changed for unresolved layout items and layout `ToolTip` persistence. Custom `ILayoutEngine` or core-interface implementations need additional API updates, and older target frameworks are dropped.
+- **Solution-specific impact:** The code search found no AvalonDock layout serializer, custom serializer, `ILayoutEngine`, or implementations of the new core interfaces. The app uses AvalonDock's in-memory layout, `ILayoutUpdateStrategy`, custom theme XAML, and docking controls. Therefore the XML serializer package is not added preemptively; add it only if persistence is introduced or discovered during migration. The custom MahApps theme and docking interactions still require runtime review.
+
+### Migration status and remaining plan
+
+1. **Done:** Restore and build after the version change. Caliburn v5 reported obsolete lifecycle overrides (`OnActivateAsync` and `OnInitializeAsync`); these were migrated to `OnActivatedAsync` and `OnInitializedAsync`, including base calls. The solution then built with 0 errors. Other pre-existing warnings remain.
+2. **Next:** Verify the custom AvalonDock MahApps theme resources and `ILayoutUpdateStrategy` behavior against v5 in the Windows app.
+3. **Next:** Run the existing unit test suite, then perform a Windows UI smoke pass covering app startup and view discovery, screen activation/deactivation and close guards, event delivery, dock/float/auto-hide/close, tool/document insertion, and saved user layout if the host application persists docking state externally.
+4. **As needed:** Record concrete runtime findings here and add serializer packages or migration adapters only if the application actually uses those features.
 
 ## Verification
 

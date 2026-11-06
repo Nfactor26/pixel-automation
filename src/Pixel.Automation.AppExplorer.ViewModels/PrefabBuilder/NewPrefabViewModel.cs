@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.AppExplorer.ViewModels.Application;
+using Pixel.Automation.AppExplorer.ViewModels.Application;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -77,10 +77,10 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             return this.prefabProject;
         }
 
-        protected override Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             logger.Information($"Activate screen is {nameof(NewPrefabViewModel)}");
-            return base.OnActivateAsync(cancellationToken);
+            return base.OnActivatedAsync(cancellationToken);
         }
 
         #region INotifyDataErrorInfo

@@ -1,4 +1,4 @@
-﻿using Dawn;
+using Dawn;
 using Microsoft.Web.WebView2.Wpf;
 using Pixel.Automation.Core.Interfaces;
 using Screen = Caliburn.Micro.Screen;
@@ -16,9 +16,9 @@ namespace Pixel.Automation.Designer.ViewModels.Shell
             this.signInManager = Guard.Argument(signInManager).NotNull().Value;         
         }
 
-        protected override async Task OnInitializeAsync(CancellationToken cancellationToken)
+        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
         {
-            await base.OnInitializeAsync(cancellationToken);          
+            await base.OnInitializedAsync(cancellationToken);
 
             _ = this.signInManager.SignInAsync(this.WebView);
         }

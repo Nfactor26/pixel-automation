@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core;
+using Pixel.Automation.Core;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.Models;
 using Pixel.Automation.Editor.Core;
@@ -58,7 +58,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             return dataModelAssembly;
         }
 
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             logger.Information($"Activated screen {nameof(PrefabDataModelEditorViewModel)}");
           
@@ -83,7 +83,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             await this.CodeEditor.AddDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.ProjectId, generatedCode.ToString(), false);
             await this.CodeEditor.OpenDocumentAsync($"{Constants.PrefabDataModelName}.cs", prefabProject.ProjectId);           
         
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
 
             string GetDataModelFileContent()
             {
