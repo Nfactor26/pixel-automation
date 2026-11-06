@@ -1,4 +1,4 @@
-﻿using Pixel.Automation.Core.Extensions;
+using Pixel.Automation.Core.Extensions;
 using Pixel.Automation.Core.Interfaces;
 using Pixel.Automation.Core.TestData;
 using Pixel.Automation.Editor.Core;
@@ -130,7 +130,7 @@ namespace Pixel.Automation.TestDataExplorer.ViewModels
         }
 
         ///<inheritdoc/>
-        protected override  async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override  async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             if (this.ScriptEditor == null)
             {
@@ -151,7 +151,7 @@ namespace Pixel.Automation.TestDataExplorer.ViewModels
                 AddOrAppendErrors(string.Empty, errorDescription);
                 logger.Warning("There was an error while generating data model code. {0}", errorDescription);
             }
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
 
             logger.Debug("{0} is activated now", nameof(TestDataModelEditorViewModel));
         }

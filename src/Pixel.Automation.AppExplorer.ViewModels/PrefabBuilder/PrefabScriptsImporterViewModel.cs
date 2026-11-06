@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
@@ -72,13 +72,13 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             return string.Empty;
         }
 
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             logger.Information($"Activate screen is {nameof(PrefabScriptsImporterViewModel)}");
 
             this.RequiredScripts.AddRange(scriptExtractor.ExtractScripts(rootEntity));
             ValidateScripts();
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
         }
 
         /// <summary>

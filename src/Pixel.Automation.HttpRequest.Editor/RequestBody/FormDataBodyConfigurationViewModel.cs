@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.RestApi.Shared;
@@ -66,7 +66,7 @@ public class FormDataBodyConfigurationViewModel : Screen, IConfigurationScreen
     }
 
     /// </inheritdoc>
-    protected override Task OnActivateAsync(CancellationToken cancellationToken)
+    protected override Task OnActivatedAsync(CancellationToken cancellationToken)
     {
         if (this.httpRequest.RequestBody == null || this.httpRequest.RequestBody.GetType() != typeof(FormDataBodyContent))
         {
@@ -83,6 +83,6 @@ public class FormDataBodyConfigurationViewModel : Screen, IConfigurationScreen
                 this.AddFormField();
             }
         }     
-        return base.OnActivateAsync(cancellationToken);
+        return base.OnActivatedAsync(cancellationToken);
     }
 }

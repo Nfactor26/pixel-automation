@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using Dawn;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
@@ -127,7 +127,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             }
         }
 
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             logger.Information($"Activate screen is {nameof(PrefabDataModelBuilderViewModel)}");
             ClearErrors("");          
@@ -135,7 +135,7 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabBuilder
             arguments.AddRange(argumentExtractor.ExtractArguments(prefabProject.PrefabRoot as Entity));
             BuildPropertyDescription(scriptEngine, currentDataModel);
             MarkRequiredProperties();
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
         }
 
         private void BuildPropertyDescription(IScriptEngine scriptEngine, object dataModel)

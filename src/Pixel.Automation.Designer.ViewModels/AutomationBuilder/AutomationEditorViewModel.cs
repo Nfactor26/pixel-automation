@@ -1,4 +1,4 @@
-﻿using Caliburn.Micro;
+using Caliburn.Micro;
 using Dawn;
 using Notifications.Wpf.Core;
 using Pixel.Automation.Core;
@@ -249,12 +249,12 @@ namespace Pixel.Automation.Designer.ViewModels
 
         #region OnLoad
 
-        protected override async Task OnActivateAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             //whenever we activate the automation editor, activate the test explorer and test data repository associated with it as well
             await this.testExplorerHost.ActivateItemAsync(this.testExplorer);
             await this.testDataRepositoryHost.ActivateItemAsync(this.testDataRepository);
-            await base.OnActivateAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
             logger.Debug("Automation Project screen - {0} was activated", this.CurrentProject.Name);
         }
 
