@@ -38,12 +38,11 @@
     <CsvHelperVersion>34.0.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
     <SystemManagementVersion>10.0.14</SystemManagementVersion>
-    <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
-    <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>
-    <VanaraPInvokeKernel32Version>4.2.1</VanaraPInvokeKernel32Version>
-    <VanaraPInvokeSharedVersion>4.2.1</VanaraPInvokeSharedVersion>
-    <VanaraPInvokeUser32Version>4.2.1</VanaraPInvokeUser32Version>
-    <VanaraPInvokeShell32Version>4.2.1</VanaraPInvokeShell32Version>
+    <VanaraCoreVersion>5.0.8</VanaraCoreVersion>
+    <VanaraPInvokeGdi32Version>5.0.8</VanaraPInvokeGdi32Version>
+    <VanaraPInvokeKernel32Version>5.0.8</VanaraPInvokeKernel32Version>
+    <VanaraPInvokeUser32Version>5.0.8</VanaraPInvokeUser32Version>
+    <VanaraPInvokeShell32Version>5.0.8</VanaraPInvokeShell32Version>
     <MouseKeyHookVersion>5.7.1</MouseKeyHookVersion>
     <CaliburnMicroVersion>4.0.230</CaliburnMicroVersion>
     <MahAppsMetroVersion>2.4.11</MahAppsMetroVersion>

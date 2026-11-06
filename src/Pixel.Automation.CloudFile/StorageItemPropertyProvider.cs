@@ -81,10 +81,10 @@ internal sealed class StorageItemPropertyProvider : IDisposable
 
     PROPVARIANT GetProperty(string propertyKey)
     {
-        PROPVARIANT result = new();
+        PROPVARIANT_UNMGD result = new();
         PropSys.PSGetPropertyKeyFromName(propertyKey, out var key);
-        propertyStore?.GetValue(key, result);
-        return result;
+        propertyStore?.GetValue(key, out result);
+        return new PROPVARIANT(result);
     }
 
     void ThrowIfDisposed()
