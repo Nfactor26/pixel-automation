@@ -35,10 +35,8 @@
     <DotNetProjectsExtendedWpfToolkitVersion>5.0.129</DotNetProjectsExtendedWpfToolkitVersion>
     <SystemReactiveVersion>7.0.0</SystemReactiveVersion>
     <PollyVersion>8.9.0</PollyVersion>
-    <AutoMapperVersion>15.0.1</AutoMapperVersion>
     <CsvHelperVersion>33.1.0</CsvHelperVersion>
     <InputSimulatorStandardVersion>1.0.0</InputSimulatorStandardVersion>
-    <SixLaborsImageSharpVersion>3.1.11</SixLaborsImageSharpVersion>
     <SystemManagementVersion>10.0.14</SystemManagementVersion>
     <VanaraCoreVersion>4.2.1</VanaraCoreVersion>
     <VanaraPInvokeGdi32Version>4.2.1</VanaraPInvokeGdi32Version>

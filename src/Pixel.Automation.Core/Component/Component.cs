@@ -320,7 +320,7 @@ namespace Pixel.Automation.Core
             //Without this, components from prefab will end up getting path in prefab temp directory that can't be located later while trying to upload image.
             string GetImagePath()
             {
-                return Path.Combine((ownerApplicationEntity as Entity).EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.jpeg");
+                return Path.Combine((ownerApplicationEntity as Entity).EntityManager.GetCurrentFileSystem().TempDirectory, $"{Path.GetRandomFileName()}.png");
             }
         }
 

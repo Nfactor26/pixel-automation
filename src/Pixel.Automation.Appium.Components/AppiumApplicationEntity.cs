@@ -1,4 +1,4 @@
-﻿using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Service;
 using Pixel.Automation.Core;
 using Pixel.Automation.Core.Arguments;
@@ -92,7 +92,7 @@ public class AppiumApplicationEntity : ApplicationEntity
             var imageManager = this.EntityManager.GetServiceOfType<IImageManager>();
             var appiumDriver = this.GetTargetApplicationDetails<AppiumApplication>().Driver;
             var screenShot = appiumDriver.GetScreenshot();
-            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath, Core.Enums.ImageFormat.Jpeg);
+            await imageManager.SaveAsAsync(screenShot.AsByteArray, filePath);
         }    
     }
 
