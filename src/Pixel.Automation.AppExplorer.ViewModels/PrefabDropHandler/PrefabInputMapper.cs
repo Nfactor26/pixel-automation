@@ -83,46 +83,26 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
 
             StringBuilder mappingBuilder = new StringBuilder();
             //mappingBuilder.AppendLine($"#r \"{assignTo.Assembly.GetName().Name}.dll\"");
-            mappingBuilder.AppendLine($"#r \"AutoMapper.dll\" {Environment.NewLine}");
-            mappingBuilder.AppendLine($"using AutoMapper;");
             mappingBuilder.AppendLine($"using TestModel = {assignFrom.Namespace};");
             mappingBuilder.AppendLine($"using PrefabModel = {assignTo.Namespace};{Environment.NewLine}");
             mappingBuilder.AppendLine($"void MapInput(PrefabModel.{Constants.PrefabDataModelName} prefabModel)");
             mappingBuilder.AppendLine("{");
-            if (mappings.Any(m => !m.AssignToType.Equals(m.AssignFromType)))
-            {
-                mappingBuilder.AppendLine("    var configuration = new MapperConfiguration(cfg => ");
-                mappingBuilder.AppendLine("    {");
-                foreach (var mapping in mappings.Where(m => m.AssignFromType != null && !m.AssignToType.Equals(m.AssignFromType)))
-                {
-                    GenerateMap(mappingBuilder, mapping);
-                }
-                mappingBuilder.AppendLine("    });");
-                mappingBuilder.AppendLine("    var mapper = configuration.CreateMapper();");
-                foreach (var mapping in mappings.Where(m => m.AssignFromType != null && !m.AssignToType.Equals(m.AssignFromType)))
-                {
-                    AssignMap(mappingBuilder, mapping);
-                }
-            }
-            else
-            {
-                //Always add this to generated code so that it is easier to get started if needed.
-                mappingBuilder.AppendLine("    var configuration = new MapperConfiguration(cfg => {});");               
-                mappingBuilder.AppendLine("    var mapper = configuration.CreateMapper();");
-            }
             foreach (var mapping in mappings)
             {
-                if ((mapping.AssignFromType != null) && (!mapping.AssignToType.Equals(mapping.AssignFromType)))
-                {
-                    continue;
-                }
                 if (!string.IsNullOrEmpty(mapping.AssignFrom) && !string.IsNullOrEmpty(mapping.AssignTo))
                 {
-                    mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = {mapping.AssignFrom};");
+                    if (IsSimpleType(mapping.AssignFromType) && mapping.AssignFromType == mapping.AssignToType)
+                    {
+                        mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = {mapping.AssignFrom};");
+                    }
+                    else
+                    {
+                        mappingBuilder.AppendLine($"    // TODO: Manually map {mapping.AssignFrom} ({mapping.AssignFromType?.Name}) to prefabModel.{mapping.AssignTo} ({mapping.AssignToType?.Name}).");
+                    }
                 }
                 else if(string.IsNullOrEmpty(mapping.AssignFrom) && !string.IsNullOrEmpty(mapping.AssignTo))
                 {
-                    mappingBuilder.AppendLine($"    //prefabModel.{mapping.AssignTo} = ?;");
+                    mappingBuilder.AppendLine($"    // TODO: Manually map a value to prefabModel.{mapping.AssignTo}.");
                 }
             }
             mappingBuilder.AppendLine("}");
@@ -132,63 +112,12 @@ namespace Pixel.Automation.AppExplorer.ViewModels.PrefabDropHandler
             return mappingBuilder.ToString();
         }
 
-        /// <summary>
-        /// generate code to create automapper map configuration between source and destination types
-        /// </summary>
-        /// <param name="mappingBuilder"></param>
-        /// <param name="mapping"></param>
-        internal static void GenerateMap(StringBuilder mappingBuilder, PropertyMap mapping)
+        private static bool IsSimpleType(Type type)
         {
-            if (IsGenericIEnumerable(mapping.AssignFromType) && IsGenericIEnumerable(mapping.AssignToType))
-            {
-                var assignFromGenericArguments = mapping.AssignFromType.GetGenericArguments();
-                var assignToGenericArguments = mapping.AssignToType.GetGenericArguments();
-                if (assignFromGenericArguments.Count() == 1 && assignFromGenericArguments.Count() == 1)
-                {
-                    mappingBuilder.AppendLine($"        cfg.CreateMap<TestModel.{assignFromGenericArguments[0].Name}, PrefabModel.{assignToGenericArguments[0].Name}>();");
-                }
-            }
-            else if (mapping.AssignFromType.IsArray && mapping.AssignToType.IsArray)
-            {
-                mappingBuilder.AppendLine($"        cfg.CreateMap<TestModel.{mapping.AssignFromType.GetElementType().Name}, PrefabModel.{mapping.AssignToType.GetElementType().Name}>();");
-            }
-            else if (!mapping.AssignFromType.IsGenericType && !mapping.AssignToType.IsGenericType)
-            {
-                mappingBuilder.AppendLine($"        cfg.CreateMap<TestModel.{mapping.AssignFromType.Name}, PrefabModel.{mapping.AssignToType.Name}>();");
-            }
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            return type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal)
+                || type == typeof(DateTime) || type == typeof(DateTimeOffset) || type == typeof(TimeSpan) || type == typeof(Guid);
         }
 
-        /// <summary>
-        /// Generate code to assign source property to target property using automapper map
-        /// </summary>
-        /// <param name="mappingBuilder"></param>
-        /// <param name="mapping"></param>
-        internal static void AssignMap(StringBuilder mappingBuilder, PropertyMap mapping)
-        {
-            if (IsGenericIEnumerable(mapping.AssignFromType) && IsGenericIEnumerable(mapping.AssignToType))
-            {
-                var assignFromGenericArguments = mapping.AssignFromType.GetGenericArguments();
-                var assignToGenericArguments = mapping.AssignToType.GetGenericArguments();
-                if (assignFromGenericArguments.Count() == 1 && assignFromGenericArguments.Count() == 1)
-                {
-                    string fromType = $"{mapping.AssignFromType.Name.Split('`')[0]}<TestModel.{assignFromGenericArguments[0].Name}>";
-                    string toType = $"{mapping.AssignToType.Name.Split('`')[0]}<PrefabModel.{assignToGenericArguments[0].Name}>";
-                    mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<{fromType}, {toType}>({mapping.AssignFrom});");
-                }
-            }
-            else if (mapping.AssignFromType.IsArray && mapping.AssignToType.IsArray)
-            {
-                mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<{mapping.AssignFromType.GetElementType().Name}[], {mapping.AssignToType.GetElementType().Name}[]>({mapping.AssignFrom});");
-            }
-            else if (!mapping.AssignFromType.IsGenericType && !mapping.AssignToType.IsGenericType)
-            {
-                mappingBuilder.AppendLine($"    prefabModel.{mapping.AssignTo} = mapper.Map<{mapping.AssignFromType.Name}, {mapping.AssignToType.Name}>({mapping.AssignFrom});");
-            }
-        }
-
-        internal static bool IsGenericIEnumerable(Type type)
-        {
-            return type.IsGenericType && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-        }
     }
 }

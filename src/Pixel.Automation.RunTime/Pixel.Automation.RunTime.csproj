@@ -20,7 +20,6 @@
 			<IncludeAssets>compile</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-		<PackageReference Include="AutoMapper" Version="$(AutoMapperVersion)" />
 		<PackageReference Include="CsvHelper" Version="$(CsvHelperVersion)" />
 	</ItemGroup>
 
