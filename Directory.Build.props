@@ -48,10 +48,10 @@
     <MahAppsMetroVersion>2.4.11</MahAppsMetroVersion>
     <MahAppsMetroIconPacksVersion>4.11.0</MahAppsMetroIconPacksVersion>
     <NotificationsWpfCoreVersion>2.0.1</NotificationsWpfCoreVersion>
-    <MicrosoftCodeAnalysisCommonVersion>4.14.0</MicrosoftCodeAnalysisCommonVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>4.14.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisCSharpFeaturesVersion>4.14.0</MicrosoftCodeAnalysisCSharpFeaturesVersion>
-    <MicrosoftCodeAnalysisCSharpScriptingVersion>4.14.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
+    <MicrosoftCodeAnalysisCommonVersion>5.9.0</MicrosoftCodeAnalysisCommonVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisCSharpFeaturesVersion>5.9.0</MicrosoftCodeAnalysisCSharpFeaturesVersion>
+    <MicrosoftCodeAnalysisCSharpScriptingVersion>5.9.0</MicrosoftCodeAnalysisCSharpScriptingVersion>
     <SystemRuntimeLoaderVersion>4.3.0</SystemRuntimeLoaderVersion>
     <DirksterAvalonDockVersion>5.0.1</DirksterAvalonDockVersion>
     <SystemDrawingCommonVersion>10.0.14</SystemDrawingCommonVersion>
