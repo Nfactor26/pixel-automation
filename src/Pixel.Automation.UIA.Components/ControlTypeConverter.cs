@@ -72,7 +72,7 @@ public static class ControlTypeConverter
                 return ControlType.Edit;
             case WinControlType.HeaderItem:
                 return ControlType.HeaderItem;
-            case WinControlType.HyperLink:
+            case WinControlType.Hyperlink:
                 return ControlType.Hyperlink;
             case WinControlType.Image:
                 return ControlType.Image;
