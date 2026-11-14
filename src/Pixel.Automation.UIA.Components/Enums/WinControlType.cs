@@ -32,7 +32,7 @@ public enum WinControlType
     Group,
     Edit,
     HeaderItem,
-    HyperLink,
+    Hyperlink,
     Image,
     List,
     ListItem,
