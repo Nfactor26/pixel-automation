@@ -280,6 +280,8 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         Order = TestFixtures.Count() + 1,
                         TestFixtureEntity = new TestFixtureEntity()
                     };
+                    newTestFixture.TestFixtureEntity.Tag = newTestFixture.FixtureId;
+
                     TestFixtureViewModel testFixtureVM = new TestFixtureViewModel(newTestFixture)
                     {
                         PostDelay = applicationSettings.PostDelay,
@@ -663,6 +665,7 @@ namespace Pixel.Automation.TestExplorer.ViewModels
                         Order = fixtureVM.Tests.Count() + 1,
                         TestCaseEntity = new TestCaseEntity() { Name = $"Test#{fixtureVM.Tests.Count() + 1}" }
                     };
+                    testCase.TestCaseEntity.Tag = testCase.TestCaseId;
 
                     var testCaseEditor = new EditTestCaseViewModel(testCase, fixtureVM.Tests.Select(s => s.DisplayName));
                     bool? result = await this.windowManager.ShowDialogAsync(testCaseEditor);
